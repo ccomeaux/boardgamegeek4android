@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Settings">
+        <CheckBoxPreference
+            android:key="imageLoad"
+            android:defaultValue="true"
+			android:title="Load Images"  
+			android:summary="Disable this to improve performance over a slow connection"
+		/>
+   	   <CheckBoxPreference
+            android:key="exactSearch"
+            android:defaultValue="true"
+			android:title="Exact Search"  
+			android:summary="Disable this to get more search results or do partial-name searches"
+		/>
+	</PreferenceCategory>
+</PreferenceScreen>

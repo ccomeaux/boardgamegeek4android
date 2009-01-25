@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BoardGameGeek</string>
+    <string name="special_thanks">Nicolas Gramlich (plusminus) and www.anddev.org\n\nMatthew Gray (mkgray) and www.boardgamegeek.com\n\nMark L. Murphy\n\nRomain Guy\n\nYour help was invaluable, although you had no way of knowing it.  Thanks!\n\nDennis Bond</string>
+</resources>
