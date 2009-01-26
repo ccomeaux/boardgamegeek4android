@@ -37,6 +37,7 @@ public class ViewBoardGameList extends ListActivity
     String DEBUG_TAG = "BoardGameGeek DEBUG:";
 	private SharedPreferences preferences;
     boolean exactSearch;
+	boolean first_pass = true;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState)
@@ -45,8 +46,8 @@ public class ViewBoardGameList extends ListActivity
     
         //get preferences
         getPreferences();
-        
-       	// call the xml layout
+       	
+    	// call the xml layout
         this.setContentView(R.layout.viewboardgamelist);
         
         getBoardGameList();
@@ -58,7 +59,7 @@ public class ViewBoardGameList extends ListActivity
         super.onResume();
     
         //get preferences
-        getPreferences();
+        getPreferences();	
     }
     
 	private void getBoardGameList()
@@ -70,7 +71,11 @@ public class ViewBoardGameList extends ListActivity
 		gameListItems = new HashMap<String, String>();
 		
 		// display a progress dialog while fetching the game data
-        progress = ProgressDialog.show(this, "Searching...", "Connecting to site...", true, false);
+        if (first_pass)
+        	progress = ProgressDialog.show(this, "Searching...", "Connecting to site...", true, false);
+        else
+        	progress = ProgressDialog.show(this, "No Results...", "Trying wider search...", true, false);
+        	
         new Thread() {
         	public void run()
         	{
@@ -78,7 +83,7 @@ public class ViewBoardGameList extends ListActivity
         		{
         			// set url
         			String query_url = "http://www.boardgamegeek.com/xmlapi/search?search="+query;
-        			if (exactSearch)
+        			if (exactSearch && first_pass)
         				query_url += "&exact=1";
 
         			URL url = new URL(query_url.replace(" ", "%20"));
@@ -118,23 +123,35 @@ public class ViewBoardGameList extends ListActivity
     {
 		// iterate through search results and add to game list
 		int count = Integer.parseInt(boardGameList.getCount());
-		if (count == 0)
+		if (count == 0 && exactSearch && first_pass)
+		{
+			// try again if exactsearch is on and no results were found
+			progress.dismiss();
+			first_pass = false;
+	        getBoardGameList();
+		}
+		else if (count == 0 && (!exactSearch || !first_pass))
+		{
+			// display if no results are found
 			gameListItems.put("No Results Found", "20115");
+			progress.dismiss();
+		}
 		else
+		{
+			// display results
 			for (int i = 0; i < count; i++)
 			{
 				BoardGame boardGame = boardGameList.elementAt(i);
 				if (boardGame.getYearPublished().equals("0"))
 					gameListItems.put(boardGame.getName(), boardGame.getGameID());	
 				else
-					gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());	
+					gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
 			}
-        
+			progress.dismiss();
+		}
+		
         // display game list
         this.setListAdapter( new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>(gameListItems.keySet())) );
-        
-        // dismiss the progress dialog
-    	progress.dismiss();
     }
 	
 	public void onListItemClick(ListView l, View v, int position, long id)
