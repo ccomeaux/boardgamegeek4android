@@ -38,7 +38,7 @@ import android.widget.TextView;
 public class ViewBoardGame extends Activity
 {	
 	// declare variables
-	private BoardGame boardGame;
+	private BoardGame boardGame = null;
 	private ProgressDialog progress;
 	private Drawable thumbnail_drawable;
     final Handler handler = new Handler();

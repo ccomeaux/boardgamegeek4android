@@ -13,5 +13,11 @@
 			android:title="Exact Search"  
 			android:summary="Disable this to get more search results or do partial-name searches"
 		/>
+   	   <CheckBoxPreference
+            android:key="skipResults"
+            android:defaultValue="true"
+			android:title="Skip Results"  
+			android:summary="Disable this to stop at the results page even if there is only one search result"
+		/>
 	</PreferenceCategory>
 </PreferenceScreen>

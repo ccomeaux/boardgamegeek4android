@@ -37,6 +37,7 @@ public class ViewBoardGameList extends ListActivity
     String DEBUG_TAG = "BoardGameGeek DEBUG:";
 	private SharedPreferences preferences;
     boolean exactSearch;
+    boolean skipResults;
 	boolean first_pass = true;
 	
 	@Override
@@ -150,9 +151,16 @@ public class ViewBoardGameList extends ListActivity
 			progress.dismiss();
 		}
 		
-        // display game list
-        this.setListAdapter( new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>(gameListItems.keySet())) );
-    }
+		// display game list
+		this.setListAdapter( new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>(gameListItems.keySet())) );
+	    
+        // skip directly  to game if only one result
+		if (count == 1 && skipResults)
+		{
+			BoardGame boardGame = boardGameList.elementAt(0);
+			viewBoardGame(boardGame.getGameID());
+		}
+	}
 	
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
@@ -207,5 +215,6 @@ public class ViewBoardGameList extends ListActivity
     {
     	preferences = PreferenceManager.getDefaultSharedPreferences(this);
         exactSearch = preferences.getBoolean("exactSearch", true);
+        skipResults = preferences.getBoolean("skipResults", true);
     }
 }
