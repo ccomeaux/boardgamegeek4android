@@ -1,8 +1,7 @@
 package com.boardgamegeek;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -85,10 +84,10 @@ public class BoardGameGeek extends Activity
         		startActivity(new Intent(this, Preferences.class));          
         		return true;
         	case R.id.credits:
-                Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Special thanks to:");
-                builder.setMessage(R.string.special_thanks); 
-                builder.show();
+        		Dialog dialog = new Dialog(this);
+        		dialog.setContentView(R.layout.dialog);
+        		dialog.setTitle(R.string.thanks_title);
+        		dialog.show();
                 return true;
         }
         return false;

@@ -16,9 +16,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -310,10 +309,10 @@ public class ViewBoardGame extends Activity
         		startActivity(new Intent(this, Preferences.class));          
         		return true;
         	case R.id.credits:
-                Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Special thanks to:");
-                builder.setMessage(R.string.special_thanks); 
-                builder.show();
+        		Dialog dialog = new Dialog(this);
+        		dialog.setContentView(R.layout.dialog);
+        		dialog.setTitle(R.string.thanks_title);
+        		dialog.show();
                 return true;
         }
         return false;
