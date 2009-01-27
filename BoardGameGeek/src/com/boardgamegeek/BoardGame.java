@@ -161,7 +161,7 @@ public class BoardGame
     		 if (!this.age.equals("0"))
     			 game_info += this.age + " and up";
     		 game_info += "\n";
-
+    		 
     		 game_info += "GameID: " + this.gameid;
     	 }
     	 return game_info;
