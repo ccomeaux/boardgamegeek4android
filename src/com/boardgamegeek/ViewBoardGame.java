@@ -131,8 +131,8 @@ public class ViewBoardGame extends Activity
 		{
 	    	Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle("Searching...");
-			dialog.setMessage("Connecting to site...");
+			dialog.setTitle("Working...");
+			dialog.setMessage("Downloading game data...");
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
