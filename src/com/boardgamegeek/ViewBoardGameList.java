@@ -49,9 +49,10 @@ public class ViewBoardGameList extends ListActivity
         //get preferences
         getPreferences();
        	
-    	// call the xml layout
+    	// call xml layout
         this.setContentView(R.layout.viewboardgamelist);
         
+        // get search results
         getBoardGameList();
    	}
 
@@ -69,7 +70,10 @@ public class ViewBoardGameList extends ListActivity
     protected void onSaveInstanceState(Bundle outState)
     {
     	Log.d(DEBUG_TAG, "onSaveInstanceState");
+    	
+    	// remove progress dialog (if any)
     	removeDialogs();
+    	
     	super.onSaveInstanceState(outState);
     } 
     
@@ -155,22 +159,11 @@ public class ViewBoardGameList extends ListActivity
 	// remove dialog boxes
 	protected void removeDialogs()
 	{
-		// remove progress dialog (if any)
 		try { removeDialog(ID_DIALOG_SEARCHING); Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Removed"); }
 		catch (Exception e) { Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e); }
 		try { removeDialog(ID_DIALOG_RETRY); Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Removed"); }
 		catch (Exception e) { Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Remove Failed", e); } 
 	}
-
-	// get results from handler
-    final Runnable cancelResults = new Runnable()
-    {
-        public void run()
-        {
-	    	Log.d(DEBUG_TAG, "ATTEMPTING TO REMOVE DIALOGS");
-            removeDialogs();
-        }
-    };
     
 	// get results from handler
     final Runnable updateResults = new Runnable()

@@ -38,7 +38,7 @@ public class ViewBoardGame extends Activity
 {	
 	// declare variables
 	private BoardGame boardGame = null;
-	private ProgressDialog progress;
+	private final int ID_DIALOG_SEARCHING = 1;
 	private Drawable thumbnail_drawable;
     final Handler handler = new Handler();
     private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
@@ -70,14 +70,26 @@ public class ViewBoardGame extends Activity
         getPreferences();
     }
     
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+    	Log.d(DEBUG_TAG, "onSaveInstanceState");
+    	
+    	// remove progress dialog (if any)
+    	removeDialogs();
+    	
+    	super.onSaveInstanceState(outState);
+    }
+    
 	private void getBoardGame()
 	{
 		// get the game id from the intent
        	final String game_id = getIntent().getExtras().getString("GAME_ID");
     	
        	// display a progress dialog while fetching the game data
-        progress = ProgressDialog.show(this, "Working...", "Downloading game data...", true, false);
-        new Thread()
+    	showDialog(ID_DIALOG_SEARCHING);
+    	
+    	new Thread()
         {
         	public void run()
         	{
@@ -109,6 +121,31 @@ public class ViewBoardGame extends Activity
         		handler.post(updateResults);
             }
         }.start();
+	}
+	
+	// override progress dialog
+	@Override
+	protected Dialog onCreateDialog(int id)
+	{
+		if(id == ID_DIALOG_SEARCHING)
+		{
+	    	Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
+			ProgressDialog dialog = new ProgressDialog(this);
+			dialog.setTitle("Searching...");
+			dialog.setMessage("Connecting to site...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(true);
+			return dialog;
+		}
+
+		return super.onCreateDialog(id);
+	}
+
+	// remove dialog boxes
+	protected void removeDialogs()
+	{
+		try { removeDialog(ID_DIALOG_SEARCHING); Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Removed"); }
+		catch (Exception e) { Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e); }
 	}
 	
 	// get results from handler
@@ -227,8 +264,8 @@ public class ViewBoardGame extends Activity
     	information.setText(gameInfo);
     	description.setText(gameDescription);
     	
-    	// dismiss the progress dialog
-    	progress.dismiss();
+    	// remove progress dialog (if any)
+		removeDialogs();
     }
     
 	private Drawable getImage(String url)
