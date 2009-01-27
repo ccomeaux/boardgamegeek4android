@@ -31,9 +31,10 @@ public class ViewBoardGameList extends ListActivity
 	// declare variables
 	private BoardGameList boardGameList;
 	HashMap<String, String> gameListItems = new HashMap<String, String>();
-	private ProgressDialog progress;
-    final Handler handler = new Handler();
-    String DEBUG_TAG = "BoardGameGeek DEBUG:";
+	private final int ID_DIALOG_SEARCHING = 1;
+	private final int ID_DIALOG_RETRY = 2;
+    private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
+    Handler handler = new Handler();
 	private SharedPreferences preferences;
     boolean exactSearch;
     boolean skipResults;
@@ -43,7 +44,8 @@ public class ViewBoardGameList extends ListActivity
     public void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
-    
+    	Log.d(DEBUG_TAG, "onCreate");
+    	
         //get preferences
         getPreferences();
        	
@@ -57,13 +59,24 @@ public class ViewBoardGameList extends ListActivity
     public void onResume()
     {
         super.onResume();
-    
+    	Log.d(DEBUG_TAG, "onResume");
+    	
         //get preferences
         getPreferences();	
     }
     
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+    	Log.d(DEBUG_TAG, "onSaveInstanceState");
+    	removeDialogs();
+    	super.onSaveInstanceState(outState);
+    } 
+    
 	private void getBoardGameList()
 	{
+    	Log.d(DEBUG_TAG, "getBoardGameList");
+    	
         // get the query from the intent
     	final String query = getIntent().getExtras().getString("QUERY");
     	
@@ -72,15 +85,17 @@ public class ViewBoardGameList extends ListActivity
 		
 		// display a progress dialog while fetching the game data
         if (first_pass)
-        	progress = ProgressDialog.show(this, "Searching...", "Connecting to site...", true, false);
+        	showDialog(ID_DIALOG_SEARCHING);
         else
-        	progress = ProgressDialog.show(this, "No Results...", "Trying wider search...", true, false);
-        	
+        	showDialog(ID_DIALOG_RETRY);
+        
         new Thread() {
         	public void run()
         	{
         		try
         		{
+        	    	Log.d(DEBUG_TAG, "PULLING XML");
+        	    	
         			// set url
         			String query_url = "http://www.boardgamegeek.com/xmlapi/search?search="+query;
         			if (exactSearch && first_pass)
@@ -102,13 +117,61 @@ public class ViewBoardGameList extends ListActivity
         		}
         		catch (Exception e)
         		{
-        			Log.d(DEBUG_TAG, "Exception", e);
+        			Log.d(DEBUG_TAG, "PULLING XML - Failed", e);
         		}
         		handler.post(updateResults);
             }
         }.start();
 	}
 	
+	// override progress dialog
+	@Override
+	protected Dialog onCreateDialog(int id)
+	{
+		if(id == ID_DIALOG_SEARCHING)
+		{
+	    	Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
+			ProgressDialog dialog = new ProgressDialog(this);
+			dialog.setTitle("Searching...");
+			dialog.setMessage("Connecting to site...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(true);
+			return dialog;
+		}
+		else if(id == ID_DIALOG_RETRY)
+		{
+	    	Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Created");
+			ProgressDialog dialog = new ProgressDialog(this);
+			dialog.setTitle("No results...");
+			dialog.setMessage("Trying wider search...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(true);
+			return dialog;
+		}
+
+		return super.onCreateDialog(id);
+	}
+
+	// remove dialog boxes
+	protected void removeDialogs()
+	{
+		// remove progress dialog (if any)
+		try { removeDialog(ID_DIALOG_SEARCHING); Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Removed"); }
+		catch (Exception e) { Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e); }
+		try { removeDialog(ID_DIALOG_RETRY); Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Removed"); }
+		catch (Exception e) { Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Remove Failed", e); } 
+	}
+
+	// get results from handler
+    final Runnable cancelResults = new Runnable()
+    {
+        public void run()
+        {
+	    	Log.d(DEBUG_TAG, "ATTEMPTING TO REMOVE DIALOGS");
+            removeDialogs();
+        }
+    };
+    
 	// get results from handler
     final Runnable updateResults = new Runnable()
     {
@@ -125,19 +188,29 @@ public class ViewBoardGameList extends ListActivity
 		int count = Integer.parseInt(boardGameList.getCount());
 		if (count == 0 && exactSearch && first_pass)
 		{
+	    	Log.d(DEBUG_TAG, "RETRY SEARCH");
+			
+	    	// remove progress dialog (if any)
+			removeDialogs();
+	    	
 			// try again if exactsearch is on and no results were found
-			progress.dismiss();
 			first_pass = false;
 	        getBoardGameList();
 		}
 		else if (count == 0 && (!exactSearch || !first_pass))
 		{
+	    	Log.d(DEBUG_TAG, "NO RESULTS");
+	    	
 			// display if no results are found
 			gameListItems.put("No Results Found", "20115");
-			progress.dismiss();
+
+	    	// remove progress dialog (if any)
+			removeDialogs(); 
 		}
 		else
 		{
+	    	Log.d(DEBUG_TAG, "DISPLAY RESULTS");
+	    	
 			// display results
 			for (int i = 0; i < count; i++)
 			{
@@ -147,12 +220,14 @@ public class ViewBoardGameList extends ListActivity
 				else
 					gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
 			}
-			progress.dismiss();
+
+	    	// remove progress dialog (if any)
+			removeDialogs();
 		}
-		
+    
 		// display game list
 		this.setListAdapter( new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>(gameListItems.keySet())) );
-	    
+		
         // skip directly  to game if only one result
 		if (count == 1 && skipResults)
 		{
@@ -161,6 +236,7 @@ public class ViewBoardGameList extends ListActivity
 		}
 	}
 	
+	// gets the game id from the list item when clicked
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
 		// get the game id using the name as a key
@@ -168,6 +244,7 @@ public class ViewBoardGameList extends ListActivity
 		viewBoardGame(game_id);
 	}  
 	
+	// calls the board game intent
 	public void viewBoardGame(String game_id)
 	{
 		Intent myIntent = new Intent();
