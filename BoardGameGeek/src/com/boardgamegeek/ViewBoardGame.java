@@ -41,7 +41,7 @@ public class ViewBoardGame extends Activity
 	private ProgressDialog progress;
 	private Drawable thumbnail_drawable;
     final Handler handler = new Handler();
-    final String DEBUG_TAG = "BoardGameGeek DEBUG:";
+    private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private SharedPreferences preferences;
 	boolean imageLoad;
