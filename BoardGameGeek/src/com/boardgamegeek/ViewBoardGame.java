@@ -358,7 +358,7 @@ public class ViewBoardGame extends Activity
     public void getPreferences()
     {
     	preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        //imageLoad = preferences.getBoolean("imageLoad", true);
+        imageLoad = preferences.getBoolean("imageLoad", true);
     	imageLoad = false;
     }
 }
