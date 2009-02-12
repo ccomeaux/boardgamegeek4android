@@ -5,7 +5,6 @@ import java.util.Vector;
 
 public class BoardGameList
 {
-	private String count = null;
 	private List<BoardGame> boardGameList = new Vector<BoardGame>(0);
 	
 	void addItem(BoardGame boardGame)
@@ -19,13 +18,9 @@ public class BoardGameList
 	}
 	
     // results count
-    public String getCount()
+    public int getCount()
     {
-         return count;
-    }
-    public void setCount(String count)
-    {
-         this.count = count;
+         return boardGameList.size();
     }
 
 	public BoardGame elementAt(int i)

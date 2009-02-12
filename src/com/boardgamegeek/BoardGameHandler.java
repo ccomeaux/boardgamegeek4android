@@ -2,7 +2,7 @@ package com.boardgamegeek;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler; 
+import org.xml.sax.helpers.DefaultHandler;
 
 public class BoardGameHandler extends DefaultHandler
 {     
@@ -32,9 +32,9 @@ public class BoardGameHandler extends DefaultHandler
     	 // use this to keep track of where we are
     	 current_tag = localName;
  
-    	 if (localName.equals("game"))
+    	 if (localName.equals("boardgame"))
     	 {
-    		 String atts_gameid = atts.getValue("gameid");
+    		 String atts_gameid = atts.getValue("objectid");
     		 boardGame.setGameID(atts_gameid);
     	 }
      }

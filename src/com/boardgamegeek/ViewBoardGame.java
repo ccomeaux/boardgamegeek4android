@@ -96,7 +96,7 @@ public class ViewBoardGame extends Activity
         		try
         		{
         			// set url
-        			URL url = new URL("http://www.boardgamegeek.com/xmlapi/game/"+game_id+"&stats=1");
+        			URL url = new URL("http://www.boardgamegeek.com/xmlapi/boardgame/"+game_id+"&stats=1");
 
         			// create a new sax parser and get an xml reader from it
         			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -358,6 +358,7 @@ public class ViewBoardGame extends Activity
     public void getPreferences()
     {
     	preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        imageLoad = preferences.getBoolean("imageLoad", true);
+        //imageLoad = preferences.getBoolean("imageLoad", true);
+    	imageLoad = false;
     }
 }
