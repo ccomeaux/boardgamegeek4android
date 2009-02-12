@@ -33,15 +33,10 @@ public class BoardGameListHandler extends DefaultHandler
     	 // use this to keep track of where we are
     	 current_tag = localName;
  
-    	 if (localName.equals("games"))
-    	 {
-    		 String atts_count = atts.getValue("count");
-    		 boardGameList.setCount(atts_count);
-    	 }
-    	 else if (localName.equals("game"))
+    	 if (localName.equals("boardgame"))
     	 {
     		 boardGame = new BoardGame();
-    		 String atts_gameid = atts.getValue("gameid");
+    		 String atts_gameid = atts.getValue("objectid");
     		 boardGame.setGameID(atts_gameid);
     		 String atts_year = atts.getValue("yearpublished");
     		 boardGame.setYearPublished(atts_year);
@@ -54,7 +49,7 @@ public class BoardGameListHandler extends DefaultHandler
     	 current_tag = "";
     	 
     	 // add to the list if we are done parsing a game
-    	 if (localName.equals("game"))
+    	 if (localName.equals("boardgame"))
     	 {
     		 boardGameList.addItem(boardGame);
     		 primary = true;

@@ -157,10 +157,10 @@ public class BoardGame
     			 game_info += this.playingtime + " minutes";
     		 game_info += "\n";
     		 
-    		 game_info += "Ages: ";
-    		 if (!this.age.equals("0"))
-    			 game_info += this.age + " and up";
-    		 game_info += "\n";
+    		 //game_info += "Ages: ";
+    		 //if (!this.age.equals("0"))
+    		 //	 game_info += this.age + " and up";
+    		 //game_info += "\n";
     		 
     		 game_info += "GameID: " + this.gameid;
     	 }

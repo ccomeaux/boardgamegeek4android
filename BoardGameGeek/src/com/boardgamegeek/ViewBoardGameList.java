@@ -178,7 +178,7 @@ public class ViewBoardGameList extends ListActivity
 	private void updateUI()
     {
 		// iterate through search results and add to game list
-		int count = Integer.parseInt(boardGameList.getCount());
+		int count = boardGameList.getCount();
 		if (count == 0 && exactSearch && first_pass)
 		{
 	    	Log.d(DEBUG_TAG, "RETRY SEARCH");
@@ -208,10 +208,12 @@ public class ViewBoardGameList extends ListActivity
 			for (int i = 0; i < count; i++)
 			{
 				BoardGame boardGame = boardGameList.elementAt(i);
-				if (boardGame.getYearPublished().equals("0"))
-					gameListItems.put(boardGame.getName(), boardGame.getGameID());	
-				else
-					gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
+				
+				gameListItems.put(boardGame.getName()+" (ID# "+boardGame.getGameID()+")", boardGame.getGameID());
+				//if (boardGame.getYearPublished().equals("0"))
+				//	gameListItems.put(boardGame.getName(), boardGame.getGameID());
+				//else
+				//	gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
 			}
 
 	    	// remove progress dialog (if any)
