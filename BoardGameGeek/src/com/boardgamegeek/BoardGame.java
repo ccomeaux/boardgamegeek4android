@@ -118,21 +118,24 @@ public class BoardGame
      }
      
      // thumbnail image
+     // note: thumbnail currently has a null character in front,
+     // so we take only the last character value parsed by the handler
      public String getThumbnail() {
          return thumbnail;
      }
      public void setThumbnail(String thumbnail) {
-         this.thumbnail = thumbnail;
+    	 this.thumbnail = thumbnail;
      }     
      
      // game description
      public String getDescription() {
+    	 // need to convert from html due to a few &amp; characters here and there
     	 String nonhtml_description = Html.fromHtml(this.description).toString();
     	 nonhtml_description = nonhtml_description.replace("\n\n", "\n");
          return nonhtml_description;
      }
      public void setDescription(String description) {
-         this.description += description;
+    	 this.description += description;
      }
      
      public String getGameInfo() {
@@ -157,6 +160,7 @@ public class BoardGame
     			 game_info += this.playingtime + " minutes";
     		 game_info += "\n";
     		 
+    		 // currently not supported by the api
     		 //game_info += "Ages: ";
     		 //if (!this.age.equals("0"))
     		 //	 game_info += this.age + " and up";
