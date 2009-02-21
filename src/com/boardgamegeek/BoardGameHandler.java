@@ -11,6 +11,7 @@ public class BoardGameHandler extends DefaultHandler
      private String current_tag = "";
      private Boolean primary = true;
      private Boolean is_name = false;
+     private Boolean is_thumbnail = false;
      private Boolean is_description = false;
      
      // returns object after parsing
@@ -45,6 +46,8 @@ public class BoardGameHandler extends DefaultHandler
     	 current_tag = "";
     	 if (localName.equals("name"))
     		 is_name = false;
+    	 else if (localName.equals("thumbnail"))
+    		 is_thumbnail = false;
     	 else if (localName.equals("description"))
     		 is_description = false;
      }
@@ -61,6 +64,11 @@ public class BoardGameHandler extends DefaultHandler
     	 else if (is_name)
     		 boardGame.setName(new String(ch, start, length));
     	 else if (current_tag.equals("thumbnail"))
+    	 {
+    		 boardGame.setThumbnail(new String(ch, start, length));
+    		 is_thumbnail = true;
+    	 }
+    	 else if (is_thumbnail)
     		 boardGame.setThumbnail(new String(ch, start, length));
     	 else if (current_tag.equals("description"))
     	 {
