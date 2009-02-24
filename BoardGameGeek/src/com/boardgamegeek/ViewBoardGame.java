@@ -112,7 +112,7 @@ public class ViewBoardGame extends Activity
         			
         			// get the image as a drawable, since that takes a while
         			if (imageLoad)
-        				thumbnail_drawable = getImage( boardGame.getThumbnailURL() );
+        				thumbnail_drawable = getImage( boardGame.getThumbnail() );
         		}
         		catch (Exception e)
         		{
@@ -183,7 +183,11 @@ public class ViewBoardGame extends Activity
     	
     	// get the game information from the object
 		String gameTitle = boardGame.getName();
-		String gameRank = "Rank: "+boardGame.getRank();
+		String gameRank = "Rank: ";
+		if (boardGame.getRank().equals("0"))
+			gameRank += "N/A";
+		else
+			gameRank += boardGame.getRank();
 		String gameRating = "User Rating: "+boardGame.getRating()+" / 10 ("+boardGame.getNumRatings()+" Ratings)";
 		float gameNumericRating = boardGame.getNumericRating();
 		String gameInfo = boardGame.getGameInfo();
@@ -193,7 +197,7 @@ public class ViewBoardGame extends Activity
 		title.setText(gameTitle);
 		rank.setText(gameRank);
 		if (imageLoad)
-			if (thumbnail_drawable != null)
+			if (thumbnail_drawable != null && !boardGame.getThumbnail().equals("") )
 				thumbnail.setImageDrawable(thumbnail_drawable);
 			else
 				thumbnail.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
@@ -260,6 +264,7 @@ public class ViewBoardGame extends Activity
     		star10.setImageDrawable(halfstar);
     	else
     		star10.setImageDrawable(nostar);
+    	
     	// display rest of information
     	information.setText(gameInfo);
     	description.setText(gameDescription);

@@ -118,7 +118,7 @@ public class BoardGame
      }
      
      // thumbnail image
-     // note: thumbnail currently has a null character in front,
+     // note: thumbnail my have a null character in front,
      // so we take only the last character value parsed by the handler
      public String getThumbnail() {
          return thumbnail;
@@ -160,18 +160,13 @@ public class BoardGame
     			 game_info += this.playingtime + " minutes";
     		 game_info += "\n";
     		 
-    		 // currently not supported by the api
-    		 //game_info += "Ages: ";
-    		 //if (!this.age.equals("0"))
-    		 //	 game_info += this.age + " and up";
-    		 //game_info += "\n";
+    		 game_info += "Ages: ";
+    		 if (!this.age.equals("0"))
+    		 	 game_info += this.age + " and up";
+    		 game_info += "\n";
     		 
     		 game_info += "GameID: " + this.gameid;
     	 }
     	 return game_info;
-     }
-     
-     public String getThumbnailURL() {
-         return this.thumbnail;
      }
 }
