@@ -178,7 +178,10 @@ public class ViewBoardGameList extends ListActivity
 	private void updateUI()
     {
 		// iterate through search results and add to game list
-		int count = boardGameList.getCount();
+		int count = 0;
+		// catch this in case BGG is down or the API does not respond
+		try { count = boardGameList.getCount(); }
+		catch (Exception e) { Log.d(DEBUG_TAG, "UPDATE_UI - Getting Count Failed", e); }
 		if (count == 0 && exactSearch && first_pass)
 		{
 	    	Log.d(DEBUG_TAG, "RETRY SEARCH");
