@@ -20,6 +20,8 @@ public class BoardGame
      private String num_ratings = null;
      private String thumbnail = null;
      private String description = "";
+     private String users_wanting = null;
+     private String users_trading = null;
 
      // game id
      public String getGameID() {
@@ -138,6 +140,18 @@ public class BoardGame
     	 this.description += description;
      }
      
+     public String getUsersWanting() {
+    	 return users_wanting;
+     }
+     public void setUsersWanting(String users_wanting) {
+         this.users_wanting = users_wanting;
+     }
+     public String getUsersTrading() {
+    	 return users_trading;
+     }
+     public void setUsersTrading(String users_trading) {
+         this.users_trading = users_trading;
+     }
      public String getGameInfo() {
     	 String game_info = "";
     	 getPlayers();
@@ -163,6 +177,16 @@ public class BoardGame
     		 game_info += "Ages: ";
     		 if (!this.age.equals("0"))
     		 	 game_info += this.age + " and up";
+    		 game_info += "\n";
+    		 
+    		 game_info += "Users wanting: ";
+       		 if (!this.users_wanting.equals("0"))
+    		 	 game_info += this.users_wanting;
+    		 game_info += "\n";
+    		 
+    		 game_info += "Users trading: ";
+    		 if (!this.users_trading.equals("0"))
+    		 	 game_info += this.users_trading;
     		 game_info += "\n";
     		 
     		 game_info += "GameID: " + this.gameid;

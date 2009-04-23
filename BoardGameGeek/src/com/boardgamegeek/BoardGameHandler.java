@@ -93,5 +93,9 @@ public class BoardGameHandler extends DefaultHandler
     		 boardGame.setRating(new String(ch, start, length));
     	 else if (current_tag.equals("rank"))
     		 boardGame.setRank(new String(ch, start, length));
+    	 else if (current_tag.equals("wanting"))
+    		 boardGame.setUsersWanting(new String(ch, start, length));
+    	 else if (current_tag.equals("trading"))
+    		 boardGame.setUsersTrading(new String(ch, start, length));
      }
 }
