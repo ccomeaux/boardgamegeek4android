@@ -38,8 +38,6 @@ public class BoardGameListHandler extends DefaultHandler
     		 boardGame = new BoardGame();
     		 String atts_gameid = atts.getValue("objectid");
     		 boardGame.setGameID(atts_gameid);
-    		 String atts_year = atts.getValue("yearpublished");
-    		 boardGame.setYearPublished(atts_year);
     	 }
      }
      
@@ -69,5 +67,7 @@ public class BoardGameListHandler extends DefaultHandler
     	 }
     	 else if (is_name)
     		 boardGame.setName(new String(ch, start, length));
+    	 else if (current_tag.equals("yearpublished"))
+    		 boardGame.setYearPublished(new String(ch, start, length));
      }
 }
