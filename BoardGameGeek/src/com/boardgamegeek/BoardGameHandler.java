@@ -13,6 +13,7 @@ public class BoardGameHandler extends DefaultHandler
      private Boolean is_name = false;
      private Boolean is_thumbnail = false;
      private Boolean is_description = false;
+     private Boolean is_rank = false;
      
      // returns object after parsing
      public BoardGame getBoardGame() { return boardGame; }
@@ -38,6 +39,12 @@ public class BoardGameHandler extends DefaultHandler
     		 String atts_gameid = atts.getValue("objectid");
     		 boardGame.setGameID(atts_gameid);
     	 }
+    	 if (localName.equals("rank"))
+    	 {
+    		 String atts_ranktype = atts.getValue("type");
+    		 if (atts_ranktype.equals("boardgame"))
+    			 is_rank = true;
+    	 }
      }
      
      @Override
@@ -50,6 +57,8 @@ public class BoardGameHandler extends DefaultHandler
     		 is_thumbnail = false;
     	 else if (localName.equals("description"))
     		 is_description = false;
+    	 else if (localName.equals("rank"))
+    		 is_rank = false;
      }
      
      @Override
@@ -91,7 +100,7 @@ public class BoardGameHandler extends DefaultHandler
     		 boardGame.setNumRatings(new String(ch, start, length));
     	 else if (current_tag.equals("average"))
     		 boardGame.setRating(new String(ch, start, length));
-    	 else if (current_tag.equals("rank"))
+    	 else if (is_rank)
     		 boardGame.setRank(new String(ch, start, length));
     	 else if (current_tag.equals("wanting"))
     		 boardGame.setUsersWanting(new String(ch, start, length));
