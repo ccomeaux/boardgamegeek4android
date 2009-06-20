@@ -58,9 +58,6 @@ public class ViewBoardGame extends Activity
         
         // get the board game
         getBoardGame();
-        
-       	// call the xml layout
-        this.setContentView(R.layout.viewboardgame);
 	}
 
     @Override
@@ -78,9 +75,6 @@ public class ViewBoardGame extends Activity
 
     	if (viewLoaded)
     	{
-    		// call the xml layout
-    		this.setContentView(R.layout.viewboardgame);
-        
     		// update the UI
     		updateUI();
     	}
@@ -176,6 +170,9 @@ public class ViewBoardGame extends Activity
 	// updates ui after running progress dialog
     private void updateUI()
     {
+       	// call the xml layout
+        this.setContentView(R.layout.viewboardgame);
+        
     	// declare the gui variables
     	TextView title = (TextView) findViewById(R.id.title);
     	TextView rank = (TextView) findViewById(R.id.rank);
