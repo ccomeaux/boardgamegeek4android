@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">BoardGameGeek</string>
     <string name="thanks_title">Special thanks to:</string>
-    <string name="thanks_text">Matthew Gray (mkgray) and www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang\n\nYour help was invaluable, although you had no way of knowing it.  Thanks!\n\nDennis Bond</string>
+    <string name="thanks_text">Scott Alden (aldie) and www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang</string>
 </resources>

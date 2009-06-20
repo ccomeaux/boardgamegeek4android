@@ -46,6 +46,7 @@ public class ViewBoardGame extends Activity
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 	private SharedPreferences preferences;
 	boolean imageLoad;
+    boolean viewLoaded = false;
     
 	@Override
     public void onCreate(Bundle savedInstanceState)
@@ -55,11 +56,11 @@ public class ViewBoardGame extends Activity
         //get preferences
         getPreferences();
         
-       	// call the xml layout
-        this.setContentView(R.layout.viewboardgame);
-        
         // get the board game
         getBoardGame();
+        
+       	// call the xml layout
+        this.setContentView(R.layout.viewboardgame);
 	}
 
     @Override
@@ -75,11 +76,14 @@ public class ViewBoardGame extends Activity
     {
     	super.onConfigurationChanged(newConfig);
 
-    	// call the xml layout
-        this.setContentView(R.layout.viewboardgame);
+    	if (viewLoaded)
+    	{
+    		// call the xml layout
+    		this.setContentView(R.layout.viewboardgame);
         
-        // update the UI
-        updateUI();
+    		// update the UI
+    		updateUI();
+    	}
     }
         
     @Override
@@ -283,6 +287,8 @@ public class ViewBoardGame extends Activity
     	
     	// remove progress dialog (if any)
 		removeDialogs();
+		
+		viewLoaded = true;
     }
     
 	private Drawable getImage(String url)
