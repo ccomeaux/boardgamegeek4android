@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -41,14 +43,19 @@ public class BoardGameGeek extends Activity
         			viewBoardGameList();
             }
         });
-        textbox.setOnClickListener(new OnClickListener()
+        textbox.setOnKeyListener(new OnKeyListener()
         {
-        	public void onClick(View v)
-        	{
-        		query = textbox.getText().toString();
-        		if (!query.equals(""))
-        			viewBoardGameList();
-        	}
+        	public boolean onKey(View v, int keyCode, KeyEvent keyEvent)
+			{
+        		if (keyCode == KeyEvent.KEYCODE_ENTER)
+        		{
+            		query = textbox.getText().toString();
+            		if (!query.equals(""))
+            			viewBoardGameList();
+            		return true;
+                }
+        		return false;
+			}
         });
 	}
 	

@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -70,6 +71,17 @@ public class ViewBoardGame extends Activity
         getPreferences();
     }
     
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+    	super.onConfigurationChanged(newConfig);
+
+    	// call the xml layout
+        this.setContentView(R.layout.viewboardgame);
+        
+        // update the UI
+        updateUI();
+    }
+        
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
