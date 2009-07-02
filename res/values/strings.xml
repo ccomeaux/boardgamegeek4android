@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BoardGameGeek</string>
-    <string name="thanks_title">Special thanks to:</string>
-    <string name="thanks_text">Scott Alden (aldie) and www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang</string>
+	<string name="app_name">BoardGameGeek</string>
+	<string name="thanks_title">Special thanks to:</string>
+	<string name="thanks_text">Scott Alden (aldie) and
+		www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and
+		www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang</string>
+	<string name="tab_main">Main</string>
+	<string name="pref_imageLoad_title">Load Images</string>
+	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
+		connection</string>
+	<string name="pref_exactSearch_title">Exact Search</string>
+	<string name="pref_exactSearch_summary">Disable this to get more search results or do
+		partial-name searches</string>
+	<string name="pref_skipResults_title">Skip Results</string>
+	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
+		there is only one search result</string>
+	<string name="menu_reload">Reload</string>
+	<string name="menu_settings">Settings</string>
+	<string name="menu_credits">Credits</string>
+	<string name="title_text">BoardGameGeek.com</string>
+	<string name="search_text">Search</string>
+	<string name="dialog_search_title">Searching...</string>
+	<string name="dialog_search_message">Connecting to site...</string>
+	<string name="dialog_retry_title">No results...</string>
+	<string name="dialog_retry_message">Trying wider search...</string>
+	<string name="title_not_found">No Results Found</string>
+	<string name="dialog_working_title">Working...</string>
+	<string name="dialog_working_message">Downloading game data...</string>
+	<string name="rank">Rank</string>
+	<string name="not_available">N/A</string>
+	<string name="user_rating">User Rating</string>
 </resources>

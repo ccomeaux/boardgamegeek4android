@@ -130,8 +130,9 @@ public class ViewBoardGame extends Activity {
 		if (id == ID_DIALOG_SEARCHING) {
 			Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle("Working...");
-			dialog.setMessage("Downloading game data...");
+			dialog.setTitle(R.string.dialog_working_title);
+			dialog.setMessage(getResources().getString(
+					R.string.dialog_working_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -186,12 +187,13 @@ public class ViewBoardGame extends Activity {
 
 		// get the game information from the object
 		String gameTitle = boardGame.getName();
-		String gameRank = "Rank: ";
+		String gameRank = getResources().getString(R.string.rank) + ": ";
 		if (boardGame.getRank().equals("0"))
-			gameRank += "N/A";
+			gameRank += getResources().getString(R.string.not_available);
 		else
 			gameRank += boardGame.getRank();
-		String gameRating = "User Rating: " + boardGame.getRating() + " / 10 ("
+		String gameRating = getResources().getString(R.string.user_rating)
+				+ ": " + boardGame.getRating() + " / 10 ("
 				+ boardGame.getNumRatings() + " Ratings)";
 		float gameNumericRating = boardGame.getNumericRating();
 		String gameInfo = boardGame.getGameInfo();
