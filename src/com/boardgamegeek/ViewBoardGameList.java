@@ -13,6 +13,7 @@ import org.xml.sax.XMLReader;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,6 +47,9 @@ public class ViewBoardGameList extends ListActivity
         super.onCreate(savedInstanceState);
     	Log.d(DEBUG_TAG, "onCreate");
     	
+        // allow type-to-search
+        setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+        
         //get preferences
         getPreferences();
        	
@@ -82,7 +86,7 @@ public class ViewBoardGameList extends ListActivity
     	Log.d(DEBUG_TAG, "getBoardGameList");
     	
         // get the query from the intent
-    	final String query = getIntent().getExtras().getString("QUERY");
+    	final String query = getIntent().getExtras().getString(SearchManager.QUERY);
     	
 		// clear existing game list items
 		gameListItems = new HashMap<String, String>();
@@ -267,9 +271,8 @@ public class ViewBoardGameList extends ListActivity
     {
         switch (item.getItemId())
         {
-        	case R.id.reload:
-        		getPreferences();
-        		getBoardGameList();
+        	case R.id.search:
+        		onSearchRequested();
                 return true;
         	case R.id.settings:
         		startActivity(new Intent(this, Preferences.class));          

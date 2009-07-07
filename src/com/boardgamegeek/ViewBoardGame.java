@@ -53,6 +53,9 @@ public class ViewBoardGame extends Activity
 	{
         super.onCreate(savedInstanceState);
     
+        // allow type-to-search
+        setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+        
         //get preferences
         getPreferences();
         
@@ -358,9 +361,8 @@ public class ViewBoardGame extends Activity
     {
         switch (item.getItemId())
         {
-        	case R.id.reload:
-        		getPreferences();
-                getBoardGame();
+        	case R.id.search:
+        		onSearchRequested();
                 return true;
         	case R.id.settings:
         		startActivity(new Intent(this, Preferences.class));          
