@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="Settings">
-        <CheckBoxPreference
-            android:key="imageLoad"
-            android:defaultValue="true"
-			android:title="Load Images"  
-			android:summary="Disable this to improve performance over a slow connection"
-		/>
-   	   <CheckBoxPreference
-            android:key="exactSearch"
-            android:defaultValue="true"
-			android:title="Exact Search"  
-			android:summary="Disable this to get more search results or do partial-name searches"
-		/>
-   	   <CheckBoxPreference
-            android:key="skipResults"
-            android:defaultValue="true"
-			android:title="Skip Results"  
-			android:summary="Disable this to stop at the results page even if there is only one search result"
-		/>
+	<PreferenceCategory android:title="Settings">
+		<CheckBoxPreference android:key="imageLoad"
+			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
+			android:summary="@string/pref_imageLoad_summary" />
+		<CheckBoxPreference android:key="exactSearch"
+			android:defaultValue="true" android:title="@string/pref_exactSearch_title"
+			android:summary="@string/pref_exactSearch_summary" />
+		<CheckBoxPreference android:key="skipResults"
+			android:defaultValue="true" android:title="@string/pref_skipResults_title"
+			android:summary="@string/pref_skipResults_summary" />
 	</PreferenceCategory>
 </PreferenceScreen>

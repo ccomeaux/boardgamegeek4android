@@ -13,10 +13,9 @@
     <TextView android:id="@+id/title"
     	android:layout_width="fill_parent" 
     	android:layout_height="wrap_content"
-    	android:text="BoardGameGeek.com"
+    	android:text="@string/title_text"
         android:gravity="center_horizontal"
     	android:textSize="20sp"
     	android:textStyle="bold"
-    	android:paddingBottom="15sp"
     />
 </LinearLayout>

@@ -140,8 +140,8 @@ public class ViewBoardGameList extends ListActivity
 		{
 	    	Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle("Searching...");
-			dialog.setMessage("Connecting to site...");
+			dialog.setTitle(R.string.dialog_search_title);
+			dialog.setMessage(getResources().getString(R.string.dialog_search_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -150,8 +150,8 @@ public class ViewBoardGameList extends ListActivity
 		{
 	    	Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle("No results...");
-			dialog.setMessage("Trying wider search...");
+			dialog.setTitle(R.string.dialog_retry_title);
+			dialog.setMessage(getResources().getString(R.string.dialog_retry_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -202,7 +202,7 @@ public class ViewBoardGameList extends ListActivity
 	    	Log.d(DEBUG_TAG, "NO RESULTS");
 	    	
 			// display if no results are found
-			gameListItems.put("No Results Found", "20115");
+			gameListItems.put(getResources().getString(R.string.title_not_found), "20115");
 
 	    	// remove progress dialog (if any)
 			removeDialogs(); 
