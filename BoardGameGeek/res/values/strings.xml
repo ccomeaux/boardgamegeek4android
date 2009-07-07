@@ -3,4 +3,6 @@
     <string name="app_name">BoardGameGeek</string>
     <string name="thanks_title">Special thanks to:</string>
     <string name="thanks_text">Scott Alden (aldie) and www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang</string>
+	<string name="search_label">Search BoardGameGeek.com</string>
+	<string name="search_hint">Name of Game</string>
 </resources>

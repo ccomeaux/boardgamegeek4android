@@ -19,21 +19,4 @@
     	android:textStyle="bold"
     	android:paddingBottom="15sp"
     />
-    <LinearLayout android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-    >
-    	<EditText android:id="@+id/game_text"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:minEms="11"
-        	android:maxEms="11"
-        	android:singleLine="true"
-    	/>
-    	<Button android:id="@+id/game_button"
-    	    android:layout_width="wrap_content" 
-    	    android:layout_height="wrap_content"
-    	    android:text="Search"
-    	/>
-	</LinearLayout>
 </LinearLayout>
