@@ -216,10 +216,13 @@ public class ViewBoardGameList extends ListActivity
 			{
 				BoardGame boardGame = boardGameList.elementAt(i);
 				
-				if (boardGame.getYearPublished().equals("0"))
-					gameListItems.put(boardGame.getName(), boardGame.getGameID());
+				if (boardGame.getYearPublished() != null)
+					if (boardGame.getYearPublished().equals("0"))
+						gameListItems.put(boardGame.getName(), boardGame.getGameID());
+					else
+						gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
 				else
-					gameListItems.put(boardGame.getName()+" ("+boardGame.getYearPublished()+")", boardGame.getGameID());
+					gameListItems.put(boardGame.getName()+" (ID# "+boardGame.getGameID()+")", boardGame.getGameID());
 			}
 
 	    	// remove progress dialog (if any)
