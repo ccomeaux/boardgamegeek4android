@@ -1,35 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    android:orientation="vertical"
-    android:gravity="center"
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent"
-    >
-    <ImageView android:id="@+id/logo"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-   		android:src="@drawable/bgg_logo"/>
-    <TextView android:id="@+id/title"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:gravity="center_horizontal"
-    	android:textSize="20sp"
-    	android:textStyle="bold"
-    	android:paddingBottom="15sp"
-    android:text="@string/title_text"/>
-    <LinearLayout android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-    >
-    	<EditText android:id="@+id/game_text"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:minEms="11"
-        	android:maxEms="11"
-        	android:singleLine="true"
-    	/>
-    	<Button android:id="@+id/game_button"
-    	    android:layout_width="wrap_content" 
-    	    android:layout_height="wrap_content" android:text="@string/search_text"/>
-	</LinearLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:gravity="center"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<ImageView android:id="@+id/logo" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:src="@drawable/bgg_logo" />
+	<TextView android:id="@+id/title" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="center_horizontal"
+		android:text="@string/title_text" android:textSize="20sp"
+		android:textStyle="bold" />
 </LinearLayout>

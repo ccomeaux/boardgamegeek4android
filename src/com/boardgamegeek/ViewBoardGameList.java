@@ -13,6 +13,7 @@ import org.xml.sax.XMLReader;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -44,10 +45,13 @@ public class ViewBoardGameList extends ListActivity {
 		super.onCreate(savedInstanceState);
 		Log.d(DEBUG_TAG, "onCreate");
 
+		// allow type-to-search
+		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+
 		// get preferences
 		getPreferences();
 
-		// call xml layout
+		// call XML layout
 		this.setContentView(R.layout.viewboardgamelist);
 
 		// get search results
@@ -77,36 +81,37 @@ public class ViewBoardGameList extends ListActivity {
 		Log.d(DEBUG_TAG, "getBoardGameList");
 
 		// get the query from the intent
-		final String query = getIntent().getExtras().getString("QUERY");
+		final String searchText = getIntent().getExtras().getString(SearchManager.QUERY);
 
 		// clear existing game list items
 		gameListItems = new HashMap<String, String>();
 
 		// display a progress dialog while fetching the game data
-		if (first_pass)
+		if (first_pass) {
 			showDialog(ID_DIALOG_SEARCHING);
-		else
+		} else {
 			showDialog(ID_DIALOG_RETRY);
+		}
 
 		new Thread() {
 			public void run() {
 				try {
 					Log.d(DEBUG_TAG, "PULLING XML");
 
-					// set url
+					// set URL
 					String query_url = "http://www.boardgamegeek.com/xmlapi/search?search="
-							+ query;
+							+ searchText;
 					if (exactSearch && first_pass)
 						query_url += "&exact=1";
 
 					URL url = new URL(query_url.replace(" ", "%20"));
 
-					// create a new sax parser and get an xml reader from it
+					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance()
 							.newSAXParser();
 					XMLReader xmlReader = saxParser.getXMLReader();
 
-					// set the xml reader's content handler and parse the xml
+					// set the XML reader's content handler and parse the XML
 					BoardGameListHandler boardGameListHandler = new BoardGameListHandler();
 					xmlReader.setContentHandler(boardGameListHandler);
 					xmlReader.parse(new InputSource(url.openStream()));
@@ -128,7 +133,8 @@ public class ViewBoardGameList extends ListActivity {
 			Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
 			dialog.setTitle(R.string.dialog_search_title);
-			dialog.setMessage(getResources().getString(R.string.dialog_search_message));
+			dialog.setMessage(getResources().getString(
+					R.string.dialog_search_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -136,7 +142,8 @@ public class ViewBoardGameList extends ListActivity {
 			Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
 			dialog.setTitle(R.string.dialog_retry_title);
-			dialog.setMessage(getResources().getString(R.string.dialog_retry_message));
+			dialog.setMessage(getResources().getString(
+					R.string.dialog_retry_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -168,7 +175,7 @@ public class ViewBoardGameList extends ListActivity {
 		}
 	};
 
-	// updates ui after running progress dialog
+	// updates UI after running progress dialog
 	private void updateUI() {
 		// iterate through search results and add to game list
 		int count = 0;
@@ -191,7 +198,8 @@ public class ViewBoardGameList extends ListActivity {
 			Log.d(DEBUG_TAG, "NO RESULTS");
 
 			// display if no results are found
-			gameListItems.put(getResources().getString(R.string.title_not_found), "20115");
+			gameListItems.put(getResources()
+					.getString(R.string.title_not_found), "20115");
 
 			// remove progress dialog (if any)
 			removeDialogs();
@@ -202,13 +210,15 @@ public class ViewBoardGameList extends ListActivity {
 			for (int i = 0; i < count; i++) {
 				BoardGame boardGame = boardGameList.elementAt(i);
 
-				if (boardGame.getYearPublished().equals("0"))
-					gameListItems.put(boardGame.getName(), boardGame
-							.getGameID());
-				else
+				if (boardGame.getYearPublished() != 0) {
 					gameListItems.put(boardGame.getName() + " ("
 							+ boardGame.getYearPublished() + ")", boardGame
-							.getGameID());
+							.getGameId());
+				} else {
+					gameListItems.put(boardGame.getName() + " (ID# "
+							+ boardGame.getGameId() + ")", boardGame
+							.getGameId());
+				}
 			}
 
 			// remove progress dialog (if any)
@@ -217,13 +227,13 @@ public class ViewBoardGameList extends ListActivity {
 
 		// display game list
 		this.setListAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, new ArrayList<String>(
-						gameListItems.keySet())));
+				R.layout.listtextview, new ArrayList<String>(gameListItems
+						.keySet())));
 
 		// skip directly to game if only one result
 		if (count == 1 && skipResults) {
 			BoardGame boardGame = boardGameList.elementAt(0);
-			viewBoardGame(boardGame.getGameID());
+			viewBoardGame(boardGame.getGameId());
 		}
 	}
 
@@ -258,9 +268,8 @@ public class ViewBoardGameList extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.reload:
-			getPreferences();
-			getBoardGameList();
+		case R.id.search:
+			onSearchRequested();
 			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));

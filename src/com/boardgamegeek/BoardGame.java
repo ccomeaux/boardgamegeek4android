@@ -1,87 +1,47 @@
 package com.boardgamegeek;
 
-import java.text.DecimalFormat;
-
-import android.text.Html;
-
 public class BoardGame {
-	private String gameid = null;
-	private String yearpublished = null;
-	private String minplayers = null;
-	private String maxplayers = null;
-	private String players = null;
-	private String playingtime = null;
-	private String age = null;
-	private String name = "";
-	private String rank = "N/A";
-	private String rating = "0.00";
-	private float numericrating = 0;
-	private String num_ratings = null;
-	private String thumbnail = null;
-	private String description = "";
 	private String users_wanting = null;
 	private String users_trading = null;
 
-	// game id
-	public String getGameID() {
-		return gameid;
+	private String gameId = null;
+	private String name = "";
+	private int yearPublished = 0;
+	private int minPlayers = 0;
+	private int maxPlayers = 0;
+	private int playingTime = 0;
+	private int age = 0;
+	private String description = "";
+	private String thumbnailUrl = null;
+	private int usersRated = 0;
+	private double average = 0.0;
+	private double bayesAverage;
+	private int rank = 0;
+	private double standardDeviation;
+	private int median;
+	private int ownedCount;
+	private int tradingCount;
+	private int wantingCount;
+	private int wishingCount;
+	private int commentCount;
+	private int weightCount;
+	private double averageWeight;
+
+	// TODO: designers
+	// TODO: artists
+	// TODO: publishers
+	// TODO: categories
+	// TODO: mechanics
+	// TODO: expansions
+	// TODO: polls
+
+	// game ID
+	public String getGameId() {
+		return gameId;
 	}
 
-	public void setGameID(String gameid) {
-		this.gameid = gameid;
-	}
-
-	// year published
-	public String getYearPublished() {
-		return yearpublished;
-	}
-
-	public void setYearPublished(String yearpublished) {
-		this.yearpublished = yearpublished;
-	}
-
-	// min number of players
-	public String getMinPlayers() {
-		return minplayers;
-	}
-
-	public void setMinPlayers(String minplayers) {
-		this.minplayers = minplayers;
-	}
-
-	// max number of players
-	public String getMaxPlayers() {
-		return maxplayers;
-	}
-
-	public void setMaxPlayers(String maxplayers) {
-		this.maxplayers = maxplayers;
-	}
-
-	// number of players
-	public void getPlayers() {
-		if (this.minplayers.equals(this.maxplayers))
-			this.players = this.minplayers;
-		else
-			this.players = this.minplayers + " - " + this.maxplayers;
-	}
-
-	// game playing time
-	public String getPlayingTime() {
-		return playingtime;
-	}
-
-	public void setPlayingTime(String playingtime) {
-		this.playingtime = playingtime;
-	}
-
-	// player age (minimum)
-	public String getAge() {
-		return age;
-	}
-
-	public void setAge(String age) {
-		this.age = age;
+	public void setGameId(String gameId) {
+		this.gameId = gameId;
 	}
 
 	// game name
@@ -90,69 +50,117 @@ public class BoardGame {
 	}
 
 	public void setName(String name) {
-		this.name += name;
+		this.name = name;
 	}
 
-	// game rank
-	public String getRank() {
-		return rank;
+	// year published
+	public int getYearPublished() {
+		return yearPublished;
 	}
 
-	public void setRank(String rank) {
-		this.rank = rank;
+	public void setYearPublished(int year) {
+		this.yearPublished = year;
 	}
 
-	// game rating
-	public String getRating() {
-		return rating;
+	// min number of players
+	public int getMinPlayers() {
+		return minPlayers;
 	}
 
-	public void setRating(String rating) {
-		setNumericRating(rating);
-		this.rating = Float.toString(this.numericrating);
+	public void setMinPlayers(int minplayers) {
+		this.minPlayers = minplayers;
 	}
 
-	public float getNumericRating() {
-		return numericrating;
+	// max number of players
+	public int getMaxPlayers() {
+		return maxPlayers;
 	}
 
-	public void setNumericRating(String rating) {
-		this.numericrating = Float.valueOf(rating);
-		this.numericrating = Float.valueOf((new DecimalFormat("###.00")
-				.format(this.numericrating)));
+	public void setMaxPlayers(int maxplayers) {
+		this.maxPlayers = maxplayers;
+	}
+
+	// number of players
+	public String getPlayers() {
+		if (minPlayers == 0 && maxPlayers == 0) {
+			return "?";
+		} else if (minPlayers == maxPlayers) {
+			return "" + minPlayers;
+		} else {
+			return "" + minPlayers + " - " + maxPlayers;
+		}
+	}
+
+	// game playing time
+	public int getPlayingTime() {
+		return playingTime;
+	}
+
+	public void setPlayingTime(int playingTime) {
+		this.playingTime = playingTime;
+	}
+
+	// player age (minimum)
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
 	}
 
 	// number of ratings
-	public String getNumRatings() {
-		return num_ratings;
+	public int getUsersRated() {
+		return usersRated;
 	}
 
-	public void setNumRatings(String num_ratings) {
-		this.num_ratings = num_ratings;
+	public void setUsersRated(int usersRated) {
+		this.usersRated = usersRated;
+	}
+
+	// average
+	public double getAverage() {
+		return average;
+	}
+
+	public void setAverage(double average) {
+		this.average = average;
+	}
+
+	// bayes average
+	public double getBayesAverage() {
+		return bayesAverage;
+	}
+
+	public void setBayesAverage(double bayesAverage) {
+		this.bayesAverage = bayesAverage;
+	}
+
+	// game rank
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
 	}
 
 	// thumbnail image
-	// note: thumbnail my have a null character in front,
-	// so we take only the last character value parsed by the handler
-	public String getThumbnail() {
-		return thumbnail;
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
 	}
 
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
+	public void setThumbnailUrl(String thumbnailUrl) {
+		this.thumbnailUrl = thumbnailUrl;
 	}
 
 	// game description
 	public String getDescription() {
-		// need to convert from html due to a few &amp; characters here and
-		// there
-		String nonhtml_description = Html.fromHtml(this.description).toString();
-		nonhtml_description = nonhtml_description.replace("\n\n", "\n");
-		return nonhtml_description;
+		return decodeHtml(description);
 	}
 
 	public void setDescription(String description) {
-		this.description += description;
+		this.description = description;
 	}
 
 	public String getUsersWanting() {
@@ -172,46 +180,119 @@ public class BoardGame {
 	}
 
 	public String getGameInfo() {
+		// TODO: convert to a StringBuffer
 		String game_info = "";
 		getPlayers();
-		if (gameid == null)
+		if (gameId == null) {
 			game_info = "Game Not Found";
-		else {
-			game_info += "Year Published: ";
-			if (!this.yearpublished.equals("0"))
-				game_info += this.yearpublished;
-			game_info += "\n";
+		} else {
+			if (yearPublished != 0) {
+				game_info += "Year Published: ";
+				game_info += yearPublished;
+				game_info += "\n";
+			}
 
-			game_info += "Players: ";
-			if (!this.players.equals("0"))
-				game_info += this.players;
-			game_info += "\n";
+			game_info += "Players: " + getPlayers() + "\n";
 
-			game_info += "Playing Time: ";
-			if (!this.playingtime.equals("0"))
-				game_info += this.playingtime + " minutes";
-			game_info += "\n";
+			if (playingTime != 0) {
+				game_info += "Playing Time: ";
+				game_info += playingTime + " minutes";
+				game_info += "\n";
+			}
 
-			game_info += "Ages: ";
-			if (!this.age.equals("0"))
-				game_info += this.age + " and up";
-			game_info += "\n";
+			if (age != 0) {
+				game_info += "Ages: ";
+				game_info += age + " and up";
+				game_info += "\n";
+			}
 
-			// removing this for now, as user info is not appropriate here
-			// likely we will add a tab or menu item to display user info in the
-			// future
-			// game_info += "Users wanting: ";
-			// if (!this.users_wanting.equals("0"))
-			// game_info += this.users_wanting;
-			// game_info += "\n";
-			//
-			// game_info += "Users trading: ";
-			// if (!this.users_trading.equals("0"))
-			// game_info += this.users_trading;
-			// game_info += "\n";
-
-			game_info += "GameID: " + this.gameid;
+			game_info += "GameID: " + gameId;
 		}
 		return game_info;
+	}
+
+	public String decodeHtml(String encodedHtml) {
+		// this replaces Html.FromHtml but preserves new lines
+		String decodedHtml = encodedHtml;
+		decodedHtml = decodedHtml.replace("&lt;", "<");
+		decodedHtml = decodedHtml.replace("&gt;", ">");
+		decodedHtml = decodedHtml.replace("&quot;", "\"");
+		decodedHtml = decodedHtml.replace("&apos;", "'");
+		decodedHtml = decodedHtml.replace("&rsquo;", "'");
+		decodedHtml = decodedHtml.replace("&amp;", "&");
+		decodedHtml = decodedHtml.replace("\n\n\n", "\n\n");
+		return decodedHtml;
+	}
+
+	public void setStandardDeviation(double standardDeviation) {
+		this.standardDeviation = standardDeviation;
+	}
+
+	public double getStandardDeviation() {
+		return standardDeviation;
+	}
+
+	public void setMedian(int median) {
+		this.median = median;
+	}
+
+	public int getMedian() {
+		return median;
+	}
+
+	public void setOwnedCount(int ownedCount) {
+		this.ownedCount = ownedCount;
+	}
+
+	public int getOwnedCount() {
+		return ownedCount;
+	}
+
+	public void setTradingCount(int tradingCount) {
+		this.tradingCount = tradingCount;
+	}
+
+	public int getTradingCount() {
+		return tradingCount;
+	}
+
+	public void setWantingCount(int wantingCount) {
+		this.wantingCount = wantingCount;
+	}
+
+	public int getWantingCount() {
+		return wantingCount;
+	}
+
+	public void setWishingCount(int wishingCount) {
+		this.wishingCount = wishingCount;
+	}
+
+	public int getWishingCount() {
+		return wishingCount;
+	}
+
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
+
+	public int getCommentCount() {
+		return commentCount;
+	}
+
+	public void setWeightCount(int weightCount) {
+		this.weightCount = weightCount;
+	}
+
+	public int getWeightCount() {
+		return weightCount;
+	}
+
+	public void setAverageWeight(double averageWeight) {
+		this.averageWeight = averageWeight;
+	}
+
+	public double getAverageWeight() {
+		return averageWeight;
 	}
 }

@@ -5,14 +5,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class BoardGameHandler extends DefaultHandler {
-	// declare variables
+
+	private StringBuffer currentElement;
 	private BoardGame boardGame;
-	private String current_tag = "";
-	private Boolean primary = true;
-	private Boolean is_name = false;
-	private Boolean is_thumbnail = false;
-	private Boolean is_description = false;
-	private Boolean is_rank = false;
+	private Boolean isPrimaryName = false;
+	private boolean isStats;
+	private boolean isRanks;
+	private boolean isRank;
 
 	// returns object after parsing
 	public BoardGame getBoardGame() {
@@ -32,71 +31,110 @@ public class BoardGameHandler extends DefaultHandler {
 	@Override
 	public void startElement(String namespaceURI, String localName,
 			String qName, Attributes atts) throws SAXException {
-		// use this to keep track of where we are
-		current_tag = localName;
+
+		currentElement = new StringBuffer();
 
 		if (localName.equals("boardgame")) {
-			String atts_gameid = atts.getValue("objectid");
-			boardGame.setGameID(atts_gameid);
-		}
-		if (localName.equals("rank")) {
-			String atts_ranktype = atts.getValue("type");
-			if (atts_ranktype.equals("boardgame"))
-				is_rank = true;
+			boardGame.setGameId(atts.getValue("objectid"));
+		} else if (localName == "name") {
+			String primaryAttribute = atts.getValue("primary");
+			if (primaryAttribute != null
+					&& primaryAttribute.equalsIgnoreCase("true")) {
+				isPrimaryName = true;
+			}
+		} else if (localName == "statistics") {
+			isStats = true;
+		} else if (isStats) {
+			if (isRanks) {
+				if (localName == "rank") {
+					String attribute = atts.getValue("type");
+					if (attribute != null
+							&& attribute.equalsIgnoreCase("boardgame")) {
+						isRank = true;
+					}
+				}
+			} else if (localName == "ranks") {
+				isRanks = true;
+			}
 		}
 	}
 
 	@Override
 	public void endElement(String namespaceURI, String localName, String qName)
 			throws SAXException {
-		current_tag = "";
-		if (localName.equals("name"))
-			is_name = false;
-		else if (localName.equals("thumbnail"))
-			is_thumbnail = false;
-		else if (localName.equals("description"))
-			is_description = false;
-		else if (localName.equals("rank"))
-			is_rank = false;
+
+		if (localName == "yearpublished") {
+			boardGame.setYearPublished(parseInt(currentElement.toString()));
+		} else if (localName == "minplayers") {
+			boardGame.setMinPlayers(parseInt(currentElement.toString()));
+		} else if (localName == "maxplayers") {
+			boardGame.setMaxPlayers(parseInt(currentElement.toString()));
+		} else if (localName == "playingtime") {
+			boardGame.setPlayingTime(parseInt(currentElement.toString()));
+		} else if (localName == "age") {
+			boardGame.setAge(parseInt(currentElement.toString()));
+		} else if (isPrimaryName && localName == "name") {
+			boardGame.setName(currentElement.toString());
+			isPrimaryName = false;
+		} else if (localName == "description") {
+			boardGame.setDescription(currentElement.toString());
+		} else if (localName == "thumbnail") {
+			boardGame.setThumbnailUrl(currentElement.toString());
+		} else if (localName == "statistics") {
+			isStats = false;
+		} else if (isStats) {
+			if (localName == "usersrated") {
+				boardGame.setUsersRated(parseInt(currentElement.toString()));
+			} else if (localName == "average") {
+				boardGame.setAverage(parseDouble(currentElement.toString()));
+			} else if (localName == "bayesaverage") {
+				boardGame
+						.setBayesAverage(parseDouble(currentElement.toString()));
+			} else if (isRanks && localName == "ranks") {
+				isRanks = false;
+			} else if (isRank && localName == "rank") {
+				boardGame.setRank(parseInt(currentElement.toString()));
+				isRank = false;
+			} else if (localName == "stddev") {
+				boardGame.setStandardDeviation(parseDouble(currentElement.toString()));
+			} else if (localName == "median") {
+				boardGame.setMedian(parseInt(currentElement.toString()));
+			} else if (localName == "owned") {
+				boardGame.setOwnedCount(parseInt(currentElement.toString()));
+			} else if (localName == "trading") {
+				boardGame.setTradingCount(parseInt(currentElement.toString()));
+			} else if (localName == "wanting") {
+				boardGame.setWantingCount(parseInt(currentElement.toString()));
+			} else if (localName == "wishing") {
+				boardGame.setWishingCount(parseInt(currentElement.toString()));
+			} else if (localName == "numcomments") {
+				boardGame.setCommentCount(parseInt(currentElement.toString()));
+			} else if (localName == "numweights") {
+				boardGame.setWeightCount(parseInt(currentElement.toString()));
+			} else if (localName == "averageweight") {
+				boardGame.setAverageWeight(parseDouble(currentElement.toString()));
+			}
+		}
 	}
 
 	@Override
 	public void characters(char ch[], int start, int length) {
-		if (current_tag.equals("name") && primary) {
-			boardGame.setName(new String(ch, start, length));
-			is_name = true;
-			primary = false;
-		} else if (is_name)
-			boardGame.setName(new String(ch, start, length));
-		else if (current_tag.equals("thumbnail")) {
-			boardGame.setThumbnail(new String(ch, start, length));
-			is_thumbnail = true;
-		} else if (is_thumbnail)
-			boardGame.setThumbnail(new String(ch, start, length));
-		else if (current_tag.equals("description")) {
-			boardGame.setDescription(new String(ch, start, length));
-			is_description = true;
-		} else if (is_description)
-			boardGame.setDescription(new String(ch, start, length));
-		else if (current_tag.equals("yearpublished"))
-			boardGame.setYearPublished(new String(ch, start, length));
-		else if (current_tag.equals("minplayers"))
-			boardGame.setMinPlayers(new String(ch, start, length));
-		else if (current_tag.equals("maxplayers"))
-			boardGame.setMaxPlayers(new String(ch, start, length));
-		else if (current_tag.equals("playingtime"))
-			boardGame.setPlayingTime(new String(ch, start, length));
-		else if (current_tag.equals("age"))
-			boardGame.setAge(new String(ch, start, length));
-		else if (current_tag.equals("usersrated"))
-			boardGame.setNumRatings(new String(ch, start, length));
-		else if (current_tag.equals("average"))
-			boardGame.setRating(new String(ch, start, length));
-		else if (is_rank)
-			boardGame.setRank(new String(ch, start, length));
-		else if (current_tag.equals("wanting"))
-			boardGame.setUsersWanting(new String(ch, start, length));
-		else if (current_tag.equals("trading"))
-			boardGame.setUsersTrading(new String(ch, start, length));
+		currentElement.append(ch, start, length);
+	}
+
+	private int parseInt(String text) {
+		try {
+			return Integer.parseInt(text);
+		} catch (NumberFormatException ex) {
+			return 0;
+		}
+	}
+
+	private double parseDouble(String text) {
+		try {
+			return Double.parseDouble(text);
+		} catch (NumberFormatException ex) {
+			return 0;
+		}
 	}
 }

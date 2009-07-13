@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -50,6 +51,9 @@ public class ViewBoardGame extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		// allow type-to-search
+		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
 		// get preferences
 		getPreferences();
@@ -95,7 +99,7 @@ public class ViewBoardGame extends Activity {
 		new Thread() {
 			public void run() {
 				try {
-					// set url
+					// set URL
 					URL url = new URL(
 							"http://www.boardgamegeek.com/xmlapi/boardgame/"
 									+ game_id + "&stats=1");
@@ -114,8 +118,10 @@ public class ViewBoardGame extends Activity {
 					boardGame = boardGameHandler.getBoardGame();
 
 					// get the image as a drawable, since that takes a while
-					if (imageLoad)
-						thumbnail_drawable = getImage(boardGame.getThumbnail());
+					if (imageLoad) {
+						thumbnail_drawable = getImage(boardGame
+								.getThumbnailUrl());
+					}
 				} catch (Exception e) {
 					Log.d(DEBUG_TAG, "Exception", e);
 				}
@@ -158,12 +164,12 @@ public class ViewBoardGame extends Activity {
 		}
 	};
 
-	// updates ui after running progress dialog
+	// updates UI after running progress dialog
 	private void updateUI() {
-		// call the xml layout
+		// call the XML layout
 		this.setContentView(R.layout.viewboardgame);
 
-		// declare the gui variables
+		// declare the GUI variables
 		TextView title = (TextView) findViewById(R.id.title);
 		TextView rank = (TextView) findViewById(R.id.rank);
 		TextView rating = (TextView) findViewById(R.id.rating);
@@ -188,93 +194,117 @@ public class ViewBoardGame extends Activity {
 		// get the game information from the object
 		String gameTitle = boardGame.getName();
 		String gameRank = getResources().getString(R.string.rank) + ": ";
-		if (boardGame.getRank().equals("0"))
+		if (boardGame.getRank() == 0) {
 			gameRank += getResources().getString(R.string.not_available);
-		else
+		} else {
 			gameRank += boardGame.getRank();
+		}
 		String gameRating = getResources().getString(R.string.user_rating)
-				+ ": " + boardGame.getRating() + " / 10 ("
-				+ boardGame.getNumRatings() + " Ratings)";
-		float gameNumericRating = boardGame.getNumericRating();
+				+ ": "
+				+ new DecimalFormat("#0.00").format(boardGame.getAverage())
+				+ " / 10 (" + boardGame.getUsersRated() + " Ratings)";
 		String gameInfo = boardGame.getGameInfo();
 		String gameDescription = boardGame.getDescription();
 
 		// display information
 		title.setText(gameTitle);
 		rank.setText(gameRank);
-		if (imageLoad)
+		if (imageLoad) {
 			if (thumbnail_drawable != null
-					&& !boardGame.getThumbnail().equals(""))
+					&& !boardGame.getThumbnailUrl().equals("")) {
 				thumbnail.setImageDrawable(thumbnail_drawable);
-			else
+			} else {
 				thumbnail.setImageDrawable(getResources().getDrawable(
 						R.drawable.noimage));
+			}
+		}
 		rating.setText(gameRating);
 
 		// calculate and display star rating
-		if (gameNumericRating >= 0.75)
+		if (boardGame.getAverage() >= 0.75)
 			star1.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 0.25)
+		else if (boardGame.getAverage() >= 0.25)
 			star1.setImageDrawable(halfstar);
 		else
 			star1.setImageDrawable(nostar);
-		if (gameNumericRating >= 1.75)
+		if (boardGame.getAverage() >= 1.75)
 			star2.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 1.25)
+		else if (boardGame.getAverage() >= 1.25)
 			star2.setImageDrawable(halfstar);
 		else
 			star2.setImageDrawable(nostar);
-		if (gameNumericRating >= 2.75)
+		if (boardGame.getAverage() >= 2.75)
 			star3.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 2.25)
+		else if (boardGame.getAverage() >= 2.25)
 			star3.setImageDrawable(halfstar);
 		else
 			star3.setImageDrawable(nostar);
-		if (gameNumericRating >= 3.75)
+		if (boardGame.getAverage() >= 3.75)
 			star4.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 3.25)
+		else if (boardGame.getAverage() >= 3.25)
 			star4.setImageDrawable(halfstar);
 		else
 			star4.setImageDrawable(nostar);
-		if (gameNumericRating >= 4.75)
+		if (boardGame.getAverage() >= 4.75)
 			star5.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 4.25)
+		else if (boardGame.getAverage() >= 4.25)
 			star5.setImageDrawable(halfstar);
 		else
 			star5.setImageDrawable(nostar);
-		if (gameNumericRating >= 5.75)
+		if (boardGame.getAverage() >= 5.75)
 			star6.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 5.25)
+		else if (boardGame.getAverage() >= 5.25)
 			star6.setImageDrawable(halfstar);
 		else
 			star6.setImageDrawable(nostar);
-		if (gameNumericRating >= 6.75)
+		if (boardGame.getAverage() >= 6.75)
 			star7.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 6.25)
+		else if (boardGame.getAverage() >= 6.25)
 			star7.setImageDrawable(halfstar);
 		else
 			star7.setImageDrawable(nostar);
-		if (gameNumericRating >= 7.75)
+		if (boardGame.getAverage() >= 7.75)
 			star8.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 7.25)
+		else if (boardGame.getAverage() >= 7.25)
 			star8.setImageDrawable(halfstar);
 		else
 			star8.setImageDrawable(nostar);
-		if (gameNumericRating >= 8.75)
+		if (boardGame.getAverage() >= 8.75)
 			star9.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 8.25)
+		else if (boardGame.getAverage() >= 8.25)
 			star9.setImageDrawable(halfstar);
 		else
 			star9.setImageDrawable(nostar);
-		if (gameNumericRating >= 9.75)
+		if (boardGame.getAverage() >= 9.75)
 			star10.setImageDrawable(wholestar);
-		else if (gameNumericRating >= 9.25)
+		else if (boardGame.getAverage() >= 9.25)
 			star10.setImageDrawable(halfstar);
 		else
 			star10.setImageDrawable(nostar);
 
 		// display rest of information
 		information.setText(gameInfo);
+
+		// TEMP:
+		DecimalFormat statFormat = new DecimalFormat("#0.000");
+		gameDescription += "\n\nSTATS";
+		gameDescription += "\nRank: " + boardGame.getRank();
+		gameDescription += "\nAverage: "
+				+ statFormat.format(boardGame.getAverage());
+		gameDescription += "\nBayes Average: "
+				+ statFormat.format(boardGame.getBayesAverage());
+		gameDescription += "\nMedian: " + boardGame.getMedian();
+		gameDescription += "\nStandard Deviation: "
+				+ statFormat.format(boardGame.getStandardDeviation());
+		gameDescription += "\n\nAverage Weight: "
+				+ statFormat.format(boardGame.getAverageWeight());
+		gameDescription += "\nNumber Weighting: " + boardGame.getWeightCount();
+		gameDescription += "\n\nNumber Rating: " + boardGame.getUsersRated();
+		gameDescription += "\nNumber Owning: " + boardGame.getOwnedCount();
+		gameDescription += "\nNumber Wishing: " + boardGame.getWishingCount();
+		gameDescription += "\nNumber Wanting: " + boardGame.getWantingCount();
+		gameDescription += "\nNumber Trading: " + boardGame.getTradingCount();
+
 		description.setText(gameDescription);
 
 		// remove progress dialog (if any)
@@ -340,7 +370,7 @@ public class ViewBoardGame extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		// inflate the menu from xml
+		// inflate the menu from XML
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu, menu);
 
@@ -350,8 +380,8 @@ public class ViewBoardGame extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.reload:
-			getPreferences();
+		case R.id.search:
+			onSearchRequested();
 			getBoardGame();
 			return true;
 		case R.id.settings:
