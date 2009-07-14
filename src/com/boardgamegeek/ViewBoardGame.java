@@ -90,8 +90,8 @@ public class ViewBoardGame extends Activity {
 	}
 
 	private void getBoardGame() {
-		// get the game id from the intent
-		final String game_id = getIntent().getExtras().getString("GAME_ID");
+		// get the game ID from the intent
+		final String gameId = getIntent().getExtras().getString("GAME_ID");
 
 		// display a progress dialog while fetching the game data
 		showDialog(ID_DIALOG_SEARCHING);
@@ -102,14 +102,14 @@ public class ViewBoardGame extends Activity {
 					// set URL
 					URL url = new URL(
 							"http://www.boardgamegeek.com/xmlapi/boardgame/"
-									+ game_id + "&stats=1");
+									+ gameId + "&stats=1");
 
-					// create a new sax parser and get an xml reader from it
+					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance()
 							.newSAXParser();
 					XMLReader xmlReader = saxParser.getXMLReader();
 
-					// set the xml reader's content handler and parse the xml
+					// set the XML reader's content handler and parse the XML
 					BoardGameHandler boardGameHandler = new BoardGameHandler();
 					xmlReader.setContentHandler(boardGameHandler);
 					xmlReader.parse(new InputSource(url.openStream()));
@@ -192,7 +192,6 @@ public class ViewBoardGame extends Activity {
 		Drawable nostar = getResources().getDrawable(R.drawable.star_white);
 
 		// get the game information from the object
-		String gameTitle = boardGame.getName();
 		String gameRank = getResources().getString(R.string.rank) + ": ";
 		if (boardGame.getRank() == 0) {
 			gameRank += getResources().getString(R.string.not_available);
@@ -207,7 +206,7 @@ public class ViewBoardGame extends Activity {
 		String gameDescription = boardGame.getDescription();
 
 		// display information
-		title.setText(gameTitle);
+		title.setText(boardGame.getName());
 		rank.setText(gameRank);
 		if (imageLoad) {
 			if (thumbnail_drawable != null
@@ -305,6 +304,32 @@ public class ViewBoardGame extends Activity {
 		gameDescription += "\nNumber Wanting: " + boardGame.getWantingCount();
 		gameDescription += "\nNumber Trading: " + boardGame.getTradingCount();
 
+		// TEMP:
+		gameDescription += "\n\nDesigners:";
+		for (String designer : boardGame.getDesignerNames()) {
+			gameDescription += "\n" + designer;
+		}
+		gameDescription += "\n\nArtists:";
+		for (String artist : boardGame.getArtistNames()) {
+			gameDescription += "\n" + artist;
+		}
+		gameDescription += "\n\nPublishers:";
+		for (String publisher : boardGame.getPublisherNames()) {
+			gameDescription += "\n" + publisher;
+		}
+		gameDescription += "\n\nCategories:";
+		for (String category : boardGame.getCategoryNames()) {
+			gameDescription += "\n" + category;
+		}
+		gameDescription += "\n\nMechanics:";
+		for (String mechanic : boardGame.getMechanicNames()) {
+			gameDescription += "\n" + mechanic;
+		}
+		gameDescription += "\n\nExpansions:";
+		for (String expansion : boardGame.getExpansionNames()) {
+			gameDescription += "\n" + expansion;
+		}
+
 		description.setText(gameDescription);
 
 		// remove progress dialog (if any)
@@ -315,7 +340,7 @@ public class ViewBoardGame extends Activity {
 
 	private Drawable getImage(String url) {
 		try {
-			// connect to url and open input stream
+			// connect to URL and open input stream
 			URL imageURL = new URL(url);
 			InputStream inputStream = (InputStream) imageURL.getContent();
 			BufferedInputStream bufferedInputStream = new BufferedInputStream(

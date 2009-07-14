@@ -81,7 +81,8 @@ public class ViewBoardGameList extends ListActivity {
 		Log.d(DEBUG_TAG, "getBoardGameList");
 
 		// get the query from the intent
-		final String searchText = getIntent().getExtras().getString(SearchManager.QUERY);
+		final String searchText = getIntent().getExtras().getString(
+				SearchManager.QUERY);
 
 		// clear existing game list items
 		gameListItems = new HashMap<String, String>();
@@ -240,17 +241,17 @@ public class ViewBoardGameList extends ListActivity {
 	// gets the game id from the list item when clicked
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		// get the game id using the name as a key
-		String game_id = gameListItems.get(this.getListAdapter().getItem(
+		String gameId = gameListItems.get(this.getListAdapter().getItem(
 				position));
-		viewBoardGame(game_id);
+		viewBoardGame(gameId);
 	}
 
 	// calls the board game intent
-	public void viewBoardGame(String game_id) {
+	public void viewBoardGame(String gameId) {
 		Intent myIntent = new Intent();
 		myIntent.setClassName("com.boardgamegeek",
 				"com.boardgamegeek.ViewBoardGame");
-		myIntent.putExtra("GAME_ID", game_id);
+		myIntent.putExtra("GAME_ID", gameId);
 		startActivity(myIntent);
 	}
 
@@ -258,7 +259,7 @@ public class ViewBoardGameList extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		// inflate the menu from xml
+		// inflate the menu from XML
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu, menu);
 

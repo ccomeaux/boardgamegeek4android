@@ -1,8 +1,9 @@
 package com.boardgamegeek;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 public class BoardGame {
-	private String users_wanting = null;
-	private String users_trading = null;
 
 	private String gameId = null;
 	private String name = "";
@@ -26,13 +27,13 @@ public class BoardGame {
 	private int commentCount;
 	private int weightCount;
 	private double averageWeight;
+	private HashMap<String, String> designers = new HashMap<String, String>();
+	private HashMap<String, String> artists = new HashMap<String, String>();
+	private HashMap<String, String> publishers = new HashMap<String, String>();
+	private HashMap<String, String> categories = new HashMap<String, String>();
+	private HashMap<String, String> mechanics = new HashMap<String, String>();
+	private HashMap<String, String> expansions = new HashMap<String, String>();
 
-	// TODO: designers
-	// TODO: artists
-	// TODO: publishers
-	// TODO: categories
-	// TODO: mechanics
-	// TODO: expansions
 	// TODO: polls
 
 	// game ID
@@ -163,22 +164,6 @@ public class BoardGame {
 		this.description = description;
 	}
 
-	public String getUsersWanting() {
-		return users_wanting;
-	}
-
-	public void setUsersWanting(String users_wanting) {
-		this.users_wanting = users_wanting;
-	}
-
-	public String getUsersTrading() {
-		return users_trading;
-	}
-
-	public void setUsersTrading(String users_trading) {
-		this.users_trading = users_trading;
-	}
-
 	public String getGameInfo() {
 		// TODO: convert to a StringBuffer
 		String game_info = "";
@@ -294,5 +279,53 @@ public class BoardGame {
 
 	public double getAverageWeight() {
 		return averageWeight;
+	}
+
+	public void addDesigner(String id, String name) {
+		designers.put(id, name);
+	}
+
+	public Collection<String> getDesignerNames() {
+		return designers.values();
+	}
+
+	public void addArtist(String id, String name) {
+		artists.put(id, name);
+	}
+
+	public Collection<String> getArtistNames() {
+		return artists.values();
+	}
+
+	public void addPublisher(String id, String name) {
+		publishers.put(id, name);
+	}
+
+	public Collection<String> getPublisherNames() {
+		return publishers.values();
+	}
+
+	public void addCategory(String id, String name) {
+		categories.put(id, name);
+	}
+
+	public Collection<String> getCategoryNames() {
+		return categories.values();
+	}
+
+	public void addMechanic(String id, String name) {
+		mechanics.put(id, name);
+	}
+
+	public Collection<String> getMechanicNames() {
+		return mechanics.values();
+	}
+
+	public void addExpansion(String id, String name) {
+		expansions.put(id, name);
+	}
+
+	public Collection<String> getExpansionNames() {
+		return expansions.values();
 	}
 }

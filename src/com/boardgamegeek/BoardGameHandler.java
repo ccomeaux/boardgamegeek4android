@@ -12,6 +12,7 @@ public class BoardGameHandler extends DefaultHandler {
 	private boolean isStats;
 	private boolean isRanks;
 	private boolean isRank;
+	private String objectId;
 
 	// returns object after parsing
 	public BoardGame getBoardGame() {
@@ -44,6 +45,16 @@ public class BoardGameHandler extends DefaultHandler {
 			}
 		} else if (localName == "statistics") {
 			isStats = true;
+		} else if (localName == "boardgamedesigner"
+				|| localName == "boardgameartist"
+				|| localName == "boardgamepublisher"
+				|| localName == "boardgamecategory"
+				|| localName == "boardgamemechanic"
+				|| localName == "boardgameexpansion") {
+			String idAttribute = atts.getValue("objectid");
+			if (idAttribute != null) {
+				objectId = idAttribute;
+			}
 		} else if (isStats) {
 			if (isRanks) {
 				if (localName == "rank") {
@@ -82,6 +93,36 @@ public class BoardGameHandler extends DefaultHandler {
 			boardGame.setThumbnailUrl(currentElement.toString());
 		} else if (localName == "statistics") {
 			isStats = false;
+		} else if (localName == "boardgamedesigner") {
+			if (objectId != "") {
+				boardGame.addDesigner(objectId, currentElement.toString());
+			}
+			objectId = "";
+		} else if (localName == "boardgameartist") {
+			if (objectId != "") {
+				boardGame.addArtist(objectId, currentElement.toString());
+			}
+			objectId = "";
+		} else if (localName == "boardgamepublisher") {
+			if (objectId != "") {
+				boardGame.addPublisher(objectId, currentElement.toString());
+			}
+			objectId = "";
+		} else if (localName == "boardgamecategory") {
+			if (objectId != "") {
+				boardGame.addCategory(objectId, currentElement.toString());
+			}
+			objectId = "";
+		} else if (localName == "boardgamemechanic") {
+			if (objectId != "") {
+				boardGame.addMechanic(objectId, currentElement.toString());
+			}
+			objectId = "";
+		} else if (localName == "boardgameexpansion") {
+			if (objectId != "") {
+				boardGame.addExpansion(objectId, currentElement.toString());
+			}
+			objectId = "";
 		} else if (isStats) {
 			if (localName == "usersrated") {
 				boardGame.setUsersRated(parseInt(currentElement.toString()));
@@ -96,7 +137,8 @@ public class BoardGameHandler extends DefaultHandler {
 				boardGame.setRank(parseInt(currentElement.toString()));
 				isRank = false;
 			} else if (localName == "stddev") {
-				boardGame.setStandardDeviation(parseDouble(currentElement.toString()));
+				boardGame.setStandardDeviation(parseDouble(currentElement
+						.toString()));
 			} else if (localName == "median") {
 				boardGame.setMedian(parseInt(currentElement.toString()));
 			} else if (localName == "owned") {
@@ -112,7 +154,8 @@ public class BoardGameHandler extends DefaultHandler {
 			} else if (localName == "numweights") {
 				boardGame.setWeightCount(parseInt(currentElement.toString()));
 			} else if (localName == "averageweight") {
-				boardGame.setAverageWeight(parseDouble(currentElement.toString()));
+				boardGame.setAverageWeight(parseDouble(currentElement
+						.toString()));
 			}
 		}
 	}
