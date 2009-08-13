@@ -199,14 +199,18 @@ public class BoardGame {
 	public String decodeHtml(String encodedHtml) {
 		// this replaces Html.FromHtml but preserves new lines
 		String decodedHtml = encodedHtml;
+		decodedHtml = decodedHtml.replace("&nbsp;", " ");
 		decodedHtml = decodedHtml.replace("&lt;", "<");
 		decodedHtml = decodedHtml.replace("&gt;", ">");
-		decodedHtml = decodedHtml.replace("&quot;", "\"");
-		decodedHtml = decodedHtml.replace("&apos;", "'");
-		decodedHtml = decodedHtml.replace("&rsquo;", "'");
 		decodedHtml = decodedHtml.replace("&amp;", "&");
+		decodedHtml = decodedHtml.replace("&quot;", "\"");
+		decodedHtml = decodedHtml.replace("&ldquo;", "\"");
+		decodedHtml = decodedHtml.replace("&rdquo;", "\"");
+		decodedHtml = decodedHtml.replace("&apos;", "'");
+		decodedHtml = decodedHtml.replace("&lsquo;", "'");
+		decodedHtml = decodedHtml.replace("&rsquo;", "'");
 		decodedHtml = decodedHtml.replace("\n\n\n", "\n\n");
-		return decodedHtml;
+		return decodedHtml.trim();
 	}
 
 	public void setStandardDeviation(double standardDeviation) {

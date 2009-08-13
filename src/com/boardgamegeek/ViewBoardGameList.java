@@ -29,16 +29,17 @@ import android.widget.ListView;
 
 public class ViewBoardGameList extends ListActivity {
 	// declare variables
+	private String searchText;
 	private BoardGameList boardGameList;
-	HashMap<String, String> gameListItems = new HashMap<String, String>();
+	private HashMap<String, String> gameListItems = new HashMap<String, String>();
 	private final int ID_DIALOG_SEARCHING = 1;
 	private final int ID_DIALOG_RETRY = 2;
 	private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
-	Handler handler = new Handler();
+	private Handler handler = new Handler();
 	private SharedPreferences preferences;
-	boolean exactSearch;
-	boolean skipResults;
-	boolean first_pass = true;
+	private boolean exactSearch;
+	private boolean skipResults;
+	private boolean first_pass = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -81,7 +82,7 @@ public class ViewBoardGameList extends ListActivity {
 		Log.d(DEBUG_TAG, "getBoardGameList");
 
 		// get the query from the intent
-		final String searchText = getIntent().getExtras().getString(
+		searchText = getIntent().getExtras().getString(
 				SearchManager.QUERY);
 
 		// clear existing game list items
@@ -100,12 +101,13 @@ public class ViewBoardGameList extends ListActivity {
 					Log.d(DEBUG_TAG, "PULLING XML");
 
 					// set URL
-					String query_url = "http://www.boardgamegeek.com/xmlapi/search?search="
+					String queryUrl = "http://www.boardgamegeek.com/xmlapi/search?search="
 							+ searchText;
-					if (exactSearch && first_pass)
-						query_url += "&exact=1";
+					if (exactSearch && first_pass) {
+						queryUrl += "&exact=1";
+					}
 
-					URL url = new URL(query_url.replace(" ", "%20"));
+					URL url = new URL(queryUrl.replace(" ", "%20"));
 
 					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance()
@@ -199,8 +201,8 @@ public class ViewBoardGameList extends ListActivity {
 			Log.d(DEBUG_TAG, "NO RESULTS");
 
 			// display if no results are found
-			gameListItems.put(getResources()
-					.getString(R.string.title_not_found), "20115");
+			gameListItems.put(String.format(getResources()
+					.getString(R.string.no_results), searchText), "20115");
 
 			// remove progress dialog (if any)
 			removeDialogs();

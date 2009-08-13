@@ -1,92 +1,283 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    >
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="10sp"
-    >
-    <TextView android:id="@+id/title"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"
-    	android:textStyle="bold"
-    />
-    <TextView android:id="@+id/rank"
-    	android:layout_width="fill_parent" 
-     	android:layout_height="wrap_content"
-    	android:textSize="20sp"
-    />
-    <ImageView android:id="@+id/thumbnail"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:paddingTop="15sp"
-    	android:paddingBottom="15sp"
-    />
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    >
-    	<ImageView android:id="@+id/star1"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star2"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star3"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star4"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star5"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star6"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star7"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star8"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star9"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-     	<ImageView android:id="@+id/star10"
-    		android:layout_width="wrap_content" 
-    		android:layout_height="wrap_content"
-    	/>
-    </LinearLayout>
-    <TextView android:id="@+id/rating"
-    	android:layout_width="fill_parent" 
-     	android:layout_height="wrap_content"
-    	android:textSize="15sp"
-    	android:paddingBottom="15sp"
-    />
-    <TextView android:id="@+id/information"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:textSize="15sp"
-    	android:paddingBottom="15sp"
-    />
-    <TextView android:id="@+id/description"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:textSize="15sp"
-    />
-</LinearLayout>
-</ScrollView>
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/tabhost" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		<TabWidget android:id="@android:id/tabs"
+			android:layout_width="fill_parent" android:layout_height="wrap_content" />
+		<FrameLayout android:id="@android:id/tabcontent"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ScrollView android:id="@+id/mainTab"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:orientation="vertical"
+					android:layout_width="fill_parent" android:layout_height="fill_parent"
+					android:padding="10sp">
+					<TextView android:id="@+id/title" android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="25sp"
+						android:textStyle="bold" />
+					<TextView android:id="@+id/rank" android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="20sp" />
+					<ImageView android:id="@+id/thumbnail"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:paddingTop="15sp" android:paddingBottom="15sp" />
+					<LinearLayout android:layout_width="fill_parent"
+						android:layout_height="wrap_content">
+						<ImageView android:id="@+id/star1" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star2" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star3" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star4" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star5" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star6" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star7" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star8" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star9" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" />
+						<ImageView android:id="@+id/star10"
+							android:layout_width="wrap_content" android:layout_height="wrap_content" />
+					</LinearLayout>
+					<TextView android:id="@+id/rating" android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="15sp"
+						android:paddingBottom="15sp" />
+					<TextView android:id="@+id/information"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" android:paddingBottom="15sp" />
+					<TextView android:id="@+id/description"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" />
+				</LinearLayout>
+			</ScrollView>
+			<ScrollView android:id="@+id/statsTab"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:orientation="vertical"
+					android:padding="10sp" android:layout_width="fill_parent"
+					android:layout_height="fill_parent">
+					<TextView android:id="@+id/statsName"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="25sp" android:textStyle="bold" />
+					<LinearLayout android:orientation="horizontal"
+						android:layout_width="fill_parent" android:layout_height="wrap_content">
+						<TextView android:id="@+id/statsRank"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							android:textSize="20sp" />
+						<TextView android:id="@+id/statsRatingCount"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:gravity="right" />
+					</LinearLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/averageBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/averageMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/averageText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/averageBar"
+							android:layout_alignBottom="@id/averageBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/bayesBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/bayesMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/bayesText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/bayesBar"
+							android:layout_alignBottom="@id/bayesBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/medianBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/medianMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/medianText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/medianBar"
+							android:layout_alignBottom="@id/medianBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/stdDevBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/stdDevMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/stdDevText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/stdDevBar"
+							android:layout_alignBottom="@id/stdDevBar" />
+					</RelativeLayout>
+					<LinearLayout android:orientation="horizontal"
+						android:layout_width="fill_parent" android:layout_height="wrap_content">
+						<TextView android:text="Weight" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textSize="20sp" />
+						<TextView android:id="@+id/statsWeightCount"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:gravity="right" />
+					</LinearLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/weightBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/weightMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/weightText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/weightBar"
+							android:layout_alignBottom="@id/weightBar" />
+					</RelativeLayout>
+					<LinearLayout android:orientation="horizontal"
+						android:layout_width="fill_parent" android:layout_height="wrap_content">
+						<TextView android:text="Users" android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textSize="20sp" />
+						<TextView android:id="@+id/usersCount"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:gravity="right" />
+					</LinearLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/owningBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/owningMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/owningText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/owningBar"
+							android:layout_alignBottom="@id/owningBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/ratingBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/ratingMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/ratingText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/ratingBar"
+							android:layout_alignBottom="@id/ratingBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/tradingBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/tradingMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/tradingText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/tradingBar"
+							android:layout_alignBottom="@id/tradingBar" />
+					</RelativeLayout>
+
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/wantingBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/wantingMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/wantingText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/wantingBar"
+							android:layout_alignBottom="@id/wantingBar" />
+					</RelativeLayout>
+
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<LinearLayout android:id="@+id/wishingBar"
+							android:orientation="horizontal" android:layout_width="fill_parent"
+							android:layout_height="25sp">
+							<TextView android:layout_weight="1"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter1" />
+							<TextView android:id="@+id/wishingMeter"
+								android:layout_width="fill_parent" android:layout_height="fill_parent"
+								android:background="@color/meter2" />
+						</LinearLayout>
+						<TextView android:id="@+id/wishingText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/wishingBar"
+							android:layout_alignBottom="@id/wishingBar" />
+					</RelativeLayout>
+
+				</LinearLayout>
+			</ScrollView>
+			<ScrollView android:id="@+id/extraTab"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<TextView android:id="@+id/extra" android:layout_width="fill_parent"
+					android:layout_height="wrap_content" android:textSize="15sp" />
+			</ScrollView>
+		</FrameLayout>
+	</LinearLayout>
+</TabHost>

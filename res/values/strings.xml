@@ -27,10 +27,25 @@
 	<string name="dialog_search_message">Connecting to site...</string>
 	<string name="dialog_retry_title">No results...</string>
 	<string name="dialog_retry_message">Trying wider search...</string>
-	<string name="title_not_found">No Results Found</string>
+	<string name="no_results">No results for \&quot;%1$s\&quot;</string>
 	<string name="dialog_working_title">Working...</string>
 	<string name="dialog_working_message">Downloading game data...</string>
-	<string name="rank">Rank</string>
+	<string name="rank">Rank: %s</string>
 	<string name="not_available">N/A</string>
 	<string name="user_rating">User Rating</string>
+	<string name="average">Average = %s</string>
+	<string name="bayes_average">Bayes Average = %s</string>
+	<string name="median">Median = %s</string>
+	<string name="stdDev">Standard Deviation = %s</string>
+	<string name="rating_count">%s ratings</string>
+	<string name="weight_count">%s weights</string>
+	<string name="user_total">out of %s</string>
+	<string name="owning_meter_text">Owning = %s</string>
+	<string name="rating_meter_text">Rating = %s</string>
+	<string name="trading_meter_text">Trading = %s</string>
+	<string name="wanting_meter_text">Wanting = %s</string>
+	<string name="wishing_meter_text">Wishing = %s</string>
+	<string name="main_tab_title">Main</string>
+	<string name="stats_tab_title">Stats</string>
+	<string name="extra_tab_title">Extra</string>
 </resources>

@@ -16,9 +16,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -34,9 +34,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.TextView;
 
-public class ViewBoardGame extends Activity {
+public class ViewBoardGame extends TabActivity {
 	// declare variables
 	private BoardGame boardGame = null;
 	private final int ID_DIALOG_SEARCHING = 1;
@@ -47,6 +49,7 @@ public class ViewBoardGame extends Activity {
 	private SharedPreferences preferences;
 	boolean imageLoad;
 	boolean viewLoaded = false;
+	private TabHost tabHost;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -169,6 +172,18 @@ public class ViewBoardGame extends Activity {
 		// call the XML layout
 		this.setContentView(R.layout.viewboardgame);
 
+		// setup tabs
+		tabHost = getTabHost();
+		tabHost.addTab(tabHost.newTabSpec("tabMain").setIndicator(
+				getResources().getString(R.string.main_tab_title)).setContent(
+				R.id.mainTab));
+		tabHost.addTab(tabHost.newTabSpec("tabStats").setIndicator(
+				getResources().getString(R.string.stats_tab_title)).setContent(
+				R.id.statsTab));
+		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
+				getResources().getString(R.string.extra_tab_title)).setContent(
+				R.id.extraTab));
+
 		// declare the GUI variables
 		TextView title = (TextView) findViewById(R.id.title);
 		TextView rank = (TextView) findViewById(R.id.rank);
@@ -192,11 +207,13 @@ public class ViewBoardGame extends Activity {
 		Drawable nostar = getResources().getDrawable(R.drawable.star_white);
 
 		// get the game information from the object
-		String gameRank = getResources().getString(R.string.rank) + ": ";
+		String gameRank;
 		if (boardGame.getRank() == 0) {
-			gameRank += getResources().getString(R.string.not_available);
+			gameRank = String.format(getResources().getString(R.string.rank),
+					getResources().getString(R.string.not_available));
 		} else {
-			gameRank += boardGame.getRank();
+			gameRank = String.format(getResources().getString(R.string.rank),
+					boardGame.getRank());
 		}
 		String gameRating = getResources().getString(R.string.user_rating)
 				+ ": "
@@ -283,54 +300,115 @@ public class ViewBoardGame extends Activity {
 
 		// display rest of information
 		information.setText(gameInfo);
-
-		// TEMP:
-		DecimalFormat statFormat = new DecimalFormat("#0.000");
-		gameDescription += "\n\nSTATS";
-		gameDescription += "\nRank: " + boardGame.getRank();
-		gameDescription += "\nAverage: "
-				+ statFormat.format(boardGame.getAverage());
-		gameDescription += "\nBayes Average: "
-				+ statFormat.format(boardGame.getBayesAverage());
-		gameDescription += "\nMedian: " + boardGame.getMedian();
-		gameDescription += "\nStandard Deviation: "
-				+ statFormat.format(boardGame.getStandardDeviation());
-		gameDescription += "\n\nAverage Weight: "
-				+ statFormat.format(boardGame.getAverageWeight());
-		gameDescription += "\nNumber Weighting: " + boardGame.getWeightCount();
-		gameDescription += "\n\nNumber Rating: " + boardGame.getUsersRated();
-		gameDescription += "\nNumber Owning: " + boardGame.getOwnedCount();
-		gameDescription += "\nNumber Wishing: " + boardGame.getWishingCount();
-		gameDescription += "\nNumber Wanting: " + boardGame.getWantingCount();
-		gameDescription += "\nNumber Trading: " + boardGame.getTradingCount();
-
-		// TEMP:
-		gameDescription += "\n\nDesigners:";
-		for (String designer : boardGame.getDesignerNames()) {
-			gameDescription += "\n" + designer;
-		}
-		gameDescription += "\n\nArtists:";
-		for (String artist : boardGame.getArtistNames()) {
-			gameDescription += "\n" + artist;
-		}
-		gameDescription += "\n\nPublishers:";
-		for (String publisher : boardGame.getPublisherNames()) {
-			gameDescription += "\n" + publisher;
-		}
-		gameDescription += "\n\nCategories:";
-		for (String category : boardGame.getCategoryNames()) {
-			gameDescription += "\n" + category;
-		}
-		gameDescription += "\n\nMechanics:";
-		for (String mechanic : boardGame.getMechanicNames()) {
-			gameDescription += "\n" + mechanic;
-		}
-		gameDescription += "\n\nExpansions:";
-		for (String expansion : boardGame.getExpansionNames()) {
-			gameDescription += "\n" + expansion;
-		}
-
 		description.setText(gameDescription);
+
+		// statistics
+		DecimalFormat statFormat = new DecimalFormat("#0.000");
+
+		// ratings
+		((TextView) findViewById(R.id.statsName)).setText(boardGame.getName());
+		TextView r = (TextView) findViewById(R.id.statsRank);
+		if (boardGame.getRank() == 0) {
+			r.setText(String.format(getResources().getString(R.string.rank),
+					getResources().getString(R.string.not_available)));
+		} else {
+			r.setText(String.format(getResources().getString(R.string.rank),
+					boardGame.getRank()));
+		}
+		((TextView) findViewById(R.id.statsRatingCount)).setText(String.format(
+				getResources().getString(R.string.rating_count), boardGame
+						.getUsersRated()));
+		((TextView) findViewById(R.id.averageText)).setText(String.format(
+				getResources().getString(R.string.average), statFormat
+						.format(boardGame.getAverage())));
+		setMeterView(R.id.averageMeter, (float) boardGame.getAverage());
+		((TextView) findViewById(R.id.bayesText)).setText(String.format(
+				getResources().getString(R.string.bayes_average), statFormat
+						.format(boardGame.getBayesAverage())));
+		setMeterView(R.id.bayesMeter, (float) boardGame.getBayesAverage());
+		((TextView) findViewById(R.id.medianText)).setText(String.format(
+				getResources().getString(R.string.median), statFormat
+						.format(boardGame.getMedian())));
+		setMeterView(R.id.medianMeter, (float) boardGame.getMedian());
+		((TextView) findViewById(R.id.stdDevText)).setText(String.format(
+				getResources().getString(R.string.stdDev), statFormat
+						.format(boardGame.getStandardDeviation())));
+		setMeterView(R.id.stdDevMeter,
+				(float) boardGame.getStandardDeviation(), 5);
+
+		// weight
+		((TextView) findViewById(R.id.statsWeightCount)).setText(String.format(
+				getResources().getString(R.string.weight_count), boardGame
+						.getWeightCount()));
+		setMeterView(R.id.weightMeter, (float) boardGame.getAverageWeight(), 5);
+		((TextView) findViewById(R.id.weightText)).setText(String.format(
+				getResources().getString(R.string.average), boardGame
+						.getAverageWeight()));
+
+		// users
+		int max = Math
+				.max(boardGame.getUsersRated(), boardGame.getOwnedCount());
+		max = Math.max(max, boardGame.getTradingCount());
+		max = Math.max(max, boardGame.getWantingCount());
+		max = Math.max(max, boardGame.getWishingCount());
+		max = Math.max(max, boardGame.getWeightCount());
+		((TextView) findViewById(R.id.usersCount)).setText(String.format(
+				getResources().getString(R.string.user_total), max));
+		setMeterView(R.id.owningMeter, (float) boardGame.getOwnedCount(), max);
+		((TextView) findViewById(R.id.owningText)).setText(String.format(
+				getResources().getString(R.string.owning_meter_text), boardGame
+						.getOwnedCount()));
+		setMeterView(R.id.ratingMeter, (float) boardGame.getUsersRated(), max);
+		((TextView) findViewById(R.id.ratingText)).setText(String.format(
+				getResources().getString(R.string.rating_meter_text), boardGame
+						.getUsersRated()));
+		setMeterView(R.id.tradingMeter, (float) boardGame.getTradingCount(),
+				max);
+		((TextView) findViewById(R.id.tradingText)).setText(String.format(
+				getResources().getString(R.string.trading_meter_text),
+				boardGame.getTradingCount()));
+		setMeterView(R.id.wantingMeter, (float) boardGame.getWantingCount(),
+				max);
+		((TextView) findViewById(R.id.wantingText)).setText(String.format(
+				getResources().getString(R.string.wanting_meter_text),
+				boardGame.getWantingCount()));
+		setMeterView(R.id.wishingMeter, (float) boardGame.getWishingCount(),
+				max);
+		((TextView) findViewById(R.id.wishingText)).setText(String.format(
+				getResources().getString(R.string.wishing_meter_text),
+				boardGame.getWishingCount()));
+		//TODO: adds weights and comments?
+
+		// extra
+		TextView extraView = (TextView) findViewById(R.id.extra);
+		StringBuilder extra = new StringBuilder();
+		extra.append("Designers:");
+		for (String designer : boardGame.getDesignerNames()) {
+			extra.append("\n").append(designer);
+		}
+		extra.append("\n\nArtists:");
+		for (String artist : boardGame.getArtistNames()) {
+			extra.append("\n").append(artist);
+		}
+		extra.append("\n\nPublishers:");
+		for (String publisher : boardGame.getPublisherNames()) {
+			extra.append("\n").append(publisher);
+		}
+		extra.append("\n\nCategories:");
+		for (String category : boardGame.getCategoryNames()) {
+			extra.append("\n").append(category);
+		}
+		extra.append("\n\nMechanics:");
+		for (String mechanic : boardGame.getMechanicNames()) {
+			extra.append("\n").append(mechanic);
+		}
+		extra.append("\n\nExpansions:");
+		for (String expansion : boardGame.getExpansionNames()) {
+			extra.append("\n").append(expansion);
+		}
+		extraView.setText(extra.toString());
+
+		tabHost.setCurrentTab(0);
 
 		// remove progress dialog (if any)
 		removeDialogs();
@@ -425,5 +503,23 @@ public class ViewBoardGame extends Activity {
 	public void getPreferences() {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		imageLoad = preferences.getBoolean("imageLoad", true);
+	}
+
+	private void setMeterView(int meterId, float percentage) {
+		setMeterView(meterId, percentage, 10);
+	}
+
+	private void setMeterView(int meterId, float percentage, float max) {
+		try {
+			percentage = Math.max(0, percentage);
+			percentage = Math.min(max, percentage);
+			TextView meter = (TextView) findViewById(meterId);
+			LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) meter
+					.getLayoutParams();
+			params.weight = (float) (percentage / (max - percentage));
+			meter.setLayoutParams(params);
+		} catch (Throwable t) {
+			Log.d(DEBUG_TAG, "Throwable", t);
+		}
 	}
 }
