@@ -232,7 +232,6 @@
 							android:layout_alignTop="@id/tradingBar"
 							android:layout_alignBottom="@id/tradingBar" />
 					</RelativeLayout>
-
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
 						<LinearLayout android:id="@+id/wantingBar"
@@ -251,7 +250,6 @@
 							android:layout_alignTop="@id/wantingBar"
 							android:layout_alignBottom="@id/wantingBar" />
 					</RelativeLayout>
-
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
 						<LinearLayout android:id="@+id/wishingBar"
@@ -270,7 +268,6 @@
 							android:layout_alignTop="@id/wishingBar"
 							android:layout_alignBottom="@id/wishingBar" />
 					</RelativeLayout>
-
 				</LinearLayout>
 			</ScrollView>
 			<ScrollView android:id="@+id/extraTab"

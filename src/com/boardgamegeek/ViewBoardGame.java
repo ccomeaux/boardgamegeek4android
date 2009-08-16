@@ -61,6 +61,9 @@ public class ViewBoardGame extends TabActivity {
 		// get preferences
 		getPreferences();
 
+		this.setContentView(R.layout.viewboardgame);
+		setupTabs(); // need to do this or the tab control throws an error
+
 		// get the board game
 		getBoardGame();
 	}
@@ -172,17 +175,7 @@ public class ViewBoardGame extends TabActivity {
 		// call the XML layout
 		this.setContentView(R.layout.viewboardgame);
 
-		// setup tabs
-		tabHost = getTabHost();
-		tabHost.addTab(tabHost.newTabSpec("tabMain").setIndicator(
-				getResources().getString(R.string.main_tab_title)).setContent(
-				R.id.mainTab));
-		tabHost.addTab(tabHost.newTabSpec("tabStats").setIndicator(
-				getResources().getString(R.string.stats_tab_title)).setContent(
-				R.id.statsTab));
-		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
-				getResources().getString(R.string.extra_tab_title)).setContent(
-				R.id.extraTab));
+		setupTabs();
 
 		// declare the GUI variables
 		TextView title = (TextView) findViewById(R.id.title);
@@ -377,7 +370,7 @@ public class ViewBoardGame extends TabActivity {
 		((TextView) findViewById(R.id.wishingText)).setText(String.format(
 				getResources().getString(R.string.wishing_meter_text),
 				boardGame.getWishingCount()));
-		//TODO: adds weights and comments?
+		// TODO: adds weights and comments?
 
 		// extra
 		TextView extraView = (TextView) findViewById(R.id.extra);
@@ -521,5 +514,18 @@ public class ViewBoardGame extends TabActivity {
 		} catch (Throwable t) {
 			Log.d(DEBUG_TAG, "Throwable", t);
 		}
+	}
+
+	private void setupTabs() {
+		tabHost = getTabHost();
+		tabHost.addTab(tabHost.newTabSpec("tabMain").setIndicator(
+				getResources().getString(R.string.main_tab_title)).setContent(
+				R.id.mainTab));
+		tabHost.addTab(tabHost.newTabSpec("tabStats").setIndicator(
+				getResources().getString(R.string.stats_tab_title)).setContent(
+				R.id.statsTab));
+		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
+				getResources().getString(R.string.extra_tab_title)).setContent(
+				R.id.extraTab));
 	}
 }
