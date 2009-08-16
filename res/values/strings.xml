@@ -48,4 +48,5 @@
 	<string name="main_tab_title">Main</string>
 	<string name="stats_tab_title">Stats</string>
 	<string name="extra_tab_title">Extra</string>
+	<string name="id_list_text">ID: %s</string>
 </resources>

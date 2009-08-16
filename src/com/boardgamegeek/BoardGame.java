@@ -165,35 +165,25 @@ public class BoardGame {
 	}
 
 	public String getGameInfo() {
-		// TODO: convert to a StringBuffer
-		String game_info = "";
-		getPlayers();
+		StringBuilder info = new StringBuilder();
 		if (gameId == null) {
-			game_info = "Game Not Found";
+			info.append("Game Not Found");
 		} else {
 			if (yearPublished != 0) {
-				game_info += "Year Published: ";
-				game_info += yearPublished;
-				game_info += "\n";
+				info.append("Year Published: ").append(yearPublished).append(
+						"\n");
 			}
-
-			game_info += "Players: " + getPlayers() + "\n";
-
+			info.append("Players: ").append(getPlayers()).append("\n");
 			if (playingTime != 0) {
-				game_info += "Playing Time: ";
-				game_info += playingTime + " minutes";
-				game_info += "\n";
+				info.append("Playing Time: ").append(playingTime).append(
+						"minutes\n");
 			}
-
 			if (age != 0) {
-				game_info += "Ages: ";
-				game_info += age + " and up";
-				game_info += "\n";
+				info.append("Ages: ").append(age).append(" and up\n");
 			}
-
-			game_info += "GameID: " + gameId;
+			info.append("Game ID: ").append(gameId);
 		}
-		return game_info;
+		return info.toString();
 	}
 
 	public String decodeHtml(String encodedHtml) {
@@ -211,6 +201,14 @@ public class BoardGame {
 		decodedHtml = decodedHtml.replace("&rsquo;", "'");
 		decodedHtml = decodedHtml.replace("\n\n\n", "\n\n");
 		return decodedHtml.trim();
+	}
+
+	public String toString() {
+		if (yearPublished != 0) {
+			return name + " (" + yearPublished + ")";
+		} else {
+			return name + " (ID# " + gameId + ")";
+		}
 	}
 
 	public void setStandardDeviation(double standardDeviation) {

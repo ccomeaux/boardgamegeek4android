@@ -2,7 +2,7 @@ package com.boardgamegeek;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -20,18 +20,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class ViewBoardGameList extends ListActivity {
 	// declare variables
 	private String searchText;
-	private BoardGameList boardGameList;
-	private HashMap<String, String> gameListItems = new HashMap<String, String>();
+	private List<BoardGame> boardGames = new ArrayList<BoardGame>();
+	private BoardGameAdapter adapter;
 	private final int ID_DIALOG_SEARCHING = 1;
 	private final int ID_DIALOG_RETRY = 2;
 	private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
@@ -39,7 +42,7 @@ public class ViewBoardGameList extends ListActivity {
 	private SharedPreferences preferences;
 	private boolean exactSearch;
 	private boolean skipResults;
-	private boolean first_pass = true;
+	private boolean isFirstPass = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,14 +85,13 @@ public class ViewBoardGameList extends ListActivity {
 		Log.d(DEBUG_TAG, "getBoardGameList");
 
 		// get the query from the intent
-		searchText = getIntent().getExtras().getString(
-				SearchManager.QUERY);
+		searchText = getIntent().getExtras().getString(SearchManager.QUERY);
 
 		// clear existing game list items
-		gameListItems = new HashMap<String, String>();
+		boardGames.clear();
 
 		// display a progress dialog while fetching the game data
-		if (first_pass) {
+		if (isFirstPass) {
 			showDialog(ID_DIALOG_SEARCHING);
 		} else {
 			showDialog(ID_DIALOG_RETRY);
@@ -103,7 +105,7 @@ public class ViewBoardGameList extends ListActivity {
 					// set URL
 					String queryUrl = "http://www.boardgamegeek.com/xmlapi/search?search="
 							+ searchText;
-					if (exactSearch && first_pass) {
+					if (exactSearch && isFirstPass) {
 						queryUrl += "&exact=1";
 					}
 
@@ -120,7 +122,7 @@ public class ViewBoardGameList extends ListActivity {
 					xmlReader.parse(new InputSource(url.openStream()));
 
 					// get the parsed data as an object
-					boardGameList = boardGameListHandler.getBoardGameList();
+					boardGames = boardGameListHandler.getBoardGameList();
 				} catch (Exception e) {
 					Log.d(DEBUG_TAG, "PULLING XML - Failed", e);
 				}
@@ -180,71 +182,55 @@ public class ViewBoardGameList extends ListActivity {
 
 	// updates UI after running progress dialog
 	private void updateUI() {
-		// iterate through search results and add to game list
 		int count = 0;
 		// catch this in case BGG is down or the API does not respond
 		try {
-			count = boardGameList.getCount();
+			if (boardGames != null) {
+				count = boardGames.size();
+			}
 		} catch (Exception e) {
 			Log.d(DEBUG_TAG, "UPDATE_UI - Getting Count Failed", e);
 		}
-		if (count == 0 && exactSearch && first_pass) {
+		if (count == 0 && exactSearch && isFirstPass) {
 			Log.d(DEBUG_TAG, "RETRY SEARCH");
 
 			// remove progress dialog (if any)
 			removeDialogs();
 
 			// try again if exactsearch is on and no results were found
-			first_pass = false;
+			isFirstPass = false;
 			getBoardGameList();
-		} else if (count == 0 && (!exactSearch || !first_pass)) {
+		} else if (count == 0 && (!exactSearch || !isFirstPass)) {
 			Log.d(DEBUG_TAG, "NO RESULTS");
 
 			// display if no results are found
-			gameListItems.put(String.format(getResources()
-					.getString(R.string.no_results), searchText), "20115");
+			TextView nr = (TextView) findViewById(android.R.id.empty);
+			nr.setText(String.format(getResources().getString(
+					R.string.no_results), searchText));
 
 			// remove progress dialog (if any)
 			removeDialogs();
 		} else {
 			Log.d(DEBUG_TAG, "DISPLAY RESULTS");
 
-			// display results
-			for (int i = 0; i < count; i++) {
-				BoardGame boardGame = boardGameList.elementAt(i);
-
-				if (boardGame.getYearPublished() != 0) {
-					gameListItems.put(boardGame.getName() + " ("
-							+ boardGame.getYearPublished() + ")", boardGame
-							.getGameId());
-				} else {
-					gameListItems.put(boardGame.getName() + " (ID# "
-							+ boardGame.getGameId() + ")", boardGame
-							.getGameId());
-				}
-			}
-
 			// remove progress dialog (if any)
 			removeDialogs();
 		}
 
-		// display game list
-		this.setListAdapter(new ArrayAdapter<String>(this,
-				R.layout.listtextview, new ArrayList<String>(gameListItems
-						.keySet())));
-
 		// skip directly to game if only one result
 		if (count == 1 && skipResults) {
-			BoardGame boardGame = boardGameList.elementAt(0);
+			BoardGame boardGame = boardGames.get(0);
 			viewBoardGame(boardGame.getGameId());
+		} else {
+			// display game list
+			adapter = new BoardGameAdapter();
+			setListAdapter(adapter);
 		}
 	}
 
 	// gets the game id from the list item when clicked
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// get the game id using the name as a key
-		String gameId = gameListItems.get(this.getListAdapter().getItem(
-				position));
+		String gameId = ((BoardGame) (adapter.getItem(position))).getGameId();
 		viewBoardGame(gameId);
 	}
 
@@ -291,5 +277,62 @@ public class ViewBoardGameList extends ListActivity {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		exactSearch = preferences.getBoolean("exactSearch", true);
 		skipResults = preferences.getBoolean("skipResults", true);
+	}
+
+	class BoardGameAdapter extends ArrayAdapter<BoardGame> {
+		BoardGameAdapter() {
+			super(ViewBoardGameList.this, android.R.layout.simple_list_item_1,
+					boardGames);
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View row = convertView;
+			BoardGameWrapper wrapper = null;
+
+			if (row == null) {
+				LayoutInflater inflater = getLayoutInflater();
+				row = inflater.inflate(R.layout.row, null);
+				wrapper = new BoardGameWrapper(row);
+				row.setTag(wrapper);
+			} else {
+				wrapper = (BoardGameWrapper) row.getTag();
+			}
+
+			wrapper.populateFrom(boardGames.get(position));
+
+			return row;
+		}
+	}
+
+	class BoardGameWrapper {
+		// this class exists to help performance in binding the board game list
+		private View row = null;
+		private TextView name = null;
+		private TextView gameId = null;
+
+		public BoardGameWrapper(View row) {
+			this.row = row;
+		}
+
+		void populateFrom(BoardGame bg) {
+			getName().setText(bg.getName());
+			getGameId().setText(
+					String.format(getResources().getString(
+							R.string.id_list_text), bg.getGameId()));
+		}
+
+		TextView getName() {
+			if (name == null) {
+				name = (TextView) row.findViewById(R.id.name);
+			}
+			return name;
+		}
+
+		TextView getGameId() {
+			if (gameId == null) {
+				gameId = (TextView) row.findViewById(R.id.gameId);
+			}
+			return gameId;
+		}
 	}
 }

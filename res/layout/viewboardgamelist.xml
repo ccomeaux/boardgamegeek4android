@@ -4,4 +4,7 @@
 	android:layout_height="fill_parent">
 	<ListView android:id="@id/android:list" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:fadingEdge="horizontal|vertical" />
+	<TextView android:id="@id/android:empty" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:textAppearance="?android:attr/textAppearanceLarge"
+		android:padding="10sp" android:gravity="center_vertical"/>
 </LinearLayout>

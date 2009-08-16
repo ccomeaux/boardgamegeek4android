@@ -1,23 +1,26 @@
 package com.boardgamegeek;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class BoardGameListHandler extends DefaultHandler {
 
-	private BoardGameList boardGameList;
+	private List<BoardGame> boardGameList;
 	private BoardGame boardGame;
-	private StringBuffer currentElement;
+	private StringBuilder currentElement;
 
 	// returns object after parsing
-	public BoardGameList getBoardGameList() {
+	public List<BoardGame> getBoardGameList() {
 		return boardGameList;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		boardGameList = new BoardGameList();
+		boardGameList = new ArrayList<BoardGame>();
 	}
 
 	@Override
@@ -28,7 +31,7 @@ public class BoardGameListHandler extends DefaultHandler {
 	public void startElement(String namespaceURI, String localName,
 			String qName, Attributes atts) throws SAXException {
 
-		currentElement = new StringBuffer();
+		currentElement = new StringBuilder();
 
 		if (localName.equals("boardgame")) {
 			boardGame = new BoardGame();
@@ -51,7 +54,7 @@ public class BoardGameListHandler extends DefaultHandler {
 		}
 		else
 		if (localName.equals("boardgame")) {
-			boardGameList.addItem(boardGame);
+			boardGameList.add(boardGame);
 		}
 	}
 
