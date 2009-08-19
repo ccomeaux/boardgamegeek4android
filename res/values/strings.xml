@@ -27,7 +27,7 @@
 	<string name="dialog_search_message">Connecting to site...</string>
 	<string name="dialog_retry_title">No results...</string>
 	<string name="dialog_retry_message">Trying wider search...</string>
-	<string name="no_results">No results for \&quot;%1$s\&quot;</string>
+	<string name="no_results">No results for \&quot;%s\&quot;</string>
 	<string name="dialog_working_title">Working...</string>
 	<string name="dialog_working_message">Downloading game data...</string>
 	<string name="rank">Rank: %s</string>
@@ -49,4 +49,6 @@
 	<string name="stats_tab_title">Stats</string>
 	<string name="extra_tab_title">Extra</string>
 	<string name="id_list_text">ID: %s</string>
+	<string name="bg_view_title">BGG - %s</string>
+	<string name="bg_list_title">%1$s results for \&quot;%2$s\&quot;</string>
 </resources>

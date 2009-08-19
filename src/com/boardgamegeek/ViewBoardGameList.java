@@ -225,6 +225,9 @@ public class ViewBoardGameList extends ListActivity {
 			// display game list
 			adapter = new BoardGameAdapter();
 			setListAdapter(adapter);
+
+			setTitle(String.format(getResources().getString(
+					R.string.bg_list_title), count, searchText));
 		}
 	}
 

@@ -299,7 +299,6 @@ public class ViewBoardGame extends TabActivity {
 		DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 		// ratings
-		((TextView) findViewById(R.id.statsName)).setText(boardGame.getName());
 		TextView r = (TextView) findViewById(R.id.statsRank);
 		if (boardGame.getRank() == 0) {
 			r.setText(String.format(getResources().getString(R.string.rank),
@@ -405,6 +404,10 @@ public class ViewBoardGame extends TabActivity {
 
 		// remove progress dialog (if any)
 		removeDialogs();
+
+		setTitle(String.format(
+				getResources().getString(R.string.bg_view_title), boardGame
+						.getName()));
 
 		viewLoaded = true;
 	}
