@@ -295,7 +295,7 @@ public class ViewBoardGame extends TabActivity {
 		information.setText(gameInfo);
 		description.setText(gameDescription);
 
-		// statistics
+		// STATS TAB
 		DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 		// ratings
@@ -371,7 +371,7 @@ public class ViewBoardGame extends TabActivity {
 				boardGame.getWishingCount()));
 		// TODO: adds weights and comments?
 
-		// extra
+		// EXTRA TAB
 		TextView extraView = (TextView) findViewById(R.id.extra);
 		StringBuilder extra = new StringBuilder();
 		extra.append("Designers:");
@@ -399,6 +399,20 @@ public class ViewBoardGame extends TabActivity {
 			extra.append("\n").append(expansion);
 		}
 		extraView.setText(extra.toString());
+
+		// LINKS TAB
+		((TextView) findViewById(R.id.bggGameLink))
+				.setText("http://www.boardgamegeek.com/boardgame/"
+						+ boardGame.getGameId());
+		((TextView) findViewById(R.id.bgPricesLink))
+				.setText("http://boardgameprices.com/iphone/?s="
+						+ boardGame.getNameForUrl());
+		((TextView) findViewById(R.id.amazonLink))
+				.setText("http://www.amazon.com/gp/aw/s.html/?m=aps&k="
+						+ boardGame.getNameForUrl() + "&submitSearch=GO");
+		((TextView) findViewById(R.id.ebayLink))
+				.setText("http://toys.shop.ebay.com/items/?_nkw="
+						+ boardGame.getNameForUrl() + "&_sacat=220");
 
 		tabHost.setCurrentTab(0);
 
@@ -530,5 +544,8 @@ public class ViewBoardGame extends TabActivity {
 		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
 				getResources().getString(R.string.extra_tab_title)).setContent(
 				R.id.extraTab));
+		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
+				getResources().getString(R.string.links_tab_title)).setContent(
+				R.id.linksTab));
 	}
 }

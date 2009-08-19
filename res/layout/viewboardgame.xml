@@ -272,6 +272,37 @@
 				<TextView android:id="@+id/extra" android:layout_width="fill_parent"
 					android:layout_height="wrap_content" android:textSize="15sp" />
 			</ScrollView>
+			<ScrollView android:id="@+id/linksTab"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:orientation="vertical"
+					android:padding="10sp" android:layout_width="fill_parent"
+					android:layout_height="fill_parent">
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="20sp"
+						android:text="Original BGG page" android:paddingTop="10sp" />
+					<TextView android:id="@+id/bggGameLink"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" android:autoLink="web" />
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="20sp"
+						android:text="BoardGamePrices search" android:paddingTop="10sp" />
+					<TextView android:id="@+id/bgPricesLink"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" android:autoLink="web" />
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="20sp"
+						android:text="Amazon search" android:paddingTop="10sp" />
+					<TextView android:id="@+id/amazonLink"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" android:autoLink="web" />
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="20sp"
+						android:text="eBay search" android:paddingTop="10sp" />
+					<TextView android:id="@+id/ebayLink" android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="15sp"
+						android:autoLink="web" />
+				</LinearLayout>
+			</ScrollView>
 		</FrameLayout>
 	</LinearLayout>
 </TabHost>

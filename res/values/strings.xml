@@ -48,6 +48,7 @@
 	<string name="main_tab_title">Main</string>
 	<string name="stats_tab_title">Stats</string>
 	<string name="extra_tab_title">Extra</string>
+	<string name="links_tab_title">Links</string>
 	<string name="id_list_text">ID: %s</string>
 	<string name="bg_view_title">BGG - %s</string>
 	<string name="bg_list_title">%1$s results for \&quot;%2$s\&quot;</string>
