@@ -71,73 +71,49 @@
 					</LinearLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/averageBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/averageMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/averageBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/averageText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/averageBar"
 							android:layout_alignBottom="@id/averageBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/bayesBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/bayesMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/bayesBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/bayesText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/bayesBar"
 							android:layout_alignBottom="@id/bayesBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/medianBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/medianMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/medianBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/medianText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/medianBar"
 							android:layout_alignBottom="@id/medianBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/stdDevBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/stdDevMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/stdDevBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/stdDevText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/stdDevBar"
 							android:layout_alignBottom="@id/stdDevBar" />
 					</RelativeLayout>
@@ -151,19 +127,13 @@
 					</LinearLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/weightBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/weightMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/weightBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/weightText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/weightBar"
 							android:layout_alignBottom="@id/weightBar" />
 					</RelativeLayout>
@@ -177,93 +147,75 @@
 					</LinearLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/owningBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/owningMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/owningBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/owningText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/owningBar"
 							android:layout_alignBottom="@id/owningBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/ratingBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/ratingMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/ratingBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/ratingText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/ratingBar"
 							android:layout_alignBottom="@id/ratingBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/tradingBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/tradingMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/tradingBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/tradingText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/tradingBar"
 							android:layout_alignBottom="@id/tradingBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/wantingBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/wantingMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/wantingBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/wantingText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/wantingBar"
 							android:layout_alignBottom="@id/wantingBar" />
 					</RelativeLayout>
 					<RelativeLayout android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:padding="2px">
-						<LinearLayout android:id="@+id/wishingBar"
-							android:orientation="horizontal" android:layout_width="fill_parent"
-							android:layout_height="25sp">
-							<TextView android:layout_weight="1"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter1" />
-							<TextView android:id="@+id/wishingMeter"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:background="@color/meter2" />
-						</LinearLayout>
+						<ProgressBar android:id="@+id/wishingBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
 						<TextView android:id="@+id/wishingText"
 							android:layout_width="fill_parent" android:layout_height="wrap_content"
-							android:textSize="15sp" android:textStyle="bold" android:gravity="center"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
 							android:layout_alignTop="@id/wishingBar"
 							android:layout_alignBottom="@id/wishingBar" />
+					</RelativeLayout>
+					<RelativeLayout android:layout_width="fill_parent"
+						android:layout_height="fill_parent" android:padding="2px">
+						<ProgressBar android:id="@+id/weightingBar"
+							style="?android:attr/progressBarStyleHorizontal"
+							android:layout_width="fill_parent" android:layout_height="25sp" />
+						<TextView android:id="@+id/weightingText"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textColor="#000" android:textSize="15sp"
+							android:textStyle="bold" android:gravity="center"
+							android:layout_alignTop="@id/weightingBar"
+							android:layout_alignBottom="@id/weightingBar" />
 					</RelativeLayout>
 				</LinearLayout>
 			</ScrollView>
@@ -279,27 +231,36 @@
 					android:layout_height="fill_parent">
 					<TextView android:layout_width="fill_parent"
 						android:layout_height="wrap_content" android:textSize="20sp"
-						android:text="Original BGG page" android:paddingTop="10sp" />
+						android:text="Original BGG page" android:paddingTop="6sp" />
 					<TextView android:id="@+id/bggGameLink"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:textSize="15sp" android:autoLink="web" />
+						android:textSize="12sp" android:autoLink="web" />
+					<View android:layout_width="fill_parent"
+						android:layout_height="2sp" android:layout_marginTop="10sp"
+						android:background="@android:drawable/divider_horizontal_dark" />
 					<TextView android:layout_width="fill_parent"
 						android:layout_height="wrap_content" android:textSize="20sp"
-						android:text="BoardGamePrices search" android:paddingTop="10sp" />
+						android:text="BoardGamePrices search" android:paddingTop="6sp" />
 					<TextView android:id="@+id/bgPricesLink"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:textSize="15sp" android:autoLink="web" />
+						android:textSize="12sp" android:autoLink="web" />
+					<View android:layout_width="fill_parent"
+						android:layout_height="2sp" android:layout_marginTop="10sp"
+						android:background="@android:drawable/divider_horizontal_dark" />
 					<TextView android:layout_width="fill_parent"
 						android:layout_height="wrap_content" android:textSize="20sp"
-						android:text="Amazon search" android:paddingTop="10sp" />
+						android:text="Amazon search" android:paddingTop="6sp" />
 					<TextView android:id="@+id/amazonLink"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:textSize="15sp" android:autoLink="web" />
+						android:textSize="12sp" android:autoLink="web" />
+					<View android:layout_width="fill_parent"
+						android:layout_height="2sp" android:layout_marginTop="10sp"
+						android:background="@android:drawable/divider_horizontal_dark" />
 					<TextView android:layout_width="fill_parent"
 						android:layout_height="wrap_content" android:textSize="20sp"
-						android:text="eBay search" android:paddingTop="10sp" />
+						android:text="eBay search" android:paddingTop="6sp" />
 					<TextView android:id="@+id/ebayLink" android:layout_width="fill_parent"
-						android:layout_height="wrap_content" android:textSize="15sp"
+						android:layout_height="wrap_content" android:textSize="12sp"
 						android:autoLink="web" />
 				</LinearLayout>
 			</ScrollView>

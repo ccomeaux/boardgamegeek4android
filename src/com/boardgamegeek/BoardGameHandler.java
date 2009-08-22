@@ -91,8 +91,6 @@ public class BoardGameHandler extends DefaultHandler {
 			boardGame.setDescription(currentElement.toString());
 		} else if (localName == "thumbnail") {
 			boardGame.setThumbnailUrl(currentElement.toString());
-		} else if (localName == "statistics") {
-			isStats = false;
 		} else if (localName == "boardgamedesigner") {
 			if (objectId != "") {
 				boardGame.addDesigner(objectId, currentElement.toString());
@@ -123,9 +121,15 @@ public class BoardGameHandler extends DefaultHandler {
 				boardGame.addExpansion(objectId, currentElement.toString());
 			}
 			objectId = "";
+		} else if (localName == "poll") {
+			// name="suggested_numplayers"
+			// title="User Suggested Number of Players"
+			// totalvotes="384"
+		} else if (localName == "statistics") {
+			isStats = false;
 		} else if (isStats) {
 			if (localName == "usersrated") {
-				boardGame.setUsersRated(parseInt(currentElement.toString()));
+				boardGame.setRatingCount(parseInt(currentElement.toString()));
 			} else if (localName == "average") {
 				boardGame.setAverage(parseDouble(currentElement.toString()));
 			} else if (localName == "bayesaverage") {
@@ -140,7 +144,7 @@ public class BoardGameHandler extends DefaultHandler {
 				boardGame.setStandardDeviation(parseDouble(currentElement
 						.toString()));
 			} else if (localName == "median") {
-				boardGame.setMedian(parseInt(currentElement.toString()));
+				boardGame.setMedian(parseDouble(currentElement.toString()));
 			} else if (localName == "owned") {
 				boardGame.setOwnedCount(parseInt(currentElement.toString()));
 			} else if (localName == "trading") {

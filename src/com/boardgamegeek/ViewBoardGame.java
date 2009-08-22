@@ -34,7 +34,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -50,6 +50,7 @@ public class ViewBoardGame extends TabActivity {
 	boolean imageLoad;
 	boolean viewLoaded = false;
 	private TabHost tabHost;
+	private DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -211,7 +212,7 @@ public class ViewBoardGame extends TabActivity {
 		String gameRating = getResources().getString(R.string.user_rating)
 				+ ": "
 				+ new DecimalFormat("#0.00").format(boardGame.getAverage())
-				+ " / 10 (" + boardGame.getUsersRated() + " Ratings)";
+				+ " / 10 (" + boardGame.getRatingCount() + " Ratings)";
 		String gameInfo = boardGame.getGameInfo();
 		String gameDescription = boardGame.getDescription();
 
@@ -296,83 +297,61 @@ public class ViewBoardGame extends TabActivity {
 		description.setText(gameDescription);
 
 		// STATS TAB
-		DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 		// ratings
-		TextView r = (TextView) findViewById(R.id.statsRank);
-		if (boardGame.getRank() == 0) {
-			r.setText(String.format(getResources().getString(R.string.rank),
-					getResources().getString(R.string.not_available)));
-		} else {
-			r.setText(String.format(getResources().getString(R.string.rank),
-					boardGame.getRank()));
-		}
-		((TextView) findViewById(R.id.statsRatingCount)).setText(String.format(
-				getResources().getString(R.string.rating_count), boardGame
-						.getUsersRated()));
-		((TextView) findViewById(R.id.averageText)).setText(String.format(
-				getResources().getString(R.string.average), statFormat
-						.format(boardGame.getAverage())));
-		setMeterView(R.id.averageMeter, (float) boardGame.getAverage());
-		((TextView) findViewById(R.id.bayesText)).setText(String.format(
-				getResources().getString(R.string.bayes_average), statFormat
-						.format(boardGame.getBayesAverage())));
-		setMeterView(R.id.bayesMeter, (float) boardGame.getBayesAverage());
-		((TextView) findViewById(R.id.medianText)).setText(String.format(
-				getResources().getString(R.string.median), statFormat
-						.format(boardGame.getMedian())));
-		setMeterView(R.id.medianMeter, (float) boardGame.getMedian());
-		((TextView) findViewById(R.id.stdDevText)).setText(String.format(
-				getResources().getString(R.string.stdDev), statFormat
-						.format(boardGame.getStandardDeviation())));
-		setMeterView(R.id.stdDevMeter,
-				(float) boardGame.getStandardDeviation(), 5);
+		setText(R.id.statsRank, R.string.rank,
+				(boardGame.getRank() == 0) ? R.string.not_available : boardGame
+						.getRank());
+		setText(R.id.statsRatingCount, R.string.rating_count, boardGame
+				.getRatingCount());
+		setProgressBar(R.id.averageBar, boardGame.getAverage(), 10.0);
+		setText(R.id.averageText, R.string.average_meter_text, boardGame
+				.getAverage());
+		setProgressBar(R.id.bayesBar, boardGame.getBayesAverage(), 10.0);
+		setText(R.id.bayesText, R.string.bayes_meter_text, boardGame
+				.getBayesAverage());
+		setProgressBar(R.id.medianBar, boardGame.getMedian(), 10.0);
+		setText(R.id.medianText, R.string.median_meter_text, boardGame
+				.getMedian());
+		setProgressBar(R.id.stdDevBar, boardGame.getStandardDeviation(), 5.0);
+		setText(R.id.stdDevText, R.string.stdDev_meter_text, boardGame
+				.getStandardDeviation());
 
 		// weight
-		((TextView) findViewById(R.id.statsWeightCount)).setText(String.format(
-				getResources().getString(R.string.weight_count), boardGame
-						.getWeightCount()));
-		setMeterView(R.id.weightMeter, (float) boardGame.getAverageWeight(), 5);
-		((TextView) findViewById(R.id.weightText)).setText(String.format(
-				getResources().getString(R.string.average), boardGame
-						.getAverageWeight()));
+		setText(R.id.statsWeightCount, R.string.weight_count, boardGame
+				.getWeightCount());
+		setProgressBar(R.id.weightBar, boardGame.getAverageWeight(), 5.0);
+		setText(R.id.weightText, R.string.average_meter_text, boardGame
+				.getAverageWeight());
 
 		// users
-		int max = Math
-				.max(boardGame.getUsersRated(), boardGame.getOwnedCount());
+		int max = Math.max(boardGame.getRatingCount(), boardGame
+				.getOwnedCount());
 		max = Math.max(max, boardGame.getTradingCount());
 		max = Math.max(max, boardGame.getWantingCount());
 		max = Math.max(max, boardGame.getWishingCount());
 		max = Math.max(max, boardGame.getWeightCount());
-		((TextView) findViewById(R.id.usersCount)).setText(String.format(
-				getResources().getString(R.string.user_total), max));
-		setMeterView(R.id.owningMeter, (float) boardGame.getOwnedCount(), max);
-		((TextView) findViewById(R.id.owningText)).setText(String.format(
-				getResources().getString(R.string.owning_meter_text), boardGame
-						.getOwnedCount()));
-		setMeterView(R.id.ratingMeter, (float) boardGame.getUsersRated(), max);
-		((TextView) findViewById(R.id.ratingText)).setText(String.format(
-				getResources().getString(R.string.rating_meter_text), boardGame
-						.getUsersRated()));
-		setMeterView(R.id.tradingMeter, (float) boardGame.getTradingCount(),
-				max);
-		((TextView) findViewById(R.id.tradingText)).setText(String.format(
-				getResources().getString(R.string.trading_meter_text),
-				boardGame.getTradingCount()));
-		setMeterView(R.id.wantingMeter, (float) boardGame.getWantingCount(),
-				max);
-		((TextView) findViewById(R.id.wantingText)).setText(String.format(
-				getResources().getString(R.string.wanting_meter_text),
-				boardGame.getWantingCount()));
-		setMeterView(R.id.wishingMeter, (float) boardGame.getWishingCount(),
-				max);
-		((TextView) findViewById(R.id.wishingText)).setText(String.format(
-				getResources().getString(R.string.wishing_meter_text),
-				boardGame.getWishingCount()));
-		// TODO: adds weights and comments?
+		setText(R.id.usersCount, R.string.user_total, max);
+		setProgressBar(R.id.owningBar, boardGame.getOwnedCount(), max);
+		setText(R.id.owningText, R.string.owning_meter_text, boardGame
+				.getOwnedCount());
+		setProgressBar(R.id.ratingBar, boardGame.getRatingCount(), max);
+		setText(R.id.ratingText, R.string.rating_meter_text, boardGame
+				.getRatingCount());
+		setProgressBar(R.id.tradingBar, boardGame.getTradingCount(), max);
+		setText(R.id.tradingText, R.string.trading_meter_text, boardGame
+				.getTradingCount());
+		setProgressBar(R.id.wantingBar, boardGame.getWantingCount(), max);
+		setText(R.id.wantingText, R.string.wanting_meter_text, boardGame
+				.getWantingCount());
+		setProgressBar(R.id.wishingBar, boardGame.getWishingCount(), max);
+		setText(R.id.wishingText, R.string.wishing_meter_text, boardGame
+				.getWishingCount());
+		setProgressBar(R.id.weightingBar, boardGame.getWeightCount(), max);
+		setText(R.id.weightingText, R.string.weighting_meter_text, boardGame
+				.getWeightCount());
 
 		// EXTRA TAB
-		TextView extraView = (TextView) findViewById(R.id.extra);
 		StringBuilder extra = new StringBuilder();
 		extra.append("Designers:");
 		for (String designer : boardGame.getDesignerNames()) {
@@ -398,21 +377,17 @@ public class ViewBoardGame extends TabActivity {
 		for (String expansion : boardGame.getExpansionNames()) {
 			extra.append("\n").append(expansion);
 		}
-		extraView.setText(extra.toString());
+		setText(R.id.extra, extra.toString());
 
 		// LINKS TAB
-		((TextView) findViewById(R.id.bggGameLink))
-				.setText("http://www.boardgamegeek.com/boardgame/"
-						+ boardGame.getGameId());
-		((TextView) findViewById(R.id.bgPricesLink))
-				.setText("http://boardgameprices.com/iphone/?s="
-						+ boardGame.getNameForUrl());
-		((TextView) findViewById(R.id.amazonLink))
-				.setText("http://www.amazon.com/gp/aw/s.html/?m=aps&k="
-						+ boardGame.getNameForUrl() + "&submitSearch=GO");
-		((TextView) findViewById(R.id.ebayLink))
-				.setText("http://toys.shop.ebay.com/items/?_nkw="
-						+ boardGame.getNameForUrl() + "&_sacat=220");
+		setText(R.id.bggGameLink, "http://www.boardgamegeek.com/boardgame/"
+				+ boardGame.getGameId());
+		setText(R.id.bgPricesLink, "http://boardgameprices.com/iphone/?s="
+				+ boardGame.getNameForUrl());
+		setText(R.id.amazonLink, "http://www.amazon.com/gp/aw/s.html/?m=aps&k="
+				+ boardGame.getNameForUrl() + "&submitSearch=GO");
+		setText(R.id.ebayLink, "http://toys.shop.ebay.com/items/?_nkw="
+				+ boardGame.getNameForUrl() + "&_sacat=220");
 
 		tabHost.setCurrentTab(0);
 
@@ -515,24 +490,6 @@ public class ViewBoardGame extends TabActivity {
 		imageLoad = preferences.getBoolean("imageLoad", true);
 	}
 
-	private void setMeterView(int meterId, float percentage) {
-		setMeterView(meterId, percentage, 10);
-	}
-
-	private void setMeterView(int meterId, float percentage, float max) {
-		try {
-			percentage = Math.max(0, percentage);
-			percentage = Math.min(max, percentage);
-			TextView meter = (TextView) findViewById(meterId);
-			LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) meter
-					.getLayoutParams();
-			params.weight = (float) (percentage / (max - percentage));
-			meter.setLayoutParams(params);
-		} catch (Throwable t) {
-			Log.d(DEBUG_TAG, "Throwable", t);
-		}
-	}
-
 	private void setupTabs() {
 		tabHost = getTabHost();
 		tabHost.addTab(tabHost.newTabSpec("tabMain").setIndicator(
@@ -547,5 +504,42 @@ public class ViewBoardGame extends TabActivity {
 		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
 				getResources().getString(R.string.links_tab_title)).setContent(
 				R.id.linksTab));
+	}
+
+	// HELPER METHODS
+
+	private void setText(int textViewId, String text) {
+		TextView textView = (TextView) findViewById(textViewId);
+		textView.setText(text);
+	}
+
+	private void setText(int textViewId, int stringResourceId) {
+		setText(textViewId, getResources().getString(stringResourceId));
+	}
+
+	private void setText(int textViewId, int stringResourceId, String s) {
+		setText(textViewId, String.format(getResources().getString(
+				stringResourceId), s));
+	}
+
+	private void setText(int textViewId, int stringResourceId, int i) {
+		setText(textViewId, String.format(getResources().getString(
+				stringResourceId), i));
+	}
+
+	private void setText(int textViewId, int stringResourceId, double d) {
+		setText(textViewId, String.format(getResources().getString(
+				stringResourceId), statFormat.format(d)));
+	}
+
+	private void setProgressBar(int progressBarId, double progress, double max) {
+		setProgressBar(progressBarId, (int) (progress * 1000),
+				(int) (max * 1000));
+	}
+
+	private void setProgressBar(int progressBarId, int progress, int max) {
+		ProgressBar progressBar = (ProgressBar) findViewById(progressBarId);
+		progressBar.setMax(max);
+		progressBar.setProgress(progress);
 	}
 }

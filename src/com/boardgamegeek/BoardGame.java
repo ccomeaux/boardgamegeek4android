@@ -14,12 +14,12 @@ public class BoardGame {
 	private int age = 0;
 	private String description = "";
 	private String thumbnailUrl = null;
-	private int usersRated = 0;
+	private int ratingCount = 0;
 	private double average = 0.0;
 	private double bayesAverage;
 	private int rank = 0;
 	private double standardDeviation;
-	private int median;
+	private double median;
 	private int ownedCount;
 	private int tradingCount;
 	private int wantingCount;
@@ -115,12 +115,12 @@ public class BoardGame {
 	}
 
 	// number of ratings
-	public int getUsersRated() {
-		return usersRated;
+	public int getRatingCount() {
+		return ratingCount;
 	}
 
-	public void setUsersRated(int usersRated) {
-		this.usersRated = usersRated;
+	public void setRatingCount(int ratingCount) {
+		this.ratingCount = ratingCount;
 	}
 
 	// average
@@ -180,7 +180,7 @@ public class BoardGame {
 			info.append("Players: ").append(getPlayers()).append("\n");
 			if (playingTime != 0) {
 				info.append("Playing Time: ").append(playingTime).append(
-						"minutes\n");
+						" minutes\n");
 			}
 			if (age != 0) {
 				info.append("Ages: ").append(age).append(" and up\n");
@@ -223,11 +223,11 @@ public class BoardGame {
 		return standardDeviation;
 	}
 
-	public void setMedian(int median) {
+	public void setMedian(double median) {
 		this.median = median;
 	}
 
-	public int getMedian() {
+	public double getMedian() {
 		return median;
 	}
 
