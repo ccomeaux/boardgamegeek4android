@@ -217,17 +217,17 @@ public class ViewBoardGameList extends ListActivity {
 			removeDialogs();
 		}
 
+
+		// display game list (even if we skip results, since user may use back button
+		adapter = new BoardGameAdapter();
+		setListAdapter(adapter);
+		setTitle(String.format(getResources().getString(
+				R.string.bg_list_title), count, searchText));
+
 		// skip directly to game if only one result
 		if (count == 1 && skipResults) {
 			BoardGame boardGame = boardGames.get(0);
 			viewBoardGame(boardGame.getGameId());
-		} else {
-			// display game list
-			adapter = new BoardGameAdapter();
-			setListAdapter(adapter);
-
-			setTitle(String.format(getResources().getString(
-					R.string.bg_list_title), count, searchText));
 		}
 	}
 
