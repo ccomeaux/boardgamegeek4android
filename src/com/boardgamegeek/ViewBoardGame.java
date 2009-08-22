@@ -40,7 +40,7 @@ import android.widget.TextView;
 
 public class ViewBoardGame extends TabActivity {
 	// declare variables
-	private BoardGame boardGame = null;
+	public static BoardGame boardGame = null;
 	private final int ID_DIALOG_SEARCHING = 1;
 	private Drawable thumbnail_drawable;
 	final Handler handler = new Handler();
@@ -351,34 +351,6 @@ public class ViewBoardGame extends TabActivity {
 		setText(R.id.weightingText, R.string.weighting_meter_text, boardGame
 				.getWeightCount());
 
-		// EXTRA TAB
-		StringBuilder extra = new StringBuilder();
-		extra.append("Designers:");
-		for (String designer : boardGame.getDesignerNames()) {
-			extra.append("\n").append(designer);
-		}
-		extra.append("\n\nArtists:");
-		for (String artist : boardGame.getArtistNames()) {
-			extra.append("\n").append(artist);
-		}
-		extra.append("\n\nPublishers:");
-		for (String publisher : boardGame.getPublisherNames()) {
-			extra.append("\n").append(publisher);
-		}
-		extra.append("\n\nCategories:");
-		for (String category : boardGame.getCategoryNames()) {
-			extra.append("\n").append(category);
-		}
-		extra.append("\n\nMechanics:");
-		for (String mechanic : boardGame.getMechanicNames()) {
-			extra.append("\n").append(mechanic);
-		}
-		extra.append("\n\nExpansions:");
-		for (String expansion : boardGame.getExpansionNames()) {
-			extra.append("\n").append(expansion);
-		}
-		setText(R.id.extra, extra.toString());
-
 		// LINKS TAB
 		setText(R.id.bggGameLink, "http://www.boardgamegeek.com/boardgame/"
 				+ boardGame.getGameId());
@@ -500,7 +472,7 @@ public class ViewBoardGame extends TabActivity {
 				R.id.statsTab));
 		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
 				getResources().getString(R.string.extra_tab_title)).setContent(
-				R.id.extraTab));
+				new Intent(this, BoardGameExtra.class)));
 		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
 				getResources().getString(R.string.links_tab_title)).setContent(
 				R.id.linksTab));

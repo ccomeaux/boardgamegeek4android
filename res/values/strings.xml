@@ -39,13 +39,13 @@
 	<string name="stdDev_meter_text">Standard Deviation = %s</string>
 	<string name="rating_count">%s ratings</string>
 	<string name="weight_count">%s weights</string>
-	<string name="user_total">out of %s</string>
-	<string name="owning_meter_text">Owning = %s</string>
-	<string name="rating_meter_text">Rating = %s</string>
-	<string name="trading_meter_text">Trading = %s</string>
-	<string name="wanting_meter_text">Wanting = %s</string>
-	<string name="wishing_meter_text">Wishing = %s</string>
-	<string name="weighting_meter_text">Weighting = %s</string>
+	<string name="user_total">%s users</string>
+	<string name="owning_meter_text">%s Owning</string>
+	<string name="rating_meter_text">%s Rating</string>
+	<string name="trading_meter_text">%s Trading</string>
+	<string name="wanting_meter_text">%s Wanting</string>
+	<string name="wishing_meter_text">%s Wishing</string>
+	<string name="weighting_meter_text">%s Weighting</string>
 	<string name="main_tab_title">Main</string>
 	<string name="stats_tab_title">Stats</string>
 	<string name="extra_tab_title">Extra</string>
