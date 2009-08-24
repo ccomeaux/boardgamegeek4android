@@ -3,6 +3,8 @@ package com.boardgamegeek;
 import java.util.Collection;
 import java.util.HashMap;
 
+import android.graphics.drawable.Drawable;
+
 public class BoardGame {
 
 	private String gameId = null;
@@ -14,6 +16,7 @@ public class BoardGame {
 	private int age = 0;
 	private String description = "";
 	private String thumbnailUrl = null;
+	private Drawable thumbnail;
 	private int ratingCount = 0;
 	private double average = 0.0;
 	private double bayesAverage;
@@ -157,6 +160,14 @@ public class BoardGame {
 
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl = thumbnailUrl;
+	}
+
+	public Drawable getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(Drawable thumbnail) {
+		this.thumbnail = thumbnail;
 	}
 
 	// game description
@@ -338,7 +349,7 @@ public class BoardGame {
 	public static String EncodeAsUrl(String s) {
 		// converts any accented characters into standard equivalents
 		// and replaces spaces with %20
-		
+
 		if (s == null) {
 			return null;
 		}

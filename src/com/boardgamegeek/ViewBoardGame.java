@@ -42,7 +42,6 @@ public class ViewBoardGame extends TabActivity {
 	// declare variables
 	public static BoardGame boardGame = null;
 	private final int ID_DIALOG_SEARCHING = 1;
-	private Drawable thumbnail_drawable;
 	final Handler handler = new Handler();
 	private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
@@ -100,6 +99,12 @@ public class ViewBoardGame extends TabActivity {
 		// get the game ID from the intent
 		final String gameId = getIntent().getExtras().getString("GAME_ID");
 
+		if (boardGame != null && boardGame.getGameId().equalsIgnoreCase(gameId)) {
+			//no need to retrieve the game, we already have it
+			updateUI();
+			return;
+		}
+
 		// display a progress dialog while fetching the game data
 		showDialog(ID_DIALOG_SEARCHING);
 
@@ -126,8 +131,8 @@ public class ViewBoardGame extends TabActivity {
 
 					// get the image as a drawable, since that takes a while
 					if (imageLoad) {
-						thumbnail_drawable = getImage(boardGame
-								.getThumbnailUrl());
+						boardGame.setThumbnail(getImage(boardGame
+								.getThumbnailUrl()));
 					}
 				} catch (Exception e) {
 					Log.d(DEBUG_TAG, "Exception", e);
@@ -220,9 +225,9 @@ public class ViewBoardGame extends TabActivity {
 		title.setText(boardGame.getName());
 		rank.setText(gameRank);
 		if (imageLoad) {
-			if (thumbnail_drawable != null
+			if (boardGame.getThumbnail() != null
 					&& !boardGame.getThumbnailUrl().equals("")) {
-				thumbnail.setImageDrawable(thumbnail_drawable);
+				thumbnail.setImageDrawable(boardGame.getThumbnail());
 			} else {
 				thumbnail.setImageDrawable(getResources().getDrawable(
 						R.drawable.noimage));
@@ -295,74 +300,6 @@ public class ViewBoardGame extends TabActivity {
 		// display rest of information
 		information.setText(gameInfo);
 		description.setText(gameDescription);
-
-		// STATS TAB
-
-		// ratings
-		setText(R.id.statsRank, R.string.rank,
-				(boardGame.getRank() == 0) ? R.string.not_available : boardGame
-						.getRank());
-		setText(R.id.statsRatingCount, R.string.rating_count, boardGame
-				.getRatingCount());
-		setProgressBar(R.id.averageBar, boardGame.getAverage(), 10.0);
-		setText(R.id.averageText, R.string.average_meter_text, boardGame
-				.getAverage());
-		setProgressBar(R.id.bayesBar, boardGame.getBayesAverage(), 10.0);
-		setText(R.id.bayesText, R.string.bayes_meter_text, boardGame
-				.getBayesAverage());
-		setProgressBar(R.id.medianBar, boardGame.getMedian(), 10.0);
-		setText(R.id.medianText, R.string.median_meter_text, boardGame
-				.getMedian());
-		setProgressBar(R.id.stdDevBar, boardGame.getStandardDeviation(), 5.0);
-		setText(R.id.stdDevText, R.string.stdDev_meter_text, boardGame
-				.getStandardDeviation());
-
-		// weight
-		setText(R.id.statsWeightCount, R.string.weight_count, boardGame
-				.getWeightCount());
-		setProgressBar(R.id.weightBar, boardGame.getAverageWeight(), 5.0);
-		setText(R.id.weightText, R.string.average_meter_text, boardGame
-				.getAverageWeight());
-
-		// users
-		int max = Math.max(boardGame.getRatingCount(), boardGame
-				.getOwnedCount());
-		max = Math.max(max, boardGame.getTradingCount());
-		max = Math.max(max, boardGame.getWantingCount());
-		max = Math.max(max, boardGame.getWishingCount());
-		max = Math.max(max, boardGame.getWeightCount());
-		setText(R.id.usersCount, R.string.user_total, max);
-		setProgressBar(R.id.owningBar, boardGame.getOwnedCount(), max);
-		setText(R.id.owningText, R.string.owning_meter_text, boardGame
-				.getOwnedCount());
-		setProgressBar(R.id.ratingBar, boardGame.getRatingCount(), max);
-		setText(R.id.ratingText, R.string.rating_meter_text, boardGame
-				.getRatingCount());
-		setProgressBar(R.id.tradingBar, boardGame.getTradingCount(), max);
-		setText(R.id.tradingText, R.string.trading_meter_text, boardGame
-				.getTradingCount());
-		setProgressBar(R.id.wantingBar, boardGame.getWantingCount(), max);
-		setText(R.id.wantingText, R.string.wanting_meter_text, boardGame
-				.getWantingCount());
-		setProgressBar(R.id.wishingBar, boardGame.getWishingCount(), max);
-		setText(R.id.wishingText, R.string.wishing_meter_text, boardGame
-				.getWishingCount());
-		setProgressBar(R.id.weightingBar, boardGame.getWeightCount(), max);
-		setText(R.id.weightingText, R.string.weighting_meter_text, boardGame
-				.getWeightCount());
-
-		// LINKS TAB
-		setText(R.id.bggGameLink, "http://www.boardgamegeek.com/boardgame/"
-				+ boardGame.getGameId());
-		setText(R.id.bgPricesLink, "http://boardgameprices.com/iphone/?s="
-				+ boardGame.getNameForUrl());
-		setText(R.id.amazonLink, "http://www.amazon.com/gp/aw/s.html/?m=aps&k="
-				+ boardGame.getNameForUrl() + "&submitSearch=GO");
-		setText(R.id.ebayLink, "http://toys.shop.ebay.com/items/?_nkw="
-				+ boardGame.getNameForUrl() + "&_sacat=220");
-
-		tabHost.setCurrentTab(0);
-
 		// remove progress dialog (if any)
 		removeDialogs();
 
@@ -469,13 +406,13 @@ public class ViewBoardGame extends TabActivity {
 				R.id.mainTab));
 		tabHost.addTab(tabHost.newTabSpec("tabStats").setIndicator(
 				getResources().getString(R.string.stats_tab_title)).setContent(
-				R.id.statsTab));
+				new Intent(this, BoardGameStatsTab.class)));
 		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
 				getResources().getString(R.string.extra_tab_title)).setContent(
-				new Intent(this, BoardGameExtra.class)));
+				new Intent(this, BoardGameExtraTab.class)));
 		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
 				getResources().getString(R.string.links_tab_title)).setContent(
-				R.id.linksTab));
+				new Intent(this, BoardGameLinksTab.class)));
 	}
 
 	// HELPER METHODS

@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.widget.ExpandableListAdapter;
 import android.widget.SimpleExpandableListAdapter;
 
-public class BoardGameExtra extends ExpandableListActivity {
+public class BoardGameExtraTab extends ExpandableListActivity {
 
 	private List<Map<String, String>> groupData;
 	private List<List<Map<String, String>>> childData;
