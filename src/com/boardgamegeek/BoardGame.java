@@ -92,7 +92,7 @@ public class BoardGame {
 	public String getPlayers() {
 		if (minPlayers == 0 && maxPlayers == 0) {
 			return "?";
-		} else if (minPlayers == maxPlayers) {
+		} else if (minPlayers >= maxPlayers) {
 			return "" + minPlayers;
 		} else {
 			return "" + minPlayers + " - " + maxPlayers;
@@ -348,7 +348,7 @@ public class BoardGame {
 
 	public static String EncodeAsUrl(String s) {
 		// converts any accented characters into standard equivalents
-		// and replaces spaces with %20
+		// and replaces spaces with +
 
 		if (s == null) {
 			return null;
@@ -362,6 +362,7 @@ public class BoardGame {
 				+ "Aa" // ring
 				+ "Cc" // cedilla
 				+ "OoUu" // double acute
+				+ "+" // space
 		;
 
 		final String UNICODE = "\u00C0\u00E0\u00C8\u00E8\u00CC\u00EC\u00D2\u00F2\u00D9\u00F9"
@@ -369,7 +370,7 @@ public class BoardGame {
 				+ "\u00C2\u00E2\u00CA\u00EA\u00CE\u00EE\u00D4\u00F4\u00DB\u00FB\u0176\u0177"
 				+ "\u00C3\u00E3\u00D5\u00F5\u00D1\u00F1"
 				+ "\u00C4\u00E4\u00CB\u00EB\u00CF\u00EF\u00D6\u00F6\u00DC\u00FC\u0178\u00FF"
-				+ "\u00C5\u00E5" + "\u00C7\u00E7" + "\u0150\u0151\u0170\u0171";
+				+ "\u00C5\u00E5" + "\u00C7\u00E7" + "\u0150\u0151\u0170\u0171" + " ";
 
 		StringBuilder sb = new StringBuilder();
 		int n = s.length();
@@ -382,6 +383,6 @@ public class BoardGame {
 				sb.append(c);
 			}
 		}
-		return sb.toString().replace(" ", "%20");
+		return sb.toString();
 	}
 }
