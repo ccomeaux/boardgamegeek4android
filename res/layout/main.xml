@@ -6,6 +6,5 @@
 		android:layout_height="wrap_content" android:src="@drawable/bgg_logo" />
 	<TextView android:id="@+id/title" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:gravity="center_horizontal"
-		android:text="@string/title_text" android:textSize="20sp"
-		android:textStyle="bold" />
+		android:text="@string/title_text" android:textAppearance="?android:attr/textAppearanceLarge" />
 </LinearLayout>

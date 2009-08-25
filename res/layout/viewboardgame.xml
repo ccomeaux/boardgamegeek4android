@@ -14,10 +14,10 @@
 					android:layout_width="fill_parent" android:layout_height="fill_parent"
 					android:padding="10sp">
 					<TextView android:id="@+id/title" android:layout_width="fill_parent"
-						android:layout_height="wrap_content" android:textSize="25sp"
+						android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge"
 						android:textStyle="bold" />
 					<TextView android:id="@+id/rank" android:layout_width="fill_parent"
-						android:layout_height="wrap_content" android:textSize="20sp" />
+						android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" />
 					<ImageView android:id="@+id/thumbnail"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
 						android:paddingTop="15sp" android:paddingBottom="15sp" />
@@ -45,14 +45,15 @@
 							android:layout_width="wrap_content" android:layout_height="wrap_content" />
 					</LinearLayout>
 					<TextView android:id="@+id/rating" android:layout_width="fill_parent"
-						android:layout_height="wrap_content" android:textSize="15sp"
+						android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
 						android:paddingBottom="15sp" />
 					<TextView android:id="@+id/information"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:textSize="15sp" android:paddingBottom="15sp" />
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:paddingBottom="15sp" />
 					<TextView android:id="@+id/description"
 						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:textSize="15sp" />
+						android:textAppearance="?android:attr/textAppearanceSmall" />
 				</LinearLayout>
 			</ScrollView>
 		</FrameLayout>
