@@ -32,8 +32,8 @@ public class BoardGameStatsTab extends Activity {
 
 		// ratings
 		setText(R.id.statsRank, R.string.rank,
-				(boardGame.getRank() == 0) ? R.string.not_available : boardGame
-						.getRank());
+				(boardGame.getRank() == 0) ? getResources().getString(
+						R.string.not_available) : "" + boardGame.getRank());
 		setText(R.id.statsRatingCount, R.string.rating_count, boardGame
 				.getRatingCount());
 		setProgressBar(R.id.averageBar, boardGame.getAverage(), 10.0);
@@ -89,6 +89,11 @@ public class BoardGameStatsTab extends Activity {
 	private void setText(int textViewId, String text) {
 		TextView textView = (TextView) findViewById(textViewId);
 		textView.setText(text);
+	}
+
+	private void setText(int textViewId, int stringResourceId, String s) {
+		setText(textViewId, String.format(getResources().getString(
+				stringResourceId), s));
 	}
 
 	private void setText(int textViewId, int stringResourceId, int i) {
