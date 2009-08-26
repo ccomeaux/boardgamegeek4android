@@ -19,10 +19,36 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	private static final String COUNT = "COUNT";
 	private ExpandableListAdapter adapter;
 
-	private void createGroup(String name, Collection<String> children) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		if (ViewBoardGame.boardGame == null){
+			return;
+		}
+
+		groupData = new ArrayList<Map<String, String>>();
+		childData = new ArrayList<List<Map<String, String>>>();
+
+		createGroup(R.string.designers, ViewBoardGame.boardGame.getDesignerNames());
+		createGroup(R.string.artists, ViewBoardGame.boardGame.getArtistNames());
+		createGroup(R.string.publishers, ViewBoardGame.boardGame.getPublisherNames());
+		createGroup(R.string.categories, ViewBoardGame.boardGame.getCategoryNames());
+		createGroup(R.string.mechanics, ViewBoardGame.boardGame.getMechanicNames());
+		createGroup(R.string.expansions, ViewBoardGame.boardGame.getExpansionNames());
+
+		adapter = new SimpleExpandableListAdapter(this, groupData,
+				R.layout.grouprow, new String[] { NAME, COUNT }, new int[] {
+						R.id.name, R.id.count }, childData, R.layout.childrow,
+				new String[] { NAME, COUNT },
+				new int[] { R.id.name, R.id.count });
+		setListAdapter(adapter);
+	}
+
+	private void createGroup(int nameId, Collection<String> children) {
 		Map<String, String> groupMap = new HashMap<String, String>();
 		groupData.add(groupMap);
-		groupMap.put(NAME, name);
+		groupMap.put(NAME, getResources().getString(nameId));
 		groupMap.put(COUNT, "" + children.size());
 
 		List<Map<String, String>> childrenMap = new ArrayList<Map<String, String>>();
@@ -32,27 +58,5 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			childMap.put(NAME, designer);
 		}
 		childData.add(childrenMap);
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		groupData = new ArrayList<Map<String, String>>();
-		childData = new ArrayList<List<Map<String, String>>>();
-
-		createGroup("Designers", ViewBoardGame.boardGame.getDesignerNames());
-		createGroup("Artists", ViewBoardGame.boardGame.getArtistNames());
-		createGroup("Publishers", ViewBoardGame.boardGame.getPublisherNames());
-		createGroup("Categories", ViewBoardGame.boardGame.getCategoryNames());
-		createGroup("Mechanics", ViewBoardGame.boardGame.getMechanicNames());
-		createGroup("Expansions", ViewBoardGame.boardGame.getExpansionNames());
-
-		adapter = new SimpleExpandableListAdapter(this, groupData,
-				R.layout.grouprow, new String[] { NAME, COUNT }, new int[] {
-						R.id.name, R.id.count }, childData,
-				R.layout.childrow, new String[] { NAME },
-				new int[] { R.id.name });
-		setListAdapter(adapter);
 	}
 }
