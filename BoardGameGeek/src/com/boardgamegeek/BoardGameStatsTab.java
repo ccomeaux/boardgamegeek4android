@@ -52,8 +52,16 @@ public class BoardGameStatsTab extends Activity {
 		setText(R.id.statsWeightCount, R.string.weight_count, boardGame
 				.getWeightCount());
 		setProgressBar(R.id.weightBar, boardGame.getAverageWeight(), 5.0);
-		setText(R.id.weightText, R.string.average_meter_text, boardGame
-				.getAverageWeight());
+		if (boardGame.getAverageWeight() >= 4.5)
+			setText(R.id.weightText, R.string.weight_5_text, boardGame.getAverageWeight());
+		else if (boardGame.getAverageWeight() >= 3.5)
+			setText(R.id.weightText, R.string.weight_4_text, boardGame.getAverageWeight());
+		else if (boardGame.getAverageWeight() >= 2.5)
+			setText(R.id.weightText, R.string.weight_3_text, boardGame.getAverageWeight());
+		else if (boardGame.getAverageWeight() >= 1.5)
+			setText(R.id.weightText, R.string.weight_2_text, boardGame.getAverageWeight());
+		else
+			setText(R.id.weightText, R.string.weight_1_text, boardGame.getAverageWeight());
 
 		// users
 		int max = Math.max(boardGame.getRatingCount(), boardGame

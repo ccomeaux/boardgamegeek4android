@@ -5,7 +5,7 @@
 	<string name="thanks_title">Special thanks to:</string>
 	<string name="thanks_text">Scott Alden (aldie) and
 		www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and
-		www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang\n\n--\nDennis
+		www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang\n\n--\n\nDennis
 		Bond\nChris Comeaux
 	</string>
 	<string name="tab_main">Main</string>
@@ -39,6 +39,11 @@
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
 	<string name="stdDev_meter_text">Standard Deviation = %s</string>
+	<string name="weight_1_text">%s - \&quot;Light\&quot;</string>
+	<string name="weight_2_text">%s - \&quot;Medium Light\&quot;</string>
+	<string name="weight_3_text">%s - \&quot;Medium\&quot;</string>
+	<string name="weight_4_text">%s - \&quot;Medium Heavy\&quot;</string>
+	<string name="weight_5_text">%s - \&quot;Heavy\&quot;</string>
 	<string name="rating_count">%s ratings</string>
 	<string name="weight_count">%s weights</string>
 	<string name="user_total">%s users</string>
