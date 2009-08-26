@@ -6,8 +6,6 @@ import android.widget.TextView;
 
 public class BoardGameLinksTab extends Activity {
 
-	private BoardGame boardGame;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -21,7 +19,7 @@ public class BoardGameLinksTab extends Activity {
 	}
 
 	private void updateUI() {
-		boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = ViewBoardGame.boardGame;
 		if (boardGame == null) {
 			return;
 		}

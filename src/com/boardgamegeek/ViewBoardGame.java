@@ -21,7 +21,6 @@ import android.app.ProgressDialog;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -34,7 +33,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -45,11 +43,11 @@ public class ViewBoardGame extends TabActivity {
 	final Handler handler = new Handler();
 	private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
+	private final String gameIdKey = "GAME_ID";
 	private SharedPreferences preferences;
-	boolean imageLoad;
-	boolean viewLoaded = false;
+	private boolean imageLoad;
+	private String gameId;
 	private TabHost tabHost;
-	private DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,13 +56,17 @@ public class ViewBoardGame extends TabActivity {
 		// allow type-to-search
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
-		// get preferences
 		getPreferences();
 
 		this.setContentView(R.layout.viewboardgame);
-		setupTabs(); // need to do this or the tab control throws an error
-
-		// get the board game
+		setupTabs();
+		
+		if (savedInstanceState != null){
+			gameId = savedInstanceState.getString(gameIdKey);
+		}
+		if (gameId == null || gameId.length() == 0){
+			gameId = getIntent().getExtras().getString(gameIdKey);
+		}
 		getBoardGame();
 	}
 
@@ -76,15 +78,6 @@ public class ViewBoardGame extends TabActivity {
 		getPreferences();
 	}
 
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-
-		if (viewLoaded) {
-			// update the UI
-			updateUI();
-		}
-	}
-
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.d(DEBUG_TAG, "onSaveInstanceState");
@@ -93,11 +86,11 @@ public class ViewBoardGame extends TabActivity {
 		removeDialogs();
 
 		super.onSaveInstanceState(outState);
+		
+		outState.putString(gameIdKey, gameId);
 	}
 
 	private void getBoardGame() {
-		// get the game ID from the intent
-		final String gameId = getIntent().getExtras().getString("GAME_ID");
 
 		if (boardGame != null && boardGame.getGameId().equalsIgnoreCase(gameId)) {
 			//no need to retrieve the game, we already have it
@@ -108,6 +101,9 @@ public class ViewBoardGame extends TabActivity {
 		// display a progress dialog while fetching the game data
 		showDialog(ID_DIALOG_SEARCHING);
 
+		// remove the current, so it displays nothing if the connection fails
+		boardGame = null;
+		
 		new Thread() {
 			public void run() {
 				try {
@@ -178,11 +174,6 @@ public class ViewBoardGame extends TabActivity {
 
 	// updates UI after running progress dialog
 	private void updateUI() {
-		// call the XML layout
-		this.setContentView(R.layout.viewboardgame);
-
-		setupTabs();
-
 		// declare the GUI variables
 		TextView title = (TextView) findViewById(R.id.title);
 		TextView rank = (TextView) findViewById(R.id.rank);
@@ -306,8 +297,6 @@ public class ViewBoardGame extends TabActivity {
 		setTitle(String.format(
 				getResources().getString(R.string.bg_view_title), boardGame
 						.getName()));
-
-		viewLoaded = true;
 	}
 
 	private Drawable getImage(String url) {
@@ -413,42 +402,5 @@ public class ViewBoardGame extends TabActivity {
 		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
 				getResources().getString(R.string.links_tab_title)).setContent(
 				new Intent(this, BoardGameLinksTab.class)));
-	}
-
-	// HELPER METHODS
-
-	private void setText(int textViewId, String text) {
-		TextView textView = (TextView) findViewById(textViewId);
-		textView.setText(text);
-	}
-
-	private void setText(int textViewId, int stringResourceId) {
-		setText(textViewId, getResources().getString(stringResourceId));
-	}
-
-	private void setText(int textViewId, int stringResourceId, String s) {
-		setText(textViewId, String.format(getResources().getString(
-				stringResourceId), s));
-	}
-
-	private void setText(int textViewId, int stringResourceId, int i) {
-		setText(textViewId, String.format(getResources().getString(
-				stringResourceId), i));
-	}
-
-	private void setText(int textViewId, int stringResourceId, double d) {
-		setText(textViewId, String.format(getResources().getString(
-				stringResourceId), statFormat.format(d)));
-	}
-
-	private void setProgressBar(int progressBarId, double progress, double max) {
-		setProgressBar(progressBarId, (int) (progress * 1000),
-				(int) (max * 1000));
-	}
-
-	private void setProgressBar(int progressBarId, int progress, int max) {
-		ProgressBar progressBar = (ProgressBar) findViewById(progressBarId);
-		progressBar.setMax(max);
-		progressBar.setProgress(progress);
 	}
 }

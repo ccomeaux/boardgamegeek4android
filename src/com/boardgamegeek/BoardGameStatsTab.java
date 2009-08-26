@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 public class BoardGameStatsTab extends Activity {
 
-	private BoardGame boardGame;
 	private DecimalFormat statFormat = new DecimalFormat("#0.000");
 
 	@Override
@@ -25,7 +24,7 @@ public class BoardGameStatsTab extends Activity {
 	}
 
 	private void updateUI() {
-		boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = ViewBoardGame.boardGame;
 		if (boardGame == null) {
 			return;
 		}

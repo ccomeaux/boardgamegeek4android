@@ -23,6 +23,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		BoardGame boardGame = ViewBoardGame.boardGame; 
 		if (ViewBoardGame.boardGame == null){
 			return;
 		}
@@ -30,12 +31,12 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		groupData = new ArrayList<Map<String, String>>();
 		childData = new ArrayList<List<Map<String, String>>>();
 
-		createGroup(R.string.designers, ViewBoardGame.boardGame.getDesignerNames());
-		createGroup(R.string.artists, ViewBoardGame.boardGame.getArtistNames());
-		createGroup(R.string.publishers, ViewBoardGame.boardGame.getPublisherNames());
-		createGroup(R.string.categories, ViewBoardGame.boardGame.getCategoryNames());
-		createGroup(R.string.mechanics, ViewBoardGame.boardGame.getMechanicNames());
-		createGroup(R.string.expansions, ViewBoardGame.boardGame.getExpansionNames());
+		createGroup(R.string.designers, boardGame.getDesignerNames());
+		createGroup(R.string.artists, boardGame.getArtistNames());
+		createGroup(R.string.publishers, boardGame.getPublisherNames());
+		createGroup(R.string.categories, boardGame.getCategoryNames());
+		createGroup(R.string.mechanics, boardGame.getMechanicNames());
+		createGroup(R.string.expansions, boardGame.getExpansionNames());
 
 		adapter = new SimpleExpandableListAdapter(this, groupData,
 				R.layout.grouprow, new String[] { NAME, COUNT }, new int[] {
