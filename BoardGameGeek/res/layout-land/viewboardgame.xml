@@ -1,103 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    >
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="10sp"
-    >
-    <TextView android:id="@+id/title"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"
-    	android:textStyle="bold"
-    />
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
- 	   	android:orientation="horizontal"
- 		android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-   	 >
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    		android:orientation="vertical"
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    	>
-    	   <TextView android:id="@+id/rank"
-    			android:layout_width="fill_parent" 
-     			android:layout_height="wrap_content"
-    			android:textSize="20sp"    	
-    			android:paddingBottom="15sp"
-    		/>
-    		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   		 		android:layout_width="fill_parent"
-    			android:layout_height="wrap_content"
-  		    >
-		    	<ImageView android:id="@+id/star1"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star2"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star3"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
- 		    	<ImageView android:id="@+id/star4"
-    				android:layout_width="wrap_content" 
-  		  			android:layout_height="wrap_content"
-    			/>
-		     	<ImageView android:id="@+id/star5"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star6"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star7"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star8"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star9"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-     			<ImageView android:id="@+id/star10"
-    				android:layout_width="wrap_content" 
-    				android:layout_height="wrap_content"
-    			/>
-    		</LinearLayout>
-    		<TextView android:id="@+id/rating"
-    			android:layout_width="fill_parent" 
-     			android:layout_height="wrap_content"
-    			android:textSize="15sp"
-    			android:paddingBottom="15sp"
-    		/>
-    		<TextView android:id="@+id/information"
-    			android:layout_width="fill_parent" 
-    			android:layout_height="wrap_content"
-    			android:textSize="15sp"
-    			android:paddingBottom="15sp"
-    		/>
-    	</LinearLayout>
-        <ImageView android:id="@+id/thumbnail"
-    		android:layout_width="fill_parent" 
-    		android:layout_height="wrap_content"
-    	/>
-    </LinearLayout>
-    <TextView android:id="@+id/description"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content"
-    	android:textSize="15sp"
-    />
-</LinearLayout>
-</ScrollView>
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/tabhost" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		<TabWidget android:id="@android:id/tabs"
+			android:layout_width="fill_parent" android:layout_height="wrap_content" />
+		<FrameLayout android:id="@android:id/tabcontent"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ScrollView android:id="@+id/mainTab"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:orientation="vertical"
+					android:layout_width="fill_parent" android:layout_height="fill_parent"
+					android:padding="10sp">
+					<TextView android:id="@+id/title" android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:textSize="25sp"
+						android:textStyle="bold" />
+					<LinearLayout android:orientation="horizontal"
+						android:layout_width="fill_parent" android:layout_height="wrap_content">
+						<LinearLayout android:orientation="vertical"
+							android:layout_width="wrap_content" android:layout_height="wrap_content">
+							<TextView android:id="@+id/rank" android:layout_width="fill_parent"
+								android:layout_height="wrap_content" android:textSize="20sp"
+								android:paddingBottom="15sp" />
+							<LinearLayout android:layout_width="fill_parent"
+								android:layout_height="wrap_content">
+								<ImageView android:id="@+id/star1"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star2"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star3"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star4"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star5"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star6"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star7"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star8"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star9"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+								<ImageView android:id="@+id/star10"
+									android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							</LinearLayout>
+							<TextView android:id="@+id/rating" android:layout_width="fill_parent"
+								android:layout_height="wrap_content" android:textSize="15sp"
+								android:paddingBottom="15sp" />
+							<TextView android:id="@+id/information"
+								android:layout_width="fill_parent" android:layout_height="wrap_content"
+								android:textSize="15sp" android:paddingBottom="15sp" />
+						</LinearLayout>
+						<ImageView android:id="@+id/thumbnail"
+							android:layout_width="fill_parent" android:layout_height="wrap_content" />
+					</LinearLayout>
+					<TextView android:id="@+id/description"
+						android:layout_width="fill_parent" android:layout_height="wrap_content"
+						android:textSize="15sp" />
+				</LinearLayout>
+			</ScrollView>
+		</FrameLayout>
+	</LinearLayout>
+</TabHost>
