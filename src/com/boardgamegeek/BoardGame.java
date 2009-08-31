@@ -172,7 +172,7 @@ public class BoardGame {
 
 	// game description
 	public String getDescription() {
-		return decodeHtml(description);
+		return Utility.unescapeText(description);
 	}
 
 	public void setDescription(String description) {
@@ -199,23 +199,6 @@ public class BoardGame {
 			info.append("Game ID: ").append(gameId);
 		}
 		return info.toString();
-	}
-
-	public String decodeHtml(String encodedHtml) {
-		// this replaces Html.FromHtml but preserves new lines
-		String decodedHtml = encodedHtml;
-		decodedHtml = decodedHtml.replace("&nbsp;", " ");
-		decodedHtml = decodedHtml.replace("&lt;", "<");
-		decodedHtml = decodedHtml.replace("&gt;", ">");
-		decodedHtml = decodedHtml.replace("&amp;", "&");
-		decodedHtml = decodedHtml.replace("&quot;", "\"");
-		decodedHtml = decodedHtml.replace("&ldquo;", "\"");
-		decodedHtml = decodedHtml.replace("&rdquo;", "\"");
-		decodedHtml = decodedHtml.replace("&apos;", "'");
-		decodedHtml = decodedHtml.replace("&lsquo;", "'");
-		decodedHtml = decodedHtml.replace("&rsquo;", "'");
-		decodedHtml = decodedHtml.replace("\n\n\n", "\n\n");
-		return decodedHtml.trim();
 	}
 
 	public String toString() {
@@ -306,6 +289,14 @@ public class BoardGame {
 		return designers.values();
 	}
 
+	public String getDesignerId(int position) {
+		if (designers.size() > position) {
+			return (String) designers.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
 	public void addArtist(String id, String name) {
 		artists.put(id, name);
 	}
@@ -314,12 +305,28 @@ public class BoardGame {
 		return artists.values();
 	}
 
+	public String getArtistId(int position) {
+		if (artists.size() > position) {
+			return (String) artists.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
 	public void addPublisher(String id, String name) {
 		publishers.put(id, name);
 	}
 
 	public Collection<String> getPublisherNames() {
 		return publishers.values();
+	}
+
+	public String getPublisherId(int position) {
+		if (publishers.size() > position) {
+			return (String) publishers.keySet().toArray()[position];
+		} else {
+			return null;
+		}
 	}
 
 	public void addCategory(String id, String name) {
@@ -346,6 +353,14 @@ public class BoardGame {
 		return expansions.values();
 	}
 
+	public String getExpansionId(int position) {
+		if (expansions.size() > position) {
+			return (String) expansions.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
 	public static String EncodeAsUrl(String s) {
 		// converts any accented characters into standard equivalents
 		// and replaces spaces with +
@@ -370,7 +385,10 @@ public class BoardGame {
 				+ "\u00C2\u00E2\u00CA\u00EA\u00CE\u00EE\u00D4\u00F4\u00DB\u00FB\u0176\u0177"
 				+ "\u00C3\u00E3\u00D5\u00F5\u00D1\u00F1"
 				+ "\u00C4\u00E4\u00CB\u00EB\u00CF\u00EF\u00D6\u00F6\u00DC\u00FC\u0178\u00FF"
-				+ "\u00C5\u00E5" + "\u00C7\u00E7" + "\u0150\u0151\u0170\u0171" + " ";
+				+ "\u00C5\u00E5"
+				+ "\u00C7\u00E7"
+				+ "\u0150\u0151\u0170\u0171"
+				+ " ";
 
 		StringBuilder sb = new StringBuilder();
 		int n = s.length();
