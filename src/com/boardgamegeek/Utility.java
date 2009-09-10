@@ -61,4 +61,16 @@ public final class Utility {
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		return unescapedText.trim();
 	}
+
+	public static int parseInt(String text) {
+		return parseInt(text, 0);
+	}
+
+	public static int parseInt(String text, int defaultValue) {
+		try {
+			return Integer.parseInt(text);
+		} catch (NumberFormatException ex) {
+			return defaultValue;
+		}
+	}
 }

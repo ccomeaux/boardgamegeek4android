@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:paddingTop="8dip" android:paddingBottom="8dip"
+	android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+	android:orientation="horizontal" android:gravity="center_vertical">
+	<TextView android:id="@+id/name" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:ellipsize="none"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+	<TextView android:id="@+id/count" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:paddingRight="12dip"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:gravity="right" />
+</LinearLayout>

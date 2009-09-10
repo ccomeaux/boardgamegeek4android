@@ -1,7 +1,9 @@
 package com.boardgamegeek;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import android.graphics.drawable.Drawable;
 
@@ -36,8 +38,7 @@ public class BoardGame {
 	private HashMap<String, String> categories = new HashMap<String, String>();
 	private HashMap<String, String> mechanics = new HashMap<String, String>();
 	private HashMap<String, String> expansions = new HashMap<String, String>();
-
-	// TODO: polls
+	private List<Poll> polls = new ArrayList<Poll>();
 
 	// game ID
 	public String getGameId() {
@@ -351,6 +352,14 @@ public class BoardGame {
 
 	public Collection<String> getExpansionNames() {
 		return expansions.values();
+	}
+
+	public List<Poll> getPolls() {
+		return polls;
+	}
+
+	public void addPoll(Poll poll) {
+		polls.add(poll);
 	}
 
 	public String getExpansionId(int position) {
