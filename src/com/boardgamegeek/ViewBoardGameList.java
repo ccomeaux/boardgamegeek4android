@@ -217,12 +217,13 @@ public class ViewBoardGameList extends ListActivity {
 			removeDialogs();
 		}
 
-
-		// display game list (even if we skip results, since user may use back button
+		// display game list (even if we skip results, since user may use back
+		// button
 		adapter = new BoardGameAdapter();
 		setListAdapter(adapter);
-		setTitle(String.format(getResources().getString(
-				R.string.bg_list_title), count, searchText));
+		setTitle(String.format(
+				getResources().getString(R.string.bg_list_title), count,
+				searchText));
 
 		// skip directly to game if only one result
 		if (count == 1 && skipResults) {
@@ -239,11 +240,9 @@ public class ViewBoardGameList extends ListActivity {
 
 	// calls the board game intent
 	public void viewBoardGame(String gameId) {
-		Intent myIntent = new Intent();
-		myIntent.setClassName("com.boardgamegeek",
-				"com.boardgamegeek.ViewBoardGame");
-		myIntent.putExtra("GAME_ID", gameId);
-		startActivity(myIntent);
+		Intent intent = new Intent(this, ViewBoardGame.class);
+		intent.putExtra("GAME_ID", gameId);
+		startActivity(intent);
 	}
 
 	@Override

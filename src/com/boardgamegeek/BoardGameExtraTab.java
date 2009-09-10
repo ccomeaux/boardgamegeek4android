@@ -68,8 +68,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		adapter = new SimpleExpandableListAdapter(this, groupData,
 				R.layout.grouprow, new String[] { NAME, COUNT }, new int[] {
 						R.id.name, R.id.count }, childData, R.layout.childrow,
-				new String[] { NAME, COUNT },
-				new int[] { R.id.name, R.id.count });
+				new String[] { NAME }, new int[] { R.id.name });
 		setListAdapter(adapter);
 	}
 
@@ -80,10 +79,10 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		groupMap.put(COUNT, "" + children.size());
 
 		List<Map<String, String>> childrenMap = new ArrayList<Map<String, String>>();
-		for (String designer : children) {
+		for (String child : children) {
 			Map<String, String> childMap = new HashMap<String, String>();
 			childrenMap.add(childMap);
-			childMap.put(NAME, designer);
+			childMap.put(NAME, child);
 		}
 		childData.add(childrenMap);
 	}
