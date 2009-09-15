@@ -82,6 +82,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 			return childPosition;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public View getChildView(int groupPosition, int childPosition,
 				boolean isLastChild, View convertView, ViewGroup parent) {
@@ -92,17 +93,20 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 			} else {
 				v = convertView;
 			}
-			
-			int max = Utility.parseInt(groupData.get(groupPosition).get(COUNT));
+
+			Map<String, String> group = (Map<String, String>) getGroup(groupPosition);
 			PollResult result = childData.get(groupPosition).get(childPosition);
+
 			String text;
 			if (result.getLevel() != 0) {
-				text = "" + result.getLevel();
+				text = "Level " + result.getLevel();
 			} else {
 				text = result.getValue();
 			}
-			text += " = " + result.getNumberOfVotes();
 			((TextView) v.findViewById(R.id.text)).setText(text);
+			((TextView) v.findViewById(R.id.count)).setText("" + result.getNumberOfVotes() +" / " + group.get(COUNT));
+			
+			int max = Utility.parseInt(groupData.get(groupPosition).get(COUNT));
 			ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.bar);
 			progressBar.setMax(max);
 			progressBar.setProgress(result.getNumberOfVotes());
@@ -144,7 +148,6 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 
 			Map<String, String> group = (Map<String, String>) getGroup(groupPosition);
 			((TextView) v.findViewById(R.id.name)).setText(group.get(NAME));
-			((TextView) v.findViewById(R.id.count)).setText(group.get(COUNT));
 
 			return v;
 		}
@@ -159,79 +162,4 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 			return false;
 		}
 	}
-
-	// protected void onResume() {
-	//
-	// TextView tv = new TextView(this);
-	//
-	// String text = "";
-	//
-	// BoardGame bg = ViewBoardGame.boardGame;
-	// for (Poll poll : bg.getPolls()) {
-	// text += "\n" + poll.getTitle() + "(" + poll.getTotalVotes() + ")\n";
-	// for (PollResults results : poll.getResultsList()) {
-	// // text += "\t" + results.getNumberOfPlayers();
-	// for (PollResult result : results.getResultList()) {
-	// text += "\t" + result.getValue() + "("
-	// + result.getNumberOfVotes() + ")\n";
-	// }
-	// }
-	// }
-	//
-	// tv.setText(text);
-	// }
-
-	// class PollAdapter extends ArrayAdapter<Poll> {
-	// PollAdapter() {
-	// super(BoardGamePollsTab.this, android.R.layout.simple_list_item_1,
-	// boardGame.getPolls());
-	// }
-	//
-	// public View getView(int position, View convertView, ViewGroup parent) {
-	// View row = convertView;
-	// PollWrapper wrapper = null;
-	//
-	// if (row == null) {
-	// LayoutInflater inflater = getLayoutInflater();
-	// row = inflater.inflate(R.layout.row, null);
-	// wrapper = new PollWrapper(row);
-	// row.setTag(wrapper);
-	// } else {
-	// wrapper = (PollWrapper) row.getTag();
-	// }
-	//
-	// wrapper.populateFrom(boardGame.getPolls().get(position));
-	//
-	// return row;
-	// }
-	// }
-	//
-	// class PollWrapper {
-	// private View row = null;
-	// private TextView name = null;
-	// private TextView gameId = null;
-	//
-	// public PollWrapper(View row) {
-	// this.row = row;
-	// }
-	//
-	// void populateFrom(Poll poll) {
-	// getName().setText(poll.getName());
-	// getGameId().setText(poll.getTotalVotes());
-	// }
-	//
-	// TextView getName() {
-	// if (name == null) {
-	// name = (TextView) row.findViewById(R.id.name);
-	// }
-	// return name;
-	// }
-	//
-	// TextView getGameId() {
-	// if (gameId == null) {
-	// gameId = (TextView) row.findViewById(R.id.gameId);
-	// }
-	// return gameId;
-	// }
-	// }
 }

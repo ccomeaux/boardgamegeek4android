@@ -6,10 +6,15 @@
 	android:paddingBottom="4dip">
 	<ProgressBar android:id="@+id/bar"
 		style="?android:attr/progressBarStyleHorizontal" android:layout_width="fill_parent"
-		android:layout_height="15sp" />
-	<TextView android:id="@+id/text" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:textSize="10sp"
-		android:textColor="#000" android:textStyle="bold" android:gravity="center"
-		android:ellipsize="marquee" android:layout_alignTop="@id/bar"
-		android:layout_alignBottom="@id/bar" />
+		android:layout_height="18sp" />
+	<TextView android:id="@+id/text" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:textSize="12sp" android:lines="2"
+		android:ellipsize="marquee" android:textColor="#000" android:gravity="left"
+		android:layout_alignTop="@id/bar" android:layout_alignBottom="@id/bar"
+		android:paddingLeft="6dip" />
+	<TextView android:id="@+id/count" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:textSize="12sp"
+		android:textColor="#000" android:gravity="right"
+		android:layout_alignTop="@id/bar" android:layout_alignBottom="@id/bar"
+		android:paddingRight="6dip" />
 </RelativeLayout>
