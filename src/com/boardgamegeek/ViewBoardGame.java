@@ -67,7 +67,6 @@ public class ViewBoardGame extends TabActivity {
 		if (gameId == null || gameId.length() == 0){
 			gameId = getIntent().getExtras().getString(gameIdKey);
 		}
-		getBoardGame();
 	}
 
 	@Override
@@ -76,6 +75,7 @@ public class ViewBoardGame extends TabActivity {
 
 		// get preferences
 		getPreferences();
+		getBoardGame();
 	}
 
 	@Override
