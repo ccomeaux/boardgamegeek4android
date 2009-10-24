@@ -20,7 +20,7 @@
 		partial-name searches</string>
 	<string name="pref_skipResults_title">Skip Results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
-		there is only one search result</string>
+		there is only one result</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_settings">Settings</string>
 	<string name="menu_credits">Credits</string>
