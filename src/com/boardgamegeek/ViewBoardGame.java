@@ -67,7 +67,6 @@ public class ViewBoardGame extends TabActivity {
 		if (gameId == null || gameId.length() == 0){
 			gameId = getIntent().getExtras().getString(gameIdKey);
 		}
-		getBoardGame();
 	}
 
 	@Override
@@ -76,6 +75,7 @@ public class ViewBoardGame extends TabActivity {
 
 		// get preferences
 		getPreferences();
+		getBoardGame();
 	}
 
 	@Override
@@ -402,5 +402,8 @@ public class ViewBoardGame extends TabActivity {
 		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
 				getResources().getString(R.string.links_tab_title)).setContent(
 				new Intent(this, BoardGameLinksTab.class)));
+		tabHost.addTab(tabHost.newTabSpec("tabPolls").setIndicator(
+				getResources().getString(R.string.polls_tab_title)).setContent(
+				new Intent(this, BoardGamePollsTab.class)));
 	}
 }

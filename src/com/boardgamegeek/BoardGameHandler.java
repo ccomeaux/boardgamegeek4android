@@ -13,6 +13,8 @@ public class BoardGameHandler extends DefaultHandler {
 	private boolean isRanks;
 	private boolean isRank;
 	private String objectId;
+	private Poll currentPoll;
+	private PollResults currentPollResults;
 
 	// returns object after parsing
 	public BoardGame getBoardGame() {
@@ -66,6 +68,22 @@ public class BoardGameHandler extends DefaultHandler {
 				}
 			} else if (localName == "ranks") {
 				isRanks = true;
+			}
+		} else if (localName == "poll") {
+			String pollName = atts.getValue("name");
+			String pollTitle = atts.getValue("title");
+			int pollVotes = parseInt(atts.getValue("totalvotes"));
+			currentPoll = new Poll(pollName, pollTitle, pollVotes);
+		} else if (currentPoll != null) {
+			if (localName == "results") {
+				currentPollResults = new PollResults(atts
+						.getValue("numplayers"));
+			} else if (currentPollResults != null && localName == "result") {
+				String value = atts.getValue("value");
+				int numberOfVotes = parseInt(atts.getValue("numvotes"));
+				int level = parseInt(atts.getValue("level"));
+				PollResult result = new PollResult(value, numberOfVotes, level);
+				currentPollResults.addResult(result);
 			}
 		}
 	}
@@ -122,9 +140,15 @@ public class BoardGameHandler extends DefaultHandler {
 			}
 			objectId = "";
 		} else if (localName == "poll") {
-			// name="suggested_numplayers"
-			// title="User Suggested Number of Players"
-			// totalvotes="384"
+			if (currentPoll != null) {
+				boardGame.addPoll(currentPoll);
+				currentPoll = null;
+			}
+		} else if (localName == "results") {
+			if (currentPoll != null && currentPollResults != null) {
+				currentPoll.addResults(currentPollResults);
+				currentPollResults = null;
+			}
 		} else if (localName == "statistics") {
 			isStats = false;
 		} else if (isStats) {

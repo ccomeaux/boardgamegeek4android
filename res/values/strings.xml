@@ -5,7 +5,8 @@
 	<string name="thanks_title">Special thanks to:</string>
 	<string name="thanks_text">Scott Alden (aldie) and
 		www.boardgamegeek.com\n\nNicolas Gramlich (plusminus) and
-		www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay Liang\n\n--\n\nDennis
+		www.anddev.org\n\nMark L. Murphy\nRomain Guy\nJay
+		Liang\n\n--\n\nDennis
 		Bond\nChris Comeaux
 	</string>
 	<string name="tab_main">Main</string>
@@ -57,6 +58,7 @@
 	<string name="stats_tab_title">Stats</string>
 	<string name="extra_tab_title">Extra</string>
 	<string name="links_tab_title">Links</string>
+	<string name="polls_tab_title">Polls</string>
 	<string name="id_list_text">ID: %s</string>
 	<string name="bg_view_title">BGG - %s</string>
 	<string name="bg_list_title">%1$s results for \&quot;%2$s\&quot;</string>
@@ -66,4 +68,6 @@
 	<string name="categories">Categories</string>
 	<string name="mechanics">Mechanics</string>
 	<string name="expansions">Expansions</string>
+	<string name="users">Users</string>
+	<string name="weight">Weight</string>
 </resources>

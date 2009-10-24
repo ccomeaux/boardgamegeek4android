@@ -30,6 +30,7 @@
 		<activity android:name=".BoardGameStatsTab" />
 		<activity android:name=".BoardGameExtraTab" />
 		<activity android:name=".BoardGameLinksTab" />
+		<activity android:name=".BoardGamePollsTab" />
 		<activity android:name=".Preferences" android:label="@string/app_name" />
 	</application>
 </manifest>
