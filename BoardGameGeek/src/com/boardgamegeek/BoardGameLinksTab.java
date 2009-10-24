@@ -29,7 +29,8 @@ public class BoardGameLinksTab extends Activity {
 		setText(R.id.bgPricesLink, "http://boardgameprices.com/iphone/?s="
 				+ boardGame.getNameForUrl());
 		setText(R.id.amazonLink, "http://www.amazon.com/gp/aw/s.html/?m=aps&k="
-				+ boardGame.getNameForUrl() + "&i=toys-and-games&submitSearch=GO");
+				+ boardGame.getNameForUrl()
+				+ "&i=toys-and-games&submitSearch=GO");
 		setText(R.id.ebayLink, "http://toys.shop.ebay.com/items/?_nkw="
 				+ boardGame.getNameForUrl() + "&_sacat=220");
 	}
