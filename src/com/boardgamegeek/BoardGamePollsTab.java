@@ -46,8 +46,13 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 							.getTotalVotes(), results.getResultList());
 				}
 			} else {
-				createGroup(poll.getTitle(), poll.getTotalVotes(), poll
-						.getResultsList().get(0).getResultList());
+				if (poll.getResultsList().isEmpty()) {
+					createGroup(poll.getTitle(), poll.getTotalVotes(),
+							new ArrayList<PollResult>());
+				} else {
+					createGroup(poll.getTitle(), poll.getTotalVotes(), poll
+							.getResultsList().get(0).getResultList());
+				}
 			}
 		}
 
@@ -104,8 +109,9 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 				text = result.getValue();
 			}
 			((TextView) v.findViewById(R.id.text)).setText(text);
-			((TextView) v.findViewById(R.id.count)).setText("" + result.getNumberOfVotes() +" / " + group.get(COUNT));
-			
+			((TextView) v.findViewById(R.id.count)).setText(""
+					+ result.getNumberOfVotes() + " / " + group.get(COUNT));
+
 			int max = Utility.parseInt(groupData.get(groupPosition).get(COUNT));
 			ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.bar);
 			progressBar.setMax(max);
