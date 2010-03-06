@@ -19,9 +19,6 @@ public class BoardGameGeek extends Activity {
 
 		// call the XML layout
 		this.setContentView(R.layout.main);
-
-		// invoke the search UI
-		onSearchRequested();
 	}
 
 	@Override

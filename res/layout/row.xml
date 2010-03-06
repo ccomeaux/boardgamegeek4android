@@ -7,6 +7,12 @@
 	<TextView android:id="@+id/name" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="center_vertical" />
-	<TextView android:id="@+id/gameId" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" />
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:orientation="horizontal">
+		<TextView android:id="@+id/year" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" />
+		<TextView android:id="@+id/gameId" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
+			android:gravity="right" />
+	</LinearLayout>
 </LinearLayout>

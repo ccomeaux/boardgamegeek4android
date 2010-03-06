@@ -103,13 +103,14 @@ public class ViewBoardGameList extends ListActivity {
 					Log.d(DEBUG_TAG, "PULLING XML");
 
 					// set URL
-					String queryUrl = "http://www.boardgamegeek.com/xmlapi/search?search="
+					String queryUrl = "http://www.geekdo.com/xmlapi/search?search="
 							+ searchText;
 					if (exactSearch && isFirstPass) {
 						queryUrl += "&exact=1";
 					}
 
-					URL url = new URL(queryUrl.replace(" ", "%20"));
+					URL url = new URL(queryUrl.replace(" ", "+"));
+					Log.d(DEBUG_TAG, "Query: " + url.toString());
 
 					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance()
@@ -310,6 +311,7 @@ public class ViewBoardGameList extends ListActivity {
 		// this class exists to help performance in binding the board game list
 		private View row = null;
 		private TextView name = null;
+		private TextView year = null;
 		private TextView gameId = null;
 
 		public BoardGameWrapper(View row) {
@@ -318,6 +320,7 @@ public class ViewBoardGameList extends ListActivity {
 
 		void populateFrom(BoardGame bg) {
 			getName().setText(bg.getName());
+			getYear().setText("" + bg.getYearPublished());
 			getGameId().setText(
 					String.format(getResources().getString(
 							R.string.id_list_text), bg.getGameId()));
@@ -328,6 +331,13 @@ public class ViewBoardGameList extends ListActivity {
 				name = (TextView) row.findViewById(R.id.name);
 			}
 			return name;
+		}
+
+		TextView getYear() {
+			if (year == null) {
+				year = (TextView) row.findViewById(R.id.year);
+			}
+			return year;
 		}
 
 		TextView getGameId() {

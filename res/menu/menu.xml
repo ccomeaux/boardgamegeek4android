@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/search" android:title="@string/menu_search"
-		android:icon="@android:drawable/ic_search_category_default" />
+		android:icon="@android:drawable/ic_menu_search"
+		android:alphabeticShortcut="SearchManager.MENU_KEY" />
 	<item android:id="@+id/settings" android:title="@string/menu_settings"
 		android:icon="@android:drawable/ic_menu_preferences" />
 	<item android:id="@+id/credits" android:title="@string/menu_credits"
