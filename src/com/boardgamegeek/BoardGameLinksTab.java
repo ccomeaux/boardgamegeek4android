@@ -24,16 +24,12 @@ public class BoardGameLinksTab extends Activity {
 			return;
 		}
 
-		setText(R.id.bggGameLink, "http://boardgame.geekdo.com/boardgame/"
-				+ boardGame.getGameId());
-		setText(R.id.bgPricesLink, "http://boardgameprices.com/iphone/?s="
-				+ boardGame.getNameForUrl());
-		setText(R.id.amazonLink, "http://www.amazon.com/gp/aw/s.html/?m=aps&k="
-				+ boardGame.getNameForUrl()
-				+ "&i=toys-and-games&submitSearch=GO");
-		setText(R.id.ebayLink,
-				"http://m.ebay.com/Pages/SearchResults.aspx?cid=233&rf=0&sv="
-						+ boardGame.getNameForUrl() + "&emvcc=0");
+		setText(R.id.bggGameLink, "http://boardgame.geekdo.com/boardgame/" + boardGame.getGameId());
+		setText(R.id.bgPricesLink, "http://boardgameprices.com/iphone/?s=" + boardGame.getNameForUrl());
+		setText(R.id.amazonLink, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + boardGame.getNameForUrl()
+			+ "&i=toys-and-games&submitSearch=GO");
+		setText(R.id.ebayLink, "http://m.ebay.com/Pages/SearchResults.aspx?cid=233&rf=0&sv="
+			+ boardGame.getNameForUrl() + "&emvcc=0");
 	}
 
 	private void setText(int textViewId, String text) {

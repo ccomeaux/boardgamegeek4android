@@ -30,6 +30,9 @@
 	<string name="dialog_search_message">Connecting to site...</string>
 	<string name="dialog_retry_title">No results...</string>
 	<string name="dialog_retry_message">Trying wider search...</string>
+	<string name="bgg_down_title">BoardGameGeek.com is down!</string>
+	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
+		maintenance. Please try again later.</string>
 	<string name="no_results">No results for \&quot;%s\&quot;.\n\nThis may mean
 		there are no games matching your search, or BoardGameGeek.com could be
 		down. The search function is also picky and doesn\&apos;t like some

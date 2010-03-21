@@ -1,6 +1,7 @@
 package com.boardgamegeek;
 
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,52 +38,40 @@ public class ViewBoardGameList extends ListActivity {
 	private BoardGameAdapter adapter;
 	private final int ID_DIALOG_SEARCHING = 1;
 	private final int ID_DIALOG_RETRY = 2;
-	private final String DEBUG_TAG = "BoardGameGeek DEBUG:";
+	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
 	private SharedPreferences preferences;
 	private boolean exactSearch;
 	private boolean skipResults;
 	private boolean isFirstPass = true;
+	private boolean isGeekDown = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(DEBUG_TAG, "onCreate");
+		Log.d(LOG_TAG, "onCreate");
 
-		// allow type-to-search
-		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-
-		// get preferences
-		getPreferences();
-
-		// call XML layout
-		this.setContentView(R.layout.viewboardgamelist);
-
-		// get search results
+		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
+		setContentView(R.layout.viewboardgamelist);
 		getBoardGameList();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.d(DEBUG_TAG, "onResume");
-
-		// get preferences
+		Log.d(LOG_TAG, "onResume");
 		getPreferences();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.d(DEBUG_TAG, "onSaveInstanceState");
-
-		// remove progress dialog (if any)
+		Log.d(LOG_TAG, "onSaveInstanceState");
 		removeDialogs();
-
 		super.onSaveInstanceState(outState);
 	}
 
 	private void getBoardGameList() {
-		Log.d(DEBUG_TAG, "getBoardGameList");
+		Log.d(LOG_TAG, "getBoardGameList");
 
 		// get the query from the intent
 		searchText = getIntent().getExtras().getString(SearchManager.QUERY);
@@ -100,21 +89,18 @@ public class ViewBoardGameList extends ListActivity {
 		new Thread() {
 			public void run() {
 				try {
-					Log.d(DEBUG_TAG, "PULLING XML");
-
+					isGeekDown = false;
 					// set URL
-					String queryUrl = "http://www.geekdo.com/xmlapi/search?search="
-							+ searchText;
+					String queryUrl = "http://www.geekdo.com/xmlapi/search?search=" + searchText;
 					if (exactSearch && isFirstPass) {
 						queryUrl += "&exact=1";
 					}
 
 					URL url = new URL(queryUrl.replace(" ", "+"));
-					Log.d(DEBUG_TAG, "Query: " + url.toString());
+					Log.d(LOG_TAG, "Query: " + url.toString());
 
 					// create a new SAX parser and get an XML reader from it
-					SAXParser saxParser = SAXParserFactory.newInstance()
-							.newSAXParser();
+					SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 					XMLReader xmlReader = saxParser.getXMLReader();
 
 					// set the XML reader's content handler and parse the XML
@@ -124,32 +110,33 @@ public class ViewBoardGameList extends ListActivity {
 
 					// get the parsed data as an object
 					boardGames = boardGameListHandler.getBoardGameList();
+				} catch (UnknownHostException e) {
+					// I got this when the DNS wouldn't resolve
+					Log.w(LOG_TAG, "PULLING XML - Failed", e);
 				} catch (Exception e) {
-					Log.d(DEBUG_TAG, "PULLING XML - Failed", e);
+					Log.w(LOG_TAG, "PULLING XML - Failed", e);
+					if (e.getMessage() == "down") {
+						isGeekDown = true;
+					}
 				}
 				handler.post(updateResults);
 			}
 		}.start();
 	}
 
-	// override progress dialog
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		if (id == ID_DIALOG_SEARCHING) {
-			Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
 			dialog.setTitle(R.string.dialog_search_title);
-			dialog.setMessage(getResources().getString(
-					R.string.dialog_search_message));
+			dialog.setMessage(getResources().getString(R.string.dialog_search_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
 		} else if (id == ID_DIALOG_RETRY) {
-			Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Created");
 			ProgressDialog dialog = new ProgressDialog(this);
 			dialog.setTitle(R.string.dialog_retry_title);
-			dialog.setMessage(getResources().getString(
-					R.string.dialog_retry_message));
+			dialog.setMessage(getResources().getString(R.string.dialog_retry_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -162,15 +149,13 @@ public class ViewBoardGameList extends ListActivity {
 	protected void removeDialogs() {
 		try {
 			removeDialog(ID_DIALOG_SEARCHING);
-			Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Removed");
 		} catch (Exception e) {
-			Log.d(DEBUG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e);
+			Log.w(LOG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e);
 		}
 		try {
 			removeDialog(ID_DIALOG_RETRY);
-			Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Removed");
 		} catch (Exception e) {
-			Log.d(DEBUG_TAG, "ID_DIALOG_RETRY - Remove Failed", e);
+			Log.w(LOG_TAG, "ID_DIALOG_RETRY - Remove Failed", e);
 		}
 	}
 
@@ -190,41 +175,31 @@ public class ViewBoardGameList extends ListActivity {
 				count = boardGames.size();
 			}
 		} catch (Exception e) {
-			Log.d(DEBUG_TAG, "UPDATE_UI - Getting Count Failed", e);
+			Log.w(LOG_TAG, "UPDATE_UI - Getting Count Failed", e);
 		}
-		if (count == 0 && exactSearch && isFirstPass) {
-			Log.d(DEBUG_TAG, "RETRY SEARCH");
-
-			// remove progress dialog (if any)
-			removeDialogs();
-
+		removeDialogs();
+		if (isGeekDown) {
+			TextView nr = (TextView) findViewById(android.R.id.empty);
+			nr.setText(getResources().getString(R.string.bgg_down));
+		} else if (count == 0 && exactSearch && isFirstPass) {
 			// try again if exactsearch is on and no results were found
 			isFirstPass = false;
 			getBoardGameList();
 		} else if (count == 0 && (!exactSearch || !isFirstPass)) {
-			Log.d(DEBUG_TAG, "NO RESULTS");
-
 			// display if no results are found
 			TextView nr = (TextView) findViewById(android.R.id.empty);
-			nr.setText(String.format(getResources().getString(
-					R.string.no_results), searchText));
-
-			// remove progress dialog (if any)
-			removeDialogs();
-		} else {
-			Log.d(DEBUG_TAG, "DISPLAY RESULTS");
-
-			// remove progress dialog (if any)
-			removeDialogs();
+			nr.setText(String.format(getResources().getString(R.string.no_results), searchText));
 		}
 
 		// display game list (even if we skip results, since user may use back
 		// button
 		adapter = new BoardGameAdapter();
 		setListAdapter(adapter);
-		setTitle(String.format(
-				getResources().getString(R.string.bg_list_title), count,
-				searchText));
+		if (isGeekDown) {
+			setTitle(getResources().getString(R.string.bgg_down_title));
+		} else {
+			setTitle(String.format(getResources().getString(R.string.bg_list_title), count, searchText));
+		}
 
 		// skip directly to game if only one result
 		if (count == 1 && skipResults) {
@@ -284,8 +259,7 @@ public class ViewBoardGameList extends ListActivity {
 
 	class BoardGameAdapter extends ArrayAdapter<BoardGame> {
 		BoardGameAdapter() {
-			super(ViewBoardGameList.this, android.R.layout.simple_list_item_1,
-					boardGames);
+			super(ViewBoardGameList.this, android.R.layout.simple_list_item_1, boardGames);
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
@@ -322,8 +296,7 @@ public class ViewBoardGameList extends ListActivity {
 			getName().setText(bg.getName());
 			getYear().setText("" + bg.getYearPublished());
 			getGameId().setText(
-					String.format(getResources().getString(
-							R.string.id_list_text), bg.getGameId()));
+				String.format(getResources().getString(R.string.id_list_text), bg.getGameId()));
 		}
 
 		TextView getName() {

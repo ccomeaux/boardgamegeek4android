@@ -3,12 +3,19 @@ package com.boardgamegeek;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class BoardGameGeek extends Activity {
+
+	private final String LOG_TAG = "BoardGameGeek";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -17,8 +24,9 @@ public class BoardGameGeek extends Activity {
 		// allow type-to-search
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
-		// call the XML layout
-		this.setContentView(R.layout.main);
+		setContentView(R.layout.main);
+
+		((TextView) findViewById(R.id.version)).setText(getVersionDescription());
 	}
 
 	@Override
@@ -49,5 +57,16 @@ public class BoardGameGeek extends Activity {
 			return true;
 		}
 		return false;
+	}
+
+	private String getVersionDescription() {
+		try {
+			PackageManager pm = getPackageManager();
+			PackageInfo pInfo = pm.getPackageInfo(getPackageName(), 0);
+			return "\nVersion " + pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			Log.e(LOG_TAG, "NameNotFoundException in getVersion", e);
+		}
+		return "";
 	}
 }

@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import com.boardgamegeek.BoardGameGeekData.*;
+
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 
 public class BoardGame {
@@ -40,6 +43,36 @@ public class BoardGame {
 	private HashMap<String, String> expansions = new HashMap<String, String>();
 	private List<Poll> polls = new ArrayList<Poll>();
 
+	public BoardGame() {
+	// nothing to do
+	}
+
+	public BoardGame(Cursor cursor) {
+		// populate the game with the data in the cursor
+		gameId = cursor.getString(cursor.getColumnIndex(BoardGames._ID));
+		name = cursor.getString(cursor.getColumnIndex(BoardGames.NAME));
+		yearPublished = cursor.getInt(cursor.getColumnIndex(BoardGames.YEAR));
+		minPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MIN_PLAYERS));
+		maxPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MAX_PLAYERS));
+		playingTime = cursor.getInt(cursor.getColumnIndex(BoardGames.PLAYING_TIME));
+		age = cursor.getInt(cursor.getColumnIndex(BoardGames.AGE));
+		description = cursor.getString(cursor.getColumnIndex(BoardGames.DESCRIPTION));
+		thumbnailUrl = cursor.getString(cursor.getColumnIndex(BoardGames.THUMBNAIL_URL));
+		ratingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.RATING_COUNT));
+		average = cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE));
+		bayesAverage = cursor.getDouble(cursor.getColumnIndex(BoardGames.BAYES_AVERAGE));
+		rank = cursor.getInt(cursor.getColumnIndex(BoardGames.RANK));
+		standardDeviation = cursor.getDouble(cursor.getColumnIndex(BoardGames.STANDARD_DEVIATION));
+		median = cursor.getDouble(cursor.getColumnIndex(BoardGames.MEDIAN));
+		ownedCount = cursor.getInt(cursor.getColumnIndex(BoardGames.OWNED_COUNT));
+		tradingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.TRADING_COUNT));
+		wantingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WANTING_COUNT));
+		wishingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WISHING_COUNT));
+		commentCount = cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT));
+		weightCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT));
+		averageWeight = cursor.getInt(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT));
+	}
+
 	// game ID
 	public String getGameId() {
 		return gameId;
@@ -59,7 +92,7 @@ public class BoardGame {
 	}
 
 	public String getNameForUrl() {
-		return EncodeAsUrl(name);
+		return Utility.EncodeAsUrl(name);
 	}
 
 	// year published
@@ -186,13 +219,11 @@ public class BoardGame {
 			info.append("Game Not Found");
 		} else {
 			if (yearPublished != 0) {
-				info.append("Year Published: ").append(yearPublished).append(
-						"\n");
+				info.append("Year Published: ").append(yearPublished).append("\n");
 			}
 			info.append("Players: ").append(getPlayers()).append("\n");
 			if (playingTime != 0) {
-				info.append("Playing Time: ").append(playingTime).append(
-						" minutes\n");
+				info.append("Playing Time: ").append(playingTime).append(" minutes\n");
 			}
 			if (age != 0) {
 				info.append("Ages: ").append(age).append(" and up\n");
@@ -282,6 +313,10 @@ public class BoardGame {
 		return averageWeight;
 	}
 
+	public int getDesignerCount() {
+		return designers.size();
+	}
+
 	public void addDesigner(String id, String name) {
 		designers.put(id, name);
 	}
@@ -290,12 +325,31 @@ public class BoardGame {
 		return designers.values();
 	}
 
-	public String getDesignerId(int position) {
+	public String getDesignerIdByPosition(int position) {
 		if (designers.size() > position) {
 			return (String) designers.keySet().toArray()[position];
 		} else {
 			return null;
 		}
+	}
+
+	public String getDesignerNameById(String designerId) {
+		return designers.get(designerId);
+	}
+
+	public HashMap<String, String> getDesigners() {
+		return designers;
+	}
+
+	public void CreateDesigners(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			designers.put(cursor.getString(cursor.getColumnIndex(BoardGameDesigners.DESIGNER_ID)), cursor
+				.getString(cursor.getColumnIndex(BoardGameDesigners.DESIGNER_NAME)));
+		}
+	}
+
+	public int getArtistCount() {
+		return artists.size();
 	}
 
 	public void addArtist(String id, String name) {
@@ -306,12 +360,31 @@ public class BoardGame {
 		return artists.values();
 	}
 
-	public String getArtistId(int position) {
+	public String getArtistIdByPosition(int position) {
 		if (artists.size() > position) {
 			return (String) artists.keySet().toArray()[position];
 		} else {
 			return null;
 		}
+	}
+
+	public String getArtistNameById(String artistId) {
+		return artists.get(artistId);
+	}
+
+	public HashMap<String, String> getArtists() {
+		return artists;
+	}
+
+	public void CreateArtists(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			artists.put(cursor.getString(cursor.getColumnIndex(BoardGameArtists.ARTIST_ID)), cursor
+				.getString(cursor.getColumnIndex(BoardGameArtists.ARTIST_NAME)));
+		}
+	}
+
+	public int getPublisherCount() {
+		return publishers.size();
 	}
 
 	public void addPublisher(String id, String name) {
@@ -322,12 +395,39 @@ public class BoardGame {
 		return publishers.values();
 	}
 
-	public String getPublisherId(int position) {
+	public String getPublisherIdByPosition(int position) {
 		if (publishers.size() > position) {
 			return (String) publishers.keySet().toArray()[position];
 		} else {
 			return null;
 		}
+	}
+
+	public String getPublisherNameById(String publisherId) {
+		return publishers.get(publisherId);
+	}
+
+	public void CreatePublishers(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			publishers.put(cursor.getString(cursor.getColumnIndex(BoardGamePublishers.PUBLISHER_ID)), cursor
+				.getString(cursor.getColumnIndex(BoardGamePublishers.PUBLISHER_NAME)));
+		}
+	}
+
+	public int getCategoryCount() {
+		return categories.size();
+	}
+
+	public String getCategoryIdByPosition(int position) {
+		if (categories.size() > position) {
+			return (String) categories.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
+	public String getCategoryNameById(String categoryId) {
+		return categories.get(categoryId);
 	}
 
 	public void addCategory(String id, String name) {
@@ -338,12 +438,58 @@ public class BoardGame {
 		return categories.values();
 	}
 
+	public void CreateCategories(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			categories.put(cursor.getString(cursor.getColumnIndex(BoardGameCategories.CATEGORY_ID)), cursor
+				.getString(cursor.getColumnIndex(BoardGameCategories.CATEGORY_NAME)));
+		}
+	}
+
+	public int getMechanicCount() {
+		return mechanics.size();
+	}
+
+	public String getMechanicIdByPosition(int position) {
+		if (mechanics.size() > position) {
+			return (String) mechanics.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
+	public String getMechanicNameById(String mechanicId) {
+		return mechanics.get(mechanicId);
+	}
+
 	public void addMechanic(String id, String name) {
 		mechanics.put(id, name);
 	}
 
 	public Collection<String> getMechanicNames() {
 		return mechanics.values();
+	}
+
+	public void CreateMechanics(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			mechanics.put(cursor.getString(cursor.getColumnIndex(BoardGameMechanics.MECHANIC_ID)), cursor
+				.getString(cursor.getColumnIndex(BoardGameMechanics.MECHANIC_NAME)));
+		}
+	}
+
+	public int getExpansionCount() {
+		return expansions.size();
+	}
+
+	public String getExpansionIdByPosition(int position) {
+		if (expansions.size() > position) {
+			return (String) expansions.keySet().toArray()[position];
+		} else {
+			return null;
+		}
+	}
+
+	public String getExpansionNameById(String expansionId) {
+		return expansions.get(expansionId);
 	}
 
 	public void addExpansion(String id, String name) {
@@ -354,6 +500,19 @@ public class BoardGame {
 		return expansions.values();
 	}
 
+	public void CreateExpanions(Cursor cursor) {
+		expansions.clear();
+		if (cursor == null) {
+			return;
+		}
+		if (cursor.moveToFirst()) {
+			do {
+				expansions.put(cursor.getString(cursor.getColumnIndex(BoardGameExpansions.EXPANSION_ID)),
+					cursor.getString(cursor.getColumnIndex(BoardGameExpansions.EXPANSION_NAME)));
+			} while (cursor.moveToNext());
+		}
+	}
+
 	public List<Poll> getPolls() {
 		return polls;
 	}
@@ -362,54 +521,91 @@ public class BoardGame {
 		polls.add(poll);
 	}
 
-	public String getExpansionId(int position) {
-		if (expansions.size() > position) {
-			return (String) expansions.keySet().toArray()[position];
+	public int getPollCount() {
+		return polls.size();
+	}
+
+	public Poll getPollByPosition(int position) {
+		if (polls.size() > position) {
+			return polls.get(position);
 		} else {
 			return null;
 		}
 	}
 
-	public static String EncodeAsUrl(String s) {
-		// converts any accented characters into standard equivalents
-		// and replaces spaces with +
-
-		if (s == null) {
-			return null;
+	public void createPolls(Cursor cursor) {
+		polls.clear();
+		if (cursor == null) {
+			return;
 		}
 
-		final String PLAIN_ASCII = "AaEeIiOoUu" // grave
-				+ "AaEeIiOoUuYy" // acute
-				+ "AaEeIiOoUuYy" // circumflex
-				+ "AaOoNn" // tilde
-				+ "AaEeIiOoUuYy" // umlaut
-				+ "Aa" // ring
-				+ "Cc" // cedilla
-				+ "OoUu" // double acute
-				+ "+" // space
-		;
+		if (cursor.moveToFirst()) {
+			do {
+				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePolls._ID));
+				String name = cursor.getString(cursor.getColumnIndex(BoardGamePolls.NAME));
+				String title = cursor.getString(cursor.getColumnIndex(BoardGamePolls.TITLE));
+				int votes = cursor.getInt(cursor.getColumnIndex(BoardGamePolls.VOTES));
+				polls.add(new Poll(name, title, votes, id));
+			} while (cursor.moveToNext());
+		}
+	}
 
-		final String UNICODE = "\u00C0\u00E0\u00C8\u00E8\u00CC\u00EC\u00D2\u00F2\u00D9\u00F9"
-				+ "\u00C1\u00E1\u00C9\u00E9\u00CD\u00ED\u00D3\u00F3\u00DA\u00FA\u00DD\u00FD"
-				+ "\u00C2\u00E2\u00CA\u00EA\u00CE\u00EE\u00D4\u00F4\u00DB\u00FB\u0176\u0177"
-				+ "\u00C3\u00E3\u00D5\u00F5\u00D1\u00F1"
-				+ "\u00C4\u00E4\u00CB\u00EB\u00CF\u00EF\u00D6\u00F6\u00DC\u00FC\u0178\u00FF"
-				+ "\u00C5\u00E5"
-				+ "\u00C7\u00E7"
-				+ "\u0150\u0151\u0170\u0171"
-				+ " ";
+	public void createPollResults(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
 
-		StringBuilder sb = new StringBuilder();
-		int n = s.length();
-		for (int i = 0; i < n; i++) {
-			char c = s.charAt(i);
-			int pos = UNICODE.indexOf(c);
-			if (pos > -1) {
-				sb.append(PLAIN_ASCII.charAt(pos));
-			} else {
-				sb.append(c);
+		if (cursor.moveToFirst()) {
+
+			int pollId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults.POLL_ID));
+			Poll poll = null;
+			for (Poll p : polls) {
+				if (p.getId() == pollId) {
+					poll = p;
+					break;
+				}
 			}
+			if (poll == null) {
+				return;
+			}
+
+			do {
+				String players = cursor.getString(cursor.getColumnIndex(BoardGamePollResults.PLAYERS));
+				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults._ID));
+				poll.addResults(new PollResults(players, id));
+			} while (cursor.moveToNext());
 		}
-		return sb.toString();
+	}
+
+	public void createPollResult(Cursor cursor) {
+		if (cursor == null) {
+			return;
+		}
+
+		if (cursor.moveToFirst()) {
+			int resultsId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.POLLRESULTS_ID));
+			PollResults results = null;
+			for (Poll p : polls) {
+				for (PollResults r : p.getResultsList()) {
+					if (r.getId() == resultsId) {
+						results = r;
+						break;
+					}
+				}
+				if (results != null) {
+					break;
+				}
+			}
+			if (results == null) {
+				return;
+			}
+
+			do {
+				String value = cursor.getString(cursor.getColumnIndex(BoardGamePollResult.VALUE));
+				int level = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.LEVEL));
+				int votes = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.VOTES));
+				results.addResult(new PollResult(value, votes, level));
+			} while (cursor.moveToNext());
+		}
 	}
 }

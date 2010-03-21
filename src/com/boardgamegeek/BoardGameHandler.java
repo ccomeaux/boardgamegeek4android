@@ -28,12 +28,11 @@ public class BoardGameHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void endDocument() throws SAXException {
-	}
+	public void endDocument() throws SAXException {}
 
 	@Override
-	public void startElement(String namespaceURI, String localName,
-			String qName, Attributes atts) throws SAXException {
+	public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
+		throws SAXException {
 
 		currentElement = new StringBuffer();
 
@@ -41,18 +40,14 @@ public class BoardGameHandler extends DefaultHandler {
 			boardGame.setGameId(atts.getValue("objectid"));
 		} else if (localName == "name") {
 			String primaryAttribute = atts.getValue("primary");
-			if (primaryAttribute != null
-					&& primaryAttribute.equalsIgnoreCase("true")) {
+			if (primaryAttribute != null && primaryAttribute.equalsIgnoreCase("true")) {
 				isPrimaryName = true;
 			}
 		} else if (localName == "statistics") {
 			isStats = true;
-		} else if (localName == "boardgamedesigner"
-				|| localName == "boardgameartist"
-				|| localName == "boardgamepublisher"
-				|| localName == "boardgamecategory"
-				|| localName == "boardgamemechanic"
-				|| localName == "boardgameexpansion") {
+		} else if (localName == "boardgamedesigner" || localName == "boardgameartist"
+			|| localName == "boardgamepublisher" || localName == "boardgamecategory"
+			|| localName == "boardgamemechanic" || localName == "boardgameexpansion") {
 			String idAttribute = atts.getValue("objectid");
 			if (idAttribute != null) {
 				objectId = idAttribute;
@@ -61,8 +56,7 @@ public class BoardGameHandler extends DefaultHandler {
 			if (isRanks) {
 				if (localName == "rank") {
 					String attribute = atts.getValue("type");
-					if (attribute != null
-							&& attribute.equalsIgnoreCase("boardgame")) {
+					if (attribute != null && attribute.equalsIgnoreCase("boardgame")) {
 						isRank = true;
 					}
 				}
@@ -76,8 +70,7 @@ public class BoardGameHandler extends DefaultHandler {
 			currentPoll = new Poll(pollName, pollTitle, pollVotes);
 		} else if (currentPoll != null) {
 			if (localName == "results") {
-				currentPollResults = new PollResults(atts
-						.getValue("numplayers"));
+				currentPollResults = new PollResults(atts.getValue("numplayers"));
 			} else if (currentPollResults != null && localName == "result") {
 				String value = atts.getValue("value");
 				int numberOfVotes = parseInt(atts.getValue("numvotes"));
@@ -89,8 +82,7 @@ public class BoardGameHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void endElement(String namespaceURI, String localName, String qName)
-			throws SAXException {
+	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
 
 		if (localName == "yearpublished") {
 			boardGame.setYearPublished(parseInt(currentElement.toString()));
@@ -157,16 +149,14 @@ public class BoardGameHandler extends DefaultHandler {
 			} else if (localName == "average") {
 				boardGame.setAverage(parseDouble(currentElement.toString()));
 			} else if (localName == "bayesaverage") {
-				boardGame
-						.setBayesAverage(parseDouble(currentElement.toString()));
+				boardGame.setBayesAverage(parseDouble(currentElement.toString()));
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
 			} else if (isRank && localName == "rank") {
 				boardGame.setRank(parseInt(currentElement.toString()));
 				isRank = false;
 			} else if (localName == "stddev") {
-				boardGame.setStandardDeviation(parseDouble(currentElement
-						.toString()));
+				boardGame.setStandardDeviation(parseDouble(currentElement.toString()));
 			} else if (localName == "median") {
 				boardGame.setMedian(parseDouble(currentElement.toString()));
 			} else if (localName == "owned") {
@@ -182,8 +172,7 @@ public class BoardGameHandler extends DefaultHandler {
 			} else if (localName == "numweights") {
 				boardGame.setWeightCount(parseInt(currentElement.toString()));
 			} else if (localName == "averageweight") {
-				boardGame.setAverageWeight(parseDouble(currentElement
-						.toString()));
+				boardGame.setAverageWeight(parseDouble(currentElement.toString()));
 			}
 		}
 	}

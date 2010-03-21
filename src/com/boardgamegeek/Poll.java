@@ -5,15 +5,21 @@ import java.util.List;
 
 public class Poll {
 
+	private int id;
 	private String name;
 	private String title;
 	private int totalVotes;
 	List<PollResults> resultsList = new ArrayList<PollResults>();
 
 	public Poll(String name, String title, int totalVotes) {
+		this(name, title, totalVotes, -1);
+	}
+
+	public Poll(String name, String title, int totalVotes, int id) {
 		this.name = name;
 		this.title = title;
 		this.totalVotes = totalVotes;
+		this.id = id;
 	}
 
 	public void setName(String name) {
@@ -46,5 +52,9 @@ public class Poll {
 
 	public void addResults(PollResults results) {
 		resultsList.add(results);
+	}
+
+	public int getId() {
+		return id;
 	}
 }

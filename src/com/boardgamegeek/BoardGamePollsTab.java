@@ -41,17 +41,15 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 		for (Poll poll : boardGame.getPolls()) {
 			if (poll.getResultsList().size() > 1) {
 				for (PollResults results : poll.getResultsList()) {
-					createGroup(poll.getTitle() + ": "
-							+ results.getNumberOfPlayers(), poll
-							.getTotalVotes(), results.getResultList());
+					createGroup(poll.getTitle() + ": " + results.getNumberOfPlayers(), poll.getTotalVotes(),
+						results.getResultList());
 				}
 			} else {
 				if (poll.getResultsList().isEmpty()) {
-					createGroup(poll.getTitle(), poll.getTotalVotes(),
-							new ArrayList<PollResult>());
+					createGroup(poll.getTitle(), poll.getTotalVotes(), new ArrayList<PollResult>());
 				} else {
-					createGroup(poll.getTitle(), poll.getTotalVotes(), poll
-							.getResultsList().get(0).getResultList());
+					createGroup(poll.getTitle(), poll.getTotalVotes(), poll.getResultsList().get(0)
+						.getResultList());
 				}
 			}
 		}
@@ -74,7 +72,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 
 		public PollAdapter() {
 			inflater = (LayoutInflater) BoardGamePollsTab.this
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
 		@Override
@@ -89,8 +87,8 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public View getChildView(int groupPosition, int childPosition,
-				boolean isLastChild, View convertView, ViewGroup parent) {
+		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
+			ViewGroup parent) {
 
 			View v;
 			if (convertView == null) {
@@ -109,8 +107,8 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 				text = result.getValue();
 			}
 			((TextView) v.findViewById(R.id.text)).setText(text);
-			((TextView) v.findViewById(R.id.count)).setText(""
-					+ result.getNumberOfVotes() + " / " + group.get(COUNT));
+			((TextView) v.findViewById(R.id.count)).setText("" + result.getNumberOfVotes() + " / "
+				+ group.get(COUNT));
 
 			int max = Utility.parseInt(groupData.get(groupPosition).get(COUNT));
 			ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.bar);
@@ -142,8 +140,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public View getGroupView(int groupPosition, boolean isExpanded,
-				View convertView, ViewGroup parent) {
+		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
 			View v;
 			if (convertView == null) {
