@@ -51,11 +51,10 @@ public class ViewBoardGame extends TabActivity {
 	final Handler handler = new Handler();
 	private final String LOG_TAG = "BoardGameGeek";
 	private final String gameIdKey = "GAME_ID";
-	private SharedPreferences preferences;
 	private boolean imageLoad;
+	private long cacheDuration;
 	private String gameId;
 	private TabHost tabHost;
-	private static final long diff = 259200000; // 3 days
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -114,7 +113,7 @@ public class ViewBoardGame extends TabActivity {
 			// found in the database
 			Long date = cursor.getLong(cursor.getColumnIndex(BoardGames.UPDATED_DATE));
 			Long now = System.currentTimeMillis();
-			if (date + diff > now) {
+			if (date + cacheDuration > now) {
 				// data is fresh enough to use
 				createBoardGame(cursor);
 
@@ -353,8 +352,9 @@ public class ViewBoardGame extends TabActivity {
 	}
 
 	public void getPreferences() {
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		imageLoad = preferences.getBoolean("imageLoad", true);
+		cacheDuration = preferences.getInt("cacheDuration", 259200000);
 	}
 
 	private void setupTabs() {

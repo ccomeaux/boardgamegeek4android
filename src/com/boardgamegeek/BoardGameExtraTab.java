@@ -26,10 +26,12 @@ import android.app.ExpandableListActivity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
@@ -45,16 +47,13 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	private static final String LOG_TAG = "BoardGameGeek";
 	private static final String NAME = "NAME";
 	private static final String COUNT = "COUNT";
-	//TODO: move this to preferences
-	private static final long diff = 1209600000; // 14 days
-	//private static final long diff = 3600000; // 1 hour
 	private final int ID_DIALOG_PROGRESS = 1;
 	private final int ID_DIALOG_RESULTS = 2;
 
 	private List<Map<String, String>> groupData;
 	private List<List<Map<String, String>>> childData;
 	private ExpandableListAdapter adapter;
-
+	private long cacheDuration;
 	private Handler handler = new Handler();
 	private String selectedId;
 	private String name;
@@ -83,6 +82,17 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			COUNT }, new int[] { R.id.name, R.id.count }, childData, R.layout.childrow,
 			new String[] { NAME }, new int[] { R.id.name });
 		setListAdapter(adapter);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		getPreferences();
+	}
+
+	private void getPreferences() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		cacheDuration = preferences.getInt("cacheDurationExtra", 1209600000);
 	}
 
 	private void createGroup(int nameId, Collection<String> children) {
@@ -155,7 +165,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 				// found in the DB
 				Long date = cursor.getLong(cursor.getColumnIndex(Designers.UPDATED_DATE));
 				Long now = System.currentTimeMillis();
-				if (date + diff > now) {
+				if (date + cacheDuration > now) {
 					// data is less than 14 days old, so use
 					name = cursor.getString(cursor.getColumnIndex(Designers.NAME));
 					description = cursor.getString(cursor.getColumnIndex(Designers.DESCRIPTION));
@@ -208,7 +218,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 				// found in the DB
 				Long date = cursor.getLong(cursor.getColumnIndex(Artists.UPDATED_DATE));
 				Long now = System.currentTimeMillis();
-				if (date + diff > now) {
+				if (date + cacheDuration > now) {
 					// data is less than 14 days old, so use
 					name = cursor.getString(cursor.getColumnIndex(Artists.NAME));
 					description = cursor.getString(cursor.getColumnIndex(Artists.DESCRIPTION));
@@ -261,7 +271,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 				// found in the DB
 				Long date = cursor.getLong(cursor.getColumnIndex(Artists.UPDATED_DATE));
 				Long now = System.currentTimeMillis();
-				if (date + diff > now) {
+				if (date + cacheDuration > now) {
 					// data is less than 14 days old, so use
 					name = cursor.getString(cursor.getColumnIndex(Publishers.NAME));
 					description = cursor.getString(cursor.getColumnIndex(Publishers.DESCRIPTION));

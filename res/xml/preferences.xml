@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="Settings">
+	<PreferenceCategory android:title="@string/pref_search">
 		<CheckBoxPreference android:key="imageLoad"
 			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
 			android:summary="@string/pref_imageLoad_summary" />
@@ -10,5 +10,15 @@
 		<CheckBoxPreference android:key="skipResults"
 			android:defaultValue="true" android:title="@string/pref_skipResults_title"
 			android:summary="@string/pref_skipResults_summary" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="Database">
+		<ListPreference android:key="cacheDuration"
+			android:defaultValue="259200000" android:title="@string/pref_cache_duration"
+			android:summary="@string/pref_cache_duration_summary"
+			android:entries="@array/cacheDurationEntries" android:entryValues="@array/cacheDurationValues" />
+		<ListPreference android:key="cacheDurationExtra"
+			android:defaultValue="1209600000" android:title="@string/pref_cache_duration_extra"
+			android:summary="@string/pref_cache_duration_extra_summary"
+			android:entries="@array/cacheDurationEntries" android:entryValues="@array/cacheDurationValues" />
 	</PreferenceCategory>
 </PreferenceScreen>
