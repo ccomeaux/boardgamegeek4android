@@ -9,11 +9,17 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.webkit.WebView;
 
 public final class Utility {
 
@@ -186,5 +192,30 @@ public final class Utility {
 		while ((read = in.read(b)) != -1) {
 			out.write(b, 0, read);
 		}
+	}
+
+	public static Dialog CreateAboutDialog(Context context) {
+		Dialog dialog = new Dialog(context);
+		dialog.setContentView(R.layout.dialog);
+		dialog.setTitle(R.string.about_title);
+		WebView body = (WebView) dialog.findViewById(R.id.webview);
+		body
+			.loadData(
+				"<center><h3>BoardGameGeek for Android</h3>"
+					+ getVersionDescription(context)
+					+ "</center><hr/><h4>Designed and developed by</h4><ul><li>Dennis Bond</li><li>Chris Comeaux</li></ul><h4>Special Thanks to</h4><ul><li>Scott Alden (aldie) and <a href=\"http://www.boardgamegeek.com\">BoardGameGeek</a></li></ul><h4>Technical Assistance from</h4><ul><li>Nicolas Gramlich (plusminus) and <a href=\"http://www.anddev.org\">anddev.org</a></li><li>Mark L. Murphy</li><li>Romain Guy</li><li>Jay Liang</li></ul>",
+				"text/html", "utf-8");
+		return dialog;
+	}
+
+	public static String getVersionDescription(Context context) {
+		try {
+			PackageManager pm = context.getPackageManager();
+			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);
+			return "Version " + pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			Log.e(LOG_TAG, "NameNotFoundException in getVersion", e);
+		}
+		return "";
 	}
 }

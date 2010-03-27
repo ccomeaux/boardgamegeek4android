@@ -45,6 +45,7 @@ public class ViewBoardGameList extends ListActivity {
 	private boolean skipResults;
 	private boolean isFirstPass = true;
 	private boolean isGeekDown = false;
+	private Intent intent;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class ViewBoardGameList extends ListActivity {
 
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
 		setContentView(R.layout.viewboardgamelist);
+		intent = getIntent();
 		getBoardGameList();
 	}
 
@@ -70,11 +72,17 @@ public class ViewBoardGameList extends ListActivity {
 		super.onSaveInstanceState(outState);
 	}
 
+	@Override
+	public void onNewIntent(Intent intent) {
+		this.intent = intent;
+		getBoardGameList();
+	}
+
 	private void getBoardGameList() {
 		Log.d(LOG_TAG, "getBoardGameList");
 
 		// get the query from the intent
-		searchText = getIntent().getExtras().getString(SearchManager.QUERY);
+		searchText = intent.getExtras().getString(SearchManager.QUERY);
 
 		// clear existing game list items
 		boardGames.clear();
@@ -182,7 +190,7 @@ public class ViewBoardGameList extends ListActivity {
 			TextView nr = (TextView) findViewById(android.R.id.empty);
 			nr.setText(getResources().getString(R.string.bgg_down));
 		} else if (count == 0 && exactSearch && isFirstPass) {
-			// try again if exactsearch is on and no results were found
+			// try again if exactSearch is on and no results were found
 			isFirstPass = false;
 			getBoardGameList();
 		} else if (count == 0 && (!exactSearch || !isFirstPass)) {
@@ -242,10 +250,7 @@ public class ViewBoardGameList extends ListActivity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Dialog dialog = new Dialog(this);
-			dialog.setContentView(R.layout.dialog);
-			dialog.setTitle(R.string.thanks_title);
-			dialog.show();
+			Utility.CreateAboutDialog(this).show();
 			return true;
 		}
 		return false;

@@ -5,6 +5,6 @@
 		android:alphabeticShortcut="SearchManager.MENU_KEY" />
 	<item android:id="@+id/settings" android:title="@string/menu_settings"
 		android:icon="@android:drawable/ic_menu_preferences" />
-	<item android:id="@+id/credits" android:title="@string/menu_credits"
+	<item android:id="@+id/credits" android:title="@string/menu_about"
 		android:icon="@android:drawable/ic_menu_info_details" />
 </menu>

@@ -1,11 +1,7 @@
 package com.boardgamegeek;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -25,8 +21,7 @@ public class BoardGameGeek extends Activity {
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
 		setContentView(R.layout.main);
-
-		((TextView) findViewById(R.id.version)).setText(getVersionDescription());
+		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
 	}
 
 	@Override
@@ -50,23 +45,9 @@ public class BoardGameGeek extends Activity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Dialog dialog = new Dialog(this);
-			dialog.setContentView(R.layout.dialog);
-			dialog.setTitle(R.string.thanks_title);
-			dialog.show();
+			Utility.CreateAboutDialog(this).show();
 			return true;
 		}
 		return false;
-	}
-
-	private String getVersionDescription() {
-		try {
-			PackageManager pm = getPackageManager();
-			PackageInfo pInfo = pm.getPackageInfo(getPackageName(), 0);
-			return "\nVersion " + pInfo.versionName;
-		} catch (NameNotFoundException e) {
-			Log.e(LOG_TAG, "NameNotFoundException in getVersion", e);
-		}
-		return "";
 	}
 }

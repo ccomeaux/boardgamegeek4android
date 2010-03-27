@@ -342,10 +342,7 @@ public class ViewBoardGame extends TabActivity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Dialog dialog = new Dialog(this);
-			dialog.setContentView(R.layout.dialog);
-			dialog.setTitle(R.string.thanks_title);
-			dialog.show();
+			Utility.CreateAboutDialog(this).show();
 			return true;
 		}
 		return false;
