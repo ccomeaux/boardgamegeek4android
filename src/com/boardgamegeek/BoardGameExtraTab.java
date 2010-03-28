@@ -92,7 +92,8 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 	private void getPreferences() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		cacheDuration = preferences.getInt("cacheDurationExtra", 1209600000);
+		cacheDuration = Utility.parseInt(preferences.getString("cacheDurationExtra", "1209600000"),
+			1209600000);
 	}
 
 	private void createGroup(int nameId, Collection<String> children) {

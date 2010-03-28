@@ -351,7 +351,7 @@ public class ViewBoardGame extends TabActivity {
 	public void getPreferences() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		imageLoad = preferences.getBoolean("imageLoad", true);
-		cacheDuration = preferences.getInt("cacheDuration", 259200000);
+		cacheDuration = Utility.parseInt(preferences.getString("cacheDuration", "259200000"), 259200000);
 	}
 
 	private void setupTabs() {

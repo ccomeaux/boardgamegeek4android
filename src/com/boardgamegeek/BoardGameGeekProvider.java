@@ -404,6 +404,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// Tell the cursor what URI to watch, so it knows when its source data
 		// changes
 		c.setNotificationUri(getContext().getContentResolver(), uri);
+		Log.d(LOG_TAG, "Queried URI " + uri);
 		return c;
 	}
 
@@ -891,10 +892,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.update(BOARDGAME_TABLE, values, BoardGames._ID + "=" + uri.getPathSegments().get(1)
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
-		// case BOARDGAME_DESIGNERS:
-		// count = db.update(BOARDGAMEDESIGNER_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_DESIGNERS:
+			count = db.update(BOARDGAMEDESIGNER_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_DESIGNER_ID:
 		// count = db.update(BOARDGAMEDESIGNER_TABLE, values,
 		// BoardGameDesigners._ID + "="
@@ -902,10 +902,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
 		// selectionArgs);
 		// break;
-		// case BOARDGAME_ARTISTS:
-		// count = db.update(BOARDGAMEARTIST_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_ARTISTS:
+			count = db.update(BOARDGAMEARTIST_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_ARTIST_ID:
 		// count = db.update(BOARDGAMEARTIST_TABLE, values, BoardGameArtists._ID
 		// + "="
@@ -913,10 +912,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
 		// selectionArgs);
 		// break;
-		// case BOARDGAME_PUBLISHERS:
-		// count = db.update(BOARDGAMEPUBLISHER_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_PUBLISHERS:
+			count = db.update(BOARDGAMEPUBLISHER_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_PUBLISHER_ID:
 		// count = db.update(BOARDGAMEPUBLISHER_TABLE, values,
 		// BoardGamePublishers._ID + "="
@@ -924,10 +922,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
 		// selectionArgs);
 		// break;
-		// case BOARDGAME_CATEGORIES:
-		// count = db.update(BOARDGAMECATEGORY_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_CATEGORIES:
+			count = db.update(BOARDGAMECATEGORY_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_CATEGORY_ID:
 		// count = db.update(BOARDGAMECATEGORY_TABLE, values,
 		// BoardGameCategories._ID + "="
@@ -935,10 +932,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
 		// selectionArgs);
 		// break;
-		// case BOARDGAME_MECHANICS:
-		// count = db.update(BOARDGAMEMECHANIC_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_MECHANICS:
+			count = db.update(BOARDGAMEMECHANIC_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_MECHANIC_ID:
 		// count = db.update(BOARDGAMEMECHANIC_TABLE, values,
 		// BoardGameMechanics._ID + "="
@@ -946,10 +942,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
 		// selectionArgs);
 		// break;
-		// case BOARDGAME_EXPANSIONS:
-		// count = db.update(BOARDGAMEEXPANSION_TABLE, values, selection,
-		// selectionArgs);
-		// break;
+		case BOARDGAME_EXPANSIONS:
+			count = db.update(BOARDGAMEEXPANSION_TABLE, values, selection, selectionArgs);
+			break;
 		// case BOARDGAME_EXPANSION_ID:
 		// count = db.update(BOARDGAMEEXPANSION_TABLE, values,
 		// BoardGameExpansions._ID + "="
@@ -962,6 +957,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		}
 
 		getContext().getContentResolver().notifyChange(uri, null);
+		Log.d(LOG_TAG, "Updated URI " + uri);
 		return count;
 	}
 
@@ -1010,7 +1006,6 @@ public class BoardGameGeekProvider extends ContentProvider {
 			String boardgameId = uri.getPathSegments().get(1);
 			count = db.delete(BOARDGAME_TABLE, BoardGames._ID + "=" + boardgameId
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
-			// TODO test these deletes
 			if (count > 0) {
 				count += db.delete(BOARDGAMEDESIGNER_TABLE, BoardGameDesigners.BOARDGAME_ID + "="
 					+ boardgameId, null);
@@ -1024,13 +1019,22 @@ public class BoardGameGeekProvider extends ContentProvider {
 					BoardGameArtists.BOARDGAME_ID + "=" + boardgameId, null);
 				count += db.delete(BOARDGAMEEXPANSION_TABLE, BoardGameExpansions.BOARDGAME_ID + "="
 					+ boardgameId, null);
-				count += db.delete(BOARDGAMEPOLLRESULT_TABLE, BoardGamePollResult.POLLRESULTS_ID + "="
+				count += db.delete(BOARDGAMEPOLLRESULT_TABLE, BOARDGAMEPOLLRESULT_TABLE + "."
+					+ BoardGamePollResult._ID + " IN (SELECT " + BOARDGAMEPOLLRESULT_TABLE + "."
+					+ BoardGamePollResult._ID + " FROM " + BOARDGAMEPOLLRESULT_TABLE + ", "
+					+ BOARDGAMEPOLLRESULTS_TABLE + ", " + BOARDGAMEPOLL_TABLE + " WHERE "
+					+ BOARDGAMEPOLLRESULT_TABLE + "." + BoardGamePollResult.POLLRESULTS_ID + " = "
 					+ BOARDGAMEPOLLRESULTS_TABLE + "." + BoardGamePollResults._ID + " AND "
-					+ BoardGamePollResults.POLL_ID + "=" + BOARDGAMEPOLL_TABLE + "." + BoardGamePolls._ID
-					+ " AND " + BoardGamePolls.BOARDGAME_ID + "=" + boardgameId, null);
-				count += db.delete(BOARDGAMEPOLLRESULTS_TABLE, BoardGamePollResults.POLL_ID + "="
-					+ BOARDGAMEPOLL_TABLE + "." + BoardGamePolls._ID + " AND " + BoardGamePolls.BOARDGAME_ID
-					+ "=" + boardgameId, null);
+					+ BOARDGAMEPOLLRESULTS_TABLE + "." + BoardGamePollResults.POLL_ID + " = "
+					+ BOARDGAMEPOLL_TABLE + "." + BoardGamePolls._ID + " AND " + BOARDGAMEPOLL_TABLE + "."
+					+ BoardGamePolls.BOARDGAME_ID + "=" + boardgameId + ")", null);
+				count += db.delete(BOARDGAMEPOLLRESULTS_TABLE, BOARDGAMEPOLLRESULTS_TABLE + "."
+					+ BoardGamePollResults._ID + " IN (SELECT " + BOARDGAMEPOLLRESULTS_TABLE + "."
+					+ BoardGamePollResults._ID + " FROM " + BOARDGAMEPOLLRESULTS_TABLE + ", "
+					+ BOARDGAMEPOLL_TABLE + " WHERE " + BOARDGAMEPOLLRESULTS_TABLE + "."
+					+ BoardGamePollResults.POLL_ID + " = " + BOARDGAMEPOLL_TABLE + "." + BoardGamePolls._ID
+					+ " AND " + BOARDGAMEPOLL_TABLE + "." + BoardGamePolls.BOARDGAME_ID + "=" + boardgameId
+					+ ")", null);
 				count += db
 					.delete(BOARDGAMEPOLL_TABLE, BoardGamePolls.BOARDGAME_ID + "=" + boardgameId, null);
 			}
@@ -1041,6 +1045,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		}
 
 		getContext().getContentResolver().notifyChange(uri, null);
+		Log.d(LOG_TAG, "Deleted URI " + uri);
 		return count;
 	}
 
