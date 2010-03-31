@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.boardgamegeek.BoardGameGeekData.*;
 
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -70,6 +71,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final int BOARDGAME_POLL_RESULTS_ID = 28;
 	private static final int BOARDGAME_POLL_RESULT = 29;
 	private static final int BOARDGAME_POLL_RESULT_ID = 30;
+	private static final int SEARCH_SUGGEST = 31;
+	private static final int SHORTCUT_REFRESH = 32;
 
 	private DatabaseHelper dbHelper;
 	private static final UriMatcher uriMatcher;
@@ -88,6 +91,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static HashMap<String, String> boardgamePollsProjectionMap;
 	private static HashMap<String, String> boardgamePollResultsProjectionMap;
 	private static HashMap<String, String> boardgamePollResultProjectionMap;
+	private static HashMap<String, String> suggestionProjectionMap;
 
 	static {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -121,6 +125,13 @@ public class BoardGameGeekProvider extends ContentProvider {
 		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, "boardgamepollresults/#", BOARDGAME_POLL_RESULTS_ID);
 		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, "boardgamepollresult", BOARDGAME_POLL_RESULT);
 		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, "boardgamepollresult/#", BOARDGAME_POLL_RESULT_ID);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY + "/*",
+			SEARCH_SUGGEST);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, SearchManager.SUGGEST_URI_PATH_SHORTCUT,
+			SHORTCUT_REFRESH);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/#",
+			SHORTCUT_REFRESH);
 
 		designersProjectionMap = new HashMap<String, String>();
 		designersProjectionMap.put(Designers._ID, Designers._ID);
@@ -246,6 +257,17 @@ public class BoardGameGeekProvider extends ContentProvider {
 		boardgamePollResultProjectionMap.put(BoardGamePollResult.LEVEL, BoardGamePollResult.LEVEL);
 		boardgamePollResultProjectionMap.put(BoardGamePollResult.VALUE, BoardGamePollResult.VALUE);
 		boardgamePollResultProjectionMap.put(BoardGamePollResult.VOTES, BoardGamePollResult.VOTES);
+
+		suggestionProjectionMap = new HashMap<String, String>();
+		suggestionProjectionMap.put(BoardGames._ID, BoardGames._ID);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_TEXT_1, BoardGames.NAME + " AS "
+			+ SearchManager.SUGGEST_COLUMN_TEXT_1);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_TEXT_2, BoardGames.YEAR + " AS "
+			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, BOARDGAME_TABLE + "."
+			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, BOARDGAME_TABLE + "."
+			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
 	}
 
 	@Override
@@ -385,6 +407,34 @@ public class BoardGameGeekProvider extends ContentProvider {
 			qb.setProjectionMap(boardgamePollResultProjectionMap);
 			defaultOrderBy = BoardGamePollResult.DEFAULT_SORT_ORDER;
 			break;
+		case SEARCH_SUGGEST:
+			String query = null;
+			if (uri.getPathSegments().size() > 1) {
+				query = uri.getLastPathSegment().toLowerCase();
+			}
+			if (query == null) {
+				return null;
+			} else {
+				qb.setTables(BOARDGAME_TABLE);
+				qb.setProjectionMap(suggestionProjectionMap);
+				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '%" + query + "%'");
+				// TODO: use sorted name
+				defaultOrderBy = BoardGames.DEFAULT_SORT_ORDER;
+			}
+			break;
+		case SHORTCUT_REFRESH:
+			// TODO:
+			String shortcutId = null;
+			if (uri.getPathSegments().size() > 1) {
+				shortcutId = uri.getLastPathSegment();
+			}
+			if (shortcutId == null) {
+				return null;
+			} else {
+				qb.setTables(BOARDGAME_TABLE);
+				qb.setProjectionMap(suggestionProjectionMap);
+				qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "=" + uri.getPathSegments().get(1));
+			}
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -471,6 +521,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 			return BoardGamePollResult.CONTENT_TYPE;
 		case BOARDGAME_POLL_RESULT_ID:
 			return BoardGamePollResult.CONTENT_ITEM_TYPE;
+		case SEARCH_SUGGEST:
+			return SearchManager.SUGGEST_MIME_TYPE;
+		case SHORTCUT_REFRESH:
+			return SearchManager.SHORTCUT_MIME_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}

@@ -17,9 +17,11 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,7 +47,6 @@ public class ViewBoardGameList extends ListActivity {
 	private boolean skipResults;
 	private boolean isFirstPass = true;
 	private boolean isGeekDown = false;
-	private Intent intent;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,8 +55,7 @@ public class ViewBoardGameList extends ListActivity {
 
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
 		setContentView(R.layout.viewboardgamelist);
-		intent = getIntent();
-		getBoardGameList();
+		parseIntent(getIntent());
 	}
 
 	@Override
@@ -74,15 +74,30 @@ public class ViewBoardGameList extends ListActivity {
 
 	@Override
 	public void onNewIntent(Intent intent) {
-		this.intent = intent;
-		getBoardGameList();
+		parseIntent(intent);
+	}
+
+	private void parseIntent(Intent intent) {
+		if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			searchText = intent.getExtras().getString(SearchManager.QUERY);
+			if (TextUtils.isEmpty(searchText)) {
+				// TODO: display entire DB
+				updateMessage("Missing search terms.");
+			} else {
+				getBoardGameList();
+			}
+		} else if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+			Uri uri = Uri.parse(intent.getDataString());
+			viewBoardGame(uri.getLastPathSegment());
+			finish();
+		} else {
+			// TODO: externalize message
+			updateMessage(String.format("The %s action is not available here.", intent.getAction()));
+		}
 	}
 
 	private void getBoardGameList() {
 		Log.d(LOG_TAG, "getBoardGameList");
-
-		// get the query from the intent
-		searchText = intent.getExtras().getString(SearchManager.QUERY);
 
 		// clear existing game list items
 		boardGames.clear();
@@ -135,22 +150,20 @@ public class ViewBoardGameList extends ListActivity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		if (id == ID_DIALOG_SEARCHING) {
-			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle(R.string.dialog_search_title);
-			dialog.setMessage(getResources().getString(R.string.dialog_search_message));
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
-			return dialog;
+			return createDialog(R.string.dialog_search_title, R.string.dialog_search_message);
 		} else if (id == ID_DIALOG_RETRY) {
-			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle(R.string.dialog_retry_title);
-			dialog.setMessage(getResources().getString(R.string.dialog_retry_message));
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
-			return dialog;
+			return createDialog(R.string.dialog_retry_title, R.string.dialog_retry_message);
 		}
-
 		return super.onCreateDialog(id);
+	}
+
+	private Dialog createDialog(int titleId, int messageId) {
+		ProgressDialog dialog = new ProgressDialog(this);
+		dialog.setTitle(titleId);
+		dialog.setMessage(getResources().getString(messageId));
+		dialog.setIndeterminate(true);
+		dialog.setCancelable(true);
+		return dialog;
 	}
 
 	// remove dialog boxes
@@ -174,6 +187,11 @@ public class ViewBoardGameList extends ListActivity {
 		}
 	};
 
+	private void updateMessage(String message) {
+		TextView nr = (TextView) findViewById(android.R.id.empty);
+		nr.setText(message);
+	}
+
 	// updates UI after running progress dialog
 	private void updateUI() {
 		int count = 0;
@@ -187,16 +205,22 @@ public class ViewBoardGameList extends ListActivity {
 		}
 		removeDialogs();
 		if (isGeekDown) {
-			TextView nr = (TextView) findViewById(android.R.id.empty);
-			nr.setText(getResources().getString(R.string.bgg_down));
+			updateMessage(getResources().getString(R.string.bgg_down));
 		} else if (count == 0 && exactSearch && isFirstPass) {
 			// try again if exactSearch is on and no results were found
 			isFirstPass = false;
 			getBoardGameList();
 		} else if (count == 0 && (!exactSearch || !isFirstPass)) {
 			// display if no results are found
-			TextView nr = (TextView) findViewById(android.R.id.empty);
-			nr.setText(String.format(getResources().getString(R.string.no_results), searchText));
+			updateMessage(String.format(getResources().getString(R.string.no_results), searchText));
+		}
+
+		// skip directly to game if only one result
+		if (count == 1 && skipResults) {
+			BoardGame boardGame = boardGames.get(0);
+			viewBoardGame(boardGame.getGameId());
+			finish();
+			return;
 		}
 
 		// display game list (even if we skip results, since user may use back
@@ -208,12 +232,6 @@ public class ViewBoardGameList extends ListActivity {
 		} else {
 			setTitle(String.format(getResources().getString(R.string.bg_list_title), count, searchText));
 		}
-
-		// skip directly to game if only one result
-		if (count == 1 && skipResults) {
-			BoardGame boardGame = boardGames.get(0);
-			viewBoardGame(boardGame.getGameId());
-		}
 	}
 
 	// gets the game id from the list item when clicked
@@ -223,7 +241,7 @@ public class ViewBoardGameList extends ListActivity {
 	}
 
 	// calls the board game intent
-	public void viewBoardGame(String gameId) {
+	private void viewBoardGame(String gameId) {
 		Intent intent = new Intent(this, ViewBoardGame.class);
 		intent.putExtra("GAME_ID", gameId);
 		startActivity(intent);
