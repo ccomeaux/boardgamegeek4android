@@ -7,22 +7,28 @@
 	<string name="search_label">Search BoardGameGeek.com</string>
 	<string name="search_hint">Name of Game</string>
 	<string name="pref_search">Search</string>
-	<string name="pref_imageLoad_title">Load Images</string>
+	<string name="pref_imageLoad_title">Load images</string>
 	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
 		connection</string>
-	<string name="pref_exactSearch_title">Exact Search</string>
+	<string name="pref_exactSearch_title">Exact search</string>
 	<string name="pref_exactSearch_summary">Disable this to get more search results or do
 		partial-name searches</string>
-	<string name="pref_skipResults_title">Skip Results</string>
+	<string name="pref_skipResults_title">Skip results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
 		there is only one result</string>
 	<string name="pref_cache">Cache</string>
-	<string name="pref_cache_duration">Boardgame Expiration</string>
-	<string name="pref_cache_duration_summary">Number of days after an update a board game in the cache is
-		considered current</string>
-	<string name="pref_cache_duration_extra">Extra Information Expiration</string>
-	<string name="pref_cache_duration_extra_summary">Number of days after an update designers, artists, and publishers
-		in the cache are considered current</string>
+	<string name="pref_cache_duration">Boardgame expiration</string>
+	<string name="pref_cache_duration_summary">Number of days after an update a board game in the
+		cache is considered current</string>
+	<string name="pref_cache_duration_extra">Extra information expiration</string>
+	<string name="pref_cache_duration_extra_summary">Number of days after an update designers, artists,
+		and publishers in the cache are considered current</string>
+	<string name="pref_cache_clear">Clear cache</string>
+	<string name="pref_cache_clear_summary">Deletes all information stored in the cache</string>
+	<string name="pref_cache_clear_pos">Clear</string>
+	<string name="pref_cache_clear_neg">Cancel</string>
+	<string name="pref_cache_clear_message">Are you sure you want to clear the cache? NOTE:
+		This operation can't be reversed.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view_cache">View Cache</string>
 	<string name="menu_settings">Settings</string>

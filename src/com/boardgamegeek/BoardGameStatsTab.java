@@ -3,7 +3,6 @@ package com.boardgamegeek;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;

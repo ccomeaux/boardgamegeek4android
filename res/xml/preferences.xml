@@ -20,5 +20,10 @@
 			android:defaultValue="1209600000" android:title="@string/pref_cache_duration_extra"
 			android:summary="@string/pref_cache_duration_extra_summary"
 			android:entries="@array/cacheDurationEntries" android:entryValues="@array/cacheDurationValues" />
+		<com.boardgamegeek.ClearDialogPreference
+			android:key="clearCache" android:title="@string/pref_cache_clear"
+			android:summary="@string/pref_cache_clear_summary"
+			android:positiveButtonText="@string/pref_cache_clear_pos"
+			android:negativeButtonText="@string/pref_cache_clear_neg" />
 	</PreferenceCategory>
 </PreferenceScreen>

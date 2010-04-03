@@ -1043,9 +1043,22 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.delete(PUBLISHER_TABLE, Publishers._ID + "=" + uri.getPathSegments().get(1)
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
+		case CATEGORIES:
+			count = db.delete(CATEGORY_TABLE, selection, selectionArgs);
+			break;
+		case CATEGORY_ID:
+			count = db.delete(CATEGORY_TABLE, Categories._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case MECHANICS:
+			count = db.delete(MECHANIC_TABLE, selection, selectionArgs);
+			break;
+		case MECHANIC_ID:
+			count = db.delete(MECHANIC_TABLE, Mechanics._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
 		case BOARDGAMES:
 			count = db.delete(BOARDGAME_TABLE, selection, selectionArgs);
-			// TODO test these deletes
 			count += db.delete(BOARDGAMEDESIGNER_TABLE, selection, selectionArgs);
 			count += db.delete(BOARDGAMEARTIST_TABLE, selection, selectionArgs);
 			count += db.delete(BOARDGAMEPUBLISHER_TABLE, selection, selectionArgs);

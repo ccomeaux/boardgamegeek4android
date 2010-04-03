@@ -6,7 +6,8 @@
 	<item android:id="@+id/view_cache" android:title="@string/menu_view_cache"
 		android:icon="@android:drawable/ic_menu_view" />
 	<item android:id="@+id/settings" android:title="@string/menu_settings"
-		android:icon="@android:drawable/ic_menu_preferences" />
+		android:icon="@android:drawable/ic_menu_preferences"
+		android:alphabeticShortcut="p" />
 	<item android:id="@+id/credits" android:title="@string/menu_about"
 		android:icon="@android:drawable/ic_menu_info_details" />
 </menu>
