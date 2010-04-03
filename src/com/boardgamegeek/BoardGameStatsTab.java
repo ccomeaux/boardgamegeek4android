@@ -3,8 +3,11 @@ package com.boardgamegeek;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
+import android.opengl.Visibility;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BoardGameStatsTab extends Activity {
@@ -37,8 +40,12 @@ public class BoardGameStatsTab extends Activity {
 		setText(R.id.averageText, R.string.average_meter_text, boardGame.getAverage());
 		setProgressBar(R.id.bayesBar, boardGame.getBayesAverage(), 10.0);
 		setText(R.id.bayesText, R.string.bayes_meter_text, boardGame.getBayesAverage());
-		setProgressBar(R.id.medianBar, boardGame.getMedian(), 10.0);
-		setText(R.id.medianText, R.string.median_meter_text, boardGame.getMedian());
+		if (boardGame.getMedian() == 0) {
+			((RelativeLayout) findViewById(R.id.medianRow)).setVisibility(View.GONE);
+		} else {
+			setProgressBar(R.id.medianBar, boardGame.getMedian(), 10.0);
+			setText(R.id.medianText, R.string.median_meter_text, boardGame.getMedian());
+		}
 		setProgressBar(R.id.stdDevBar, boardGame.getStandardDeviation(), 5.0);
 		setText(R.id.stdDevText, R.string.stdDev_meter_text, boardGame.getStandardDeviation());
 

@@ -420,7 +420,6 @@ public class BoardGameGeekProvider extends ContentProvider {
 				qb.setTables(BOARDGAME_TABLE);
 				qb.setProjectionMap(suggestionProjectionMap);
 				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '%" + query + "%'");
-				// TODO: use sorted name
 				defaultOrderBy = BoardGames.DEFAULT_SORT_ORDER;
 			}
 			break;

@@ -354,7 +354,9 @@ public class ViewBoardGameList extends ListActivity {
 
 		void populateFrom(BoardGame bg) {
 			getName().setText(bg.getName());
-			getYear().setText("" + bg.getYearPublished());
+			if (bg.getYearPublished() > 0) {
+				getYear().setText("" + bg.getYearPublished());
+			}
 			getGameId().setText(
 				String.format(getResources().getString(R.string.id_list_text), bg.getGameId()));
 		}
