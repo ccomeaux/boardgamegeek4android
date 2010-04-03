@@ -11,12 +11,15 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import com.boardgamegeek.BoardGameGeekData.BoardGames;
+
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +43,7 @@ public class ViewBoardGameList extends ListActivity {
 	private BoardGameAdapter adapter;
 	private final int ID_DIALOG_SEARCHING = 1;
 	private final int ID_DIALOG_RETRY = 2;
+	private final int ID_DIALOG_LOADING = 3;
 	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
 	private SharedPreferences preferences;
@@ -77,22 +81,46 @@ public class ViewBoardGameList extends ListActivity {
 		parseIntent(intent);
 	}
 
+	private void viewDatabase() {
+		showDialog(ID_DIALOG_LOADING);
+		boardGames = new ArrayList<BoardGame>();
+		Cursor c = managedQuery(BoardGames.CONTENT_URI, null, null, null, null);
+		if (c.moveToFirst()) {
+			do {
+				BoardGame bg = new BoardGame();
+				bg.setGameId(c.getInt(c.getColumnIndex(BoardGames._ID)));
+				bg.setYearPublished(c.getInt(c.getColumnIndex(BoardGames.YEAR)));
+				bg.setName(c.getString(c.getColumnIndex(BoardGames.NAME)));
+				boardGames.add(bg);
+			} while (c.moveToNext());
+		}
+		adapter = new BoardGameAdapter();
+		setListAdapter(adapter);
+		setTitle(R.string.view_cache_title);
+		removeDialog(ID_DIALOG_LOADING);
+	}
+
 	private void parseIntent(Intent intent) {
-		if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			searchText = intent.getExtras().getString(SearchManager.QUERY);
 			if (TextUtils.isEmpty(searchText)) {
-				// TODO: display entire DB
-				updateMessage("Missing search terms.");
+				viewDatabase();
 			} else {
 				getBoardGameList();
 			}
-		} else if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-			Uri uri = Uri.parse(intent.getDataString());
-			viewBoardGame(uri.getLastPathSegment());
-			finish();
+		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+			String data = intent.getDataString();
+			if (TextUtils.isEmpty(data)) {
+				viewDatabase();
+			} else {
+				Uri uri = Uri.parse(data);
+				viewBoardGame(Utility.parseInt(uri.getLastPathSegment(), 0));
+				finish();
+			}
 		} else {
-			// TODO: externalize message
-			updateMessage(String.format("The %s action is not available here.", intent.getAction()));
+			Log.w(LOG_TAG, "Received bad intent action: " + intent.getAction());
+			viewDatabase();
 		}
 	}
 
@@ -153,6 +181,8 @@ public class ViewBoardGameList extends ListActivity {
 			return createDialog(R.string.dialog_search_title, R.string.dialog_search_message);
 		} else if (id == ID_DIALOG_RETRY) {
 			return createDialog(R.string.dialog_retry_title, R.string.dialog_retry_message);
+		} else if (id == ID_DIALOG_LOADING) {
+			return createDialog(R.string.dialog_loading_title, R.string.dialog_loading_message);
 		}
 		return super.onCreateDialog(id);
 	}
@@ -178,6 +208,11 @@ public class ViewBoardGameList extends ListActivity {
 		} catch (Exception e) {
 			Log.w(LOG_TAG, "ID_DIALOG_RETRY - Remove Failed", e);
 		}
+		try {
+			removeDialog(ID_DIALOG_LOADING);
+		} catch (Exception e) {
+			Log.w(LOG_TAG, "ID_DIALOG_LOADING - Remove Failed", e);
+		}
 	}
 
 	// get results from handler
@@ -195,13 +230,10 @@ public class ViewBoardGameList extends ListActivity {
 	// updates UI after running progress dialog
 	private void updateUI() {
 		int count = 0;
-		// catch this in case BGG is down or the API does not respond
-		try {
-			if (boardGames != null) {
-				count = boardGames.size();
-			}
-		} catch (Exception e) {
-			Log.w(LOG_TAG, "UPDATE_UI - Getting Count Failed", e);
+		if (boardGames != null) {
+			count = boardGames.size();
+		} else {
+			boardGames = new ArrayList<BoardGame>();
 		}
 		removeDialogs();
 		if (isGeekDown) {
@@ -236,12 +268,12 @@ public class ViewBoardGameList extends ListActivity {
 
 	// gets the game id from the list item when clicked
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		String gameId = ((BoardGame) (adapter.getItem(position))).getGameId();
+		int gameId = ((BoardGame) (adapter.getItem(position))).getGameId();
 		viewBoardGame(gameId);
 	}
 
 	// calls the board game intent
-	private void viewBoardGame(String gameId) {
+	private void viewBoardGame(int gameId) {
 		Intent intent = new Intent(this, ViewBoardGame.class);
 		intent.putExtra("GAME_ID", gameId);
 		startActivity(intent);
@@ -263,6 +295,11 @@ public class ViewBoardGameList extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.search:
 			onSearchRequested();
+			return true;
+		case R.id.view_cache:
+			Intent intent = new Intent(this, ViewBoardGameList.class);
+			intent.setAction(Intent.ACTION_VIEW);
+			startActivity(intent);
 			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));

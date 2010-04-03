@@ -141,6 +141,18 @@ public final class Utility {
 			return defaultValue;
 		}
 	}
+	
+	public static double parseDouble(String text) {
+		return parseDouble(text, 0);
+	}
+
+	public static double parseDouble(String text, double defaultValue) {
+		try {
+			return Double.parseDouble(text);
+		} catch (NumberFormatException ex) {
+			return defaultValue;
+		}
+	}
 
 	public static Drawable getImage(String url) {
 		if (url == null) {

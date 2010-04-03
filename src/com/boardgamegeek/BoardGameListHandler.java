@@ -31,7 +31,7 @@ public class BoardGameListHandler extends DefaultHandler {
 
 		if (localName.equals("boardgame")) {
 			boardGame = new BoardGame();
-			boardGame.setGameId(atts.getValue("objectid"));
+			boardGame.setGameId(Utility.parseInt(atts.getValue("objectid")));
 		} else if (localName.equals("a")) {
 			// we'll see this only when the Geek is down
 			// TODO: throw a more appropriate exception

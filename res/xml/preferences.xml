@@ -11,7 +11,7 @@
 			android:defaultValue="true" android:title="@string/pref_skipResults_title"
 			android:summary="@string/pref_skipResults_summary" />
 	</PreferenceCategory>
-	<PreferenceCategory android:title="Database">
+	<PreferenceCategory android:title="@string/pref_cache">
 		<ListPreference android:key="cacheDuration"
 			android:defaultValue="259200000" android:title="@string/pref_cache_duration"
 			android:summary="@string/pref_cache_duration_summary"

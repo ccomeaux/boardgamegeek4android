@@ -12,8 +12,9 @@ import android.graphics.drawable.Drawable;
 
 public class BoardGame {
 
-	private String gameId = null;
+	private int gameId = 0;
 	private String name = "";
+	private int sortIndex = 1;
 	private int yearPublished = 0;
 	private int minPlayers = 0;
 	private int maxPlayers = 0;
@@ -43,14 +44,14 @@ public class BoardGame {
 	private HashMap<String, String> expansions = new HashMap<String, String>();
 	private List<Poll> polls = new ArrayList<Poll>();
 
-	public BoardGame() {
-	// nothing to do
-	}
+	public BoardGame() {}
 
+	// TODO: move this to another class
 	public BoardGame(Cursor cursor) {
 		// populate the game with the data in the cursor
-		gameId = cursor.getString(cursor.getColumnIndex(BoardGames._ID));
+		gameId = cursor.getInt(cursor.getColumnIndex(BoardGames._ID));
 		name = cursor.getString(cursor.getColumnIndex(BoardGames.NAME));
+		sortIndex = cursor.getInt(cursor.getColumnIndex(BoardGames.SORT_INDEX));
 		yearPublished = cursor.getInt(cursor.getColumnIndex(BoardGames.YEAR));
 		minPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MIN_PLAYERS));
 		maxPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MAX_PLAYERS));
@@ -74,11 +75,11 @@ public class BoardGame {
 	}
 
 	// game ID
-	public String getGameId() {
+	public int getGameId() {
 		return gameId;
 	}
 
-	public void setGameId(String gameId) {
+	public void setGameId(int gameId) {
 		this.gameId = gameId;
 	}
 
@@ -93,6 +94,22 @@ public class BoardGame {
 
 	public String getNameForUrl() {
 		return Utility.EncodeAsUrl(name);
+	}
+
+	public int getSortIndex() {
+		return sortIndex;
+	}
+
+	public void setSortIndex(int sortIndex) {
+		this.sortIndex = sortIndex;
+	}
+
+	public String getSortName() {
+		if (sortIndex > 1) {
+			return name.substring(sortIndex - 1) + ", " + name.substring(0, sortIndex - 1).trim();
+		} else {
+			return name;
+		}
 	}
 
 	// year published
@@ -215,8 +232,8 @@ public class BoardGame {
 
 	public String getGameInfo() {
 		StringBuilder info = new StringBuilder();
-		if (gameId == null) {
-			info.append("Game Not Found");
+		if (gameId == 0) {
+			info.append("Game not found");
 		} else {
 			if (yearPublished != 0) {
 				info.append("Year Published: ").append(yearPublished).append("\n");

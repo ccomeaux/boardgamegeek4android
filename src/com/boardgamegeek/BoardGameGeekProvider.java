@@ -24,7 +24,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final String LOG_TAG = "BoardGameGeek.Provider";
 
 	private static final String DATABASE_NAME = "boardgamegeek.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 	private static final String DESIGNER_TABLE = "designer";
 	private static final String ARTIST_TABLE = "artist";
 	private static final String PUBLISHER_TABLE = "publisher";
@@ -162,6 +162,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 		boardgamesProjectionMap = new HashMap<String, String>();
 		boardgamesProjectionMap.put(BoardGames._ID, BoardGames._ID);
 		boardgamesProjectionMap.put(BoardGames.NAME, BoardGames.NAME);
+		boardgamesProjectionMap.put(BoardGames.SORT_INDEX, BoardGames.SORT_INDEX);
+		boardgamesProjectionMap.put(BoardGames.SORT_NAME, BoardGames.SORT_NAME);
 		boardgamesProjectionMap.put(BoardGames.YEAR, BoardGames.YEAR);
 		boardgamesProjectionMap.put(BoardGames.MIN_PLAYERS, BoardGames.MIN_PLAYERS);
 		boardgamesProjectionMap.put(BoardGames.MAX_PLAYERS, BoardGames.MAX_PLAYERS);
@@ -423,7 +425,6 @@ public class BoardGameGeekProvider extends ContentProvider {
 			}
 			break;
 		case SHORTCUT_REFRESH:
-			// TODO:
 			String shortcutId = null;
 			if (uri.getPathSegments().size() > 1) {
 				shortcutId = uri.getLastPathSegment();
@@ -1142,13 +1143,13 @@ public class BoardGameGeekProvider extends ContentProvider {
 			Log.i(LOG_TAG, String.format("Created %s table.", MECHANIC_TABLE));
 
 			sql = "create table " + BOARDGAME_TABLE + " (" + BoardGames._ID + " integer primary key, "
-				+ BoardGames.NAME + " text not null, " + BoardGames.YEAR + " integer, "
-				+ BoardGames.MIN_PLAYERS + " integer, " + BoardGames.MAX_PLAYERS + " integer, "
-				+ BoardGames.PLAYING_TIME + " integer, " + BoardGames.AGE + " integer, "
-				+ BoardGames.DESCRIPTION + " text, " + BoardGames.THUMBNAIL_URL + " text, "
-				+ BoardGames.RATING_COUNT + " integer, " + BoardGames.AVERAGE + " real, "
-				+ BoardGames.BAYES_AVERAGE + " real, " + BoardGames.RANK + " integer, "
-				+ BoardGames.STANDARD_DEVIATION + " real, " + BoardGames.MEDIAN + " real, "
+				+ BoardGames.NAME + " text not null, " + BoardGames.SORT_INDEX + " integer, "
+				+ BoardGames.SORT_NAME + " text, " + BoardGames.YEAR + " integer, " + BoardGames.MIN_PLAYERS
+				+ " integer, " + BoardGames.MAX_PLAYERS + " integer, " + BoardGames.PLAYING_TIME
+				+ " integer, " + BoardGames.AGE + " integer, " + BoardGames.DESCRIPTION + " text, "
+				+ BoardGames.THUMBNAIL_URL + " text, " + BoardGames.RATING_COUNT + " integer, "
+				+ BoardGames.AVERAGE + " real, " + BoardGames.BAYES_AVERAGE + " real, " + BoardGames.RANK
+				+ " integer, " + BoardGames.STANDARD_DEVIATION + " real, " + BoardGames.MEDIAN + " real, "
 				+ BoardGames.OWNED_COUNT + " integer, " + BoardGames.TRADING_COUNT + " integer, "
 				+ BoardGames.WANTING_COUNT + " integer, " + BoardGames.WISHING_COUNT + " integer, "
 				+ BoardGames.COMMENT_COUNT + " integer, " + BoardGames.WEIGHT_COUNT + " integer, "

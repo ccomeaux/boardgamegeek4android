@@ -91,6 +91,8 @@ public class BoardGameGeekData {
 		public static final String CONTENT_ITEM_TYPE = "vnd.boardgamegeek.cursor.item/vnd.boardgamegeek.boardgame";
 
 		public static final String NAME = "name";
+		public static final String SORT_INDEX = "sortIndex";
+		public static final String SORT_NAME = "sortName";
 		public static final String YEAR = "year";
 		public static final String MIN_PLAYERS = "minPlayers";
 		public static final String MAX_PLAYERS = "maxPlayers";
@@ -114,7 +116,7 @@ public class BoardGameGeekData {
 		public static final String UPDATED_DATE = "updated";
 
 		// TODO? private Drawable thumbnail;
-		public static final String DEFAULT_SORT_ORDER = NAME + " ASC";
+		public static final String DEFAULT_SORT_ORDER = SORT_NAME + " ASC";
 	}
 
 	public static final class BoardGameDesigners implements BaseColumns {

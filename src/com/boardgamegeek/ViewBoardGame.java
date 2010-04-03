@@ -53,7 +53,7 @@ public class ViewBoardGame extends TabActivity {
 	private final String gameIdKey = "GAME_ID";
 	private boolean imageLoad;
 	private long cacheDuration;
-	private String gameId;
+	private int gameId;
 	private TabHost tabHost;
 
 	@Override
@@ -67,10 +67,10 @@ public class ViewBoardGame extends TabActivity {
 		setupTabs();
 
 		if (savedInstanceState != null) {
-			gameId = savedInstanceState.getString(gameIdKey);
+			gameId = savedInstanceState.getInt(gameIdKey);
 		}
-		if (gameId == null || gameId.length() == 0) {
-			gameId = getIntent().getExtras().getString(gameIdKey);
+		if (gameId == 0) {
+			gameId = getIntent().getExtras().getInt(gameIdKey);
 		}
 	}
 
@@ -89,12 +89,12 @@ public class ViewBoardGame extends TabActivity {
 		super.onSaveInstanceState(outState);
 
 		// save game ID; if activity is paused, it can resume with this ID
-		outState.putString(gameIdKey, gameId);
+		outState.putInt(gameIdKey, gameId);
 	}
 
 	private void getBoardGame() {
 
-		if (boardGame != null && boardGame.getGameId().equalsIgnoreCase(gameId)) {
+		if (boardGame != null && boardGame.getGameId() == gameId) {
 			// no need to retrieve the game, we already have it
 			updateUI();
 			return;
@@ -107,7 +107,7 @@ public class ViewBoardGame extends TabActivity {
 		boardGame = null;
 
 		// see if the game is in the database
-		Uri boardgameUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, gameId);
+		Uri boardgameUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + gameId);
 		Cursor cursor = managedQuery(boardgameUri, null, null, null, null);
 		if (cursor.moveToFirst()) {
 			// found in the database
@@ -336,7 +336,11 @@ public class ViewBoardGame extends TabActivity {
 		switch (item.getItemId()) {
 		case R.id.search:
 			onSearchRequested();
-			getBoardGame();
+			return true;
+		case R.id.view_cache:
+			Intent intent = new Intent(this, ViewBoardGameList.class);
+			intent.setAction(Intent.ACTION_VIEW);
+			startActivity(intent);
 			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));
@@ -380,12 +384,14 @@ public class ViewBoardGame extends TabActivity {
 		}
 
 		// delete to make sure all of the child relationships are cleaned up
-		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, boardGame.getGameId());
+		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
 		getContentResolver().delete(uri, null, null);
 
 		ContentValues values = new ContentValues();
 		values.put(BoardGames._ID, boardGame.getGameId());
 		values.put(BoardGames.NAME, boardGame.getName());
+		values.put(BoardGames.SORT_INDEX, boardGame.getSortIndex());
+		values.put(BoardGames.SORT_NAME, boardGame.getSortName());
 		values.put(BoardGames.YEAR, boardGame.getYearPublished());
 		values.put(BoardGames.MIN_PLAYERS, boardGame.getMinPlayers());
 		values.put(BoardGames.MAX_PLAYERS, boardGame.getMaxPlayers());

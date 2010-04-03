@@ -37,11 +37,12 @@ public class BoardGameHandler extends DefaultHandler {
 		currentElement = new StringBuffer();
 
 		if (localName.equals("boardgame")) {
-			boardGame.setGameId(atts.getValue("objectid"));
+			boardGame.setGameId(Utility.parseInt(atts.getValue("objectid")));
 		} else if (localName == "name") {
 			String primaryAttribute = atts.getValue("primary");
 			if (primaryAttribute != null && primaryAttribute.equalsIgnoreCase("true")) {
 				isPrimaryName = true;
+				boardGame.setSortIndex(Utility.parseInt(atts.getValue("sortindex"), 1));
 			}
 		} else if (localName == "statistics") {
 			isStats = true;
@@ -66,18 +67,21 @@ public class BoardGameHandler extends DefaultHandler {
 		} else if (localName == "poll") {
 			String pollName = atts.getValue("name");
 			String pollTitle = atts.getValue("title");
-			int pollVotes = parseInt(atts.getValue("totalvotes"));
+			int pollVotes = Utility.parseInt(atts.getValue("totalvotes"));
 			currentPoll = new Poll(pollName, pollTitle, pollVotes);
 		} else if (currentPoll != null) {
 			if (localName == "results") {
 				currentPollResults = new PollResults(atts.getValue("numplayers"));
 			} else if (currentPollResults != null && localName == "result") {
 				String value = atts.getValue("value");
-				int numberOfVotes = parseInt(atts.getValue("numvotes"));
-				int level = parseInt(atts.getValue("level"));
+				int numberOfVotes = Utility.parseInt(atts.getValue("numvotes"));
+				int level = Utility.parseInt(atts.getValue("level"));
 				PollResult result = new PollResult(value, numberOfVotes, level);
 				currentPollResults.addResult(result);
 			}
+		} else if (localName=="error"){
+			String message = atts.getValue("message");
+			boardGame.setName(message);
 		}
 	}
 
@@ -85,15 +89,15 @@ public class BoardGameHandler extends DefaultHandler {
 	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
 
 		if (localName == "yearpublished") {
-			boardGame.setYearPublished(parseInt(currentElement.toString()));
+			boardGame.setYearPublished(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "minplayers") {
-			boardGame.setMinPlayers(parseInt(currentElement.toString()));
+			boardGame.setMinPlayers(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "maxplayers") {
-			boardGame.setMaxPlayers(parseInt(currentElement.toString()));
+			boardGame.setMaxPlayers(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "playingtime") {
-			boardGame.setPlayingTime(parseInt(currentElement.toString()));
+			boardGame.setPlayingTime(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "age") {
-			boardGame.setAge(parseInt(currentElement.toString()));
+			boardGame.setAge(Utility.parseInt(currentElement.toString()));
 		} else if (isPrimaryName && localName == "name") {
 			boardGame.setName(currentElement.toString());
 			isPrimaryName = false;
@@ -145,34 +149,34 @@ public class BoardGameHandler extends DefaultHandler {
 			isStats = false;
 		} else if (isStats) {
 			if (localName == "usersrated") {
-				boardGame.setRatingCount(parseInt(currentElement.toString()));
+				boardGame.setRatingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "average") {
-				boardGame.setAverage(parseDouble(currentElement.toString()));
+				boardGame.setAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "bayesaverage") {
-				boardGame.setBayesAverage(parseDouble(currentElement.toString()));
+				boardGame.setBayesAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
 			} else if (isRank && localName == "rank") {
-				boardGame.setRank(parseInt(currentElement.toString()));
+				boardGame.setRank(Utility.parseInt(currentElement.toString()));
 				isRank = false;
 			} else if (localName == "stddev") {
-				boardGame.setStandardDeviation(parseDouble(currentElement.toString()));
+				boardGame.setStandardDeviation(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "median") {
-				boardGame.setMedian(parseDouble(currentElement.toString()));
+				boardGame.setMedian(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "owned") {
-				boardGame.setOwnedCount(parseInt(currentElement.toString()));
+				boardGame.setOwnedCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "trading") {
-				boardGame.setTradingCount(parseInt(currentElement.toString()));
+				boardGame.setTradingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "wanting") {
-				boardGame.setWantingCount(parseInt(currentElement.toString()));
+				boardGame.setWantingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "wishing") {
-				boardGame.setWishingCount(parseInt(currentElement.toString()));
+				boardGame.setWishingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "numcomments") {
-				boardGame.setCommentCount(parseInt(currentElement.toString()));
+				boardGame.setCommentCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "numweights") {
-				boardGame.setWeightCount(parseInt(currentElement.toString()));
+				boardGame.setWeightCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "averageweight") {
-				boardGame.setAverageWeight(parseDouble(currentElement.toString()));
+				boardGame.setAverageWeight(Utility.parseDouble(currentElement.toString()));
 			}
 		}
 	}
@@ -180,21 +184,5 @@ public class BoardGameHandler extends DefaultHandler {
 	@Override
 	public void characters(char ch[], int start, int length) {
 		currentElement.append(ch, start, length);
-	}
-
-	private int parseInt(String text) {
-		try {
-			return Integer.parseInt(text);
-		} catch (NumberFormatException ex) {
-			return 0;
-		}
-	}
-
-	private double parseDouble(String text) {
-		try {
-			return Double.parseDouble(text);
-		} catch (NumberFormatException ex) {
-			return 0;
-		}
 	}
 }
