@@ -8,26 +8,11 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.boardgamegeek.BoardGameGeekData.Artists;
-import com.boardgamegeek.BoardGameGeekData.BoardGameArtists;
-import com.boardgamegeek.BoardGameGeekData.BoardGameCategories;
-import com.boardgamegeek.BoardGameGeekData.BoardGameDesigners;
-import com.boardgamegeek.BoardGameGeekData.BoardGameExpansions;
-import com.boardgamegeek.BoardGameGeekData.BoardGameMechanics;
-import com.boardgamegeek.BoardGameGeekData.BoardGamePollResult;
-import com.boardgamegeek.BoardGameGeekData.BoardGamePollResults;
-import com.boardgamegeek.BoardGameGeekData.BoardGamePolls;
-import com.boardgamegeek.BoardGameGeekData.BoardGamePublishers;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
-import com.boardgamegeek.BoardGameGeekData.Categories;
-import com.boardgamegeek.BoardGameGeekData.Designers;
-import com.boardgamegeek.BoardGameGeekData.Mechanics;
-import com.boardgamegeek.BoardGameGeekData.Publishers;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TabActivity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -115,7 +100,7 @@ public class ViewBoardGame extends TabActivity {
 			Long now = System.currentTimeMillis();
 			if (date + cacheDuration > now) {
 				// data is fresh enough to use
-				createBoardGame(cursor);
+				boardGame = Builder.createBoardGame(this, cursor);
 
 				// update the UI
 				updateResults.run();
@@ -141,7 +126,7 @@ public class ViewBoardGame extends TabActivity {
 					// get the parsed data as an object
 					boardGame = boardGameHandler.getBoardGame();
 
-					addToDatabase();
+					Builder.addToDatabase(ViewBoardGame.this, boardGame);
 				} catch (Exception e) {
 					Log.d(LOG_TAG, "Exception", e);
 				}
@@ -374,288 +359,5 @@ public class ViewBoardGame extends TabActivity {
 		tabHost.addTab(tabHost.newTabSpec("tabPolls").setIndicator(
 			getResources().getString(R.string.polls_tab_title)).setContent(
 			new Intent(this, BoardGamePollsTab.class)));
-	}
-
-	private void addToDatabase() {
-
-		if (boardGame == null) {
-			Log.w(LOG_TAG, "boardGame was unexpectedly null");
-			return;
-		}
-
-		// delete to make sure all of the child relationships are cleaned up
-		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
-		getContentResolver().delete(uri, null, null);
-
-		ContentValues values = new ContentValues();
-		values.put(BoardGames._ID, boardGame.getGameId());
-		values.put(BoardGames.NAME, boardGame.getName());
-		values.put(BoardGames.SORT_INDEX, boardGame.getSortIndex());
-		values.put(BoardGames.SORT_NAME, boardGame.getSortName());
-		values.put(BoardGames.YEAR, boardGame.getYearPublished());
-		values.put(BoardGames.MIN_PLAYERS, boardGame.getMinPlayers());
-		values.put(BoardGames.MAX_PLAYERS, boardGame.getMaxPlayers());
-		values.put(BoardGames.PLAYING_TIME, boardGame.getPlayingTime());
-		values.put(BoardGames.AGE, boardGame.getAge());
-		values.put(BoardGames.DESCRIPTION, boardGame.getDescription());
-		values.put(BoardGames.THUMBNAIL_URL, boardGame.getThumbnailUrl());
-		values.put(BoardGames.RATING_COUNT, boardGame.getRatingCount());
-		values.put(BoardGames.AVERAGE, boardGame.getAverage());
-		values.put(BoardGames.BAYES_AVERAGE, boardGame.getBayesAverage());
-		values.put(BoardGames.RANK, boardGame.getRank());
-		values.put(BoardGames.STANDARD_DEVIATION, boardGame.getStandardDeviation());
-		values.put(BoardGames.MEDIAN, boardGame.getMedian());
-		values.put(BoardGames.OWNED_COUNT, boardGame.getOwnedCount());
-		values.put(BoardGames.TRADING_COUNT, boardGame.getTradingCount());
-		values.put(BoardGames.WANTING_COUNT, boardGame.getWantingCount());
-		values.put(BoardGames.WISHING_COUNT, boardGame.getWishingCount());
-		values.put(BoardGames.COMMENT_COUNT, boardGame.getCommentCount());
-		values.put(BoardGames.WEIGHT_COUNT, boardGame.getWeightCount());
-		values.put(BoardGames.AVERAGE_WEIGHT, boardGame.getAverageWeight());
-		values.put(BoardGames.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
-
-		getContentResolver().insert(BoardGames.CONTENT_URI, values);
-
-		for (int i = 0; i < boardGame.getDesignerCount(); i++) {
-			String designerId = boardGame.getDesignerIdByPosition(i);
-			String designerName = boardGame.getDesignerNameById(designerId);
-
-			values.clear();
-			values.put(Designers._ID, designerId);
-			values.put(Designers.NAME, designerName);
-
-			// ensure designer record is present and correct
-			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, designerId);
-			Cursor cursor = managedQuery(designerUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (designerName != cursor.getString(cursor.getColumnIndex(Designers.NAME))) {
-					getContentResolver().update(designerUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(Designers.CONTENT_URI, values);
-			}
-
-			// add game/designer relationship record
-			values.clear();
-			values.put(BoardGameDesigners.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameDesigners.DESIGNER_ID, designerId);
-			uri = getContentResolver().insert(BoardGameDesigners.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getArtistCount(); i++) {
-			String artistId = boardGame.getArtistIdByPosition(i);
-			String artistName = boardGame.getArtistNameById(artistId);
-
-			values.clear();
-			values.put(Artists._ID, artistId);
-			values.put(Artists.NAME, artistId);
-
-			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, artistId);
-			Cursor cursor = managedQuery(artistUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (artistName != cursor.getString(cursor.getColumnIndex(Artists.NAME))) {
-					getContentResolver().update(artistUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(Artists.CONTENT_URI, values);
-			}
-
-			// add game/artist relationship record
-			values.clear();
-			values.put(BoardGameArtists.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameArtists.ARTIST_ID, artistId);
-			uri = getContentResolver().insert(BoardGameArtists.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getPublisherCount(); i++) {
-			String publisherId = boardGame.getPublisherIdByPosition(i);
-			String publisherName = boardGame.getPublisherNameById(publisherId);
-
-			values.clear();
-			values.put(Publishers._ID, publisherId);
-			values.put(Publishers.NAME, publisherName);
-
-			// ensure publisher record is present and correct
-			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, publisherId);
-			Cursor cursor = managedQuery(publisherUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (publisherName != cursor.getString(cursor.getColumnIndex(Publishers.NAME))) {
-					getContentResolver().update(publisherUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(Publishers.CONTENT_URI, values);
-			}
-
-			// add game/Publisher relationship record
-			values.clear();
-			values.put(BoardGamePublishers.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGamePublishers.PUBLISHER_ID, publisherId);
-			uri = getContentResolver().insert(BoardGamePublishers.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getCategoryCount(); i++) {
-			String CategoryId = boardGame.getCategoryIdByPosition(i);
-			String CategoryName = boardGame.getCategoryNameById(CategoryId);
-
-			values.clear();
-			values.put(Categories._ID, CategoryId);
-			values.put(Categories.NAME, CategoryName);
-
-			// ensure category record is present and correct
-			Uri categoryUri = Uri.withAppendedPath(Categories.CONTENT_URI, CategoryId);
-			Cursor cursor = managedQuery(categoryUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (CategoryName != cursor.getString(cursor.getColumnIndex(Categories.NAME))) {
-					getContentResolver().update(categoryUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(Categories.CONTENT_URI, values);
-			}
-
-			// add game/category relationship record
-			values.clear();
-			values.put(BoardGameCategories.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameCategories.CATEGORY_ID, CategoryId);
-			uri = getContentResolver().insert(BoardGameCategories.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getMechanicCount(); i++) {
-			String mechanicId = boardGame.getMechanicIdByPosition(i);
-			String mechanicName = boardGame.getMechanicNameById(mechanicId);
-
-			values.clear();
-			values.put(Mechanics._ID, mechanicId);
-			values.put(Mechanics.NAME, mechanicName);
-
-			// ensure mechanic record is present and correct
-			Uri mechanicUri = Uri.withAppendedPath(Mechanics.CONTENT_URI, mechanicId);
-			Cursor cursor = managedQuery(mechanicUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (mechanicName != cursor.getString(cursor.getColumnIndex(Mechanics.NAME))) {
-					getContentResolver().update(mechanicUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(Mechanics.CONTENT_URI, values);
-			}
-
-			// add game/mechanic relationship record
-			values.clear();
-			values.put(BoardGameMechanics.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameMechanics.MECHANIC_ID, mechanicId);
-			uri = getContentResolver().insert(BoardGameMechanics.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getExpansionCount(); i++) {
-			String expansionId = boardGame.getExpansionIdByPosition(i);
-			String expansionName = boardGame.getExpansionNameById(expansionId);
-
-			values.clear();
-			values.put(BoardGames._ID, expansionId);
-			values.put(BoardGames.NAME, expansionName);
-
-			// ensure expansion record is present and correct
-			Uri expansionUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, expansionId);
-			Cursor cursor = managedQuery(expansionUri, null, null, null, null);
-			if (cursor.moveToFirst()) {
-				if (expansionName != cursor.getString(cursor.getColumnIndex(BoardGames.NAME))) {
-					getContentResolver().update(expansionUri, values, null, null);
-				}
-			} else {
-				getContentResolver().insert(BoardGames.CONTENT_URI, values);
-			}
-
-			// add game/expansion relationship record
-			values.clear();
-			values.put(BoardGameExpansions.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameExpansions.EXPANSION_ID, expansionId);
-			uri = getContentResolver().insert(BoardGameExpansions.CONTENT_URI, values);
-		}
-
-		for (int i = 0; i < boardGame.getPollCount(); i++) {
-			Poll poll = boardGame.getPollByPosition(i);
-
-			values.clear();
-			values.put(BoardGamePolls.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGamePolls.NAME, poll.getName());
-			values.put(BoardGamePolls.TITLE, poll.getTitle());
-			values.put(BoardGamePolls.VOTES, poll.getTotalVotes());
-			uri = getContentResolver().insert(BoardGamePolls.CONTENT_URI, values);
-
-			String pollId = uri.getLastPathSegment();
-			for (PollResults results : poll.getResultsList()) {
-				values.clear();
-				values.put(BoardGamePollResults.POLL_ID, pollId);
-				values.put(BoardGamePollResults.PLAYERS, results.getNumberOfPlayers());
-				uri = getContentResolver().insert(BoardGamePollResults.CONTENT_URI, values);
-
-				String resultsId = uri.getLastPathSegment();
-				for (PollResult result : results.getResultList()) {
-					values.clear();
-					values.put(BoardGamePollResult.POLLRESULTS_ID, resultsId);
-					values.put(BoardGamePollResult.LEVEL, result.getLevel());
-					values.put(BoardGamePollResult.VALUE, result.getValue());
-					values.put(BoardGamePollResult.VOTES, result.getNumberOfVotes());
-					uri = getContentResolver().insert(BoardGamePollResult.CONTENT_URI, values);
-				}
-			}
-		}
-
-	}
-
-	private void createBoardGame(Cursor cursor) {
-		boardGame = new BoardGame(cursor);
-
-		cursor = managedQuery(BoardGameDesigners.CONTENT_URI, new String[] { BoardGameDesigners.DESIGNER_ID,
-			BoardGameDesigners.DESIGNER_NAME }, BoardGameDesigners.BOARDGAME_ID + "=" + gameId, null,
-			BoardGameDesigners.DESIGNER_NAME);
-		boardGame.CreateDesigners(cursor);
-
-		cursor = managedQuery(BoardGameArtists.CONTENT_URI, new String[] { BoardGameArtists.ARTIST_ID,
-			BoardGameArtists.ARTIST_NAME }, BoardGameArtists.BOARDGAME_ID + "=" + gameId, null,
-			BoardGameArtists.ARTIST_NAME);
-		boardGame.CreateArtists(cursor);
-
-		cursor = managedQuery(BoardGamePublishers.CONTENT_URI, new String[] {
-			BoardGamePublishers.PUBLISHER_ID, BoardGamePublishers.PUBLISHER_NAME },
-			BoardGamePublishers.BOARDGAME_ID + "=" + gameId, null, BoardGamePublishers.PUBLISHER_NAME);
-		boardGame.CreatePublishers(cursor);
-
-		cursor = managedQuery(BoardGameCategories.CONTENT_URI, new String[] {
-			BoardGameCategories.CATEGORY_ID, BoardGameCategories.CATEGORY_NAME },
-			BoardGameCategories.BOARDGAME_ID + "=" + gameId, null, BoardGameCategories.CATEGORY_NAME);
-		boardGame.CreateCategories(cursor);
-
-		cursor = managedQuery(BoardGameMechanics.CONTENT_URI, new String[] { BoardGameMechanics.MECHANIC_ID,
-			BoardGameMechanics.MECHANIC_NAME }, BoardGameMechanics.BOARDGAME_ID + "=" + gameId, null,
-			BoardGameMechanics.MECHANIC_NAME);
-		boardGame.CreateMechanics(cursor);
-
-		cursor = managedQuery(BoardGameExpansions.CONTENT_URI, new String[] {
-			BoardGameExpansions.EXPANSION_ID, BoardGameExpansions.EXPANSION_NAME },
-			BoardGameExpansions.BOARDGAME_ID + "=" + gameId, null, BoardGameExpansions.EXPANSION_NAME);
-		boardGame.CreateExpanions(cursor);
-
-		cursor = managedQuery(BoardGamePolls.CONTENT_URI, null, BoardGamePolls.BOARDGAME_ID + "=" + gameId,
-			null, null);
-		boardGame.createPolls(cursor);
-
-		if (cursor.moveToFirst()) {
-			do {
-				int pollId = cursor.getInt(cursor.getColumnIndex(BoardGamePolls._ID));
-				Cursor resultsCursor = managedQuery(BoardGamePollResults.CONTENT_URI, null,
-					BoardGamePollResults.POLL_ID + "=" + pollId, null, null);
-				boardGame.createPollResults(resultsCursor);
-
-				if (resultsCursor.moveToFirst()) {
-					do {
-						int resultsId = resultsCursor.getInt(resultsCursor
-							.getColumnIndex(BoardGamePollResults._ID));
-						Cursor resultCursor = managedQuery(BoardGamePollResult.CONTENT_URI, null,
-							BoardGamePollResult.POLLRESULTS_ID + "=" + resultsId, null, null);
-						boardGame.createPollResult(resultCursor);
-					} while (resultsCursor.moveToNext());
-				}
-			} while (cursor.moveToNext());
-		}
 	}
 }

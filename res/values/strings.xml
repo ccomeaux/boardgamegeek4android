@@ -18,11 +18,11 @@
 		there is only one result</string>
 	<string name="pref_cache">Cache</string>
 	<string name="pref_cache_duration">Boardgame expiration</string>
-	<string name="pref_cache_duration_summary">Number of days after an update a board game in the
-		cache is considered current</string>
+	<string name="pref_cache_duration_summary">Days after an update a board game in the
+		cache is current</string>
 	<string name="pref_cache_duration_extra">Extra information expiration</string>
-	<string name="pref_cache_duration_extra_summary">Number of days after an update designers, artists,
-		and publishers in the cache are considered current</string>
+	<string name="pref_cache_duration_extra_summary">Days after an update designers, artists,
+		and publishers in the cache are current</string>
 	<string name="pref_cache_clear">Clear cache</string>
 	<string name="pref_cache_clear_summary">Deletes all information stored in the cache</string>
 	<string name="pref_cache_clear_pos">Clear</string>

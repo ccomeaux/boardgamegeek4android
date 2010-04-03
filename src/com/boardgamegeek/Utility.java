@@ -141,7 +141,7 @@ public final class Utility {
 			return defaultValue;
 		}
 	}
-	
+
 	public static double parseDouble(String text) {
 		return parseDouble(text, 0);
 	}
@@ -215,7 +215,8 @@ public final class Utility {
 			.loadData(
 				"<center><h3>BoardGameGeek for Android</h3>"
 					+ getVersionDescription(context)
-					+ "</center><hr/><h4>Designed and developed by</h4><ul><li>Dennis Bond</li><li>Chris Comeaux</li></ul><h4>Special Thanks to</h4><ul><li>Scott Alden (aldie) and <a href=\"http://www.boardgamegeek.com\">BoardGameGeek</a></li></ul><h4>Technical Assistance from</h4><ul><li>Nicolas Gramlich (plusminus) and <a href=\"http://www.anddev.org\">anddev.org</a></li><li>Mark L. Murphy</li><li>Romain Guy</li><li>Jay Liang</li></ul>",
+					+ "<br/><a href=\"http://code.google.com/p/boardgamegeek/wiki/ReleaseNotes\">Release Notes</a></center><hr/>"
+					+ "<h4>Designed and developed by</h4><ul><li>Dennis Bond</li><li>Chris Comeaux</li></ul><h4>Special Thanks to</h4><ul><li>Scott Alden (aldie) and <a href=\"http://www.boardgamegeek.com\">BoardGameGeek</a></li></ul><h4>Technical Assistance from</h4><ul><li>Nicolas Gramlich (plusminus) and <a href=\"http://www.anddev.org\">anddev.org</a></li><li>Mark L. Murphy</li><li>Romain Guy</li><li>Jay Liang</li></ul>",
 				"text/html", "utf-8");
 		return dialog;
 	}

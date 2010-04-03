@@ -46,34 +46,6 @@ public class BoardGame {
 
 	public BoardGame() {}
 
-	// TODO: move this to another class
-	public BoardGame(Cursor cursor) {
-		// populate the game with the data in the cursor
-		gameId = cursor.getInt(cursor.getColumnIndex(BoardGames._ID));
-		name = cursor.getString(cursor.getColumnIndex(BoardGames.NAME));
-		sortIndex = cursor.getInt(cursor.getColumnIndex(BoardGames.SORT_INDEX));
-		yearPublished = cursor.getInt(cursor.getColumnIndex(BoardGames.YEAR));
-		minPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MIN_PLAYERS));
-		maxPlayers = cursor.getInt(cursor.getColumnIndex(BoardGames.MAX_PLAYERS));
-		playingTime = cursor.getInt(cursor.getColumnIndex(BoardGames.PLAYING_TIME));
-		age = cursor.getInt(cursor.getColumnIndex(BoardGames.AGE));
-		description = cursor.getString(cursor.getColumnIndex(BoardGames.DESCRIPTION));
-		thumbnailUrl = cursor.getString(cursor.getColumnIndex(BoardGames.THUMBNAIL_URL));
-		ratingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.RATING_COUNT));
-		average = cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE));
-		bayesAverage = cursor.getDouble(cursor.getColumnIndex(BoardGames.BAYES_AVERAGE));
-		rank = cursor.getInt(cursor.getColumnIndex(BoardGames.RANK));
-		standardDeviation = cursor.getDouble(cursor.getColumnIndex(BoardGames.STANDARD_DEVIATION));
-		median = cursor.getDouble(cursor.getColumnIndex(BoardGames.MEDIAN));
-		ownedCount = cursor.getInt(cursor.getColumnIndex(BoardGames.OWNED_COUNT));
-		tradingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.TRADING_COUNT));
-		wantingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WANTING_COUNT));
-		wishingCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WISHING_COUNT));
-		commentCount = cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT));
-		weightCount = cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT));
-		averageWeight = cursor.getInt(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT));
-	}
-
 	// game ID
 	public int getGameId() {
 		return gameId;
