@@ -9,10 +9,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
+import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TabActivity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -21,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -161,10 +164,28 @@ public class ViewBoardGame extends TabActivity {
 	// get results from handler
 	final Runnable updateResults = new Runnable() {
 		public void run() {
-			if (imageLoad) {
+			if (imageLoad // we want to load the image
+				&& boardGame.getThumbnail() == null) { // but we don't have it
 				new Thread() {
 					public void run() {
-						boardGame.setThumbnail(Utility.getImage(boardGame.getThumbnailUrl()));
+						Drawable thumbnail;
+						// try to get it from the database
+						Uri uri = Uri.withAppendedPath(Thumbnails.CONTENT_URI, "" + boardGame.getGameId());
+						Cursor cursor = managedQuery(uri, null, null, null, null);
+						if (cursor.moveToFirst()) {
+							// found, use it
+							thumbnail = Drawable.createFromPath(cursor.getString(cursor
+								.getColumnIndex(Thumbnails.PATH)));
+						} else {
+							// not found, get it from the site
+							thumbnail = Utility.getImage(boardGame.getThumbnailUrl());
+							// and safe it for later
+							ContentValues values = new ContentValues();
+							values.put(Thumbnails._ID, boardGame.getGameId());
+							values.put(Thumbnails.DATA, Utility.ConvertToByteArry(thumbnail));
+							getContentResolver().insert(Thumbnails.CONTENT_URI, values);
+						}
+						boardGame.setThumbnail(thumbnail);
 						handler.post(updateImageResults);
 					}
 				}.start();
@@ -182,7 +203,7 @@ public class ViewBoardGame extends TabActivity {
 	private void updateImage() {
 		ImageView thumbnail = (ImageView) findViewById(R.id.thumbnail);
 		if (imageLoad) {
-			if (boardGame.getThumbnail() != null && !boardGame.getThumbnailUrl().equals("")) {
+			if (boardGame.getThumbnail() != null && !TextUtils.isEmpty(boardGame.getThumbnailUrl())) {
 				thumbnail.setImageDrawable(boardGame.getThumbnail());
 			} else {
 				thumbnail.setImageDrawable(getResources().getDrawable(R.drawable.noimage));

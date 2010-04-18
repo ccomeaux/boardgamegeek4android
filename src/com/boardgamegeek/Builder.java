@@ -1,9 +1,19 @@
 package com.boardgamegeek;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.BoardGameGeekData.*;
@@ -39,6 +49,8 @@ public class Builder {
 		boardGame.setCommentCount(cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT)));
 		boardGame.setWeightCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT)));
 		boardGame.setAverageWeight(cursor.getInt(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
+
+		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(boardGame.getGameId())));
 
 		int gameId = boardGame.getGameId();
 
@@ -319,6 +331,91 @@ public class Builder {
 					values.put(BoardGamePollResult.VOTES, result.getNumberOfVotes());
 					uri = activity.getContentResolver().insert(BoardGamePollResult.CONTENT_URI, values);
 				}
+			}
+		}
+	}
+
+	private static String getThumbnailPath(int thumbnailId, Boolean create) {
+		Log.d(LOG_TAG, "Getting thumbnail path");
+
+		if (thumbnailId == 0) {
+			Log.w(LOG_TAG, "thumbnailId is empty");
+			return null;
+		}
+		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			Log.w(LOG_TAG, "SD card not available");
+			return null;
+		}
+		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
+			+ "/thumbnails");
+		if (!folder.exists()) {
+			if (create) {
+				if (!folder.mkdirs()) {
+					Log.w(LOG_TAG, "Folder can't be created");
+					return null;
+				}
+			} else {
+				Log.w(LOG_TAG, "Folder doesn't exist");
+				return null;
+			}
+		}
+
+		if (folder == null) {
+			return null;
+		}
+
+		return folder.getAbsolutePath() + "/" + thumbnailId;
+	}
+
+	public static String getThumbnailPath(String thumbnailId) {
+		return getThumbnailPath(Utility.parseInt(thumbnailId));
+	}
+
+	public static String getThumbnailPath(int thumbnailId) {
+		return getThumbnailPath(thumbnailId, false);
+	}
+
+	public static Boolean deleteThumbnail(int thumbnailId) {
+		Boolean success = false;
+		if (thumbnailId > 0) {
+			String fileName = getThumbnailPath(thumbnailId);
+			if (!TextUtils.isEmpty(fileName)) {
+				File file = new File(fileName);
+				if (file.exists()) {
+					// SecurityManager().checkDelete(fileName);
+					success = file.delete();
+				}
+			}
+		}
+		return success;
+	}
+
+	public static int deleteThumbnails() {
+		// TODO: get thumbnail folder
+		// TODO: count files there for return value
+		// TODO: delete folder
+		return 0;
+	}
+
+	public static Boolean saveThumbnail(int thumbnailId, byte[] data) {
+		FileOutputStream fos = null;
+		try {
+
+			String fileName = getThumbnailPath(thumbnailId, true);
+			File file = new File(fileName);
+			fos = new FileOutputStream(file);
+			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+			bitmap.compress(CompressFormat.JPEG, 100, fos);
+			fos.flush();
+			return true;
+		} catch (IOException e) {
+			Log.e(LOG_TAG, "Error saving thumbnail", e);
+			return false;
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {}
 			}
 		}
 	}

@@ -24,6 +24,19 @@ public class BoardGameGeekData {
 		public static final String DEFAULT_SORT_ORDER = NAME + " ASC";
 	}
 
+	public static final class Thumbnails implements BaseColumns{
+		private Thumbnails() {}
+
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/thumbnails");
+		public static final String CONTENT_TYPE = "vnd.boardgamegeek.cursor.dir/vnd.boardgamegeek.thumbnail";
+		public static final String CONTENT_ITEM_TYPE = "vnd.boardgamegeek.cursor.item/vnd.boardgamegeek.thumbnail";
+
+		public static final String PATH = "path";
+		public static final String DATA = "data";
+
+		public static final String DEFAULT_SORT_ORDER = _ID + " ASC";
+}
+
 	public static final class Artists implements BaseColumns {
 		// This class cannot be instantiated
 		private Artists() {}
@@ -63,7 +76,6 @@ public class BoardGameGeekData {
 		public static final String CONTENT_ITEM_TYPE = "vnd.boardgamegeek.cursor.item/vnd.boardgamegeek.category";
 
 		public static final String NAME = "name";
-		// public static final String DESCRIPTION = "description";
 
 		public static final String DEFAULT_SORT_ORDER = NAME + " ASC";
 	}
@@ -77,7 +89,6 @@ public class BoardGameGeekData {
 		public static final String CONTENT_ITEM_TYPE = "vnd.boardgamegeek.cursor.item/vnd.boardgamegeek.mechanic";
 
 		public static final String NAME = "name";
-		// public static final String DESCRIPTION = "description";
 
 		public static final String DEFAULT_SORT_ORDER = NAME + " ASC";
 	}
@@ -115,7 +126,6 @@ public class BoardGameGeekData {
 		public static final String AVERAGE_WEIGHT = "averageWeight";
 		public static final String UPDATED_DATE = "updated";
 
-		// TODO? private Drawable thumbnail;
 		public static final String DEFAULT_SORT_ORDER = SORT_NAME + " ASC";
 	}
 

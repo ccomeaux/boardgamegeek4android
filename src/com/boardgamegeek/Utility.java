@@ -231,4 +231,17 @@ public final class Utility {
 		}
 		return "";
 	}
+
+	public static byte[] ConvertToByteArry(Drawable drawable) {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		BitmapDrawable bm = (BitmapDrawable) drawable;
+		bm.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+		byte[] byteArray = stream.toByteArray();
+		try {
+			stream.close();
+		} catch (IOException e) {
+			Log.e(LOG_TAG, e.getMessage());
+		}
+		return byteArray;
+	}
 }

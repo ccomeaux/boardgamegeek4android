@@ -1,5 +1,6 @@
 package com.boardgamegeek;
 
+import java.io.File;
 import java.util.HashMap;
 
 import com.boardgamegeek.BoardGameGeekData.*;
@@ -11,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -73,6 +75,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final int BOARDGAME_POLL_RESULT_ID = 30;
 	private static final int SEARCH_SUGGEST = 31;
 	private static final int SHORTCUT_REFRESH = 32;
+	private static final int THUMBNAILS = 33;
+	private static final int THUMBNAIL_ID = 34;
 
 	private DatabaseHelper dbHelper;
 	private static final UriMatcher uriMatcher;
@@ -92,6 +96,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static HashMap<String, String> boardgamePollResultsProjectionMap;
 	private static HashMap<String, String> boardgamePollResultProjectionMap;
 	private static HashMap<String, String> suggestionProjectionMap;
+	private static HashMap<String, String> thumbnailProjectionMap;
 
 	static {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -132,6 +137,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 			SHORTCUT_REFRESH);
 		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/#",
 			SHORTCUT_REFRESH);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, "thumbnails", THUMBNAILS);
+		uriMatcher.addURI(BoardGameGeekData.AUTHORITY, "thumbnails/#", THUMBNAIL_ID);
 
 		designersProjectionMap = new HashMap<String, String>();
 		designersProjectionMap.put(Designers._ID, Designers._ID);
@@ -270,6 +277,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, BOARDGAME_TABLE + "."
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
+
+		thumbnailProjectionMap = new HashMap<String, String>();
+		thumbnailProjectionMap.put(Thumbnails._ID, Thumbnails._ID);
+		thumbnailProjectionMap.put(Thumbnails.PATH, Thumbnails.PATH);
 	}
 
 	@Override
@@ -283,7 +294,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		String sortOrder) {
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		String defaultOrderBy;
+		String defaultOrderBy = null;
 
 		switch (uriMatcher.match(uri)) {
 		case DESIGNERS:
@@ -435,6 +446,19 @@ public class BoardGameGeekProvider extends ContentProvider {
 				qb.setProjectionMap(suggestionProjectionMap);
 				qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "=" + uri.getPathSegments().get(1));
 			}
+			break;
+		case THUMBNAIL_ID:
+			// TODO: honor projection map?
+			MatrixCursor thumbnailCursor = new MatrixCursor(new String[] { Thumbnails._ID, Thumbnails.PATH });
+			String thumbnailId = uri.getLastPathSegment();
+			String fileName = Builder.getThumbnailPath(thumbnailId);
+			if (!TextUtils.isEmpty(fileName)) {
+				File file = new File(fileName);
+				if (file.exists()) {
+					thumbnailCursor.addRow(new Object[] { thumbnailId, fileName });
+				}
+			}
+			return thumbnailCursor;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -525,6 +549,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 			return SearchManager.SUGGEST_MIME_TYPE;
 		case SHORTCUT_REFRESH:
 			return SearchManager.SHORTCUT_MIME_TYPE;
+		case THUMBNAIL_ID:
+			return Thumbnails.CONTENT_ITEM_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -572,9 +598,30 @@ public class BoardGameGeekProvider extends ContentProvider {
 			return insertBoardGamePollResults(uri, newValues);
 		case BOARDGAME_POLL_RESULT:
 			return insertBoardGamePollResult(uri, newValues);
+		case THUMBNAILS:
+			return insertThumbnail(uri, newValues);
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
+	}
+
+	private Uri insertThumbnail(Uri uri, ContentValues values) {
+		// Verify column data
+		if (values.containsKey(Thumbnails._ID) == false) {
+			throw new SQLException("Can't insert without an ID.");
+		}
+		if (values.containsKey(Thumbnails.DATA) == false) {
+			throw new SQLException("Can't insert without data.");
+		}
+		if (Builder
+			.saveThumbnail(values.getAsInteger(Thumbnails._ID), values.getAsByteArray(Thumbnails.DATA))) {
+			Uri newUri = ContentUris.withAppendedId(Thumbnails.CONTENT_URI, values
+				.getAsInteger(Thumbnails._ID));
+			getContext().getContentResolver().notifyChange(newUri, null);
+			return newUri;
+		}
+
+		throw new SQLException("Failed to insert row into " + uri);
 	}
 
 	private Uri insertDesigner(Uri uri, ContentValues values) {
@@ -901,7 +948,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		int count;
+		int count = 0;
 
 		switch (uriMatcher.match(uri)) {
 		case DESIGNERS:
@@ -949,63 +996,25 @@ public class BoardGameGeekProvider extends ContentProvider {
 		case BOARDGAME_DESIGNERS:
 			count = db.update(BOARDGAMEDESIGNER_TABLE, values, selection, selectionArgs);
 			break;
-		// case BOARDGAME_DESIGNER_ID:
-		// count = db.update(BOARDGAMEDESIGNER_TABLE, values,
-		// BoardGameDesigners._ID + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
 		case BOARDGAME_ARTISTS:
 			count = db.update(BOARDGAMEARTIST_TABLE, values, selection, selectionArgs);
 			break;
-		// case BOARDGAME_ARTIST_ID:
-		// count = db.update(BOARDGAMEARTIST_TABLE, values, BoardGameArtists._ID
-		// + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
 		case BOARDGAME_PUBLISHERS:
 			count = db.update(BOARDGAMEPUBLISHER_TABLE, values, selection, selectionArgs);
-			break;
-		// case BOARDGAME_PUBLISHER_ID:
-		// count = db.update(BOARDGAMEPUBLISHER_TABLE, values,
-		// BoardGamePublishers._ID + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
 		case BOARDGAME_CATEGORIES:
 			count = db.update(BOARDGAMECATEGORY_TABLE, values, selection, selectionArgs);
 			break;
-		// case BOARDGAME_CATEGORY_ID:
-		// count = db.update(BOARDGAMECATEGORY_TABLE, values,
-		// BoardGameCategories._ID + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
 		case BOARDGAME_MECHANICS:
 			count = db.update(BOARDGAMEMECHANIC_TABLE, values, selection, selectionArgs);
-			break;
-		// case BOARDGAME_MECHANIC_ID:
-		// count = db.update(BOARDGAMEMECHANIC_TABLE, values,
-		// BoardGameMechanics._ID + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
 		case BOARDGAME_EXPANSIONS:
 			count = db.update(BOARDGAMEEXPANSION_TABLE, values, selection, selectionArgs);
 			break;
-		// case BOARDGAME_EXPANSION_ID:
-		// count = db.update(BOARDGAMEEXPANSION_TABLE, values,
-		// BoardGameExpansions._ID + "="
-		// + uri.getPathSegments().get(1)
-		// + (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""),
-		// selectionArgs);
-		// break;
+		case THUMBNAILS:
+			Uri thumbnailUri = insertThumbnail(uri, values);
+			if (uriMatcher.match(thumbnailUri) == THUMBNAIL_ID) {
+				count = 1;
+			}
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1019,7 +1028,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		int count;
+		int count = 0;
 
 		switch (uriMatcher.match(uri)) {
 		case DESIGNERS:
@@ -1059,6 +1068,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 			break;
 		case BOARDGAMES:
 			count = db.delete(BOARDGAME_TABLE, selection, selectionArgs);
+			// TODO: delete thumbnails selectively
+			if (selection == null) {
+				count += Builder.deleteThumbnails();
+			}
 			count += db.delete(BOARDGAMEDESIGNER_TABLE, selection, selectionArgs);
 			count += db.delete(BOARDGAMEARTIST_TABLE, selection, selectionArgs);
 			count += db.delete(BOARDGAMEPUBLISHER_TABLE, selection, selectionArgs);
@@ -1074,6 +1087,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.delete(BOARDGAME_TABLE, BoardGames._ID + "=" + boardgameId
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			if (count > 0) {
+				if (Builder.deleteThumbnail(Utility.parseInt(boardgameId))) {
+					count++;
+				}
 				count += db.delete(BOARDGAMEDESIGNER_TABLE, BoardGameDesigners.BOARDGAME_ID + "="
 					+ boardgameId, null);
 				count += db.delete(BOARDGAMEARTIST_TABLE, BoardGameArtists.BOARDGAME_ID + "=" + boardgameId,
@@ -1104,6 +1120,12 @@ public class BoardGameGeekProvider extends ContentProvider {
 					+ ")", null);
 				count += db
 					.delete(BOARDGAMEPOLL_TABLE, BoardGamePolls.BOARDGAME_ID + "=" + boardgameId, null);
+			}
+			break;
+		case THUMBNAIL_ID:
+			String thumbnailId = uri.getLastPathSegment();
+			if (Builder.deleteThumbnail(Utility.parseInt(thumbnailId))) {
+				count = 1;
 			}
 			break;
 		// TODO: add delete for individual bg child tables?
