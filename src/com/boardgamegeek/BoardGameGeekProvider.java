@@ -451,7 +451,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			// TODO: honor projection map?
 			MatrixCursor thumbnailCursor = new MatrixCursor(new String[] { Thumbnails._ID, Thumbnails.PATH });
 			String thumbnailId = uri.getLastPathSegment();
-			String fileName = Builder.getThumbnailPath(thumbnailId);
+			String fileName = DataHelper.getThumbnailPath(thumbnailId);
 			if (!TextUtils.isEmpty(fileName)) {
 				File file = new File(fileName);
 				if (file.exists()) {
@@ -613,8 +613,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 		if (values.containsKey(Thumbnails.DATA) == false) {
 			throw new SQLException("Can't insert without data.");
 		}
-		if (Builder
-			.saveThumbnail(values.getAsInteger(Thumbnails._ID), values.getAsByteArray(Thumbnails.DATA))) {
+		if (DataHelper.saveThumbnail(values.getAsInteger(Thumbnails._ID), values
+			.getAsByteArray(Thumbnails.DATA))) {
 			Uri newUri = ContentUris.withAppendedId(Thumbnails.CONTENT_URI, values
 				.getAsInteger(Thumbnails._ID));
 			getContext().getContentResolver().notifyChange(newUri, null);
@@ -1070,7 +1070,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.delete(BOARDGAME_TABLE, selection, selectionArgs);
 			// TODO: delete thumbnails selectively
 			if (selection == null) {
-				count += Builder.deleteThumbnails();
+				count += DataHelper.deleteThumbnails();
 			}
 			count += db.delete(BOARDGAMEDESIGNER_TABLE, selection, selectionArgs);
 			count += db.delete(BOARDGAMEARTIST_TABLE, selection, selectionArgs);
@@ -1087,7 +1087,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.delete(BOARDGAME_TABLE, BoardGames._ID + "=" + boardgameId
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			if (count > 0) {
-				if (Builder.deleteThumbnail(Utility.parseInt(boardgameId))) {
+				if (DataHelper.deleteThumbnail(Utility.parseInt(boardgameId))) {
 					count++;
 				}
 				count += db.delete(BOARDGAMEDESIGNER_TABLE, BoardGameDesigners.BOARDGAME_ID + "="
@@ -1124,7 +1124,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			break;
 		case THUMBNAIL_ID:
 			String thumbnailId = uri.getLastPathSegment();
-			if (Builder.deleteThumbnail(Utility.parseInt(thumbnailId))) {
+			if (DataHelper.deleteThumbnail(Utility.parseInt(thumbnailId))) {
 				count = 1;
 			}
 			break;

@@ -18,7 +18,7 @@ import android.util.Log;
 
 import com.boardgamegeek.BoardGameGeekData.*;
 
-public class Builder {
+public class DataHelper {
 
 	private final static String LOG_TAG = "BoardGameGeek";
 

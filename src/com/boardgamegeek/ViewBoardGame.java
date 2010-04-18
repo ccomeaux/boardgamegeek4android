@@ -103,7 +103,7 @@ public class ViewBoardGame extends TabActivity {
 			Long now = System.currentTimeMillis();
 			if (date + cacheDuration > now) {
 				// data is fresh enough to use
-				boardGame = Builder.createBoardGame(this, cursor);
+				boardGame = DataHelper.createBoardGame(this, cursor);
 
 				// update the UI
 				updateResults.run();
@@ -129,7 +129,7 @@ public class ViewBoardGame extends TabActivity {
 					// get the parsed data as an object
 					boardGame = boardGameHandler.getBoardGame();
 
-					Builder.addToDatabase(ViewBoardGame.this, boardGame);
+					DataHelper.addToDatabase(ViewBoardGame.this, boardGame);
 				} catch (Exception e) {
 					Log.d(LOG_TAG, "Exception", e);
 				}
