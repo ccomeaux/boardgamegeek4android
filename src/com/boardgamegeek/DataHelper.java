@@ -3,6 +3,7 @@ package com.boardgamegeek;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -335,6 +336,16 @@ public class DataHelper {
 		}
 	}
 
+	private static File getThumbnailFolder() {
+		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			Log.w(LOG_TAG, "SD card not available");
+			return null;
+		}
+		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
+			+ "/thumbnails");
+		return folder;
+	}
+
 	private static String getThumbnailPath(int thumbnailId, Boolean create) {
 		Log.d(LOG_TAG, "Getting thumbnail path");
 
@@ -342,12 +353,11 @@ public class DataHelper {
 			Log.w(LOG_TAG, "thumbnailId is empty");
 			return null;
 		}
-		if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			Log.w(LOG_TAG, "SD card not available");
+		File folder = getThumbnailFolder();
+		if (folder == null) {
 			return null;
 		}
-		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
-			+ "/thumbnails");
+
 		if (!folder.exists()) {
 			if (create) {
 				if (!folder.mkdirs()) {
@@ -360,11 +370,7 @@ public class DataHelper {
 			}
 		}
 
-		if (folder == null) {
-			return null;
-		}
-
-		return folder.getAbsolutePath() + "/" + thumbnailId;
+		return folder.getAbsolutePath() + "/" + thumbnailId + ".jpg";
 	}
 
 	public static String getThumbnailPath(String thumbnailId) {
@@ -391,10 +397,16 @@ public class DataHelper {
 	}
 
 	public static int deleteThumbnails() {
-		// TODO: get thumbnail folder
-		// TODO: count files there for return value
-		// TODO: delete folder
-		return 0;
+		int count = 0;
+		File folder = getThumbnailFolder();
+		if (folder != null) {
+			for (File file : folder.listFiles()) {
+				if (file.delete()) {
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 
 	public static Boolean saveThumbnail(int thumbnailId, byte[] data) {
