@@ -1,6 +1,7 @@
 package com.boardgamegeek;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 import com.boardgamegeek.BoardGameGeekData.*;
@@ -18,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -277,6 +279,11 @@ public class BoardGameGeekProvider extends ContentProvider {
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, BOARDGAME_TABLE + "."
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS "
+			+ SearchManager.SUGGEST_COLUMN_ICON_1);
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI
+			+ "/' || " + BOARDGAME_TABLE + "." + BoardGames._ID + " AS "
+			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 
 		thumbnailProjectionMap = new HashMap<String, String>();
 		thumbnailProjectionMap.put(Thumbnails._ID, Thumbnails._ID);
@@ -1136,6 +1143,20 @@ public class BoardGameGeekProvider extends ContentProvider {
 		getContext().getContentResolver().notifyChange(uri, null);
 		Log.d(LOG_TAG, "Deleted URI " + uri);
 		return count;
+	}
+
+	@Override
+	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+		if (uriMatcher.match(uri) != THUMBNAIL_ID) {
+			throw new IllegalArgumentException("openFile only supports thumbnails");
+		}
+
+		String thumbnailId = uri.getLastPathSegment();
+		String fileName = DataHelper.getThumbnailPath(thumbnailId);
+		File file = new File(fileName);
+		ParcelFileDescriptor parcel = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+		Log.i(LOG_TAG, parcel.toString());
+		return parcel;
 	}
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {

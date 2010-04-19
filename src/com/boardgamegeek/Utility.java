@@ -235,7 +235,7 @@ public final class Utility {
 	public static byte[] ConvertToByteArry(Drawable drawable) {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		BitmapDrawable bm = (BitmapDrawable) drawable;
-		bm.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+		bm.getBitmap().compress(Bitmap.CompressFormat.JPEG, 100, stream);
 		byte[] byteArray = stream.toByteArray();
 		try {
 			stream.close();
