@@ -27,6 +27,10 @@ public class BoardGame {
 	private double average = 0.0;
 	private double bayesAverage;
 	private int rank = 0;
+	private int rankAbstract = 0;
+	private int rankCcg = 0;
+	private int rankKids = 0;
+	private int rankWar = 0;
 	private double standardDeviation;
 	private double median;
 	private int ownedCount;
@@ -174,6 +178,38 @@ public class BoardGame {
 
 	public void setRank(int rank) {
 		this.rank = rank;
+	}
+
+	public int getRankAbstract() {
+		return rankAbstract;
+	}
+
+	public void setRankAbstract(int rank) {
+		this.rankAbstract = rank;
+	}
+
+	public int getRankCcg() {
+		return rankCcg;
+	}
+
+	public void setRankCcg(int rank) {
+		this.rankCcg = rank;
+	}
+
+	public int getRankKids() {
+		return rankKids;
+	}
+
+	public void setRankKids(int rank) {
+		this.rankKids = rank;
+	}
+
+	public int getRankWar() {
+		return rankWar;
+	}
+
+	public void setRankWar(int rank) {
+		this.rankWar = rank;
 	}
 
 	// thumbnail image

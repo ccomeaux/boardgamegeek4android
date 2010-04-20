@@ -11,7 +11,7 @@ public class BoardGameHandler extends DefaultHandler {
 	private Boolean isPrimaryName = false;
 	private boolean isStats;
 	private boolean isRanks;
-	private boolean isRank;
+	private String rankType;
 	private String objectId;
 	private Poll currentPoll;
 	private PollResults currentPollResults;
@@ -56,10 +56,7 @@ public class BoardGameHandler extends DefaultHandler {
 		} else if (isStats) {
 			if (isRanks) {
 				if (localName == "rank") {
-					String attribute = atts.getValue("type");
-					if (attribute != null && attribute.equalsIgnoreCase("boardgame")) {
-						isRank = true;
-					}
+					rankType = atts.getValue("type");
 				}
 			} else if (localName == "ranks") {
 				isRanks = true;
@@ -79,7 +76,7 @@ public class BoardGameHandler extends DefaultHandler {
 				PollResult result = new PollResult(value, numberOfVotes, level);
 				currentPollResults.addResult(result);
 			}
-		} else if (localName=="error"){
+		} else if (localName == "error") {
 			String message = atts.getValue("message");
 			boardGame.setName(message);
 		}
@@ -156,9 +153,19 @@ public class BoardGameHandler extends DefaultHandler {
 				boardGame.setBayesAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
-			} else if (isRank && localName == "rank") {
-				boardGame.setRank(Utility.parseInt(currentElement.toString()));
-				isRank = false;
+			} else if (isRanks && localName == "rank") {
+				int rank = Utility.parseInt(currentElement.toString());
+				if (rankType.equalsIgnoreCase("boardgame")) {
+					boardGame.setRank(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_abstracts")) {
+					boardGame.setRankAbstract(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_ccgrank")) {
+					boardGame.setRankCcg(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_kidsgames")) {
+					boardGame.setRankKids(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_wargames")) {
+					boardGame.setRankWar(rank);
+				}
 			} else if (localName == "stddev") {
 				boardGame.setStandardDeviation(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "median") {
