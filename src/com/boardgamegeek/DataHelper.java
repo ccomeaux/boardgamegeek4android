@@ -117,6 +117,10 @@ public class DataHelper {
 			return;
 		}
 
+		if (boardGame.getGameId() <= 0) {
+			Log.w(LOG_TAG, "Invalid boardGame ID: " + boardGame.getGameId());
+		}
+
 		// delete to make sure all of the child relationships are cleaned up
 		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
 		activity.getContentResolver().delete(uri, null, null);
@@ -280,7 +284,7 @@ public class DataHelper {
 		}
 
 		for (int i = 0; i < boardGame.getExpansionCount(); i++) {
-			String expansionId = boardGame.getExpansionIdByPosition(i);
+			int expansionId = boardGame.getExpansionIdByPosition(i);
 			String expansionName = boardGame.getExpansionNameById(expansionId);
 
 			values.clear();
@@ -288,7 +292,7 @@ public class DataHelper {
 			values.put(BoardGames.NAME, expansionName);
 
 			// ensure expansion record is present and correct
-			Uri expansionUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, expansionId);
+			Uri expansionUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + expansionId);
 			Cursor cursor = activity.managedQuery(expansionUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (expansionName != cursor.getString(cursor.getColumnIndex(BoardGames.NAME))) {
@@ -381,7 +385,7 @@ public class DataHelper {
 	}
 
 	public static Boolean deleteThumbnail(int thumbnailId) {
-		Boolean success = false;
+		boolean success = false;
 		if (thumbnailId > 0) {
 			String fileName = getThumbnailPath(thumbnailId);
 			if (!TextUtils.isEmpty(fileName)) {
@@ -410,9 +414,9 @@ public class DataHelper {
 
 	public static Boolean saveThumbnail(int thumbnailId, byte[] data) {
 		FileOutputStream fos = null;
+		String fileName = null;
 		try {
-
-			String fileName = getThumbnailPath(thumbnailId, true);
+			fileName = getThumbnailPath(thumbnailId, true);
 			File file = new File(fileName);
 			fos = new FileOutputStream(file);
 			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -421,6 +425,9 @@ public class DataHelper {
 			return true;
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "Error saving thumbnail", e);
+			return false;
+		}catch (NullPointerException e){
+			Log.e(LOG_TAG, "Bad fileName: " + fileName, e);
 			return false;
 		} finally {
 			if (fos != null) {

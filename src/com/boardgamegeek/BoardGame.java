@@ -505,15 +505,15 @@ public class BoardGame {
 		return expansions.size();
 	}
 
-	public String getExpansionIdByPosition(int position) {
+	public int getExpansionIdByPosition(int position) {
 		if (expansions.size() > position) {
-			return (String) expansions.keySet().toArray()[position];
+			return Utility.parseInt(expansions.keySet().toArray()[position].toString());
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
-	public String getExpansionNameById(String expansionId) {
+	public String getExpansionNameById(int expansionId) {
 		return expansions.get(expansionId);
 	}
 
