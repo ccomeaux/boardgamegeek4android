@@ -172,7 +172,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		boardgamesProjectionMap.put(BoardGames._ID, BoardGames._ID);
 		boardgamesProjectionMap.put(BoardGames.NAME, BoardGames.NAME);
 		boardgamesProjectionMap.put(BoardGames.SORT_INDEX, BoardGames.SORT_INDEX);
-		boardgamesProjectionMap.put(BoardGames.SORT_NAME, BoardGames.SORT_NAME);
+		boardgamesProjectionMap.put(BoardGames.SORT_NAME, "(CASE WHEN " + BoardGames.SORT_NAME
+			+ " IS NULL THEN " + BoardGames.NAME + " ELSE " + BoardGames.SORT_NAME + " END) AS "
+			+ BoardGames.SORT_NAME);
 		boardgamesProjectionMap.put(BoardGames.YEAR, BoardGames.YEAR);
 		boardgamesProjectionMap.put(BoardGames.MIN_PLAYERS, BoardGames.MIN_PLAYERS);
 		boardgamesProjectionMap.put(BoardGames.MAX_PLAYERS, BoardGames.MAX_PLAYERS);
@@ -280,10 +282,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, BOARDGAME_TABLE + "."
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS "
-			+ SearchManager.SUGGEST_COLUMN_ICON_1);
-		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI
-			+ "/' || " + BOARDGAME_TABLE + "." + BoardGames._ID + " AS "
-			+ SearchManager.SUGGEST_COLUMN_ICON_2);
+			+ SearchManager.SUGGEST_COLUMN_ICON_1); // BGG app icon
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "1 AS "
+			+ SearchManager.SUGGEST_COLUMN_ICON_2); // TEST
 
 		thumbnailProjectionMap = new HashMap<String, String>();
 		thumbnailProjectionMap.put(Thumbnails._ID, Thumbnails._ID);
