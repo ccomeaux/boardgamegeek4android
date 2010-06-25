@@ -285,6 +285,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 			+ SearchManager.SUGGEST_COLUMN_ICON_1); // BGG app icon
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "1 AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_2); // TEST
+		suggestionProjectionMap.put(BoardGames.SORT_NAME, "(CASE WHEN " + BoardGames.SORT_NAME
+			+ " IS NULL THEN " + BoardGames.NAME + " ELSE " + BoardGames.SORT_NAME + " END) AS "
+			+ BoardGames.SORT_NAME); // for sorting
 
 		thumbnailProjectionMap = new HashMap<String, String>();
 		thumbnailProjectionMap.put(Thumbnails._ID, Thumbnails._ID);
@@ -438,7 +441,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			} else {
 				qb.setTables(BOARDGAME_TABLE);
 				qb.setProjectionMap(suggestionProjectionMap);
-				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '%" + query + "%'");
+				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%'");
 				defaultOrderBy = BoardGames.DEFAULT_SORT_ORDER;
 			}
 			break;
