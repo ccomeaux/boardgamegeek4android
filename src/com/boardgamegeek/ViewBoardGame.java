@@ -82,14 +82,14 @@ public class ViewBoardGame extends TabActivity {
 
 	private void getBoardGame() {
 
+		// display a progress dialog while fetching the game data
+		showDialog(ID_DIALOG_SEARCHING);
+
 		if (boardGame != null && boardGame.getGameId() == gameId) {
 			// no need to retrieve the game, we already have it
 			updateUI();
 			return;
 		}
-
-		// display a progress dialog while fetching the game data
-		showDialog(ID_DIALOG_SEARCHING);
 
 		// remove the current, so it displays nothing if the connection fails
 		boardGame = null;
@@ -106,7 +106,7 @@ public class ViewBoardGame extends TabActivity {
 				boardGame = DataHelper.createBoardGame(this, cursor);
 
 				// update the UI
-				updateResults.run();
+				updateUI();
 				return;
 			}
 		}
@@ -164,11 +164,33 @@ public class ViewBoardGame extends TabActivity {
 	// get results from handler
 	final Runnable updateResults = new Runnable() {
 		public void run() {
-			if (imageLoad // we want to load the image
-				&& boardGame.getThumbnail() == null) { // but we don't have it
+			updateUI();
+		}
+	};
+
+	final Runnable updateImageResults = new Runnable() {
+		public void run() {
+			ImageView thumbnail = (ImageView) findViewById(R.id.thumbnail);
+			if (boardGame.getThumbnail() != null) {
+				thumbnail.setImageDrawable(boardGame.getThumbnail());
+			} else {
+				thumbnail.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
+			}
+		}
+	};
+
+	private void updateImage() {
+		ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnail);
+		if (imageLoad) {
+			if (boardGame.getThumbnail() != null) {
+				// we already have the image; show it
+				thumbnailView.setImageDrawable(boardGame.getThumbnail());
+			} else {
+				// we don't have the image; go get it
+				thumbnailView.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
 				new Thread() {
 					public void run() {
-						Drawable thumbnail;
+						Drawable thumbnail = null;
 						// try to get it from the database
 						Uri uri = Uri.withAppendedPath(Thumbnails.CONTENT_URI, "" + boardGame.getGameId());
 						Cursor cursor = managedQuery(uri, null, null, null, null);
@@ -176,40 +198,26 @@ public class ViewBoardGame extends TabActivity {
 							// found, use it
 							thumbnail = Drawable.createFromPath(cursor.getString(cursor
 								.getColumnIndex(Thumbnails.PATH)));
-						} else {
+						} else if (!TextUtils.isEmpty(boardGame.getThumbnailUrl())) {
 							// not found, get it from the site
 							thumbnail = Utility.getImage(boardGame.getThumbnailUrl());
 							// and safe it for later
-							ContentValues values = new ContentValues();
-							values.put(Thumbnails._ID, boardGame.getGameId());
-							values.put(Thumbnails.DATA, Utility.ConvertToByteArry(thumbnail));
-							getContentResolver().insert(Thumbnails.CONTENT_URI, values);
+							if (thumbnail != null) {
+								ContentValues values = new ContentValues();
+								values.put(Thumbnails._ID, boardGame.getGameId());
+								values.put(Thumbnails.DATA, Utility.ConvertToByteArry(thumbnail));
+								getContentResolver().insert(Thumbnails.CONTENT_URI, values);
+							}
 						}
 						boardGame.setThumbnail(thumbnail);
 						handler.post(updateImageResults);
 					}
 				}.start();
 			}
-			updateUI();
-		}
-	};
-
-	final Runnable updateImageResults = new Runnable() {
-		public void run() {
-			updateImage();
-		}
-	};
-
-	private void updateImage() {
-		ImageView thumbnail = (ImageView) findViewById(R.id.thumbnail);
-		if (imageLoad) {
-			if (boardGame.getThumbnail() != null && !TextUtils.isEmpty(boardGame.getThumbnailUrl())) {
-				thumbnail.setImageDrawable(boardGame.getThumbnail());
-			} else {
-				thumbnail.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
-			}
 		} else {
-			thumbnail.setImageDrawable(null);
+			// don't show the image
+			// this causes the thumbnail view to take no space
+			thumbnailView.setImageDrawable(null);
 		}
 	}
 
@@ -252,7 +260,6 @@ public class ViewBoardGame extends TabActivity {
 		// display information
 		title.setText(boardGame.getName());
 		rank.setText(gameRank);
-		updateImage();
 		rating.setText(gameRating);
 
 		// calculate and display star rating
@@ -324,6 +331,7 @@ public class ViewBoardGame extends TabActivity {
 		removeDialogs();
 
 		setTitle(String.format(getResources().getString(R.string.bg_view_title), boardGame.getName()));
+		updateImage();
 	}
 
 	@Override
