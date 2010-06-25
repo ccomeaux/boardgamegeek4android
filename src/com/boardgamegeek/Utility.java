@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -31,7 +32,7 @@ public final class Utility {
 
 	// replaces escaped HTML with the unescaped equivalent
 	public static String unescapeText(String escapedText) {
-		if (escapedText == null) {
+		if (TextUtils.isEmpty(escapedText)) {
 			return null;
 		}
 
@@ -94,7 +95,7 @@ public final class Utility {
 		// converts any accented characters into standard equivalents
 		// and replaces spaces with +
 
-		if (s == null) {
+		if (TextUtils.isEmpty(null)) {
 			return null;
 		}
 
@@ -155,7 +156,7 @@ public final class Utility {
 	}
 
 	public static Drawable getImage(String url) {
-		if (url == null) {
+		if (TextUtils.isEmpty(null)) {
 			return null;
 		}
 

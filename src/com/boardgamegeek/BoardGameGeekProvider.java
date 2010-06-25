@@ -450,7 +450,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			if (uri.getPathSegments().size() > 1) {
 				shortcutId = uri.getLastPathSegment();
 			}
-			if (shortcutId == null) {
+			if (TextUtils.isEmpty(shortcutId)) {
 				return null;
 			} else {
 				qb.setTables(BOARDGAME_TABLE);
@@ -1080,7 +1080,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		case BOARDGAMES:
 			count = db.delete(BOARDGAME_TABLE, selection, selectionArgs);
 			// TODO: delete thumbnails selectively
-			if (selection == null) {
+			if (TextUtils.isEmpty(selection)) {
 				count += DataHelper.deleteThumbnails();
 			}
 			count += db.delete(BOARDGAMEDESIGNER_TABLE, selection, selectionArgs);
