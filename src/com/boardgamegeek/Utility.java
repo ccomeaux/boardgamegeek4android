@@ -95,7 +95,7 @@ public final class Utility {
 		// converts any accented characters into standard equivalents
 		// and replaces spaces with +
 
-		if (TextUtils.isEmpty(null)) {
+		if (TextUtils.isEmpty(s)) {
 			return null;
 		}
 
@@ -156,7 +156,7 @@ public final class Utility {
 	}
 
 	public static Drawable getImage(String url) {
-		if (TextUtils.isEmpty(null)) {
+		if (TextUtils.isEmpty(url)) {
 			return null;
 		}
 

@@ -202,7 +202,8 @@ public class ViewBoardGame extends TabActivity {
 							// not found, get it from the site
 							thumbnail = Utility.getImage(boardGame.getThumbnailUrl());
 							// and safe it for later
-							if (thumbnail != null) {
+							if (thumbnail != null
+								&& !TextUtils.isEmpty(DataHelper.getThumbnailPath(boardGame.getGameId()))) {
 								ContentValues values = new ContentValues();
 								values.put(Thumbnails._ID, boardGame.getGameId());
 								values.put(Thumbnails.DATA, Utility.ConvertToByteArry(thumbnail));

@@ -24,7 +24,7 @@ public class BoardGameGeekData {
 		public static final String DEFAULT_SORT_ORDER = NAME + " ASC";
 	}
 
-	public static final class Thumbnails implements BaseColumns{
+	public static final class Thumbnails implements BaseColumns {
 		private Thumbnails() {}
 
 		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/thumbnails");
@@ -35,7 +35,7 @@ public class BoardGameGeekData {
 		public static final String DATA = "data";
 
 		public static final String DEFAULT_SORT_ORDER = _ID + " ASC";
-}
+	}
 
 	public static final class Artists implements BaseColumns {
 		// This class cannot be instantiated

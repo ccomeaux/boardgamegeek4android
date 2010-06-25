@@ -283,8 +283,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 			+ BoardGames._ID + " AS " + SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_1); // BGG app icon
-		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "1 AS "
-			+ SearchManager.SUGGEST_COLUMN_ICON_2); // TEST
+		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI
+			+ "/' || " + BOARDGAME_TABLE + "." + BoardGames._ID + " AS "
+			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		suggestionProjectionMap.put(BoardGames.SORT_NAME, "(CASE WHEN " + BoardGames.SORT_NAME
 			+ " IS NULL THEN " + BoardGames.NAME + " ELSE " + BoardGames.SORT_NAME + " END) AS "
 			+ BoardGames.SORT_NAME); // for sorting
@@ -1157,10 +1158,15 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 		String thumbnailId = uri.getLastPathSegment();
 		String fileName = DataHelper.getThumbnailPath(thumbnailId);
-		File file = new File(fileName);
-		ParcelFileDescriptor parcel = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-		Log.i(LOG_TAG, parcel.toString());
-		return parcel;
+		if (!TextUtils.isEmpty(fileName)) {
+			File file = new File(fileName);
+			ParcelFileDescriptor parcel = ParcelFileDescriptor
+				.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+			Log.i(LOG_TAG, parcel.toString());
+			return parcel;
+		} else {
+			return null;
+		}
 	}
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {
