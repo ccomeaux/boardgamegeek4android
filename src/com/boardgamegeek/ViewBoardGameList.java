@@ -13,9 +13,7 @@ import org.xml.sax.XMLReader;
 
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 
-import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,16 +32,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ViewBoardGameList extends ListActivity {
-	// declare variables
+
 	private String searchText;
 	private List<BoardGame> boardGames = new ArrayList<BoardGame>();
 	private BoardGameAdapter adapter;
-	private final int ID_DIALOG_SEARCHING = 1;
-	private final int ID_DIALOG_RETRY = 2;
-	private final int ID_DIALOG_LOADING = 3;
 	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
 	private SharedPreferences preferences;
@@ -70,19 +66,44 @@ public class ViewBoardGameList extends ListActivity {
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		Log.d(LOG_TAG, "onSaveInstanceState");
-		removeDialogs();
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
 	public void onNewIntent(Intent intent) {
 		parseIntent(intent);
 	}
 
+	private void parseIntent(Intent intent) {
+
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			// user is searching
+			searchText = intent.getExtras().getString(SearchManager.QUERY);
+			if (TextUtils.isEmpty(searchText)) {
+				// search text was blank, but show the database anyway
+				Log.w(LOG_TAG, "Search performed with no search text");
+				viewDatabase();
+			} else {
+				// search BGG
+				getBoardGameList();
+			}
+		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+			// user wants to view something
+			String data = intent.getDataString();
+			if (TextUtils.isEmpty(data)) {
+				// no game specified means they want the whole database
+				viewDatabase();
+			} else {
+				// a game ID is specified
+				Uri uri = Uri.parse(data);
+				viewBoardGame(Utility.parseInt(uri.getLastPathSegment(), 0));
+				finish();
+			}
+		} else {
+			// still show database
+			Log.w(LOG_TAG, "Received bad intent action: " + intent.getAction());
+			viewDatabase();
+		}
+	}
+
 	private void viewDatabase() {
-		showDialog(ID_DIALOG_LOADING);
+		updateMessage(R.string.loading_cache_message, null, true);
 		boardGames = new ArrayList<BoardGame>();
 		Cursor c = managedQuery(BoardGames.CONTENT_URI, null, null, null, null);
 		if (c.moveToFirst()) {
@@ -97,31 +118,6 @@ public class ViewBoardGameList extends ListActivity {
 		adapter = new BoardGameAdapter();
 		setListAdapter(adapter);
 		setTitle(R.string.view_cache_title);
-		removeDialog(ID_DIALOG_LOADING);
-	}
-
-	private void parseIntent(Intent intent) {
-
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			searchText = intent.getExtras().getString(SearchManager.QUERY);
-			if (TextUtils.isEmpty(searchText)) {
-				viewDatabase();
-			} else {
-				getBoardGameList();
-			}
-		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-			String data = intent.getDataString();
-			if (TextUtils.isEmpty(data)) {
-				viewDatabase();
-			} else {
-				Uri uri = Uri.parse(data);
-				viewBoardGame(Utility.parseInt(uri.getLastPathSegment(), 0));
-				finish();
-			}
-		} else {
-			Log.w(LOG_TAG, "Received bad intent action: " + intent.getAction());
-			viewDatabase();
-		}
 	}
 
 	private void getBoardGameList() {
@@ -131,11 +127,8 @@ public class ViewBoardGameList extends ListActivity {
 		boardGames.clear();
 
 		// display a progress dialog while fetching the game data
-		if (isFirstPass) {
-			showDialog(ID_DIALOG_SEARCHING);
-		} else {
-			showDialog(ID_DIALOG_RETRY);
-		}
+		updateMessage(R.string.search_message, searchText, true);
+		setTitle(R.string.search_title);
 
 		new Thread() {
 			public void run() {
@@ -175,44 +168,15 @@ public class ViewBoardGameList extends ListActivity {
 		}.start();
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if (id == ID_DIALOG_SEARCHING) {
-			return createDialog(R.string.dialog_search_title, R.string.dialog_search_message);
-		} else if (id == ID_DIALOG_RETRY) {
-			return createDialog(R.string.dialog_retry_title, R.string.dialog_retry_message);
-		} else if (id == ID_DIALOG_LOADING) {
-			return createDialog(R.string.dialog_loading_title, R.string.dialog_loading_message);
+	private void updateMessage(int messageResource, String optionalText, boolean showProgress) {
+		TextView tv = (TextView) findViewById(R.id.listMessage);
+		ProgressBar pb = (ProgressBar) findViewById(R.id.listProgress);
+		if (TextUtils.isEmpty(optionalText)) {
+			tv.setText(messageResource);
+		} else {
+			tv.setText(String.format(getResources().getString(messageResource), optionalText));
 		}
-		return super.onCreateDialog(id);
-	}
-
-	private Dialog createDialog(int titleId, int messageId) {
-		ProgressDialog dialog = new ProgressDialog(this);
-		dialog.setTitle(titleId);
-		dialog.setMessage(getResources().getString(messageId));
-		dialog.setIndeterminate(true);
-		dialog.setCancelable(true);
-		return dialog;
-	}
-
-	// remove dialog boxes
-	protected void removeDialogs() {
-		try {
-			removeDialog(ID_DIALOG_SEARCHING);
-		} catch (Exception e) {
-			Log.w(LOG_TAG, "ID_DIALOG_SEARCHING - Remove Failed", e);
-		}
-		try {
-			removeDialog(ID_DIALOG_RETRY);
-		} catch (Exception e) {
-			Log.w(LOG_TAG, "ID_DIALOG_RETRY - Remove Failed", e);
-		}
-		try {
-			removeDialog(ID_DIALOG_LOADING);
-		} catch (Exception e) {
-			Log.w(LOG_TAG, "ID_DIALOG_LOADING - Remove Failed", e);
-		}
+		pb.setVisibility(showProgress ? View.VISIBLE : View.GONE);
 	}
 
 	// get results from handler
@@ -222,48 +186,41 @@ public class ViewBoardGameList extends ListActivity {
 		}
 	};
 
-	private void updateMessage(String message) {
-		TextView nr = (TextView) findViewById(android.R.id.empty);
-		nr.setText(message);
-	}
-
 	// updates UI after running progress dialog
 	private void updateUI() {
-		int count = 0;
-		if (boardGames != null) {
-			count = boardGames.size();
-		} else {
-			boardGames = new ArrayList<BoardGame>();
+		if (boardGames == null) {
+			boardGames = new ArrayList<BoardGame>(0);
 		}
-		removeDialogs();
-		if (isGeekDown) {
-			updateMessage(getResources().getString(R.string.bgg_down));
-		} else if (count == 0 && exactSearch && isFirstPass) {
-			// try again if exactSearch is on and no results were found
-			isFirstPass = false;
-			getBoardGameList();
-		} else if (count == 0 && (!exactSearch || !isFirstPass)) {
-			// display if no results are found
-			updateMessage(String.format(getResources().getString(R.string.no_results), searchText));
-		}
+		int count = boardGames.size();
 
-		// skip directly to game if only one result
-		if (count == 1 && skipResults) {
-			BoardGame boardGame = boardGames.get(0);
-			viewBoardGame(boardGame.getGameId());
-			finish();
-			return;
-		}
-
-		// display game list (even if we skip results, since user may use back
-		// button
-		adapter = new BoardGameAdapter();
-		setListAdapter(adapter);
-		if (isGeekDown) {
-			setTitle(getResources().getString(R.string.bgg_down_title));
+		if (count == 0) {
+			if (isGeekDown) {
+				updateMessage(R.string.bgg_down, null, false);
+				setTitle(getResources().getString(R.string.bgg_down_title));
+			} else if (exactSearch && isFirstPass) {
+				// try again if exactSearch is on and no results were found
+				isFirstPass = false;
+				getBoardGameList();
+			} else {
+				// display if no results are found
+				updateMessage(R.string.no_results, searchText, false);
+				setTitle(String.format(getResources().getString(R.string.bg_list_title), count, searchText));
+			}
+		} else if (count == 1) {
+			if (skipResults) {
+				// skip directly to game if only one result
+				BoardGame boardGame = boardGames.get(0);
+				viewBoardGame(boardGame.getGameId());
+				finish();
+			}
 		} else {
 			setTitle(String.format(getResources().getString(R.string.bg_list_title), count, searchText));
 		}
+
+		// display game list (even if we skip results, since user may use back
+		// button)
+		adapter = new BoardGameAdapter();
+		setListAdapter(adapter);
 	}
 
 	// gets the game id from the list item when clicked

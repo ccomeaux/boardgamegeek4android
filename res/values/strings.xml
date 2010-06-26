@@ -35,12 +35,10 @@
 	<string name="menu_about">About</string>
 	<string name="title_text">BoardGameGeek.com</string>
 	<string name="search_text">Search</string>
-	<string name="dialog_search_title">Searching...</string>
+	<string name="search_message">Searching for \&quot;%s\&quot;...</string>
+	<string name="search_title">Searching</string>
 	<string name="dialog_search_message">Connecting to site...</string>
-	<string name="dialog_retry_title">No results...</string>
-	<string name="dialog_retry_message">Trying wider search...</string>
-	<string name="dialog_loading_title">Loading</string>
-	<string name="dialog_loading_message">Loading cache...</string>
+	<string name="loading_cache_message">Loading cache...</string>
 	<string name="dialog_working_title">Working...</string>
 	<string name="dialog_working_message">Downloading game data...</string>
 	<string name="view_cache_title">Viewing Cache</string>
