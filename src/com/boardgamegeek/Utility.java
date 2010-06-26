@@ -87,6 +87,7 @@ public final class Utility {
 		unescapedText = unescapedText.replace("&copy;", "\u00a9");
 		unescapedText = unescapedText.replace("&reg;", "\u00ae");
 		unescapedText = unescapedText.replace("&euro;", "\u20a0");
+		unescapedText = unescapedText.replace("&bull;", "\u0095");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		return unescapedText.trim();
 	}
