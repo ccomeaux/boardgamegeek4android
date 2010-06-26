@@ -318,68 +318,44 @@ public class ViewBoardGameList extends ListActivity {
 	}
 
 	class BoardGameAdapter extends ArrayAdapter<BoardGame> {
+		private LayoutInflater mInflater;
+
 		BoardGameAdapter() {
 			super(ViewBoardGameList.this, android.R.layout.simple_list_item_1, boardGames);
+			mInflater = getLayoutInflater();
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			View row = convertView;
-			BoardGameWrapper wrapper = null;
+			ViewHolder holder;
+			if (convertView == null) {
+				convertView = mInflater.inflate(R.layout.row, parent, false);
+				holder = new ViewHolder();
+				holder.name = (TextView) convertView.findViewById(R.id.name);
+				holder.year = (TextView) convertView.findViewById(R.id.year);
+				holder.gameId = (TextView) convertView.findViewById(R.id.gameId);
 
-			if (row == null) {
-				LayoutInflater inflater = getLayoutInflater();
-				row = inflater.inflate(R.layout.row, null);
-				wrapper = new BoardGameWrapper(row);
-				row.setTag(wrapper);
+				convertView.setTag(holder);
 			} else {
-				wrapper = (BoardGameWrapper) row.getTag();
+				holder = (ViewHolder) convertView.getTag();
 			}
 
-			wrapper.populateFrom(boardGames.get(position));
+			BoardGame bg = boardGames.get(position);
+			if (bg != null) {
+				holder.name.setText(bg.getName());
+				if (bg.getYearPublished() > 0) {
+					holder.year.setText("" + bg.getYearPublished());
+				}
+				holder.gameId.setText(String.format(getResources().getString(R.string.id_list_text), bg
+					.getGameId()));
+			}
 
-			return row;
+			return convertView;
 		}
 	}
 
-	class BoardGameWrapper {
-		// this class exists to help performance in binding the board game list
-		private View row = null;
-		private TextView name = null;
-		private TextView year = null;
-		private TextView gameId = null;
-
-		public BoardGameWrapper(View row) {
-			this.row = row;
-		}
-
-		void populateFrom(BoardGame bg) {
-			getName().setText(bg.getName());
-			if (bg.getYearPublished() > 0) {
-				getYear().setText("" + bg.getYearPublished());
-			}
-			getGameId().setText(
-				String.format(getResources().getString(R.string.id_list_text), bg.getGameId()));
-		}
-
-		TextView getName() {
-			if (name == null) {
-				name = (TextView) row.findViewById(R.id.name);
-			}
-			return name;
-		}
-
-		TextView getYear() {
-			if (year == null) {
-				year = (TextView) row.findViewById(R.id.year);
-			}
-			return year;
-		}
-
-		TextView getGameId() {
-			if (gameId == null) {
-				gameId = (TextView) row.findViewById(R.id.gameId);
-			}
-			return gameId;
-		}
+	static class ViewHolder {
+		TextView name;
+		TextView year;
+		TextView gameId;
 	}
 }
