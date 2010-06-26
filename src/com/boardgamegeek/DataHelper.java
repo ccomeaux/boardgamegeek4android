@@ -48,7 +48,7 @@ public class DataHelper {
 		boardGame.setWishingCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WISHING_COUNT)));
 		boardGame.setCommentCount(cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT)));
 		boardGame.setWeightCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT)));
-		boardGame.setAverageWeight(cursor.getInt(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
+		boardGame.setAverageWeight(cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
 
 		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(boardGame.getGameId())));
 
