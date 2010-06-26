@@ -125,6 +125,14 @@ public class BoardGameGeekData {
 		public static final String WEIGHT_COUNT = "weightCount";
 		public static final String AVERAGE_WEIGHT = "averageWeight";
 		public static final String UPDATED_DATE = "updated";
+		public static final String RANK_ABSTRACT = "rankAbstract";
+		public static final String RANK_CCG = "rankCcg";
+		public static final String RANK_FAMILY = "rankFamily";
+		public static final String RANK_KIDS = "rankKids";
+		public static final String RANK_PARTY = "rankParty";
+		public static final String RANK_STRATEGY = "rankStrategy";
+		public static final String RANK_THEMATIC = "rankThematic";
+		public static final String RANK_WAR = "rankWar";
 
 		public static final String DEFAULT_SORT_ORDER = SORT_NAME + " ASC";
 	}

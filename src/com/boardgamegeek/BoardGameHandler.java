@@ -161,8 +161,16 @@ public class BoardGameHandler extends DefaultHandler {
 					boardGame.setRankAbstract(rank);
 				} else if (rankType.equalsIgnoreCase("subdomain_ccgrank")) {
 					boardGame.setRankCcg(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_familygamesrank")) {
+					boardGame.setRankFamily(rank);
 				} else if (rankType.equalsIgnoreCase("subdomain_kidsgames")) {
 					boardGame.setRankKids(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_partygamerank")) {
+					boardGame.setRankParty(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_strategygamesrank")) {
+					boardGame.setRankStrategy(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_thematic")) {
+					boardGame.setRankTheme(rank);
 				} else if (rankType.equalsIgnoreCase("subdomain_wargames")) {
 					boardGame.setRankWar(rank);
 				}

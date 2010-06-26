@@ -29,7 +29,11 @@ public class BoardGame {
 	private int rank = 0;
 	private int rankAbstract = 0;
 	private int rankCcg = 0;
+	private int rankFamily;
 	private int rankKids = 0;
+	private int rankParty = 0;
+	private int rankStrategy = 0;
+	private int rankTheme = 0;
 	private int rankWar = 0;
 	private double standardDeviation;
 	private double median;
@@ -196,12 +200,44 @@ public class BoardGame {
 		this.rankCcg = rank;
 	}
 
+	public int getRankFamily() {
+		return rankFamily;
+	}
+
+	public void setRankFamily(int rank) {
+		this.rankFamily = rank;
+	}
+
 	public int getRankKids() {
 		return rankKids;
 	}
 
 	public void setRankKids(int rank) {
 		this.rankKids = rank;
+	}
+
+	public int getRankParty() {
+		return rankParty;
+	}
+
+	public void setRankParty(int rank) {
+		this.rankParty = rank;
+	}
+
+	public int getRankStrategy() {
+		return rankStrategy;
+	}
+
+	public void setRankStrategy(int rank) {
+		this.rankStrategy = rank;
+	}
+
+	public int getRankTheme() {
+		return rankTheme;
+	}
+
+	public void setRankTheme(int rank) {
+		this.rankTheme = rank;
 	}
 
 	public int getRankWar() {
@@ -514,7 +550,7 @@ public class BoardGame {
 	}
 
 	public String getExpansionNameById(int expansionId) {
-		return expansions.get(expansionId);
+		return expansions.get("" + expansionId);
 	}
 
 	public void addExpansion(String id, String name) {

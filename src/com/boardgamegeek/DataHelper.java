@@ -39,6 +39,14 @@ public class DataHelper {
 		boardGame.setAverage(cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE)));
 		boardGame.setBayesAverage(cursor.getDouble(cursor.getColumnIndex(BoardGames.BAYES_AVERAGE)));
 		boardGame.setRank(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK)));
+		boardGame.setRankAbstract(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_ABSTRACT)));
+		boardGame.setRankCcg(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_CCG)));
+		boardGame.setRankFamily(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_FAMILY)));
+		boardGame.setRankKids(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_KIDS)));
+		boardGame.setRankParty(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_PARTY)));
+		boardGame.setRankStrategy(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_STRATEGY)));
+		boardGame.setRankTheme(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_THEMATIC)));
+		boardGame.setRankWar(cursor.getInt(cursor.getColumnIndex(BoardGames.RANK_WAR)));
 		boardGame
 			.setStandardDeviation(cursor.getDouble(cursor.getColumnIndex(BoardGames.STANDARD_DEVIATION)));
 		boardGame.setMedian(cursor.getDouble(cursor.getColumnIndex(BoardGames.MEDIAN)));
@@ -141,6 +149,14 @@ public class DataHelper {
 		values.put(BoardGames.AVERAGE, boardGame.getAverage());
 		values.put(BoardGames.BAYES_AVERAGE, boardGame.getBayesAverage());
 		values.put(BoardGames.RANK, boardGame.getRank());
+		values.put(BoardGames.RANK_ABSTRACT, boardGame.getRankAbstract());
+		values.put(BoardGames.RANK_CCG, boardGame.getRankCcg());
+		values.put(BoardGames.RANK_FAMILY, boardGame.getRankFamily());
+		values.put(BoardGames.RANK_KIDS, boardGame.getRankKids());
+		values.put(BoardGames.RANK_PARTY, boardGame.getRankParty());
+		values.put(BoardGames.RANK_STRATEGY, boardGame.getRankStrategy());
+		values.put(BoardGames.RANK_THEMATIC, boardGame.getRankTheme());
+		values.put(BoardGames.RANK_WAR, boardGame.getRankWar());
 		values.put(BoardGames.STANDARD_DEVIATION, boardGame.getStandardDeviation());
 		values.put(BoardGames.MEDIAN, boardGame.getMedian());
 		values.put(BoardGames.OWNED_COUNT, boardGame.getOwnedCount());
@@ -426,7 +442,7 @@ public class DataHelper {
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "Error saving thumbnail", e);
 			return false;
-		}catch (NullPointerException e){
+		} catch (NullPointerException e) {
 			Log.e(LOG_TAG, "Bad fileName: " + fileName, e);
 			return false;
 		} finally {

@@ -28,7 +28,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final String LOG_TAG = "BoardGameGeek.Provider";
 
 	private static final String DATABASE_NAME = "boardgamegeek.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	private static final String DESIGNER_TABLE = "designer";
 	private static final String ARTIST_TABLE = "artist";
 	private static final String PUBLISHER_TABLE = "publisher";
@@ -186,6 +186,14 @@ public class BoardGameGeekProvider extends ContentProvider {
 		boardgamesProjectionMap.put(BoardGames.AVERAGE, BoardGames.AVERAGE);
 		boardgamesProjectionMap.put(BoardGames.BAYES_AVERAGE, BoardGames.BAYES_AVERAGE);
 		boardgamesProjectionMap.put(BoardGames.RANK, BoardGames.RANK);
+		boardgamesProjectionMap.put(BoardGames.RANK_ABSTRACT, BoardGames.RANK_ABSTRACT);
+		boardgamesProjectionMap.put(BoardGames.RANK_CCG, BoardGames.RANK_CCG);
+		boardgamesProjectionMap.put(BoardGames.RANK_FAMILY, BoardGames.RANK_FAMILY);
+		boardgamesProjectionMap.put(BoardGames.RANK_KIDS, BoardGames.RANK_KIDS);
+		boardgamesProjectionMap.put(BoardGames.RANK_PARTY, BoardGames.RANK_PARTY);
+		boardgamesProjectionMap.put(BoardGames.RANK_STRATEGY, BoardGames.RANK_STRATEGY);
+		boardgamesProjectionMap.put(BoardGames.RANK_THEMATIC, BoardGames.RANK_THEMATIC);
+		boardgamesProjectionMap.put(BoardGames.RANK_WAR, BoardGames.RANK_WAR);
 		boardgamesProjectionMap.put(BoardGames.STANDARD_DEVIATION, BoardGames.STANDARD_DEVIATION);
 		boardgamesProjectionMap.put(BoardGames.MEDIAN, BoardGames.MEDIAN);
 		boardgamesProjectionMap.put(BoardGames.OWNED_COUNT, BoardGames.OWNED_COUNT);
@@ -1219,7 +1227,11 @@ public class BoardGameGeekProvider extends ContentProvider {
 				+ BoardGames.OWNED_COUNT + " integer, " + BoardGames.TRADING_COUNT + " integer, "
 				+ BoardGames.WANTING_COUNT + " integer, " + BoardGames.WISHING_COUNT + " integer, "
 				+ BoardGames.COMMENT_COUNT + " integer, " + BoardGames.WEIGHT_COUNT + " integer, "
-				+ BoardGames.AVERAGE_WEIGHT + " real, " + BoardGames.UPDATED_DATE + " integer)";
+				+ BoardGames.AVERAGE_WEIGHT + " real, " + BoardGames.UPDATED_DATE + " integer, "
+				+ BoardGames.RANK_ABSTRACT + " integer, " + BoardGames.RANK_CCG + " integer, "
+				+ BoardGames.RANK_FAMILY + " integer, " + BoardGames.RANK_KIDS + " integer, "
+				+ BoardGames.RANK_PARTY + " integer, " + BoardGames.RANK_STRATEGY + " integer, "
+				+ BoardGames.RANK_THEMATIC + " integer, " + BoardGames.RANK_WAR + " integer)";
 			db.execSQL(sql);
 			Log.i(LOG_TAG, String.format("Created %s table.", BOARDGAME_TABLE));
 
