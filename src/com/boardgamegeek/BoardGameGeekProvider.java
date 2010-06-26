@@ -442,7 +442,8 @@ public class BoardGameGeekProvider extends ContentProvider {
 			} else {
 				qb.setTables(BOARDGAME_TABLE);
 				qb.setProjectionMap(suggestionProjectionMap);
-				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%'");
+				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%' OR "
+					+ BOARDGAME_TABLE + "." + BoardGames.NAME + " like '% " + query + "%'");
 				defaultOrderBy = BoardGames.DEFAULT_SORT_ORDER;
 			}
 			break;
