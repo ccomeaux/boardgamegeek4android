@@ -29,6 +29,11 @@ public final class Utility {
 
 	// prevent instantiation
 	private Utility() {}
+	
+	// prepares text to be part of a where clause in a query
+	public static String querifyText(String query){
+		return query.replace("'", "''");
+	}
 
 	// replaces escaped HTML with the unescaped equivalent
 	public static String unescapeText(String escapedText) {

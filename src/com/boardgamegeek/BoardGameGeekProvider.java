@@ -448,6 +448,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			if (query == null) {
 				return null;
 			} else {
+				query = Utility.querifyText(query);
 				qb.setTables(BOARDGAME_TABLE);
 				qb.setProjectionMap(suggestionProjectionMap);
 				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%' OR "
