@@ -451,8 +451,9 @@ public class BoardGameGeekProvider extends ContentProvider {
 				query = Utility.querifyText(query);
 				qb.setTables(BOARDGAME_TABLE);
 				qb.setProjectionMap(suggestionProjectionMap);
-				qb.appendWhere(BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%' OR "
-					+ BOARDGAME_TABLE + "." + BoardGames.NAME + " like '% " + query + "%'");
+				qb.appendWhere("(" + BOARDGAME_TABLE + "." + BoardGames.NAME + " like '" + query + "%' OR "
+					+ BOARDGAME_TABLE + "." + BoardGames.NAME + " like '% " + query + "%') AND "
+					+ BOARDGAME_TABLE + "." + BoardGames.UPDATED_DATE + " IS NOT NULL");
 				defaultOrderBy = BoardGames.DEFAULT_SORT_ORDER;
 			}
 			break;
