@@ -58,6 +58,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	private String selectedId;
 	private String name;
 	private String description;
+	private String title;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -151,6 +152,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);
 
+		title = getResources().getString(R.string.designer);
 		name = null;
 		description = null;
 		BoardGame boardGame = ViewBoardGame.boardGame;
@@ -204,6 +206,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);
 
+		title = getResources().getString(R.string.artist);
 		name = null;
 		description = null;
 		BoardGame boardGame = ViewBoardGame.boardGame;
@@ -257,6 +260,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);
 
+		title = getResources().getString(R.string.publisher);
 		name = null;
 		description = null;
 		BoardGame boardGame = ViewBoardGame.boardGame;
@@ -310,8 +314,8 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	protected Dialog onCreateDialog(int id) {
 		if (id == ID_DIALOG_PROGRESS) {
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle(R.string.dialog_search_message);
-			dialog.setMessage(getResources().getString(R.string.dialog_search_message));
+			dialog.setTitle(title);
+			dialog.setMessage(getResources().getString(R.string.downloading_message));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;

@@ -37,10 +37,8 @@
 	<string name="search_text">Search</string>
 	<string name="search_message">Searching for \&quot;%s\&quot;...</string>
 	<string name="search_title">Searching</string>
-	<string name="dialog_search_message">Connecting to site...</string>
 	<string name="loading_cache_message">Loading cache...</string>
-	<string name="dialog_working_title">Working...</string>
-	<string name="dialog_working_message">Downloading game data...</string>
+	<string name="downloading_message">Downloading...</string>
 	<string name="view_cache_title">Viewing Cache</string>
 	<string name="bgg_down_title">BoardGameGeek.com is down!</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
@@ -88,4 +86,7 @@
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="search_settings_description">Names of board games</string>
+	<string name="designer">Designer</string>
+	<string name="artist">Artist</string>
+	<string name="publisher">Publisher</string>
 </resources>

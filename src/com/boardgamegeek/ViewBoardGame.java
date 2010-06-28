@@ -11,8 +11,6 @@ import org.xml.sax.XMLReader;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.app.TabActivity;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -28,14 +26,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 public class ViewBoardGame extends TabActivity {
 
 	public static BoardGame boardGame = null;
-	private final int ID_DIALOG_SEARCHING = 1;
 	final Handler handler = new Handler();
 	private final String LOG_TAG = "BoardGameGeek";
 	private final String gameIdKey = "GAME_ID";
@@ -73,7 +73,6 @@ public class ViewBoardGame extends TabActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.d(LOG_TAG, "onSaveInstanceState");
-		removeDialogs();
 		super.onSaveInstanceState(outState);
 
 		// save game ID; if activity is paused, it can resume with this ID
@@ -82,8 +81,8 @@ public class ViewBoardGame extends TabActivity {
 
 	private void getBoardGame() {
 
-		// display a progress dialog while fetching the game data
-		showDialog(ID_DIALOG_SEARCHING);
+		// display a progress message while fetching the game data
+		showMessage(R.string.downloading_message);
 
 		if (boardGame != null && boardGame.getGameId() == gameId) {
 			// no need to retrieve the game, we already have it
@@ -138,29 +137,6 @@ public class ViewBoardGame extends TabActivity {
 		}.start();
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if (id == ID_DIALOG_SEARCHING) {
-			// show dialog box while searching and parsing XML
-			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle(R.string.dialog_working_title);
-			dialog.setMessage(getResources().getString(R.string.dialog_working_message));
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
-			return dialog;
-		}
-
-		return super.onCreateDialog(id);
-	}
-
-	protected void removeDialogs() {
-		try {
-			removeDialog(ID_DIALOG_SEARCHING);
-		} catch (Exception e) {
-			Log.w(LOG_TAG, "removeDialogs Failed", e);
-		}
-	}
-
 	// get results from handler
 	final Runnable updateResults = new Runnable() {
 		public void run() {
@@ -170,24 +146,34 @@ public class ViewBoardGame extends TabActivity {
 
 	final Runnable updateImageResults = new Runnable() {
 		public void run() {
-			ImageView thumbnail = (ImageView) findViewById(R.id.thumbnail);
+			ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnail);
+			ProgressBar thumbnailProgressBar = (ProgressBar) findViewById(R.id.thumbnailProgress);
+
+			thumbnailProgressBar.setVisibility(View.GONE);
+			thumbnailView.setVisibility(View.VISIBLE);
+
 			if (boardGame.getThumbnail() != null) {
-				thumbnail.setImageDrawable(boardGame.getThumbnail());
+				thumbnailView.setImageDrawable(boardGame.getThumbnail());
 			} else {
-				thumbnail.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
+				thumbnailView.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
 			}
 		}
 	};
 
 	private void updateImage() {
 		ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnail);
+		ProgressBar thumbnailProgressBar = (ProgressBar) findViewById(R.id.thumbnailProgress);
+		
 		if (imageLoad) {
 			if (boardGame.getThumbnail() != null) {
 				// we already have the image; show it
+				thumbnailProgressBar.setVisibility(View.GONE);
+				thumbnailView.setVisibility(View.VISIBLE);
 				thumbnailView.setImageDrawable(boardGame.getThumbnail());
 			} else {
 				// we don't have the image; go get it
-				thumbnailView.setImageDrawable(getResources().getDrawable(R.drawable.noimage));
+				thumbnailProgressBar.setVisibility(View.VISIBLE);
+				thumbnailView.setVisibility(View.GONE);
 				new Thread() {
 					public void run() {
 						Drawable thumbnail = null;
@@ -218,6 +204,8 @@ public class ViewBoardGame extends TabActivity {
 		} else {
 			// don't show the image
 			// this causes the thumbnail view to take no space
+			thumbnailView.setVisibility(View.GONE);
+			thumbnailProgressBar.setVisibility(View.GONE);
 			thumbnailView.setImageDrawable(null);
 		}
 	}
@@ -328,11 +316,26 @@ public class ViewBoardGame extends TabActivity {
 		// display rest of information
 		information.setText(gameInfo);
 		description.setText(gameDescription);
-		// remove progress dialog (if any)
-		removeDialogs();
+
+		// hide the message, show the tab host
+		LinearLayout ll = (LinearLayout) findViewById(R.id.gameProgressMessage);
+		TabHost th = (TabHost) findViewById(android.R.id.tabhost);
+		ll.setVisibility(View.GONE);
+		th.setVisibility(View.VISIBLE);
 
 		setTitle(String.format(getResources().getString(R.string.bg_view_title), boardGame.getName()));
 		updateImage();
+	}
+
+	private void showMessage(int messageResource) {
+		TextView tv = (TextView) findViewById(R.id.gameMessage);
+		tv.setText(messageResource);
+
+		// hide the tab host, show the tab message
+		LinearLayout ll = (LinearLayout) findViewById(R.id.gameProgressMessage);
+		TabHost th = (TabHost) findViewById(android.R.id.tabhost);
+		ll.setVisibility(View.VISIBLE);
+		th.setVisibility(View.GONE);
 	}
 
 	@Override
