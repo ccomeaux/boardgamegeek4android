@@ -202,7 +202,7 @@ public class DataHelper {
 
 			values.clear();
 			values.put(Artists._ID, artistId);
-			values.put(Artists.NAME, artistId);
+			values.put(Artists.NAME, artistName);
 
 			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, artistId);
 			Cursor cursor = activity.managedQuery(artistUri, null, null, null, null);
