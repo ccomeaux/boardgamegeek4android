@@ -1,17 +1,16 @@
 package com.boardgamegeek;
 
+import com.boardgamegeek.view.ViewBoardGameList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 public class BoardGameGeek extends Activity {
-
-	private final String LOG_TAG = "BoardGameGeek";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

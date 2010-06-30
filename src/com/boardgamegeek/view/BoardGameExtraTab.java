@@ -1,4 +1,4 @@
-package com.boardgamegeek;
+package com.boardgamegeek.view;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +17,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.Artists;
 import com.boardgamegeek.BoardGameGeekData.Designers;
 import com.boardgamegeek.BoardGameGeekData.Publishers;

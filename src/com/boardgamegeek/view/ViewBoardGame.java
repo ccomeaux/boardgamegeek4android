@@ -1,4 +1,4 @@
-package com.boardgamegeek;
+package com.boardgamegeek.view;
 
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -8,6 +8,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import com.boardgamegeek.*;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 import com.boardgamegeek.model.BoardGame;

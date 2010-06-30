@@ -1,7 +1,8 @@
-package com.boardgamegeek;
+package com.boardgamegeek.view;
 
 import java.text.DecimalFormat;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.model.BoardGame;
 
 import android.app.Activity;

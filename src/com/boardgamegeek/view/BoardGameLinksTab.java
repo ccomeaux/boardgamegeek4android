@@ -1,5 +1,6 @@
-package com.boardgamegeek;
+package com.boardgamegeek.view;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.model.BoardGame;
 
 import android.app.Activity;

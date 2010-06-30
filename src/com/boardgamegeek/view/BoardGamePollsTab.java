@@ -1,10 +1,12 @@
-package com.boardgamegeek;
+package com.boardgamegeek.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
 import com.boardgamegeek.model.*;
 
 import android.app.ExpandableListActivity;
