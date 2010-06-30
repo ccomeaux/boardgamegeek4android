@@ -1,6 +1,6 @@
 package com.boardgamegeek;
 
-import com.boardgamegeek.view.ViewBoardGameList;
+import com.boardgamegeek.view.BoardGameListView;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -41,7 +41,7 @@ public class BoardGameGeek extends Activity {
 			onSearchRequested();
 			return true;
 		case R.id.view_cache:
-			Intent intent = new Intent(this, ViewBoardGameList.class);
+			Intent intent = new Intent(this, BoardGameListView.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;

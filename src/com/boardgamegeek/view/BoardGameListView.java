@@ -37,7 +37,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ViewBoardGameList extends ListActivity {
+public class BoardGameListView extends ListActivity {
 
 	private String searchText;
 	private List<BoardGame> boardGames = new ArrayList<BoardGame>();
@@ -233,7 +233,7 @@ public class ViewBoardGameList extends ListActivity {
 
 	// calls the board game intent
 	private void viewBoardGame(int gameId) {
-		Intent intent = new Intent(this, ViewBoardGame.class);
+		Intent intent = new Intent(this, BoardGameView.class);
 		intent.putExtra("GAME_ID", gameId);
 		startActivity(intent);
 	}
@@ -256,7 +256,7 @@ public class ViewBoardGameList extends ListActivity {
 			onSearchRequested();
 			return true;
 		case R.id.view_cache:
-			Intent intent = new Intent(this, ViewBoardGameList.class);
+			Intent intent = new Intent(this, BoardGameListView.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;
@@ -280,7 +280,7 @@ public class ViewBoardGameList extends ListActivity {
 		private LayoutInflater mInflater;
 
 		BoardGameAdapter() {
-			super(ViewBoardGameList.this, android.R.layout.simple_list_item_1, boardGames);
+			super(BoardGameListView.this, android.R.layout.simple_list_item_1, boardGames);
 			mInflater = getLayoutInflater();
 		}
 

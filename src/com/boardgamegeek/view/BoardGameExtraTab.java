@@ -67,7 +67,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		BoardGame boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = BoardGameView.boardGame;
 		if (boardGame == null) {
 			return;
 		}
@@ -134,9 +134,9 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			Toast.makeText(this, "No extra information", Toast.LENGTH_SHORT).show();
 			break;
 		case 5: // expansion
-			BoardGame boardGame = ViewBoardGame.boardGame;
+			BoardGame boardGame = BoardGameView.boardGame;
 			if (boardGame != null) {
-				Intent intent = new Intent(this, ViewBoardGame.class);
+				Intent intent = new Intent(this, BoardGameView.class);
 				intent.putExtra("GAME_ID", boardGame.getExpansionByPosition(childPosition).Id);
 				startActivity(intent);
 			} else {
@@ -158,7 +158,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.designer);
 		name = null;
 		description = null;
-		BoardGame boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = BoardGameView.boardGame;
 
 		if (boardGame != null) {
 			selectedId = boardGame.getDesignerByPosition(position).Id;
@@ -212,7 +212,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.artist);
 		name = null;
 		description = null;
-		BoardGame boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = BoardGameView.boardGame;
 
 		if (boardGame != null) {
 			selectedId = boardGame.getArtistByPosition(position).Id;
@@ -266,7 +266,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.publisher);
 		name = null;
 		description = null;
-		BoardGame boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = BoardGameView.boardGame;
 
 		if (boardGame != null) {
 			selectedId = boardGame.getPublisherByPosition(position).Id;

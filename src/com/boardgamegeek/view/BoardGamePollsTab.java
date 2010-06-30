@@ -34,7 +34,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		boardGame = ViewBoardGame.boardGame;
+		boardGame = BoardGameView.boardGame;
 		if (boardGame == null) {
 			return;
 		}

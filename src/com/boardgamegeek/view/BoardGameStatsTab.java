@@ -29,7 +29,7 @@ public class BoardGameStatsTab extends Activity {
 	}
 
 	private void updateUI() {
-		BoardGame boardGame = ViewBoardGame.boardGame;
+		BoardGame boardGame = BoardGameView.boardGame;
 		if (boardGame == null) {
 			return;
 		}

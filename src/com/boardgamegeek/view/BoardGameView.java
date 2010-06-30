@@ -35,7 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-public class ViewBoardGame extends TabActivity {
+public class BoardGameView extends TabActivity {
 
 	public static BoardGame boardGame = null;
 	final Handler handler = new Handler();
@@ -130,7 +130,7 @@ public class ViewBoardGame extends TabActivity {
 					// get the parsed data as an object
 					boardGame = boardGameHandler.getBoardGame();
 
-					DataHelper.addToDatabase(ViewBoardGame.this, boardGame);
+					DataHelper.addToDatabase(BoardGameView.this, boardGame);
 				} catch (Exception e) {
 					Log.d(LOG_TAG, "Exception", e);
 				}
@@ -358,7 +358,7 @@ public class ViewBoardGame extends TabActivity {
 			onSearchRequested();
 			return true;
 		case R.id.view_cache:
-			Intent intent = new Intent(this, ViewBoardGameList.class);
+			Intent intent = new Intent(this, BoardGameListView.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;
