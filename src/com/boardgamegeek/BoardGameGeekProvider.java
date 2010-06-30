@@ -250,7 +250,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 			+ Mechanics.NAME + " AS " + BoardGameMechanics.MECHANIC_NAME);
 
 		boardgameExpansionsProjectionMap = new HashMap<String, String>();
-		boardgameExpansionsProjectionMap.put(BoardGameExpansions._ID, BOARDGAMEDESIGNER_TABLE + "."
+		boardgameExpansionsProjectionMap.put(BoardGameExpansions._ID, BOARDGAMEEXPANSION_TABLE + "."
 			+ BoardGameExpansions._ID + " AS " + BoardGameExpansions._ID);
 		boardgameExpansionsProjectionMap.put(BoardGameExpansions.BOARDGAME_ID,
 			BoardGameExpansions.BOARDGAME_ID);

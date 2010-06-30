@@ -55,7 +55,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	private ExpandableListAdapter adapter;
 	private long cacheDuration;
 	private Handler handler = new Handler();
-	private String selectedId;
+	private int selectedId;
 	private String name;
 	private String description;
 	private String title;
@@ -134,7 +134,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			BoardGame boardGame = ViewBoardGame.boardGame;
 			if (boardGame != null) {
 				Intent intent = new Intent(this, ViewBoardGame.class);
-				intent.putExtra("GAME_ID", boardGame.getExpansionIdByPosition(childPosition));
+				intent.putExtra("GAME_ID", boardGame.getExpansionByPosition(childPosition).Id);
 				startActivity(intent);
 			} else {
 				Log.w(LOG_TAG, "BoardGame was unexpectedly null!");
@@ -158,10 +158,10 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		BoardGame boardGame = ViewBoardGame.boardGame;
 
 		if (boardGame != null) {
-			selectedId = boardGame.getDesignerIdByPosition(position);
+			selectedId = boardGame.getDesignerByPosition(position).Id;
 
 			// check if the designer is in the database
-			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, selectedId);
+			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(designerUri, null, null, null, null);
 
 			if (cursor.moveToFirst()) {
@@ -212,10 +212,10 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		BoardGame boardGame = ViewBoardGame.boardGame;
 
 		if (boardGame != null) {
-			selectedId = boardGame.getArtistIdByPosition(position);
+			selectedId = boardGame.getArtistByPosition(position).Id;
 
 			// check if the artist is in the database
-			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, selectedId);
+			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(artistUri, null, null, null, null);
 
 			if (cursor.moveToFirst()) {
@@ -266,10 +266,10 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		BoardGame boardGame = ViewBoardGame.boardGame;
 
 		if (boardGame != null) {
-			selectedId = boardGame.getPublisherIdByPosition(position);
+			selectedId = boardGame.getPublisherByPosition(position).Id;
 
 			// check if the artist is in the database
-			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, selectedId);
+			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(publisherUri, null, null, null, null);
 
 			if (cursor.moveToFirst()) {
@@ -357,7 +357,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			values.put(Designers.DESCRIPTION, description);
 			values.put(Designers.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
 
-			Uri uri = Uri.withAppendedPath(Designers.CONTENT_URI, selectedId);
+			Uri uri = Uri.withAppendedPath(Designers.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(uri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				// update
@@ -402,12 +402,11 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			super.endDocument();
 
 			ContentValues values = new ContentValues();
-			values.put(Artists._ID, selectedId);
 			values.put(Artists.NAME, name);
 			values.put(Artists.DESCRIPTION, description);
 			values.put(Artists.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
 
-			Uri uri = Uri.withAppendedPath(Artists.CONTENT_URI, selectedId);
+			Uri uri = Uri.withAppendedPath(Artists.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(uri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				// update
@@ -452,12 +451,11 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			super.endDocument();
 
 			ContentValues values = new ContentValues();
-			values.put(Publishers._ID, selectedId);
 			values.put(Publishers.NAME, name);
 			values.put(Publishers.DESCRIPTION, description);
 			values.put(Publishers.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
 
-			Uri uri = Uri.withAppendedPath(Publishers.CONTENT_URI, selectedId);
+			Uri uri = Uri.withAppendedPath(Publishers.CONTENT_URI, "" + selectedId);
 			Cursor cursor = managedQuery(uri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				// update

@@ -22,6 +22,7 @@ public class DataHelper {
 
 	private final static String LOG_TAG = "BoardGameGeek";
 
+	// creates a board game object from a cursor
 	public static BoardGame createBoardGame(Activity activity, Cursor cursor) {
 		BoardGame boardGame = new BoardGame();
 
@@ -62,35 +63,35 @@ public class DataHelper {
 
 		int gameId = boardGame.getGameId();
 
-		cursor = activity.managedQuery(BoardGameDesigners.CONTENT_URI, new String[] {
+		cursor = activity.managedQuery(BoardGameDesigners.CONTENT_URI, new String[] { BoardGameDesigners._ID,
 			BoardGameDesigners.DESIGNER_ID, BoardGameDesigners.DESIGNER_NAME },
 			BoardGameDesigners.BOARDGAME_ID + "=" + gameId, null, BoardGameDesigners.DESIGNER_NAME);
-		boardGame.CreateDesigners(cursor);
+		boardGame.createDesigners(cursor);
 
-		cursor = activity.managedQuery(BoardGameArtists.CONTENT_URI, new String[] {
+		cursor = activity.managedQuery(BoardGameArtists.CONTENT_URI, new String[] { BoardGameArtists._ID,
 			BoardGameArtists.ARTIST_ID, BoardGameArtists.ARTIST_NAME }, BoardGameArtists.BOARDGAME_ID + "="
 			+ gameId, null, BoardGameArtists.ARTIST_NAME);
-		boardGame.CreateArtists(cursor);
+		boardGame.createArtists(cursor);
 
 		cursor = activity.managedQuery(BoardGamePublishers.CONTENT_URI, new String[] {
-			BoardGamePublishers.PUBLISHER_ID, BoardGamePublishers.PUBLISHER_NAME },
+			BoardGamePublishers._ID, BoardGamePublishers.PUBLISHER_ID, BoardGamePublishers.PUBLISHER_NAME },
 			BoardGamePublishers.BOARDGAME_ID + "=" + gameId, null, BoardGamePublishers.PUBLISHER_NAME);
-		boardGame.CreatePublishers(cursor);
+		boardGame.createPublishers(cursor);
 
 		cursor = activity.managedQuery(BoardGameCategories.CONTENT_URI, new String[] {
-			BoardGameCategories.CATEGORY_ID, BoardGameCategories.CATEGORY_NAME },
+			BoardGameCategories._ID, BoardGameCategories.CATEGORY_ID, BoardGameCategories.CATEGORY_NAME },
 			BoardGameCategories.BOARDGAME_ID + "=" + gameId, null, BoardGameCategories.CATEGORY_NAME);
-		boardGame.CreateCategories(cursor);
+		boardGame.createCategories(cursor);
 
-		cursor = activity.managedQuery(BoardGameMechanics.CONTENT_URI, new String[] {
+		cursor = activity.managedQuery(BoardGameMechanics.CONTENT_URI, new String[] { BoardGameMechanics._ID,
 			BoardGameMechanics.MECHANIC_ID, BoardGameMechanics.MECHANIC_NAME },
 			BoardGameMechanics.BOARDGAME_ID + "=" + gameId, null, BoardGameMechanics.MECHANIC_NAME);
-		boardGame.CreateMechanics(cursor);
+		boardGame.createMechanics(cursor);
 
 		cursor = activity.managedQuery(BoardGameExpansions.CONTENT_URI, new String[] {
-			BoardGameExpansions.EXPANSION_ID, BoardGameExpansions.EXPANSION_NAME },
+			BoardGameExpansions._ID, BoardGameExpansions.EXPANSION_ID, BoardGameExpansions.EXPANSION_NAME },
 			BoardGameExpansions.BOARDGAME_ID + "=" + gameId, null, BoardGameExpansions.EXPANSION_NAME);
-		boardGame.CreateExpanions(cursor);
+		boardGame.createExpanions(cursor);
 
 		cursor = activity.managedQuery(BoardGamePolls.CONTENT_URI, null, BoardGamePolls.BOARDGAME_ID + "="
 			+ gameId, null, null);
@@ -129,58 +130,38 @@ public class DataHelper {
 			Log.w(LOG_TAG, "Invalid boardGame ID: " + boardGame.getGameId());
 		}
 
-		// delete to make sure all of the child relationships are cleaned up
+		// TODO: move this to the provider class; it can expose the db Helper
+		// methods
+		// SQLiteDatabase db = new SQLiteDatabase();
+		// db.beginTransaction();
+		// BoardGame oldBoardGame;
+
+		// see if it is already in the database
 		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
-		activity.getContentResolver().delete(uri, null, null);
-
-		ContentValues values = new ContentValues();
-		values.put(BoardGames._ID, boardGame.getGameId());
-		values.put(BoardGames.NAME, boardGame.getName());
-		values.put(BoardGames.SORT_INDEX, boardGame.getSortIndex());
-		values.put(BoardGames.SORT_NAME, boardGame.getSortName());
-		values.put(BoardGames.YEAR, boardGame.getYearPublished());
-		values.put(BoardGames.MIN_PLAYERS, boardGame.getMinPlayers());
-		values.put(BoardGames.MAX_PLAYERS, boardGame.getMaxPlayers());
-		values.put(BoardGames.PLAYING_TIME, boardGame.getPlayingTime());
-		values.put(BoardGames.AGE, boardGame.getAge());
-		values.put(BoardGames.DESCRIPTION, boardGame.getDescription());
-		values.put(BoardGames.THUMBNAIL_URL, boardGame.getThumbnailUrl());
-		values.put(BoardGames.RATING_COUNT, boardGame.getRatingCount());
-		values.put(BoardGames.AVERAGE, boardGame.getAverage());
-		values.put(BoardGames.BAYES_AVERAGE, boardGame.getBayesAverage());
-		values.put(BoardGames.RANK, boardGame.getRank());
-		values.put(BoardGames.RANK_ABSTRACT, boardGame.getRankAbstract());
-		values.put(BoardGames.RANK_CCG, boardGame.getRankCcg());
-		values.put(BoardGames.RANK_FAMILY, boardGame.getRankFamily());
-		values.put(BoardGames.RANK_KIDS, boardGame.getRankKids());
-		values.put(BoardGames.RANK_PARTY, boardGame.getRankParty());
-		values.put(BoardGames.RANK_STRATEGY, boardGame.getRankStrategy());
-		values.put(BoardGames.RANK_THEMATIC, boardGame.getRankTheme());
-		values.put(BoardGames.RANK_WAR, boardGame.getRankWar());
-		values.put(BoardGames.STANDARD_DEVIATION, boardGame.getStandardDeviation());
-		values.put(BoardGames.MEDIAN, boardGame.getMedian());
-		values.put(BoardGames.OWNED_COUNT, boardGame.getOwnedCount());
-		values.put(BoardGames.TRADING_COUNT, boardGame.getTradingCount());
-		values.put(BoardGames.WANTING_COUNT, boardGame.getWantingCount());
-		values.put(BoardGames.WISHING_COUNT, boardGame.getWishingCount());
-		values.put(BoardGames.COMMENT_COUNT, boardGame.getCommentCount());
-		values.put(BoardGames.WEIGHT_COUNT, boardGame.getWeightCount());
-		values.put(BoardGames.AVERAGE_WEIGHT, boardGame.getAverageWeight());
-		values.put(BoardGames.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
-
-		activity.getContentResolver().insert(BoardGames.CONTENT_URI, values);
+		Cursor cursor = activity.managedQuery(uri, null, null, null, null);
+		ContentValues values = createBoardGameValues(boardGame);
+		if (cursor.moveToFirst()) {
+			// update
+			// oldBoardGame = createBoardGame(activity, cursor);
+			values.put(BoardGames._ID, boardGame.getGameId());
+			activity.getContentResolver().insert(uri, values);
+		} else {
+			// insert
+			// oldBoardGame = new BoardGame();
+			activity.getContentResolver().insert(BoardGames.CONTENT_URI, values);
+		}
 
 		for (int i = 0; i < boardGame.getDesignerCount(); i++) {
-			String designerId = boardGame.getDesignerIdByPosition(i);
-			String designerName = boardGame.getDesignerNameById(designerId);
+			int designerId = boardGame.getDesignerByPosition(i).Id;
+			String designerName = boardGame.getDesignerByPosition(i).Name;
 
 			values.clear();
 			values.put(Designers._ID, designerId);
 			values.put(Designers.NAME, designerName);
 
 			// ensure designer record is present and correct
-			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, designerId);
-			Cursor cursor = activity.managedQuery(designerUri, null, null, null, null);
+			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, "" + designerId);
+			cursor = activity.managedQuery(designerUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (designerName != cursor.getString(cursor.getColumnIndex(Designers.NAME))) {
 					activity.getContentResolver().update(designerUri, values, null, null);
@@ -190,6 +171,13 @@ public class DataHelper {
 			}
 
 			// add game/designer relationship record
+			// ArrayList<String> designerIds = new
+			// ArrayList<String>(oldBoardGame.getDesignerCount());
+			// if (oldBoardGame != null) {
+			// for (int j = 0; j < oldBoardGame.getDesignerCount(); j++) {
+			// designerIds.add(oldBoardGame.getDesignerIdByPosition(j));
+			// }
+			// }
 			values.clear();
 			values.put(BoardGameDesigners.BOARDGAME_ID, boardGame.getGameId());
 			values.put(BoardGameDesigners.DESIGNER_ID, designerId);
@@ -197,15 +185,15 @@ public class DataHelper {
 		}
 
 		for (int i = 0; i < boardGame.getArtistCount(); i++) {
-			String artistId = boardGame.getArtistIdByPosition(i);
-			String artistName = boardGame.getArtistNameById(artistId);
+			int artistId = boardGame.getArtistByPosition(i).Id;
+			String artistName = boardGame.getArtistByPosition(i).Name;
 
 			values.clear();
 			values.put(Artists._ID, artistId);
 			values.put(Artists.NAME, artistName);
 
-			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, artistId);
-			Cursor cursor = activity.managedQuery(artistUri, null, null, null, null);
+			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, "" + artistId);
+			cursor = activity.managedQuery(artistUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (artistName != cursor.getString(cursor.getColumnIndex(Artists.NAME))) {
 					activity.getContentResolver().update(artistUri, values, null, null);
@@ -222,16 +210,16 @@ public class DataHelper {
 		}
 
 		for (int i = 0; i < boardGame.getPublisherCount(); i++) {
-			String publisherId = boardGame.getPublisherIdByPosition(i);
-			String publisherName = boardGame.getPublisherNameById(publisherId);
+			int publisherId = boardGame.getPublisherByPosition(i).Id;
+			String publisherName = boardGame.getPublisherByPosition(i).Name;
 
 			values.clear();
 			values.put(Publishers._ID, publisherId);
 			values.put(Publishers.NAME, publisherName);
 
 			// ensure publisher record is present and correct
-			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, publisherId);
-			Cursor cursor = activity.managedQuery(publisherUri, null, null, null, null);
+			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, "" + publisherId);
+			cursor = activity.managedQuery(publisherUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (publisherName != cursor.getString(cursor.getColumnIndex(Publishers.NAME))) {
 					activity.getContentResolver().update(publisherUri, values, null, null);
@@ -248,18 +236,18 @@ public class DataHelper {
 		}
 
 		for (int i = 0; i < boardGame.getCategoryCount(); i++) {
-			String CategoryId = boardGame.getCategoryIdByPosition(i);
-			String CategoryName = boardGame.getCategoryNameById(CategoryId);
+			int categoryId = boardGame.getCategoryByPosition(i).Id;
+			String categoryName = boardGame.getCategoryByPosition(i).Name;
 
 			values.clear();
-			values.put(Categories._ID, CategoryId);
-			values.put(Categories.NAME, CategoryName);
+			values.put(Categories._ID, categoryId);
+			values.put(Categories.NAME, categoryName);
 
 			// ensure category record is present and correct
-			Uri categoryUri = Uri.withAppendedPath(Categories.CONTENT_URI, CategoryId);
-			Cursor cursor = activity.managedQuery(categoryUri, null, null, null, null);
+			Uri categoryUri = Uri.withAppendedPath(Categories.CONTENT_URI, "" + categoryId);
+			cursor = activity.managedQuery(categoryUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (CategoryName != cursor.getString(cursor.getColumnIndex(Categories.NAME))) {
+				if (categoryName != cursor.getString(cursor.getColumnIndex(Categories.NAME))) {
 					activity.getContentResolver().update(categoryUri, values, null, null);
 				}
 			} else {
@@ -269,21 +257,21 @@ public class DataHelper {
 			// add game/category relationship record
 			values.clear();
 			values.put(BoardGameCategories.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameCategories.CATEGORY_ID, CategoryId);
+			values.put(BoardGameCategories.CATEGORY_ID, categoryId);
 			uri = activity.getContentResolver().insert(BoardGameCategories.CONTENT_URI, values);
 		}
 
 		for (int i = 0; i < boardGame.getMechanicCount(); i++) {
-			String mechanicId = boardGame.getMechanicIdByPosition(i);
-			String mechanicName = boardGame.getMechanicNameById(mechanicId);
+			int mechanicId = boardGame.getMechanicByPosition(i).Id;
+			String mechanicName = boardGame.getMechanicByPosition(i).Name;
 
 			values.clear();
 			values.put(Mechanics._ID, mechanicId);
 			values.put(Mechanics.NAME, mechanicName);
 
 			// ensure mechanic record is present and correct
-			Uri mechanicUri = Uri.withAppendedPath(Mechanics.CONTENT_URI, mechanicId);
-			Cursor cursor = activity.managedQuery(mechanicUri, null, null, null, null);
+			Uri mechanicUri = Uri.withAppendedPath(Mechanics.CONTENT_URI, "" + mechanicId);
+			cursor = activity.managedQuery(mechanicUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (mechanicName != cursor.getString(cursor.getColumnIndex(Mechanics.NAME))) {
 					activity.getContentResolver().update(mechanicUri, values, null, null);
@@ -300,8 +288,8 @@ public class DataHelper {
 		}
 
 		for (int i = 0; i < boardGame.getExpansionCount(); i++) {
-			int expansionId = boardGame.getExpansionIdByPosition(i);
-			String expansionName = boardGame.getExpansionNameById(expansionId);
+			int expansionId = boardGame.getExpansionByPosition(i).Id;
+			String expansionName = boardGame.getExpansionByPosition(i).Name;
 
 			values.clear();
 			values.put(BoardGames._ID, expansionId);
@@ -309,7 +297,7 @@ public class DataHelper {
 
 			// ensure expansion record is present and correct
 			Uri expansionUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + expansionId);
-			Cursor cursor = activity.managedQuery(expansionUri, null, null, null, null);
+			cursor = activity.managedQuery(expansionUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				if (expansionName != cursor.getString(cursor.getColumnIndex(BoardGames.NAME))) {
 					activity.getContentResolver().update(expansionUri, values, null, null);
@@ -353,6 +341,44 @@ public class DataHelper {
 				}
 			}
 		}
+	}
+
+	private static ContentValues createBoardGameValues(BoardGame boardGame) {
+		ContentValues values = new ContentValues();
+		values.put(BoardGames._ID, boardGame.getGameId());
+		values.put(BoardGames.NAME, boardGame.getName());
+		values.put(BoardGames.SORT_INDEX, boardGame.getSortIndex());
+		values.put(BoardGames.SORT_NAME, boardGame.getSortName());
+		values.put(BoardGames.YEAR, boardGame.getYearPublished());
+		values.put(BoardGames.MIN_PLAYERS, boardGame.getMinPlayers());
+		values.put(BoardGames.MAX_PLAYERS, boardGame.getMaxPlayers());
+		values.put(BoardGames.PLAYING_TIME, boardGame.getPlayingTime());
+		values.put(BoardGames.AGE, boardGame.getAge());
+		values.put(BoardGames.DESCRIPTION, boardGame.getDescription());
+		values.put(BoardGames.THUMBNAIL_URL, boardGame.getThumbnailUrl());
+		values.put(BoardGames.RATING_COUNT, boardGame.getRatingCount());
+		values.put(BoardGames.AVERAGE, boardGame.getAverage());
+		values.put(BoardGames.BAYES_AVERAGE, boardGame.getBayesAverage());
+		values.put(BoardGames.RANK, boardGame.getRank());
+		values.put(BoardGames.RANK_ABSTRACT, boardGame.getRankAbstract());
+		values.put(BoardGames.RANK_CCG, boardGame.getRankCcg());
+		values.put(BoardGames.RANK_FAMILY, boardGame.getRankFamily());
+		values.put(BoardGames.RANK_KIDS, boardGame.getRankKids());
+		values.put(BoardGames.RANK_PARTY, boardGame.getRankParty());
+		values.put(BoardGames.RANK_STRATEGY, boardGame.getRankStrategy());
+		values.put(BoardGames.RANK_THEMATIC, boardGame.getRankTheme());
+		values.put(BoardGames.RANK_WAR, boardGame.getRankWar());
+		values.put(BoardGames.STANDARD_DEVIATION, boardGame.getStandardDeviation());
+		values.put(BoardGames.MEDIAN, boardGame.getMedian());
+		values.put(BoardGames.OWNED_COUNT, boardGame.getOwnedCount());
+		values.put(BoardGames.TRADING_COUNT, boardGame.getTradingCount());
+		values.put(BoardGames.WANTING_COUNT, boardGame.getWantingCount());
+		values.put(BoardGames.WISHING_COUNT, boardGame.getWishingCount());
+		values.put(BoardGames.COMMENT_COUNT, boardGame.getCommentCount());
+		values.put(BoardGames.WEIGHT_COUNT, boardGame.getWeightCount());
+		values.put(BoardGames.AVERAGE_WEIGHT, boardGame.getAverageWeight());
+		values.put(BoardGames.UPDATED_DATE, Long.valueOf(System.currentTimeMillis()));
+		return values;
 	}
 
 	private static File getThumbnailFolder() {

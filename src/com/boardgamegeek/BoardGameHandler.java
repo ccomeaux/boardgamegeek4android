@@ -12,7 +12,7 @@ public class BoardGameHandler extends DefaultHandler {
 	private boolean isStats;
 	private boolean isRanks;
 	private String rankType;
-	private String objectId;
+	private int objectId;
 	private Poll currentPoll;
 	private PollResults currentPollResults;
 
@@ -51,7 +51,7 @@ public class BoardGameHandler extends DefaultHandler {
 			|| localName == "boardgamemechanic" || localName == "boardgameexpansion") {
 			String idAttribute = atts.getValue("objectid");
 			if (idAttribute != null) {
-				objectId = idAttribute;
+				objectId = Utility.parseInt(idAttribute);
 			}
 		} else if (isStats) {
 			if (isRanks) {
@@ -103,35 +103,35 @@ public class BoardGameHandler extends DefaultHandler {
 		} else if (localName == "thumbnail") {
 			boardGame.setThumbnailUrl(currentElement.toString());
 		} else if (localName == "boardgamedesigner") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addDesigner(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgameartist") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addArtist(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamepublisher") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addPublisher(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamecategory") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addCategory(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamemechanic") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addMechanic(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgameexpansion") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addExpansion(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "poll") {
 			if (currentPoll != null) {
 				boardGame.addPoll(currentPoll);
