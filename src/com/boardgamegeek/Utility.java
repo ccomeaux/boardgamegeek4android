@@ -94,6 +94,9 @@ public final class Utility {
 		unescapedText = unescapedText.replace("&euro;", "\u20a0");
 		unescapedText = unescapedText.replace("&bull;", "\u0095");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		return unescapedText.trim();
 	}
 
