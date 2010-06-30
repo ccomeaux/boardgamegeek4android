@@ -4,6 +4,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.boardgamegeek.model.*;
+
 public class BoardGameHandler extends DefaultHandler {
 
 	private StringBuffer currentElement;

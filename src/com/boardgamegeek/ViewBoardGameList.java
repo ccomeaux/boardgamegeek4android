@@ -12,6 +12,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
+import com.boardgamegeek.model.BoardGame;
 
 import android.app.ListActivity;
 import android.app.SearchManager;

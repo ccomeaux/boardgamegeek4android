@@ -1,5 +1,7 @@
 package com.boardgamegeek;
 
+import com.boardgamegeek.model.BoardGame;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;

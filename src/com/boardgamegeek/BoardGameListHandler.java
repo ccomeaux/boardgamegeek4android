@@ -7,6 +7,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.boardgamegeek.model.BoardGame;
+
 public class BoardGameListHandler extends DefaultHandler {
 
 	private List<BoardGame> boardGameList;

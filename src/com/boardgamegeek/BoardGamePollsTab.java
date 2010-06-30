@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.boardgamegeek.model.*;
+
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.os.Bundle;

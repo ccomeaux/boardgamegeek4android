@@ -1,4 +1,4 @@
-package com.boardgamegeek;
+package com.boardgamegeek.model;
 
 import java.util.ArrayList;
 import java.util.List;

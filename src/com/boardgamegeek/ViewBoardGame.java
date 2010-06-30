@@ -10,6 +10,7 @@ import org.xml.sax.XMLReader;
 
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
+import com.boardgamegeek.model.BoardGame;
 
 import android.app.TabActivity;
 import android.content.ContentValues;

@@ -2,6 +2,8 @@ package com.boardgamegeek;
 
 import java.text.DecimalFormat;
 
+import com.boardgamegeek.model.BoardGame;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;

@@ -20,6 +20,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.boardgamegeek.BoardGameGeekData.Artists;
 import com.boardgamegeek.BoardGameGeekData.Designers;
 import com.boardgamegeek.BoardGameGeekData.Publishers;
+import com.boardgamegeek.model.BoardGame;
 
 import android.app.Dialog;
 import android.app.ExpandableListActivity;

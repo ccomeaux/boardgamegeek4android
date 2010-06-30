@@ -1,4 +1,4 @@
-package com.boardgamegeek;
+package com.boardgamegeek.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.boardgamegeek.BoardGameGeekData.*;
-import com.boardgamegeek.model.*;
+import com.boardgamegeek.Utility;
 
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;

@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.BoardGameGeekData.*;
+import com.boardgamegeek.model.*;
 
 public class DataHelper {
 
