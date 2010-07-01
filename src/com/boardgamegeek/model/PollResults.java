@@ -1,6 +1,7 @@
 package com.boardgamegeek.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PollResults {
@@ -18,6 +19,10 @@ public class PollResults {
 		this.id = id;
 	}
 
+	public int getId() {
+		return id;
+	}
+	
 	public void setNumberOfPlayers(String numberOfPlayers) {
 		this.numberOfPlayers = numberOfPlayers;
 	}
@@ -33,8 +38,27 @@ public class PollResults {
 	public void addResult(PollResult result) {
 		resultList.add(result);
 	}
-
-	public int getId() {
-		return id;
+	
+	public PollResult getResultByValue(String value) {
+		if (resultList == null) {
+			return null;
+		}
+		for (PollResult result : resultList) {
+			if (result.getValue().equals(value)) {
+				return result;
+			}
+		}
+		return null;
+	}
+	
+	public Collection<Integer> getResultIds(){
+		if (resultList == null) {
+			return null;
+		}
+		List<Integer> ids = new ArrayList<Integer>(resultList.size());
+		for (PollResult result : resultList) {
+			ids.add(result.getId());
+		}
+		return ids;
 	}
 }

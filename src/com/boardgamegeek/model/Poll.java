@@ -1,7 +1,10 @@
 package com.boardgamegeek.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import android.text.TextUtils;
 
 public class Poll {
 
@@ -20,6 +23,10 @@ public class Poll {
 		this.title = title;
 		this.totalVotes = totalVotes;
 		this.id = id;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public void setName(String name) {
@@ -54,7 +61,29 @@ public class Poll {
 		resultsList.add(results);
 	}
 
-	public int getId() {
-		return id;
+	public PollResults getResultsByPlayers(String players) {
+		if (resultsList == null) {
+			return null;
+		}
+		if (TextUtils.isEmpty(players) && resultsList.size() == 1) {
+			return resultsList.get(0);
+		}
+		for (PollResults results : resultsList) {
+			if (results.getNumberOfPlayers().equals(players)) {
+				return results;
+			}
+		}
+		return null;
+	}
+
+	public Collection<Integer> getResultsIds() {
+		if (resultsList == null) {
+			return null;
+		}
+		List<Integer> ids = new ArrayList<Integer>(resultsList.size());
+		for (PollResults results : resultsList) {
+			ids.add(results.getId());
+		}
+		return ids;
 	}
 }

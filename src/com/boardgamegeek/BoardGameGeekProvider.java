@@ -1024,13 +1024,27 @@ public class BoardGameGeekProvider extends ContentProvider {
 			break;
 		case BOARDGAME_PUBLISHERS:
 			count = db.update(BOARDGAMEPUBLISHER_TABLE, values, selection, selectionArgs);
+			break;
 		case BOARDGAME_CATEGORIES:
 			count = db.update(BOARDGAMECATEGORY_TABLE, values, selection, selectionArgs);
 			break;
 		case BOARDGAME_MECHANICS:
 			count = db.update(BOARDGAMEMECHANIC_TABLE, values, selection, selectionArgs);
+			break;
 		case BOARDGAME_EXPANSIONS:
 			count = db.update(BOARDGAMEEXPANSION_TABLE, values, selection, selectionArgs);
+			break;
+		case BOARDGAME_POLL_ID:
+			count = db.update(BOARDGAMEPOLL_TABLE, values, BoardGamePolls._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_POLL_RESULTS_ID:
+			count = db.update(BOARDGAMEPOLLRESULTS_TABLE, values, BoardGamePollResult._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_POLL_RESULT_ID:
+			count = db.update(BOARDGAMEPOLLRESULT_TABLE, values, BoardGamePollResult._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
 		case THUMBNAILS:
 			Uri thumbnailUri = insertThumbnail(uri, values);
@@ -1145,13 +1159,56 @@ public class BoardGameGeekProvider extends ContentProvider {
 					.delete(BOARDGAMEPOLL_TABLE, BoardGamePolls.BOARDGAME_ID + "=" + boardgameId, null);
 			}
 			break;
+		case BOARDGAME_DESIGNER_ID:
+			count = db.delete(BOARDGAMEDESIGNER_TABLE, BoardGameDesigners._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_ARTIST_ID:
+			count = db.delete(BOARDGAMEARTIST_TABLE, BoardGameArtists._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_PUBLISHER_ID:
+			count = db.delete(BOARDGAMEPUBLISHER_TABLE, BoardGamePublishers._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_CATEGORY_ID:
+			count = db.delete(BOARDGAMECATEGORY_TABLE, BoardGameCategories._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_MECHANIC_ID:
+			count = db.delete(BOARDGAMEMECHANIC_TABLE, BoardGameMechanics._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_EXPANSION_ID:
+			count = db.delete(BOARDGAMEEXPANSION_TABLE, BoardGameExpansions._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_POLL_ID:
+			count = db.delete(BOARDGAMEPOLL_TABLE, BoardGamePolls._ID + "=" + uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_POLL_RESULTS_ID:
+			count = db.delete(BOARDGAMEPOLLRESULTS_TABLE, BoardGamePollResults._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
+		case BOARDGAME_POLL_RESULT_ID:
+			count = db.delete(BOARDGAMEPOLLRESULT_TABLE, BoardGamePollResult._ID + "="
+				+ uri.getPathSegments().get(1)
+				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+			break;
 		case THUMBNAIL_ID:
 			String thumbnailId = uri.getLastPathSegment();
 			if (DataHelper.deleteThumbnail(Utility.parseInt(thumbnailId))) {
 				count = 1;
 			}
 			break;
-		// TODO: add delete for individual bg child tables?
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}

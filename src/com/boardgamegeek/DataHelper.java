@@ -3,6 +3,7 @@ package com.boardgamegeek;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -135,7 +136,8 @@ public class DataHelper {
 		// methods
 		// SQLiteDatabase db = new SQLiteDatabase();
 		// db.beginTransaction();
-		// BoardGame oldBoardGame;
+
+		BoardGame oldBoardGame;
 
 		// see if it is already in the database
 		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
@@ -143,15 +145,16 @@ public class DataHelper {
 		ContentValues values = createBoardGameValues(boardGame);
 		if (cursor.moveToFirst()) {
 			// update
-			// oldBoardGame = createBoardGame(activity, cursor);
+			oldBoardGame = createBoardGame(activity, cursor);
 			values.put(BoardGames._ID, boardGame.getGameId());
-			activity.getContentResolver().insert(uri, values);
+			activity.getContentResolver().update(uri, values, null, null);
 		} else {
 			// insert
-			// oldBoardGame = new BoardGame();
+			oldBoardGame = new BoardGame();
 			activity.getContentResolver().insert(BoardGames.CONTENT_URI, values);
 		}
 
+		Collection<Integer> designerIds = oldBoardGame.getDesignerIds();
 		for (int i = 0; i < boardGame.getDesignerCount(); i++) {
 			int designerId = boardGame.getDesignerByPosition(i).Id;
 			String designerName = boardGame.getDesignerByPosition(i).Name;
@@ -164,27 +167,33 @@ public class DataHelper {
 			Uri designerUri = Uri.withAppendedPath(Designers.CONTENT_URI, "" + designerId);
 			cursor = activity.managedQuery(designerUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (designerName != cursor.getString(cursor.getColumnIndex(Designers.NAME))) {
+				if (!designerName.equals(cursor.getString(cursor.getColumnIndex(Designers.NAME)))) {
 					activity.getContentResolver().update(designerUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(Designers.CONTENT_URI, values);
 			}
 
-			// add game/designer relationship record
-			// ArrayList<String> designerIds = new
-			// ArrayList<String>(oldBoardGame.getDesignerCount());
-			// if (oldBoardGame != null) {
-			// for (int j = 0; j < oldBoardGame.getDesignerCount(); j++) {
-			// designerIds.add(oldBoardGame.getDesignerIdByPosition(j));
-			// }
-			// }
-			values.clear();
-			values.put(BoardGameDesigners.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameDesigners.DESIGNER_ID, designerId);
-			uri = activity.getContentResolver().insert(BoardGameDesigners.CONTENT_URI, values);
+			// see if this designer already exists on this board game
+			if (designerIds.contains(designerId)) {
+				// remove from collection
+				designerIds.remove(designerId);
+			} else {
+				// insert
+				values.clear();
+				values.put(BoardGameDesigners.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGameDesigners.DESIGNER_ID, designerId);
+				uri = activity.getContentResolver().insert(BoardGameDesigners.CONTENT_URI, values);
+			}
+		}
+		// remove unused designers
+		for (int designerId : designerIds) {
+			int key = oldBoardGame.getDesignerKey(designerId);
+			Uri designerUri = Uri.withAppendedPath(BoardGameDesigners.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(designerUri, null, null);
 		}
 
+		Collection<Integer> artistIds = oldBoardGame.getArtistIds();
 		for (int i = 0; i < boardGame.getArtistCount(); i++) {
 			int artistId = boardGame.getArtistByPosition(i).Id;
 			String artistName = boardGame.getArtistByPosition(i).Name;
@@ -196,20 +205,32 @@ public class DataHelper {
 			Uri artistUri = Uri.withAppendedPath(Artists.CONTENT_URI, "" + artistId);
 			cursor = activity.managedQuery(artistUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (artistName != cursor.getString(cursor.getColumnIndex(Artists.NAME))) {
+				if (!artistName.equals(cursor.getString(cursor.getColumnIndex(Artists.NAME)))) {
 					activity.getContentResolver().update(artistUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(Artists.CONTENT_URI, values);
 			}
 
-			// add game/artist relationship record
-			values.clear();
-			values.put(BoardGameArtists.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameArtists.ARTIST_ID, artistId);
-			uri = activity.getContentResolver().insert(BoardGameArtists.CONTENT_URI, values);
+			// see if this artist already exists on this board game
+			if (artistIds.contains(artistId)) {
+				// remove from collection
+				artistIds.remove(artistId);
+			} else {
+				values.clear();
+				values.put(BoardGameArtists.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGameArtists.ARTIST_ID, artistId);
+				uri = activity.getContentResolver().insert(BoardGameArtists.CONTENT_URI, values);
+			}
+		}
+		// remove unused artists
+		for (int artistId : artistIds) {
+			int key = oldBoardGame.getArtistKey(artistId);
+			Uri artistUri = Uri.withAppendedPath(BoardGameArtists.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(artistUri, null, null);
 		}
 
+		Collection<Integer> publisherIds = oldBoardGame.getPublisherIds();
 		for (int i = 0; i < boardGame.getPublisherCount(); i++) {
 			int publisherId = boardGame.getPublisherByPosition(i).Id;
 			String publisherName = boardGame.getPublisherByPosition(i).Name;
@@ -222,20 +243,32 @@ public class DataHelper {
 			Uri publisherUri = Uri.withAppendedPath(Publishers.CONTENT_URI, "" + publisherId);
 			cursor = activity.managedQuery(publisherUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (publisherName != cursor.getString(cursor.getColumnIndex(Publishers.NAME))) {
+				if (!publisherName.equals(cursor.getString(cursor.getColumnIndex(Publishers.NAME)))) {
 					activity.getContentResolver().update(publisherUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(Publishers.CONTENT_URI, values);
 			}
 
-			// add game/Publisher relationship record
-			values.clear();
-			values.put(BoardGamePublishers.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGamePublishers.PUBLISHER_ID, publisherId);
-			uri = activity.getContentResolver().insert(BoardGamePublishers.CONTENT_URI, values);
+			// see if this publisher already exists on this board game
+			if (publisherIds.contains(publisherId)) {
+				// remove from collection
+				publisherIds.remove(publisherId);
+			} else {
+				values.clear();
+				values.put(BoardGamePublishers.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGamePublishers.PUBLISHER_ID, publisherId);
+				uri = activity.getContentResolver().insert(BoardGamePublishers.CONTENT_URI, values);
+			}
+		}
+		// remove unused publishers
+		for (int publisherId : publisherIds) {
+			int key = oldBoardGame.getPublisherKey(publisherId);
+			Uri publisherUri = Uri.withAppendedPath(BoardGamePublishers.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(publisherUri, null, null);
 		}
 
+		Collection<Integer> categoryIds = oldBoardGame.getCategoryIds();
 		for (int i = 0; i < boardGame.getCategoryCount(); i++) {
 			int categoryId = boardGame.getCategoryByPosition(i).Id;
 			String categoryName = boardGame.getCategoryByPosition(i).Name;
@@ -248,20 +281,32 @@ public class DataHelper {
 			Uri categoryUri = Uri.withAppendedPath(Categories.CONTENT_URI, "" + categoryId);
 			cursor = activity.managedQuery(categoryUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (categoryName != cursor.getString(cursor.getColumnIndex(Categories.NAME))) {
+				if (!categoryName.equals(cursor.getString(cursor.getColumnIndex(Categories.NAME)))) {
 					activity.getContentResolver().update(categoryUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(Categories.CONTENT_URI, values);
 			}
 
-			// add game/category relationship record
-			values.clear();
-			values.put(BoardGameCategories.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameCategories.CATEGORY_ID, categoryId);
-			uri = activity.getContentResolver().insert(BoardGameCategories.CONTENT_URI, values);
+			// see if this category already exists on this board game
+			if (categoryIds.contains(categoryId)) {
+				// remove from collection
+				categoryIds.remove(categoryId);
+			} else {
+				values.clear();
+				values.put(BoardGameCategories.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGameCategories.CATEGORY_ID, categoryId);
+				uri = activity.getContentResolver().insert(BoardGameCategories.CONTENT_URI, values);
+			}
+		}
+		// remove unused categories
+		for (int categoryId : categoryIds) {
+			int key = oldBoardGame.getCategoryKey(categoryId);
+			Uri categoryUri = Uri.withAppendedPath(BoardGameCategories.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(categoryUri, null, null);
 		}
 
+		Collection<Integer> mechanicIds = oldBoardGame.getMechanicIds();
 		for (int i = 0; i < boardGame.getMechanicCount(); i++) {
 			int mechanicId = boardGame.getMechanicByPosition(i).Id;
 			String mechanicName = boardGame.getMechanicByPosition(i).Name;
@@ -274,20 +319,32 @@ public class DataHelper {
 			Uri mechanicUri = Uri.withAppendedPath(Mechanics.CONTENT_URI, "" + mechanicId);
 			cursor = activity.managedQuery(mechanicUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (mechanicName != cursor.getString(cursor.getColumnIndex(Mechanics.NAME))) {
+				if (!mechanicName.equals(cursor.getString(cursor.getColumnIndex(Mechanics.NAME)))) {
 					activity.getContentResolver().update(mechanicUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(Mechanics.CONTENT_URI, values);
 			}
 
-			// add game/mechanic relationship record
-			values.clear();
-			values.put(BoardGameMechanics.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameMechanics.MECHANIC_ID, mechanicId);
-			uri = activity.getContentResolver().insert(BoardGameMechanics.CONTENT_URI, values);
+			// see if this mechanic already exists on this board game
+			if (mechanicIds.contains(mechanicId)) {
+				// remove from collection
+				mechanicIds.remove(mechanicId);
+			} else {
+				values.clear();
+				values.put(BoardGameMechanics.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGameMechanics.MECHANIC_ID, mechanicId);
+				uri = activity.getContentResolver().insert(BoardGameMechanics.CONTENT_URI, values);
+			}
+		}
+		// remove unused mechanics
+		for (int mechanicId : mechanicIds) {
+			int key = oldBoardGame.getMechanicKey(mechanicId);
+			Uri mechanicUri = Uri.withAppendedPath(BoardGameMechanics.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(mechanicUri, null, null);
 		}
 
+		Collection<Integer> expansionIds = oldBoardGame.getExpansionIds();
 		for (int i = 0; i < boardGame.getExpansionCount(); i++) {
 			int expansionId = boardGame.getExpansionByPosition(i).Id;
 			String expansionName = boardGame.getExpansionByPosition(i).Name;
@@ -300,46 +357,129 @@ public class DataHelper {
 			Uri expansionUri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + expansionId);
 			cursor = activity.managedQuery(expansionUri, null, null, null, null);
 			if (cursor.moveToFirst()) {
-				if (expansionName != cursor.getString(cursor.getColumnIndex(BoardGames.NAME))) {
+				if (!expansionName.equals(cursor.getString(cursor.getColumnIndex(BoardGames.NAME)))) {
 					activity.getContentResolver().update(expansionUri, values, null, null);
 				}
 			} else {
 				activity.getContentResolver().insert(BoardGames.CONTENT_URI, values);
 			}
 
-			// add game/expansion relationship record
-			values.clear();
-			values.put(BoardGameExpansions.BOARDGAME_ID, boardGame.getGameId());
-			values.put(BoardGameExpansions.EXPANSION_ID, expansionId);
-			uri = activity.getContentResolver().insert(BoardGameExpansions.CONTENT_URI, values);
+			// see if this expansion already exists on this board game
+			if (expansionIds.contains(expansionId)) {
+				// remove from collection
+				expansionIds.remove(expansionId);
+			} else {
+				values.clear();
+				values.put(BoardGameExpansions.BOARDGAME_ID, boardGame.getGameId());
+				values.put(BoardGameExpansions.EXPANSION_ID, expansionId);
+				uri = activity.getContentResolver().insert(BoardGameExpansions.CONTENT_URI, values);
+			}
+		}
+		// remove unused expansions
+		for (int expansionId : expansionIds) {
+			int key = oldBoardGame.getExpansionKey(expansionId);
+			Uri expansionUri = Uri.withAppendedPath(BoardGameExpansions.CONTENT_URI, "" + key);
+			activity.getContentResolver().delete(expansionUri, null, null);
 		}
 
+		// collect poll list to delete
+		Collection<Integer> oldPollIds = null;
+		oldPollIds = oldBoardGame.getPollIds();
 		for (int i = 0; i < boardGame.getPollCount(); i++) {
 			Poll poll = boardGame.getPollByPosition(i);
+			Poll oldPoll = oldBoardGame.getPollByName(poll.getName());
 
+			int pollId;
 			values.clear();
 			values.put(BoardGamePolls.BOARDGAME_ID, boardGame.getGameId());
 			values.put(BoardGamePolls.NAME, poll.getName());
 			values.put(BoardGamePolls.TITLE, poll.getTitle());
 			values.put(BoardGamePolls.VOTES, poll.getTotalVotes());
-			uri = activity.getContentResolver().insert(BoardGamePolls.CONTENT_URI, values);
+			if (oldPoll == null) {
+				// insert
+				uri = activity.getContentResolver().insert(BoardGamePolls.CONTENT_URI, values);
+				pollId = Utility.parseInt(uri.getLastPathSegment());
+			} else {
+				// update
+				pollId = oldPoll.getId();
+				Uri pollUri = Uri.withAppendedPath(BoardGamePolls.CONTENT_URI, "" + pollId);
+				activity.getContentResolver().update(pollUri, values, null, null);
+				oldPollIds.remove(pollId);
+			}
 
-			String pollId = uri.getLastPathSegment();
+			// collect poll results list to delete
+			Collection<Integer> oldResultsIds = null;
+			if (oldPoll != null) {
+				oldResultsIds = oldPoll.getResultsIds();
+			}
 			for (PollResults results : poll.getResultsList()) {
+				int resultsId;
+				PollResults oldPollResults = null;
+				if (oldPoll != null) {
+					oldPollResults = oldPoll.getResultsByPlayers(results.getNumberOfPlayers());
+				}
 				values.clear();
 				values.put(BoardGamePollResults.POLL_ID, pollId);
 				values.put(BoardGamePollResults.PLAYERS, results.getNumberOfPlayers());
-				uri = activity.getContentResolver().insert(BoardGamePollResults.CONTENT_URI, values);
+				if (oldPollResults == null) {
+					// insert
+					uri = activity.getContentResolver().insert(BoardGamePollResults.CONTENT_URI, values);
+					resultsId = Utility.parseInt(uri.getLastPathSegment());
+				} else {
+					// update
+					resultsId = oldPollResults.getId();
+					uri = Uri.withAppendedPath(BoardGamePollResults.CONTENT_URI, "" + resultsId);
+					activity.getContentResolver().update(uri, values, null, null);
+					oldResultsIds.remove(resultsId);
+				}
 
-				String resultsId = uri.getLastPathSegment();
+				// collect poll result list to delete
+				Collection<Integer> oldResultIds = null;
+				if (oldPollResults != null) {
+					oldResultIds = oldPollResults.getResultIds();
+				}
 				for (PollResult result : results.getResultList()) {
+					PollResult oldPollResult = null;
+					if (oldPollResults != null) {
+						oldPollResult = oldPollResults.getResultByValue(result.getValue());
+					}
 					values.clear();
 					values.put(BoardGamePollResult.POLLRESULTS_ID, resultsId);
 					values.put(BoardGamePollResult.LEVEL, result.getLevel());
 					values.put(BoardGamePollResult.VALUE, result.getValue());
 					values.put(BoardGamePollResult.VOTES, result.getNumberOfVotes());
-					uri = activity.getContentResolver().insert(BoardGamePollResult.CONTENT_URI, values);
+					if (oldPollResult == null) {
+						// insert
+						uri = activity.getContentResolver().insert(BoardGamePollResult.CONTENT_URI, values);
+					} else {
+						// update
+						int resultId = oldPollResult.getId();
+						uri = Uri.withAppendedPath(BoardGamePollResult.CONTENT_URI, "" + resultId);
+						activity.getContentResolver().update(uri, values, null, null);
+						oldResultIds.remove(resultId);
+					}
 				}
+				// remove old results
+				if (oldResultIds != null) {
+					for (int oldResultId : oldResultIds) {
+						uri = Uri.withAppendedPath(BoardGamePollResult.CONTENT_URI, "" + oldResultId);
+						activity.getContentResolver().delete(uri, null, null);
+					}
+				}
+			}
+			// remove old resultses
+			if (oldResultsIds != null) {
+				for (int oldResultsId : oldResultsIds) {
+					uri = Uri.withAppendedPath(BoardGamePollResults.CONTENT_URI, "" + oldResultsId);
+					activity.getContentResolver().delete(uri, null, null);
+				}
+			}
+		}
+		// remove old polls
+		if (oldPollIds != null) {
+			for (int oldPollId : oldPollIds) {
+				uri = Uri.withAppendedPath(BoardGamePolls.CONTENT_URI, "" + oldPollId);
+				activity.getContentResolver().delete(uri, null, null);
 			}
 		}
 	}

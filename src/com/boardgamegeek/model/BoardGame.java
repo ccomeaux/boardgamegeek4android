@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.boardgamegeek.BoardGameGeekData.*;
 import com.boardgamegeek.Utility;
@@ -379,12 +380,29 @@ public class BoardGame {
 		return designers.size();
 	}
 
+	public int getDesignerKey(int id) {
+		for (Entry<Integer, Designer> designer : designers.entrySet()) {
+			if (designer.getValue().Id == id) {
+				return designer.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public void addDesigner(int id, String name) {
 		addDesigner(-1 * publishers.size(), id, name);
 	}
 
 	public void addDesigner(int key, int id, String name) {
 		designers.put(key, new Designer(id, name));
+	}
+
+	public Collection<Integer> getDesignerIds() {
+		List<Integer> ids = new ArrayList<Integer>(designers.size());
+		for (Designer designer : designers.values()) {
+			ids.add(designer.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getDesignerNames() {
@@ -421,12 +439,29 @@ public class BoardGame {
 		return artists.size();
 	}
 
+	public int getArtistKey(int id) {
+		for (Entry<Integer, Artist> artist : artists.entrySet()) {
+			if (artist.getValue().Id == id) {
+				return artist.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public void addArtist(int id, String name) {
 		addArtist(-1 * artists.size(), id, name);
 	}
 
 	public void addArtist(int key, int id, String name) {
 		artists.put(key, new Artist(id, name));
+	}
+
+	public Collection<Integer> getArtistIds() {
+		List<Integer> ids = new ArrayList<Integer>(artists.size());
+		for (Artist artist : artists.values()) {
+			ids.add(artist.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getArtistNames() {
@@ -463,12 +498,29 @@ public class BoardGame {
 		return publishers.size();
 	}
 
+	public int getPublisherKey(int id) {
+		for (Entry<Integer, Publisher> publisher : publishers.entrySet()) {
+			if (publisher.getValue().Id == id) {
+				return publisher.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public void addPublisher(int id, String name) {
 		addPublisher(-1 * publishers.size(), id, name);
 	}
 
 	public void addPublisher(int key, int id, String name) {
 		publishers.put(key, new Publisher(id, name));
+	}
+
+	public Collection<Integer> getPublisherIds() {
+		List<Integer> ids = new ArrayList<Integer>(publishers.size());
+		for (Publisher publisher : publishers.values()) {
+			ids.add(publisher.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getPublisherNames() {
@@ -505,6 +557,15 @@ public class BoardGame {
 		return categories.size();
 	}
 
+	public int getCategoryKey(int id) {
+		for (Entry<Integer, Category> category : categories.entrySet()) {
+			if (category.getValue().Id == id) {
+				return category.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public Category getCategoryByPosition(int position) {
 		if (categories.size() > position) {
 			return (Category) categories.values().toArray()[position];
@@ -515,6 +576,14 @@ public class BoardGame {
 
 	public void addCategory(int id, String name) {
 		categories.put(-1 * categories.size(), new Category(id, name));
+	}
+
+	public Collection<Integer> getCategoryIds() {
+		List<Integer> ids = new ArrayList<Integer>(categories.size());
+		for (Category category : categories.values()) {
+			ids.add(category.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getCategoryNames() {
@@ -543,6 +612,15 @@ public class BoardGame {
 		return mechanics.size();
 	}
 
+	public int getMechanicKey(int id) {
+		for (Entry<Integer, Mechanic> mechanic : mechanics.entrySet()) {
+			if (mechanic.getValue().Id == id) {
+				return mechanic.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public Mechanic getMechanicByPosition(int position) {
 		if (mechanics.size() > position) {
 			return (Mechanic) mechanics.values().toArray()[position];
@@ -553,6 +631,14 @@ public class BoardGame {
 
 	public void addMechanic(int id, String name) {
 		mechanics.put(-1 * mechanics.size(), new Mechanic(id, name));
+	}
+
+	public Collection<Integer> getMechanicIds() {
+		List<Integer> ids = new ArrayList<Integer>(mechanics.size());
+		for (Mechanic mechanic : mechanics.values()) {
+			ids.add(mechanic.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getMechanicNames() {
@@ -581,6 +667,15 @@ public class BoardGame {
 		return expansions.size();
 	}
 
+	public int getExpansionKey(int id) {
+		for (Entry<Integer, Expansion> expansion : expansions.entrySet()) {
+			if (expansion.getValue().Id == id) {
+				return expansion.getKey();
+			}
+		}
+		return 0;
+	}
+
 	public Expansion getExpansionByPosition(int position) {
 		if (expansions.size() > position) {
 			return (Expansion) expansions.values().toArray()[position];
@@ -595,6 +690,14 @@ public class BoardGame {
 
 	public void addExpansion(int key, int id, String name) {
 		expansions.put(key, new Expansion(id, name));
+	}
+
+	public Collection<Integer> getExpansionIds() {
+		List<Integer> ids = new ArrayList<Integer>(expansions.size());
+		for (Expansion expansion : expansions.values()) {
+			ids.add(expansion.Id);
+		}
+		return ids;
 	}
 
 	public Collection<String> getExpansionNames() {
@@ -637,6 +740,26 @@ public class BoardGame {
 		} else {
 			return null;
 		}
+	}
+
+	public Poll getPollByName(String name) {
+		for (Poll poll : polls) {
+			if (poll.getName().equals(name)) {
+				return poll;
+			}
+		}
+		return null;
+	}
+
+	public Collection<Integer> getPollIds() {
+		if (polls == null) {
+			return null;
+		}
+		List<Integer> ids = new ArrayList<Integer>(polls.size());
+		for (Poll poll : polls) {
+			ids.add(poll.getId());
+		}
+		return ids;
 	}
 
 	public void createPolls(Cursor cursor) {
@@ -710,7 +833,8 @@ public class BoardGame {
 				String value = cursor.getString(cursor.getColumnIndex(BoardGamePollResult.VALUE));
 				int level = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.LEVEL));
 				int votes = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.VOTES));
-				results.addResult(new PollResult(value, votes, level));
+				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult._ID));
+				results.addResult(new PollResult(value, votes, level, id));
 			} while (cursor.moveToNext());
 		}
 	}
