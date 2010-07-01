@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class BoardGameView extends TabActivity {
 
@@ -105,8 +106,6 @@ public class BoardGameView extends TabActivity {
 			if (date + cacheDuration > now) {
 				// data is fresh enough to use
 				boardGame = DataHelper.createBoardGame(this, cursor);
-
-				// update the UI
 				updateUI();
 				return;
 			}
@@ -129,8 +128,6 @@ public class BoardGameView extends TabActivity {
 
 					// get the parsed data as an object
 					boardGame = boardGameHandler.getBoardGame();
-
-					DataHelper.addToDatabase(BoardGameView.this, boardGame);
 				} catch (Exception e) {
 					Log.d(LOG_TAG, "Exception", e);
 				}
@@ -143,6 +140,18 @@ public class BoardGameView extends TabActivity {
 	final Runnable updateResults = new Runnable() {
 		public void run() {
 			updateUI();
+			new Thread() {
+				public void run() {
+					DataHelper.addToDatabase(BoardGameView.this, boardGame);
+					handler.post(toastUpdate);
+				}
+			}.start();
+		}
+	};
+
+	final Runnable toastUpdate = new Runnable() {
+		public void run() {
+			Toast.makeText(BoardGameView.this, R.string.database_updated, Toast.LENGTH_LONG).show();
 		}
 	};
 
@@ -165,7 +174,7 @@ public class BoardGameView extends TabActivity {
 	private void updateImage() {
 		ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnail);
 		ProgressBar thumbnailProgressBar = (ProgressBar) findViewById(R.id.thumbnailProgress);
-		
+
 		if (imageLoad) {
 			if (boardGame.getThumbnail() != null) {
 				// we already have the image; show it

@@ -18,13 +18,14 @@
 		there is only one result</string>
 	<string name="pref_cache">Cache</string>
 	<string name="pref_cache_duration">Boardgame expiration</string>
-	<string name="pref_cache_duration_summary">Days after an update a board game in the
-		cache is current</string>
+	<string name="pref_cache_duration_summary">Days after an update a board game in the cache is
+		current</string>
 	<string name="pref_cache_duration_extra">Extra information expiration</string>
-	<string name="pref_cache_duration_extra_summary">Days after an update designers, artists,
-		and publishers in the cache are current</string>
+	<string name="pref_cache_duration_extra_summary">Days after an update designers, artists, and
+		publishers in the cache are current</string>
 	<string name="pref_cache_clear">Clear cache</string>
-	<string name="pref_cache_clear_summary">Deletes all information stored in the cache</string>
+	<string name="pref_cache_clear_summary">Deletes all information stored in the cache
+	</string>
 	<string name="pref_cache_clear_pos">Clear</string>
 	<string name="pref_cache_clear_neg">Cancel</string>
 	<string name="pref_cache_clear_message">Are you sure you want to clear the cache? NOTE:
@@ -48,6 +49,7 @@
 		down. The search function is also picky and doesn\&apos;t like some
 		common words. Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
 		and \&quot;of\&quot;, etc.</string>
+	<string name="database_updated">Database updated.</string>
 	<string name="rank">Rank: %s</string>
 	<string name="not_available">N/A</string>
 	<string name="user_rating">User Rating</string>
