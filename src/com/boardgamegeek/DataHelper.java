@@ -60,8 +60,7 @@ public class DataHelper {
 		boardGame.setCommentCount(cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT)));
 		boardGame.setWeightCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT)));
 		boardGame.setAverageWeight(cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
-
-		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(boardGame.getGameId())));
+		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(BoardGames.THUMBNAIL_ID)));
 
 		int gameId = boardGame.getGameId();
 
@@ -137,17 +136,21 @@ public class DataHelper {
 		// SQLiteDatabase db = new SQLiteDatabase();
 		// db.beginTransaction();
 
-		BoardGame oldBoardGame;
-
 		// see if it is already in the database
+		ContentValues values = createBoardGameValues(boardGame);
 		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
 		Cursor cursor = activity.managedQuery(uri, null, null, null, null);
-		ContentValues values = createBoardGameValues(boardGame);
+		BoardGame oldBoardGame;
 		if (cursor.moveToFirst()) {
 			// update
 			oldBoardGame = createBoardGame(activity, cursor);
-			values.put(BoardGames._ID, boardGame.getGameId());
 			activity.getContentResolver().update(uri, values, null, null);
+
+			// delete thumbnail on disk
+			if (!boardGame.getThumbnailUrl().equals(oldBoardGame.getThumbnailUrl())) {
+				DataHelper.deleteThumbnail(oldBoardGame.getThumbnailId());
+				oldBoardGame.setThumbnail(null);
+			}
 		} else {
 			// insert
 			oldBoardGame = new BoardGame();
@@ -497,6 +500,7 @@ public class DataHelper {
 		values.put(BoardGames.AGE, boardGame.getAge());
 		values.put(BoardGames.DESCRIPTION, boardGame.getDescription());
 		values.put(BoardGames.THUMBNAIL_URL, boardGame.getThumbnailUrl());
+		values.put(BoardGames.THUMBNAIL_ID, boardGame.getThumbnailId());
 		values.put(BoardGames.RATING_COUNT, boardGame.getRatingCount());
 		values.put(BoardGames.AVERAGE, boardGame.getAverage());
 		values.put(BoardGames.BAYES_AVERAGE, boardGame.getBayesAverage());
@@ -533,12 +537,13 @@ public class DataHelper {
 	}
 
 	private static String getThumbnailPath(int thumbnailId, Boolean create) {
-		Log.d(LOG_TAG, "Getting thumbnail path");
 
-		if (thumbnailId == 0) {
-			Log.w(LOG_TAG, "thumbnailId is empty");
+		String fileName = getThumbnailFileName(thumbnailId);
+		if (TextUtils.isEmpty(fileName)) {
+			Log.w(LOG_TAG, "thumbnail file name is empty");
 			return null;
 		}
+
 		File folder = getThumbnailFolder();
 		if (folder == null) {
 			return null;
@@ -556,30 +561,32 @@ public class DataHelper {
 			}
 		}
 
-		return folder.getAbsolutePath() + "/" + thumbnailId + ".jpg";
-	}
-
-	public static String getThumbnailPath(String thumbnailId) {
-		return getThumbnailPath(Utility.parseInt(thumbnailId));
+		return folder.getAbsolutePath() + "/" + fileName;
 	}
 
 	public static String getThumbnailPath(int thumbnailId) {
 		return getThumbnailPath(thumbnailId, false);
 	}
 
-	public static Boolean deleteThumbnail(int thumbnailId) {
+	public static String getThumbnailPath(String thumbnailId) {
+		return getThumbnailPath(Utility.parseInt(thumbnailId), false);
+	}
+
+	public static boolean deleteThumbnail(int thumbnailId) {
 		boolean success = false;
-		if (thumbnailId > 0) {
-			String fileName = getThumbnailPath(thumbnailId);
-			if (!TextUtils.isEmpty(fileName)) {
-				File file = new File(fileName);
-				if (file.exists()) {
-					// SecurityManager().checkDelete(fileName);
-					success = file.delete();
-				}
+		String fileName = getThumbnailPath(thumbnailId);
+		if (!TextUtils.isEmpty(fileName)) {
+			File file = new File(fileName);
+			if (file != null && file.exists()) {
+				// SecurityManager().checkDelete(fileName);
+				success = file.delete();
 			}
 		}
 		return success;
+	}
+
+	public static boolean deleteThumbnail(String thumbnailId) {
+		return deleteThumbnail(Utility.parseInt(thumbnailId));
 	}
 
 	public static int deleteThumbnails() {
@@ -600,8 +607,10 @@ public class DataHelper {
 		String fileName = null;
 		try {
 			fileName = getThumbnailPath(thumbnailId, true);
-			File file = new File(fileName);
-			fos = new FileOutputStream(file);
+			if (TextUtils.isEmpty(fileName)) {
+				return false;
+			}
+			fos = new FileOutputStream(new File(fileName));
 			Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 			bitmap.compress(CompressFormat.JPEG, 100, fos);
 			fos.flush();
@@ -619,5 +628,29 @@ public class DataHelper {
 				} catch (IOException e) {}
 			}
 		}
+	}
+
+	public static int getThumbnailId(String thumbnailUrl) {
+		if (TextUtils.isEmpty(thumbnailUrl))
+			return 0;
+		Uri uri = Uri.parse(thumbnailUrl);
+		if (uri == null)
+			return 0;
+		String fileName = uri.getLastPathSegment();
+		if (TextUtils.isEmpty(fileName))
+			return 0;
+		if (fileName.startsWith("pic")) {
+			fileName = fileName.substring(3);
+		}
+		if (fileName.endsWith("_t.jpg")) {
+			fileName = fileName.substring(0, fileName.length() - 6);
+		}
+		return Utility.parseInt(fileName);
+	}
+
+	private static String getThumbnailFileName(int id) {
+		if (id == 0)
+			return null;
+		return "pic" + id + "_t.jpg";
 	}
 }

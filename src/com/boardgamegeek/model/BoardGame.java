@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.boardgamegeek.BoardGameGeekData.*;
+import com.boardgamegeek.DataHelper;
 import com.boardgamegeek.Utility;
 
 import android.database.Cursor;
@@ -265,6 +266,10 @@ public class BoardGame {
 
 	public void setThumbnail(Drawable thumbnail) {
 		this.thumbnail = thumbnail;
+	}
+
+	public int getThumbnailId() {
+		return DataHelper.getThumbnailId(thumbnailUrl);
 	}
 
 	// game description

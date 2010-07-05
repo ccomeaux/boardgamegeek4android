@@ -18,6 +18,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -151,7 +152,7 @@ public class BoardGameView extends TabActivity {
 
 	final Runnable toastUpdate = new Runnable() {
 		public void run() {
-			Toast.makeText(BoardGameView.this, R.string.database_updated, Toast.LENGTH_LONG).show();
+			Toast.makeText(BoardGameView.this, R.string.database_updated, Toast.LENGTH_SHORT).show();
 		}
 	};
 
@@ -175,7 +176,7 @@ public class BoardGameView extends TabActivity {
 		ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnail);
 		ProgressBar thumbnailProgressBar = (ProgressBar) findViewById(R.id.thumbnailProgress);
 
-		if (imageLoad) {
+		if (imageLoad && !TextUtils.isEmpty(boardGame.getThumbnailUrl())) {
 			if (boardGame.getThumbnail() != null) {
 				// we already have the image; show it
 				thumbnailProgressBar.setVisibility(View.GONE);
@@ -189,7 +190,8 @@ public class BoardGameView extends TabActivity {
 					public void run() {
 						Drawable thumbnail = null;
 						// try to get it from the database
-						Uri uri = Uri.withAppendedPath(Thumbnails.CONTENT_URI, "" + boardGame.getGameId());
+						Uri uri = Uri.withAppendedPath(Thumbnails.CONTENT_URI, ""
+							+ boardGame.getThumbnailId());
 						Cursor cursor = managedQuery(uri, null, null, null, null);
 						if (cursor.moveToFirst()) {
 							// found, use it
@@ -199,12 +201,15 @@ public class BoardGameView extends TabActivity {
 							// not found, get it from the site
 							thumbnail = Utility.getImage(boardGame.getThumbnailUrl());
 							// and safe it for later
-							if (thumbnail != null
-								&& !TextUtils.isEmpty(DataHelper.getThumbnailPath(boardGame.getGameId()))) {
+							if (thumbnail != null) {
 								ContentValues values = new ContentValues();
-								values.put(Thumbnails._ID, boardGame.getGameId());
+								values.put(Thumbnails._ID, boardGame.getThumbnailId());
 								values.put(Thumbnails.DATA, Utility.ConvertToByteArry(thumbnail));
-								getContentResolver().insert(Thumbnails.CONTENT_URI, values);
+								try {
+									getContentResolver().insert(Thumbnails.CONTENT_URI, values);
+								} catch (SQLException ex) {
+									Log.w(LOG_TAG, "Didn't insert thumbnail: " + ex.toString());
+								}
 							}
 						}
 						boardGame.setThumbnail(thumbnail);

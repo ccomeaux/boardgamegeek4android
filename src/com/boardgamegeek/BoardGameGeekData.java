@@ -111,6 +111,7 @@ public class BoardGameGeekData {
 		public static final String AGE = "age";
 		public static final String DESCRIPTION = "description";
 		public static final String THUMBNAIL_URL = "thumbnailUrl";
+		public static final String THUMBNAIL_ID = "thumbnailId";
 		public static final String RATING_COUNT = "ratingCount";
 		public static final String AVERAGE = "average";
 		public static final String BAYES_AVERAGE = "bayesAverage";

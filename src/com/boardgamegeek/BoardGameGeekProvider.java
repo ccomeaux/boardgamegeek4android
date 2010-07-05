@@ -28,7 +28,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final String LOG_TAG = "BoardGameGeek.Provider";
 
 	private static final String DATABASE_NAME = "boardgamegeek.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	private static final String DESIGNER_TABLE = "designer";
 	private static final String ARTIST_TABLE = "artist";
 	private static final String PUBLISHER_TABLE = "publisher";
@@ -292,7 +292,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_1); // BGG app icon
 		suggestionProjectionMap.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI
-			+ "/' || " + BOARDGAME_TABLE + "." + BoardGames._ID + " AS "
+			+ "/' || " + BOARDGAME_TABLE + "." + BoardGames.THUMBNAIL_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		suggestionProjectionMap.put(BoardGames.SORT_NAME, "(CASE WHEN " + BoardGames.SORT_NAME
 			+ " IS NULL THEN " + BoardGames.NAME + " ELSE " + BoardGames.SORT_NAME + " END) AS "
@@ -1035,15 +1035,18 @@ public class BoardGameGeekProvider extends ContentProvider {
 			count = db.update(BOARDGAMEEXPANSION_TABLE, values, selection, selectionArgs);
 			break;
 		case BOARDGAME_POLL_ID:
-			count = db.update(BOARDGAMEPOLL_TABLE, values, BoardGamePolls._ID + "=" + uri.getPathSegments().get(1)
+			count = db.update(BOARDGAMEPOLL_TABLE, values, BoardGamePolls._ID + "="
+				+ uri.getPathSegments().get(1)
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
 		case BOARDGAME_POLL_RESULTS_ID:
-			count = db.update(BOARDGAMEPOLLRESULTS_TABLE, values, BoardGamePollResult._ID + "=" + uri.getPathSegments().get(1)
+			count = db.update(BOARDGAMEPOLLRESULTS_TABLE, values, BoardGamePollResult._ID + "="
+				+ uri.getPathSegments().get(1)
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
 		case BOARDGAME_POLL_RESULT_ID:
-			count = db.update(BOARDGAMEPOLLRESULT_TABLE, values, BoardGamePollResult._ID + "=" + uri.getPathSegments().get(1)
+			count = db.update(BOARDGAMEPOLLRESULT_TABLE, values, BoardGamePollResult._ID + "="
+				+ uri.getPathSegments().get(1)
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
 		case THUMBNAILS:
@@ -1121,10 +1124,12 @@ public class BoardGameGeekProvider extends ContentProvider {
 			break;
 		case BOARDGAME_ID:
 			String boardgameId = uri.getPathSegments().get(1);
+			// need to get this before deleting the game
+			String thumbnailId = getThumbnailId(boardgameId);
 			count = db.delete(BOARDGAME_TABLE, BoardGames._ID + "=" + boardgameId
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			if (count > 0) {
-				if (DataHelper.deleteThumbnail(Utility.parseInt(boardgameId))) {
+				if (DataHelper.deleteThumbnail(thumbnailId)) {
 					count++;
 				}
 				count += db.delete(BOARDGAMEDESIGNER_TABLE, BoardGameDesigners.BOARDGAME_ID + "="
@@ -1204,8 +1209,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 				+ (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
 			break;
 		case THUMBNAIL_ID:
-			String thumbnailId = uri.getLastPathSegment();
-			if (DataHelper.deleteThumbnail(Utility.parseInt(thumbnailId))) {
+			if (DataHelper.deleteThumbnail(uri.getLastPathSegment())) {
 				count = 1;
 			}
 			break;
@@ -1221,6 +1225,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
 		if (uriMatcher.match(uri) != THUMBNAIL_ID) {
+			Log.w(LOG_TAG, "openFile got an invalid uri: " + uri.toString());
 			throw new IllegalArgumentException("openFile only supports thumbnails");
 		}
 
@@ -1228,13 +1233,26 @@ public class BoardGameGeekProvider extends ContentProvider {
 		String fileName = DataHelper.getThumbnailPath(thumbnailId);
 		if (!TextUtils.isEmpty(fileName)) {
 			File file = new File(fileName);
-			ParcelFileDescriptor parcel = ParcelFileDescriptor
-				.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-			Log.i(LOG_TAG, parcel.toString());
-			return parcel;
-		} else {
-			return null;
+			if (file.exists()) {
+				return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+			}
 		}
+		return null;
+	}
+
+	private String getThumbnailId(String boardgameId) {
+		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+		qb.setTables(BOARDGAME_TABLE);
+		HashMap<String, String> bpm = new HashMap<String, String>();
+		bpm.put(BoardGames._ID, BoardGames._ID);
+		bpm.put(BoardGames.THUMBNAIL_URL, BoardGames.THUMBNAIL_ID);
+		qb.setProjectionMap(bpm);
+		qb.appendWhere(BoardGames._ID + "=" + boardgameId);
+		Cursor c = qb.query(dbHelper.getReadableDatabase(), null, null, null, null, null, null);
+		if (c.moveToFirst()) {
+			return c.getString(c.getColumnIndex(BoardGames.THUMBNAIL_ID));
+		}
+		return null;
 	}
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -1280,9 +1298,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 				+ BoardGames.SORT_NAME + " text, " + BoardGames.YEAR + " integer, " + BoardGames.MIN_PLAYERS
 				+ " integer, " + BoardGames.MAX_PLAYERS + " integer, " + BoardGames.PLAYING_TIME
 				+ " integer, " + BoardGames.AGE + " integer, " + BoardGames.DESCRIPTION + " text, "
-				+ BoardGames.THUMBNAIL_URL + " text, " + BoardGames.RATING_COUNT + " integer, "
-				+ BoardGames.AVERAGE + " real, " + BoardGames.BAYES_AVERAGE + " real, " + BoardGames.RANK
-				+ " integer, " + BoardGames.STANDARD_DEVIATION + " real, " + BoardGames.MEDIAN + " real, "
+				+ BoardGames.THUMBNAIL_URL + " text, " + BoardGames.THUMBNAIL_ID + " integer, "
+				+ BoardGames.RATING_COUNT + " integer, " + BoardGames.AVERAGE + " real, "
+				+ BoardGames.BAYES_AVERAGE + " real, " + BoardGames.RANK + " integer, "
+				+ BoardGames.STANDARD_DEVIATION + " real, " + BoardGames.MEDIAN + " real, "
 				+ BoardGames.OWNED_COUNT + " integer, " + BoardGames.TRADING_COUNT + " integer, "
 				+ BoardGames.WANTING_COUNT + " integer, " + BoardGames.WISHING_COUNT + " integer, "
 				+ BoardGames.COMMENT_COUNT + " integer, " + BoardGames.WEIGHT_COUNT + " integer, "
