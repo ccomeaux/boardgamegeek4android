@@ -105,7 +105,7 @@ public class BoardGameListView extends ListActivity {
 	}
 
 	private void viewDatabase() {
-		updateMessage(R.string.loading_cache_message, null, true);
+		updateMessage(R.string.loading_database_message, null, true);
 		boardGames = new ArrayList<BoardGame>();
 		Cursor c = managedQuery(BoardGames.CONTENT_URI, null, null, null, null);
 		if (c.moveToFirst()) {
@@ -119,7 +119,7 @@ public class BoardGameListView extends ListActivity {
 		}
 		adapter = new BoardGameAdapter();
 		setListAdapter(adapter);
-		setTitle(R.string.view_cache_title);
+		setTitle(R.string.view_database_title);
 	}
 
 	private void getBoardGameList() {
@@ -255,7 +255,7 @@ public class BoardGameListView extends ListActivity {
 		case R.id.search:
 			onSearchRequested();
 			return true;
-		case R.id.view_cache:
+		case R.id.view_database:
 			Intent intent = new Intent(this, BoardGameListView.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);

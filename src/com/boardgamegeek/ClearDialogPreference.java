@@ -24,8 +24,8 @@ public class ClearDialogPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-			// delete all tables
-			// deleting boardgames will delete its child tables too
+			// delete all tables. NOTE: deleting boardgames will delete its
+			// child tables too (including thumbnails)
 			context.getContentResolver().delete(BoardGames.CONTENT_URI, null, null);
 			context.getContentResolver().delete(Artists.CONTENT_URI, null, null);
 			context.getContentResolver().delete(Designers.CONTENT_URI, null, null);
@@ -37,9 +37,8 @@ public class ClearDialogPreference extends DialogPreference {
 
 	@Override
 	protected View onCreateDialogView() {
-
 		TextView tw = new TextView(context);
-		tw.setText(R.string.pref_cache_clear_message);
+		tw.setText(R.string.pref_database_clear_message);
 		tw.setPadding(10, 8, 10, 8);
 		return tw;
 	}

@@ -3,7 +3,7 @@
 	<item android:id="@+id/search" android:title="@string/menu_search"
 		android:icon="@android:drawable/ic_menu_search"
 		android:alphabeticShortcut="SearchManager.MENU_KEY" />
-	<item android:id="@+id/view_cache" android:title="@string/menu_view_cache"
+	<item android:id="@+id/view_database" android:title="@string/menu_view_database"
 		android:icon="@android:drawable/ic_menu_view" />
 	<item android:id="@+id/settings" android:title="@string/menu_settings"
 		android:icon="@android:drawable/ic_menu_preferences"

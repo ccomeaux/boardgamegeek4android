@@ -11,19 +11,19 @@
 			android:defaultValue="true" android:title="@string/pref_skipResults_title"
 			android:summary="@string/pref_skipResults_summary" />
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_cache">
-		<ListPreference android:key="cacheDuration"
-			android:defaultValue="259200000" android:title="@string/pref_cache_duration"
-			android:summary="@string/pref_cache_duration_summary"
-			android:entries="@array/cacheDurationEntries" android:entryValues="@array/cacheDurationValues" />
-		<ListPreference android:key="cacheDurationExtra"
-			android:defaultValue="1209600000" android:title="@string/pref_cache_duration_extra"
-			android:summary="@string/pref_cache_duration_extra_summary"
-			android:entries="@array/cacheDurationEntries" android:entryValues="@array/cacheDurationValues" />
+	<PreferenceCategory android:title="@string/pref_database">
+		<ListPreference android:key="databaseDuration"
+			android:defaultValue="259200000" android:title="@string/pref_database_duration"
+			android:summary="@string/pref_database_duration_summary"
+			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
+		<ListPreference android:key="databaseDurationExtra"
+			android:defaultValue="1209600000" android:title="@string/pref_database_duration_extra"
+			android:summary="@string/pref_database_duration_extra_summary"
+			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
 		<com.boardgamegeek.ClearDialogPreference
-			android:key="clearCache" android:title="@string/pref_cache_clear"
-			android:summary="@string/pref_cache_clear_summary"
-			android:positiveButtonText="@string/pref_cache_clear_pos"
-			android:negativeButtonText="@string/pref_cache_clear_neg" />
+			android:key="clearDatabase" android:title="@string/pref_database_clear"
+			android:summary="@string/pref_database_clear_summary"
+			android:positiveButtonText="@string/pref_database_clear_pos"
+			android:negativeButtonText="@string/pref_database_clear_neg" />
 	</PreferenceCategory>
 </PreferenceScreen>

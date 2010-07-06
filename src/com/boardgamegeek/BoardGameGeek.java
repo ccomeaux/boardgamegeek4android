@@ -40,7 +40,7 @@ public class BoardGameGeek extends Activity {
 		case R.id.search:
 			onSearchRequested();
 			return true;
-		case R.id.view_cache:
+		case R.id.view_database:
 			Intent intent = new Intent(this, BoardGameListView.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);

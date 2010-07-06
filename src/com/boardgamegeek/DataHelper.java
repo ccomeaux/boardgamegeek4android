@@ -131,11 +131,6 @@ public class DataHelper {
 			Log.w(LOG_TAG, "Invalid boardGame ID: " + boardGame.getGameId());
 		}
 
-		// TODO: move this to the provider class; it can expose the db Helper
-		// methods
-		// SQLiteDatabase db = new SQLiteDatabase();
-		// db.beginTransaction();
-
 		// see if it is already in the database
 		ContentValues values = createBoardGameValues(boardGame);
 		Uri uri = Uri.withAppendedPath(BoardGames.CONTENT_URI, "" + boardGame.getGameId());
