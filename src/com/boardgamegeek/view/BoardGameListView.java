@@ -264,7 +264,7 @@ public class BoardGameListView extends ListActivity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Utility.CreateAboutDialog(this).show();
+			startActivity(new Intent(this, AboutView.class));
 			return true;
 		}
 		return false;

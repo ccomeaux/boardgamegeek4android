@@ -1,5 +1,6 @@
 package com.boardgamegeek;
 
+import com.boardgamegeek.view.AboutView;
 import com.boardgamegeek.view.BoardGameListView;
 
 import android.app.Activity;
@@ -49,7 +50,7 @@ public class BoardGameGeek extends Activity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Utility.CreateAboutDialog(this).show();
+			startActivity(new Intent(this, AboutView.class));
 			return true;
 		}
 		return false;
