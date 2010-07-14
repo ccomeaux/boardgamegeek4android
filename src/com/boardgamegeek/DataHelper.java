@@ -587,7 +587,7 @@ public class DataHelper {
 	public static int deleteThumbnails() {
 		int count = 0;
 		File folder = getThumbnailFolder();
-		if (folder != null) {
+		if (folder != null && folder.listFiles() != null) {
 			for (File file : folder.listFiles()) {
 				if (file.delete()) {
 					count++;
