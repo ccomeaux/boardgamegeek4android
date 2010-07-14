@@ -2,7 +2,6 @@
 <resources>
 	<string name="search_results">BoardGameGeek</string>
 	<string name="app_name">BoardGameGeek</string>
-	<string name="about_title">About</string>
 	<string name="tab_main">Main</string>
 	<string name="search_label">Search BoardGameGeek.com</string>
 	<string name="search_hint">Name of Game</string>
@@ -32,6 +31,7 @@
 		This operation can&apos;t be reversed.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view_database">View Database</string>
+	<string name="menu_log_play">Log Play</string>
 	<string name="menu_settings">Settings</string>
 	<string name="menu_about">About</string>
 	<string name="title_text">BoardGameGeek.com</string>
@@ -46,9 +46,13 @@
 		maintenance. Please try again later.</string>
 	<string name="no_results">No results for \&quot;%s\&quot;.\n\nThis may mean
 		there are no games matching your search, or BoardGameGeek.com could be
-		down. The search function is also picky and doesn\&apos;t like some
-		common words. Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
-		and \&quot;of\&quot;, etc.</string>
+		down. The search function also doesn\&apos;t like some common words.
+		Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
+		and
+		\&quot;of\&quot;, etc.</string>
+	<string name="empty_database">The database is empty. Games will be automatically
+		added to the database as you view them. To start viewing games, just
+		type to start a search on BoardGameGeek.com.</string>
 	<string name="database_updated">Database updated.</string>
 	<string name="rank">Rank: %s</string>
 	<string name="not_available">N/A</string>

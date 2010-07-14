@@ -117,6 +117,10 @@ public class BoardGameListView extends ListActivity {
 				boardGames.add(bg);
 			} while (c.moveToNext());
 		}
+		else
+		{
+			updateMessage(R.string.empty_database, null, false);
+		}
 		adapter = new BoardGameAdapter();
 		setListAdapter(adapter);
 		setTitle(R.string.view_database_title);
