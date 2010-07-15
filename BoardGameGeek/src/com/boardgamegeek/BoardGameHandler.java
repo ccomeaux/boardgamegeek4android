@@ -4,6 +4,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.boardgamegeek.model.*;
+
 public class BoardGameHandler extends DefaultHandler {
 
 	private StringBuffer currentElement;
@@ -11,8 +13,8 @@ public class BoardGameHandler extends DefaultHandler {
 	private Boolean isPrimaryName = false;
 	private boolean isStats;
 	private boolean isRanks;
-	private boolean isRank;
-	private String objectId;
+	private String rankType;
+	private int objectId;
 	private Poll currentPoll;
 	private PollResults currentPollResults;
 
@@ -28,43 +30,35 @@ public class BoardGameHandler extends DefaultHandler {
 	}
 
 	@Override
-	public void endDocument() throws SAXException {
-	}
+	public void endDocument() throws SAXException {}
 
 	@Override
-	public void startElement(String namespaceURI, String localName,
-			String qName, Attributes atts) throws SAXException {
+	public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
+		throws SAXException {
 
 		currentElement = new StringBuffer();
 
 		if (localName.equals("boardgame")) {
-			boardGame.setGameId(atts.getValue("objectid"));
+			boardGame.setGameId(Utility.parseInt(atts.getValue("objectid")));
 		} else if (localName == "name") {
 			String primaryAttribute = atts.getValue("primary");
-			if (primaryAttribute != null
-					&& primaryAttribute.equalsIgnoreCase("true")) {
+			if (primaryAttribute != null && primaryAttribute.equalsIgnoreCase("true")) {
 				isPrimaryName = true;
+				boardGame.setSortIndex(Utility.parseInt(atts.getValue("sortindex"), 1));
 			}
 		} else if (localName == "statistics") {
 			isStats = true;
-		} else if (localName == "boardgamedesigner"
-				|| localName == "boardgameartist"
-				|| localName == "boardgamepublisher"
-				|| localName == "boardgamecategory"
-				|| localName == "boardgamemechanic"
-				|| localName == "boardgameexpansion") {
+		} else if (localName == "boardgamedesigner" || localName == "boardgameartist"
+			|| localName == "boardgamepublisher" || localName == "boardgamecategory"
+			|| localName == "boardgamemechanic" || localName == "boardgameexpansion") {
 			String idAttribute = atts.getValue("objectid");
 			if (idAttribute != null) {
-				objectId = idAttribute;
+				objectId = Utility.parseInt(idAttribute);
 			}
 		} else if (isStats) {
 			if (isRanks) {
 				if (localName == "rank") {
-					String attribute = atts.getValue("type");
-					if (attribute != null
-							&& attribute.equalsIgnoreCase("boardgame")) {
-						isRank = true;
-					}
+					rankType = atts.getValue("type");
 				}
 			} else if (localName == "ranks") {
 				isRanks = true;
@@ -72,36 +66,37 @@ public class BoardGameHandler extends DefaultHandler {
 		} else if (localName == "poll") {
 			String pollName = atts.getValue("name");
 			String pollTitle = atts.getValue("title");
-			int pollVotes = parseInt(atts.getValue("totalvotes"));
+			int pollVotes = Utility.parseInt(atts.getValue("totalvotes"));
 			currentPoll = new Poll(pollName, pollTitle, pollVotes);
 		} else if (currentPoll != null) {
 			if (localName == "results") {
-				currentPollResults = new PollResults(atts
-						.getValue("numplayers"));
+				currentPollResults = new PollResults(atts.getValue("numplayers"));
 			} else if (currentPollResults != null && localName == "result") {
 				String value = atts.getValue("value");
-				int numberOfVotes = parseInt(atts.getValue("numvotes"));
-				int level = parseInt(atts.getValue("level"));
+				int numberOfVotes = Utility.parseInt(atts.getValue("numvotes"));
+				int level = Utility.parseInt(atts.getValue("level"));
 				PollResult result = new PollResult(value, numberOfVotes, level);
 				currentPollResults.addResult(result);
 			}
+		} else if (localName == "error") {
+			String message = atts.getValue("message");
+			boardGame.setName(message);
 		}
 	}
 
 	@Override
-	public void endElement(String namespaceURI, String localName, String qName)
-			throws SAXException {
+	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
 
 		if (localName == "yearpublished") {
-			boardGame.setYearPublished(parseInt(currentElement.toString()));
+			boardGame.setYearPublished(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "minplayers") {
-			boardGame.setMinPlayers(parseInt(currentElement.toString()));
+			boardGame.setMinPlayers(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "maxplayers") {
-			boardGame.setMaxPlayers(parseInt(currentElement.toString()));
+			boardGame.setMaxPlayers(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "playingtime") {
-			boardGame.setPlayingTime(parseInt(currentElement.toString()));
+			boardGame.setPlayingTime(Utility.parseInt(currentElement.toString()));
 		} else if (localName == "age") {
-			boardGame.setAge(parseInt(currentElement.toString()));
+			boardGame.setAge(Utility.parseInt(currentElement.toString()));
 		} else if (isPrimaryName && localName == "name") {
 			boardGame.setName(currentElement.toString());
 			isPrimaryName = false;
@@ -110,35 +105,35 @@ public class BoardGameHandler extends DefaultHandler {
 		} else if (localName == "thumbnail") {
 			boardGame.setThumbnailUrl(currentElement.toString());
 		} else if (localName == "boardgamedesigner") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addDesigner(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgameartist") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addArtist(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamepublisher") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addPublisher(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamecategory") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addCategory(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgamemechanic") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addMechanic(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "boardgameexpansion") {
-			if (objectId != "") {
+			if (objectId != 0) {
 				boardGame.addExpansion(objectId, currentElement.toString());
 			}
-			objectId = "";
+			objectId = 0;
 		} else if (localName == "poll") {
 			if (currentPoll != null) {
 				boardGame.addPoll(currentPoll);
@@ -153,37 +148,52 @@ public class BoardGameHandler extends DefaultHandler {
 			isStats = false;
 		} else if (isStats) {
 			if (localName == "usersrated") {
-				boardGame.setRatingCount(parseInt(currentElement.toString()));
+				boardGame.setRatingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "average") {
-				boardGame.setAverage(parseDouble(currentElement.toString()));
+				boardGame.setAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "bayesaverage") {
-				boardGame
-						.setBayesAverage(parseDouble(currentElement.toString()));
+				boardGame.setBayesAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
-			} else if (isRank && localName == "rank") {
-				boardGame.setRank(parseInt(currentElement.toString()));
-				isRank = false;
+			} else if (isRanks && localName == "rank") {
+				int rank = Utility.parseInt(currentElement.toString());
+				if (rankType.equalsIgnoreCase("boardgame")) {
+					boardGame.setRank(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_abstracts")) {
+					boardGame.setRankAbstract(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_ccgrank")) {
+					boardGame.setRankCcg(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_familygamesrank")) {
+					boardGame.setRankFamily(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_kidsgames")) {
+					boardGame.setRankKids(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_partygamerank")) {
+					boardGame.setRankParty(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_strategygamesrank")) {
+					boardGame.setRankStrategy(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_thematic")) {
+					boardGame.setRankTheme(rank);
+				} else if (rankType.equalsIgnoreCase("subdomain_wargames")) {
+					boardGame.setRankWar(rank);
+				}
 			} else if (localName == "stddev") {
-				boardGame.setStandardDeviation(parseDouble(currentElement
-						.toString()));
+				boardGame.setStandardDeviation(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "median") {
-				boardGame.setMedian(parseDouble(currentElement.toString()));
+				boardGame.setMedian(Utility.parseDouble(currentElement.toString()));
 			} else if (localName == "owned") {
-				boardGame.setOwnedCount(parseInt(currentElement.toString()));
+				boardGame.setOwnedCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "trading") {
-				boardGame.setTradingCount(parseInt(currentElement.toString()));
+				boardGame.setTradingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "wanting") {
-				boardGame.setWantingCount(parseInt(currentElement.toString()));
+				boardGame.setWantingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "wishing") {
-				boardGame.setWishingCount(parseInt(currentElement.toString()));
+				boardGame.setWishingCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "numcomments") {
-				boardGame.setCommentCount(parseInt(currentElement.toString()));
+				boardGame.setCommentCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "numweights") {
-				boardGame.setWeightCount(parseInt(currentElement.toString()));
+				boardGame.setWeightCount(Utility.parseInt(currentElement.toString()));
 			} else if (localName == "averageweight") {
-				boardGame.setAverageWeight(parseDouble(currentElement
-						.toString()));
+				boardGame.setAverageWeight(Utility.parseDouble(currentElement.toString()));
 			}
 		}
 	}
@@ -191,21 +201,5 @@ public class BoardGameHandler extends DefaultHandler {
 	@Override
 	public void characters(char ch[], int start, int length) {
 		currentElement.append(ch, start, length);
-	}
-
-	private int parseInt(String text) {
-		try {
-			return Integer.parseInt(text);
-		} catch (NumberFormatException ex) {
-			return 0;
-		}
-	}
-
-	private double parseDouble(String text) {
-		try {
-			return Double.parseDouble(text);
-		} catch (NumberFormatException ex) {
-			return 0;
-		}
 	}
 }

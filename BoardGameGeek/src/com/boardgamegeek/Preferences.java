@@ -5,8 +5,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-public class Preferences extends PreferenceActivity implements
-		OnSharedPreferenceChangeListener {
+public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -18,7 +17,5 @@ public class Preferences extends PreferenceActivity implements
 		super.onStop();
 	}
 
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
-	}
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {}
 }
