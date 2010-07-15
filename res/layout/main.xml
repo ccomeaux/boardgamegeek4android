@@ -7,4 +7,7 @@
 	<TextView android:id="@+id/title" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:gravity="center_horizontal"
 		android:text="@string/title_text" android:textAppearance="?android:attr/textAppearanceLarge" />
+	<TextView android:id="@+id/version" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="center_horizontal"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
 </LinearLayout>
