@@ -35,7 +35,7 @@
 				android:layout_alignTop="@id/bayesBar" android:layout_alignBottom="@id/bayesBar" />
 		</RelativeLayout>
 		<RelativeLayout android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:padding="2px">
+			android:layout_height="fill_parent" android:padding="2px" android:id="@+id/medianRow">
 			<ProgressBar android:id="@+id/medianBar"
 				style="?android:attr/progressBarStyleHorizontal"
 				android:layout_width="fill_parent" android:layout_height="20sp" />
@@ -58,8 +58,9 @@
 			android:layout_marginTop="10sp" android:background="@android:drawable/divider_horizontal_dark" />
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="@string/weight" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" />
+			<TextView android:text="@string/weight"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
 			<TextView android:id="@+id/statsWeightCount"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:textAppearance="?android:attr/textAppearanceSmall"
