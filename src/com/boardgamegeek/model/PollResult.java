@@ -1,7 +1,8 @@
-package com.boardgamegeek;
+package com.boardgamegeek.model;
 
 public class PollResult {
 
+	private int id;
 	private int level;
 	private String value;
 	private int numberOfVotes;
@@ -15,6 +16,17 @@ public class PollResult {
 		this.value = value;
 		this.numberOfVotes = numberOfVotes;
 		this.level = level;
+	}
+
+	public PollResult(String value, int numberOfVotes, int level, int id) {
+		this.value = value;
+		this.numberOfVotes = numberOfVotes;
+		this.level = level;
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public void setLevel(int level) {

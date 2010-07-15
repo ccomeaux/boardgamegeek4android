@@ -1,12 +1,15 @@
 package com.boardgamegeek;
 
+import com.boardgamegeek.view.AboutView;
+import com.boardgamegeek.view.BoardGameListView;
+
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class BoardGameGeek extends Activity {
 
@@ -17,11 +20,8 @@ public class BoardGameGeek extends Activity {
 		// allow type-to-search
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
-		// call the XML layout
-		this.setContentView(R.layout.main);
-
-		// invoke the search UI
-		onSearchRequested();
+		setContentView(R.layout.main);
+		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
 	}
 
 	@Override
@@ -41,14 +41,16 @@ public class BoardGameGeek extends Activity {
 		case R.id.search:
 			onSearchRequested();
 			return true;
+		case R.id.view_database:
+			Intent intent = new Intent(this, BoardGameListView.class);
+			intent.setAction(Intent.ACTION_VIEW);
+			startActivity(intent);
+			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			Dialog dialog = new Dialog(this);
-			dialog.setContentView(R.layout.dialog);
-			dialog.setTitle(R.string.thanks_title);
-			dialog.show();
+			startActivity(new Intent(this, AboutView.class));
 			return true;
 		}
 		return false;
