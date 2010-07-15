@@ -22,7 +22,7 @@ import android.util.Log;
 
 public final class Utility {
 
-	public final static String siteUrl = "http://72.233.16.130/";
+	public final static String siteUrl = "http://www.boardgamegeek.com/";
 	
 	private final static String LOG_TAG = "BoardGameGeek";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
