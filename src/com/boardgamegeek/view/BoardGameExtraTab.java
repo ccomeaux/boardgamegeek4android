@@ -152,13 +152,13 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 	private void ClickDesigner(int position) {
 
-		removeDialog(ID_DIALOG_RESULTS);
-		showDialog(ID_DIALOG_PROGRESS);
-
 		title = getResources().getString(R.string.designer);
 		name = null;
 		description = null;
 		BoardGame boardGame = BoardGameView.boardGame;
+
+		removeDialog(ID_DIALOG_RESULTS);
+		showDialog(ID_DIALOG_PROGRESS);
 
 		if (boardGame != null) {
 			selectedId = boardGame.getDesignerByPosition(position).Id;
@@ -182,7 +182,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			}
 			// not in DB or too old, so get search BGG
 			try {
-				final URL url = new URL("http://www.boardgamegeek.com/xmlapi/boardgamedesigner/" + selectedId);
+				final URL url = new URL(Utility.siteUrl + "xmlapi/boardgamedesigner/" + selectedId);
 				new Thread() {
 					public void run() {
 						try {
@@ -206,13 +206,13 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 	private void ClickArtist(int position) {
 
-		removeDialog(ID_DIALOG_RESULTS);
-		showDialog(ID_DIALOG_PROGRESS);
-
 		title = getResources().getString(R.string.artist);
 		name = null;
 		description = null;
 		BoardGame boardGame = BoardGameView.boardGame;
+
+		removeDialog(ID_DIALOG_RESULTS);
+		showDialog(ID_DIALOG_PROGRESS);
 
 		if (boardGame != null) {
 			selectedId = boardGame.getArtistByPosition(position).Id;
@@ -236,7 +236,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			}
 			// not in DB or too old, so get search BGG
 			try {
-				final URL url = new URL("http://www.boardgamegeek.com/xmlapi/boardgameartist/" + selectedId);
+				final URL url = new URL(Utility.siteUrl + "xmlapi/boardgameartist/" + selectedId);
 				new Thread() {
 					public void run() {
 						try {
@@ -260,13 +260,13 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 	private void ClickPublisher(int position) {
 
-		removeDialog(ID_DIALOG_RESULTS);
-		showDialog(ID_DIALOG_PROGRESS);
-
 		title = getResources().getString(R.string.publisher);
 		name = null;
 		description = null;
 		BoardGame boardGame = BoardGameView.boardGame;
+
+		removeDialog(ID_DIALOG_RESULTS);
+		showDialog(ID_DIALOG_PROGRESS);
 
 		if (boardGame != null) {
 			selectedId = boardGame.getPublisherByPosition(position).Id;
@@ -290,7 +290,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			}
 			// not in DB or too old, so get search BGG
 			try {
-				final URL url = new URL("http://www.boardgamegeek.com/xmlapi/boardgamepublisher/"
+				final URL url = new URL(Utility.siteUrl + "xmlapi/boardgamepublisher/"
 					+ selectedId);
 				new Thread() {
 					public void run() {

@@ -141,7 +141,7 @@ public class BoardGameListView extends ListActivity {
 				try {
 					isGeekDown = false;
 					// set URL
-					String queryUrl = "http://www.geekdo.com/xmlapi/search?search=" + searchText;
+					String queryUrl = Utility.siteUrl + "xmlapi/search?search=" + searchText;
 					if (exactSearch && isFirstPass) {
 						queryUrl += "&exact=1";
 					}

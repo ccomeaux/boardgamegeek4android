@@ -22,6 +22,8 @@ import android.util.Log;
 
 public final class Utility {
 
+	public final static String siteUrl = "http://72.233.16.130/";
+	
 	private final static String LOG_TAG = "BoardGameGeek";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 
@@ -91,10 +93,25 @@ public final class Utility {
 		unescapedText = unescapedText.replace("&reg;", "\u00ae");
 		unescapedText = unescapedText.replace("&euro;", "\u20a0");
 		unescapedText = unescapedText.replace("&bull;", "\u0095");
+		
+		//TODO: this is a terrible hack to remove vertical whitespace
+		String[] lines = unescapedText.split("\n");
+		for (int i = 0; i < lines.length; i++) {
+			lines[i] = lines[i].trim();
+		}
+		unescapedText = TextUtils.join("\n", lines);
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
+		
 		return unescapedText.trim();
 	}
 

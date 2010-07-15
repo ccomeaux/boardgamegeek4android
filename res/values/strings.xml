@@ -28,7 +28,7 @@
 	<string name="pref_database_clear_pos">Clear</string>
 	<string name="pref_database_clear_neg">Cancel</string>
 	<string name="pref_database_clear_message">Are you sure you want to clear the database? NOTE:
-		This operation can&apos;t be reversed.</string>
+		This operation can\'t be reversed.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view_database">View Database</string>
 	<string name="menu_log_play">Log Play</string>
@@ -41,6 +41,8 @@
 	<string name="loading_database_message">Loading database...</string>
 	<string name="downloading_message">Downloading...</string>
 	<string name="view_database_title">Viewing Database</string>
+	<string name="error_downloading">There was an error downloading this game. Please go
+		back and try again.</string>
 	<string name="bgg_down_title">BoardGameGeek.com is down!</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
