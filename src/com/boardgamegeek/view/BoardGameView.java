@@ -2,16 +2,12 @@ package com.boardgamegeek.view;
 
 import java.net.URL;
 import java.text.DecimalFormat;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-
-import com.boardgamegeek.*;
-import com.boardgamegeek.BoardGameGeekData.BoardGames;
-import com.boardgamegeek.BoardGameGeekData.Thumbnails;
-import com.boardgamegeek.model.BoardGame;
 
 import android.app.TabActivity;
 import android.content.ContentValues;
@@ -36,6 +32,15 @@ import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.boardgamegeek.BoardGameHandler;
+import com.boardgamegeek.DataHelper;
+import com.boardgamegeek.Preferences;
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.BoardGameGeekData.BoardGames;
+import com.boardgamegeek.BoardGameGeekData.Thumbnails;
+import com.boardgamegeek.model.BoardGame;
 
 public class BoardGameView extends TabActivity {
 
@@ -76,9 +81,7 @@ public class BoardGameView extends TabActivity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.d(LOG_TAG, "onSaveInstanceState");
 		super.onSaveInstanceState(outState);
-
 		// save game ID; if activity is paused, it can resume with this ID
 		outState.putInt(gameIdKey, gameId);
 	}
@@ -86,7 +89,7 @@ public class BoardGameView extends TabActivity {
 	private void getBoardGame() {
 
 		// display a progress message while fetching the game data
-		showMessage(R.string.downloading_message);
+		showMessage(R.string.downloading_message, true);
 
 		if (boardGame != null && boardGame.getGameId() == gameId) {
 			// no need to retrieve the game, we already have it
@@ -116,7 +119,7 @@ public class BoardGameView extends TabActivity {
 			public void run() {
 				try {
 					// set URL
-					URL url = new URL("http://www.boardgamegeek.com/xmlapi/boardgame/" + gameId + "&stats=1");
+					URL url = new URL(Utility.siteUrl + "xmlapi/boardgame/" + gameId + "&stats=1");
 
 					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -140,13 +143,17 @@ public class BoardGameView extends TabActivity {
 	// get results from handler
 	final Runnable updateResults = new Runnable() {
 		public void run() {
-			updateUI();
-			new Thread() {
-				public void run() {
-					DataHelper.addToDatabase(BoardGameView.this, boardGame);
-					handler.post(toastUpdate);
-				}
-			}.start();
+			if (boardGame != null) {
+				updateUI();
+				new Thread() {
+					public void run() {
+						DataHelper.addToDatabase(BoardGameView.this, boardGame);
+						handler.post(toastUpdate);
+					}
+				}.start();
+			} else {
+				showMessage(R.string.error_downloading, false);
+			}
 		}
 	};
 
@@ -343,8 +350,9 @@ public class BoardGameView extends TabActivity {
 		updateImage();
 	}
 
-	private void showMessage(int messageResource) {
+	private void showMessage(int messageResource, boolean showProgress) {
 		TextView tv = (TextView) findViewById(R.id.gameMessage);
+		ProgressBar pb = (ProgressBar) findViewById(R.id.gameProgress);
 		tv.setText(messageResource);
 
 		// hide the tab host, show the tab message
@@ -352,6 +360,7 @@ public class BoardGameView extends TabActivity {
 		TabHost th = (TabHost) findViewById(android.R.id.tabhost);
 		ll.setVisibility(View.VISIBLE);
 		th.setVisibility(View.GONE);
+		pb.setVisibility(showProgress ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
@@ -360,9 +369,17 @@ public class BoardGameView extends TabActivity {
 
 		// inflate the menu from XML
 		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.menu, menu);
+		menuInflater.inflate(R.menu.boardgame_menu, menu);
 
 		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// only allow logging a play once the game is populated
+		MenuItem mi = menu.findItem(R.id.log_play);
+		mi.setEnabled(boardGame != null);
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -376,6 +393,9 @@ public class BoardGameView extends TabActivity {
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;
+		case R.id.log_play:
+			logPlay();
+			break;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));
 			return true;
@@ -384,6 +404,14 @@ public class BoardGameView extends TabActivity {
 			return true;
 		}
 		return false;
+	}
+
+	private void logPlay() {
+		Intent intent = new Intent(this, LogPlayView.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.putExtra("GAME_ID", gameId);
+		intent.putExtra("GAME_NAME", boardGame.getName());
+		startActivity(intent);
 	}
 
 	public void getPreferences() {

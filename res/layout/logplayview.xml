@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="wrap_content">
+	<LinearLayout android:orientation="vertical"
+		android:gravity="top" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:padding="5dip">
+		<TableLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:stretchColumns="1">
+			<TableRow>
+				<TextView android:text="Date" android:padding="5dip"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+				<Button android:id="@+id/logDateButton" android:text=""
+					android:gravity="left|center_vertical" />
+			</TableRow>
+			<TableRow>
+				<TextView android:text="Quantity" android:padding="5dip"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+				<EditText android:id="@+id/logQuantity" android:text="1"
+					android:inputType="number" android:hint="Number of games played" />
+			</TableRow>
+			<TableRow>
+				<TextView android:text="Length" android:padding="5dip"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+				<EditText android:id="@+id/logLength" android:text=""
+					android:inputType="number" android:hint="Number of minutes" />
+			</TableRow>
+			<TableRow>
+				<TextView android:text="Location" android:padding="5dip"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+				<EditText android:id="@+id/logLocation" android:text=""
+					android:inputType="text" android:hint="Game play location" />
+			</TableRow>
+			<CheckBox android:id="@+id/logIncomplete" android:text="Incomplete"
+				android:checked="false" />
+			<CheckBox android:id="@+id/logNoWinStats" android:text="Don't Count Win Stats"
+				android:checked="false" />
+			<TextView android:text="Comments" android:padding="5dip"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+			<EditText android:id="@+id/logComments" android:text=""
+				android:inputType="textMultiLine|textAutoCorrect" android:hint="Game play comments" />
+		</TableLayout>
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<Button android:id="@+id/logPlaySaveButton"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_weight="1" android:text="Save" android:enabled="false" />
+			<Button android:id="@+id/logPlayCancelButton"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_weight="1" android:text="Cancel" />
+		</LinearLayout>
+	</LinearLayout>
+</ScrollView>

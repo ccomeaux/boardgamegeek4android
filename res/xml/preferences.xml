@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="User settings">
+		<EditTextPreference android:key="username"
+			android:title="BGG username" android:summary="BoardGameGeek.com username for logging plays"
+			android:dialogTitle="BGG username" android:dialogMessage="Enter your BoardGameGeek.com username" />
+		<EditTextPreference android:key="password"
+			android:title="BGG password" android:summary="BoardGameGeek.com password for logging plays"
+			android:dialogTitle="BGG password" android:dialogMessage="Enter your BoardGameGeek.com password"
+			android:password="true" />
+	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_search">
 		<CheckBoxPreference android:key="imageLoad"
 			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
