@@ -153,8 +153,8 @@ public class LogPlayView extends Activity {
 			return new DatePickerDialog(this, mDateSetListener, mYear, mMonth, mDay);
 		case LOGGING_DIALOG_ID:
 			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle("Logging");
-			dialog.setMessage("Logging play...");
+			dialog.setTitle(R.string.logPlayDialogTitle);
+			dialog.setMessage(getResources().getString(R.string.logPlayDialogMessage));
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(true);
 			return dialog;
@@ -186,7 +186,7 @@ public class LogPlayView extends Activity {
 		if (mCookieStore != null) {
 			logPlay(gameId);
 		} else {
-			Toast.makeText(this, "Can't - Unable to login!", Toast.LENGTH_LONG);
+			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG);
 		}
 	}
 
@@ -252,7 +252,7 @@ public class LogPlayView extends Activity {
 
 		getPreferences();
 		if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-			Toast.makeText(this, "Please set your username and password.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 			startActivity(new Intent(this, Preferences.class));
 			finish();
 			return false;
@@ -293,14 +293,18 @@ public class LogPlayView extends Activity {
 			}
 
 			if (response == null) {
-				message = "Unable to log in: " + "no response.";
+				message = getResources().getString(R.string.logInError) + " : "
+					+ getResources().getString(R.string.logInErrorSuffixNoResponse);
 			}
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				message = "Unable to log in: " + "received a bad response - " + response.toString() + ".";
+				message = getResources().getString(R.string.logInError) + " : "
+					+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " "
+					+ response.toString() + ".";
 			}
 			List<Cookie> cookies = client.getCookieStore().getCookies();
 			if (cookies == null || cookies.isEmpty()) {
-				message = "Unable to log in: " + "cookies are missing.";
+				message = getResources().getString(R.string.logInError) + " : "
+					+ getResources().getString(R.string.logInErrorSuffixMissingCookies);
 			}
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("bggpassword")) {
@@ -309,12 +313,13 @@ public class LogPlayView extends Activity {
 				}
 			}
 			if (mCookieStore == null) {
-				message = "Unable to log in: " + "cookies are incomplete.";
+				message = getResources().getString(R.string.logInError) + " : "
+					+ getResources().getString(R.string.logInErrorSuffixBadCookies);
 			}
 			if (mCookieStore != null) {
 				saveCookies(mCookieStore.getCookies());
 			} else {
-				message = "Unable to log in.";
+				message = getResources().getString(R.string.logInError);
 			}
 
 			return message;
@@ -328,7 +333,6 @@ public class LogPlayView extends Activity {
 			} else {
 				Button button = (Button) findViewById(R.id.logPlaySaveButton);
 				button.setEnabled(true);
-				Toast.makeText(getBaseContext(), "Logged in!", Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -344,7 +348,7 @@ public class LogPlayView extends Activity {
 				return e.toString();
 			}
 			if (entity == null) {
-				return "Entity unexpectedly null.";
+				return getResources().getString(R.string.logInErrorSuffixEntityNull);
 			}
 
 			final DefaultHttpClient client = new DefaultHttpClient();
@@ -361,11 +365,13 @@ public class LogPlayView extends Activity {
 					if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 						message = Utility.parseResponse(response);
 					} else {
-						message = "Unable to log in: " + "received a bad response - " + response.toString()
-							+ ".";
+						message = getResources().getString(R.string.logInError) + " : "
+							+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " "
+							+ response.toString() + ".";
 					}
 				} else {
-					message = "Unable to log play: " + "no response.";
+					message = getResources().getString(R.string.logInError) + " : "
+						+ getResources().getString(R.string.logInErrorSuffixNoResponse);
 				}
 			} catch (ClientProtocolException e) {
 				return e.toString();
@@ -392,9 +398,10 @@ public class LogPlayView extends Activity {
 				int start = result.indexOf(">");
 				int end = result.indexOf("<", start);
 				int playCount = Utility.parseInt(result.substring(start + 1, end), 1);
-				String message = "You just played your " + Utility.getOrdinal(playCount) + " game of "
-					+ gameName + "!";
-				Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+				Toast.makeText(
+					getBaseContext(),
+					String.format(getResources().getString(R.string.logPlaySuccess), Utility
+						.getOrdinal(playCount), gameName), Toast.LENGTH_LONG).show();
 				finish();
 			} else {
 				Log.w(LOG_TAG, result);
@@ -474,7 +481,7 @@ public class LogPlayView extends Activity {
 	};
 
 	private void setTitle() {
-		setTitle("Log Play for " + gameName);
+		setTitle(getResources().getString(R.string.logPlayTitle) + " " + gameName);
 	}
 
 	private void setDateButtonText() {

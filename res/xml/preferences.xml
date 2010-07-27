@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="User settings">
+	<PreferenceCategory android:title="@string/pref_user">
 		<EditTextPreference android:key="username"
-			android:title="BGG username" android:summary="BoardGameGeek.com username for logging plays"
-			android:dialogTitle="BGG username" android:dialogMessage="Enter your BoardGameGeek.com username" />
+			android:title="@string/pref_user_username_title" android:summary="@string/pref_user_username_summary"
+			android:dialogTitle="@string/pref_user_username_title"
+			android:dialogMessage="@string/pref_user_username_message" />
 		<EditTextPreference android:key="password"
-			android:title="BGG password" android:summary="BoardGameGeek.com password for logging plays"
-			android:dialogTitle="BGG password" android:dialogMessage="Enter your BoardGameGeek.com password"
+			android:title="@string/pref_user_password_title" android:summary="@string/pref_user_password_summary"
+			android:dialogTitle="@string/pref_user_password_title"
+			android:dialogMessage="@string/pref_user_password_message"
 			android:password="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_search">
