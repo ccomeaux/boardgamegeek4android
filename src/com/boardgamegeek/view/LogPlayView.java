@@ -25,6 +25,7 @@ import org.apache.http.protocol.HTTP;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -51,6 +52,7 @@ import com.boardgamegeek.Utility;
 public class LogPlayView extends Activity {
 
 	private static final int DATE_DIALOG_ID = 0;
+	private static final int LOGGING_DIALOG_ID = 1;
 	private static final String LOG_TAG = "BoardGameGeek";
 
 	private final String gameIdKey = "GAME_ID";
@@ -149,6 +151,13 @@ public class LogPlayView extends Activity {
 		switch (id) {
 		case DATE_DIALOG_ID:
 			return new DatePickerDialog(this, mDateSetListener, mYear, mMonth, mDay);
+		case LOGGING_DIALOG_ID:
+			ProgressDialog dialog = new ProgressDialog(this);
+			dialog.setTitle("Logging");
+			dialog.setMessage("Logging play...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(true);
+			return dialog;
 		}
 		return null;
 	}
@@ -368,7 +377,13 @@ public class LogPlayView extends Activity {
 		}
 
 		@Override
+		protected void onPreExecute() {
+			showDialog(LOGGING_DIALOG_ID);
+		}
+
+		@Override
 		protected void onPostExecute(String result) {
+			removeDialog(LOGGING_DIALOG_ID);
 			if (TextUtils.isEmpty(result)) {
 				return;
 			}
