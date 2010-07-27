@@ -33,6 +33,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -150,10 +153,29 @@ public class LogPlayView extends Activity {
 		return null;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.logplay_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.save:
+			logPlay();
+			return true;
+		case R.id.cancel:
+			finish();
+			return true;
+		}
+		return false;
+	}
+
 	private void logPlay() {
 		if (mCookieStore != null) {
 			logPlay(gameId);
-			// finish();
 		} else {
 			Toast.makeText(this, "Can't - Unable to login!", Toast.LENGTH_LONG);
 		}
@@ -165,21 +187,25 @@ public class LogPlayView extends Activity {
 		}
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = preferences.edit();
-		for (int i = 0; i < cookies.size(); i++) {
-			Cookie cookie = cookies.get(i);
-			editor.putString("cookie" + i + "value", cookie.getValue());
-			editor.putString("cookie" + i + "name", cookie.getName());
-			editor.putString("cookie" + i + "path", cookie.getPath());
-			editor.putString("cookie" + i + "domain", cookie.getDomain());
-			Date expiryDate = cookie.getExpiryDate();
-			if (expiryDate != null) {
-				editor.putLong("cookie" + i + "expirydate", expiryDate.getTime());
-			}
-			if (i == 9) {
-				break;
+		for (int i = 0; i < 10; i++) {
+			if (i < cookies.size()) {
+				Cookie cookie = cookies.get(i);
+				editor.putString("cookie" + i + "value", cookie.getValue());
+				editor.putString("cookie" + i + "name", cookie.getName());
+				editor.putString("cookie" + i + "path", cookie.getPath());
+				editor.putString("cookie" + i + "domain", cookie.getDomain());
+				Date expiryDate = cookie.getExpiryDate();
+				if (expiryDate != null) {
+					editor.putLong("cookie" + i + "expirydate", expiryDate.getTime());
+				}
+			} else {
+				editor.remove("cookie" + i + "value");
+				editor.remove("cookie" + i + "name");
+				editor.remove("cookie" + i + "path");
+				editor.remove("cookie" + i + "domain");
+				editor.remove("cookie" + i + "expirydate");
 			}
 		}
-		// TODO: erase old cookies
 		return editor.commit();
 	}
 
