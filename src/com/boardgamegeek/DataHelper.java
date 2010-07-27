@@ -60,7 +60,8 @@ public class DataHelper {
 		boardGame.setCommentCount(cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT)));
 		boardGame.setWeightCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT)));
 		boardGame.setAverageWeight(cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
-		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(BoardGames.THUMBNAIL_ID)));
+		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(cursor.getInt(cursor
+			.getColumnIndex(BoardGames.THUMBNAIL_ID)))));
 
 		int gameId = boardGame.getGameId();
 
@@ -527,7 +528,7 @@ public class DataHelper {
 			return null;
 		}
 		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
-			+ "/thumbnails");
+			+ "/.thumbnails");
 		return folder;
 	}
 
@@ -647,5 +648,16 @@ public class DataHelper {
 		if (id == 0)
 			return null;
 		return "pic" + id + "_t.jpg";
+	}
+
+	public static boolean renameThumbnailFolder() {
+		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
+			+ "/thumbnails");
+
+		if (folder.exists()) {
+			return folder.renameTo(new File(Environment.getExternalStorageDirectory() + "/"
+				+ BoardGameGeekData.AUTHORITY + "/.thumbnails"));
+		}
+		return true;
 	}
 }

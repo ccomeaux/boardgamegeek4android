@@ -28,7 +28,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private static final String LOG_TAG = "BoardGameGeek.Provider";
 
 	private static final String DATABASE_NAME = "boardgamegeek.db";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 	private static final String DESIGNER_TABLE = "designer";
 	private static final String ARTIST_TABLE = "artist";
 	private static final String PUBLISHER_TABLE = "publisher";
@@ -182,6 +182,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 		boardgamesProjectionMap.put(BoardGames.AGE, BoardGames.AGE);
 		boardgamesProjectionMap.put(BoardGames.DESCRIPTION, BoardGames.DESCRIPTION);
 		boardgamesProjectionMap.put(BoardGames.THUMBNAIL_URL, BoardGames.THUMBNAIL_URL);
+		boardgamesProjectionMap.put(BoardGames.THUMBNAIL_ID, BoardGames.THUMBNAIL_ID);
 		boardgamesProjectionMap.put(BoardGames.RATING_COUNT, BoardGames.RATING_COUNT);
 		boardgamesProjectionMap.put(BoardGames.AVERAGE, BoardGames.AVERAGE);
 		boardgamesProjectionMap.put(BoardGames.BAYES_AVERAGE, BoardGames.BAYES_AVERAGE);
@@ -1376,22 +1377,28 @@ public class BoardGameGeekProvider extends ContentProvider {
 			Log
 				.w(LOG_TAG, String
 					.format("Upgrading database from version %s to %s.", oldVersion, newVersion));
-			dropTable(db, DESIGNER_TABLE);
-			dropTable(db, ARTIST_TABLE);
-			dropTable(db, PUBLISHER_TABLE);
-			dropTable(db, CATEGORY_TABLE);
-			dropTable(db, MECHANIC_TABLE);
-			dropTable(db, BOARDGAME_TABLE);
-			dropTable(db, BOARDGAMEDESIGNER_TABLE);
-			dropTable(db, BOARDGAMEARTIST_TABLE);
-			dropTable(db, BOARDGAMEPUBLISHER_TABLE);
-			dropTable(db, BOARDGAMECATEGORY_TABLE);
-			dropTable(db, BOARDGAMEMECHANIC_TABLE);
-			dropTable(db, BOARDGAMEEXPANSION_TABLE);
-			dropTable(db, BOARDGAMEPOLL_TABLE);
-			dropTable(db, BOARDGAMEPOLLRESULTS_TABLE);
-			dropTable(db, BOARDGAMEPOLLRESULT_TABLE);
-			onCreate(db);
+
+			if (newVersion < 6) {
+				dropTable(db, DESIGNER_TABLE);
+				dropTable(db, ARTIST_TABLE);
+				dropTable(db, PUBLISHER_TABLE);
+				dropTable(db, CATEGORY_TABLE);
+				dropTable(db, MECHANIC_TABLE);
+				dropTable(db, BOARDGAME_TABLE);
+				dropTable(db, BOARDGAMEDESIGNER_TABLE);
+				dropTable(db, BOARDGAMEARTIST_TABLE);
+				dropTable(db, BOARDGAMEPUBLISHER_TABLE);
+				dropTable(db, BOARDGAMECATEGORY_TABLE);
+				dropTable(db, BOARDGAMEMECHANIC_TABLE);
+				dropTable(db, BOARDGAMEEXPANSION_TABLE);
+				dropTable(db, BOARDGAMEPOLL_TABLE);
+				dropTable(db, BOARDGAMEPOLLRESULTS_TABLE);
+				dropTable(db, BOARDGAMEPOLLRESULT_TABLE);
+				onCreate(db);
+			}
+			if (oldVersion < 6){
+				DataHelper.renameThumbnailFolder();
+			}
 		}
 
 		private static void dropTable(SQLiteDatabase db, String tableName) {
