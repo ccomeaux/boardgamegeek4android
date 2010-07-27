@@ -11,10 +11,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.boardgamegeek.*;
-import com.boardgamegeek.BoardGameGeekData.BoardGames;
-import com.boardgamegeek.model.BoardGame;
-
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.Intent;
@@ -37,6 +33,13 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.boardgamegeek.BoardGameListHandler;
+import com.boardgamegeek.Preferences;
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.BoardGameGeekData.BoardGames;
+import com.boardgamegeek.model.BoardGame;
+
 public class BoardGameListView extends ListActivity {
 
 	private String searchText;
@@ -44,7 +47,6 @@ public class BoardGameListView extends ListActivity {
 	private BoardGameAdapter adapter;
 	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
-	private SharedPreferences preferences;
 	private boolean exactSearch;
 	private boolean skipResults;
 	private boolean isFirstPass = true;
@@ -53,8 +55,6 @@ public class BoardGameListView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(LOG_TAG, "onCreate");
-
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
 		setContentView(R.layout.viewboardgamelist);
 		parseIntent(getIntent());
@@ -63,7 +63,6 @@ public class BoardGameListView extends ListActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.d(LOG_TAG, "onResume");
 		getPreferences();
 	}
 
@@ -253,6 +252,7 @@ public class BoardGameListView extends ListActivity {
 		return true;
 	}
 
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -274,8 +274,8 @@ public class BoardGameListView extends ListActivity {
 		return false;
 	}
 
-	public void getPreferences() {
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	private void getPreferences() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		exactSearch = preferences.getBoolean("exactSearch", true);
 		skipResults = preferences.getBoolean("skipResults", true);
 	}
