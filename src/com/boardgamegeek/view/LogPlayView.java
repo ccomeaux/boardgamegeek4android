@@ -393,8 +393,8 @@ public class LogPlayView extends Activity {
 			if (TextUtils.isEmpty(result)) {
 				return;
 			}
-
-			if (result.startsWith("Plays: <a")) {
+			if (result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:")) {
+				Log.d(LOG_TAG, result);
 				int start = result.indexOf(">");
 				int end = result.indexOf("<", start);
 				int playCount = Utility.parseInt(result.substring(start + 1, end), 1);
