@@ -398,10 +398,27 @@ public class LogPlayView extends Activity {
 				int start = result.indexOf(">");
 				int end = result.indexOf("<", start);
 				int playCount = Utility.parseInt(result.substring(start + 1, end), 1);
+
+				String countDescription = "";
+				int quantity = getQuantity();
+				switch (quantity) {
+				case 1:
+					countDescription = Utility.getOrdinal(playCount);
+					break;
+				case 2:
+					countDescription = Utility.getOrdinal(playCount - 1) + " & "
+						+ Utility.getOrdinal(playCount);
+					break;
+				default:
+					countDescription = Utility.getOrdinal(playCount - quantity + 1) + " - "
+						+ Utility.getOrdinal(playCount);
+					break;
+				}
+
 				Toast.makeText(
 					getBaseContext(),
-					String.format(getResources().getString(R.string.logPlaySuccess), Utility
-						.getOrdinal(playCount), gameName), Toast.LENGTH_LONG).show();
+					String.format(getResources().getString(R.string.logPlaySuccess), countDescription,
+						gameName), Toast.LENGTH_LONG).show();
 				finish();
 			} else {
 				Log.w(LOG_TAG, result);
