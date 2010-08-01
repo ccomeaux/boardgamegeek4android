@@ -100,6 +100,14 @@ public class BoardGame {
 		return yearPublished;
 	}
 
+	public String getYearPublishedDescription() {
+		if (yearPublished > 0) {
+			return "" + yearPublished;
+		} else {
+			return "?";
+		}
+	}
+
 	public void setYearPublished(int year) {
 		this.yearPublished = year;
 	}
@@ -138,6 +146,13 @@ public class BoardGame {
 		return playingTime;
 	}
 
+	public String getPlayingTimeDescription() {
+		if (playingTime > 0) {
+			return playingTime + " minutes";
+		}
+		return "";
+	}
+
 	public void setPlayingTime(int playingTime) {
 		this.playingTime = playingTime;
 	}
@@ -145,6 +160,13 @@ public class BoardGame {
 	// player age (minimum)
 	public int getAge() {
 		return age;
+	}
+
+	public String getAgeDescription() {
+		if (age > 0) {
+			return age + " and up";
+		}
+		return "";
 	}
 
 	public void setAge(int age) {
@@ -181,6 +203,14 @@ public class BoardGame {
 	// game rank
 	public int getRank() {
 		return rank;
+	}
+
+	public String getRankDescription() {
+		if (rank > 0) {
+			return "" + rank;
+		} else {
+			return "N/A";
+		}
 	}
 
 	public void setRank(int rank) {
@@ -279,26 +309,6 @@ public class BoardGame {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getGameInfo() {
-		StringBuilder info = new StringBuilder();
-		if (gameId == 0) {
-			info.append("Game not found");
-		} else {
-			if (yearPublished != 0) {
-				info.append("Year Published: ").append(yearPublished).append("\n");
-			}
-			info.append("Players: ").append(getPlayers()).append("\n");
-			if (playingTime != 0) {
-				info.append("Playing Time: ").append(playingTime).append(" minutes\n");
-			}
-			if (age != 0) {
-				info.append("Ages: ").append(age).append(" and up\n");
-			}
-			info.append("Game ID: ").append(gameId);
-		}
-		return info.toString();
 	}
 
 	public String toString() {

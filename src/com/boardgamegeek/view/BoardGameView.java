@@ -237,7 +237,6 @@ public class BoardGameView extends TabActivity {
 	private void updateUI() {
 		// declare the GUI variables
 		TextView title = (TextView) findViewById(R.id.title);
-		TextView rank = (TextView) findViewById(R.id.rank);
 		TextView rating = (TextView) findViewById(R.id.rating);
 		ImageView star1 = (ImageView) findViewById(R.id.star1);
 		ImageView star2 = (ImageView) findViewById(R.id.star2);
@@ -249,30 +248,24 @@ public class BoardGameView extends TabActivity {
 		ImageView star8 = (ImageView) findViewById(R.id.star8);
 		ImageView star9 = (ImageView) findViewById(R.id.star9);
 		ImageView star10 = (ImageView) findViewById(R.id.star10);
-		TextView information = (TextView) findViewById(R.id.information);
-		TextView description = (TextView) findViewById(R.id.description);
 		Drawable wholestar = getResources().getDrawable(R.drawable.star_yellow);
 		Drawable halfstar = getResources().getDrawable(R.drawable.star_yellowhalf);
 		Drawable nostar = getResources().getDrawable(R.drawable.star_white);
 
-		// get the game information from the object
-		String gameRank;
-		if (boardGame.getRank() == 0) {
-			gameRank = String.format(getResources().getString(R.string.rank), getResources().getString(
-				R.string.not_available));
-		} else {
-			gameRank = String.format(getResources().getString(R.string.rank), boardGame.getRank());
-		}
 		String gameRating = getResources().getString(R.string.user_rating) + ": "
 			+ new DecimalFormat("#0.00").format(boardGame.getAverage()) + " / 10 ("
 			+ boardGame.getRatingCount() + " Ratings)";
-		String gameInfo = boardGame.getGameInfo();
-		String gameDescription = boardGame.getDescription();
 
 		// display information
 		title.setText(boardGame.getName());
-		rank.setText(gameRank);
 		rating.setText(gameRating);
+		((TextView) findViewById(R.id.rank)).setText("" + boardGame.getRank());
+		((TextView) findViewById(R.id.yearPublished)).setText(boardGame.getYearPublishedDescription());
+		((TextView) findViewById(R.id.numOfPlayers)).setText(boardGame.getPlayers());
+		((TextView) findViewById(R.id.playingTime)).setText(boardGame.getPlayingTimeDescription());
+		((TextView) findViewById(R.id.suggestedAges)).setText(boardGame.getAgeDescription());
+		((TextView) findViewById(R.id.gameId)).setText("" + boardGame.getGameId());
+		((TextView) findViewById(R.id.description)).setText(boardGame.getDescription());
 
 		// calculate and display star rating
 		if (boardGame.getAverage() >= 0.75)
@@ -335,10 +328,6 @@ public class BoardGameView extends TabActivity {
 			star10.setImageDrawable(halfstar);
 		else
 			star10.setImageDrawable(nostar);
-
-		// display rest of information
-		information.setText(gameInfo);
-		description.setText(gameDescription);
 
 		// hide the message, show the tab host
 		LinearLayout ll = (LinearLayout) findViewById(R.id.gameProgressMessage);
