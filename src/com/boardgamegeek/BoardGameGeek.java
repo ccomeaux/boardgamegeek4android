@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class BoardGameGeek extends Activity {
@@ -22,6 +25,20 @@ public class BoardGameGeek extends Activity {
 
 		setContentView(R.layout.main);
 		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
+
+		((Button) findViewById(R.id.searchButton)).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onSearchRequested();
+			}
+		});
+
+		((Button) findViewById(R.id.viewButton)).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				viewDatabase();
+			}
+		});
 	}
 
 	@Override
@@ -42,9 +59,7 @@ public class BoardGameGeek extends Activity {
 			onSearchRequested();
 			return true;
 		case R.id.view_database:
-			Intent intent = new Intent(this, BoardGameListView.class);
-			intent.setAction(Intent.ACTION_VIEW);
-			startActivity(intent);
+			viewDatabase();
 			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));
@@ -54,5 +69,11 @@ public class BoardGameGeek extends Activity {
 			return true;
 		}
 		return false;
+	}
+
+	private void viewDatabase() {
+		Intent intent = new Intent(this, BoardGameListView.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		startActivity(intent);
 	}
 }

@@ -10,4 +10,14 @@
 	<TextView android:id="@+id/version" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:gravity="center_horizontal"
 		android:textAppearance="?android:attr/textAppearanceMedium" />
+	<LinearLayout android:orientation="horizontal"
+		android:gravity="center_horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:padding="20dip">
+		<Button android:id="@+id/searchButton" android:text="@string/menu_search"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_weight="1" android:drawableLeft="@android:drawable/ic_search_category_default" />
+		<Button android:id="@+id/viewButton" android:text="@string/menu_view_database"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:layout_weight="1" />
+	</LinearLayout>
 </LinearLayout>
