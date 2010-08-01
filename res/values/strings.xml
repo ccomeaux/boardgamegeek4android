@@ -7,10 +7,12 @@
 	<string name="search_hint">Name of Game</string>
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
-	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays</string>
+	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays
+	</string>
 	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
 	<string name="pref_user_password_title">BGG password</string>
-	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays</string>
+	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays
+	</string>
 	<string name="pref_user_password_message">Enter your BoardGameGeek.com password</string>
 	<string name="pref_search">Search settings</string>
 	<string name="pref_imageLoad_title">Load images</string>
@@ -64,6 +66,15 @@
 		type to start a search on BoardGameGeek.com.</string>
 	<string name="database_updated">Database updated.</string>
 	<string name="rank">Rank: %s</string>
+	<string name="rank_boardgame">Board Game Rank</string>
+	<string name="rank_abstract">Abstract Game Rank</string>
+	<string name="rank_collectible">Collectible Rank</string>
+	<string name="rank_family">Family Game Rank</string>
+	<string name="rank_kids">Children\'s Game Rank</string>
+	<string name="rank_party">Party Game Rank</string>
+	<string name="rank_strategy">Strategy Game Rank</string>
+	<string name="rank_theme">Thematic Rank</string>
+	<string name="rank_war">War Game Rank</string>
 	<string name="not_available">N/A</string>
 	<string name="user_rating">User Rating</string>
 	<string name="average_meter_text">Average = %s</string>
