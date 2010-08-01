@@ -17,7 +17,7 @@ import android.widget.TextView;
 public class BoardGameStatsTab extends Activity {
 
 	private NumberFormat format = NumberFormat.getInstance();
-	private int mRankIndex;
+	private int mRankIndex = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +38,16 @@ public class BoardGameStatsTab extends Activity {
 		}
 
 		// ranks
-		mRankIndex = 0;
-		addRankRow(R.string.rank_abstract, boardGame.getRankAbstract());
-		addRankRow(R.string.rank_kids, boardGame.getRankKids());
-		addRankRow(R.string.rank_collectible, boardGame.getRankCcg());
-		addRankRow(R.string.rank_family, boardGame.getRankFamily());
-		addRankRow(R.string.rank_party, boardGame.getRankParty());
-		addRankRow(R.string.rank_strategy, boardGame.getRankStrategy());
-		addRankRow(R.string.rank_theme, boardGame.getRankTheme());
-		addRankRow(R.string.rank_war, boardGame.getRankWar());
+		if (mRankIndex == 0) {
+			addRankRow(R.string.rank_abstract, boardGame.getRankAbstract());
+			addRankRow(R.string.rank_kids, boardGame.getRankKids());
+			addRankRow(R.string.rank_collectible, boardGame.getRankCcg());
+			addRankRow(R.string.rank_family, boardGame.getRankFamily());
+			addRankRow(R.string.rank_party, boardGame.getRankParty());
+			addRankRow(R.string.rank_strategy, boardGame.getRankStrategy());
+			addRankRow(R.string.rank_theme, boardGame.getRankTheme());
+			addRankRow(R.string.rank_war, boardGame.getRankWar());
+		}
 
 		// ratings
 		setText(R.id.statsRank, (boardGame.getRank() == 0) ? getResources().getString(R.string.not_available)
