@@ -65,7 +65,12 @@
 		added to the database as you view them. To start viewing games, just
 		type to start a search on BoardGameGeek.com.</string>
 	<string name="database_updated">Database updated.</string>
-	<string name="rank">Rank: %s</string>
+	<string name="rank">Rank</string>
+	<string name="yearPublished">Year Published</string>
+	<string name="numberOfPlayers"># of Players</string>
+	<string name="playingTime">Playing Time</string>
+	<string name="suggestedAges">Suggested Ages</string>
+	<string name="gameId">Game ID</string>
 	<string name="rank_boardgame">Board Game Rank</string>
 	<string name="rank_abstract">Abstract Game Rank</string>
 	<string name="rank_collectible">Collectible Rank</string>
