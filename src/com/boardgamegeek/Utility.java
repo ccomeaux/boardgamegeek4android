@@ -308,11 +308,11 @@ public final class Utility {
 		}
 		String l = c.substring(c.length() - 1);
 		if (n != "1") {
-			if (l == "1") {
+			if (l.equalsIgnoreCase("1")) {
 				return c + "st";
-			} else if (l == "2") {
+			} else if (l.equalsIgnoreCase("2")) {
 				return c + "nd";
-			} else if (l == "3") {
+			} else if (l.equalsIgnoreCase("3")) {
 				return c + "rd";
 			}
 		}
