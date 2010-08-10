@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,12 +32,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.BoardGameListHandler;
+import com.boardgamegeek.DataHelper;
 import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
@@ -288,12 +291,18 @@ public class BoardGameListView extends ListActivity {
 			ViewHolder holder = (ViewHolder) view.getTag();
 			holder.name.setText(cursor.getString(cursor.getColumnIndex(BoardGames.NAME)));
 			holder.year.setText(cursor.getString(cursor.getColumnIndex(BoardGames.YEAR)));
-			holder.gameId.setText(cursor.getString(cursor.getColumnIndex(BoardGames._ID)));
+			Drawable thumbnail = DataHelper.getThumbnail(cursor);
+			if (thumbnail == null) {
+				holder.thumbnail.setVisibility(View.GONE);
+			} else {
+				holder.thumbnail.setVisibility(View.VISIBLE);
+				holder.thumbnail.setImageDrawable(thumbnail);
+			}
 		}
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row, parent, false);
+			View row = mInflater.inflate(R.layout.row2, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -336,11 +345,13 @@ public class BoardGameListView extends ListActivity {
 		TextView name;
 		TextView year;
 		TextView gameId;
+		ImageView thumbnail;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			gameId = (TextView) view.findViewById(R.id.gameId);
+			thumbnail = (ImageView) view.findViewById(R.id.listThumbnail);
 		}
 	}
 }
