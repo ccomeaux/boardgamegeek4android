@@ -150,7 +150,7 @@ public class BoardGame {
 		if (playingTime > 0) {
 			return playingTime + " minutes";
 		}
-		return "";
+		return "?";
 	}
 
 	public void setPlayingTime(int playingTime) {
@@ -166,7 +166,7 @@ public class BoardGame {
 		if (age > 0) {
 			return age + " and up";
 		}
-		return "";
+		return "?";
 	}
 
 	public void setAge(int age) {

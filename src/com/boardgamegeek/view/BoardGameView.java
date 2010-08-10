@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -259,11 +260,24 @@ public class BoardGameView extends TabActivity {
 		// display information
 		title.setText(boardGame.getName());
 		rating.setText(gameRating);
-		((TextView) findViewById(R.id.rank)).setText("" + boardGame.getRank());
+		((TextView) findViewById(R.id.rank)).setText("" + boardGame.getRankDescription());
 		((TextView) findViewById(R.id.yearPublished)).setText(boardGame.getYearPublishedDescription());
 		((TextView) findViewById(R.id.numOfPlayers)).setText(boardGame.getPlayers());
-		((TextView) findViewById(R.id.playingTime)).setText(boardGame.getPlayingTimeDescription());
-		((TextView) findViewById(R.id.suggestedAges)).setText(boardGame.getAgeDescription());
+		TableRow tr = (TableRow) findViewById(R.id.playingTimeRow);
+		if (boardGame.getPlayingTime() == 0) {
+			tr.setVisibility(View.GONE);
+		} else {
+			((TextView) findViewById(R.id.playingTime)).setText(boardGame.getPlayingTimeDescription());
+			tr.setVisibility(View.VISIBLE);
+		}
+		tr = (TableRow) findViewById(R.id.suggestedAgesRow);
+		if (boardGame.getAge() == 0) {
+			tr.setVisibility(View.GONE);
+		} else {
+			((TextView) findViewById(R.id.suggestedAges)).setText(boardGame.getAgeDescription());
+			tr.setVisibility(View.VISIBLE);
+		}
+
 		((TextView) findViewById(R.id.gameId)).setText("" + boardGame.getGameId());
 		((TextView) findViewById(R.id.description)).setText(boardGame.getDescription());
 

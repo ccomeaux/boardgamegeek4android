@@ -92,14 +92,16 @@
 								<TextView android:id="@+id/numOfPlayers"
 									android:textAppearance="?android:attr/textAppearanceSmall" />
 							</TableRow>
-							<TableRow android:gravity="center_horizontal">
+							<TableRow android:id="@+id/playingTimeRow"
+								android:gravity="center_horizontal">
 								<TextView android:text="@string/playingTime"
 									android:textAppearance="?android:attr/textAppearanceSmall"
 									android:gravity="right" android:paddingRight="10dip" />
 								<TextView android:id="@+id/playingTime"
 									android:textAppearance="?android:attr/textAppearanceSmall" />
 							</TableRow>
-							<TableRow android:gravity="center_horizontal">
+							<TableRow android:id="@+id/suggestedAgesRow"
+								android:gravity="center_horizontal">
 								<TextView android:text="@string/suggestedAges"
 									android:textAppearance="?android:attr/textAppearanceSmall"
 									android:gravity="right" android:paddingRight="10dip" />

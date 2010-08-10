@@ -43,9 +43,9 @@
 								android:paddingTop="10dip" android:paddingBottom="10dip"
 								android:gravity="center_horizontal" android:scaleType="fitCenter"
 								android:visibility="gone" />
-							<TableLayout android:gravity="center_vertical"
-								android:layout_width="fill_parent" android:layout_height="fill_parent"
-								android:paddingBottom="15dip">
+							<TableLayout android:gravity="center"
+								android:layout_weight="1" android:layout_width="fill_parent"
+								android:layout_height="wrap_content" android:paddingBottom="15dip">
 								<TableRow android:gravity="center_horizontal">
 									<TextView android:text="@string/rank"
 										android:textAppearance="?android:attr/textAppearanceSmall"
@@ -69,14 +69,16 @@
 									<TextView android:id="@+id/numOfPlayers"
 										android:textAppearance="?android:attr/textAppearanceSmall" />
 								</TableRow>
-								<TableRow android:gravity="center_horizontal">
+								<TableRow android:id="@+id/playingTimeRow"
+									android:gravity="center_horizontal">
 									<TextView android:text="@string/playingTime"
 										android:textAppearance="?android:attr/textAppearanceSmall"
 										android:gravity="right" android:paddingRight="10dip" />
 									<TextView android:id="@+id/playingTime"
 										android:textAppearance="?android:attr/textAppearanceSmall" />
 								</TableRow>
-								<TableRow android:gravity="center_horizontal">
+								<TableRow android:id="@+id/suggestedAgesRow"
+									android:gravity="center_horizontal">
 									<TextView android:text="@string/suggestedAges"
 										android:textAppearance="?android:attr/textAppearanceSmall"
 										android:gravity="right" android:paddingRight="10dip" />
