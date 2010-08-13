@@ -300,19 +300,19 @@ public final class Utility {
 		if (cardinal < 0) {
 			return "";
 		}
-		
+
 		String c = "" + cardinal;
 		String n = "0";
 		if (c.length() > 1) {
-			n = c.substring(c.length() - 2);
+			n = c.substring(c.length() - 2, c.length() - 1);
 		}
 		String l = c.substring(c.length() - 1);
-		if (n != "1") {
-			if (l.equalsIgnoreCase("1")) {
+		if (n.equals("1")) {
+			if (l.equals("1")) {
 				return c + "st";
-			} else if (l.equalsIgnoreCase("2")) {
+			} else if (l.equals("2")) {
 				return c + "nd";
-			} else if (l.equalsIgnoreCase("3")) {
+			} else if (l.equals("3")) {
 				return c + "rd";
 			}
 		}

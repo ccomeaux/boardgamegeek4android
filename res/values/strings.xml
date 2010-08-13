@@ -13,7 +13,9 @@
 	<string name="pref_user_password_title">BGG password</string>
 	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays
 	</string>
-	<string name="pref_user_password_message">Enter your BoardGameGeek.com password</string>
+	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
+		your password is stored locally, but the only entity we share it with
+		is BoardGameGeek. Promise.</string>
 	<string name="pref_search">Search settings</string>
 	<string name="pref_imageLoad_title">Load images</string>
 	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow

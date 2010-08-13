@@ -43,7 +43,8 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 			<Button android:id="@+id/logPlaySaveButton"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:layout_weight="1" android:text="@string/save" android:enabled="false" />
+				android:layout_weight="1" android:text="@string/save"
+				android:enabled="false" />
 			<Button android:id="@+id/logPlayCancelButton"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:layout_weight="1" android:text="@string/cancel" />
