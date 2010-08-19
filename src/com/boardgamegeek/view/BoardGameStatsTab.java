@@ -1,20 +1,23 @@
 package com.boardgamegeek.view;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.BoardGame;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BoardGameStatsTab extends Activity {
 
-	private DecimalFormat statFormat = new DecimalFormat("#0.000");
+	private NumberFormat format = NumberFormat.getInstance();
+	private int mRankIndex = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +37,21 @@ public class BoardGameStatsTab extends Activity {
 			return;
 		}
 
+		// ranks
+		if (mRankIndex == 0) {
+			addRankRow(R.string.rank_abstract, boardGame.getRankAbstract());
+			addRankRow(R.string.rank_kids, boardGame.getRankKids());
+			addRankRow(R.string.rank_collectible, boardGame.getRankCcg());
+			addRankRow(R.string.rank_family, boardGame.getRankFamily());
+			addRankRow(R.string.rank_party, boardGame.getRankParty());
+			addRankRow(R.string.rank_strategy, boardGame.getRankStrategy());
+			addRankRow(R.string.rank_theme, boardGame.getRankTheme());
+			addRankRow(R.string.rank_war, boardGame.getRankWar());
+		}
+
 		// ratings
-		setText(R.id.statsRank, R.string.rank, (boardGame.getRank() == 0) ? getResources().getString(
-			R.string.not_available) : "" + boardGame.getRank());
+		setText(R.id.statsRank, (boardGame.getRank() == 0) ? getResources().getString(R.string.not_available)
+			: "" + boardGame.getRank());
 		setText(R.id.statsRatingCount, R.string.rating_count, boardGame.getRatingCount());
 		setProgressBar(R.id.averageBar, boardGame.getAverage(), 10.0);
 		setText(R.id.averageText, R.string.average_meter_text, boardGame.getAverage());
@@ -87,6 +102,33 @@ public class BoardGameStatsTab extends Activity {
 		setText(R.id.weightingText, R.string.weighting_meter_text, boardGame.getWeightCount());
 	}
 
+	private void addRankRow(int labelResource, int rank) {
+		if (rank > 0) {
+			LinearLayout layout = new LinearLayout(this);
+			layout.setOrientation(LinearLayout.HORIZONTAL);
+			layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
+
+			TextView tv = new TextView(this);
+			tv.setText(labelResource);
+			tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
+			tv.setTextAppearance(this, android.R.style.TextAppearance_Small);
+			layout.addView(tv);
+
+			tv = new TextView(this);
+			tv.setText("" + rank);
+			tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
+			tv.setTextAppearance(this, android.R.style.TextAppearance_Small);
+			tv.setGravity(Gravity.RIGHT);
+			layout.addView(tv);
+
+			LinearLayout ll = (LinearLayout) findViewById(R.id.rankLayout);
+			ll.addView(layout, ++mRankIndex);
+		}
+	}
+
 	// HELPER METHODS
 
 	private void setText(int textViewId, String text) {
@@ -94,16 +136,12 @@ public class BoardGameStatsTab extends Activity {
 		textView.setText(text);
 	}
 
-	private void setText(int textViewId, int stringResourceId, String s) {
-		setText(textViewId, String.format(getResources().getString(stringResourceId), s));
-	}
-
 	private void setText(int textViewId, int stringResourceId, int i) {
-		setText(textViewId, String.format(getResources().getString(stringResourceId), i));
+		setText(textViewId, String.format(getResources().getString(stringResourceId), format.format(i)));
 	}
 
 	private void setText(int textViewId, int stringResourceId, double d) {
-		setText(textViewId, String.format(getResources().getString(stringResourceId), statFormat.format(d)));
+		setText(textViewId, String.format(getResources().getString(stringResourceId), format.format(d)));
 	}
 
 	private void setProgressBar(int progressBarId, double progress, double max) {

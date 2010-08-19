@@ -2,12 +2,18 @@ package com.boardgamegeek;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -23,15 +29,15 @@ import android.util.Log;
 public final class Utility {
 
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
-	
+
 	private final static String LOG_TAG = "BoardGameGeek";
 	private static final int IO_BUFFER_SIZE = 4 * 1024;
 
 	// prevent instantiation
 	private Utility() {}
-	
+
 	// prepares text to be part of a where clause in a query
-	public static String querifyText(String query){
+	public static String querifyText(String query) {
 		return query.replace("'", "''");
 	}
 
@@ -93,8 +99,8 @@ public final class Utility {
 		unescapedText = unescapedText.replace("&reg;", "\u00ae");
 		unescapedText = unescapedText.replace("&euro;", "\u20a0");
 		unescapedText = unescapedText.replace("&bull;", "\u0095");
-		
-		//TODO: this is a terrible hack to remove vertical whitespace
+
+		// TODO: this is a terrible hack to remove vertical whitespace
 		String[] lines = unescapedText.split("\n");
 		for (int i = 0; i < lines.length; i++) {
 			lines[i] = lines[i].trim();
@@ -111,7 +117,7 @@ public final class Utility {
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
 		unescapedText = unescapedText.replace("\n\n\n", "\n\n");
-		
+
 		return unescapedText.trim();
 	}
 
@@ -253,5 +259,63 @@ public final class Utility {
 			Log.e(LOG_TAG, e.getMessage());
 		}
 		return byteArray;
+	}
+
+	public static String parseResponse(HttpResponse response) throws IOException {
+		if (response == null) {
+			return null;
+		}
+
+		final HttpEntity entity = response.getEntity();
+		if (entity == null) {
+			return null;
+		}
+
+		final InputStream stream = entity.getContent();
+		if (stream == null) {
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		try {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				Log.w(LOG_TAG, e.toString());
+				return null;
+			}
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append("\n");
+			}
+		} finally {
+			stream.close();
+		}
+		return sb.toString().trim();
+	}
+
+	public static String getOrdinal(int cardinal) {
+
+		if (cardinal < 0) {
+			return "";
+		}
+
+		String c = "" + cardinal;
+		String n = "0";
+		if (c.length() > 1) {
+			n = c.substring(c.length() - 2, c.length() - 1);
+		}
+		String l = c.substring(c.length() - 1);
+		if (n.equals("1")) {
+			if (l.equals("1")) {
+				return c + "st";
+			} else if (l.equals("2")) {
+				return c + "nd";
+			} else if (l.equals("3")) {
+				return c + "rd";
+			}
+		}
+		return c + "th";
 	}
 }

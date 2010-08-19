@@ -5,7 +5,18 @@
 	<string name="tab_main">Main</string>
 	<string name="search_label">Search BoardGameGeek.com</string>
 	<string name="search_hint">Name of Game</string>
-	<string name="pref_search">Search</string>
+	<string name="pref_user">User settings</string>
+	<string name="pref_user_username_title">BGG username</string>
+	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays
+	</string>
+	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
+	<string name="pref_user_password_title">BGG password</string>
+	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays
+	</string>
+	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
+		your password is stored locally, but the only entity we share it with
+		is BoardGameGeek. Promise.</string>
+	<string name="pref_search">Search settings</string>
 	<string name="pref_imageLoad_title">Load images</string>
 	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
 		connection</string>
@@ -15,7 +26,7 @@
 	<string name="pref_skipResults_title">Skip results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
 		there is only one result</string>
-	<string name="pref_database">Database</string>
+	<string name="pref_database">Database settings</string>
 	<string name="pref_database_duration">Boardgame expiration</string>
 	<string name="pref_database_duration_summary">Maximum number of days a board game will be out of
 		sync</string>
@@ -56,7 +67,21 @@
 		added to the database as you view them. To start viewing games, just
 		type to start a search on BoardGameGeek.com.</string>
 	<string name="database_updated">Database updated.</string>
-	<string name="rank">Rank: %s</string>
+	<string name="rank">Rank</string>
+	<string name="yearPublished">Year Published</string>
+	<string name="numberOfPlayers"># of Players</string>
+	<string name="playingTime">Playing Time</string>
+	<string name="suggestedAges">Suggested Ages</string>
+	<string name="gameId">Game ID</string>
+	<string name="rank_boardgame">Board Game Rank</string>
+	<string name="rank_abstract">Abstract Game Rank</string>
+	<string name="rank_collectible">Collectible Rank</string>
+	<string name="rank_family">Family Game Rank</string>
+	<string name="rank_kids">Children\'s Game Rank</string>
+	<string name="rank_party">Party Game Rank</string>
+	<string name="rank_strategy">Strategy Game Rank</string>
+	<string name="rank_theme">Thematic Rank</string>
+	<string name="rank_war">War Game Rank</string>
 	<string name="not_available">N/A</string>
 	<string name="user_rating">User Rating</string>
 	<string name="average_meter_text">Average = %s</string>
@@ -97,4 +122,28 @@
 	<string name="designer">Designer</string>
 	<string name="artist">Artist</string>
 	<string name="publisher">Publisher</string>
+	<string name="logPlayDialogTitle">Logging</string>
+	<string name="logPlayDialogMessage">Logging play...</string>
+	<string name="logInError">Unable to log in</string>
+	<string name="setUsernamePassword">Please set your username and password.</string>
+	<string name="logInErrorSuffixNoResponse">no response.</string>
+	<string name="logInErrorSuffixBadResponse">received a bad response -</string>
+	<string name="logInErrorSuffixMissingCookies">cookies are missing.</string>
+	<string name="logInErrorSuffixBadCookies">cookies are incomplete.</string>
+	<string name="logInErrorSuffixEntityNull">entity null.</string>
+	<string name="logPlaySuccess">You just played your %s game of %s!</string>
+	<string name="logPlayTitle">Log Play for</string>
+	<string name="date">Date</string>
+	<string name="quantity">Quantity</string>
+	<string name="quantityHint">Number of games played</string>
+	<string name="length">Length</string>
+	<string name="lengthHint">Number of minutes</string>
+	<string name="location">Location</string>
+	<string name="locationHint">Game play location</string>
+	<string name="incomplete">Incomplete</string>
+	<string name="noWinStats">Don\&apos;t Count Win Stats</string>
+	<string name="comments">Comments</string>
+	<string name="commentsHint">Game play comments</string>
+	<string name="save">Save</string>
+	<string name="cancel">Cancel</string>
 </resources>

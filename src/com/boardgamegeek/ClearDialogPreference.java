@@ -15,6 +15,7 @@ public class ClearDialogPreference extends DialogPreference {
 	public ClearDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = context;
+		setDialogIcon(android.R.drawable.ic_dialog_alert);
 	}
 
 	public ClearDialogPreference(Context context) {

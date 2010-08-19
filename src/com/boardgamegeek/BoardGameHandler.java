@@ -13,7 +13,7 @@ public class BoardGameHandler extends DefaultHandler {
 	private Boolean isPrimaryName = false;
 	private boolean isStats;
 	private boolean isRanks;
-	private String rankType;
+	private String rankType = "";
 	private int objectId;
 	private Poll currentPoll;
 	private PollResults currentPollResults;
@@ -56,11 +56,7 @@ public class BoardGameHandler extends DefaultHandler {
 				objectId = Utility.parseInt(idAttribute);
 			}
 		} else if (isStats) {
-			if (isRanks) {
-				if (localName == "rank") {
-					rankType = atts.getValue("type");
-				}
-			} else if (localName == "ranks") {
+			if (localName == "ranks") {
 				isRanks = true;
 			}
 		} else if (localName == "poll") {
@@ -155,26 +151,15 @@ public class BoardGameHandler extends DefaultHandler {
 				boardGame.setBayesAverage(Utility.parseDouble(currentElement.toString()));
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
-			} else if (isRanks && localName == "rank") {
-				int rank = Utility.parseInt(currentElement.toString());
-				if (rankType.equalsIgnoreCase("boardgame")) {
-					boardGame.setRank(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_abstracts")) {
-					boardGame.setRankAbstract(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_ccgrank")) {
-					boardGame.setRankCcg(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_familygamesrank")) {
-					boardGame.setRankFamily(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_kidsgames")) {
-					boardGame.setRankKids(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_partygamerank")) {
-					boardGame.setRankParty(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_strategygamesrank")) {
-					boardGame.setRankStrategy(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_thematic")) {
-					boardGame.setRankTheme(rank);
-				} else if (rankType.equalsIgnoreCase("subdomain_wargames")) {
-					boardGame.setRankWar(rank);
+			} else if (isRanks) {
+				if (localName.equalsIgnoreCase("rankobjecttype") && currentElement != null
+					&& currentElement.toString().equalsIgnoreCase("subtype")) {
+					rankType = "boardgame";
+				} else if (localName.equalsIgnoreCase("rankvalue") && rankType.equalsIgnoreCase("boardgame")
+					&& currentElement != null) {
+					boardGame.setRank(Utility.parseInt(currentElement.toString()));
+				} else if (localName.equalsIgnoreCase("rank")) {
+					rankType = "";
 				}
 			} else if (localName == "stddev") {
 				boardGame.setStandardDeviation(Utility.parseDouble(currentElement.toString()));
