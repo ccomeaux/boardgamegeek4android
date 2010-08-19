@@ -1378,7 +1378,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 				.w(LOG_TAG, String
 					.format("Upgrading database from version %s to %s.", oldVersion, newVersion));
 
-			if (newVersion < 6) {
+			if (oldVersion < 5) {
 				dropTable(db, DESIGNER_TABLE);
 				dropTable(db, ARTIST_TABLE);
 				dropTable(db, PUBLISHER_TABLE);
