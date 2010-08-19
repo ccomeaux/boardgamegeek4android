@@ -11,15 +11,13 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.boardgamegeek.*;
-import com.boardgamegeek.BoardGameGeekData.BoardGames;
-import com.boardgamegeek.model.BoardGame;
-
 import android.app.ListActivity;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,18 +31,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.boardgamegeek.BoardGameListHandler;
+import com.boardgamegeek.DataHelper;
+import com.boardgamegeek.Preferences;
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.BoardGameGeekData.BoardGames;
+import com.boardgamegeek.model.BoardGame;
 
 public class BoardGameListView extends ListActivity {
 
 	private String searchText;
 	private List<BoardGame> boardGames = new ArrayList<BoardGame>();
-	private BoardGameAdapter adapter;
+	private ListAdapter adapter;
 	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
-	private SharedPreferences preferences;
 	private boolean exactSearch;
 	private boolean skipResults;
 	private boolean isFirstPass = true;
@@ -53,8 +61,6 @@ public class BoardGameListView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(LOG_TAG, "onCreate");
-
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
 		setContentView(R.layout.viewboardgamelist);
 		parseIntent(getIntent());
@@ -63,7 +69,6 @@ public class BoardGameListView extends ListActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.d(LOG_TAG, "onResume");
 		getPreferences();
 	}
 
@@ -105,30 +110,15 @@ public class BoardGameListView extends ListActivity {
 	}
 
 	private void viewDatabase() {
-		updateMessage(R.string.loading_database_message, null, true);
-		boardGames = new ArrayList<BoardGame>();
+		updateMessage(R.string.empty_database, null, false);
 		Cursor c = managedQuery(BoardGames.CONTENT_URI, null, null, null, null);
-		if (c.moveToFirst()) {
-			do {
-				BoardGame bg = new BoardGame();
-				bg.setGameId(c.getInt(c.getColumnIndex(BoardGames._ID)));
-				bg.setYearPublished(c.getInt(c.getColumnIndex(BoardGames.YEAR)));
-				bg.setName(c.getString(c.getColumnIndex(BoardGames.NAME)));
-				boardGames.add(bg);
-			} while (c.moveToNext());
-		}
-		else
-		{
-			updateMessage(R.string.empty_database, null, false);
-		}
-		adapter = new BoardGameAdapter();
+		startManagingCursor(c);
+		adapter = new BoardGameCursorAdapter(this, c);
 		setListAdapter(adapter);
 		setTitle(R.string.view_database_title);
 	}
 
 	private void getBoardGameList() {
-		Log.d(LOG_TAG, "getBoardGameList");
-
 		// clear existing game list items
 		boardGames.clear();
 
@@ -231,8 +221,16 @@ public class BoardGameListView extends ListActivity {
 
 	// gets the game id from the list item when clicked
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		int gameId = ((BoardGame) (adapter.getItem(position))).getGameId();
-		viewBoardGame(gameId);
+		int gameId = 0;
+		Object item = adapter.getItem(position);
+		if (item instanceof BoardGame) {
+			gameId = ((BoardGame) item).getGameId();
+		} else if (item instanceof Cursor) {
+			gameId = (int) id;
+		}
+		if (gameId > 0) {
+			viewBoardGame(gameId);
+		}
 	}
 
 	// calls the board game intent
@@ -274,10 +272,41 @@ public class BoardGameListView extends ListActivity {
 		return false;
 	}
 
-	public void getPreferences() {
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	private void getPreferences() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		exactSearch = preferences.getBoolean("exactSearch", true);
 		skipResults = preferences.getBoolean("skipResults", true);
+	}
+
+	class BoardGameCursorAdapter extends CursorAdapter {
+		private LayoutInflater mInflater;
+
+		public BoardGameCursorAdapter(Context context, Cursor c) {
+			super(context, c);
+			mInflater = getLayoutInflater();
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			ViewHolder holder = (ViewHolder) view.getTag();
+			holder.name.setText(cursor.getString(cursor.getColumnIndex(BoardGames.NAME)));
+			holder.year.setText(cursor.getString(cursor.getColumnIndex(BoardGames.YEAR)));
+			Drawable thumbnail = DataHelper.getThumbnail(cursor);
+			if (thumbnail == null) {
+				holder.thumbnail.setVisibility(View.GONE);
+			} else {
+				holder.thumbnail.setVisibility(View.VISIBLE);
+				holder.thumbnail.setImageDrawable(thumbnail);
+			}
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			View row = mInflater.inflate(R.layout.row2, parent, false);
+			ViewHolder holder = new ViewHolder(row);
+			row.setTag(holder);
+			return row;
+		}
 	}
 
 	class BoardGameAdapter extends ArrayAdapter<BoardGame> {
@@ -292,11 +321,7 @@ public class BoardGameListView extends ListActivity {
 			ViewHolder holder;
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.row, parent, false);
-				holder = new ViewHolder();
-				holder.name = (TextView) convertView.findViewById(R.id.name);
-				holder.year = (TextView) convertView.findViewById(R.id.year);
-				holder.gameId = (TextView) convertView.findViewById(R.id.gameId);
-
+				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
@@ -320,5 +345,13 @@ public class BoardGameListView extends ListActivity {
 		TextView name;
 		TextView year;
 		TextView gameId;
+		ImageView thumbnail;
+
+		public ViewHolder(View view) {
+			name = (TextView) view.findViewById(R.id.name);
+			year = (TextView) view.findViewById(R.id.year);
+			gameId = (TextView) view.findViewById(R.id.gameId);
+			thumbnail = (ImageView) view.findViewById(R.id.listThumbnail);
+		}
 	}
 }

@@ -24,6 +24,11 @@ public class DataHelper {
 
 	private final static String LOG_TAG = "BoardGameGeek";
 
+	public static Drawable getThumbnail(Cursor cursor) {
+		return Drawable.createFromPath(getThumbnailPath(cursor.getInt(cursor
+			.getColumnIndex(BoardGames.THUMBNAIL_ID))));
+	}
+
 	// creates a board game object from a cursor
 	public static BoardGame createBoardGame(Activity activity, Cursor cursor) {
 		BoardGame boardGame = new BoardGame();
@@ -60,7 +65,7 @@ public class DataHelper {
 		boardGame.setCommentCount(cursor.getInt(cursor.getColumnIndex(BoardGames.COMMENT_COUNT)));
 		boardGame.setWeightCount(cursor.getInt(cursor.getColumnIndex(BoardGames.WEIGHT_COUNT)));
 		boardGame.setAverageWeight(cursor.getDouble(cursor.getColumnIndex(BoardGames.AVERAGE_WEIGHT)));
-		boardGame.setThumbnail(Drawable.createFromPath(getThumbnailPath(BoardGames.THUMBNAIL_ID)));
+		boardGame.setThumbnail(getThumbnail(cursor));
 
 		int gameId = boardGame.getGameId();
 
@@ -527,7 +532,7 @@ public class DataHelper {
 			return null;
 		}
 		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
-			+ "/thumbnails");
+			+ "/.thumbnails");
 		return folder;
 	}
 
@@ -647,5 +652,16 @@ public class DataHelper {
 		if (id == 0)
 			return null;
 		return "pic" + id + "_t.jpg";
+	}
+
+	public static boolean renameThumbnailFolder() {
+		File folder = new File(Environment.getExternalStorageDirectory() + "/" + BoardGameGeekData.AUTHORITY
+			+ "/thumbnails");
+
+		if (folder.exists()) {
+			return folder.renameTo(new File(Environment.getExternalStorageDirectory() + "/"
+				+ BoardGameGeekData.AUTHORITY + "/.thumbnails"));
+		}
+		return true;
 	}
 }

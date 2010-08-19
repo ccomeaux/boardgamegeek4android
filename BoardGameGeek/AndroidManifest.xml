@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.boardgamegeek" android:versionCode="14"
-	android:versionName="2.3">
+	package="com.boardgamegeek" android:versionCode="15"
+	android:versionName="2.4">
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -33,6 +33,7 @@
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />
 		<activity android:name=".view.BoardGamePollsTab" />
+		<activity android:name=".view.LogPlayView" />
 		<activity android:name=".Preferences" android:label="@string/app_name" />
 		<activity android:name=".view.AboutView" />
 		<provider android:authorities="com.boardgamegeek.provider"
