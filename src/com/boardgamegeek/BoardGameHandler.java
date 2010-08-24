@@ -56,7 +56,13 @@ public class BoardGameHandler extends DefaultHandler {
 				objectId = Utility.parseInt(idAttribute);
 			}
 		} else if (isStats) {
-			if (localName == "ranks") {
+			if (isRanks) {
+				String rankType = atts.getValue("type");
+				if ("subtype".equalsIgnoreCase(rankType)) {
+					String rankValue = atts.getValue("value");
+					boardGame.setRank(Utility.parseInt(rankValue));
+				}
+			} else if (localName == "ranks") {
 				isRanks = true;
 			}
 		} else if (localName == "poll") {
@@ -152,14 +158,8 @@ public class BoardGameHandler extends DefaultHandler {
 			} else if (isRanks && localName == "ranks") {
 				isRanks = false;
 			} else if (isRanks) {
-				if (localName.equalsIgnoreCase("rankobjecttype") && currentElement != null
-					&& currentElement.toString().equalsIgnoreCase("subtype")) {
-					rankType = "boardgame";
-				} else if (localName.equalsIgnoreCase("rankvalue") && rankType.equalsIgnoreCase("boardgame")
-					&& currentElement != null) {
-					boardGame.setRank(Utility.parseInt(currentElement.toString()));
-				} else if (localName.equalsIgnoreCase("rank")) {
-					rankType = "";
+				if (localName.equalsIgnoreCase("ranks")) {
+					isRanks = false;
 				}
 			} else if (localName == "stddev") {
 				boardGame.setStandardDeviation(Utility.parseDouble(currentElement.toString()));
