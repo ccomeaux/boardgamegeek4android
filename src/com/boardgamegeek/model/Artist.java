@@ -9,5 +9,4 @@ public class Artist extends DescriptiveEntity {
 	public Artist(int id, String name, String description) {
 		super(id, name, description);
 	}
-
 }

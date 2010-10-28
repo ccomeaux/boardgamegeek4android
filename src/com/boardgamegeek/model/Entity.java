@@ -1,11 +1,17 @@
 package com.boardgamegeek.model;
 
 public abstract class Entity {
-	public int Id;
-	public String Name;
+	
+	public final int Id;
+	public final String Name;
 
-	public Entity(int id, String name) {
+	protected Entity(int id, String name) {
 		Id = id;
 		Name = name;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("{0} [{1}]", Name, Id);
 	}
 }

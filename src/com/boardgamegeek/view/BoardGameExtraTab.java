@@ -381,9 +381,9 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 		@Override
 		public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-			if (localName == "name") {
+			if (localName.equals("name")) {
 				name = currentElement.toString();
-			} else if (localName == "description") {
+			} else if (localName.equals("description")) {
 				description = currentElement.toString();
 			}
 		}
@@ -430,9 +430,9 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 		@Override
 		public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-			if (localName == "name") {
+			if (localName.equals("name")) {
 				name = currentElement.toString();
-			} else if (localName == "description") {
+			} else if (localName.equals("description")) {
 				description = currentElement.toString();
 			}
 		}
@@ -479,9 +479,9 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 
 		@Override
 		public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-			if (localName == "name") {
+			if (localName.equals("name")) {
 				name = currentElement.toString();
-			} else if (localName == "description") {
+			} else if (localName.equals("description")) {
 				description = currentElement.toString();
 			}
 		}

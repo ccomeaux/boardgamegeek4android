@@ -8,7 +8,7 @@ public class PollResults {
 
 	private int id;
 	private String numberOfPlayers;
-	private List<PollResult> resultList = new ArrayList<PollResult>();
+	private final List<PollResult> resultList = new ArrayList<PollResult>();
 
 	public PollResults(String numberOfPlayers) {
 		this(numberOfPlayers, -1);
@@ -55,7 +55,7 @@ public class PollResults {
 		if (resultList == null) {
 			return null;
 		}
-		List<Integer> ids = new ArrayList<Integer>(resultList.size());
+		final List<Integer> ids = new ArrayList<Integer>(resultList.size());
 		for (PollResult result : resultList) {
 			ids.add(result.getId());
 		}

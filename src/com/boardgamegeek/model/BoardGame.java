@@ -413,7 +413,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getDesignerIds() {
-		List<Integer> ids = new ArrayList<Integer>(designers.size());
+		final List<Integer> ids = new ArrayList<Integer>(designers.size());
 		for (Designer designer : designers.values()) {
 			ids.add(designer.Id);
 		}
@@ -421,7 +421,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getDesignerNames() {
-		List<String> names = new ArrayList<String>(designers.size());
+		final List<String> names = new ArrayList<String>(designers.size());
 		for (Designer designer : designers.values()) {
 			names.add(designer.Name);
 		}
@@ -472,7 +472,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getArtistIds() {
-		List<Integer> ids = new ArrayList<Integer>(artists.size());
+		final List<Integer> ids = new ArrayList<Integer>(artists.size());
 		for (Artist artist : artists.values()) {
 			ids.add(artist.Id);
 		}
@@ -480,7 +480,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getArtistNames() {
-		List<String> names = new ArrayList<String>(artists.size());
+		final List<String> names = new ArrayList<String>(artists.size());
 		for (Artist artist : artists.values()) {
 			names.add(artist.Name);
 		}
@@ -531,7 +531,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getPublisherIds() {
-		List<Integer> ids = new ArrayList<Integer>(publishers.size());
+		final List<Integer> ids = new ArrayList<Integer>(publishers.size());
 		for (Publisher publisher : publishers.values()) {
 			ids.add(publisher.Id);
 		}
@@ -539,7 +539,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getPublisherNames() {
-		List<String> names = new ArrayList<String>(publishers.size());
+		final List<String> names = new ArrayList<String>(publishers.size());
 		for (Publisher publisher : publishers.values()) {
 			names.add(publisher.Name);
 		}
@@ -594,7 +594,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getCategoryIds() {
-		List<Integer> ids = new ArrayList<Integer>(categories.size());
+		final List<Integer> ids = new ArrayList<Integer>(categories.size());
 		for (Category category : categories.values()) {
 			ids.add(category.Id);
 		}
@@ -602,7 +602,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getCategoryNames() {
-		List<String> names = new ArrayList<String>(categories.size());
+		final List<String> names = new ArrayList<String>(categories.size());
 		for (Category category : categories.values()) {
 			names.add(category.Name);
 		}
@@ -649,7 +649,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getMechanicIds() {
-		List<Integer> ids = new ArrayList<Integer>(mechanics.size());
+		final List<Integer> ids = new ArrayList<Integer>(mechanics.size());
 		for (Mechanic mechanic : mechanics.values()) {
 			ids.add(mechanic.Id);
 		}
@@ -657,7 +657,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getMechanicNames() {
-		List<String> names = new ArrayList<String>(mechanics.size());
+		final List<String> names = new ArrayList<String>(mechanics.size());
 		for (Mechanic mechanic : mechanics.values()) {
 			names.add(mechanic.Name);
 		}
@@ -708,7 +708,7 @@ public class BoardGame {
 	}
 
 	public Collection<Integer> getExpansionIds() {
-		List<Integer> ids = new ArrayList<Integer>(expansions.size());
+		final List<Integer> ids = new ArrayList<Integer>(expansions.size());
 		for (Expansion expansion : expansions.values()) {
 			ids.add(expansion.Id);
 		}
@@ -716,7 +716,7 @@ public class BoardGame {
 	}
 
 	public Collection<String> getExpansionNames() {
-		List<String> names = new ArrayList<String>(expansions.size());
+		final List<String> names = new ArrayList<String>(expansions.size());
 		for (Expansion expansion : expansions.values()) {
 			names.add(expansion.Name);
 		}
@@ -770,7 +770,7 @@ public class BoardGame {
 		if (polls == null) {
 			return null;
 		}
-		List<Integer> ids = new ArrayList<Integer>(polls.size());
+		final List<Integer> ids = new ArrayList<Integer>(polls.size());
 		for (Poll poll : polls) {
 			ids.add(poll.getId());
 		}
@@ -784,11 +784,15 @@ public class BoardGame {
 		}
 
 		if (cursor.moveToFirst()) {
+			int id;
+			String name;
+			String title;
+			int votes;
 			do {
-				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePolls._ID));
-				String name = cursor.getString(cursor.getColumnIndex(BoardGamePolls.NAME));
-				String title = cursor.getString(cursor.getColumnIndex(BoardGamePolls.TITLE));
-				int votes = cursor.getInt(cursor.getColumnIndex(BoardGamePolls.VOTES));
+				id = cursor.getInt(cursor.getColumnIndex(BoardGamePolls._ID));
+				name = cursor.getString(cursor.getColumnIndex(BoardGamePolls.NAME));
+				title = cursor.getString(cursor.getColumnIndex(BoardGamePolls.TITLE));
+				votes = cursor.getInt(cursor.getColumnIndex(BoardGamePolls.VOTES));
 				polls.add(new Poll(name, title, votes, id));
 			} while (cursor.moveToNext());
 		}
@@ -801,7 +805,7 @@ public class BoardGame {
 
 		if (cursor.moveToFirst()) {
 
-			int pollId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults.POLL_ID));
+			final int pollId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults.POLL_ID));
 			Poll poll = null;
 			for (Poll p : polls) {
 				if (p.getId() == pollId) {
@@ -813,9 +817,11 @@ public class BoardGame {
 				return;
 			}
 
+			String players;
+			int id;
 			do {
-				String players = cursor.getString(cursor.getColumnIndex(BoardGamePollResults.PLAYERS));
-				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults._ID));
+				players = cursor.getString(cursor.getColumnIndex(BoardGamePollResults.PLAYERS));
+				id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResults._ID));
 				poll.addResults(new PollResults(players, id));
 			} while (cursor.moveToNext());
 		}
@@ -827,7 +833,7 @@ public class BoardGame {
 		}
 
 		if (cursor.moveToFirst()) {
-			int resultsId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.POLLRESULTS_ID));
+			final int resultsId = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.POLLRESULTS_ID));
 			PollResults results = null;
 			for (Poll p : polls) {
 				for (PollResults r : p.getResultsList()) {
@@ -844,11 +850,15 @@ public class BoardGame {
 				return;
 			}
 
+			String value;
+			int level;
+			int votes;
+			int id;
 			do {
-				String value = cursor.getString(cursor.getColumnIndex(BoardGamePollResult.VALUE));
-				int level = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.LEVEL));
-				int votes = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.VOTES));
-				int id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult._ID));
+				value = cursor.getString(cursor.getColumnIndex(BoardGamePollResult.VALUE));
+				level = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.LEVEL));
+				votes = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult.VOTES));
+				id = cursor.getInt(cursor.getColumnIndex(BoardGamePollResult._ID));
 				results.addResult(new PollResult(value, votes, level, id));
 			} while (cursor.moveToNext());
 		}

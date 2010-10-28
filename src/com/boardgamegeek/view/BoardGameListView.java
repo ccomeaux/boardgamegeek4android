@@ -155,7 +155,7 @@ public class BoardGameListView extends ListActivity {
 					Log.w(LOG_TAG, "PULLING XML - Failed", e);
 				} catch (Exception e) {
 					Log.w(LOG_TAG, "PULLING XML - Failed", e);
-					if (e.getMessage() == "down") {
+					if (e.getMessage().equals("down")) {
 						isGeekDown = true;
 					}
 				}

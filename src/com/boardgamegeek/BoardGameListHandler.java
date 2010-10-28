@@ -46,9 +46,9 @@ public class BoardGameListHandler extends DefaultHandler {
 
 	@Override
 	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-		if (localName == "name") {
+		if (localName.equals("name")) {
 			boardGame.setName(currentElement.toString());
-		} else if (localName == "yearpublished") {
+		} else if (localName.equals("yearpublished")) {
 			try {
 				boardGame.setYearPublished(new Integer(currentElement.toString()));
 			} catch (NumberFormatException ex) {

@@ -12,10 +12,5 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		addPreferencesFromResource(R.xml.preferences);
 	}
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
-
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {}
 }

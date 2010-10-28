@@ -287,7 +287,7 @@ public final class Utility {
 			}
 			String line;
 			while ((line = reader.readLine()) != null) {
-				sb.append(line).append("\n");
+				sb.append(line).append('\n');
 			}
 		} finally {
 			stream.close();

@@ -631,10 +631,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertThumbnail(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(Thumbnails._ID) == false) {
+		if (!(values.containsKey(Thumbnails._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Thumbnails.DATA) == false) {
+		if (!(values.containsKey(Thumbnails.DATA))) {
 			throw new SQLException("Can't insert without data.");
 		}
 		if (DataHelper.saveThumbnail(values.getAsInteger(Thumbnails._ID), values
@@ -651,10 +651,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertDesigner(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(Designers._ID) == false) {
+		if (!(values.containsKey(Designers._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Designers.NAME) == false) {
+		if (!(values.containsKey(Designers.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -674,10 +674,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertArtist(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(Artists._ID) == false) {
+		if (!(values.containsKey(Artists._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Artists.NAME) == false) {
+		if (!(values.containsKey(Artists.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -695,10 +695,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertPublisher(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(Publishers._ID) == false) {
+		if (!(values.containsKey(Publishers._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Publishers.NAME) == false) {
+		if (!(values.containsKey(Publishers.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -718,10 +718,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertCategory(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(Categories._ID) == false) {
+		if (!(values.containsKey(Categories._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Categories.NAME) == false) {
+		if (!(values.containsKey(Categories.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -741,10 +741,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertMechanic(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(Mechanics._ID) == false) {
+		if (!(values.containsKey(Mechanics._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(Mechanics.NAME) == false) {
+		if (!(values.containsKey(Mechanics.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -764,10 +764,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 	private Uri insertBoardGame(Uri uri, ContentValues values) {
 
 		// Verify column data
-		if (values.containsKey(BoardGames._ID) == false) {
+		if (!(values.containsKey(BoardGames._ID))) {
 			throw new SQLException("Can't insert without an ID.");
 		}
-		if (values.containsKey(BoardGames.NAME) == false) {
+		if (!(values.containsKey(BoardGames.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -786,10 +786,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGameDesigner(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGameDesigners.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGameDesigners.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGameDesigners.DESIGNER_ID) == false) {
+		if (!(values.containsKey(BoardGameDesigners.DESIGNER_ID))) {
 			throw new SQLException("Can't insert without a designer ID.");
 		}
 
@@ -809,10 +809,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGameArtist(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGameArtists.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGameArtists.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGameArtists.ARTIST_ID) == false) {
+		if (!(values.containsKey(BoardGameArtists.ARTIST_ID))) {
 			throw new SQLException("Can't insert without a artist ID.");
 		}
 
@@ -830,10 +830,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGamePublisher(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGamePublishers.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGamePublishers.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGamePublishers.PUBLISHER_ID) == false) {
+		if (!(values.containsKey(BoardGamePublishers.PUBLISHER_ID))) {
 			throw new SQLException("Can't insert without a publisher ID.");
 		}
 
@@ -851,10 +851,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGameCategory(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGameCategories.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGameCategories.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGameCategories.CATEGORY_ID) == false) {
+		if (!(values.containsKey(BoardGameCategories.CATEGORY_ID))) {
 			throw new SQLException("Can't insert without a category ID.");
 		}
 
@@ -872,10 +872,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGameMechanic(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGameMechanics.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGameMechanics.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGameMechanics.MECHANIC_ID) == false) {
+		if (!(values.containsKey(BoardGameMechanics.MECHANIC_ID))) {
 			throw new SQLException("Can't insert without a mechanic ID.");
 		}
 
@@ -893,10 +893,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGameExpansion(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGameExpansions.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGameExpansions.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGameExpansions.EXPANSION_ID) == false) {
+		if (!(values.containsKey(BoardGameExpansions.EXPANSION_ID))) {
 			throw new SQLException("Can't insert without an expansion ID.");
 		}
 
@@ -914,10 +914,10 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGamePoll(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGamePolls.BOARDGAME_ID) == false) {
+		if (!(values.containsKey(BoardGamePolls.BOARDGAME_ID))) {
 			throw new SQLException("Can't insert without a boardgame ID.");
 		}
-		if (values.containsKey(BoardGamePolls.NAME) == false) {
+		if (!(values.containsKey(BoardGamePolls.NAME))) {
 			throw new SQLException("Can't insert without a name.");
 		}
 
@@ -935,7 +935,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGamePollResults(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGamePollResults.POLL_ID) == false) {
+		if (!(values.containsKey(BoardGamePollResults.POLL_ID))) {
 			throw new SQLException("Can't insert without a poll ID.");
 		}
 
@@ -953,7 +953,7 @@ public class BoardGameGeekProvider extends ContentProvider {
 
 	private Uri insertBoardGamePollResult(Uri uri, ContentValues values) {
 		// Verify column data
-		if (values.containsKey(BoardGamePollResult.POLLRESULTS_ID) == false) {
+		if (!(values.containsKey(BoardGamePollResult.POLLRESULTS_ID))) {
 			throw new SQLException("Can't insert without a poll results ID.");
 		}
 

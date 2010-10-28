@@ -625,7 +625,9 @@ public class DataHelper {
 			if (fos != null) {
 				try {
 					fos.close();
-				} catch (IOException e) {}
+				} catch (IOException e) {
+					Log.w(LOG_TAG, e);
+				}
 			}
 		}
 	}
