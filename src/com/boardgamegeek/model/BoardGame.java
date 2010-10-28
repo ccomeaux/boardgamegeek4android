@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.boardgamegeek.BoardGameGeekData.*;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.DataHelper;
 import com.boardgamegeek.Utility;
 
@@ -304,7 +305,7 @@ public class BoardGame {
 
 	// game description
 	public String getDescription() {
-		return Utility.unescapeText(description);
+		return StringUtils.unescapeHtml(description);
 	}
 
 	public void setDescription(String description) {

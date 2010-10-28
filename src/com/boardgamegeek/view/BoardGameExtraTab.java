@@ -23,6 +23,7 @@ import com.boardgamegeek.BoardGameGeekData.Artists;
 import com.boardgamegeek.BoardGameGeekData.Designers;
 import com.boardgamegeek.BoardGameGeekData.Publishers;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.util.StringUtils;
 
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
@@ -327,7 +328,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			dialog.setTitle(name);
 			TextView tv = new TextView(this);
 			tv.setAutoLinkMask(Linkify.ALL);
-			tv.setText(Utility.unescapeText(description));
+			tv.setText(StringUtils.unescapeHtml(description));
 			ScrollView sv = new ScrollView(this);
 			sv.setPadding(5, 0, 5, 5);
 			sv.addView(tv);
