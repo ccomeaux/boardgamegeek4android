@@ -425,19 +425,20 @@ public class BoardGameView extends TabActivity {
 
 	private void setupTabs() {
 		tabHost = getTabHost();
-		tabHost.addTab(tabHost.newTabSpec("tabMain").setIndicator(
-			getResources().getString(R.string.main_tab_title)).setContent(R.id.mainTab));
-		tabHost.addTab(tabHost.newTabSpec("tabStats").setIndicator(
-			getResources().getString(R.string.stats_tab_title)).setContent(
-			new Intent(this, BoardGameStatsTab.class)));
-		tabHost.addTab(tabHost.newTabSpec("tabExtra").setIndicator(
-			getResources().getString(R.string.extra_tab_title)).setContent(
-			new Intent(this, BoardGameExtraTab.class)));
-		tabHost.addTab(tabHost.newTabSpec("tabLinks").setIndicator(
-			getResources().getString(R.string.links_tab_title)).setContent(
-			new Intent(this, BoardGameLinksTab.class)));
-		tabHost.addTab(tabHost.newTabSpec("tabPolls").setIndicator(
-			getResources().getString(R.string.polls_tab_title)).setContent(
-			new Intent(this, BoardGamePollsTab.class)));
+		tabHost.addTab(tabHost.newTabSpec("tabMain")
+			.setIndicator(getResources().getString(R.string.main_tab_title), getResources().getDrawable(R.drawable.ic_tab_main))
+			.setContent(R.id.mainTab));
+		tabHost.addTab(tabHost.newTabSpec("tabStats")
+			.setIndicator(getResources().getString(R.string.stats_tab_title), getResources().getDrawable(R.drawable.ic_tab_stats))
+			.setContent(new Intent(this, BoardGameStatsTab.class)));
+		tabHost.addTab(tabHost.newTabSpec("tabExtra")
+			.setIndicator(getResources().getString(R.string.extra_tab_title), getResources().getDrawable(R.drawable.ic_tab_extra))
+			.setContent(new Intent(this, BoardGameExtraTab.class)));
+		tabHost.addTab(tabHost.newTabSpec("tabLinks")
+			.setIndicator(getResources().getString(R.string.links_tab_title), getResources().getDrawable(R.drawable.ic_tab_links))
+			.setContent(new Intent(this, BoardGameLinksTab.class)));
+		tabHost.addTab(tabHost.newTabSpec("tabPolls")
+			.setIndicator(getResources().getString(R.string.polls_tab_title), getResources().getDrawable(R.drawable.ic_tab_polls))
+			.setContent(new Intent(this, BoardGamePollsTab.class)));
 	}
 }
