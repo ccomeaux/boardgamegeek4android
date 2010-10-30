@@ -216,6 +216,11 @@ public final class Utility {
 		return sb.toString().trim();
 	}
 
+	/**
+	 * Gets the ordinal (1st) for the given cardinal (1)
+	 * @param cardinal
+	 * @return
+	 */
 	public static String getOrdinal(int cardinal) {
 
 		if (cardinal < 0) {
@@ -228,7 +233,7 @@ public final class Utility {
 			n = c.substring(c.length() - 2, c.length() - 1);
 		}
 		String l = c.substring(c.length() - 1);
-		if (n.equals("1")) {
+		if (!n.equals("1")) {
 			if (l.equals("1")) {
 				return c + "st";
 			} else if (l.equals("2")) {
