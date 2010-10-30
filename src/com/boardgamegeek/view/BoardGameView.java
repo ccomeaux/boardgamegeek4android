@@ -397,7 +397,10 @@ public class BoardGameView extends TabActivity {
 			startActivity(intent);
 			return true;
 		case R.id.log_play:
-			logPlay();
+			logPlay(false);
+			break;
+		case R.id.log_play_quick:
+			logPlay(true);
 			break;
 		case R.id.settings:
 			startActivity(new Intent(this, Preferences.class));
@@ -409,9 +412,9 @@ public class BoardGameView extends TabActivity {
 		return false;
 	}
 
-	private void logPlay() {
+	private void logPlay(boolean quick) {
 		Intent intent = new Intent(this, LogPlayView.class);
-		intent.setAction(Intent.ACTION_VIEW);
+		intent.setAction(quick ? Intent.ACTION_VIEW: Intent.ACTION_EDIT);
 		intent.putExtra("GAME_ID", gameId);
 		intent.putExtra("GAME_NAME", boardGame.getName());
 		startActivity(intent);

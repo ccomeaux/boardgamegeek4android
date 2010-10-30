@@ -53,7 +53,7 @@ public class LogPlayView extends Activity {
 
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
-	private static final String LOG_TAG = "BoardGameGeek";
+	private static final String TAG = "LogPlayView";
 
 	private final String gameIdKey = "GAME_ID";
 	private final String gameNameKey = "GAME_NAME";
@@ -67,10 +67,10 @@ public class LogPlayView extends Activity {
 	private final String noWinStatsKey = "NO_WIN_STATS";
 	private final String commentsKey = "COMMENTS";
 
-	private int gameId;
-	private String gameName;
-	private String username;
-	private String password;
+	private int mGameId;
+	private String mGameName;
+	private String mUsername;
+	private String mPassword;
 	private CookieStore mCookieStore;
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private int mYear;
@@ -83,29 +83,25 @@ public class LogPlayView extends Activity {
 		setContentView(R.layout.logplayview);
 
 		if (savedInstanceState == null) {
-			Intent intent = getIntent();
-			gameId = -1;
-			gameName = "";
+			final Intent intent = getIntent();
+			mGameId = intent.getExtras().getInt(gameIdKey);
+			mGameName = intent.getExtras().getString(gameNameKey);
+			loadCurrentDate();
 			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-				gameId = intent.getExtras().getInt(gameIdKey);
-				gameName = intent.getExtras().getString(gameNameKey);
-			} else {
-				Log.w(LOG_TAG, "Received bad intent action: " + intent.getAction());
+				mGameId = intent.getExtras().getInt(gameIdKey);
+				logPlay();
+				finish();
+			} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
+				Log.w(TAG, "Received bad intent action: " + intent.getAction());
 				finish();
 			}
-
-			if (gameId == -1) {
-				Log.w(LOG_TAG, "Didn't get a game ID");
+			if (mGameId == -1) {
+				Log.w(TAG, "Didn't get a game ID");
 				finish();
 			}
-			// get the current date
-			final Calendar c = Calendar.getInstance();
-			mYear = c.get(Calendar.YEAR);
-			mMonth = c.get(Calendar.MONTH);
-			mDay = c.get(Calendar.DAY_OF_MONTH);
 		} else {
-			gameId = savedInstanceState.getInt(gameIdKey);
-			gameName = savedInstanceState.getString(gameNameKey);
+			mGameId = savedInstanceState.getInt(gameIdKey);
+			mGameName = savedInstanceState.getString(gameNameKey);
 			mYear = savedInstanceState.getInt(yearKey);
 			mMonth = savedInstanceState.getInt(monthKey);
 			mDay = savedInstanceState.getInt(dayKey);
@@ -118,7 +114,14 @@ public class LogPlayView extends Activity {
 		}
 		setTitle();
 		setDateButtonText();
-		wireUpUi();
+		wireUpButtonClicks();
+	}
+
+	private void loadCurrentDate() {
+		final Calendar c = Calendar.getInstance();
+		mYear = c.get(Calendar.YEAR);
+		mMonth = c.get(Calendar.MONTH);
+		mDay = c.get(Calendar.DAY_OF_MONTH);
 	}
 
 	@Override
@@ -133,8 +136,8 @@ public class LogPlayView extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(gameIdKey, gameId);
-		outState.putString(gameNameKey, gameName);
+		outState.putInt(gameIdKey, mGameId);
+		outState.putString(gameNameKey, mGameName);
 		outState.putInt(yearKey, mYear);
 		outState.putInt(monthKey, mMonth);
 		outState.putInt(dayKey, mDay);
@@ -183,8 +186,8 @@ public class LogPlayView extends Activity {
 	}
 
 	private void logPlay() {
-		if (mCookieStore != null) {
-			logPlay(gameId);
+		if (getCookieStore()) {
+			logPlay(mGameId);
 		} else {
 			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG);
 		}
@@ -250,8 +253,8 @@ public class LogPlayView extends Activity {
 			return true;
 		}
 
-		getPreferences();
-		if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
+		loadPreferences();
+		if (TextUtils.isEmpty(mUsername) || TextUtils.isEmpty(mPassword)) {
 			Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 			startActivity(new Intent(this, Preferences.class));
 			finish();
@@ -270,8 +273,8 @@ public class LogPlayView extends Activity {
 			final DefaultHttpClient client = new DefaultHttpClient();
 			final HttpPost post = new HttpPost(Utility.siteUrl + "login");
 			List<NameValuePair> pair = new ArrayList<NameValuePair>();
-			pair.add(new BasicNameValuePair("username", username));
-			pair.add(new BasicNameValuePair("password", password));
+			pair.add(new BasicNameValuePair("username", mUsername));
+			pair.add(new BasicNameValuePair("password", mPassword));
 
 			UrlEncodedFormEntity entity;
 			try {
@@ -328,7 +331,7 @@ public class LogPlayView extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 			if (!TextUtils.isEmpty(result)) {
-				Log.w(LOG_TAG, result);
+				Log.w(TAG, result);
 				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
 			} else {
 				Button button = (Button) findViewById(R.id.logPlaySaveButton);
@@ -389,12 +392,13 @@ public class LogPlayView extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
+			Log.d(TAG, "play result: " + result);
 			removeDialog(LOGGING_DIALOG_ID);
 			if (TextUtils.isEmpty(result)) {
 				return;
 			}
 			if (result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:")) {
-				Log.d(LOG_TAG, result);
+				Log.d(TAG, result);
 				int start = result.indexOf(">");
 				int end = result.indexOf("<", start);
 				int playCount = Utility.parseInt(result.substring(start + 1, end), 1);
@@ -418,10 +422,10 @@ public class LogPlayView extends Activity {
 				Toast.makeText(
 					getBaseContext(),
 					String.format(getResources().getString(R.string.logPlaySuccess), countDescription,
-						gameName), Toast.LENGTH_LONG).show();
+						mGameName), Toast.LENGTH_LONG).show();
 				finish();
 			} else {
-				Log.w(LOG_TAG, result);
+				Log.w(TAG, result);
 				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
 			}
 		}
@@ -450,19 +454,19 @@ public class LogPlayView extends Activity {
 		nvps.add(new BasicNameValuePair("incomplete", getIncomplete() ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("nowinstats", getNoWinStats() ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("comments", getComments()));
-		Log.d(LOG_TAG, nvps.toString());
+		Log.d(TAG, nvps.toString());
 
 		LogPlayTask task = new LogPlayTask();
 		task.execute(nvps);
 	}
 
-	private void getPreferences() {
+	private void loadPreferences() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		username = preferences.getString("username", "");
-		password = preferences.getString("password", "");
+		mUsername = preferences.getString("username", "");
+		mPassword = preferences.getString("password", "");
 	}
 
-	private void wireUpUi() {
+	private void wireUpButtonClicks() {
 		Button button = (Button) findViewById(R.id.logPlaySaveButton);
 		button.setOnClickListener(new OnClickListener() {
 			@Override
@@ -498,7 +502,7 @@ public class LogPlayView extends Activity {
 	};
 
 	private void setTitle() {
-		setTitle(getResources().getString(R.string.logPlayTitle) + " " + gameName);
+		setTitle(getResources().getString(R.string.logPlayTitle) + " " + mGameName);
 	}
 
 	private void setDateButtonText() {
