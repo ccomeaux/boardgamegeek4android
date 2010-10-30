@@ -42,6 +42,7 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.ui.BoardgamesActivity;
 
 public class BoardGameView extends TabActivity {
 
@@ -392,7 +393,7 @@ public class BoardGameView extends TabActivity {
 			onSearchRequested();
 			return true;
 		case R.id.view_database:
-			Intent intent = new Intent(this, BoardGameListView.class);
+			Intent intent = new Intent(this, BoardgamesActivity.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;

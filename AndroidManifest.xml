@@ -7,9 +7,6 @@
 
 	<application android:icon="@drawable/ic_launcher" android:label="@string/app_name">
 
-		<meta-data android:name="android.app.default_searchable"
-			android:value=".view.BoardGameListView" />
-
 		<activity android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.Bgg">
@@ -19,7 +16,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".view.BoardGameListView"
+		<activity android:name=".ui.BoardgamesActivity"
 			android:label="@string/search_results"
 			android:configChanges="keyboardHidden|orientation"
 			android:launchMode="singleTop"
@@ -40,7 +37,11 @@
 		<activity android:name=".view.LogPlayView" />
 		<activity android:name=".Preferences" android:label="@string/app_name" />
 		<activity android:name=".view.AboutView" />
+
 		<provider android:authorities="com.boardgamegeek.provider"
 			android:name=".BoardGameGeekProvider" />
-    </application>
+
+		<meta-data android:name="android.app.default_searchable"
+			android:value=".ui.BoardgamesActivity" />
+	</application>
 </manifest>

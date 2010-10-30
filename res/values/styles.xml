@@ -43,7 +43,11 @@
         <item name="android:textSize">@dimen/text_size_large</item>
     	<item name="android:textStyle">bold</item>
     </style>
-    
+    <style name="TitleBarText.Small">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:inputType">textMultiLine</item>
+    </style>
+        
     <!-- An button on the title bar -->
     <style name="TitleBarAction">
         <item name="android:layout_width">@dimen/title_height</item>

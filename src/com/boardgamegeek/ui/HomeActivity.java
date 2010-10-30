@@ -4,7 +4,6 @@ import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.view.AboutView;
-import com.boardgamegeek.view.BoardGameListView;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -66,7 +65,7 @@ public class HomeActivity extends Activity {
 	}
 
 	private void viewDatabase() {
-		Intent intent = new Intent(this, BoardGameListView.class);
+		Intent intent = new Intent(this, BoardgamesActivity.class);
 		intent.setAction(Intent.ACTION_VIEW);
 		startActivity(intent);
 	}

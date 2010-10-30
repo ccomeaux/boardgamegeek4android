@@ -1,4 +1,4 @@
-package com.boardgamegeek.view;
+package com.boardgamegeek.ui;
 
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -45,13 +45,15 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.view.AboutView;
+import com.boardgamegeek.view.BoardGameView;
 
-public class BoardGameListView extends ListActivity {
+public class BoardgamesActivity extends ListActivity {
 
+	private final String TAG = "BoardgamesActivity";
 	private String searchText;
 	private List<BoardGame> boardGames = new ArrayList<BoardGame>();
 	private ListAdapter adapter;
-	private final String LOG_TAG = "BoardGameGeek";
 	private Handler handler = new Handler();
 	private boolean exactSearch;
 	private boolean skipResults;
@@ -62,7 +64,7 @@ public class BoardGameListView extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL); // allow type-to-search
-		setContentView(R.layout.viewboardgamelist);
+		setContentView(R.layout.activity_boardgames);
 		parseIntent(getIntent());
 	}
 
@@ -77,6 +79,21 @@ public class BoardGameListView extends ListActivity {
 		parseIntent(intent);
 	}
 
+	public void onHomeClick(View v) {
+		final Intent intent = new Intent(this, HomeActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+
+	public void onSearchClick(View v) {
+		onSearchRequested();
+	}
+
+	@Override
+	public void setTitle(CharSequence title) {
+		((TextView) findViewById(R.id.title_text)).setText(title);
+	}
+
 	private void parseIntent(Intent intent) {
 
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -84,7 +101,7 @@ public class BoardGameListView extends ListActivity {
 			searchText = intent.getExtras().getString(SearchManager.QUERY);
 			if (TextUtils.isEmpty(searchText)) {
 				// search text was blank, but show the database anyway
-				Log.w(LOG_TAG, "Search performed with no search text");
+				Log.w(TAG, "Search performed with no search text");
 				viewDatabase();
 			} else {
 				// search BGG
@@ -104,7 +121,7 @@ public class BoardGameListView extends ListActivity {
 			}
 		} else {
 			// still show database
-			Log.w(LOG_TAG, "Received bad intent action: " + intent.getAction());
+			Log.w(TAG, "Received bad intent action: " + intent.getAction());
 			viewDatabase();
 		}
 	}
@@ -137,7 +154,7 @@ public class BoardGameListView extends ListActivity {
 					}
 
 					URL url = new URL(queryUrl.replace(" ", "+"));
-					Log.d(LOG_TAG, "Query: " + url.toString());
+					Log.d(TAG, "Query: " + url.toString());
 
 					// create a new SAX parser and get an XML reader from it
 					SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -152,9 +169,9 @@ public class BoardGameListView extends ListActivity {
 					boardGames = boardGameListHandler.getBoardGameList();
 				} catch (UnknownHostException e) {
 					// I got this when the DNS wouldn't resolve
-					Log.w(LOG_TAG, "PULLING XML - Failed", e);
+					Log.w(TAG, "PULLING XML - Failed", e);
 				} catch (Exception e) {
-					Log.w(LOG_TAG, "PULLING XML - Failed", e);
+					Log.w(TAG, "PULLING XML - Failed", e);
 					if (e.getMessage().equals("down")) {
 						isGeekDown = true;
 					}
@@ -254,11 +271,8 @@ public class BoardGameListView extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.search:
-			onSearchRequested();
-			return true;
 		case R.id.view_database:
-			Intent intent = new Intent(this, BoardGameListView.class);
+			Intent intent = new Intent(this, BoardgamesActivity.class);
 			intent.setAction(Intent.ACTION_VIEW);
 			startActivity(intent);
 			return true;
@@ -313,7 +327,7 @@ public class BoardGameListView extends ListActivity {
 		private LayoutInflater mInflater;
 
 		BoardGameAdapter() {
-			super(BoardGameListView.this, android.R.layout.simple_list_item_1, boardGames);
+			super(BoardgamesActivity.this, android.R.layout.simple_list_item_1, boardGames);
 			mInflater = getLayoutInflater();
 		}
 
