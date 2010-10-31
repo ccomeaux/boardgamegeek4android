@@ -43,6 +43,7 @@ import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 import com.boardgamegeek.model.BoardGame;
 import com.boardgamegeek.ui.BoardgamesActivity;
+import com.boardgamegeek.ui.LogPlayActivity;
 
 public class BoardGameView extends TabActivity {
 
@@ -414,7 +415,7 @@ public class BoardGameView extends TabActivity {
 	}
 
 	private void logPlay(boolean quick) {
-		Intent intent = new Intent(this, LogPlayView.class);
+		Intent intent = new Intent(this, LogPlayActivity.class);
 		intent.setAction(quick ? Intent.ACTION_VIEW: Intent.ACTION_EDIT);
 		intent.putExtra("GAME_ID", gameId);
 		intent.putExtra("GAME_NAME", boardGame.getName());

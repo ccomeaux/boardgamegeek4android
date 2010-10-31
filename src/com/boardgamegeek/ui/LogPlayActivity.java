@@ -1,4 +1,4 @@
-package com.boardgamegeek.view;
+package com.boardgamegeek.ui;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -38,7 +38,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -48,8 +47,9 @@ import android.widget.Toast;
 import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
+import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayView extends Activity {
+public class LogPlayActivity extends Activity {
 
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
@@ -114,14 +114,6 @@ public class LogPlayView extends Activity {
 		}
 		setTitle();
 		setDateButtonText();
-		wireUpButtonClicks();
-	}
-
-	private void loadCurrentDate() {
-		final Calendar c = Calendar.getInstance();
-		mYear = c.get(Calendar.YEAR);
-		mMonth = c.get(Calendar.MONTH);
-		mDay = c.get(Calendar.DAY_OF_MONTH);
 	}
 
 	@Override
@@ -183,6 +175,32 @@ public class LogPlayView extends Activity {
 			return true;
 		}
 		return false;
+	}
+	
+
+	@Override
+	public void setTitle(CharSequence title) {
+		UIUtils.setTitle(this, title);
+	}
+	
+	public void onHomeClick(View v){
+		UIUtils.goHome(this);
+	}
+	
+	public void onSearchClick(View v){
+		onSearchRequested();
+	}
+	
+	public void onDateClick(View v) {
+		showDialog(DATE_DIALOG_ID);
+	}
+	
+	public void onSaveClick(View v) {
+		logPlay();
+	}
+	
+	public void onCancelClick(View v) {
+		finish();
 	}
 
 	private void logPlay() {
@@ -466,31 +484,6 @@ public class LogPlayView extends Activity {
 		mPassword = preferences.getString("password", "");
 	}
 
-	private void wireUpButtonClicks() {
-		Button button = (Button) findViewById(R.id.logPlaySaveButton);
-		button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				logPlay();
-			}
-		});
-
-		button = (Button) findViewById(R.id.logPlayCancelButton);
-		button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
-
-		button = (Button) findViewById(R.id.logDateButton);
-		button.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				showDialog(DATE_DIALOG_ID);
-			}
-		});
-	}
-
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
 		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -568,5 +561,12 @@ public class LogPlayView extends Activity {
 	private void setComments(String comments) {
 		EditText view = (EditText) findViewById(R.id.logComments);
 		view.setText(comments);
+	}
+
+	private void loadCurrentDate() {
+		final Calendar c = Calendar.getInstance();
+		mYear = c.get(Calendar.YEAR);
+		mMonth = c.get(Calendar.MONTH);
+		mDay = c.get(Calendar.DAY_OF_MONTH);
 	}
 }

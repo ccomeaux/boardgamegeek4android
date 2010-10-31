@@ -45,6 +45,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.view.AboutView;
 import com.boardgamegeek.view.BoardGameView;
 
@@ -79,19 +80,17 @@ public class BoardgamesActivity extends ListActivity {
 		parseIntent(intent);
 	}
 
+	@Override
+	public void setTitle(CharSequence title) {
+		UIUtils.setTitle(this, title);
+	}
+
 	public void onHomeClick(View v) {
-		final Intent intent = new Intent(this, HomeActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
+		UIUtils.resetToHome(this);
 	}
 
 	public void onSearchClick(View v) {
 		onSearchRequested();
-	}
-
-	@Override
-	public void setTitle(CharSequence title) {
-		((TextView) findViewById(R.id.title_text)).setText(title);
 	}
 
 	private void parseIntent(Intent intent) {

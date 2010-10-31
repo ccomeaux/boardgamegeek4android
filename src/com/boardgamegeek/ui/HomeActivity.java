@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.view.AboutView;
 
 import android.app.Activity;
@@ -25,8 +26,13 @@ public class HomeActivity extends Activity {
 
 		setContentView(R.layout.activity_home);
 
-		((TextView) findViewById(R.id.title_text)).setText(getTitle());
+		UIUtils.setTitle(this);
 		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
+	}
+
+	@Override
+	public void setTitle(CharSequence title) {
+		UIUtils.setTitle(this, title);
 	}
 
 	public void onSearchClick(View v) {
