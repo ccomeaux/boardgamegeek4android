@@ -11,8 +11,6 @@ public class StringUtils {
 
 	/**
 	 * Replaces escaped HTML with the unescaped equivalent.
-	 * @param escapedHtml The escaped HTML.
-	 * @return The unescaped HTML.
 	 */
 	public static String unescapeHtml(String escapedHtml) {
 		if (TextUtils.isEmpty(escapedHtml)) {
