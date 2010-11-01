@@ -2,6 +2,7 @@ package com.boardgamegeek.view;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.ui.BoardgameActivity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ public class BoardGameLinksTab extends Activity {
 	}
 
 	private void updateUI() {
-		BoardGame boardGame = BoardGameView.boardGame;
+		BoardGame boardGame = BoardgameActivity.boardGame;
 		if (boardGame == null) {
 			return;
 		}

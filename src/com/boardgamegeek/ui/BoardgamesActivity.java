@@ -46,7 +46,6 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.model.BoardGame;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.view.BoardGameView;
 
 public class BoardgamesActivity extends ListActivity {
 
@@ -250,7 +249,7 @@ public class BoardgamesActivity extends ListActivity {
 
 	// calls the board game intent
 	private void viewBoardGame(int gameId) {
-		Intent intent = new Intent(this, BoardGameView.class);
+		Intent intent = new Intent(this, BoardgameActivity.class);
 		intent.putExtra("GAME_ID", gameId);
 		startActivity(intent);
 	}

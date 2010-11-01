@@ -22,6 +22,11 @@ public class AboutActivity extends Activity {
 		browser.loadUrl("file:///android_asset/About.html");
 	}
 	
+	@Override
+	public void setTitle(CharSequence title) {
+		UIUtils.setTitle(this, title);
+	}
+	
 	public void onHomeClick(View v) {
 		UIUtils.resetToHome(this);
 	}

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.model.*;
+import com.boardgamegeek.ui.BoardgameActivity;
 
 import android.app.ExpandableListActivity;
 import android.content.Context;
@@ -34,7 +35,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		boardGame = BoardGameView.boardGame;
+		boardGame = BoardgameActivity.boardGame;
 		if (boardGame == null) {
 			return;
 		}
