@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<LinearLayout style="@style/TitleBar">
+		<ImageView style="@style/TitleBarLogo"
+			android:contentDescription="@string/description_logo"
+			android:src="@drawable/title_logo"
+			android:onClick="onHomeClick" />
+
+		<TextView style="@style/TitleBarText.Big" />
+
+		<ImageButton style="@style/TitleBarAction"
+			android:contentDescription="@string/description_search"
+			android:src="@drawable/ic_title_search"
+			android:onClick="onSearchClick" />
+	</LinearLayout>
+    
+    <WebView android:id="@+id/webkit"
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:layout_weight="1" />
+
+</LinearLayout>

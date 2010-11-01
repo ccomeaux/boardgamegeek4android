@@ -5,17 +5,17 @@
 	android:layout_height="fill_parent">
 	
 	<LinearLayout style="@style/TitleBar">
-        <ImageView style="@style/TitleBarLogo"
-            android:contentDescription="@string/description_logo"
-            android:src="@drawable/title_logo" />
+		<ImageView style="@style/TitleBarLogo"
+			android:contentDescription="@string/description_logo"
+			android:src="@drawable/title_logo" />
 
-        <TextView style="@style/TitleBarText.Big" />
+		<TextView style="@style/TitleBarText.Big" />
 
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/description_search"
-            android:src="@drawable/ic_title_search"
-            android:onClick="onSearchClick" />
-    </LinearLayout>
+		<ImageButton style="@style/TitleBarAction"
+			android:contentDescription="@string/description_search"
+			android:src="@drawable/ic_title_search"
+			android:onClick="onSearchClick" />
+	</LinearLayout>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:orientation="vertical"

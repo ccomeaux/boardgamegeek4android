@@ -46,7 +46,6 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.model.BoardGame;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.view.AboutView;
 import com.boardgamegeek.view.BoardGameView;
 
 public class BoardgamesActivity extends ListActivity {
@@ -279,7 +278,7 @@ public class BoardgamesActivity extends ListActivity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			startActivity(new Intent(this, AboutView.class));
+			startActivity(new Intent(this, AboutActivity.class));
 			return true;
 		}
 		return false;

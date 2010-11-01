@@ -4,7 +4,6 @@ import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.view.AboutView;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -64,7 +63,7 @@ public class HomeActivity extends Activity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			startActivity(new Intent(this, AboutView.class));
+			startActivity(new Intent(this, AboutActivity.class));
 			return true;
 		}
 		return false;

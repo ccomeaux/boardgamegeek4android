@@ -42,6 +42,7 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameGeekData.Thumbnails;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.ui.AboutActivity;
 import com.boardgamegeek.ui.BoardgamesActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
@@ -408,7 +409,7 @@ public class BoardGameView extends TabActivity {
 			startActivity(new Intent(this, Preferences.class));
 			return true;
 		case R.id.credits:
-			startActivity(new Intent(this, AboutView.class));
+			startActivity(new Intent(this, AboutActivity.class));
 			return true;
 		}
 		return false;

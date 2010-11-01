@@ -80,7 +80,7 @@ public class LogPlayActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.logplayview);
+		setContentView(R.layout.activity_logplay);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
