@@ -70,13 +70,13 @@
 					android:layout_weight="1"
 					android:text="@string/save"
 					android:enabled="false"
-					onclick="onSaveClick" />
+					android:onClick="onSaveClick" />
 				<Button android:id="@+id/logPlayCancelButton"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/cancel"
-					onclick="onCancelClick" />
+					android:onClick="onCancelClick" />
 			</LinearLayout>
 			
 		</LinearLayout>
