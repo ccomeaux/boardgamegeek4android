@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.boardgamegeek" android:versionCode="16" android:versionName="2.5 beta">
+	package="com.boardgamegeek" android:versionCode="17" android:versionName="2.5 beta">
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -13,6 +13,16 @@
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		
+		<activity android:name=".ui.BuddiesActivity"
+			android:label="Buddies"
+			android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.buddy" />
 			</intent-filter>
 		</activity>
 
@@ -37,9 +47,11 @@
 		<activity android:name=".ui.LogPlayActivity" android:theme="@style/Theme.Bgg" />
 		<activity android:name=".Preferences" android:label="@string/app_name" />
 		<activity android:name=".ui.AboutActivity" android:theme="@style/Theme.Bgg" />
+		
+		<service android:name=".service.SyncService" />
 
-		<provider android:authorities="com.boardgamegeek.provider"
-			android:name=".BoardGameGeekProvider" />
+		<provider android:authorities="com.boardgamegeek.provider" android:name=".BoardGameGeekProvider" />
+		<provider android:name=".provider.BggProvider" android:authorities="com.boardgamegeek" />
 
 		<meta-data android:name="android.app.default_searchable"
 			android:value=".ui.BoardgamesActivity" />

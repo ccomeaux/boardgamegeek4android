@@ -4,18 +4,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	
-	<LinearLayout style="@style/TitleBar">
-		<ImageView style="@style/TitleBarLogo"
-			android:contentDescription="@string/description_logo"
-			android:src="@drawable/title_logo" />
-
-		<TextView style="@style/TitleBarText.Big" />
-
-		<ImageButton style="@style/TitleBarAction"
-			android:contentDescription="@string/description_search"
-			android:src="@drawable/ic_title_search"
-			android:onClick="onSearchClick" />
-	</LinearLayout>
+	<include layout="@layout/titlebar" />
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:orientation="vertical"
@@ -23,20 +12,45 @@
 		android:layout_height="fill_parent"
 		android:gravity="center">
 		
-		<ImageView android:id="@+id/logo" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:src="@drawable/bgg_logo" />
+       	<LinearLayout style="@style/HomeRow">
+       		<Button android:id="@+id/home_btn_database"
+				style="@style/HomeButton"
+				android:onClick="onDatabaseClick"
+				android:text="Database"
+				android:drawableTop="@drawable/database"/>
+			<Button android:id="@+id/home_btn_buddies"
+				style="@style/HomeButton"
+				android:onClick="onBuddiesClick"
+				android:text="Buddies"
+				android:drawableTop="@drawable/users"/>
+       	</LinearLayout>
+       	
+       	<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_sync"
+				style="@style/HomeButton"
+				android:onClick="onSyncClick"
+				android:text="Sync"
+				android:drawableTop="@drawable/refresh"/>
+			<Button android:id="@+id/home_btn_settings"
+				style="@style/HomeButton"
+				android:onClick="onSettingsClick"
+				android:text="Settings"
+				android:drawableTop="@drawable/tools"/>
+		</LinearLayout>
+		
+       	<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_about"
+				style="@style/HomeButton"
+				android:onClick="onAboutClick"
+				android:text="About"
+				android:drawableTop="@drawable/info"/>
+		</LinearLayout>
+		
 		<TextView android:id="@id/version"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
-		<Button android:id="@+id/viewButton"
-			android:text="@string/menu_view_database"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:paddingLeft="20dip"
-			android:paddingRight="20dip"
-			android:onClick="onViewDatabaseClick"/>
+			android:textSize="@dimen/text_size_small" />
 		
 	</LinearLayout>
 </LinearLayout>

@@ -2,11 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/pref_user">
 		<EditTextPreference android:key="username"
-			android:title="@string/pref_user_username_title" android:summary="@string/pref_user_username_summary"
+			android:title="@string/pref_user_username_title"
+			android:summary="@string/pref_user_username_summary"
 			android:dialogTitle="@string/pref_user_username_title"
 			android:dialogMessage="@string/pref_user_username_message" />
 		<EditTextPreference android:key="password"
-			android:title="@string/pref_user_password_title" android:summary="@string/pref_user_password_summary"
+			android:title="@string/pref_user_password_title"
+			android:summary="@string/pref_user_password_summary"
 			android:dialogTitle="@string/pref_user_password_title"
 			android:dialogMessage="@string/pref_user_password_message"
 			android:password="true" />
@@ -24,9 +26,11 @@
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_database">
 		<ListPreference android:key="databaseDuration"
-			android:defaultValue="259200000" android:title="@string/pref_database_duration"
+			android:defaultValue="259200000" 
+			android:title="@string/pref_database_duration"
 			android:summary="@string/pref_database_duration_summary"
-			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
+			android:entries="@array/databaseDurationEntries"
+			android:entryValues="@array/databaseDurationValues" />
 		<ListPreference android:key="databaseDurationExtra"
 			android:defaultValue="1209600000" android:title="@string/pref_database_duration_extra"
 			android:summary="@string/pref_database_duration_extra_summary"

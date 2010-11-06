@@ -146,4 +146,15 @@
 	<string name="cancel">Cancel</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
+	
+	<string name="notification_title">BoardGameGeek</string>
+	<string name="notification_status_default">Syncing</string>
+	<string name="notification_status_complete">Sync complete</string>
+	<string name="notification_text_start">BGG sync started</string>
+	<string name="notification_text_buddies">BGG buddies synced</string>
+	<string name="notification_text_complete">BGG sync complete</string>
+	
+	<string name="pref_warning_username">Please set your username first.</string>
+	
+	<string name="empty_buddies">No buddies</string>
 </resources>

@@ -7,6 +7,13 @@
 	<style name="Theme.Bgg" parent="Theme">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowContentOverlay">@null</item>
+	 	<item name="android:windowBackground">@color/background</item>
+		<item name="android:colorBackground">@color/background</item>
+        <item name="android:colorForeground">#ff111111</item>
+        <item name="android:colorForegroundInverse">#ffeeeeee</item>
+ 		<item name="android:textColorPrimary">@android:color/primary_text_light</item>
+        <item name="android:textColorSecondary">@android:color/secondary_text_light</item>
+        <item name="android:textColorTertiary">@android:color/tertiary_text_light</item>
 	</style>
 	
 	<!-- The horizontal LinearLayout for the entire title bar -->
@@ -47,10 +54,37 @@
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:inputType">textMultiLine</item>
     </style>
-        
+
+	<!-- thin vertical line -->
+    <style name="TitleBarSeparator">
+        <item name="android:layout_width">1px</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@color/title_separator</item>
+    </style>
+
     <!-- An button on the title bar -->
     <style name="TitleBarAction">
         <item name="android:layout_width">@dimen/title_height</item>
         <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@drawable/title_button</item>
+    </style>
+    
+    <style name="HomeRow">
+    	<item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="HomeButton">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:background">@null</item>
     </style>
 </resources>

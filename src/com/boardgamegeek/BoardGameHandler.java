@@ -13,7 +13,6 @@ public class BoardGameHandler extends DefaultHandler {
 	private Boolean isPrimaryName = false;
 	private boolean isStats;
 	private boolean isRanks;
-	private String rankType = "";
 	private int objectId;
 	private Poll currentPoll;
 	private PollResults currentPollResults;
@@ -57,8 +56,7 @@ public class BoardGameHandler extends DefaultHandler {
 			}
 		} else if (isStats) {
 			if (isRanks) {
-				String rankType = atts.getValue("type");
-				if ("subtype".equalsIgnoreCase(rankType)) {
+				if ("subtype".equalsIgnoreCase(atts.getValue("type"))) {
 					String rankValue = atts.getValue("value");
 					boardGame.setRank(Utility.parseInt(rankValue));
 				}

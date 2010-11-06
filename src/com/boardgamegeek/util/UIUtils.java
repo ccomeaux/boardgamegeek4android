@@ -40,4 +40,8 @@ public class UIUtils {
 	public static void setTitle(Activity activity, CharSequence title){
 		((TextView) activity.findViewById(R.id.title_text)).setText(title);
 	}
+	
+	public static void allowTypeToSearch(Activity activity){
+		activity.setDefaultKeyMode(Activity.DEFAULT_KEYS_SEARCH_LOCAL);
+	}
 }
