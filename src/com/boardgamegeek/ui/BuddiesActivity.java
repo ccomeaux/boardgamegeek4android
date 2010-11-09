@@ -1,12 +1,5 @@
 package com.boardgamegeek.ui;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.SyncColumns;
-import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
-import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
+import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 public class BuddiesActivity extends ListActivity implements AsyncQueryListener {
 
@@ -71,19 +70,26 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			final TextView textView = (TextView) view.findViewById(android.R.id.text1);
-			textView.setText(cursor.getString(BuddiesQuery.BUDDY_NAME));
+			textView.setText(cursor.getString(BuddiesQuery.FIRSTNAME) + " " + cursor.getString(BuddiesQuery.LASTNAME));
 
 			final TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-			textView2.setText(cursor.getString(BuddiesQuery.BUDDY_ID));
+			textView2.setText(cursor.getString(BuddiesQuery.NAME));
 		}
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = { BaseColumns._ID, SyncColumns.UPDATED, Buddies.BUDDY_ID, Buddies.BUDDY_NAME, };
+		String[] PROJECTION = {
+			BaseColumns._ID,
+			Buddies.BUDDY_ID,
+			Buddies.BUDDY_NAME,
+			Buddies.BUDDY_FIRSTNAME,
+			Buddies.BUDDY_LASTNAME,
+		};
 
 		//int _ID = 0;
-		//int UPDATED = 1;
-		int BUDDY_ID = 2;
-		int BUDDY_NAME = 3;
+		//int BUDDY_ID = 1;
+		int NAME = 2;
+		int FIRSTNAME = 3;
+		int LASTNAME = 4;
 	}
 }

@@ -13,10 +13,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.ContentResolver;
+import android.util.Log;
 
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 
 public class RemoteExecutor {
+	private static final String TAG = "RemoteExecutor";
+	
 	private static XmlPullParserFactory sFactory;
 	private final HttpClient mHttpClient;
 	private final ContentResolver mContentResolver;
@@ -39,6 +42,8 @@ public class RemoteExecutor {
 	}
 
 	public boolean execute(HttpUriRequest request, XmlHandler handler) throws HandlerException {
+		Log.d(TAG, request.getURI().toString());
+		
 		HttpResponse response;
 		try {
 			response = mHttpClient.execute(request);

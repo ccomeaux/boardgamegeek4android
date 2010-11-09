@@ -14,13 +14,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 
 public class RemoteBuddiesHandler extends XmlHandler {
-	// private static final String TAG = "RemoteBuddiesHandler";
+	private static final String TAG = "RemoteBuddiesHandler";
 
 	private static final int PAGE_SIZE = 100;
 
@@ -51,36 +52,47 @@ public class RemoteBuddiesHandler extends XmlHandler {
 	private void parseBuddies(XmlPullParser parser, ContentResolver resolver) throws XmlPullParserException,
 		IOException {
 
+		String[] projection = { BaseColumns._ID, };
 		final int depth = parser.getDepth();
 		ContentValues values = new ContentValues();
-		
+
+		int updateCount = 0;
+		int insertCount = 0;
+
 		Uri uri;
-		Cursor cursor;
+		Cursor cursor = null;
+		try {
+			int type;
+			while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
+				if (type == START_TAG && Tags.BUDDY.equals(parser.getName())) {
 
-		int type;
-		while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
-			if (type == START_TAG && Tags.BUDDY.equals(parser.getName())) {
+					int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
 
-				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
+					if (id > 0) {
 
-				if (id > 0) {
+						values.clear();
 
-					values.clear();
-
-					uri = Buddies.buildBuddyUri(id);
-					cursor = resolver.query(uri, BuddiesQuery.PROJECTION, null, null, null);
-					if (cursor.moveToFirst()) {
-						values.put(Buddies.UPDATED, System.currentTimeMillis());
-						resolver.update(uri, values, null, null);
-					} else {
-						values.put(Buddies.BUDDY_ID, id);
-						values.put(Buddies.BUDDY_NAME, parser.getAttributeValue(null, Tags.NAME));
-						values.put(Buddies.UPDATED, System.currentTimeMillis());
-
-						resolver.insert(Buddies.CONTENT_URI, values);
+						uri = Buddies.buildBuddyUri(id);
+						cursor = resolver.query(uri, projection, null, null, null);
+						if (cursor.moveToFirst()) {
+							values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
+							resolver.update(uri, values, null, null);
+							updateCount++;
+						} else {
+							values.put(Buddies.BUDDY_ID, id);
+							values.put(Buddies.BUDDY_NAME, parser.getAttributeValue(null, Tags.NAME));
+							values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
+							resolver.insert(Buddies.CONTENT_URI, values);
+							insertCount++;
+						}
+						cursor.deactivate();
 					}
-					cursor.close();
 				}
+			}
+		} finally {
+			Log.i(TAG, "Updated " + updateCount + ", inserted" + insertCount + " buddies");
+			if (cursor != null) {
+				cursor.close();
 			}
 		}
 	}
@@ -92,11 +104,5 @@ public class RemoteBuddiesHandler extends XmlHandler {
 		String BUDDY = "buddy";
 		String ID = "id";
 		String NAME = "name";
-	}
-
-	private interface BuddiesQuery {
-		String[] PROJECTION = { BaseColumns._ID, };
-
-		//int _ID = 0;
 	}
 }

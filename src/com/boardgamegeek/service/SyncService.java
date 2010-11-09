@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -31,6 +32,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
@@ -40,6 +42,7 @@ import android.util.Log;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddiesHandler;
+import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -94,7 +97,8 @@ public class SyncService extends IntentService {
 
 		mResultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
 
-		if (!ensureUsername()) return;
+		if (!ensureUsername())
+			return;
 
 		signalStart();
 
@@ -149,15 +153,36 @@ public class SyncService extends IntentService {
 	}
 
 	private void syncBuddies(RemoteExecutor remoteExecutor) throws HandlerException {
-
-		final long startTime = System.currentTimeMillis();
-		remoteExecutor.executePagedGet(
-			BASE_URL + "user?name=" + mUsername + "&buddies=1",
-			new RemoteBuddiesHandler());
-		// delete buddies not updated
-		mContentResolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED + "<?", new String[] { "" + startTime });
-		// TODO: update buddies with more info
+		syncBuddiesList(remoteExecutor);
+		syncBuddiesDetail(remoteExecutor);
 		createNotification(R.string.notification_text_buddies);
+	}
+
+	private void syncBuddiesList(RemoteExecutor remoteExecutor) throws HandlerException {
+		final long startTime = System.currentTimeMillis();
+		remoteExecutor.executePagedGet(BASE_URL + "user?name=" + mUsername + "&buddies=1",
+			new RemoteBuddiesHandler());
+		mContentResolver.delete(Buddies.CONTENT_URI,
+			Buddies.UPDATED_LIST + "<?",
+			new String[] { "" + startTime });
+	}
+
+	private void syncBuddiesDetail(RemoteExecutor remoteExecutor) throws HandlerException {
+		Cursor cursor = null;
+		try {
+			cursor = mContentResolver.query(Buddies.CONTENT_URI,
+				new String[] { Buddies.BUDDY_NAME },
+				null, null, null);
+			RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
+			while (cursor.moveToNext()) {
+				final String url = URLEncoder.encode(cursor.getString(0));
+				remoteExecutor.executeGet(BASE_URL + "user?name=" + url, handler);
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
 	}
 
 	private void createNotification(int messageId) {
@@ -167,12 +192,11 @@ public class SyncService extends IntentService {
 	private void createNotification(int messageId, int statusId) {
 		final String message = getResources().getString(messageId);
 		final String status = getResources().getString(statusId);
-		
-		Notification notification =
-			new Notification(android.R.drawable.stat_notify_sync, message, System.currentTimeMillis());
-		Intent i = new Intent(this, HomeActivity.class)
-			.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-			.setAction(Intent.ACTION_SYNC);
+
+		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message,
+			System.currentTimeMillis());
+		Intent i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
+			Intent.ACTION_SYNC);
 		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
 		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);

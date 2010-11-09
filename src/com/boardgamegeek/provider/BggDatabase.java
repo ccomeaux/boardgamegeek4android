@@ -14,7 +14,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 4;
 
 	interface Tables {
 		String BUDDIES = "buddies";
@@ -28,9 +28,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + Tables.BUDDIES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED + " INTEGER NOT NULL,"
+			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
+			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
 			+ BuddiesColumns.BUDDY_ID + " INTEGER NOT NULL,"
 			+ BuddiesColumns.BUDDY_NAME + " TEXT NOT NULL,"
+			+ BuddiesColumns.BUDDY_FIRSTNAME + " TEXT,"
+			+ BuddiesColumns.BUDDY_LASTNAME + " TEXT,"
+			+ BuddiesColumns.AVATAR_URL + " TEXT,"
 			+ "UNIQUE (" + BuddiesColumns.BUDDY_ID + ") ON CONFLICT REPLACE)");
 	}
 

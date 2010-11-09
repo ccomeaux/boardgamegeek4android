@@ -148,7 +148,7 @@
 	<string name="description_search">Search</string>
 	
 	<string name="notification_title">BoardGameGeek</string>
-	<string name="notification_status_default">Syncing</string>
+	<string name="notification_status_default">Syncing...</string>
 	<string name="notification_status_complete">Sync complete</string>
 	<string name="notification_text_start">BGG sync started</string>
 	<string name="notification_text_buddies">BGG buddies synced</string>

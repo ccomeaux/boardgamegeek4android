@@ -8,14 +8,16 @@ import android.provider.BaseColumns;
 public class BggContract {
 
 	public interface SyncColumns {
-		String UPDATED = "updated";
+		String UPDATED_LIST = "updated_list";
+		String UPDATED_DETAIL = "updated_detail";
 	}
 
 	interface BuddiesColumns {
 		String BUDDY_ID = "buddy_id";
 		String BUDDY_NAME = "buddy_name";
-		// String BUDDY_FIRSTNAME = "buddy_firtname";
-		// String BUDDY_LASTNAME = "buddy_lastname";
+		String BUDDY_FIRSTNAME = "buddy_firtname";
+		String BUDDY_LASTNAME = "buddy_lastname";
+		String AVATAR_URL = "avatar_url";
 	}
 
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
@@ -27,7 +29,9 @@ public class BggContract {
 	public static class Buddies implements BuddiesColumns, BaseColumns, SyncColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BUDDIES).build();
 
-		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT =
+			BuddiesColumns.BUDDY_LASTNAME + " COLLATE NOCASE ASC, " +
+			BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.buddy";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy";
