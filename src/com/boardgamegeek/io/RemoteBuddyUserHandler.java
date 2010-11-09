@@ -5,7 +5,6 @@ import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
-import java.text.DateFormat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -15,35 +14,29 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.SyncColumns;
 
 public class RemoteBuddyUserHandler extends XmlHandler {
 	private static final String TAG = "RemoteBuddyUserHandler";
 	
-	private DateFormat mDateFormat;
-
 	public RemoteBuddyUserHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
-		mDateFormat = DateFormat.getDateInstance(DateFormat.LONG);
 	}
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 		throws XmlPullParserException, IOException {
 
-		String[] projection = { BaseColumns._ID, SyncColumns.UPDATED_DETAIL };
+		String[] projection = { BaseColumns._ID };
 
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.USER.equals(parser.getName())) {
 				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
-				String name = parser.getAttributeValue(null, Tags.NAME);
 				
 				Uri uri = Buddies.buildBuddyUri(id);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
@@ -51,13 +44,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 				if (!cursor.moveToFirst()) {
 					Log.w(TAG, "Tried to parse user, but didn't have ID=" + id);
 				} else {
-					long lastSync = cursor.getLong(1);
-					if (howManyDaysOld(lastSync) > 7) {
-						parseUser(parser, resolver, uri);
-					} else {
-						Log.d(TAG, "Skipping name=" + name + ", updated on "
-							+ mDateFormat.format(lastSync));
-					}
+					parseUser(parser, resolver, uri);
 				}
 
 				cursor.close();
@@ -92,13 +79,8 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		resolver.update(uri, values, null, null);
 	}
 
-	private int howManyDaysOld(long time) {
-		return (int) ((System.currentTimeMillis() - time) / DateUtils.DAY_IN_MILLIS);
-	}
-
 	private interface Tags {
 		String USER = "user";
-		String NAME = "name";
 		String ID = "id";
 		String FIRSTNAME = "firstname";
 		String LASTNAME = "lastname";

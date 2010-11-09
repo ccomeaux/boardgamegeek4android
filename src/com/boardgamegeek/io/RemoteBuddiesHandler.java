@@ -90,7 +90,7 @@ public class RemoteBuddiesHandler extends XmlHandler {
 				}
 			}
 		} finally {
-			Log.i(TAG, "Updated " + updateCount + ", inserted" + insertCount + " buddies");
+			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " buddies");
 			if (cursor != null) {
 				cursor.close();
 			}

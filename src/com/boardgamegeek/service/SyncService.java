@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -46,7 +47,9 @@ import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.ui.HomeActivity;
+import com.boardgamegeek.util.DateTimeUtils;
 
 public class SyncService extends IntentService {
 	private final static String TAG = "SyncService";
@@ -60,7 +63,6 @@ public class SyncService extends IntentService {
 	private static final String BASE_URL = "http://boardgamegeek.com/xmlapi2/";
 	private static final int NOTIFICATION_ID = 1;
 
-	private static final int SECOND_IN_MILLIS = (int) DateUtils.SECOND_IN_MILLIS;
 	private static final int TIMEOUT_SECS = 20;
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
@@ -71,6 +73,7 @@ public class SyncService extends IntentService {
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
 	private ContentResolver mContentResolver;
+	private DateFormat mDateFormat;
 	private String mUsername;
 
 	public SyncService() {
@@ -84,6 +87,7 @@ public class SyncService extends IntentService {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		mHttpClient = createHttpClient(this);
 		mContentResolver = getContentResolver();
+		mDateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
 	}
 
 	@Override
@@ -171,12 +175,19 @@ public class SyncService extends IntentService {
 		Cursor cursor = null;
 		try {
 			cursor = mContentResolver.query(Buddies.CONTENT_URI,
-				new String[] { Buddies.BUDDY_NAME },
+				new String[] { Buddies.BUDDY_NAME, SyncColumns.UPDATED_DETAIL },
 				null, null, null);
 			RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
 			while (cursor.moveToNext()) {
-				final String url = URLEncoder.encode(cursor.getString(0));
-				remoteExecutor.executeGet(BASE_URL + "user?name=" + url, handler);
+				final String name = cursor.getString(0);
+				final long lastUpdated = cursor.getLong(1);
+				if (DateTimeUtils.howManyDaysOld(lastUpdated) > 7){
+					final String url = URLEncoder.encode(name);
+					remoteExecutor.executeGet(BASE_URL + "user?name=" + url, handler);
+				} else {
+					Log.d(TAG, "Skipping name=" + name + ", updated on "
+						+ mDateFormat.format(lastUpdated));
+					}
 			}
 		} finally {
 			if (cursor != null) {
@@ -213,8 +224,8 @@ public class SyncService extends IntentService {
 
 	private static HttpParams createHttpParams(Context context) {
 		final HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_SECS * SECOND_IN_MILLIS);
-		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SECS * SECOND_IN_MILLIS);
+		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_SECS * (int) DateUtils.SECOND_IN_MILLIS);
+		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SECS * (int) DateUtils.SECOND_IN_MILLIS);
 		HttpConnectionParams.setSocketBufferSize(params, BUFFER_SIZE);
 		if (mUseGzip) {
 			HttpProtocolParams.setUserAgent(params, buildUserAgent(context));
