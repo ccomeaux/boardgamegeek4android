@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.provider.BaseColumns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -56,6 +58,13 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
 	}
+	
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		final Cursor cursor = (Cursor)mAdapter.getItem(position);
+		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
+		final Uri buddyUri = Buddies.buildBuddyUri(buddyId);
+		startActivity(new Intent(Intent.ACTION_VIEW, buddyUri));
+	}
 
 	private class BuddiesAdapter extends CursorAdapter {
 		public BuddiesAdapter(Context context) {
@@ -87,7 +96,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 		};
 
 		//int _ID = 0;
-		//int BUDDY_ID = 1;
+		int BUDDY_ID = 1;
 		int NAME = 2;
 		int FIRSTNAME = 3;
 		int LASTNAME = 4;

@@ -147,6 +147,9 @@
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
 	
+	<string name="title_buddies">Buddies</string>
+	<string name="title_buddy">Buddy</string>
+	
 	<string name="notification_title">BoardGameGeek</string>
 	<string name="notification_status_default">Syncing...</string>
 	<string name="notification_status_complete">Sync complete</string>

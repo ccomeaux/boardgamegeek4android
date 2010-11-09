@@ -17,12 +17,22 @@
 		</activity>
 		
 		<activity android:name=".ui.BuddiesActivity"
-			android:label="Buddies"
+			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.buddy" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.BuddyActivity"
+			android:label="@string/title_buddy"
+			android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.buddy" />
 			</intent-filter>
 		</activity>
 
