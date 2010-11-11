@@ -17,8 +17,9 @@
 			android:textSize="@dimen/text_size_large"
 			android:gravity="center" />
 		<ImageView android:id="@+id/buddy_avatar" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_width="64dip"
+			android:layout_height="64dip"
+			android:src="@drawable/spinner_black_76" />
 		<TextView android:id="@+id/buddy_name"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
