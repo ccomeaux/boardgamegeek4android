@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
+import com.boardgamegeek.provider.BggContract.GamesColumns;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 
 import android.content.Context;
@@ -14,9 +15,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 9;
 
 	interface Tables {
+		String GAMES = "games";
 		String BUDDIES = "buddies";
 	}
 
@@ -26,6 +28,42 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		db.execSQL("CREATE TABLE " + Tables.GAMES + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
+			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
+			+ GamesColumns.GAME_ID + " INTEGER NOT NULL,"
+			+ GamesColumns.GAME_NAME + " TEXT NOT NULL,"
+			+ GamesColumns.GAME_SORT_NAME + " TEXT NOT NULL,"
+			+ GamesColumns.YEAR_PUBLISHED + " INTEGER,"
+			+ GamesColumns.IMAGE_URL + " TEXT,"
+			+ GamesColumns.THUMBNAIL_URL + " TEXT,"
+			+ GamesColumns.MIN_PLAYERS + " INTEGER,"
+			+ GamesColumns.MAX_PLAYERS + " INTEGER,"
+			+ GamesColumns.PLAYING_TIME + " INTEGER,"
+			+ GamesColumns.NUM_OWNED + " INTEGER,"
+			+ GamesColumns.NUM_PLAYS + " INTEGER NOT NULL DEFAULT 0,"
+			+ GamesColumns.PRIVATE_INFO_PRICE_PAID_CURRENCY + " TEXT,"
+			+ GamesColumns.PRIVATE_INFO_PRICE_PAID + " REAL,"
+			+ GamesColumns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY + " TEXT,"
+			+ GamesColumns.PRIVATE_INFO_CURRENT_VALUE + " REAL,"
+			+ GamesColumns.PRIVATE_INFO_QUANTITY + " INTEGER,"
+			+ GamesColumns.PRIVATE_INFO_ACQUISITION_DATE + " TEXT,"
+			+ GamesColumns.PRIVATE_INFO_ACQUIRED_FROM + " TEXT,"
+			+ GamesColumns.PRIVATE_INFO_COMMENT + " TEXT,"
+			+ "UNIQUE (" + GamesColumns.GAME_ID + ") ON CONFLICT REPLACE)");
+		
+//		+ GamesColumns.COLLECTION_ID + " INTEGER,"
+//		+ GamesColumns.STATUS_OWN + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_PREVIOUSLY_OWNED + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_FOR_TRADE + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_WANT + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_WANT_TO_PLAY + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_WANT_TO_BUY + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_WISHLIST + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.STATUS_PREORDERED + " INTEGER NOT NULL DEFAULT 0,"
+//		+ GamesColumns.COMMENT + " TEXT,"
+		
 		db.execSQL("CREATE TABLE " + Tables.BUDDIES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
@@ -45,6 +83,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		if (oldVersion != DATABASE_VERSION) {
 			Log.w(TAG, "Destroying old data during upgrade");
 
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 
 			onCreate(db);

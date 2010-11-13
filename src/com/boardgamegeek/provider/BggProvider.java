@@ -12,17 +12,20 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
 	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = Log.isLoggable(TAG, Log.VERBOSE);
+	private static final boolean LOGV = true; //Log.isLoggable(TAG, Log.VERBOSE);
 
 	private BggDatabase mOpenHelper;
 
 	private static final UriMatcher sUriMatcher = buildUriMatcher();
 
+	private static final int GAMES = 100;
+	private static final int GAMES_ID = 101;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 
@@ -30,6 +33,8 @@ public class BggProvider extends ContentProvider {
 		final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 		final String authority = BggContract.CONTENT_AUTHORITY;
 
+		matcher.addURI(authority, "games", GAMES);
+		matcher.addURI(authority, "games/#", GAMES_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 
@@ -47,6 +52,10 @@ public class BggProvider extends ContentProvider {
 	public String getType(Uri uri) {
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
+			case GAMES:
+				return Games.CONTENT_TYPE;
+			case GAMES_ID:
+				return Games.CONTENT_ITEM_TYPE;
 			case BUDDIES:
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
@@ -84,6 +93,10 @@ public class BggProvider extends ContentProvider {
 			case BUDDIES: {
 				db.insertOrThrow(Tables.BUDDIES, null, values);
 				return Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
+			}
+			case GAMES:{
+				db.insertOrThrow(Tables.GAMES, null, values);
+				return Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
 			}
 			default: {
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -128,6 +141,11 @@ public class BggProvider extends ContentProvider {
 		final int match = sUriMatcher.match(uri);
 
 		switch (match) {
+			case GAMES:
+				return builder.table(Tables.GAMES);
+			case GAMES_ID:
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
@@ -141,6 +159,11 @@ public class BggProvider extends ContentProvider {
 	private SelectionBuilder buildExpandedSelection(Uri uri, int match) {
 		final SelectionBuilder builder = new SelectionBuilder();
 		switch (match) {
+			case GAMES:
+				return builder.table(Tables.GAMES);
+			case GAMES_ID:
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:

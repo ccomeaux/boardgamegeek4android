@@ -71,17 +71,16 @@ public class RemoteBuddiesHandler extends XmlHandler {
 					if (id > 0) {
 
 						values.clear();
+						values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 
 						uri = Buddies.buildBuddyUri(id);
 						cursor = resolver.query(uri, projection, null, null, null);
 						if (cursor.moveToFirst()) {
-							values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 							resolver.update(uri, values, null, null);
 							updateCount++;
 						} else {
 							values.put(Buddies.BUDDY_ID, id);
 							values.put(Buddies.BUDDY_NAME, parser.getAttributeValue(null, Tags.NAME));
-							values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 							resolver.insert(Buddies.CONTENT_URI, values);
 							insertCount++;
 						}
@@ -90,10 +89,10 @@ public class RemoteBuddiesHandler extends XmlHandler {
 				}
 			}
 		} finally {
-			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " buddies");
 			if (cursor != null) {
 				cursor.close();
 			}
+			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " buddies");
 		}
 	}
 
