@@ -24,6 +24,7 @@ import com.boardgamegeek.io.RemoteBuddiesHandler;
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -44,6 +45,7 @@ public class SyncService extends IntentService {
 	private static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
 	private static final int NOTIFICATION_ID = 1;
 
+	private static final int SYNC_GAME_DETAIL_DAYS = 1;
 	private static final int SYNC_BUDDY_DETAIL_DAYS = 7;
 
 	private ResultReceiver mResultReceiver;
@@ -156,26 +158,27 @@ public class SyncService extends IntentService {
 	}
 
 	private void syncCollectionDetail(RemoteExecutor remoteExecutor) throws HandlerException {
-//		Cursor cursor = null;
-//		try {
-//			cursor = mContentResolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID,
-//				SyncColumns.UPDATED_DETAIL }, null, null, null);
-//			remot handler = new RemoteBuddyUserHandler();
-//			while (cursor.moveToNext()) {
-//				final String name = cursor.getString(0);
-//				final long lastUpdated = cursor.getLong(1);
-//				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_BUDDY_DETAIL_DAYS) {
-//					final String url = URLEncoder.encode(name);
-//					remoteExecutor.executeGet(BASE_URL_2 + "user?name=" + url, handler);
-//				} else {
-//					Log.v(TAG, "Skipping name=" + name + ", updated on " + mDateFormat.format(lastUpdated));
-//				}
-//			}
-//		} finally {
-//			if (cursor != null) {
-//				cursor.close();
-//			}
-//		}
+		Cursor cursor = null;
+		try {
+			cursor = mContentResolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID,
+				SyncColumns.UPDATED_DETAIL }, null, null, null);
+			RemoteGameHandler handler = new RemoteGameHandler();
+			while (cursor.moveToNext()) {
+				final int id = cursor.getInt(0);
+				final long lastUpdated = cursor.getLong(1);
+				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_GAME_DETAIL_DAYS) {
+					// TODO: get one than one game with each request
+					final String url = BASE_URL + "boardgame/" + id + "?stats=1";
+					remoteExecutor.executeGet(url, handler);
+				} else {
+					Log.v(TAG, "Skipping game=" + id + ", updated on " + mDateFormat.format(lastUpdated));
+				}
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
 	}
 
 	private String getCollectionUrl(String flag) {

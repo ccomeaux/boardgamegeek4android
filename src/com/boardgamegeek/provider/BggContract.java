@@ -14,7 +14,9 @@ public class BggContract {
 
 	interface GamesColumns {
 		String GAME_ID = "game_id";
+		//TODO: Determine if these names are ever different
 		String GAME_NAME = "game_name";
+		String GAME_NAME_2 = "game_name_2";
 		String GAME_SORT_NAME = "game_sort_name";
 		String YEAR_PUBLISHED = "year_published";
 		String IMAGE_URL = "image_url";
@@ -32,6 +34,20 @@ public class BggContract {
 		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
 		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
 		String PRIVATE_INFO_COMMENT = "private_comment";
+		String MINIMUM_AGE = "age";
+		String DESCRIPTION = "description";
+		String STATS_USERS_RATED = "usersrated";
+		String STATS_AVERAGE = "average";
+		String STATS_BAYES_AVERAGE = "bayes_average";
+		String STATS_STANDARD_DEVIATION = "standard_deviation";
+		String STATS_MEDIAN = "median";
+		String STATS_NUMBER_OWNED = "number_owned";
+		String STATS_NUMBER_TRADING = "number_trading";
+		String STATS_NUMBER_WANTING = "number_wanting";
+		String STATS_NUMBER_WISHING = "number_wishing";
+		String STATS_NUMBER_COMMENTS = "number_commenting";
+		String STATS_NUMBER_WEIGHTS = "number_weighting";
+		String STATS_AVERAGE_WEIGHT ="average_weight";
 	}
 	
 	interface CollectionColumns{

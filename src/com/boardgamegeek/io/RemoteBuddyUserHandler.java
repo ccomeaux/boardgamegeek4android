@@ -13,7 +13,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.boardgamegeek.Utility;
@@ -31,7 +30,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 		throws XmlPullParserException, IOException {
 
-		String[] projection = { BaseColumns._ID };
+		String[] projection = { Buddies.BUDDY_ID };
 
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
@@ -42,7 +41,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
 
 				if (!cursor.moveToFirst()) {
-					Log.w(TAG, "Tried to parse user, but didn't have ID=" + id);
+					Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
 				} else {
 					parseUser(parser, resolver, uri);
 				}

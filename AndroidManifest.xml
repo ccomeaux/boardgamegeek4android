@@ -15,7 +15,17 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		
+
+		<activity android:name=".ui.CollectionActivity"
+			android:label="@string/title_collection"
+			android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.game" />
+			</intent-filter>
+		</activity>
+				
 		<activity android:name=".ui.BuddiesActivity"
 			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg">

@@ -147,6 +147,7 @@
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
 	
+	<string name="title_collection">Collection</string>
 	<string name="title_buddies">Buddies</string>
 	<string name="title_buddy">Buddy</string>
 	
@@ -161,4 +162,5 @@
 	<string name="pref_warning_username">Please set your username first.</string>
 	
 	<string name="empty_buddies">No buddies</string>
+	<string name="empty_collection">No games in your collection</string>
 </resources>

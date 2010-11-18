@@ -15,7 +15,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 11;
 
 	interface Tables {
 		String GAMES = "games";
@@ -34,6 +34,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
 			+ GamesColumns.GAME_ID + " INTEGER NOT NULL,"
 			+ GamesColumns.GAME_NAME + " TEXT NOT NULL,"
+			+ GamesColumns.GAME_NAME_2 + " TEXT,"
 			+ GamesColumns.GAME_SORT_NAME + " TEXT NOT NULL,"
 			+ GamesColumns.YEAR_PUBLISHED + " INTEGER,"
 			+ GamesColumns.IMAGE_URL + " TEXT,"
@@ -51,6 +52,20 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GamesColumns.PRIVATE_INFO_ACQUISITION_DATE + " TEXT,"
 			+ GamesColumns.PRIVATE_INFO_ACQUIRED_FROM + " TEXT,"
 			+ GamesColumns.PRIVATE_INFO_COMMENT + " TEXT,"
+			+ GamesColumns.MINIMUM_AGE + " INTEGER,"
+			+ GamesColumns.DESCRIPTION + " TEXT,"
+			+ GamesColumns.STATS_USERS_RATED + " INTEGER,"
+			+ GamesColumns.STATS_AVERAGE + " REAL,"
+			+ GamesColumns.STATS_BAYES_AVERAGE + " REAL,"
+			+ GamesColumns.STATS_STANDARD_DEVIATION + " REAL,"
+			+ GamesColumns.STATS_MEDIAN + " INT,"
+			+ GamesColumns.STATS_NUMBER_OWNED + " INT,"
+			+ GamesColumns.STATS_NUMBER_TRADING + " INT,"
+			+ GamesColumns.STATS_NUMBER_WANTING + " INT,"
+			+ GamesColumns.STATS_NUMBER_WISHING + " INT,"
+			+ GamesColumns.STATS_NUMBER_COMMENTS + " INT,"
+			+ GamesColumns.STATS_NUMBER_WEIGHTS + " INT,"
+			+ GamesColumns.STATS_AVERAGE_WEIGHT + " REAL,"
 			+ "UNIQUE (" + GamesColumns.GAME_ID + ") ON CONFLICT REPLACE)");
 		
 //		+ GamesColumns.COLLECTION_ID + " INTEGER,"

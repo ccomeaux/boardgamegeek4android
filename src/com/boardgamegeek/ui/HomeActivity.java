@@ -6,6 +6,7 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 
 import android.app.Activity;
@@ -64,8 +65,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	}
 
 	public void onDatabaseClick(View v) {
-		Intent intent = new Intent(this, BoardgamesActivity.class);
-		intent.setAction(Intent.ACTION_VIEW);
+		final Intent intent = new Intent(Intent.ACTION_VIEW, Games.CONTENT_URI);
 		startActivity(intent);
 	}
 

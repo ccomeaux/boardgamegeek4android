@@ -54,6 +54,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 		return false;
 	}
 
+	// TODO: Parse version-specific info
+
 	private void parseItems() throws XmlPullParserException, IOException {
 
 		final int depth = mParser.getDepth();
@@ -118,7 +120,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 			if (type == START_TAG) {
 				tag = mParser.getName();
 
-				if (Tags.SORT_INDEX.equals(tag)) {
+				if (Tags.NAME.equals(tag)) {
 					sortIndex = Utility.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
 				} else if (Tags.STATS.equals(tag)) {
 					values.put(Games.MIN_PLAYERS, mParser.getAttributeValue(null, Tags.MIN_PLAYERS));
@@ -165,8 +167,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
 					values.put(Games.NUM_PLAYS, Utility.parseInt(mParser.getAttributeValue(null,
 						Tags.NUM_PLAYS)));
-				} else if (Tags.PRIVATE_INFO.equals(tag)) {
-					parsePrivateInfo(values);
+					// } else if (Tags.PRIVATE_INFO.equals(tag)) {
+					// parsePrivateInfo(values);
 				} else if (Tags.COMMENT.equals(tag)) {
 					// values.put(Games.COMMENT, text);
 				}
@@ -176,40 +178,42 @@ public class RemoteCollectionHandler extends XmlHandler {
 		return values;
 	}
 
-	private ContentValues parsePrivateInfo(ContentValues values) throws XmlPullParserException, IOException {
-		String tag = null;
-		final int depth = mParser.getDepth();
-		int type;
-		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
-
-			if (type == START_TAG) {
-				tag = mParser.getName();
-			} else if (type == END_TAG) {
-				tag = null;
-			} else if (type == TEXT) {
-				String text = mParser.getText();
-				if (Tags.PRIVATE_INFO_ACQUIRED_FROM.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_ACQUIRED_FROM, text);
-				} else if (Tags.PRIVATE_INFO_ACQUISITION_DATE.equals(tag)) {
-					// TODO: how to handle date in YYYY-MM-DD?
-					values.put(Games.PRIVATE_INFO_ACQUISITION_DATE, text);
-				} else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_COMMENT, text);
-				} else if (Tags.PRIVATE_INFO_CURRENT_VALUE.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_CURRENT_VALUE, Utility.parseDouble(text));
-				} else if (Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, text);
-				} else if (Tags.PRIVATE_INFO_PRICE_PAID.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_PRICE_PAID, Utility.parseDouble(text));
-				} else if (Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_PRICE_PAID_CURRENCY, text);
-				} else if (Tags.PRIVATE_INFO_QUANTITY.equals(tag)) {
-					values.put(Games.PRIVATE_INFO_QUANTITY, Utility.parseInt(text));
-				}
-			}
-		}
-		return values;
-	}
+	// private ContentValues parsePrivateInfo(ContentValues values) throws
+	// XmlPullParserException, IOException {
+	// String tag = null;
+	// final int depth = mParser.getDepth();
+	// int type;
+	// while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth)
+	// && type != END_DOCUMENT) {
+	//
+	// if (type == START_TAG) {
+	// tag = mParser.getName();
+	// } else if (type == END_TAG) {
+	// tag = null;
+	// } else if (type == TEXT) {
+	// String text = mParser.getText();
+	// if (Tags.PRIVATE_INFO_ACQUIRED_FROM.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_ACQUIRED_FROM, text);
+	// } else if (Tags.PRIVATE_INFO_ACQUISITION_DATE.equals(tag)) {
+	// // TODO: how to handle date in YYYY-MM-DD?
+	// values.put(Games.PRIVATE_INFO_ACQUISITION_DATE, text);
+	// } else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_COMMENT, text);
+	// } else if (Tags.PRIVATE_INFO_CURRENT_VALUE.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_CURRENT_VALUE, Utility.parseDouble(text));
+	// } else if (Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, text);
+	// } else if (Tags.PRIVATE_INFO_PRICE_PAID.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_PRICE_PAID, Utility.parseDouble(text));
+	// } else if (Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_PRICE_PAID_CURRENCY, text);
+	// } else if (Tags.PRIVATE_INFO_QUANTITY.equals(tag)) {
+	// values.put(Games.PRIVATE_INFO_QUANTITY, Utility.parseInt(text));
+	// }
+	// }
+	// }
+	// return values;
+	// }
 
 	private String createSortName(String name, int sortIndex) {
 		if (sortIndex <= 1 || sortIndex > name.length()) {
@@ -224,9 +228,9 @@ public class RemoteCollectionHandler extends XmlHandler {
 		String TOTAL_ITEMS = "totalitems";
 		String ITEM = "item";
 		String GAME_ID = "objectid";
-		String COLLECTION_ID = "collid";
+		// String COLLECTION_ID = "collid";
 		String NAME = "name";
-		String SORT_INDEX = "sort_index";
+		String SORT_INDEX = "sortindex";
 		String YEAR_PUBLISHED = "yearpublished";
 		String IMAGE = "image";
 		String THUMBNAIL = "thumbnail";
@@ -238,26 +242,26 @@ public class RemoteCollectionHandler extends XmlHandler {
 		String NUM_OWNED = "numowned";
 
 		String STATUS = "status";
-		String STATUS_OWN = "own";
-		String STATUS_PREVIOUSLY_OWNED = "prevowned";
-		String STATUS_FOR_TRADE = "fortrade";
-		String STATUS_WANT = "want";
-		String STATUS_WANT_TO_PLAY = "wanttoplay";
-		String STATUS_WANT_TO_BUY = "wanttobuy";
-		String STATUS_WISHLIST = "wishlist";
-		String STATUS_PREORDERED = "preordered";
+		// String STATUS_OWN = "own";
+		// String STATUS_PREVIOUSLY_OWNED = "prevowned";
+		// String STATUS_FOR_TRADE = "fortrade";
+		// String STATUS_WANT = "want";
+		// String STATUS_WANT_TO_PLAY = "wanttoplay";
+		// String STATUS_WANT_TO_BUY = "wanttobuy";
+		// String STATUS_WISHLIST = "wishlist";
+		// String STATUS_PREORDERED = "preordered";
 
 		String NUM_PLAYS = "numplays";
 
-		String PRIVATE_INFO = "privateinfo";
-		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "pp_currency";
-		String PRIVATE_INFO_PRICE_PAID = "pricepaid";
-		String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "cv_currency";
-		String PRIVATE_INFO_CURRENT_VALUE = "currvalue";
-		String PRIVATE_INFO_QUANTITY = "quantity";
-		String PRIVATE_INFO_ACQUISITION_DATE = "acquisitiondate";
-		String PRIVATE_INFO_ACQUIRED_FROM = "acquiredfrom";
-		String PRIVATE_INFO_COMMENT = "privatecomment";
+		// String PRIVATE_INFO = "privateinfo";
+		// String PRIVATE_INFO_PRICE_PAID_CURRENCY = "pp_currency";
+		// String PRIVATE_INFO_PRICE_PAID = "pricepaid";
+		// String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "cv_currency";
+		// String PRIVATE_INFO_CURRENT_VALUE = "currvalue";
+		// String PRIVATE_INFO_QUANTITY = "quantity";
+		// String PRIVATE_INFO_ACQUISITION_DATE = "acquisitiondate";
+		// String PRIVATE_INFO_ACQUIRED_FROM = "acquiredfrom";
+		// String PRIVATE_INFO_COMMENT = "privatecomment";
 
 		String COMMENT = "comment";
 	}
