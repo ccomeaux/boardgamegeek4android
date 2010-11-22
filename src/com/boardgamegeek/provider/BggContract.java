@@ -1,9 +1,9 @@
 package com.boardgamegeek.provider;
 
-import com.boardgamegeek.Utility;
-
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import com.boardgamegeek.Utility;
 
 public class BggContract {
 
@@ -14,9 +14,7 @@ public class BggContract {
 
 	interface GamesColumns {
 		String GAME_ID = "game_id";
-		//TODO: Determine if these names are ever different
 		String GAME_NAME = "game_name";
-		String GAME_NAME_2 = "game_name_2";
 		String GAME_SORT_NAME = "game_sort_name";
 		String YEAR_PUBLISHED = "year_published";
 		String IMAGE_URL = "image_url";
@@ -26,14 +24,6 @@ public class BggContract {
 		String PLAYING_TIME = "playing_time";
 		String NUM_OWNED = "num_owned";
 		String NUM_PLAYS = "num_of_plays";
-		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "price_paid_currency";
-		String PRIVATE_INFO_PRICE_PAID = "price_paid";
-		String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "current_value_currency";
-		String PRIVATE_INFO_CURRENT_VALUE = "current_value";
-		String PRIVATE_INFO_QUANTITY = "quantity";
-		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
-		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
-		String PRIVATE_INFO_COMMENT = "private_comment";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
 		String STATS_USERS_RATED = "usersrated";
@@ -47,11 +37,13 @@ public class BggContract {
 		String STATS_NUMBER_WISHING = "number_wishing";
 		String STATS_NUMBER_COMMENTS = "number_commenting";
 		String STATS_NUMBER_WEIGHTS = "number_weighting";
-		String STATS_AVERAGE_WEIGHT ="average_weight";
+		String STATS_AVERAGE_WEIGHT = "average_weight";
 	}
-	
-	interface CollectionColumns{
+
+	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
+		String COLLECTION_NAME = "collection_name";
+		String COLLECTION_SORT_NAME = "collection_sort_name";
 		String STATUS_OWN = "own";
 		String STATUS_PREVIOUSLY_OWNED = "previously_owned";
 		String STATUS_FOR_TRADE = "for_trade";
@@ -61,6 +53,14 @@ public class BggContract {
 		String STATUS_WISHLIST = "wishlist";
 		String STATUS_PREORDERED = "preordered";
 		String COMMENT = "comment";
+		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "price_paid_currency";
+		String PRIVATE_INFO_PRICE_PAID = "price_paid";
+		String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "current_value_currency";
+		String PRIVATE_INFO_CURRENT_VALUE = "current_value";
+		String PRIVATE_INFO_QUANTITY = "quantity";
+		String PRIVATE_INFO_ACQUISITION_DATE = "acquisition_date";
+		String PRIVATE_INFO_ACQUIRED_FROM = "acquired_from";
+		String PRIVATE_INFO_COMMENT = "private_comment";
 	}
 
 	interface BuddiesColumns {
@@ -76,6 +76,7 @@ public class BggContract {
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	private static final String PATH_GAMES = "games";
+	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 
 	public static class Games implements GamesColumns, BaseColumns, SyncColumns {
@@ -91,6 +92,24 @@ public class BggContract {
 		}
 
 		public static int getGameId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION)
+			.build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
+
+		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildItemUri(int itemId) {
+			return CONTENT_URI.buildUpon().appendPath("" + itemId).build();
+		}
+
+		public static int getItemId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}

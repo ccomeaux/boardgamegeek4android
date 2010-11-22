@@ -22,7 +22,7 @@
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.game" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.collection" />
 			</intent-filter>
 		</activity>
 				

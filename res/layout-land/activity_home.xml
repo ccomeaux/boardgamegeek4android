@@ -5,17 +5,17 @@
 	android:orientation="vertical">
 	
 	<include layout="@layout/titlebar" />
-    
-    <LinearLayout android:orientation="vertical" 
+
+	<LinearLayout android:orientation="vertical" 
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:gravity="center">
 
-       	<LinearLayout style="@style/HomeRow">
-       		<Button android:id="@+id/home_btn_database"
+		<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_database"
 				style="@style/HomeButton"
-				android:onClick="onDatabaseClick"
-				android:text="Database"
+				android:onClick="onCollectionClick"
+				android:text="Collection"
 				android:drawableTop="@drawable/database"/>
 			<Button android:id="@+id/home_btn_buddies"
 				style="@style/HomeButton"
@@ -28,8 +28,8 @@
 				android:text="Sync"
 				android:drawableTop="@drawable/refresh"/>
 		</LinearLayout>
-		
-       	<LinearLayout style="@style/HomeRow">
+
+		<LinearLayout style="@style/HomeRow">
 			<Button android:id="@+id/home_btn_settings"
 				style="@style/HomeButton"
 				android:onClick="onSettingsClick"

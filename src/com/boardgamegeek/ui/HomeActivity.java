@@ -1,14 +1,5 @@
 package com.boardgamegeek.ui;
 
-import com.boardgamegeek.Preferences;
-import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
-import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.SyncService;
-
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Intent;
@@ -19,10 +10,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.Preferences;
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.UIUtils;
+
 public class HomeActivity extends Activity implements DetachableResultReceiver.Receiver {
 	private final static String TAG = "HomeActivity";
 	
-    private DetachableResultReceiver mReceiver;
+	private DetachableResultReceiver mReceiver;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,8 +64,8 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		onSearchRequested();
 	}
 
-	public void onDatabaseClick(View v) {
-		final Intent intent = new Intent(Intent.ACTION_VIEW, Games.CONTENT_URI);
+	public void onCollectionClick(View v) {
+		final Intent intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
 		startActivity(intent);
 	}
 

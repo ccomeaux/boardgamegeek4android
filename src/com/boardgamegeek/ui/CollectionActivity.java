@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,10 +9,10 @@ import android.provider.BaseColumns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.UIUtils;
@@ -37,7 +36,7 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 
 		Uri uri = getIntent().getData();
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(uri, CollectionQuery.PROJECTION, null, null, Games.DEFAULT_SORT);
+		mHandler.startQuery(uri, CollectionQuery.PROJECTION, null, null, Collection.DEFAULT_SORT);
 	}
 
 	@Override
@@ -80,7 +79,7 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			final TextView textView = (TextView) view.findViewById(android.R.id.text1);
-			textView.setText(cursor.getString(CollectionQuery.GAME_NAME));
+			textView.setText(cursor.getString(CollectionQuery.COLLECTION_NAME));
 
 			final TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
 			textView2.setText(cursor.getString(CollectionQuery.YEAR_PUBLISHED));
@@ -90,14 +89,16 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 	private interface CollectionQuery {
 		String[] PROJECTION = {
 			BaseColumns._ID,
-			Games.GAME_ID,
+			Collection.COLLECTION_ID,
+			Collection.COLLECTION_NAME,
+			Collection.YEAR_PUBLISHED,
 			Games.GAME_NAME,
-			Games.YEAR_PUBLISHED,
 		};
 
 		//int _ID = 0;
-		int GAME_ID = 1;
-		int GAME_NAME = 2;
+		int COLLECTION_ID = 1;
+		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
+		int GAME_NAME = 4;
 	}
 }

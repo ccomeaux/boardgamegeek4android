@@ -78,4 +78,11 @@ public class StringUtils {
 		
 		return unescapedText.trim();
 	}
-}
+
+	public static String createSortName(String name, int sortIndex) {
+		if (sortIndex <= 1 || sortIndex > name.length()) {
+			return name;
+		}
+		int i = sortIndex - 1;
+		return name.substring(i) + ", " + name.substring(0, i).trim();
+	}}

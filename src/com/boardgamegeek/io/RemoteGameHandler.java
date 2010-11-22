@@ -19,6 +19,7 @@ import android.util.Log;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends XmlHandler {
 	private static final String TAG = "RemoteGameHandler";
@@ -64,6 +65,7 @@ public class RemoteGameHandler extends XmlHandler {
 
 		ContentValues values = new ContentValues();
 		String tag = null;
+		int sortIndex = 1;
 
 		final int depth = mParser.getDepth();
 		int type;
@@ -72,8 +74,9 @@ public class RemoteGameHandler extends XmlHandler {
 				tag = mParser.getName();
 
 				if (Tags.NAME.equals(tag)) {
+					sortIndex = Utility.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
 					String primary = mParser.getAttributeValue(null, Tags.PRIMARY);
-					if ("true".equals(primary)) {
+					if (!"true".equals(primary)) {
 						tag = null;
 					}
 				}
@@ -93,7 +96,8 @@ public class RemoteGameHandler extends XmlHandler {
 				} else if (Tags.AGE.equals(tag)) {
 					values.put(Games.MINIMUM_AGE, Utility.parseInt(text));
 				} else if (Tags.NAME.equals(tag)) {
-					values.put(Games.GAME_NAME_2, text);
+					values.put(Games.GAME_NAME, text);
+					values.put(Games.GAME_SORT_NAME, StringUtils.createSortName(text, sortIndex));
 				} else if (Tags.DESCRIPTION.equals(tag)) {
 					values.put(Games.DESCRIPTION, text);
 				} else if (Tags.THUMBNAIL.equals(tag)) {
@@ -102,6 +106,7 @@ public class RemoteGameHandler extends XmlHandler {
 					values.put(Games.IMAGE_URL, text);
 				} else if (Tags.STATISTICS.equals(tag)) {
 					parseStats(values);
+					tag = null;
 				}
 			}
 		}
@@ -162,6 +167,7 @@ public class RemoteGameHandler extends XmlHandler {
 		String AGE = "age";
 		String NAME = "name";
 		String PRIMARY = "primary";
+		String SORT_INDEX = "sortindex";
 		String DESCRIPTION = "description";
 		String THUMBNAIL = "thumbnail";
 		String IMAGE = "image";

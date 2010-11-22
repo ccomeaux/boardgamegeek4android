@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.boardgamegeek.R;
@@ -53,6 +54,7 @@ public class SyncService extends IntentService {
 	private HttpClient mHttpClient;
 	private ContentResolver mContentResolver;
 	private DateFormat mDateFormat;
+	private RemoteExecutor mRemoteExecutor;
 	private String mUsername;
 	private static boolean mUseGzip = true;
 
@@ -90,9 +92,9 @@ public class SyncService extends IntentService {
 		try {
 			final long startTime = System.currentTimeMillis();
 
-			RemoteExecutor remoteExecutor = new RemoteExecutor(mHttpClient, mContentResolver);
-			syncCollection(remoteExecutor);
-			syncBuddies(remoteExecutor);
+			mRemoteExecutor = new RemoteExecutor(mHttpClient, mContentResolver);
+			syncCollection();
+			syncBuddies();
 
 			Log.d(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
@@ -137,43 +139,51 @@ public class SyncService extends IntentService {
 		createNotification(R.string.notification_text_complete, R.string.notification_status_complete);
 	}
 
-	private void syncCollection(RemoteExecutor remoteExecutor) throws HandlerException {
-		syncCollectionList(remoteExecutor);
-		syncCollectionDetail(remoteExecutor);
+	private void syncCollection() throws HandlerException {
+		syncCollectionList();
+		syncCollectionDetail();
 		createNotification(R.string.notification_text_collection);
 	}
 
-	private void syncCollectionList(RemoteExecutor remoteExecutor) throws HandlerException {
+	private void syncCollectionList() throws HandlerException {
 		final long startTime = System.currentTimeMillis();
-		remoteExecutor.executeGet(getCollectionUrl("own"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("prevowned"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("trade"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("want"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("wanttoplay"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("wanttobuy"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("wishlist"), new RemoteCollectionHandler(startTime));
-		remoteExecutor.executeGet(getCollectionUrl("preordered"), new RemoteCollectionHandler(startTime));
+
+		String[] filters = new String[] { "own", "prevowned", "trade", "want", "wanttoplay", "wanttobuy",
+			"wishlist", "preordered" };
+		String filterOff = "";
+		for (int i = 0; i < filters.length; i++) {
+			mRemoteExecutor.executeGet(getCollectionUrl(filters[i]), new RemoteCollectionHandler(startTime));
+			filterOff = filterOff + "," + filters[i] + "=0";
+		}
+		mRemoteExecutor.executeGet(BASE_URL + "collection/" + mUsername + "?" + filterOff.substring(1),
+			new RemoteCollectionHandler(startTime));
 		mContentResolver
 			.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", new String[] { "" + startTime });
 	}
 
-	private void syncCollectionDetail(RemoteExecutor remoteExecutor) throws HandlerException {
+	private void syncCollectionDetail() throws HandlerException {
 		Cursor cursor = null;
 		try {
-			cursor = mContentResolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID,
-				SyncColumns.UPDATED_DETAIL }, null, null, null);
-			RemoteGameHandler handler = new RemoteGameHandler();
+			int count = 0;
+			String ids = "";
+			long days = System.currentTimeMillis() - (SYNC_GAME_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
+			cursor = mContentResolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID },
+				SyncColumns.UPDATED_DETAIL + "<?", new String[] { "" + days }, null);
 			while (cursor.moveToNext()) {
 				final int id = cursor.getInt(0);
-				final long lastUpdated = cursor.getLong(1);
-				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_GAME_DETAIL_DAYS) {
-					// TODO: get one than one game with each request
-					final String url = BASE_URL + "boardgame/" + id + "?stats=1";
-					remoteExecutor.executeGet(url, handler);
-				} else {
-					Log.v(TAG, "Skipping game=" + id + ", updated on " + mDateFormat.format(lastUpdated));
+				count++;
+				ids = ids + "," + id;
+				if (count == 10) {
+					fetchGameDetail(ids);
+					count = 0;
+					ids = "";
 				}
 			}
+
+			if (count > 0) {
+				fetchGameDetail(ids);
+			}
+
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -181,25 +191,30 @@ public class SyncService extends IntentService {
 		}
 	}
 
+	private void fetchGameDetail(String ids) throws HandlerException {
+		final String url = BASE_URL + "boardgame/" + ids.substring(1) + "?stats=1";
+		mRemoteExecutor.executeGet(url, new RemoteGameHandler());
+	}
+
 	private String getCollectionUrl(String flag) {
 		return BASE_URL + "collection/" + mUsername + (TextUtils.isEmpty(flag) ? "" : "?" + flag + "=1");
 	}
 
-	private void syncBuddies(RemoteExecutor remoteExecutor) throws HandlerException {
-		syncBuddiesList(remoteExecutor);
-		syncBuddiesDetail(remoteExecutor);
+	private void syncBuddies() throws HandlerException {
+		syncBuddiesList();
+		syncBuddiesDetail();
 		createNotification(R.string.notification_text_buddies);
 	}
 
-	private void syncBuddiesList(RemoteExecutor remoteExecutor) throws HandlerException {
+	private void syncBuddiesList() throws HandlerException {
 		final long startTime = System.currentTimeMillis();
-		remoteExecutor.executePagedGet(BASE_URL_2 + "user?name=" + mUsername + "&buddies=1",
+		mRemoteExecutor.executePagedGet(BASE_URL_2 + "user?name=" + mUsername + "&buddies=1",
 			new RemoteBuddiesHandler());
 		mContentResolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?", new String[] { ""
 			+ startTime });
 	}
 
-	private void syncBuddiesDetail(RemoteExecutor remoteExecutor) throws HandlerException {
+	private void syncBuddiesDetail() throws HandlerException {
 		Cursor cursor = null;
 		try {
 			cursor = mContentResolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME,
@@ -210,7 +225,7 @@ public class SyncService extends IntentService {
 				final long lastUpdated = cursor.getLong(1);
 				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_BUDDY_DETAIL_DAYS) {
 					final String url = URLEncoder.encode(name);
-					remoteExecutor.executeGet(BASE_URL_2 + "user?name=" + url, handler);
+					mRemoteExecutor.executeGet(BASE_URL_2 + "user?name=" + url, handler);
 				} else {
 					Log.v(TAG, "Skipping name=" + name + ", updated on " + mDateFormat.format(lastUpdated));
 				}

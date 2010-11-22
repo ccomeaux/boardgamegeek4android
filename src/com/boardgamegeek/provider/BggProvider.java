@@ -12,13 +12,16 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
 	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = true; //Log.isLoggable(TAG, Log.VERBOSE);
+	private static final boolean LOGV = true; // Log.isLoggable(TAG,
+	// Log.VERBOSE);
 
 	private BggDatabase mOpenHelper;
 
@@ -26,6 +29,8 @@ public class BggProvider extends ContentProvider {
 
 	private static final int GAMES = 100;
 	private static final int GAMES_ID = 101;
+	private static final int COLLECTION = 200;
+	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 
@@ -35,6 +40,8 @@ public class BggProvider extends ContentProvider {
 
 		matcher.addURI(authority, "games", GAMES);
 		matcher.addURI(authority, "games/#", GAMES_ID);
+		matcher.addURI(authority, "collection", COLLECTION);
+		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 
@@ -56,6 +63,10 @@ public class BggProvider extends ContentProvider {
 				return Games.CONTENT_TYPE;
 			case GAMES_ID:
 				return Games.CONTENT_ITEM_TYPE;
+			case COLLECTION:
+				return Collection.CONTENT_TYPE;
+			case COLLECTION_ID:
+				return Collection.CONTENT_ITEM_TYPE;
 			case BUDDIES:
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
@@ -76,6 +87,14 @@ public class BggProvider extends ContentProvider {
 		switch (match) {
 			default: {
 				final SelectionBuilder builder = buildExpandedSelection(uri, match);
+				if (match == COLLECTION_ID) {
+					for (int i = 0; i < projection.length; i++) {
+						if (SyncColumns.UPDATED_DETAIL.equals(projection[i])
+							|| SyncColumns.UPDATED_LIST.equals(projection[i])) {
+							builder.mapToTable(projection[i], Tables.COLLECTION);
+						}
+					}
+				}
 				return builder.where(selection, selectionArgs).query(db, projection, sortOrder);
 			}
 		}
@@ -90,13 +109,17 @@ public class BggProvider extends ContentProvider {
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
+			case GAMES: {
+				db.insertOrThrow(Tables.GAMES, null, values);
+				return Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
+			}
+			case COLLECTION: {
+				db.insertOrThrow(Tables.COLLECTION, null, values);
+				return Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
+			}
 			case BUDDIES: {
 				db.insertOrThrow(Tables.BUDDIES, null, values);
 				return Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
-			}
-			case GAMES:{
-				db.insertOrThrow(Tables.GAMES, null, values);
-				return Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
 			}
 			default: {
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -146,6 +169,11 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID:
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
+			case COLLECTION:
+				return builder.table(Tables.COLLECTION);
+			case COLLECTION_ID:
+				final int itemId = Collection.getItemId(uri);
+				return builder.table(Tables.COLLECTION).where(Collection.COLLECTION_ID + "=?", "" + itemId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
@@ -164,6 +192,15 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID:
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
+			case COLLECTION:
+				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID,
+					Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION);
+			case COLLECTION_ID:
+				final int itemId = Collection.getItemId(uri);
+				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID,
+					Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION).where(
+					Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
+				// .where(Qualified.SESSIONS_SESSION_ID + "=?", itemId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
