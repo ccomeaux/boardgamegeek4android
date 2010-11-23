@@ -12,20 +12,20 @@
 		android:gravity="center">
 
 		<LinearLayout style="@style/HomeRow">
-			<Button android:id="@+id/home_btn_database"
+			<Button android:id="@+id/home_btn_collection"
 				style="@style/HomeButton"
 				android:onClick="onCollectionClick"
-				android:text="Collection"
+				android:text="@string/home_btn_collection"
 				android:drawableTop="@drawable/database"/>
 			<Button android:id="@+id/home_btn_buddies"
 				style="@style/HomeButton"
 				android:onClick="onBuddiesClick"
-				android:text="Buddies"
+				android:text="@string/home_btn_buddies"
 				android:drawableTop="@drawable/users"/>
 			<Button android:id="@+id/home_btn_sync"
 				style="@style/HomeButton"
 				android:onClick="onSyncClick"
-				android:text="Sync"
+				android:text="@string/home_btn_sync"
 				android:drawableTop="@drawable/refresh"/>
 		</LinearLayout>
 
@@ -33,12 +33,12 @@
 			<Button android:id="@+id/home_btn_settings"
 				style="@style/HomeButton"
 				android:onClick="onSettingsClick"
-				android:text="Settings"
+				android:text="@string/home_btn_settings"
 				android:drawableTop="@drawable/tools"/>
 			<Button android:id="@+id/home_btn_about"
 				style="@style/HomeButton"
 				android:onClick="onAboutClick"
-				android:text="About"
+				android:text="@string/home_btn_about"
 				android:drawableTop="@drawable/info"/>
 		</LinearLayout>
 		
