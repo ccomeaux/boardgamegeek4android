@@ -2,10 +2,6 @@ package com.boardgamegeek.view;
 
 import java.text.NumberFormat;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.model.BoardGame;
-import com.boardgamegeek.ui.BoardgameActivity;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -14,6 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.ui.OldBoardgameActivity;
 
 public class BoardGameStatsTab extends Activity {
 
@@ -33,7 +33,7 @@ public class BoardGameStatsTab extends Activity {
 	}
 
 	private void updateUI() {
-		BoardGame boardGame = BoardgameActivity.boardGame;
+		BoardGame boardGame = OldBoardgameActivity.boardGame;
 		if (boardGame == null) {
 			return;
 		}

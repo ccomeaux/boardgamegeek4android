@@ -249,7 +249,7 @@ public class BoardgamesActivity extends ListActivity {
 
 	// calls the board game intent
 	private void viewBoardGame(int gameId) {
-		Intent intent = new Intent(this, BoardgameActivity.class);
+		Intent intent = new Intent(this, OldBoardgameActivity.class);
 		intent.putExtra("GAME_ID", gameId);
 		startActivity(intent);
 	}

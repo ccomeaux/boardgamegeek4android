@@ -48,7 +48,7 @@ import com.boardgamegeek.view.BoardGameLinksTab;
 import com.boardgamegeek.view.BoardGamePollsTab;
 import com.boardgamegeek.view.BoardGameStatsTab;
 
-public class BoardgameActivity extends TabActivity {
+public class OldBoardgameActivity extends TabActivity {
 
 	public static BoardGame boardGame = null;
 	final Handler handler = new Handler();
@@ -66,7 +66,7 @@ public class BoardgameActivity extends TabActivity {
 		// allow type-to-search
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
-		this.setContentView(R.layout.activity_boardgame);
+		this.setContentView(R.layout.activity_old_boardgame);
 		UIUtils.setTitle(this);
 		setupTabs();
 
@@ -167,7 +167,7 @@ public class BoardgameActivity extends TabActivity {
 				updateUI();
 				new Thread() {
 					public void run() {
-						DataHelper.addToDatabase(BoardgameActivity.this, boardGame);
+						DataHelper.addToDatabase(OldBoardgameActivity.this, boardGame);
 						handler.post(toastUpdate);
 					}
 				}.start();
@@ -179,7 +179,7 @@ public class BoardgameActivity extends TabActivity {
 
 	final Runnable toastUpdate = new Runnable() {
 		public void run() {
-			Toast.makeText(BoardgameActivity.this, R.string.database_updated, Toast.LENGTH_SHORT).show();
+			Toast.makeText(OldBoardgameActivity.this, R.string.database_updated, Toast.LENGTH_SHORT).show();
 		}
 	};
 

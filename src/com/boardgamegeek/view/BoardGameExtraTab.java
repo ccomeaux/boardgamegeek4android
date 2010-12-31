@@ -17,15 +17,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
-import com.boardgamegeek.BoardGameGeekData.Artists;
-import com.boardgamegeek.BoardGameGeekData.Designers;
-import com.boardgamegeek.BoardGameGeekData.Publishers;
-import com.boardgamegeek.model.BoardGame;
-import com.boardgamegeek.ui.BoardgameActivity;
-import com.boardgamegeek.util.StringUtils;
-
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
 import android.app.ProgressDialog;
@@ -46,6 +37,15 @@ import android.widget.ScrollView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.BoardGameGeekData.Artists;
+import com.boardgamegeek.BoardGameGeekData.Designers;
+import com.boardgamegeek.BoardGameGeekData.Publishers;
+import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.ui.OldBoardgameActivity;
+import com.boardgamegeek.util.StringUtils;
 
 public class BoardGameExtraTab extends ExpandableListActivity {
 
@@ -69,7 +69,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		BoardGame boardGame = BoardgameActivity.boardGame;
+		BoardGame boardGame = OldBoardgameActivity.boardGame;
 		if (boardGame == null) {
 			return;
 		}
@@ -136,9 +136,9 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			Toast.makeText(this, "No extra information", Toast.LENGTH_SHORT).show();
 			break;
 		case 5: // expansion
-			BoardGame boardGame = BoardgameActivity.boardGame;
+			BoardGame boardGame = OldBoardgameActivity.boardGame;
 			if (boardGame != null) {
-				Intent intent = new Intent(this, BoardgameActivity.class);
+				Intent intent = new Intent(this, OldBoardgameActivity.class);
 				intent.putExtra("GAME_ID", boardGame.getExpansionByPosition(childPosition).Id);
 				startActivity(intent);
 			} else {
@@ -157,7 +157,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.designer);
 		name = null;
 		description = null;
-		BoardGame boardGame = BoardgameActivity.boardGame;
+		BoardGame boardGame = OldBoardgameActivity.boardGame;
 
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);
@@ -211,7 +211,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.artist);
 		name = null;
 		description = null;
-		BoardGame boardGame = BoardgameActivity.boardGame;
+		BoardGame boardGame = OldBoardgameActivity.boardGame;
 
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);
@@ -265,7 +265,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 		title = getResources().getString(R.string.publisher);
 		name = null;
 		description = null;
-		BoardGame boardGame = BoardgameActivity.boardGame;
+		BoardGame boardGame = OldBoardgameActivity.boardGame;
 
 		removeDialog(ID_DIALOG_RESULTS);
 		showDialog(ID_DIALOG_PROGRESS);

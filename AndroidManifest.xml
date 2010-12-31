@@ -59,7 +59,7 @@
 				android:resource="@xml/searchable" />
 		</activity>
 		
-		<activity android:name=".ui.BoardgameActivity" android:theme="@style/Theme.Bgg" />
+		<activity android:name=".ui.OldBoardgameActivity" android:theme="@style/Theme.Bgg" />
 		<activity android:name=".view.BoardGameStatsTab" />
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />

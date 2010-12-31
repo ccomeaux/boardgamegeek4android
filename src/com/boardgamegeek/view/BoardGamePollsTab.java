@@ -5,11 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
-import com.boardgamegeek.model.*;
-import com.boardgamegeek.ui.BoardgameActivity;
-
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.os.Bundle;
@@ -20,6 +15,14 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.Utility;
+import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.model.Poll;
+import com.boardgamegeek.model.PollResult;
+import com.boardgamegeek.model.PollResults;
+import com.boardgamegeek.ui.OldBoardgameActivity;
 
 public class BoardGamePollsTab extends ExpandableListActivity {
 
@@ -35,7 +38,7 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		boardGame = BoardgameActivity.boardGame;
+		boardGame = OldBoardgameActivity.boardGame;
 		if (boardGame == null) {
 			return;
 		}
