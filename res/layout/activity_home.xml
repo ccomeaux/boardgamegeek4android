@@ -17,12 +17,12 @@
 				style="@style/HomeButton"
 				android:onClick="onCollectionClick"
 				android:text="@string/home_btn_collection"
-				android:drawableTop="@drawable/database"/>
+				android:drawableTop="@drawable/home_btn_collection"/>
 			<Button android:id="@+id/home_btn_buddies"
 				style="@style/HomeButton"
 				android:onClick="onBuddiesClick"
 				android:text="@string/home_btn_buddies"
-				android:drawableTop="@drawable/users"/>
+				android:drawableTop="@drawable/home_btn_buddies"/>
 		</LinearLayout>
 
 		<LinearLayout style="@style/HomeRow">
@@ -30,12 +30,12 @@
 				style="@style/HomeButton"
 				android:onClick="onSyncClick"
 				android:text="@string/home_btn_sync"
-				android:drawableTop="@drawable/refresh"/>
+				android:drawableTop="@drawable/home_btn_sync"/>
 			<Button android:id="@+id/home_btn_settings"
 				style="@style/HomeButton"
 				android:onClick="onSettingsClick"
 				android:text="@string/home_btn_settings"
-				android:drawableTop="@drawable/tools"/>
+				android:drawableTop="@drawable/home_btn_settings"/>
 		</LinearLayout>
 		
 		<LinearLayout style="@style/HomeRow">
@@ -43,7 +43,7 @@
 				style="@style/HomeButton"
 				android:onClick="onAboutClick"
 				android:text="@string/home_btn_about"
-				android:drawableTop="@drawable/info"/>
+				android:drawableTop="@drawable/home_btn_about"/>
 		</LinearLayout>
 		
 		<TextView android:id="@id/version"
