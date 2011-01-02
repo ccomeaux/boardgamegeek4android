@@ -128,7 +128,7 @@
 	<string name="logInErrorSuffixMissingCookies">cookies are missing.</string>
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete.</string>
 	<string name="logInErrorSuffixEntityNull">entity null.</string>
-	<string name="logPlaySuccess">You just played your %s game of %s!</string>
+	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="logPlayTitle">Log Play for</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>

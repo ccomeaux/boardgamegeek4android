@@ -4,7 +4,7 @@
 
 	<ImageView style="@style/TitleBarLogo"
 		android:contentDescription="@string/description_logo"
-		android:src="@drawable/title_logo"
+		android:src="@drawable/home_btn"
 		android:onClick="onHomeClick" />
 
 	<TextView style="@style/TitleBarText.Big" />
