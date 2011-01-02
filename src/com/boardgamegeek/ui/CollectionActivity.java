@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.provider.BaseColumns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -58,13 +60,13 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 		mAdapter.changeCursor(cursor);
 	}
 
-	// protected void onListItemClick(ListView l, View v, int position, long id)
-	// {
-	// final Cursor cursor = (Cursor)mAdapter.getItem(position);
-	// final int gameId = cursor.getInt(CollectionQuery.GAME_ID);
-	// final Uri gameUri = Games.buildGameUri(gameId);
-	// startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
-	// }
+	protected void onListItemClick(ListView l, View v, int position, long id)
+	{
+		final Cursor cursor = (Cursor)mAdapter.getItem(position);
+		final int gameId = cursor.getInt(CollectionQuery.GAME_ID);
+		final Uri gameUri = Games.buildGameUri(gameId);
+		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
+	}
 	
 	private class CollectionAdapter extends CursorAdapter {
 		public CollectionAdapter(Context context) {
@@ -93,12 +95,14 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 			Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED,
 			Games.GAME_NAME,
+			Games.GAME_ID,
 		};
 
 		//int _ID = 0;
-		int COLLECTION_ID = 1;
+		//int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
-		int GAME_NAME = 4;
+		//int GAME_NAME = 4;
+		int GAME_ID = 5;
 	}
 }
