@@ -8,7 +8,6 @@ import org.apache.http.client.HttpClient;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,7 +29,6 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
-import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 
@@ -247,11 +245,13 @@ public class SyncService extends IntentService {
 
 		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message, System
 			.currentTimeMillis());
-		Intent i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
-			Intent.ACTION_SYNC);
-		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+		// TODO: Do this only when finished
+		// Intent i = new Intent(this,
+		// HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
+		// Intent.ACTION_SYNC);
+		// PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
 		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status,
-			pi);
+			null);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
 }

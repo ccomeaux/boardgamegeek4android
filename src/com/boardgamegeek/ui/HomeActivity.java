@@ -21,8 +21,8 @@ import com.boardgamegeek.util.UIUtils;
 
 public class HomeActivity extends Activity implements DetachableResultReceiver.Receiver {
 	private final static String TAG = "HomeActivity";
-	
-	private DetachableResultReceiver mReceiver;
+
+	private State mState;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -30,33 +30,37 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		setContentView(R.layout.activity_home);
 
 		Log.d(TAG, getIntent().toString());
-		
-		if (Intent.ACTION_SYNC.equals(getIntent().getAction())) {
-			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			nm.cancelAll();
+
+		mState = (State) getLastNonConfigurationInstance();
+		if (mState == null) {
+			mState = new State();
 		}
-
-		mReceiver = new DetachableResultReceiver(new Handler());
-		mReceiver.setReceiver(this);
-
+		mState.mReceiver.setReceiver(this);
+		updateUiForSync();
+		
 		UIUtils.allowTypeToSearch(this);
 
 		UIUtils.setTitle(this);
 		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
+
+		if (Intent.ACTION_SYNC.equals(getIntent().getAction())) {
+			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			nm.cancelAll();
+		}
 	}
-	
+
 	@Override
-	protected void onDestroy() {
-		mReceiver.clearReceiver();
-		super.onDestroy();
+	public Object onRetainNonConfigurationInstance() {
+		mState.mReceiver.clearReceiver();
+		return mState;
 	}
 
 	@Override
 	public void setTitle(CharSequence title) {
 		UIUtils.setTitle(this, title);
 	}
-	
-	public void onHomeClick(View v){
+
+	public void onHomeClick(View v) {
 		// do nothing; we're already home
 	}
 
@@ -69,36 +73,39 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		startActivity(intent);
 	}
 
-	public void onBuddiesClick(View v){
+	public void onBuddiesClick(View v) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
 		startActivity(intent);
 	}
 
 	public void onSyncClick(View v) {
 		final Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
-		intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mReceiver);
+		intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
 		startService(intent);
 	}
-	
-	public void onSettingsClick(View v){
+
+	public void onSettingsClick(View v) {
 		startActivity(new Intent(this, Preferences.class));
 	}
-	
-	public void onAboutClick(View v){
+
+	public void onAboutClick(View v) {
 		startActivity(new Intent(this, AboutActivity.class));
 	}
-	
+
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		switch (resultCode) {
 			case SyncService.STATUS_RUNNING:
-				updateUiForSync(true);
+				mState.mSyncing = true;
+				updateUiForSync();
 				break;
 			case SyncService.STATUS_COMPLETE:
-				updateUiForSync(false);
+				mState.mSyncing = false;
+				updateUiForSync();
 				break;
 			case SyncService.STATUS_ERROR:
-				updateUiForSync(false);
+				mState.mSyncing = false;
+				updateUiForSync();
 				final String error = resultData.getString(Intent.EXTRA_TEXT);
 				if (error != null) {
 					Toast.makeText(this, error, Toast.LENGTH_LONG).show();
@@ -110,7 +117,16 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		}
 	}
 
-	private void updateUiForSync(boolean isSyncing) {
-		findViewById(R.id.home_btn_sync).setEnabled(!isSyncing);
+	private void updateUiForSync() {
+		findViewById(R.id.home_btn_sync).setEnabled(!mState.mSyncing);
+	}
+
+	private static class State {
+		public boolean mSyncing = false;
+		public DetachableResultReceiver mReceiver;
+
+		private State() {
+			mReceiver = new DetachableResultReceiver(new Handler());
+		}
 	}
 }
