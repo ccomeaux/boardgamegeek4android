@@ -163,8 +163,10 @@
 	<string name="notification_status_default">Syncing...</string>
 	<string name="notification_status_complete">Sync complete</string>
 	<string name="notification_text_start">BGG sync started</string>
-	<string name="notification_text_buddies">BGG buddies synced</string>
-	<string name="notification_text_collection">BGG collection synced</string>
+	<string name="notification_text_buddies_list">BGG buddies list synced</string>
+	<string name="notification_text_buddies_detail">BGG buddies detail synced</string>
+	<string name="notification_text_collection_list">BGG collection list synced</string>
+	<string name="notification_text_collection_detail">BGG collection detail synced</string>
 	<string name="notification_text_complete">BGG sync complete</string>
 
 	<string name="pref_warning_username">Please set your username first.</string>
