@@ -2,10 +2,9 @@ package com.boardgamegeek.service;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -22,9 +21,7 @@ public class SyncCollectionList extends SyncTask {
 		final long startTime = System.currentTimeMillis();
 		ContentResolver resolver = context.getContentResolver();
 
-		// TODO:
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		mUsername = preferences.getString("username", "");
+		mUsername = BggApplication.getInstance().getUserName();
 
 		String[] filters = new String[] { "own", "prevowned", "trade", "want", "wanttoplay", "wanttobuy",
 			"wishlist", "preordered" };
@@ -43,8 +40,8 @@ public class SyncCollectionList extends SyncTask {
 		return R.string.notification_text_collection_list;
 	}
 
-	private String getCollectionUrl(String flag) {
+	private String getCollectionUrl(String filter) {
 		return SyncService.BASE_URL + "collection/" + mUsername
-			+ (TextUtils.isEmpty(flag) ? "" : "?" + flag + "=1");
+			+ (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
 	}
 }

@@ -4,19 +4,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	
-	<LinearLayout style="@style/TitleBar">
-		<ImageView style="@style/TitleBarLogo"
-			android:contentDescription="@string/description_logo"
-			android:src="@drawable/title_logo"
-			android:onClick="onHomeClick" />
-
-		<TextView style="@style/TitleBarText" />
-
-		<ImageButton style="@style/TitleBarAction"
-			android:contentDescription="@string/description_search"
-			android:src="@drawable/ic_title_search"
-			android:onClick="onSearchClick" />
-	</LinearLayout>
+	<include layout="@layout/titlebar" />
 
 	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<LinearLayout android:orientation="vertical"
