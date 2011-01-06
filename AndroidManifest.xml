@@ -70,7 +70,9 @@
 				android:resource="@xml/searchable" />
 		</activity>
 		
-		<activity android:name=".ui.LogPlayActivity" android:theme="@style/Theme.Bgg" />
+		<activity android:name=".ui.LogPlayActivity"
+			android:label="@string/title_log_play"
+			android:theme="@style/Theme.Bgg" />
 
 		<activity android:name=".ui.OldBoardgameActivity" android:theme="@style/Theme.Bgg" />
 		<activity android:name=".view.BoardGameStatsTab" />

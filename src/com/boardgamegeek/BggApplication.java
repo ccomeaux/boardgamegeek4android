@@ -17,9 +17,14 @@ public class BggApplication extends Application {
 		super.onCreate();
 		singleton = this;
 	}
-	
-	public String getUserName(){
+
+	public String getUserName() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getString("username", "");
+	}
+
+	public String getPassword() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getString("password", "");
 	}
 }

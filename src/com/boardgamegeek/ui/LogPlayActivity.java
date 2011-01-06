@@ -42,8 +42,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
@@ -81,6 +83,7 @@ public class LogPlayActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
+		UIUtils.setTitle(this);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
@@ -479,9 +482,8 @@ public class LogPlayActivity extends Activity {
 	}
 
 	private void loadPreferences() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		mUsername = preferences.getString("username", "");
-		mPassword = preferences.getString("password", "");
+		mUsername = BggApplication.getInstance().getUserName();
+		mPassword = BggApplication.getInstance().getPassword();
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -495,7 +497,7 @@ public class LogPlayActivity extends Activity {
 	};
 
 	private void setTitle() {
-		setTitle(getResources().getString(R.string.logPlayTitle) + " " + mGameName);
+		((TextView)findViewById(R.id.game_name)).setText(mGameName);
 	}
 
 	private void setDateButtonText() {

@@ -112,8 +112,8 @@ public class BoardgameActivity extends Activity implements AsyncQueryListener {
 	private void logPlay(boolean quick) {
 		Intent intent = new Intent(this, LogPlayActivity.class);
 		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
-		intent.putExtra("GAME_ID", mId.getText());
-		intent.putExtra("GAME_NAME", mName.getText());
+		intent.putExtra("GAME_ID", id);
+		intent.putExtra("GAME_NAME", name);
 		startActivity(intent);
 	}
 

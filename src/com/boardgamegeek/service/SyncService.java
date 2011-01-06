@@ -10,13 +10,12 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.ui.HomeActivity;
@@ -97,8 +96,7 @@ public class SyncService extends IntentService {
 	}
 
 	private boolean ensureUsername() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		String username = preferences.getString("username", "");
+		String username = BggApplication.getInstance().getUserName();
 		if (TextUtils.isEmpty(username)) {
 			sendError(getResources().getString(R.string.pref_warning_username));
 			return false;

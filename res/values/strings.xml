@@ -129,7 +129,6 @@
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete.</string>
 	<string name="logInErrorSuffixEntityNull">entity null.</string>
 	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
-	<string name="logPlayTitle">Log Play for</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
 	<string name="quantityHint">Number of games played</string>
@@ -152,6 +151,7 @@
 	<string name="title_boardgame">Boardgame</string>
 	<string name="title_buddies">Buddies</string>
 	<string name="title_buddy">Buddy</string>
+	<string name="title_log_play">Log Play</string>
 	
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_buddies">Buddies</string>
