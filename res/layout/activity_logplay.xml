@@ -6,6 +6,7 @@
 	
 	<include layout="@layout/titlebar" />
 	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" />
 
 	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<LinearLayout android:orientation="vertical"
