@@ -36,7 +36,14 @@
 				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game" />
 			</intent-filter>
 		</activity>
-				
+
+		<activity android:name=".ui.GameInfoActivityTab"
+			android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<category android:name="android.intent.category.TAB" />
+			</intent-filter>
+		</activity>
+
 		<activity android:name=".ui.BuddiesActivity"
 			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg">

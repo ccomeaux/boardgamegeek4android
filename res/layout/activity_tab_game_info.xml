@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+                <ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:id="@+id/mainTab"
+					android:layout_width="fill_parent" android:layout_height="wrap_content">
+					<LinearLayout android:orientation="vertical"
+						android:layout_width="fill_parent" android:layout_height="fill_parent"
+						android:padding="10dip">
+						<ProgressBar android:id="@+id/thumbnailProgress"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							android:paddingTop="10dip" android:paddingBottom="10dip"
+							android:layout_gravity="center_horizontal" android:visibility="gone" />
+						<ImageView android:id="@+id/thumbnail"
+							android:adjustViewBounds="true" android:layout_gravity="center_horizontal"
+							android:layout_width="200dip" android:layout_height="150dip"
+							android:paddingTop="10dip" android:paddingBottom="10dip"
+							android:gravity="center_horizontal" android:scaleType="fitCenter"
+							android:visibility="gone" />
+						<LinearLayout android:layout_width="fill_parent"
+							android:layout_height="wrap_content" android:gravity="center_horizontal">
+							<ImageView android:id="@+id/star1"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star2"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star3"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star4"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star5"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star6"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star7"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star8"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star9"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+							<ImageView android:id="@+id/star10"
+								android:layout_width="wrap_content" android:layout_height="wrap_content" />
+						</LinearLayout>
+						<TextView android:id="@+id/rating" android:gravity="center_horizontal"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textAppearance="?android:attr/textAppearanceSmall"
+							android:paddingBottom="15dip" />
+						<TableLayout android:layout_width="fill_parent"
+							android:layout_height="fill_parent" android:paddingBottom="15dip">
+							<TableRow android:gravity="center_horizontal">
+								<TextView android:text="@string/rank"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip"
+									android:textStyle="bold" />
+								<TextView android:id="@+id/rank"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:textStyle="bold" />
+							</TableRow>
+							<TableRow android:gravity="center_horizontal">
+								<TextView android:text="@string/yearPublished"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip" />
+								<TextView android:id="@+id/yearPublished"
+									android:textAppearance="?android:attr/textAppearanceSmall" />
+							</TableRow>
+							<TableRow android:gravity="center_horizontal">
+								<TextView android:text="@string/numberOfPlayers"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip" />
+								<TextView android:id="@+id/numOfPlayers"
+									android:textAppearance="?android:attr/textAppearanceSmall" />
+							</TableRow>
+							<TableRow android:id="@+id/playingTimeRow"
+								android:gravity="center_horizontal">
+								<TextView android:text="@string/playingTime"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip" />
+								<TextView android:id="@+id/playingTime"
+									android:textAppearance="?android:attr/textAppearanceSmall" />
+							</TableRow>
+							<TableRow android:id="@+id/suggestedAgesRow"
+								android:gravity="center_horizontal">
+								<TextView android:text="@string/suggestedAges"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip" />
+								<TextView android:id="@+id/suggestedAges"
+									android:textAppearance="?android:attr/textAppearanceSmall" />
+							</TableRow>
+							<TableRow android:gravity="center_horizontal">
+								<TextView android:text="@string/gameId"
+									android:textAppearance="?android:attr/textAppearanceSmall"
+									android:gravity="right" android:paddingRight="10dip" />
+								<TextView android:id="@+id/gameId"
+									android:textAppearance="?android:attr/textAppearanceSmall" />
+							</TableRow>
+						</TableLayout>
+						<TextView android:id="@+id/description"
+							android:layout_width="fill_parent" android:layout_height="wrap_content"
+							android:textAppearance="?android:attr/textAppearanceSmall" />
+					</LinearLayout>
+				</ScrollView>
