@@ -6,12 +6,10 @@
 
 	<include layout="@layout/titlebar" />
 	<include layout="@layout/game_header" />
-	<include layout="@layout/header_divider" />
 	
 	<TabHost android:id="@android:id/tabhost"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="5dip">
+        android:layout_height="fill_parent">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
@@ -19,9 +17,7 @@
             <TabWidget android:id="@android:id/tabs"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:layout_marginLeft="-2dp"
-                android:layout_marginRight="-2dp" />
+                android:background="@color/background_light" />
             <FrameLayout android:id="@android:id/tabcontent"
                 android:layout_width="fill_parent"
                 android:layout_height="0dip"
