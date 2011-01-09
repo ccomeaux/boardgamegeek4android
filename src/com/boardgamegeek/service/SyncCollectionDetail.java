@@ -15,7 +15,7 @@ import com.boardgamegeek.provider.BggContract.SyncColumns;
 public class SyncCollectionDetail extends SyncTask {
 
 	private static final int SYNC_GAME_DETAIL_DAYS = 1;
-	private static final int GAMES_PER_FETCH=10;
+	private static final int GAMES_PER_FETCH = 10;
 
 	private RemoteExecutor mRemoteExecutor;
 
@@ -31,7 +31,7 @@ public class SyncCollectionDetail extends SyncTask {
 			String ids = "";
 			long days = System.currentTimeMillis() - (SYNC_GAME_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID },
-				SyncColumns.UPDATED_DETAIL + "<?", new String[] { "" + days }, null);
+				SyncColumns.UPDATED_DETAIL + "<? OR " + SyncColumns.UPDATED_DETAIL +" IS NULL", new String[] { "" + days }, null);
 			while (cursor.moveToNext()) {
 				final int id = cursor.getInt(0);
 				count++;
