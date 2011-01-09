@@ -54,7 +54,6 @@ public class CollectionActivity extends ListActivity  implements AsyncQueryListe
 		onSearchRequested();
 	}
 
-	@Override
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);

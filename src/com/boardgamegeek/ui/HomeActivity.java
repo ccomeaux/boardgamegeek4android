@@ -92,7 +92,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		startActivity(new Intent(this, AboutActivity.class));
 	}
 
-	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		switch (resultCode) {
 			case SyncService.STATUS_RUNNING:

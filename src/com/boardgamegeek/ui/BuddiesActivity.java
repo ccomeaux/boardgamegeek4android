@@ -53,7 +53,6 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 		onSearchRequested();
 	}
 
-	@Override
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);

@@ -83,18 +83,15 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		@Override
 		public Object getChild(int groupPosition, int childPosition) {
 			return childData.get(groupPosition).get(childPosition);
 		}
 
-		@Override
 		public long getChildId(int groupPosition, int childPosition) {
 			return childPosition;
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
 		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
 			ViewGroup parent) {
 
@@ -126,28 +123,23 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 			return v;
 		}
 
-		@Override
 		public int getChildrenCount(int groupPosition) {
 			return childData.get(groupPosition).size();
 		}
 
-		@Override
 		public Object getGroup(int groupPosition) {
 			return groupData.get(groupPosition);
 		}
 
-		@Override
 		public int getGroupCount() {
 			return groupData.size();
 		}
 
-		@Override
 		public long getGroupId(int groupPosition) {
 			return groupPosition;
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
 		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
 			View v;
@@ -163,12 +155,10 @@ public class BoardGamePollsTab extends ExpandableListActivity {
 			return v;
 		}
 
-		@Override
 		public boolean hasStableIds() {
 			return true;
 		}
 
-		@Override
 		public boolean isChildSelectable(int groupPosition, int childPosition) {
 			return false;
 		}
