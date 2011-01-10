@@ -371,10 +371,6 @@ public class LogPlayActivity extends Activity {
 			} catch (UnsupportedEncodingException e) {
 				return e.toString();
 			}
-			if (entity == null) {
-				return getResources().getString(R.string.logInErrorSuffixEntityNull);
-			}
-
 			final DefaultHttpClient client = new DefaultHttpClient();
 			client.setCookieStore(mCookieStore);
 

@@ -217,7 +217,7 @@ public class GameStatsActivityTab extends Activity implements
 		int STATS_STANDARD_DEVIATION = 4;
 		int STATS_NUMBER_WEIGHTS = 5;
 		int STATS_AVERAGE_WEIGHT = 6;
-		int STATS_NUMBER_COMMENTS = 7;
+		//int STATS_NUMBER_COMMENTS = 7;
 		int STATS_NUMBER_OWNED = 8;
 		int STATS_NUMBER_TRADING = 9;
 		int STATS_NUMBER_WANTING = 10;

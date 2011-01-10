@@ -23,8 +23,16 @@ public class SyncCollectionList extends SyncTask {
 
 		mUsername = BggApplication.getInstance().getUserName();
 
-		String[] filters = new String[] { "own", "prevowned", "trade", "want", "wanttoplay", "wanttobuy",
-			"wishlist", "preordered" };
+		String[] filters = new String[] {
+				"own",
+				"prevowned",
+				"trade",
+				"want",
+				"wanttoplay",
+				"wanttobuy",
+				"wishlist",
+				"preordered"
+			};
 		String filterOff = "";
 		for (int i = 0; i < filters.length; i++) {
 			executor.executeGet(getCollectionUrl(filters[i]), new RemoteCollectionHandler(startTime));
