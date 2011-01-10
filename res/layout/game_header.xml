@@ -21,9 +21,10 @@
 	<TextView 
 		android:id="@id/game_name"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:gravity="left"
+		android:layout_height="fill_parent"
+		android:gravity="center_vertical"
 		android:textSize="@dimen/text_size_medium"
+		android:textStyle="bold"
 		android:padding="6dp"
 		android:ellipsize="none" />
 </LinearLayout>
