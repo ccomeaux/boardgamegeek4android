@@ -44,6 +44,13 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name=".ui.GameStatsActivityTab"
+			android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<category android:name="android.intent.category.TAB" />
+			</intent-filter>
+		</activity>
+		
 		<activity android:name=".ui.BuddiesActivity"
 			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg">
