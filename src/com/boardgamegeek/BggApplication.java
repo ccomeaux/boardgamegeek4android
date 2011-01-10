@@ -27,4 +27,9 @@ public class BggApplication extends Application {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getString("password", "");
 	}
+
+	public boolean getImageLoad() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("imageLoad", true);
+	}
 }

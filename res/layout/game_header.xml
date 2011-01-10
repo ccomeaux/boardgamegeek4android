@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@id/game_name"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:gravity="left"
-	android:background="@color/background_light"
-	android:textAppearance="?android:attr/textAppearanceMedium"
-	android:padding="6dp"
-	android:singleLine="true"
-	android:ellipsize="marquee"
-	android:focusableInTouchMode="true"
-	android:focusable="true" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/background_light"
+		android:orientation="horizontal">
+	<ProgressBar android:id="@+id/thumbnail_progress"
+		android:layout_width="wrap_content"
+		android:layout_height="60dp"
+		android:padding="6dp"
+		android:visibility="gone" />
+	<ImageView
+		android:id="@+id/game_thumbnail"
+		android:layout_width="wrap_content"
+		android:layout_height="60dp"
+		android:padding="6dp"
+		android:adjustViewBounds="true" 
+		android:scaleType="fitCenter"
+		android:src="@drawable/noimage"
+		android:visibility="gone" />
+	<TextView 
+		android:id="@id/game_name"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="left"
+		android:textSize="@dimen/text_size_medium"
+		android:padding="6dp"
+		android:ellipsize="none" />
+</LinearLayout>
