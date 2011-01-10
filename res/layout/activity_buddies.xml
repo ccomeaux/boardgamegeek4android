@@ -3,22 +3,8 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:orientation="vertical">
-  
+
 	<include layout="@layout/titlebar" />
-	
-	<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
-		<ListView
-	        android:id="@android:id/list"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:fastScrollEnabled="true" />
-	    <TextView
-	        android:id="@android:id/empty"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:text="@string/empty_buddies"
-	        android:gravity="center"
-	        android:textSize="@dimen/text_size_medium" />
-	</FrameLayout>
-        
+	<include layout="@layout/list" />
+
 </LinearLayout>

@@ -171,6 +171,7 @@
 
 	<string name="pref_warning_username">Please set your username first.</string>
 	
+	<string name="loading">Loading...</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection</string>
 </resources>

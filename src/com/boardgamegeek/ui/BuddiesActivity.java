@@ -11,13 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import com.boardgamegeek.util.UIUtils;
 
 public class BuddiesActivity extends ListActivity implements AsyncQueryListener {
 
@@ -54,8 +55,17 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
+		changeEmptyMessage();
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
+	}
+	
+	private void changeEmptyMessage() {
+		TextView tv = (TextView) findViewById(R.id.listMessage);
+		tv.setText(R.string.empty_buddies);
+
+		ProgressBar pb = (ProgressBar) findViewById(R.id.listProgress);
+		pb.setVisibility(View.GONE);
 	}
 	
 	protected void onListItemClick(ListView l, View v, int position, long id) {
