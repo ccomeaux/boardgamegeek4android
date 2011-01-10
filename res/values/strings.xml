@@ -174,4 +174,7 @@
 	<string name="loading">Loading...</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection</string>
+	
+	<string name="tab_title_info">Info</string>
+	<string name="tab_title_stats">Stats</string>
 </resources>

@@ -41,7 +41,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mBoardgameUri = intent.getData();
 
 		setUiVariables();
-		setupMainTab();
+		setupInfoTab();
+		setupStatsTab();
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
@@ -84,7 +85,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		onSearchRequested();
 	}
 
-	private void setupMainTab() {
+	private void setupInfoTab() {
 		final TabHost host = getTabHost();
 		
 		final Intent intent = new Intent(this, GameInfoActivityTab.class);
@@ -92,11 +93,24 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		intent.setData(mBoardgameUri);
 		intent.addCategory(Intent.CATEGORY_TAB);
 
-		host.addTab(host.newTabSpec("main")
-			.setIndicator(buildIndicator(R.string.main_tab_title))
+		host.addTab(host.newTabSpec("info")
+			.setIndicator(buildIndicator(R.string.tab_title_info))
 			.setContent(intent));
 	}
 	
+	private void setupStatsTab() {
+		final TabHost host = getTabHost();
+		
+		final Intent intent = new Intent(this, GameStatsActivityTab.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setData(mBoardgameUri);
+		intent.addCategory(Intent.CATEGORY_TAB);
+
+		host.addTab(host.newTabSpec("stats")
+			.setIndicator(buildIndicator(R.string.tab_title_stats))
+			.setContent(intent));
+	}
+
 	private View buildIndicator(int textRes) {
 		final TextView indicator = (TextView) getLayoutInflater().inflate(R.layout.tab_indicator,
 				getTabWidget(), false);
