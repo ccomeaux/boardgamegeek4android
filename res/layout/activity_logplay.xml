@@ -21,7 +21,7 @@
 					<Button android:id="@+id/logDateButton"
 						android:text=""
 						android:gravity="left|center_vertical"
-						onDateClick="onDateClick" />
+						android:onClick="onDateClick" />
 				</TableRow>
 				<TableRow>
 					<TextView android:text="@string/quantity" android:padding="5dip"
