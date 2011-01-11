@@ -107,21 +107,12 @@ public class ThumbnailCache {
 			return null;
 		String fileName = uri.getLastPathSegment();
 		return fileName;
-		// if (TextUtils.isEmpty(fileName))
-		// return null;
-		// if (fileName.startsWith("pic")) {
-		// fileName = fileName.substring(3);
-		// }
-		// if (fileName.endsWith("_t.jpg")) {
-		// fileName = fileName.substring(0, fileName.length() - 6);
-		// }
-		// return Utility.parseInt(fileName);
 	}
 
 	private static File getCacheDirectory() {
 		final File file = new File(Environment.getExternalStorageDirectory(),
 				BggContract.CONTENT_AUTHORITY);
-		return new File(file, ".thumbnails");
+		return new File(file, ".imagecache");
 	}
 
 	private static synchronized HttpClient getHttpClient(Context context) {

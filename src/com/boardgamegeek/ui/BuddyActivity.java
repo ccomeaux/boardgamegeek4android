@@ -1,37 +1,26 @@
 package com.boardgamegeek.ui;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import com.boardgamegeek.util.ThumbnailCache;
+import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends Activity implements AsyncQueryListener {
-	private final static String TAG = "BuddyActivity";
-
-	private static HttpClient sHttpClient;
+	// private final static String TAG = "BuddyActivity";
 
 	private Uri mBuddyUri;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -62,8 +51,9 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
-			if (!cursor.moveToFirst())
+			if (!cursor.moveToFirst()) {
 				return;
+			}
 
 			mFullName.setText(cursor.getString(BuddiesQuery.FIRSTNAME) + " "
 					+ cursor.getString(BuddiesQuery.LASTNAME));
@@ -91,40 +81,15 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 		onSearchRequested();
 	}
 
-	private static synchronized HttpClient getHttpClient(Context context) {
-		if (sHttpClient == null) {
-			sHttpClient = HttpUtils.createHttpClient(context, true);
-		}
-		return sHttpClient;
-	}
-
 	private class BuddyAvatarTask extends AsyncTask<String, Void, Bitmap> {
 
 		@Override
 		protected Bitmap doInBackground(String... params) {
-			final String url = params[0];
-
-			try {
-				final Context context = BuddyActivity.this;
-				final HttpClient client = getHttpClient(context);
-				final HttpGet get = new HttpGet(url);
-				final HttpResponse response = client.execute(get);
-				final HttpEntity entity = response.getEntity();
-
-				final int statusCode = response.getStatusLine().getStatusCode();
-				if (statusCode != HttpStatus.SC_OK || entity == null) {
-					Log.w(TAG, "Didn't find avatar");
-				}
-
-				final byte[] imageData = EntityUtils.toByteArray(entity);
-				return BitmapFactory.decodeByteArray(imageData, 0,
-						imageData.length);
-
-			} catch (Exception e) {
-				Log.e(TAG, "Problem loading buddy avatar", e);
+			if (BggApplication.getInstance().getImageLoad()) {
+				return ThumbnailCache.getImage(BuddyActivity.this, params[0]);
+			} else {
+				return null;
 			}
-
-			return null;
 		}
 
 		@Override
@@ -139,13 +104,9 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = {
-			Buddies.BUDDY_ID,
-			Buddies.BUDDY_NAME,
-			Buddies.BUDDY_FIRSTNAME,
-			Buddies.BUDDY_LASTNAME,
-			Buddies.AVATAR_URL,
-		};
+		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME,
+				Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
+				Buddies.AVATAR_URL, };
 
 		int BUDDY_ID = 0;
 		int NAME = 1;
