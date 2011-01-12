@@ -183,6 +183,8 @@ public class BoardgameActivity extends TabActivity implements
 			mThumbnail.setVisibility(View.VISIBLE);
 			if (result != null) {
 				mThumbnail.setImageBitmap(result);
+			} else {
+				mThumbnail.setImageResource(R.drawable.noimage);
 			}
 		}
 	}

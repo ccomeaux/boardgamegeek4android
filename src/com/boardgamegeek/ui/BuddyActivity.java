@@ -60,8 +60,10 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 			mName.setText(cursor.getString(BuddiesQuery.NAME));
 			mId.setText(cursor.getString(BuddiesQuery.BUDDY_ID));
 
-			final String url = cursor.getString(BuddiesQuery.AVATAR_URL);
-			new BuddyAvatarTask().execute(url);
+			if (BggApplication.getInstance().getImageLoad()) {
+				final String url = cursor.getString(BuddiesQuery.AVATAR_URL);
+				new BuddyAvatarTask().execute(url);
+			}
 
 		} finally {
 			cursor.close();
@@ -84,16 +86,18 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 	private class BuddyAvatarTask extends AsyncTask<String, Void, Bitmap> {
 
 		@Override
+		protected void onPreExecute() {
+			findViewById(R.id.buddy_progress).setVisibility(View.VISIBLE);
+		}
+
+		@Override
 		protected Bitmap doInBackground(String... params) {
-			if (BggApplication.getInstance().getImageLoad()) {
-				return ThumbnailCache.getImage(BuddyActivity.this, params[0]);
-			} else {
-				return null;
-			}
+			return ThumbnailCache.getImage(BuddyActivity.this, params[0]);
 		}
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
+			findViewById(R.id.buddy_progress).setVisibility(View.GONE);
 			if (result == null) {
 				mAvatarImage.setVisibility(View.GONE);
 			} else {
