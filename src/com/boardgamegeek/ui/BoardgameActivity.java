@@ -33,6 +33,7 @@ public class BoardgameActivity extends TabActivity implements
 
 	private int mId;
 	private String mName;
+	private String mThumbnailUrl;
 
 	private TextView mNameView;
 	private ImageView mThumbnail;
@@ -68,13 +69,13 @@ public class BoardgameActivity extends TabActivity implements
 
 			mId = cursor.getInt(BoardgameQuery.GAME_ID);
 			mName = cursor.getString(BoardgameQuery.GAME_NAME);
+			mThumbnailUrl = cursor.getString(BoardgameQuery.THUMBNAIL_URL);
 
 			mNameView.setText(mName);
 
-			if (BggApplication.getInstance().getImageLoad()) {
-				final String url = cursor
-						.getString(BoardgameQuery.THUMBNAIL_URL);
-				new ImageTask().execute(url);
+			if (BggApplication.getInstance().getImageLoad()
+					&& !TextUtils.isEmpty(mThumbnailUrl)) {
+				new ThumbnailTask().execute(mThumbnailUrl);
 			}
 
 		} finally {
@@ -160,12 +161,13 @@ public class BoardgameActivity extends TabActivity implements
 	private void logPlay(boolean quick) {
 		Intent intent = new Intent(this, LogPlayActivity.class);
 		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
-		intent.putExtra("GAME_ID", mId);
-		intent.putExtra("GAME_NAME", mName);
+		intent.putExtra(LogPlayActivity.KEY_GAME_ID, mId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, mName);
+		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivity(intent);
 	}
 
-	private class ImageTask extends AsyncTask<String, Void, Bitmap> {
+	private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
 
 		@Override
 		protected void onPreExecute() {

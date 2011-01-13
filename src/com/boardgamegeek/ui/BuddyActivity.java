@@ -62,7 +62,7 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 
 			if (BggApplication.getInstance().getImageLoad()) {
 				final String url = cursor.getString(BuddiesQuery.AVATAR_URL);
-				new BuddyAvatarTask().execute(url);
+				new AvatarTask().execute(url);
 			}
 
 		} finally {
@@ -83,7 +83,7 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 		onSearchRequested();
 	}
 
-	private class BuddyAvatarTask extends AsyncTask<String, Void, Bitmap> {
+	private class AvatarTask extends AsyncTask<String, Void, Bitmap> {
 
 		@Override
 		protected void onPreExecute() {
