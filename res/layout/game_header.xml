@@ -26,5 +26,5 @@
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="bold"
 		android:padding="6dp"
-		android:ellipsize="none" />
+		android:ellipsize="end" />
 </LinearLayout>
