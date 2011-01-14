@@ -20,9 +20,9 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
-import com.boardgamegeek.util.ThumbnailCache;
 import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends ListActivity implements
@@ -105,7 +105,7 @@ public class CollectionActivity extends ListActivity implements
 					.getString(CollectionQuery.COLLECTION_NAME));
 			holder.year.setText(cursor
 					.getString(CollectionQuery.YEAR_PUBLISHED));
-			Drawable thumbnail = ThumbnailCache.getDrawableFromCache(cursor
+			Drawable thumbnail = ImageCache.getDrawableFromCache(cursor
 					.getString(CollectionQuery.THUMBNAIL_URL));
 			
 			if (thumbnail == null) {

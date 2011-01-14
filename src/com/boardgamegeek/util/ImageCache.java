@@ -26,7 +26,7 @@ import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
 
-public class ThumbnailCache {
+public class ImageCache {
 	private static final String TAG = "ThumbnailCache";
 
 	private static HttpClient sHttpClient;

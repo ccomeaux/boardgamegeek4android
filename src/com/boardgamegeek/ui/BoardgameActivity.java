@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
-import com.boardgamegeek.util.ThumbnailCache;
 import com.boardgamegeek.util.UIUtils;
 
 public class BoardgameActivity extends TabActivity implements
@@ -176,7 +176,7 @@ public class BoardgameActivity extends TabActivity implements
 
 		@Override
 		protected Bitmap doInBackground(String... params) {
-			return ThumbnailCache.getImage(BoardgameActivity.this, params[0]);
+			return ImageCache.getImage(BoardgameActivity.this, params[0]);
 		}
 
 		@Override

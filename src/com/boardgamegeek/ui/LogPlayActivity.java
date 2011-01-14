@@ -51,7 +51,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
-import com.boardgamegeek.util.ThumbnailCache;
+import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayActivity extends Activity {
@@ -621,7 +621,7 @@ public class LogPlayActivity extends Activity {
 
 		@Override
 		protected Bitmap doInBackground(String... params) {
-			return ThumbnailCache.getImage(LogPlayActivity.this, params[0]);
+			return ImageCache.getImage(LogPlayActivity.this, params[0]);
 		}
 
 		@Override
