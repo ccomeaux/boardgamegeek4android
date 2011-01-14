@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="title_height">45dip</dimen>
+    <dimen name="title_height">45dp</dimen>
 
+    <dimen name="text_size_tiny">10sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_medium">18sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
+
+    <dimen name="padding_standard">6dp</dimen>
+    <dimen name="padding_extra">12dp</dimen>
 </resources>

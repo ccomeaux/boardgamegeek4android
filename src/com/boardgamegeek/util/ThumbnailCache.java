@@ -18,6 +18,7 @@ import org.apache.http.util.EntityUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -61,6 +62,15 @@ public class ThumbnailCache {
 		return null;
 	}
 
+	public static Drawable getDrawableFromCache(String url) {
+		final String fileName = getFileNameFromUrl(url);
+		if (!TextUtils.isEmpty(fileName)) {
+			final File file = new File(getCacheDirectory(), fileName);
+			return Drawable.createFromPath(file.getAbsolutePath());
+		}
+		return null;
+	}
+	
 	private static Bitmap loadFromDisk(String url) {
 		final File file = new File(getCacheDirectory(), getFileNameFromUrl(url));
 		if (file.exists()) {
@@ -100,13 +110,14 @@ public class ThumbnailCache {
 	}
 
 	private static String getFileNameFromUrl(String url) {
-		if (TextUtils.isEmpty(url))
+		if (TextUtils.isEmpty(url)) {
 			return null;
+		}
 		Uri uri = Uri.parse(url);
-		if (uri == null)
+		if (uri == null) {
 			return null;
-		String fileName = uri.getLastPathSegment();
-		return fileName;
+		}
+		return uri.getLastPathSegment();
 	}
 
 	private static File getCacheDirectory() {

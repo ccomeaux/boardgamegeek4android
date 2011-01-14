@@ -7,13 +7,13 @@
 	<ProgressBar android:id="@+id/thumbnail_progress"
 		android:layout_width="wrap_content"
 		android:layout_height="60dp"
-		android:padding="6dp"
+		android:padding="@dimen/padding_standard"
 		android:visibility="gone" />
 	<ImageView
 		android:id="@+id/game_thumbnail"
 		android:layout_width="wrap_content"
 		android:layout_height="60dp"
-		android:padding="6dp"
+		android:padding="@dimen/padding_standard"
 		android:adjustViewBounds="true" 
 		android:scaleType="fitCenter"
 		android:src="@drawable/noimage"
@@ -25,6 +25,6 @@
 		android:gravity="center_vertical"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="bold"
-		android:padding="6dp"
+		android:padding="@dimen/padding_standard"
 		android:ellipsize="end" />
 </LinearLayout>
