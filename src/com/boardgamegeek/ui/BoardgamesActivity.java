@@ -331,7 +331,7 @@ public class BoardgamesActivity extends ListActivity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row, parent, false);
+				convertView = mInflater.inflate(R.layout.row_search, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {

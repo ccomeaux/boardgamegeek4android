@@ -172,15 +172,16 @@ public class SearchResultsActivity extends ListActivity {
 		private LayoutInflater mInflater;
 
 		BoardGameAdapter() {
-			super(SearchResultsActivity.this,
-					android.R.layout.simple_list_item_1, mSearchReults);
+			super(SearchResultsActivity.this, R.layout.row_search,
+					mSearchReults);
 			mInflater = getLayoutInflater();
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row, parent, false);
+				convertView = mInflater.inflate(R.layout.row_search, parent,
+						false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {

@@ -92,7 +92,7 @@ public class CollectionActivity extends ListActivity implements
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.collection_row, parent, false);
+			View row = mInflater.inflate(R.layout.row_collection, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
