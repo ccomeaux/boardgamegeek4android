@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="search_results">BoardGameGeek</string>
 	<string name="tab_main">Main</string>
-	<string name="search_label">Search BoardGameGeek.com</string>
-	<string name="search_hint">Name of Game</string>
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
 	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays
@@ -53,14 +50,6 @@
 	<string name="error_downloading">There was an error downloading this game. Please go
 		back and try again.</string>
 	<string name="bgg_down_title">BoardGameGeek.com is down!</string>
-	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
-		maintenance. Please try again later.</string>
-	<string name="no_results">No results for \&quot;%s\&quot;.\n\nThis may mean
-		there are no games matching your search, or BoardGameGeek.com could be
-		down. The search function also doesn\&apos;t like some common words.
-		Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
-		and
-		\&quot;of\&quot;, etc.</string>
 	<string name="empty_database">The database is empty. Games will be automatically
 		added to the database as you view them. To start viewing games, just
 		type to start a search on BoardGameGeek.com.</string>
@@ -115,7 +104,6 @@
 	<string name="expansions">Expansions</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
-	<string name="search_settings_description">Names of board games</string>
 	<string name="designer">Designer</string>
 	<string name="artist">Artist</string>
 	<string name="publisher">Publisher</string>
@@ -147,6 +135,7 @@
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
 
+	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_boardgame">Boardgame</string>
 	<string name="title_buddies">Buddies</string>
@@ -177,4 +166,16 @@
 	
 	<string name="tab_title_info">Info</string>
 	<string name="tab_title_stats">Stats</string>
+
+	<string name="search_label">Search BoardGameGeek.com</string>
+	<string name="search_hint">Name of Game</string>
+	<string name="search_settings_description">Names of board games</string>
+	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
+		maintenance. Please try again later.</string>
+	<string name="no_results">No results for \&quot;%s\&quot;.\n\nThis may mean
+		there are no games matching your search, or BoardGameGeek.com could be
+		down. The search function also doesn\&apos;t like some common words.
+		Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
+		and
+		\&quot;of\&quot;, etc.</string>
 </resources>
