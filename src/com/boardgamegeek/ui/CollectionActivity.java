@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -62,17 +61,9 @@ public class CollectionActivity extends ListActivity implements
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-		changeEmptyMessage();
+		UIUtils.showListMessage(this, R.string.empty_collection);
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
-	}
-
-	private void changeEmptyMessage() {
-		TextView tv = (TextView) findViewById(R.id.listMessage);
-		tv.setText(R.string.empty_collection);
-
-		ProgressBar pb = (ProgressBar) findViewById(R.id.listProgress);
-		pb.setVisibility(View.GONE);
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {

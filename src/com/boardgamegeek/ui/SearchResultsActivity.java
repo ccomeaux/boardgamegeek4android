@@ -156,7 +156,9 @@ public class SearchResultsActivity extends ListActivity {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(SearchResultsActivity.this, R.string.bgg_down);
 			} else if (count == 0) {
-				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results);
+				String message = String.format(getResources().getString(R.string.search_no_results), mSearchText);
+				mSearchTextView.setText(message);
+				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results_details);
 			} else if (count == 1) {
 				if (BggApplication.getInstance().getSkipResults()) {
 					viewBoardGame(result.mSearchResults.get(0).Id);
