@@ -21,7 +21,7 @@ public class RemoteSearchHandler extends XmlHandler {
 	// private static final String TAG = "RemoteSearchHandler";
 
 	private XmlPullParser mParser;
-	public List<SearchResult> mSearchResults = new ArrayList<RemoteSearchHandler.SearchResult>();
+	public List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 
 	public int getCount() {
 		return mSearchResults.size();
@@ -107,13 +107,6 @@ public class RemoteSearchHandler extends XmlHandler {
 		}
 
 		return sr;
-	}
-
-	public class SearchResult {
-		public int Id;
-		public String Name;
-		public boolean IsNamePrimary;
-		public int YearPublished;
 	}
 
 	private interface Tags {

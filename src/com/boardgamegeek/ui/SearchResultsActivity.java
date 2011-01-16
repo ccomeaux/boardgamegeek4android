@@ -26,6 +26,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
+import com.boardgamegeek.io.SearchResult;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
@@ -35,9 +36,7 @@ public class SearchResultsActivity extends ListActivity {
 	private final String TAG = "SearchResultsActivity";
 
 	private String mSearchText;
-	private List<RemoteSearchHandler.SearchResult> mSearchReults = new ArrayList<RemoteSearchHandler.SearchResult>();
-	private HttpClient mHttpClient;
-	private RemoteSearchHandler mSearchHandler = new RemoteSearchHandler();
+	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 	private BoardGameAdapter mAdapter;
 
 	@Override
@@ -48,7 +47,6 @@ public class SearchResultsActivity extends ListActivity {
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
 
-		mHttpClient = HttpUtils.createHttpClient(this, true);
 		mAdapter = new BoardGameAdapter();
 
 		parseIntent(getIntent());
@@ -73,21 +71,23 @@ public class SearchResultsActivity extends ListActivity {
 	}
 
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		RemoteSearchHandler.SearchResult item = (RemoteSearchHandler.SearchResult) mAdapter
-				.getItem(position);
-		viewBoardGame(item.Id);
+		SearchResult game = (SearchResult) mAdapter.getItem(position);
+		viewBoardGame(game.Id);
 	}
 
 	private void parseIntent(Intent intent) {
-
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			mSearchText = intent.getExtras().getString(SearchManager.QUERY);
 			if (TextUtils.isEmpty(mSearchText)) {
 				showError("Search performed with no search text");
 			} else {
-				mSearchReults.clear();
-				UIUtils.showListMessage(this, "Searching for \"" + mSearchText
-						+ "\"...", false);
+				mSearchResults.clear();
+				UIUtils.showListMessage(
+						this,
+						String.format(
+								getResources().getString(
+										R.string.search_message), mSearchText),
+						false);
 				SearchTask task = new SearchTask();
 				task.execute();
 			}
@@ -108,6 +108,15 @@ public class SearchResultsActivity extends ListActivity {
 	}
 
 	private class SearchTask extends AsyncTask<Void, Void, RemoteSearchHandler> {
+
+		private HttpClient mHttpClient;
+		private RemoteSearchHandler mSearchHandler = new RemoteSearchHandler();
+
+		@Override
+		protected void onPreExecute() {
+			mHttpClient = HttpUtils.createHttpClient(
+					SearchResultsActivity.this, true);
+		}
 
 		@Override
 		protected RemoteSearchHandler doInBackground(Void... params) {
@@ -141,14 +150,14 @@ public class SearchResultsActivity extends ListActivity {
 						R.string.bgg_down);
 			} else if (count == 0) {
 				UIUtils.showListMessage(SearchResultsActivity.this,
-						R.string.no_results);
+						R.string.search_no_results);
 			} else if (count == 1) {
 				if (BggApplication.getInstance().getSkipResults()) {
 					viewBoardGame(result.mSearchResults.get(0).Id);
 					finish();
 				}
 			} else {
-				mSearchReults = result.mSearchResults;
+				mSearchResults = result.mSearchResults;
 				mAdapter = new BoardGameAdapter();
 				setListAdapter(mAdapter);
 			}
@@ -167,13 +176,12 @@ public class SearchResultsActivity extends ListActivity {
 		}
 	}
 
-	class BoardGameAdapter extends
-			ArrayAdapter<RemoteSearchHandler.SearchResult> {
+	class BoardGameAdapter extends ArrayAdapter<SearchResult> {
 		private LayoutInflater mInflater;
 
 		BoardGameAdapter() {
 			super(SearchResultsActivity.this, R.layout.row_search,
-					mSearchReults);
+					mSearchResults);
 			mInflater = getLayoutInflater();
 		}
 
@@ -188,16 +196,18 @@ public class SearchResultsActivity extends ListActivity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			RemoteSearchHandler.SearchResult bg = mSearchReults.get(position);
-			if (bg != null) {
-				holder.name.setText(bg.Name);
-				if (bg.YearPublished > 0) {
-					holder.year.setText("" + bg.YearPublished);
+			SearchResult game = mSearchResults.get(position);
+			if (game != null) {
+				holder.name.setText(game.Name);
+				if (!game.IsNamePrimary) {
+					holder.name.setTypeface(holder.name.getTypeface(), 2);
 				}
-				holder.gameId
-						.setText(String
-								.format(getResources().getString(
-										R.string.id_list_text), bg.Id));
+				if (game.YearPublished > 0) {
+					holder.year.setText("" + game.YearPublished);
+				}
+				holder.gameId.setText(String.format(
+						getResources().getString(R.string.id_list_text),
+						game.Id));
 			}
 
 			return convertView;

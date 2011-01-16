@@ -213,7 +213,7 @@ public class BoardgamesActivity extends ListActivity {
 				getBoardGameList();
 			} else {
 				// display if no results are found
-				updateMessage(R.string.no_results, searchText, false);
+				updateMessage(R.string.search_no_results, searchText, false);
 				setTitle(String.format(getResources().getString(R.string.bg_list_title), count, searchText));
 			}
 		} else if (count == 1) {
