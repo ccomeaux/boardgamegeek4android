@@ -118,36 +118,26 @@ public class SearchResultsActivity extends ListActivity {
 	private class SearchTask extends AsyncTask<Void, Void, RemoteSearchHandler> {
 
 		private HttpClient mHttpClient;
-		private RemoteSearchHandler mSearchHandler = new RemoteSearchHandler();
+		private RemoteExecutor mExecutor;
+		private RemoteSearchHandler mHandler = new RemoteSearchHandler();
 
 		@Override
 		protected void onPreExecute() {
 			mSearchResults.clear();
 			mHttpClient = HttpUtils.createHttpClient(SearchResultsActivity.this, true);
+			mExecutor = new RemoteExecutor(mHttpClient, null);
 		}
 
 		@Override
 		protected RemoteSearchHandler doInBackground(Void... params) {
-			RemoteExecutor re = new RemoteExecutor(mHttpClient, null);
-			String url = null;
 			if (BggApplication.getInstance().getExactSearch()) {
-				url = constructUrl(true);
-				try {
-					re.executeGet(url.toString(), mSearchHandler);
-				} catch (HandlerException e) {
-					Log.e(TAG, e.toString());
-				}
-				if (mSearchHandler.isBggDown() || mSearchHandler.getCount() > 0) {
-					return mSearchHandler;
+				executeGet(true);
+				if (mHandler.isBggDown() || mHandler.getCount() > 0) {
+					return mHandler;
 				}
 			}
-			url = constructUrl(false);
-			try {
-				re.executeGet(url.toString(), mSearchHandler);
-			} catch (HandlerException e) {
-				Log.e(TAG, e.toString());
-			}
-			return mSearchHandler;
+			executeGet(false);
+			return mHandler;
 		}
 
 		@Override
@@ -161,16 +151,25 @@ public class SearchResultsActivity extends ListActivity {
 				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results_details);
 			} else if (count == 1) {
 				if (BggApplication.getInstance().getSkipResults()) {
-					viewBoardGame(result.mSearchResults.get(0).Id);
+					viewBoardGame(result.getResults().get(0).Id);
 					finish();
 				}
 			} else {
-				mSearchResults = result.mSearchResults;
+				mSearchResults = result.getResults();
 				String message = String.format(getResources().getString(R.string.search_results),
 						mSearchResults.size(), mSearchText);
 				mSearchTextView.setText(message);
 				mAdapter = new BoardGameAdapter();
 				setListAdapter(mAdapter);
+			}
+		}
+
+		private void executeGet(boolean useExact) {
+			String url = constructUrl(useExact);
+			try {
+				mExecutor.executeGet(url, mHandler);
+			} catch (HandlerException e) {
+				Log.e(TAG, e.toString());
 			}
 		}
 

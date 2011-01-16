@@ -21,7 +21,8 @@ public class RemoteSearchHandler extends XmlHandler {
 	// private static final String TAG = "RemoteSearchHandler";
 
 	private XmlPullParser mParser;
-	public List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
+	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
+	private boolean mIsBggDown;
 
 	public int getCount() {
 		return mSearchResults.size();
@@ -32,11 +33,7 @@ public class RemoteSearchHandler extends XmlHandler {
 	}
 
 	public boolean isBggDown() {
-		return false;
-	}
-
-	public void setBggIsDown() {
-		// TEMP
+		return mIsBggDown;
 	}
 
 	public RemoteSearchHandler() {
@@ -44,16 +41,32 @@ public class RemoteSearchHandler extends XmlHandler {
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver,
-			String authority) throws XmlPullParserException, IOException {
+	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
+			throws XmlPullParserException, IOException {
 
 		mParser = parser;
-		mSearchResults = new ArrayList<SearchResult>();
+		mSearchResults.clear();
 
 		int type;
 		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.BOARDGAMES.equals(mParser.getName())) {
-				parseItems();
+			if (type == START_TAG) {
+				String name = mParser.getName();
+				if (Tags.BOARDGAMES.equals(name)) {
+					parseItems();
+				} else if (Tags.ANCHOR.equals(name)) {
+					// This method is currently broken since the meta element is
+					// unclosed
+					String href = mParser.getAttributeValue(null, Tags.HREF);
+					if (Tags.DOWN_LINK.equals(href)) {
+						mSearchResults.clear();
+						mIsBggDown = true;
+						break;
+					}
+				} else if (Tags.HTML.equals(name)) {
+					mSearchResults.clear();
+					mIsBggDown = true;
+					break;
+				}
 			}
 		}
 
@@ -64,16 +77,14 @@ public class RemoteSearchHandler extends XmlHandler {
 
 		final int depth = mParser.getDepth();
 		int type;
-		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth)
-				&& type != END_DOCUMENT) {
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
 
-				int id = Utility.parseInt(mParser.getAttributeValue(null,
-						Tags.OBJECT_ID));
+				int id = Utility.parseInt(mParser.getAttributeValue(null, Tags.OBJECT_ID));
 
-				SearchResult sr = parseItem();
-				sr.Id = id;
-				mSearchResults.add(sr);
+				SearchResult result = parseItem();
+				result.Id = id;
+				mSearchResults.add(result);
 			}
 		}
 	}
@@ -85,14 +96,12 @@ public class RemoteSearchHandler extends XmlHandler {
 
 		final int depth = mParser.getDepth();
 		int type;
-		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth)
-				&& type != END_DOCUMENT) {
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 
 			if (type == START_TAG) {
 				tag = mParser.getName();
 				if (Tags.NAME.equals(tag)) {
-					sr.IsNamePrimary = "true".equals(mParser.getAttributeValue(
-							null, Tags.PRIMARY));
+					sr.IsNamePrimary = Tags.TRUE.equals(mParser.getAttributeValue(null, Tags.PRIMARY));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -115,7 +124,12 @@ public class RemoteSearchHandler extends XmlHandler {
 		String OBJECT_ID = "objectid";
 		String NAME = "name";
 		String PRIMARY = "primary";
+		String TRUE = "true";
 		String YEAR_PUBLISHED = "yearpublished";
+		String ANCHOR = "a";
+		String HREF = "href";
+		String DOWN_LINK = "http://groups.google.com/group/bgg_down";
+		String HTML = "html";
 	}
 
 	// Example:
