@@ -84,6 +84,8 @@ public class SearchResultsActivity extends ListActivity {
 			if (TextUtils.isEmpty(mSearchText)) {
 				showError("Search performed with no search text");
 			} else {
+				mSearchResults.clear();
+				setListAdapter(null);
 				String message = String.format(getResources().getString(R.string.search_searching), mSearchText);
 				mSearchTextView.setText(message);
 				UIUtils.showListMessage(this, R.string.search_message, false);
