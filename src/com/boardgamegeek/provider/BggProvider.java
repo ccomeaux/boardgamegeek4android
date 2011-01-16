@@ -19,7 +19,6 @@ import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.boardgamegeek.DataHelper;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -72,9 +71,9 @@ public class BggProvider extends ContentProvider {
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, Games.YEAR_PUBLISHED + " AS "
 				+ SearchManager.SUGGEST_COLUMN_TEXT_2);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games._ID + " AS "
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
 				+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games._ID + " AS "
+		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
 				+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
 		map.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS " + SearchManager.SUGGEST_COLUMN_ICON_1);
 		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI + "/' || " + Tables.GAMES + "."
@@ -133,7 +132,6 @@ public class BggProvider extends ContentProvider {
 				if (query == null) {
 					return null;
 				} else {
-
 					query = URLEncoder.encode(query);
 					final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 					qb.setTables(Tables.GAMES);
@@ -147,30 +145,29 @@ public class BggProvider extends ContentProvider {
 						orderBy = sortOrder;
 					}
 					Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-
-					// Tell the cursor what URI to watch, so it knows when its
-					// source data
-					// changes
 					c.setNotificationUri(getContext().getContentResolver(), uri);
 					Log.d(TAG, "Queried URI " + uri);
 					return c;
 				}
 			}
-			case SHORTCUT_REFRESH:
-				return null;
-				// String shortcutId = null;
-				// if (uri.getPathSegments().size() > 1) {
-				// shortcutId = uri.getLastPathSegment();
-				// }
-				// if (TextUtils.isEmpty(shortcutId)) {
-				// return null;
-				// } else {
-				// qb.setTables(BOARDGAME_TABLE);
-				// qb.setProjectionMap(suggestionProjectionMap);
-				// qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "="
-				// + uri.getPathSegments().get(1));
-				// }
-				// break;
+			case SHORTCUT_REFRESH: {
+				String shortcutId = null;
+				if (uri.getPathSegments().size() > 1) {
+					shortcutId = uri.getLastPathSegment();
+				}
+				if (TextUtils.isEmpty(shortcutId)) {
+					return null;
+				} else {
+					final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+					qb.setTables(Tables.GAMES);
+					qb.setProjectionMap(sSuggestionProjectionMap);
+					qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "=" + uri.getPathSegments().get(1));
+					Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+					c.setNotificationUri(getContext().getContentResolver(), uri);
+					Log.d(TAG, "Queried URI " + uri);
+					return c;
+				}
+			}
 			default: {
 				final SelectionBuilder builder = buildExpandedSelection(uri, match);
 				if (match == COLLECTION_ID) {
@@ -247,7 +244,8 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		//TODO: fix this to not include the entire thumbnail URL and test for a URI match
+		// TODO: fix this to not include the entire thumbnail URL and test for a
+		// URI match
 		String fileName = uri.getLastPathSegment();
 		final File file = ImageCache.getExistingImageFile(fileName);
 		if (file != null) {

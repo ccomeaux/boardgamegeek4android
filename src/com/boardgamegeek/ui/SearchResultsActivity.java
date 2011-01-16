@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,13 +84,20 @@ public class SearchResultsActivity extends ListActivity {
 			if (TextUtils.isEmpty(mSearchText)) {
 				showError("Search performed with no search text");
 			} else {
-				String message = String.format(
-						getResources().getString(R.string.search_searching),
-						mSearchText);
+				String message = String.format(getResources().getString(R.string.search_searching), mSearchText);
 				mSearchTextView.setText(message);
 				UIUtils.showListMessage(this, R.string.search_message, false);
 				SearchTask task = new SearchTask();
 				task.execute();
+			}
+		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+			String data = intent.getDataString();
+			if (TextUtils.isEmpty(data)) {
+				showError("Trying to view an unspecified game.");
+			} else {
+				Uri uri = Uri.parse(data);
+				viewBoardGame(Utility.parseInt(uri.getLastPathSegment(), 0));
+				finish();
 			}
 		} else {
 			showError("Received bad intent action: " + intent.getAction());
@@ -115,8 +123,7 @@ public class SearchResultsActivity extends ListActivity {
 		@Override
 		protected void onPreExecute() {
 			mSearchResults.clear();
-			mHttpClient = HttpUtils.createHttpClient(
-					SearchResultsActivity.this, true);
+			mHttpClient = HttpUtils.createHttpClient(SearchResultsActivity.this, true);
 		}
 
 		@Override
@@ -147,11 +154,9 @@ public class SearchResultsActivity extends ListActivity {
 		protected void onPostExecute(RemoteSearchHandler result) {
 			int count = result.getCount();
 			if (result.isBggDown()) {
-				UIUtils.showListMessage(SearchResultsActivity.this,
-						R.string.bgg_down);
+				UIUtils.showListMessage(SearchResultsActivity.this, R.string.bgg_down);
 			} else if (count == 0) {
-				UIUtils.showListMessage(SearchResultsActivity.this,
-						R.string.search_no_results);
+				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results);
 			} else if (count == 1) {
 				if (BggApplication.getInstance().getSkipResults()) {
 					viewBoardGame(result.mSearchResults.get(0).Id);
@@ -159,8 +164,7 @@ public class SearchResultsActivity extends ListActivity {
 				}
 			} else {
 				mSearchResults = result.mSearchResults;
-				String message = String.format(
-						getResources().getString(R.string.search_results),
+				String message = String.format(getResources().getString(R.string.search_results),
 						mSearchResults.size(), mSearchText);
 				mSearchTextView.setText(message);
 				mAdapter = new BoardGameAdapter();
@@ -169,13 +173,11 @@ public class SearchResultsActivity extends ListActivity {
 		}
 
 		private String constructUrl(boolean useExact) {
-			// http://boardgamegeek.com/xmlapi2/search?query=agricola
-			String queryUrl = Utility.siteUrl + "xmlapi/search?search="
-					+ mSearchText;
+			// http://boardgamegeek.com/xmlapi2/search?query=puerto+rico
+			String queryUrl = Utility.siteUrl + "xmlapi/search?search=" + URLEncoder.encode(mSearchText);
 			if (useExact) {
 				queryUrl += "&exact=1";
 			}
-			queryUrl = queryUrl.replace(" ", "+");
 			Log.d(TAG, "Query: " + queryUrl);
 			return queryUrl;
 		}
@@ -185,16 +187,14 @@ public class SearchResultsActivity extends ListActivity {
 		private LayoutInflater mInflater;
 
 		BoardGameAdapter() {
-			super(SearchResultsActivity.this, R.layout.row_search,
-					mSearchResults);
+			super(SearchResultsActivity.this, R.layout.row_search, mSearchResults);
 			mInflater = getLayoutInflater();
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_search, parent,
-						false);
+				convertView = mInflater.inflate(R.layout.row_search, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
@@ -210,9 +210,7 @@ public class SearchResultsActivity extends ListActivity {
 				if (game.YearPublished > 0) {
 					holder.year.setText("" + game.YearPublished);
 				}
-				holder.gameId.setText(String.format(
-						getResources().getString(R.string.id_list_text),
-						game.Id));
+				holder.gameId.setText(String.format(getResources().getString(R.string.id_list_text), game.Id));
 			}
 
 			return convertView;
