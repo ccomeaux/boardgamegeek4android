@@ -175,7 +175,9 @@
 		Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
 		and
 		\&quot;of\&quot;, etc.</string>
-	<string name="search_message">Searching for \&quot;%s\&quot;...</string>
+	<string name="search_message">Searching...</string>
+	<string name="search_searching">Searching for \&quot;%s\&quot;</string>
+	<string name="search_results">%1$s matches for \&quot;%2$s\&quot;</string>
 
 	<string name="search_title">Searching</string>
 </resources>

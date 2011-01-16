@@ -53,7 +53,7 @@
     <style name="TitleBarSeparator">
         <item name="android:layout_width">1px</item>
         <item name="android:layout_height">fill_parent</item>
-        <item name="android:background">@color/title_separator</item>
+        <item name="android:background">@color/background_light</item>
     </style>
 
     <!-- An button on the title bar -->

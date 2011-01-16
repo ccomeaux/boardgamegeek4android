@@ -35,19 +35,21 @@ import com.boardgamegeek.util.UIUtils;
 public class SearchResultsActivity extends ListActivity {
 	private final String TAG = "SearchResultsActivity";
 
-	private String mSearchText;
 	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 	private BoardGameAdapter mAdapter;
+	private TextView mSearchTextView;
+	private String mSearchText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_collection);
+		setContentView(R.layout.activity_searchresults);
 
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
 
 		mAdapter = new BoardGameAdapter();
+		mSearchTextView = (TextView) findViewById(R.id.search_text);
 
 		parseIntent(getIntent());
 	}
@@ -81,13 +83,11 @@ public class SearchResultsActivity extends ListActivity {
 			if (TextUtils.isEmpty(mSearchText)) {
 				showError("Search performed with no search text");
 			} else {
-				mSearchResults.clear();
-				UIUtils.showListMessage(
-						this,
-						String.format(
-								getResources().getString(
-										R.string.search_message), mSearchText),
-						false);
+				String message = String.format(
+						getResources().getString(R.string.search_searching),
+						mSearchText);
+				mSearchTextView.setText(message);
+				UIUtils.showListMessage(this, R.string.search_message, false);
 				SearchTask task = new SearchTask();
 				task.execute();
 			}
@@ -114,6 +114,7 @@ public class SearchResultsActivity extends ListActivity {
 
 		@Override
 		protected void onPreExecute() {
+			mSearchResults.clear();
 			mHttpClient = HttpUtils.createHttpClient(
 					SearchResultsActivity.this, true);
 		}
@@ -158,6 +159,10 @@ public class SearchResultsActivity extends ListActivity {
 				}
 			} else {
 				mSearchResults = result.mSearchResults;
+				String message = String.format(
+						getResources().getString(R.string.search_results),
+						mSearchResults.size(), mSearchText);
+				mSearchTextView.setText(message);
 				mAdapter = new BoardGameAdapter();
 				setListAdapter(mAdapter);
 			}
