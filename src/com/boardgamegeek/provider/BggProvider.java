@@ -1,21 +1,32 @@
 package com.boardgamegeek.provider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
 
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.boardgamegeek.DataHelper;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
+import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
@@ -26,6 +37,7 @@ public class BggProvider extends ContentProvider {
 	private BggDatabase mOpenHelper;
 
 	private static final UriMatcher sUriMatcher = buildUriMatcher();
+	private static final HashMap<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
 
 	private static final int GAMES = 100;
 	private static final int GAMES_ID = 101;
@@ -33,6 +45,8 @@ public class BggProvider extends ContentProvider {
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
+	private static final int SEARCH_SUGGEST = 9998;
+	private static final int SHORTCUT_REFRESH = 9999;
 
 	private static UriMatcher buildUriMatcher() {
 		final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -44,8 +58,30 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
+		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
+		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH_SUGGEST);
+		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_SHORTCUT, SHORTCUT_REFRESH);
+		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/#", SHORTCUT_REFRESH);
 
 		return matcher;
+	}
+
+	private static HashMap<String, String> buildSuggestionProjectionMap() {
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(Games._ID, Games._ID);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, Games.YEAR_PUBLISHED + " AS "
+				+ SearchManager.SUGGEST_COLUMN_TEXT_2);
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games._ID + " AS "
+				+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games._ID + " AS "
+				+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS " + SearchManager.SUGGEST_COLUMN_ICON_1);
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI + "/' || " + Tables.GAMES + "."
+				+ Games.THUMBNAIL_URL + " AS " + SearchManager.SUGGEST_COLUMN_ICON_2);
+		map.put(Games.GAME_SORT_NAME, "(CASE WHEN " + Games.GAME_SORT_NAME + " IS NULL THEN " + Games.GAME_SORT_NAME
+				+ " ELSE " + Games.GAME_SORT_NAME + " END) AS " + Games.GAME_SORT_NAME);
+		return map;
 	}
 
 	@Override
@@ -71,26 +107,76 @@ public class BggProvider extends ContentProvider {
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
 				return Buddies.CONTENT_ITEM_TYPE;
+			case SEARCH_SUGGEST:
+				return SearchManager.SUGGEST_MIME_TYPE;
+			case SHORTCUT_REFRESH:
+				return SearchManager.SHORTCUT_MIME_TYPE;
 			default:
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
-		String sortOrder) {
-		if (LOGV)
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		if (LOGV) {
 			Log.v(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
+		}
 		final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
+			case SEARCH_SUGGEST: {
+				String query = null;
+				if (uri.getPathSegments().size() > 1) {
+					query = uri.getLastPathSegment().toLowerCase();
+				}
+				if (query == null) {
+					return null;
+				} else {
+
+					query = URLEncoder.encode(query);
+					final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+					qb.setTables(Tables.GAMES);
+					qb.setProjectionMap(sSuggestionProjectionMap);
+					qb.appendWhere("(" + Tables.GAMES + "." + Games.GAME_NAME + " like '" + query + "%' OR "
+							+ Tables.GAMES + "." + Games.GAME_NAME + " like '% " + query + "%')");
+					String orderBy;
+					if (TextUtils.isEmpty(sortOrder)) {
+						orderBy = Games.DEFAULT_SORT;
+					} else {
+						orderBy = sortOrder;
+					}
+					Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+
+					// Tell the cursor what URI to watch, so it knows when its
+					// source data
+					// changes
+					c.setNotificationUri(getContext().getContentResolver(), uri);
+					Log.d(TAG, "Queried URI " + uri);
+					return c;
+				}
+			}
+			case SHORTCUT_REFRESH:
+				return null;
+				// String shortcutId = null;
+				// if (uri.getPathSegments().size() > 1) {
+				// shortcutId = uri.getLastPathSegment();
+				// }
+				// if (TextUtils.isEmpty(shortcutId)) {
+				// return null;
+				// } else {
+				// qb.setTables(BOARDGAME_TABLE);
+				// qb.setProjectionMap(suggestionProjectionMap);
+				// qb.appendWhere(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID + "="
+				// + uri.getPathSegments().get(1));
+				// }
+				// break;
 			default: {
 				final SelectionBuilder builder = buildExpandedSelection(uri, match);
 				if (match == COLLECTION_ID) {
 					for (int i = 0; i < projection.length; i++) {
 						if (SyncColumns.UPDATED_DETAIL.equals(projection[i])
-							|| SyncColumns.UPDATED_LIST.equals(projection[i])) {
+								|| SyncColumns.UPDATED_LIST.equals(projection[i])) {
 							builder.mapToTable(projection[i], Tables.COLLECTION);
 						}
 					}
@@ -159,6 +245,17 @@ public class BggProvider extends ContentProvider {
 		return rowCount;
 	}
 
+	@Override
+	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+		//TODO: fix this to not include the entire thumbnail URL and test for a URI match
+		String fileName = uri.getLastPathSegment();
+		final File file = ImageCache.getExistingImageFile(fileName);
+		if (file != null) {
+			return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+		}
+		return null;
+	}
+
 	private SelectionBuilder buildSimpleSelection(Uri uri) {
 		final SelectionBuilder builder = new SelectionBuilder();
 		final int match = sUriMatcher.match(uri);
@@ -193,13 +290,13 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
 			case COLLECTION:
-				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID,
-					Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION);
+				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
+						.mapToTable(Collection.GAME_ID, Tables.COLLECTION);
 			case COLLECTION_ID:
 				final int itemId = Collection.getItemId(uri);
-				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID,
-					Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION).where(
-					Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
+				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
+						.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
+						.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
 				// .where(Qualified.SESSIONS_SESSION_ID + "=?", itemId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);

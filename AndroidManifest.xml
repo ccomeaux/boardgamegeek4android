@@ -71,8 +71,8 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.BoardgamesActivity"
-			android:label="@string/search_results"
+		<activity android:name=".ui.SearchResultsActivity"
+			android:label="@string/title_search_results"
 			android:configChanges="keyboardHidden|orientation"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.Bgg">
@@ -93,15 +93,15 @@
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />
 		<activity android:name=".view.BoardGamePollsTab" />
-		<activity android:name=".Preferences" android:label="@string/app_name" />
+		<activity android:name=".Preferences" android:label="@string/app_name" android:theme="@style/Theme.Bgg"/>
 		<activity android:name=".ui.AboutActivity" android:theme="@style/Theme.Bgg" />
 		
 		<service android:name=".service.SyncService" />
 
-		<provider android:authorities="com.boardgamegeek.provider" android:name=".BoardGameGeekProvider" />
+		<provider android:name=".BoardGameGeekProvider" android:authorities="com.boardgamegeek.provider" />
 		<provider android:name=".provider.BggProvider" android:authorities="com.boardgamegeek" />
 
 		<meta-data android:name="android.app.default_searchable"
-			android:value=".ui.BoardgamesActivity" />
+			android:value=".ui.SearchResultsActivity" />
 	</application>
 </manifest>

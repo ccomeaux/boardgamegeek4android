@@ -78,6 +78,11 @@ public class BggContract {
 	private static final String PATH_GAMES = "games";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
+	private static final String PATH_THUMBNAILS = "thumbnails";
+
+	public static class Thumbnails {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
+	}
 
 	public static class Games implements GamesColumns, BaseColumns, SyncColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build();
@@ -97,8 +102,7 @@ public class BggContract {
 	}
 
 	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns {
-		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION)
-			.build();
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
@@ -121,7 +125,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy";
 
 		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_LASTNAME + " COLLATE NOCASE ASC, "
-			+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
+				+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildBuddyUri(int buddyId) {
 			return CONTENT_URI.buildUpon().appendPath("" + buddyId).build();
@@ -132,5 +136,6 @@ public class BggContract {
 		}
 	}
 
-	private BggContract() {}
+	private BggContract() {
+	}
 }

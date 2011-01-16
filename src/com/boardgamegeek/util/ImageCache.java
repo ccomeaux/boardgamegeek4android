@@ -51,8 +51,7 @@ public class ImageCache {
 			}
 
 			final byte[] imageData = EntityUtils.toByteArray(entity);
-			bitmap = BitmapFactory.decodeByteArray(imageData, 0,
-					imageData.length);
+			bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
 			addThumbnailToCache(url, bitmap);
 			return bitmap;
 
@@ -70,7 +69,17 @@ public class ImageCache {
 		}
 		return null;
 	}
-	
+
+	public static File getExistingImageFile(String fileName) {
+		if (!TextUtils.isEmpty(fileName)) {
+			final File file = new File(getCacheDirectory(), fileName);
+			if (file.exists()) {
+				return file;
+			}
+		}
+		return null;
+	}
+
 	private static Bitmap loadFromDisk(String url) {
 		final File file = new File(getCacheDirectory(), getFileNameFromUrl(url));
 		if (file.exists()) {
@@ -121,8 +130,7 @@ public class ImageCache {
 	}
 
 	private static File getCacheDirectory() {
-		final File file = new File(Environment.getExternalStorageDirectory(),
-				BggContract.CONTENT_AUTHORITY);
+		final File file = new File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY);
 		return new File(file, ".imagecache");
 	}
 
