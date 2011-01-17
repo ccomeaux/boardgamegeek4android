@@ -31,7 +31,7 @@ public class ImageCache {
 
 	private static HttpClient sHttpClient;
 
-	public static Bitmap getImage(Context context, String url) {
+	public static Bitmap getImage(Context context, String url) throws OutOfMemoryError {
 
 		Bitmap bitmap = loadFromDisk(url);
 		if (bitmap != null) {

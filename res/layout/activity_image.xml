@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<include layout="@layout/titlebar" />
+	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" />
+	
+	<FrameLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+	
+		<ProgressBar android:id="@+id/image_progress"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:indeterminateOnly="true"
+			android:visibility="gone" />
+		
+		<ImageView android:id="@+id/image" 
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:layout_gravity="center"
+			android:scaleType="fitCenter"
+			android:padding="@dimen/padding_standard"
+			android:visibility="gone" />
+		
+		<TextView android:id="@+id/image_error"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:gravity="center"
+			android:text="@string/image_too_large"
+			android:visibility="gone" />
+			
+	</FrameLayout>
+</LinearLayout>

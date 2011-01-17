@@ -51,6 +51,11 @@
 			</intent-filter>
 		</activity>
 		
+		<activity android:name=".ui.ImageActivity"
+			android:label="@string/title_image"
+			android:theme="@style/Theme.Bgg">
+		</activity>
+
 		<activity android:name=".ui.BuddiesActivity"
 			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg">

@@ -24,8 +24,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
-public class BoardgameActivity extends TabActivity implements
-		AsyncQueryListener {
+public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	// private final static String TAG = "BoardgameActivity";
 
 	private Uri mBoardgameUri;
@@ -34,6 +33,7 @@ public class BoardgameActivity extends TabActivity implements
 	private int mId;
 	private String mName;
 	private String mThumbnailUrl;
+	private String mImageUrl;
 
 	private TextView mNameView;
 	private ImageView mThumbnail;
@@ -70,11 +70,11 @@ public class BoardgameActivity extends TabActivity implements
 			mId = cursor.getInt(BoardgameQuery.GAME_ID);
 			mName = cursor.getString(BoardgameQuery.GAME_NAME);
 			mThumbnailUrl = cursor.getString(BoardgameQuery.THUMBNAIL_URL);
+			mImageUrl = cursor.getString(BoardgameQuery.IMAGE_URL);
 
 			mNameView.setText(mName);
 
-			if (BggApplication.getInstance().getImageLoad()
-					&& !TextUtils.isEmpty(mThumbnailUrl)) {
+			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
 				new ThumbnailTask().execute(mThumbnailUrl);
 			}
 
@@ -96,6 +96,14 @@ public class BoardgameActivity extends TabActivity implements
 		onSearchRequested();
 	}
 
+	public void onThumbnailClick(View v) {
+		Intent i = new Intent(this, ImageActivity.class);
+		i.setAction(Intent.ACTION_VIEW);
+		i.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+		i.putExtra(ImageActivity.KEY_GAME_NAME, mName);
+		startActivity(i);
+	}
+
 	private void setupInfoTab() {
 		final TabHost host = getTabHost();
 
@@ -104,9 +112,7 @@ public class BoardgameActivity extends TabActivity implements
 		intent.setData(mBoardgameUri);
 		intent.addCategory(Intent.CATEGORY_TAB);
 
-		host.addTab(host.newTabSpec("info")
-				.setIndicator(buildIndicator(R.string.tab_title_info))
-				.setContent(intent));
+		host.addTab(host.newTabSpec("info").setIndicator(buildIndicator(R.string.tab_title_info)).setContent(intent));
 	}
 
 	private void setupStatsTab() {
@@ -117,14 +123,12 @@ public class BoardgameActivity extends TabActivity implements
 		intent.setData(mBoardgameUri);
 		intent.addCategory(Intent.CATEGORY_TAB);
 
-		host.addTab(host.newTabSpec("stats")
-				.setIndicator(buildIndicator(R.string.tab_title_stats))
-				.setContent(intent));
+		host.addTab(host.newTabSpec("stats").setIndicator(buildIndicator(R.string.tab_title_stats)).setContent(intent));
 	}
 
 	private View buildIndicator(int textRes) {
-		final TextView indicator = (TextView) getLayoutInflater().inflate(
-				R.layout.tab_indicator, getTabWidget(), false);
+		final TextView indicator = (TextView) getLayoutInflater()
+				.inflate(R.layout.tab_indicator, getTabWidget(), false);
 		indicator.setText(textRes);
 		return indicator;
 	}
@@ -148,12 +152,12 @@ public class BoardgameActivity extends TabActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.log_play:
-			logPlay(false);
-			return true;
-		case R.id.log_play_quick:
-			logPlay(true);
-			return true;
+			case R.id.log_play:
+				logPlay(false);
+				return true;
+			case R.id.log_play_quick:
+				logPlay(true);
+				return true;
 		}
 		return false;
 	}
@@ -192,12 +196,12 @@ public class BoardgameActivity extends TabActivity implements
 	}
 
 	private interface BoardgameQuery {
-		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID,
-				Games.THUMBNAIL_URL, };
+		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL, };
 
 		// int ID = 0;
 		int GAME_NAME = 1;
 		int GAME_ID = 2;
 		int THUMBNAIL_URL = 3;
+		int IMAGE_URL = 4;
 	}
 }

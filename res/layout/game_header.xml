@@ -17,7 +17,8 @@
 		android:adjustViewBounds="true" 
 		android:scaleType="fitCenter"
 		android:src="@drawable/noimage"
-		android:visibility="gone" />
+		android:visibility="gone"
+		android:onClick="onThumbnailClick" />
 	<TextView 
 		android:id="@id/game_name"
 		android:layout_width="fill_parent"
