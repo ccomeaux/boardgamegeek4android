@@ -9,6 +9,12 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <!-- Variation on the Light theme that turns off the title -->
+    <style name="Theme.BggTitle" parent="Theme.Bgg">
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <!-- The horizontal LinearLayout for the entire title bar -->
     <style name="TitleBar">
         <item name="android:id">@id/title_container</item>
