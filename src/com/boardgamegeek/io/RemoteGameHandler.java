@@ -14,7 +14,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
@@ -22,7 +21,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends XmlHandler {
-	private static final String TAG = "RemoteGameHandler";
+	// private static final String TAG = "RemoteGameHandler";
 
 	private XmlPullParser mParser;
 	private ContentResolver mResolver;
@@ -45,13 +44,16 @@ public class RemoteGameHandler extends XmlHandler {
 			if (type == START_TAG && Tags.BOARDGAME.equals(parser.getName())) {
 				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
 
+				ContentValues values = parseGame();
+
 				Uri uri = Games.buildGameUri(id);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
-
 				if (!cursor.moveToFirst()) {
-					Log.w(TAG, "Tried to parse game, but ID not in database: " + id);
+					values.put(Games.GAME_ID, id);
+					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
+					mResolver.insert(Games.CONTENT_URI, values);
 				} else {
-					parseGame(uri);
+					mResolver.update(uri, values, null, null);
 				}
 
 				cursor.close();
@@ -61,7 +63,7 @@ public class RemoteGameHandler extends XmlHandler {
 		return false;
 	}
 
-	private void parseGame(Uri uri) throws XmlPullParserException, IOException {
+	private ContentValues parseGame() throws XmlPullParserException, IOException {
 
 		ContentValues values = new ContentValues();
 		String tag = null;
@@ -76,7 +78,7 @@ public class RemoteGameHandler extends XmlHandler {
 				if (Tags.NAME.equals(tag)) {
 					sortIndex = Utility.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
 					String primary = mParser.getAttributeValue(null, Tags.PRIMARY);
-					if (!"true".equals(primary)) {
+					if (!Tags.TRUE.equals(primary)) {
 						tag = null;
 					}
 				}
@@ -112,7 +114,7 @@ public class RemoteGameHandler extends XmlHandler {
 		}
 
 		values.put(Games.UPDATED_DETAIL, System.currentTimeMillis());
-		mResolver.update(uri, values, null, null);
+		return values;
 	}
 
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -192,14 +194,15 @@ public class RemoteGameHandler extends XmlHandler {
 		// <rank type="family" id="5497" name="strategygames"
 		// friendlyname="Strategy Game Rank" value="15" bayesaverage="7.7765"/>
 		// </ranks>
-		String STATS_STANDARD_DEVIATION = "stddev"; // real
-		String STATS_MEDIAN = "median"; // int
-		String STATS_NUMBER_OWNED = "owned"; // int
-		String STATS_NUMBER_TRADING = "trading"; // int
-		String STATS_NUMBER_WANTING = "wanting"; // int
-		String STATS_NUMBER_WISHING = "wishing"; // int
-		String STATS_NUMBER_COMMENTS = "numcomments"; // int
-		String STATS_NUMBER_WEIGHTS = "numweights"; // int
-		String STATS_AVERAGE_WEIGHT = "averageweight"; // real
+		String STATS_STANDARD_DEVIATION = "stddev";
+		String STATS_MEDIAN = "median";
+		String STATS_NUMBER_OWNED = "owned";
+		String STATS_NUMBER_TRADING = "trading";
+		String STATS_NUMBER_WANTING = "wanting";
+		String STATS_NUMBER_WISHING = "wishing";
+		String STATS_NUMBER_COMMENTS = "numcomments";
+		String STATS_NUMBER_WEIGHTS = "numweights";
+		String STATS_AVERAGE_WEIGHT = "averageweight";
+		String TRUE = "true";
 	}
 }
