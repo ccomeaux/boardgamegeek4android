@@ -24,8 +24,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
-public class CollectionActivity extends ListActivity implements
-		AsyncQueryListener {
+public class CollectionActivity extends ListActivity implements AsyncQueryListener {
 
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -43,8 +42,7 @@ public class CollectionActivity extends ListActivity implements
 
 		Uri uri = getIntent().getData();
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(uri, CollectionQuery.PROJECTION, null, null,
-				Collection.DEFAULT_SORT);
+		mHandler.startQuery(uri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
 	}
 
 	@Override
@@ -68,7 +66,7 @@ public class CollectionActivity extends ListActivity implements
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final int gameId = cursor.getInt(CollectionQuery.GAME_ID);
+		final int gameId = cursor.getInt(Query.GAME_ID);
 		final Uri gameUri = Games.buildGameUri(gameId);
 		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
 	}
@@ -92,13 +90,17 @@ public class CollectionActivity extends ListActivity implements
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
-			holder.name.setText(cursor
-					.getString(CollectionQuery.COLLECTION_NAME));
-			holder.year.setText(cursor
-					.getString(CollectionQuery.YEAR_PUBLISHED));
-			Drawable thumbnail = ImageCache.getDrawableFromCache(cursor
-					.getString(CollectionQuery.THUMBNAIL_URL));
-			
+			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
+
+			String yearPublished = "?";
+			int year = cursor.getInt(Query.YEAR_PUBLISHED);
+			if (year > 0) {
+				yearPublished = "" + year;
+			}
+			holder.year.setText(yearPublished);
+
+			Drawable thumbnail = ImageCache.getDrawableFromCache(cursor.getString(Query.THUMBNAIL_URL));
+
 			if (thumbnail == null) {
 				holder.thumbnail.setVisibility(View.GONE);
 			} else {
@@ -120,10 +122,9 @@ public class CollectionActivity extends ListActivity implements
 		}
 	}
 
-	private interface CollectionQuery {
-		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID,
-				Collection.COLLECTION_NAME, Collection.YEAR_PUBLISHED,
-				Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, };
+	private interface Query {
+		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
+				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, };
 
 		// int _ID = 0;
 		// int COLLECTION_ID = 1;

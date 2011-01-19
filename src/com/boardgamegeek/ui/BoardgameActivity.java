@@ -70,7 +70,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		mRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+		mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 	}
 
 	private void setUiVariables() {
@@ -88,11 +88,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return;
 			}
 
-			mId = cursor.getInt(BoardgameQuery.GAME_ID);
-			mName = cursor.getString(BoardgameQuery.GAME_NAME);
-			mThumbnailUrl = cursor.getString(BoardgameQuery.THUMBNAIL_URL);
-			mImageUrl = cursor.getString(BoardgameQuery.IMAGE_URL);
-			mUpdatedDate = cursor.getLong(BoardgameQuery.UPDATED_DETAIL);
+			mId = cursor.getInt(Query.GAME_ID);
+			mName = cursor.getString(Query.GAME_NAME);
+			mThumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			mImageUrl = cursor.getString(Query.IMAGE_URL);
+			mUpdatedDate = cursor.getLong(Query.UPDATED_DETAIL);
 
 			mNameView.setText(mName);
 
@@ -218,7 +218,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		@Override
 		public void onChange(boolean selfChange) {
 			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
-			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+			mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 			runOnUiThread(new Runnable() {
 				public void run() {
 					showToast(R.string.msg_updated);
@@ -281,7 +281,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 	}
 
-	private interface BoardgameQuery {
+	private interface Query {
 		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL,
 				Games.UPDATED_DETAIL, };
 

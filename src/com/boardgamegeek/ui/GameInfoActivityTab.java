@@ -44,7 +44,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+		mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 	}
 
 	private void setUiVariables() {
@@ -66,10 +66,10 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 			}
 
 			mRankView.setText("?");
-			mYearPublishedView.setText(cursor.getString(BoardgameQuery.YEAR_PUBLISHED));
+			mYearPublishedView.setText(getYearPublished(cursor));
 			mPlayersView.setText(getPlayerDescription(cursor));
 
-			int time = cursor.getInt(BoardgameQuery.PLAYING_TIME);
+			int time = cursor.getInt(Query.PLAYING_TIME);
 			if (time == 0) {
 				mPlayingTimeRow.setVisibility(View.GONE);
 			} else {
@@ -77,7 +77,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				mPlayingTimeRow.setVisibility(View.VISIBLE);
 			}
 
-			int age = cursor.getInt(BoardgameQuery.MINIMUM_AGE);
+			int age = cursor.getInt(Query.MINIMUM_AGE);
 			if (age == 0) {
 				mSuggestedAgesRow.setVisibility(View.GONE);
 			} else {
@@ -85,16 +85,24 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				mSuggestedAgesRow.setVisibility(View.VISIBLE);
 			}
 
-			mIdView.setText(cursor.getString(BoardgameQuery.GAME_ID));
-			mDescriptionView.setText(StringUtils.unescapeHtml(cursor.getString(BoardgameQuery.DESCRIPTION)));
+			mIdView.setText(cursor.getString(Query.GAME_ID));
+			mDescriptionView.setText(StringUtils.unescapeHtml(cursor.getString(Query.DESCRIPTION)));
 		} finally {
 			cursor.close();
 		}
 	}
 
+	private String getYearPublished(Cursor cursor) {
+		int year = cursor.getInt(Query.YEAR_PUBLISHED);
+		if (year == 0) {
+			return "?";
+		}
+		return "" + year;
+	}
+
 	private String getPlayerDescription(Cursor cursor) {
-		final int minPlayers = cursor.getInt(BoardgameQuery.MIN_PLAYERS);
-		final int maxPlayers = cursor.getInt(BoardgameQuery.MAX_PLAYERS);
+		final int minPlayers = cursor.getInt(Query.MIN_PLAYERS);
+		final int maxPlayers = cursor.getInt(Query.MAX_PLAYERS);
 
 		if (minPlayers == 0 && maxPlayers == 0) {
 			return "?";
@@ -128,11 +136,11 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		@Override
 		public void onChange(boolean selfChange) {
 			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
-			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+			mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 		}
 	}
 
-	private interface BoardgameQuery {
+	private interface Query {
 		String[] PROJECTION = { Games.GAME_ID, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS, Games.MAX_PLAYERS,
 				Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, };
 

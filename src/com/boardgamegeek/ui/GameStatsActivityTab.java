@@ -66,7 +66,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+		mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 	}
 
 	private void setUiVariables() {
@@ -107,17 +107,17 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 			}
 
 			// Ratings
-			setText(mRatingsCount, R.string.rating_count, cursor.getInt(BoardgameQuery.STATS_USERS_RATED));
+			setText(mRatingsCount, R.string.rating_count, cursor.getInt(Query.STATS_USERS_RATED));
 
-			final double average = cursor.getDouble(BoardgameQuery.STATS_AVERAGE);
+			final double average = cursor.getDouble(Query.STATS_AVERAGE);
 			setProgressBar(mAverageBar, average, 10.0);
 			setText(mAverage, R.string.average_meter_text, average);
 
-			final double bayesAverage = cursor.getDouble(BoardgameQuery.STATS_BAYES_AVERAGE);
+			final double bayesAverage = cursor.getDouble(Query.STATS_BAYES_AVERAGE);
 			setProgressBar(mBayesAverageBar, bayesAverage, 10.0);
 			setText(mBayesAverage, R.string.bayes_meter_text, bayesAverage);
 
-			final double median = cursor.getDouble(BoardgameQuery.STATS_MEDIAN);
+			final double median = cursor.getDouble(Query.STATS_MEDIAN);
 			if (median <= 0) {
 				mMedianRow.setVisibility(View.GONE);
 			} else {
@@ -126,13 +126,13 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 				setText(mMedian, R.string.median_meter_text, median);
 			}
 
-			final double stdDev = cursor.getDouble(BoardgameQuery.STATS_STANDARD_DEVIATION);
+			final double stdDev = cursor.getDouble(Query.STATS_STANDARD_DEVIATION);
 			setProgressBar(mStdDevBar, stdDev, 5.0);
 			setText(mStdDev, R.string.stdDev_meter_text, stdDev);
 
 			// Weight
-			setText(mWeightCount, R.string.weight_count, cursor.getInt(BoardgameQuery.STATS_NUMBER_WEIGHTS));
-			final double weight = cursor.getDouble(BoardgameQuery.STATS_AVERAGE_WEIGHT);
+			setText(mWeightCount, R.string.weight_count, cursor.getInt(Query.STATS_NUMBER_WEIGHTS));
+			final double weight = cursor.getDouble(Query.STATS_AVERAGE_WEIGHT);
 			setProgressBar(mWeightBar, weight - 1, 4.0);
 			if (weight >= 4.5) {
 				setText(mWeightText, R.string.weight_5_text, weight);
@@ -147,12 +147,12 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 			}
 
 			// users
-			int numRating = cursor.getInt(BoardgameQuery.STATS_USERS_RATED);
-			int numOwned = cursor.getInt(BoardgameQuery.STATS_NUMBER_OWNED);
-			int numTrading = cursor.getInt(BoardgameQuery.STATS_NUMBER_TRADING);
-			int numWanting = cursor.getInt(BoardgameQuery.STATS_NUMBER_WANTING);
-			int numWeights = cursor.getInt(BoardgameQuery.STATS_NUMBER_WEIGHTS);
-			int numWishing = cursor.getInt(BoardgameQuery.STATS_NUMBER_WISHING);
+			int numRating = cursor.getInt(Query.STATS_USERS_RATED);
+			int numOwned = cursor.getInt(Query.STATS_NUMBER_OWNED);
+			int numTrading = cursor.getInt(Query.STATS_NUMBER_TRADING);
+			int numWanting = cursor.getInt(Query.STATS_NUMBER_WANTING);
+			int numWeights = cursor.getInt(Query.STATS_NUMBER_WEIGHTS);
+			int numWishing = cursor.getInt(Query.STATS_NUMBER_WISHING);
 
 			int max = Math.max(numRating, numOwned);
 			max = Math.max(max, numTrading);
@@ -204,11 +204,11 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		@Override
 		public void onChange(boolean selfChange) {
 			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
-			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+			mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
 		}
 	}
 
-	private interface BoardgameQuery {
+	private interface Query {
 		String[] PROJECTION = { Games.STATS_USERS_RATED, Games.STATS_AVERAGE, Games.STATS_BAYES_AVERAGE,
 				Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS,
 				Games.STATS_AVERAGE_WEIGHT, Games.STATS_NUMBER_COMMENTS, Games.STATS_NUMBER_OWNED,
