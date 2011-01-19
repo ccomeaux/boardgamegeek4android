@@ -6,4 +6,7 @@
 	<item android:id="@+id/log_play_quick"
 		android:title="@string/menu_log_play_quick"
 		android:icon="@drawable/ic_menu_agenda" />
+	<item android:id="@+id/refresh"
+		android:title="@string/menu_refresh"
+		android:icon="@drawable/ic_menu_refresh" />
 </menu>

@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -36,6 +37,8 @@ import com.boardgamegeek.util.UIUtils;
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	private final static String TAG = "BoardgameActivity";
 
+	private static final long THROTTLE_IN_MILLIS = 1800000; // 1 hour
+
 	private Uri mBoardgameUri;
 	private NotifyingAsyncQueryHandler mHandler;
 	private boolean mRetry;
@@ -44,6 +47,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private String mName;
 	private String mThumbnailUrl;
 	private String mImageUrl;
+	private long mUpdatedDate;
 
 	private TextView mNameView;
 	private ImageView mThumbnail;
@@ -79,7 +83,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			if (!cursor.moveToFirst()) {
 				if (mRetry) {
 					mRetry = false;
-					new RefreshTask().execute(mBoardgameUri.getLastPathSegment());
+					Refresh();
 				}
 				return;
 			}
@@ -88,6 +92,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mName = cursor.getString(BoardgameQuery.GAME_NAME);
 			mThumbnailUrl = cursor.getString(BoardgameQuery.THUMBNAIL_URL);
 			mImageUrl = cursor.getString(BoardgameQuery.IMAGE_URL);
+			mUpdatedDate = cursor.getLong(BoardgameQuery.UPDATED_DETAIL);
 
 			mNameView.setText(mName);
 
@@ -175,6 +180,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			case R.id.log_play_quick:
 				logPlay(true);
 				return true;
+			case R.id.refresh:
+				long now = System.currentTimeMillis();
+				if (now - mUpdatedDate > THROTTLE_IN_MILLIS) {
+					Refresh();
+				} else {
+					showToast(R.string.msg_refresh_exceeds_throttle);
+				}
+				return true;
 		}
 		return false;
 	}
@@ -188,6 +201,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		startActivity(intent);
 	}
 
+	private void Refresh() {
+		new RefreshTask().execute(mBoardgameUri.getLastPathSegment());
+	}
+
+	private void showToast(int messageId) {
+		Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
+	}
+
 	class GameObserver extends ContentObserver {
 
 		public GameObserver(Handler handler) {
@@ -198,6 +219,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		public void onChange(boolean selfChange) {
 			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
 			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+			runOnUiThread(new Runnable() {
+				public void run() {
+					showToast(R.string.msg_updated);
+				}
+			});
 		}
 	}
 
@@ -221,6 +247,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				mExecutor.executeGet(url, new RemoteGameHandler());
 			} catch (HandlerException e) {
 				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
+				runOnUiThread(new Runnable() {
+					public void run() {
+						showToast(R.string.msg_error_remote);
+					}
+				});
 			}
 			return null;
 		}
@@ -251,12 +282,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	private interface BoardgameQuery {
-		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL, };
+		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL,
+				Games.UPDATED_DETAIL, };
 
 		// int ID = 0;
 		int GAME_NAME = 1;
 		int GAME_ID = 2;
 		int THUMBNAIL_URL = 3;
 		int IMAGE_URL = 4;
+		int UPDATED_DETAIL = 5;
 	}
 }
