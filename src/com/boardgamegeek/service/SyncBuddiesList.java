@@ -9,19 +9,18 @@ import com.boardgamegeek.io.RemoteBuddiesHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesList extends SyncTask {
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context)
-		throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
 
 		ContentResolver resolver = context.getContentResolver();
 		String username = BggApplication.getInstance().getUserName();
 
 		final long startTime = System.currentTimeMillis();
-		executor.executePagedGet(SyncService.BASE_URL_2 + "user?name=" + username + "&buddies=1",
-			new RemoteBuddiesHandler());
+		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), new RemoteBuddiesHandler());
 		resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?", new String[] { "" + startTime });
 	}
 

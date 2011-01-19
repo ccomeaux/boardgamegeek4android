@@ -28,8 +28,6 @@ public class SyncService extends IntentService {
 	public static final int STATUS_COMPLETE = 2;
 	public static final int STATUS_ERROR = 3;
 	public static final String EXTRA_STATUS_RECEIVER = "com.boardgamegeek.extra.STATUS_RECEIVER";
-	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
-	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
 
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;

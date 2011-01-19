@@ -2,6 +2,8 @@ package com.boardgamegeek.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -24,14 +26,59 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 public class HttpUtils {
+
+	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
+	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
+
 	private static final int TIMEOUT_SECS = 20;
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
-	
+
+	public static String constructGameUrl(String gameId) {
+		// TODO: test gameId is an int?
+		return BASE_URL + "boardgame/" + gameId + "?stats=1";
+	}
+
+	public static String constructGameUrl(List<String> gameIds) {
+
+		if (gameIds == null) {
+			return null;
+		}
+		
+		StringBuilder ids = new StringBuilder();
+		for (int i = 0; i < gameIds.size(); i++) {
+			if (i > 0) {
+				ids.append(",");
+			}
+			if (gameIds.get(i) != null) {
+				ids.append(gameIds.get(i));
+			}
+		}
+
+		return constructGameUrl(ids.toString());
+	}
+
+	public static String constructUserUrl(String username) {
+		return constructUserUrl(username, false);
+	}
+
+	public static String constructUserUrl(String username, boolean includeBuddies) {
+		String url = BASE_URL_2 + "user?name=" + URLEncoder.encode(username);
+		if (includeBuddies) {
+			url = url + "&buddies=1";
+		}
+		return url;
+	}
+
+	public static String constructCollectionUrl(String username, String filter) {
+		return BASE_URL + "collection/" + username + (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
+	}
+
 	public static HttpClient createHttpClient(Context context, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);
 		final DefaultHttpClient client = new DefaultHttpClient(params);
@@ -90,7 +137,7 @@ public class HttpUtils {
 			}
 		});
 	}
-	
+
 	private static class InflatingEntity extends HttpEntityWrapper {
 		public InflatingEntity(HttpEntity wrapped) {
 			super(wrapped);

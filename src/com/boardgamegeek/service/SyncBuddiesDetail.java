@@ -1,6 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.net.URLEncoder;
 import java.text.DateFormat;
 
 import android.content.ContentResolver;
@@ -15,6 +14,7 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesDetail extends SyncTask {
 	private final static String TAG = "SyncBuddiesDetail";
@@ -35,8 +35,7 @@ public class SyncBuddiesDetail extends SyncTask {
 				final String name = cursor.getString(0);
 				final long lastUpdated = cursor.getLong(1);
 				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_BUDDY_DETAIL_DAYS) {
-					final String url = URLEncoder.encode(name);
-					executor.executeGet(SyncService.BASE_URL_2 + "user?name=" + url, handler);
+					executor.executeGet(HttpUtils.constructUserUrl(name), handler);
 				} else {
 					Log.v(TAG, "Skipping name=" + name + ", updated on " + dateFormat.format(lastUpdated));
 				}

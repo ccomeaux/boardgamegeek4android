@@ -1,5 +1,8 @@
 package com.boardgamegeek.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -11,6 +14,7 @@ import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
+import com.boardgamegeek.util.HttpUtils;
 
 public class SyncCollectionDetail extends SyncTask {
 
@@ -28,23 +32,22 @@ public class SyncCollectionDetail extends SyncTask {
 
 		try {
 			int count = 0;
-			String ids = "";
+			List<String> ids = new ArrayList<String>();
 			long days = System.currentTimeMillis() - (SYNC_GAME_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
-			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID },
-				SyncColumns.UPDATED_DETAIL + "<? OR " + SyncColumns.UPDATED_DETAIL +" IS NULL", new String[] { "" + days }, null);
+			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, SyncColumns.UPDATED_DETAIL
+					+ "<? OR " + SyncColumns.UPDATED_DETAIL + " IS NULL", new String[] { "" + days }, null);
 			while (cursor.moveToNext()) {
-				final int id = cursor.getInt(0);
+				final String id = cursor.getString(0);
 				count++;
-				ids = ids + "," + id;
+				ids.add(id);
 				if (count == GAMES_PER_FETCH) {
-					fetchGameDetail(ids);
+					mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), new RemoteGameHandler());
 					count = 0;
-					ids = "";
 				}
 			}
 
 			if (count > 0) {
-				fetchGameDetail(ids);
+				mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), new RemoteGameHandler());
 			}
 
 		} finally {
@@ -57,10 +60,5 @@ public class SyncCollectionDetail extends SyncTask {
 	@Override
 	public int getNotification() {
 		return R.string.notification_text_collection_detail;
-	}
-
-	private void fetchGameDetail(String ids) throws HandlerException {
-		final String url = SyncService.BASE_URL + "boardgame/" + ids.substring(1) + "?stats=1";
-		mRemoteExecutor.executeGet(url, new RemoteGameHandler());
 	}
 }
