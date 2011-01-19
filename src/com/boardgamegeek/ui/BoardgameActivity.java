@@ -1,13 +1,18 @@
 package com.boardgamegeek.ui;
 
+import org.apache.http.client.HttpClient;
+
 import android.app.TabActivity;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,17 +23,22 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemoteGameHandler;
+import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
-	// private final static String TAG = "BoardgameActivity";
+	private final static String TAG = "BoardgameActivity";
 
 	private Uri mBoardgameUri;
 	private NotifyingAsyncQueryHandler mHandler;
+	private boolean mRetry;
 
 	private int mId;
 	private String mName;
@@ -52,6 +62,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		setupInfoTab();
 		setupStatsTab();
 
+		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
+
+		mRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
 	}
@@ -64,6 +77,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
 			if (!cursor.moveToFirst()) {
+				if (mRetry) {
+					mRetry = false;
+					new RefreshTask().execute(mBoardgameUri.getLastPathSegment());
+				}
 				return;
 			}
 
@@ -169,6 +186,44 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, mName);
 		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivity(intent);
+	}
+
+	class GameObserver extends ContentObserver {
+
+		public GameObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
+			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+		}
+	}
+
+	private class RefreshTask extends AsyncTask<String, Void, Void> {
+
+		private HttpClient mHttpClient;
+		private RemoteExecutor mExecutor;
+
+		@Override
+		protected void onPreExecute() {
+			mHttpClient = HttpUtils.createHttpClient(BoardgameActivity.this, true);
+			mExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+			String gameId = params[0];
+			Log.d(TAG, "Refreshing game ID = " + gameId);
+			final String url = HttpUtils.constructGameUrl(gameId);
+			try {
+				mExecutor.executeGet(url, new RemoteGameHandler());
+			} catch (HandlerException e) {
+				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
+			}
+			return null;
+		}
 	}
 
 	private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {

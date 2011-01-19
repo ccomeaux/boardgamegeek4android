@@ -3,10 +3,12 @@ package com.boardgamegeek.ui;
 import java.text.NumberFormat;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -17,8 +19,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
-public class GameStatsActivityTab extends Activity implements
-		AsyncQueryListener {
+public class GameStatsActivityTab extends Activity implements AsyncQueryListener {
+	private static final String TAG = "GameStatsActivityTab";
 
 	private Uri mBoardgameUri;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -60,8 +62,8 @@ public class GameStatsActivityTab extends Activity implements
 
 		setUiVariables();
 
-		final Intent intent = getIntent();
-		mBoardgameUri = intent.getData();
+		mBoardgameUri = getIntent().getData();
+		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
@@ -105,16 +107,13 @@ public class GameStatsActivityTab extends Activity implements
 			}
 
 			// Ratings
-			setText(mRatingsCount, R.string.rating_count,
-					cursor.getInt(BoardgameQuery.STATS_USERS_RATED));
+			setText(mRatingsCount, R.string.rating_count, cursor.getInt(BoardgameQuery.STATS_USERS_RATED));
 
-			final double average = cursor
-					.getDouble(BoardgameQuery.STATS_AVERAGE);
+			final double average = cursor.getDouble(BoardgameQuery.STATS_AVERAGE);
 			setProgressBar(mAverageBar, average, 10.0);
 			setText(mAverage, R.string.average_meter_text, average);
 
-			final double bayesAverage = cursor
-					.getDouble(BoardgameQuery.STATS_BAYES_AVERAGE);
+			final double bayesAverage = cursor.getDouble(BoardgameQuery.STATS_BAYES_AVERAGE);
 			setProgressBar(mBayesAverageBar, bayesAverage, 10.0);
 			setText(mBayesAverage, R.string.bayes_meter_text, bayesAverage);
 
@@ -127,16 +126,13 @@ public class GameStatsActivityTab extends Activity implements
 				setText(mMedian, R.string.median_meter_text, median);
 			}
 
-			final double stdDev = cursor
-					.getDouble(BoardgameQuery.STATS_STANDARD_DEVIATION);
+			final double stdDev = cursor.getDouble(BoardgameQuery.STATS_STANDARD_DEVIATION);
 			setProgressBar(mStdDevBar, stdDev, 5.0);
 			setText(mStdDev, R.string.stdDev_meter_text, stdDev);
 
 			// Weight
-			setText(mWeightCount, R.string.weight_count,
-					cursor.getInt(BoardgameQuery.STATS_NUMBER_WEIGHTS));
-			final double weight = cursor
-					.getDouble(BoardgameQuery.STATS_AVERAGE_WEIGHT);
+			setText(mWeightCount, R.string.weight_count, cursor.getInt(BoardgameQuery.STATS_NUMBER_WEIGHTS));
+			final double weight = cursor.getDouble(BoardgameQuery.STATS_AVERAGE_WEIGHT);
 			setProgressBar(mWeightBar, weight - 1, 4.0);
 			if (weight >= 4.5) {
 				setText(mWeightText, R.string.weight_5_text, weight);
@@ -183,17 +179,14 @@ public class GameStatsActivityTab extends Activity implements
 	}
 
 	private void setText(TextView textView, int stringResourceId, int i) {
-		textView.setText(String.format(
-				getResources().getString(stringResourceId), mFormat.format(i)));
+		textView.setText(String.format(getResources().getString(stringResourceId), mFormat.format(i)));
 	}
 
 	private void setText(TextView textView, int stringResourceId, double d) {
-		textView.setText(String.format(
-				getResources().getString(stringResourceId), mFormat.format(d)));
+		textView.setText(String.format(getResources().getString(stringResourceId), mFormat.format(d)));
 	}
 
-	private void setProgressBar(ProgressBar progressBar, double progress,
-			double max) {
+	private void setProgressBar(ProgressBar progressBar, double progress, double max) {
 		setProgressBar(progressBar, (int) (progress * 1000), (int) (max * 1000));
 	}
 
@@ -202,13 +195,24 @@ public class GameStatsActivityTab extends Activity implements
 		progressBar.setProgress(progress);
 	}
 
+	class GameObserver extends ContentObserver {
+
+		public GameObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
+			mHandler.startQuery(mBoardgameUri, BoardgameQuery.PROJECTION);
+		}
+	}
+
 	private interface BoardgameQuery {
-		String[] PROJECTION = { Games.STATS_USERS_RATED, Games.STATS_AVERAGE,
-				Games.STATS_BAYES_AVERAGE, Games.STATS_MEDIAN,
-				Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS,
-				Games.STATS_AVERAGE_WEIGHT, Games.STATS_NUMBER_COMMENTS,
-				Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING,
-				Games.STATS_NUMBER_WANTING, Games.STATS_NUMBER_WISHING, };
+		String[] PROJECTION = { Games.STATS_USERS_RATED, Games.STATS_AVERAGE, Games.STATS_BAYES_AVERAGE,
+				Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS,
+				Games.STATS_AVERAGE_WEIGHT, Games.STATS_NUMBER_COMMENTS, Games.STATS_NUMBER_OWNED,
+				Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING, Games.STATS_NUMBER_WISHING, };
 
 		int STATS_USERS_RATED = 0;
 		int STATS_AVERAGE = 1;
@@ -217,7 +221,7 @@ public class GameStatsActivityTab extends Activity implements
 		int STATS_STANDARD_DEVIATION = 4;
 		int STATS_NUMBER_WEIGHTS = 5;
 		int STATS_AVERAGE_WEIGHT = 6;
-		//int STATS_NUMBER_COMMENTS = 7;
+		// int STATS_NUMBER_COMMENTS = 7;
 		int STATS_NUMBER_OWNED = 8;
 		int STATS_NUMBER_TRADING = 9;
 		int STATS_NUMBER_WANTING = 10;
