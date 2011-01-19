@@ -191,23 +191,29 @@ public class BggProvider extends ContentProvider {
 
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final int match = sUriMatcher.match(uri);
+		Uri newUri;
 		switch (match) {
 			case GAMES: {
 				db.insertOrThrow(Tables.GAMES, null, values);
-				return Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
+				newUri = Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
+				break;
 			}
 			case COLLECTION: {
 				db.insertOrThrow(Tables.COLLECTION, null, values);
-				return Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
+				newUri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
+				break;
 			}
 			case BUDDIES: {
 				db.insertOrThrow(Tables.BUDDIES, null, values);
-				return Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
+				newUri = Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
+				break;
 			}
 			default: {
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
 			}
 		}
+		getContext().getContentResolver().notifyChange(newUri, null);
+		return uri;
 	}
 
 	@Override
@@ -223,6 +229,9 @@ public class BggProvider extends ContentProvider {
 		if (LOGV) {
 			Log.v(TAG, "updated " + rowCount + " rows");
 		}
+		
+		getContext().getContentResolver().notifyChange(uri, null);
+
 		return rowCount;
 	}
 
@@ -239,13 +248,16 @@ public class BggProvider extends ContentProvider {
 		if (LOGV) {
 			Log.v(TAG, "deleted " + rowCount + " rows");
 		}
+
+		getContext().getContentResolver().notifyChange(uri, null);
+
 		return rowCount;
 	}
 
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		// TODO: fix this to not include the entire thumbnail URL and test for a
-		// URI match
+		// TODO: fix this to not include the entire thumbnail URL in the URI
+		// TODO: test for a URI match
 		String fileName = uri.getLastPathSegment();
 		final File file = ImageCache.getExistingImageFile(fileName);
 		if (file != null) {
@@ -295,7 +307,6 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 						.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
-				// .where(Qualified.SESSIONS_SESSION_ID + "=?", itemId);
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
