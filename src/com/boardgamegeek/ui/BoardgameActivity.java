@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.net.URLEncoder;
+
 import org.apache.http.client.HttpClient;
 
 import android.app.TabActivity;
@@ -83,7 +85,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			if (!cursor.moveToFirst()) {
 				if (mRetry) {
 					mRetry = false;
-					Refresh();
+					refresh();
 				}
 				return;
 			}
@@ -166,6 +168,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// only allow logging a play once the game is populated
+
+		// TODO: extend this to other buttons
 		MenuItem mi = menu.findItem(R.id.log_play);
 		mi.setEnabled(!TextUtils.isEmpty(mName));
 		return super.onPrepareOptionsMenu(menu);
@@ -183,10 +187,26 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			case R.id.refresh:
 				long now = System.currentTimeMillis();
 				if (now - mUpdatedDate > THROTTLE_IN_MILLIS) {
-					Refresh();
+					refresh();
 				} else {
 					showToast(R.string.msg_refresh_exceeds_throttle);
 				}
+				return true;
+			case R.id.menu_bgg:
+				link("http://www.boardgamegeek.com/boardgame/" + mId);
+				return true;
+			case R.id.menu_bg_prices:
+				link("http://boardgameprices.com/iphone/?s=" + URLEncoder.encode(mName));
+				return true;
+			case R.id.menu_amazon:
+				link("http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + URLEncoder.encode(mName)
+						+ "&i=toys-and-games&submitSearch=GO");
+				return true;
+			case R.id.menu_ebay:
+				link("http://shop.mobileweb.ebay.com/searchresults?kw=" + URLEncoder.encode(mName));
+				return true;
+			case R.id.share:
+				share();
 				return true;
 		}
 		return false;
@@ -201,8 +221,22 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		startActivity(intent);
 	}
 
-	private void Refresh() {
+	private void refresh() {
 		new RefreshTask().execute(mBoardgameUri.getLastPathSegment());
+	}
+
+	private void link(String link) {
+		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+	}
+
+	private void share() {
+		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+				String.format(getResources().getString(R.string.share_subject), mName));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getResources().getString(R.string.share_text),
+				mName, "http://www.boardgamegeek.com/boardgame/" + mId));
+		startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_title)));
 	}
 
 	private void showToast(int messageId) {

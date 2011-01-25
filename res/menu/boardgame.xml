@@ -9,4 +9,20 @@
 	<item android:id="@+id/refresh"
 		android:title="@string/menu_refresh"
 		android:icon="@drawable/ic_menu_refresh" />
+	<item android:title="@string/menu_links"
+		android:icon="@android:drawable/ic_menu_more">
+		<menu>
+			<item android:id="@+id/menu_bgg" 
+				android:title="@string/menu_link_bgg" />
+			<item android:id="@+id/menu_bg_prices" 
+				android:title="@string/menu_link_bg_prices" />
+			<item android:id="@+id/menu_amazon" 
+				android:title="@string/menu_link_amazon" />
+			<item android:id="@+id/menu_ebay"
+				android:title="@string/menu_link_ebay" />
+		</menu>
+	</item>
+	<item android:id="@+id/share"
+		android:title="@string/menu_share"
+		android:icon="@android:drawable/ic_menu_share" />
 </menu>

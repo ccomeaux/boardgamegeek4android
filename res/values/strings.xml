@@ -182,12 +182,22 @@
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>
 	<string name="menu_refresh">Refresh</string>
+	<string name="menu_links">Links</string>
+	<string name="menu_link_bgg">BoardGameGeek</string>
+	<string name="menu_link_bg_prices">Board Game Prices</string>
+	<string name="menu_link_amazon">Amazon</string>
+	<string name="menu_link_ebay">eBay</string>
+	<string name="menu_share">Share</string>
 
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updated">Updated!</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
+
+	<string name="share_title">Share Game</string>
+	<string name="share_subject">%s on BoardGameGeek</string>
+	<string name="share_text">I found this game using BoardGameGeek on Android that I thought you might like:\n\n%1$s (%2$s)</string>
 
 	<string name="search_title">Searching</string>
 </resources>
