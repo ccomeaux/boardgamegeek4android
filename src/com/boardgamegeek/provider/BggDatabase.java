@@ -9,6 +9,8 @@ import android.util.Log;
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
+import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesColumns;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
@@ -18,10 +20,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 15;
+	private static final int DATABASE_VERSION = 18;
 
 	interface Tables {
 		String GAMES = "games";
+		String GAME_RANKS = "game_ranks";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
 
@@ -69,13 +72,24 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GamesColumns.STATS_NUMBER_WEIGHTS + " INT,"
 			+ GamesColumns.STATS_AVERAGE_WEIGHT + " REAL,"
 			+ "UNIQUE (" + GamesColumns.GAME_ID + ") ON CONFLICT REPLACE)");
-		
+
+		db.execSQL("CREATE TABLE " + Tables.GAME_RANKS + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ GameRanks.GAME_ID + " TEXT " + References.GAME_ID + ","
+			+ GameRanksColumns.GAME_RANK_ID + " INTEGER NOT NULL,"
+			+ GameRanksColumns.GAME_RANK_TYPE + " TEXT NOT NULL,"
+			+ GameRanksColumns.GAME_RANK_NAME + " TEXT NOT NULL,"
+			+ GameRanksColumns.GAME_RANK_FRIENDLY_NAME + " TEXT NOT NULL,"
+			+ GameRanksColumns.GAME_RANK_VALUE + " INTEGER NOT NULL,"
+			+ GameRanksColumns.GAME_RANK_BAYES_AVERAGE + " REAL,"
+			+ "UNIQUE (" + GameRanksColumns.GAME_RANK_ID + "," + GameRanks.GAME_ID + ") ON CONFLICT REPLACE)");
+
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
 			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
-			+ CollectionColumns.COLLECTION_ID + " INTEGER NOT NULL,"
 			+ Collection.GAME_ID + " TEXT " + References.GAME_ID + ","
+			+ CollectionColumns.COLLECTION_ID + " INTEGER NOT NULL,"
 			+ CollectionColumns.COLLECTION_NAME + " TEXT NOT NULL,"
 			+ CollectionColumns.COLLECTION_SORT_NAME + " TEXT NOT NULL,"
 			+ CollectionColumns.STATUS_OWN + " INTEGER NOT NULL DEFAULT 0,"
@@ -96,7 +110,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ CollectionColumns.PRIVATE_INFO_ACQUIRED_FROM + " TEXT,"
 			+ CollectionColumns.PRIVATE_INFO_COMMENT + " TEXT,"
 			+ "UNIQUE (" + CollectionColumns.COLLECTION_ID + ") ON CONFLICT REPLACE)");
-		
+
 		db.execSQL("CREATE TABLE " + Tables.BUDDIES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
@@ -117,6 +131,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			Log.w(TAG, "Destroying old data during upgrade");
 
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

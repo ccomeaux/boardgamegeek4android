@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -21,6 +22,7 @@ import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
@@ -40,6 +42,9 @@ public class BggProvider extends ContentProvider {
 
 	private static final int GAMES = 100;
 	private static final int GAMES_ID = 101;
+	private static final int GAMES_RANKS = 102;
+	private static final int GAMES_RANKS_ID = 103;
+	private static final int GAMES_ID_RANKS = 104;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -53,6 +58,9 @@ public class BggProvider extends ContentProvider {
 
 		matcher.addURI(authority, "games", GAMES);
 		matcher.addURI(authority, "games/#", GAMES_ID);
+		matcher.addURI(authority, "games/ranks", GAMES_RANKS);
+		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
+		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -98,6 +106,12 @@ public class BggProvider extends ContentProvider {
 				return Games.CONTENT_TYPE;
 			case GAMES_ID:
 				return Games.CONTENT_ITEM_TYPE;
+			case GAMES_RANKS:
+				return GameRanks.CONTENT_TYPE;
+			case GAMES_RANKS_ID:
+				return GameRanks.CONTENT_ITEM_TYPE;
+			case GAMES_ID_RANKS:
+				return GameRanks.CONTENT_TYPE;
 			case COLLECTION:
 				return Collection.CONTENT_TYPE;
 			case COLLECTION_ID:
@@ -198,6 +212,13 @@ public class BggProvider extends ContentProvider {
 				newUri = Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
 				break;
 			}
+			case GAMES_ID_RANKS: {
+				final int gameId = Games.getGameId(uri);
+				values.put(GameRanks.GAME_ID, gameId);
+				final long gameRankId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
+				newUri = ContentUris.withAppendedId(GameRanks.CONTENT_URI, gameRankId);
+				break;
+			}
 			case COLLECTION: {
 				db.insertOrThrow(Tables.COLLECTION, null, values);
 				newUri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
@@ -229,7 +250,7 @@ public class BggProvider extends ContentProvider {
 		if (LOGV) {
 			Log.v(TAG, "updated " + rowCount + " rows");
 		}
-		
+
 		getContext().getContentResolver().notifyChange(uri, null);
 
 		return rowCount;
@@ -241,9 +262,15 @@ public class BggProvider extends ContentProvider {
 			Log.v(TAG, "delete(uri=" + uri + ")");
 		}
 
+		int rowCount = 0;
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		final SelectionBuilder builder = buildSimpleSelection(uri);
-		final int rowCount = builder.where(selection, selectionArgs).delete(db);
+		final SelectionBuilder builder = buildSimpleSelection(uri).where(selection, selectionArgs);
+
+		final int match = sUriMatcher.match(uri);
+		if (match == GAMES_ID || match == GAMES) {
+			deleteGameChildren(db, builder);
+		}
+		rowCount = builder.delete(db);
 
 		if (LOGV) {
 			Log.v(TAG, "deleted " + rowCount + " rows");
@@ -273,9 +300,20 @@ public class BggProvider extends ContentProvider {
 		switch (match) {
 			case GAMES:
 				return builder.table(Tables.GAMES);
-			case GAMES_ID:
+			case GAMES_ID: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
+			}
+			case GAMES_RANKS:
+				return builder.table(Tables.GAME_RANKS);
+			case GAMES_RANKS_ID: {
+				final int rankId = GameRanks.getRankId(uri);
+				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", "" + rankId);
+			}
+			case GAMES_ID_RANKS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -296,9 +334,22 @@ public class BggProvider extends ContentProvider {
 		switch (match) {
 			case GAMES:
 				return builder.table(Tables.GAMES);
-			case GAMES_ID:
+			case GAMES_ID: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
+			}
+			case GAMES_RANKS:
+				return builder.table(Tables.GAME_RANKS);
+			case GAMES_RANKS_ID: {
+				final int rankId = GameRanks.getRankId(uri);
+				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", "" + rankId);
+				// TODO: join with game table?
+			}
+			case GAMES_ID_RANKS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
+				// TODO: join with game table?
+			}
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION);
@@ -314,6 +365,20 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", "" + blockId);
 			default:
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
+		}
+	}
+
+	private void deleteGameChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
+		Cursor c = builder.query(db, new String[] { Games.GAME_ID }, null);
+		try {
+			while (c.moveToNext()) {
+				int gameId = c.getInt(0);
+				String[] gameArg = new String[] { "" + gameId };
+				getContext().getContentResolver().delete(GameRanks.CONTENT_URI, GameRanks.GAME_ID + "=?", gameArg);
+				getContext().getContentResolver().delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
+			}
+		} finally {
+			c.close();
 		}
 	}
 }

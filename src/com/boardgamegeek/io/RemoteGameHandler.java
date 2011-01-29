@@ -6,6 +6,8 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -14,17 +16,20 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends XmlHandler {
-	// private static final String TAG = "RemoteGameHandler";
+	private static final String TAG = "RemoteGameHandler";
 
 	private XmlPullParser mParser;
 	private ContentResolver mResolver;
+	private int mId;
 
 	public RemoteGameHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -32,7 +37,7 @@ public class RemoteGameHandler extends XmlHandler {
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-		throws XmlPullParserException, IOException {
+			throws XmlPullParserException, IOException {
 
 		mParser = parser;
 		mResolver = resolver;
@@ -42,14 +47,14 @@ public class RemoteGameHandler extends XmlHandler {
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(parser.getName())) {
-				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
+				mId = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
 
 				ContentValues values = parseGame();
 
-				Uri uri = Games.buildGameUri(id);
+				Uri uri = Games.buildGameUri(mId);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
 				if (!cursor.moveToFirst()) {
-					values.put(Games.GAME_ID, id);
+					values.put(Games.GAME_ID, mId);
 					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
 					mResolver.insert(Games.CONTENT_URI, values);
 				} else {
@@ -124,6 +129,11 @@ public class RemoteGameHandler extends XmlHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				tag = mParser.getName();
+
+				if (Tags.STATS_RANKS.equals(tag)) {
+					parseRanks();
+					tag = null;
+				}
 			} else if (type == END_TAG) {
 				tag = null;
 			} else if (type == TEXT) {
@@ -159,6 +169,70 @@ public class RemoteGameHandler extends XmlHandler {
 		return values;
 	}
 
+	private void parseRanks() throws XmlPullParserException, IOException {
+		List<ContentValues> valuesList = new ArrayList<ContentValues>();
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == START_TAG) {
+				if (Tags.STATS_RANKS_RANK.equals(mParser.getName())) {
+					ContentValues cv = new ContentValues();
+					cv.put(GameRanks.GAME_RANK_BAYES_AVERAGE, parseDoubleAttribute(Tags.STATS_RANKS_RANK_BAYESAVERAGE));
+					cv.put(GameRanks.GAME_RANK_FRIENDLY_NAME, parseStringAttribute(Tags.STATS_RANKS_RANK_FRIENDLYNAME));
+					cv.put(GameRanks.GAME_RANK_ID, parseIntegerAttribute(Tags.STATS_RANKS_RANK_ID));
+					cv.put(GameRanks.GAME_RANK_NAME, parseStringAttribute(Tags.STATS_RANKS_RANK_NAME));
+					cv.put(GameRanks.GAME_RANK_TYPE, parseStringAttribute(Tags.STATS_RANKS_RANK_TYPE));
+					cv.put(GameRanks.GAME_RANK_VALUE, parseIntegerAttribute(Tags.STATS_RANKS_RANK_VALUE));
+					valuesList.add(cv);
+				}
+			} else if (type == END_TAG) {
+				if (Tags.STATS_RANKS.equals(mParser.getName())) {
+					break;
+				}
+			}
+		}
+
+		List<Integer> ids = getCurrentGameRankIds();
+		for (ContentValues values : valuesList) {
+			Integer id = values.getAsInteger(GameRanks.GAME_RANK_ID);
+			if (ids.contains(id)) {
+				mResolver.update(GameRanks.buildGameRankUri(id.intValue()), values, null, null);
+				ids.remove(id);
+			} else {
+				mResolver.insert(GameRanks.buildGameUri(mId), values);
+			}
+		}
+		for (Integer id : ids) {
+			mResolver.delete(GameRanks.buildGameRankUri(id.intValue()), null, null);
+		}
+	}
+
+	private List<Integer> getCurrentGameRankIds() {
+		List<Integer> ids = new ArrayList<Integer>();
+		Cursor c = mResolver.query(GameRanks.CONTENT_URI, new String[] { GameRanks.GAME_RANK_ID }, GameRanks.GAME_ID
+				+ "=?", new String[] { "" + mId }, null);
+		try {
+			while (c.moveToNext()) {
+				ids.add(c.getInt(0));
+			}
+			return ids;
+		} finally {
+			c.close();
+		}
+	}
+
+	private String parseStringAttribute(String tag) {
+		return mParser.getAttributeValue(null, tag);
+	}
+
+	private double parseDoubleAttribute(String tag) {
+		return Utility.parseDouble(parseStringAttribute(tag));
+	}
+
+	private int parseIntegerAttribute(String tag) {
+		return Utility.parseInt(parseStringAttribute(tag));
+	}
+
 	private interface Tags {
 		String BOARDGAME = "boardgame";
 		String ID = "objectid";
@@ -188,12 +262,14 @@ public class RemoteGameHandler extends XmlHandler {
 		String STATS_USERS_RATED = "usersrated";
 		String STATS_AVERAGE = "average";
 		String STATS_BAYES_AVERAGE = "bayesaverage";
-		// <ranks>
-		// <rank type="subtype" id="1" name="boardgame"
-		// friendlyname="Board Game Rank" value="17" bayesaverage="7.72547"/>
-		// <rank type="family" id="5497" name="strategygames"
-		// friendlyname="Strategy Game Rank" value="15" bayesaverage="7.7765"/>
-		// </ranks>
+		String STATS_RANKS = "ranks";
+		String STATS_RANKS_RANK = "rank";
+		String STATS_RANKS_RANK_TYPE = "type";
+		String STATS_RANKS_RANK_ID = "id";
+		String STATS_RANKS_RANK_NAME = "name";
+		String STATS_RANKS_RANK_FRIENDLYNAME = "friendlyname";
+		String STATS_RANKS_RANK_VALUE = "value";
+		String STATS_RANKS_RANK_BAYESAVERAGE = "bayesaverage";
 		String STATS_STANDARD_DEVIATION = "stddev";
 		String STATS_MEDIAN = "median";
 		String STATS_NUMBER_OWNED = "owned";

@@ -40,6 +40,15 @@ public class BggContract {
 		String STATS_AVERAGE_WEIGHT = "average_weight";
 	}
 
+	interface GameRanksColumns {
+		String GAME_RANK_ID = "id";
+		String GAME_RANK_TYPE = "type";
+		String GAME_RANK_NAME = "name";
+		String GAME_RANK_FRIENDLY_NAME = "friendly_name";
+		String GAME_RANK_VALUE = "value";
+		String GAME_RANK_BAYES_AVERAGE = "bayes_average";
+	}
+
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -76,6 +85,7 @@ public class BggContract {
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	private static final String PATH_GAMES = "games";
+	private static final String PATH_GAME_RANKS = "ranks";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -97,6 +107,28 @@ public class BggContract {
 		}
 
 		public static int getGameId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class GameRanks implements GameRanksColumns, GamesColumns, BaseColumns {
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_GAME_RANKS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.rank";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.rank";
+
+		public static final String DEFAULT_SORT = GameRanksColumns.GAME_RANK_TYPE + " DESC, "
+				+ GameRanksColumns.GAME_RANK_FRIENDLY_NAME + " ASC";
+
+		public static Uri buildGameUri(int gameId) {
+			return Games.CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(PATH_GAME_RANKS).build();
+		}
+
+		public static Uri buildGameRankUri(int gameRankId) {
+			return CONTENT_URI.buildUpon().appendPath("" + gameRankId).build();
+		}
+
+		public static int getRankId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}
