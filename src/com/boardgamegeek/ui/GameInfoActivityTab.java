@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -10,8 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -20,9 +24,16 @@ import com.boardgamegeek.util.StringUtils;
 public class GameInfoActivityTab extends Activity implements AsyncQueryListener {
 	private static final String TAG = "GameInfoActivityTab";
 
-	private Uri mBoardgameUri;
-	private NotifyingAsyncQueryHandler mHandler;
+	private static final int TOKEN_GAME = 1;
+	private static final int TOKEN_RANK = 2;
+	private static final String SUBTYPE = "subtype";
 
+	private NotifyingAsyncQueryHandler mHandler;
+	private Uri mGameUri;
+	private Uri mRankUri;
+
+	private TextView mRatingView;
+	private TextView mNumberRatingView;
 	private TextView mRankView;
 	private TextView mYearPublishedView;
 	private TextView mPlayersView;
@@ -39,73 +50,108 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		setContentView(R.layout.activity_tab_game_info);
 
 		setUiVariables();
+		setUris();
 
-		mBoardgameUri = getIntent().getData();
-		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
+		getContentResolver().registerContentObserver(mGameUri, true, new GameObserver(null));
+		getContentResolver().registerContentObserver(mRankUri, true, new RankObserver(null));
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
+		mHandler.startQuery(TOKEN_GAME, mGameUri, GameQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
+	}
+
+	private void setUris() {
+		mGameUri = getIntent().getData();
+		final int gameId = Games.getGameId(mGameUri);
+		mRankUri = GameRanks.buildGameUri(gameId);
 	}
 
 	private void setUiVariables() {
+		mRatingView = (TextView) findViewById(R.id.rating);
+		mNumberRatingView = (TextView) findViewById(R.id.number_rating);
 		mRankView = (TextView) findViewById(R.id.rank);
 		mYearPublishedView = (TextView) findViewById(R.id.yearPublished);
 		mPlayersView = (TextView) findViewById(R.id.numOfPlayers);
-		mPlayingTimeRow = (TableRow) findViewById(R.id.playingTimeRow);
-		mPlayingTimeView = (TextView) findViewById(R.id.playingTime);
-		mSuggestedAgesRow = (TableRow) findViewById(R.id.suggestedAgesRow);
-		mSuggestedAgesView = (TextView) findViewById(R.id.suggestedAges);
+		mPlayingTimeRow = (TableRow) findViewById(R.id.playing_time_row);
+		mPlayingTimeView = (TextView) findViewById(R.id.playing_time);
+		mSuggestedAgesRow = (TableRow) findViewById(R.id.suggested_ages_row);
+		mSuggestedAgesView = (TextView) findViewById(R.id.suggested_ages);
 		mIdView = (TextView) findViewById(R.id.gameId);
 		mDescriptionView = (TextView) findViewById(R.id.description);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
-			if (!cursor.moveToFirst()) {
-				return;
-			}
+			if (token == TOKEN_GAME) {
+				if (!cursor.moveToFirst()) {
+					return;
+				}
 
-			mRankView.setText("?");
-			mYearPublishedView.setText(getYearPublished(cursor));
-			mPlayersView.setText(getPlayerDescription(cursor));
+				mRatingView.setText(getRating(cursor));
+				mNumberRatingView.setText(cursor.getInt(GameQuery.STATS_USERS_RATED) + " Ratings");
+				mYearPublishedView.setText(getYearPublished(cursor));
+				mPlayersView.setText(getPlayerDescription(cursor));
 
-			int time = cursor.getInt(Query.PLAYING_TIME);
-			if (time == 0) {
-				mPlayingTimeRow.setVisibility(View.GONE);
+				int time = cursor.getInt(GameQuery.PLAYING_TIME);
+				if (time == 0) {
+					mPlayingTimeRow.setVisibility(View.GONE);
+				} else {
+					mPlayingTimeView.setText(getPlayingTime(time));
+					mPlayingTimeRow.setVisibility(View.VISIBLE);
+				}
+
+				int age = cursor.getInt(GameQuery.MINIMUM_AGE);
+				if (age == 0) {
+					mSuggestedAgesRow.setVisibility(View.GONE);
+				} else {
+					mSuggestedAgesView.setText(getAge(age));
+					mSuggestedAgesRow.setVisibility(View.VISIBLE);
+				}
+
+				mIdView.setText(cursor.getString(GameQuery.GAME_ID));
+				mDescriptionView.setText(StringUtils.unescapeHtml(cursor.getString(GameQuery.DESCRIPTION)));
+			} else if (token == TOKEN_RANK) {
+				setRank(cursor);
 			} else {
-				mPlayingTimeView.setText(getPlayingTime(time));
-				mPlayingTimeRow.setVisibility(View.VISIBLE);
+				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
 			}
-
-			int age = cursor.getInt(Query.MINIMUM_AGE);
-			if (age == 0) {
-				mSuggestedAgesRow.setVisibility(View.GONE);
-			} else {
-				mSuggestedAgesView.setText(getAge(age));
-				mSuggestedAgesRow.setVisibility(View.VISIBLE);
-			}
-
-			mIdView.setText(cursor.getString(Query.GAME_ID));
-			mDescriptionView.setText(StringUtils.unescapeHtml(cursor.getString(Query.DESCRIPTION)));
 		} finally {
 			cursor.close();
 		}
 	}
 
+	private String getRating(Cursor cursor) {
+		return new DecimalFormat("#0.00").format(cursor.getDouble(GameQuery.STATS_AVERAGE)) + " / 10";
+	}
+
+	private void setRank(Cursor cursor) {
+		while (cursor.moveToNext()) {
+			if (SUBTYPE.equals(cursor.getString(RankQuery.GAME_RANK_TYPE))) {
+				final int rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
+				if (rank == 0) {
+					mRankView.setText(R.string.text_unknown);
+				} else {
+					mRankView.setText("" + rank);
+				}
+				break;
+			}
+		}
+	}
+
 	private String getYearPublished(Cursor cursor) {
-		int year = cursor.getInt(Query.YEAR_PUBLISHED);
+		int year = cursor.getInt(GameQuery.YEAR_PUBLISHED);
 		if (year == 0) {
-			return "?";
+			return getResources().getString(R.string.text_unknown);
 		}
 		return "" + year;
 	}
 
 	private String getPlayerDescription(Cursor cursor) {
-		final int minPlayers = cursor.getInt(Query.MIN_PLAYERS);
-		final int maxPlayers = cursor.getInt(Query.MAX_PLAYERS);
+		final int minPlayers = cursor.getInt(GameQuery.MIN_PLAYERS);
+		final int maxPlayers = cursor.getInt(GameQuery.MAX_PLAYERS);
 
 		if (minPlayers == 0 && maxPlayers == 0) {
-			return "?";
+			return getResources().getString(R.string.text_unknown);
 		} else if (minPlayers >= maxPlayers) {
 			return "" + minPlayers;
 		} else {
@@ -115,19 +161,19 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 	private String getPlayingTime(int time) {
 		if (time > 0) {
-			return time + " minutes";
+			return time + " " + getResources().getString(R.string.time_suffix);
 		}
-		return "?";
+		return getResources().getString(R.string.text_unknown);
 	}
 
 	public String getAge(int age) {
 		if (age > 0) {
-			return age + " and up";
+			return age + " " + getResources().getString(R.string.age_suffix);
 		}
-		return "?";
+		return getResources().getString(R.string.text_unknown);
 	}
 
-	class GameObserver extends ContentObserver {
+	private class GameObserver extends ContentObserver {
 
 		public GameObserver(Handler handler) {
 			super(handler);
@@ -135,21 +181,43 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 		@Override
 		public void onChange(boolean selfChange) {
-			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
-			mHandler.startQuery(mBoardgameUri, Query.PROJECTION);
+			Log.d(TAG, "Caught changed URI = " + mGameUri);
+			mHandler.startQuery(TOKEN_GAME, mGameUri, GameQuery.PROJECTION);
 		}
 	}
 
-	private interface Query {
-		String[] PROJECTION = { Games.GAME_ID, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS, Games.MAX_PLAYERS,
-				Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, };
+	private class RankObserver extends ContentObserver {
+
+		public RankObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			Log.d(TAG, "Caught changed URI = " + mRankUri);
+			mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
+		}
+	}
+
+	private interface GameQuery {
+		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
+				Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED, };
 
 		int GAME_ID = 0;
-		int YEAR_PUBLISHED = 1;
-		int MIN_PLAYERS = 2;
-		int MAX_PLAYERS = 3;
-		int PLAYING_TIME = 4;
-		int MINIMUM_AGE = 5;
-		int DESCRIPTION = 6;
+		int STATS_AVERAGE = 1;
+		int YEAR_PUBLISHED = 2;
+		int MIN_PLAYERS = 3;
+		int MAX_PLAYERS = 4;
+		int PLAYING_TIME = 5;
+		int MINIMUM_AGE = 6;
+		int DESCRIPTION = 7;
+		int STATS_USERS_RATED = 8;
+	}
+
+	private interface RankQuery {
+		String[] PROJECTION = { GameRanks.GAME_RANK_TYPE, GameRanks.GAME_RANK_VALUE, };
+
+		int GAME_RANK_TYPE = 0;
+		int GAME_RANK_VALUE = 1;
 	}
 }

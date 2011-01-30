@@ -88,6 +88,12 @@
         <item name="android:background">@null</item>
     </style>
 
+    <style name="TableLabel">
+    	<item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:gravity">right</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
     <style name="StatRow">
     	<item name="android:layout_width">fill_parent</item>
     	<item name="android:layout_height">fill_parent</item>

@@ -113,7 +113,7 @@
 							</TableRow>
 							<TableRow android:id="@+id/playingTimeRow"
 								android:gravity="center_horizontal">
-								<TextView android:text="@string/playingTime"
+								<TextView android:text="@string/playing_time"
 									android:textAppearance="?android:attr/textAppearanceSmall"
 									android:gravity="right" android:paddingRight="10dip" />
 								<TextView android:id="@+id/playingTime"
@@ -121,7 +121,7 @@
 							</TableRow>
 							<TableRow android:id="@+id/suggestedAgesRow"
 								android:gravity="center_horizontal">
-								<TextView android:text="@string/suggestedAges"
+								<TextView android:text="@string/suggested_ages"
 									android:textAppearance="?android:attr/textAppearanceSmall"
 									android:gravity="right" android:paddingRight="10dip" />
 								<TextView android:id="@+id/suggestedAges"

@@ -51,7 +51,7 @@ public class BoardGameStatsTab extends Activity {
 		}
 
 		// ratings
-		setText(R.id.statsRank, (boardGame.getRank() == 0) ? getResources().getString(R.string.not_available)
+		setText(R.id.statsRank, (boardGame.getRank() == 0) ? getResources().getString(R.string.text_not_available)
 			: "" + boardGame.getRank());
 		setText(R.id.statsRatingCount, R.string.rating_count, boardGame.getRatingCount());
 		setProgressBar(R.id.averageBar, boardGame.getAverage(), 10.0);

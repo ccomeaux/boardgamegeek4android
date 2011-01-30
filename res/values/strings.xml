@@ -49,12 +49,6 @@
 		added to the database as you view them. To start viewing games, just
 		type to start a search on BoardGameGeek.com.</string>
 	<string name="database_updated">Database updated.</string>
-	<string name="rank">Rank</string>
-	<string name="yearPublished">Year Published</string>
-	<string name="numberOfPlayers"># of Players</string>
-	<string name="playingTime">Playing Time</string>
-	<string name="suggestedAges">Suggested Ages</string>
-	<string name="gameId">Game ID</string>
 	<string name="rank_boardgame">Board Game Rank</string>
 	<string name="rank_abstract">Abstract Game Rank</string>
 	<string name="rank_collectible">Collectible Rank</string>
@@ -64,8 +58,6 @@
 	<string name="rank_strategy">Strategy Game Rank</string>
 	<string name="rank_theme">Thematic Rank</string>
 	<string name="rank_war">War Game Rank</string>
-	<string name="not_available">N/A</string>
-	<string name="user_rating">User Rating</string>
 	<string name="average_meter_text">Average = %s</string>
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
@@ -198,6 +190,19 @@
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android that I thought you might like:\n\n%1$s (%2$s)</string>
+
+	<string name="text_not_available">N/A</string>
+	<string name="text_unknown">\?</string>
+
+	<string name="user_rating">User Rating</string>
+	<string name="rank">Rank</string>
+	<string name="yearPublished">Year Published</string>
+	<string name="numberOfPlayers"># of Players</string>
+	<string name="playing_time">Playing Time</string>
+	<string name="time_suffix">minutes</string>
+	<string name="suggested_ages">Suggested Ages</string>
+	<string name="age_suffix">and up</string>
+	<string name="gameId">Game ID</string>
 
 	<string name="search_title">Searching</string>
 </resources>
