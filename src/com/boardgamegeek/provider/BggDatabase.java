@@ -9,22 +9,25 @@ import android.util.Log;
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
+import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesColumns;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
+import com.boardgamegeek.provider.BggContract.SyncListColumns;
 
 public class BggDatabase extends SQLiteOpenHelper {
 	private static final String TAG = "BggDatabase";
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 18;
+	private static final int DATABASE_VERSION = 19;
 
 	interface Tables {
 		String GAMES = "games";
 		String GAME_RANKS = "game_ranks";
+		String DESIGNERS = "designers";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
 
@@ -44,8 +47,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + Tables.GAMES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
-			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
+			+ SyncColumns.UPDATED + " INTEGER,"
+			+ SyncListColumns.UPDATED_LIST + " INTEGER NOT NULL,"
 			+ GamesColumns.GAME_ID + " INTEGER NOT NULL,"
 			+ GamesColumns.GAME_NAME + " TEXT NOT NULL,"
 			+ GamesColumns.GAME_SORT_NAME + " TEXT NOT NULL,"
@@ -83,11 +86,18 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GameRanksColumns.GAME_RANK_VALUE + " INTEGER NOT NULL,"
 			+ GameRanksColumns.GAME_RANK_BAYES_AVERAGE + " REAL,"
 			+ "UNIQUE (" + GameRanksColumns.GAME_RANK_ID + "," + GameRanks.GAME_ID + ") ON CONFLICT REPLACE)");
+		
+		db.execSQL("CREATE TABLE " + Tables.DESIGNERS + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ Designers.DESIGNER_ID + " INTEGER NOT NULL,"
+			+ Designers.DESIGNER_NAME + " TEXT NOT NULL,"
+			+ Designers.DESIGNER_DESCRIPTION + " TEXT,"
+			+ "UNIQUE (" + Designers.DESIGNER_ID + ") ON CONFLICT IGNORE)");
 
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
-			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
+			+ SyncColumns.UPDATED + " INTEGER,"
+			+ SyncListColumns.UPDATED_LIST + " INTEGER NOT NULL,"
 			+ Collection.GAME_ID + " TEXT " + References.GAME_ID + ","
 			+ CollectionColumns.COLLECTION_ID + " INTEGER NOT NULL,"
 			+ CollectionColumns.COLLECTION_NAME + " TEXT NOT NULL,"
@@ -113,8 +123,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 		db.execSQL("CREATE TABLE " + Tables.BUDDIES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED_LIST + " INTEGER NOT NULL,"
-			+ SyncColumns.UPDATED_DETAIL + " INTEGER,"
+			+ SyncColumns.UPDATED + " INTEGER,"
+			+ SyncListColumns.UPDATED_LIST + " INTEGER NOT NULL,"
 			+ BuddiesColumns.BUDDY_ID + " INTEGER NOT NULL,"
 			+ BuddiesColumns.BUDDY_NAME + " TEXT NOT NULL,"
 			+ BuddiesColumns.BUDDY_FIRSTNAME + " TEXT,"
@@ -132,6 +142,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

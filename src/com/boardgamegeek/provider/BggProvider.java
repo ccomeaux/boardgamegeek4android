@@ -22,9 +22,11 @@ import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
+import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.ImageCache;
@@ -45,6 +47,8 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_RANKS = 102;
 	private static final int GAMES_RANKS_ID = 103;
 	private static final int GAMES_ID_RANKS = 104;
+	private static final int DESIGNERS = 110;
+	private static final int DESIGNERS_ID = 111;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -61,6 +65,8 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/ranks", GAMES_RANKS);
 		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
+		matcher.addURI(authority, "designers", DESIGNERS);
+		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -112,6 +118,10 @@ public class BggProvider extends ContentProvider {
 				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_RANKS:
 				return GameRanks.CONTENT_TYPE;
+			case DESIGNERS:
+				return Designers.CONTENT_TYPE;
+			case DESIGNERS_ID:
+				return Designers.CONTENT_ITEM_TYPE;
 			case COLLECTION:
 				return Collection.CONTENT_TYPE;
 			case COLLECTION_ID:
@@ -186,8 +196,8 @@ public class BggProvider extends ContentProvider {
 				final SelectionBuilder builder = buildExpandedSelection(uri, match);
 				if (match == COLLECTION_ID) {
 					for (int i = 0; i < projection.length; i++) {
-						if (SyncColumns.UPDATED_DETAIL.equals(projection[i])
-								|| SyncColumns.UPDATED_LIST.equals(projection[i])) {
+						if (SyncColumns.UPDATED.equals(projection[i])
+								|| SyncListColumns.UPDATED_LIST.equals(projection[i])) {
 							builder.mapToTable(projection[i], Tables.COLLECTION);
 						}
 					}
@@ -216,7 +226,13 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				values.put(GameRanks.GAME_ID, gameId);
 				final long gameRankId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
+				// TODO: use a method from GameRanks
 				newUri = ContentUris.withAppendedId(GameRanks.CONTENT_URI, gameRankId);
+				break;
+			}
+			case DESIGNERS: {
+				db.insertOrThrow(Tables.DESIGNERS, null, values);
+				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
 				break;
 			}
 			case COLLECTION: {
@@ -314,6 +330,11 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
 			}
+			case DESIGNERS:
+				return builder.table(Tables.DESIGNERS);
+			case DESIGNERS_ID:
+				final int designerId = Designers.getDesignerId(uri);
+				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -350,6 +371,11 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
 				// TODO: join with game table?
 			}
+			case DESIGNERS:
+				return builder.table(Tables.DESIGNERS);
+			case DESIGNERS_ID:
+				final int designerId = Designers.getDesignerId(uri);
+				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION);

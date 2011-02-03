@@ -21,14 +21,14 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 
 public class RemoteBuddyUserHandler extends XmlHandler {
 	private static final String TAG = "RemoteBuddyUserHandler";
-	
+
 	public RemoteBuddyUserHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
 	}
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-		throws XmlPullParserException, IOException {
+			throws XmlPullParserException, IOException {
 
 		String[] projection = { Buddies.BUDDY_ID };
 
@@ -36,7 +36,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.USER.equals(parser.getName())) {
 				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
-				
+
 				Uri uri = Buddies.buildBuddyUri(id);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
 
@@ -53,8 +53,8 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		return false;
 	}
 
-	private void parseUser(XmlPullParser parser, ContentResolver resolver, Uri uri)
-		throws XmlPullParserException, IOException {
+	private void parseUser(XmlPullParser parser, ContentResolver resolver, Uri uri) throws XmlPullParserException,
+			IOException {
 
 		final int depth = parser.getDepth();
 		ContentValues values = new ContentValues();
@@ -74,7 +74,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 			}
 		}
 
-		values.put(Buddies.UPDATED_DETAIL, System.currentTimeMillis());
+		values.put(Buddies.UPDATED, System.currentTimeMillis());
 		resolver.update(uri, values, null, null);
 	}
 

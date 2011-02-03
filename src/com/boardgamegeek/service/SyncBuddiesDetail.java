@@ -29,8 +29,8 @@ public class SyncBuddiesDetail extends SyncTask {
 			ContentResolver resolver = context.getContentResolver();
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
 
-			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME,
-				SyncColumns.UPDATED_DETAIL }, null, null, null);
+			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME, SyncColumns.UPDATED },
+					null, null, null);
 			while (cursor.moveToNext()) {
 				final String name = cursor.getString(0);
 				final long lastUpdated = cursor.getLong(1);

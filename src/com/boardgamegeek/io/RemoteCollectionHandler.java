@@ -20,7 +20,7 @@ import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.SyncColumns;
+import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCollectionHandler extends XmlHandler {
@@ -40,8 +40,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 	private int mInsertCollectionCount = 0;
 	private int mSkipCollectionCount = 0;
 
-	private String[] mGameProjection = new String[] { SyncColumns.UPDATED_LIST };
-	private String[] mCollectionProjection = new String[] { SyncColumns.UPDATED_LIST };
+	private String[] mGameProjection = new String[] { SyncListColumns.UPDATED_LIST };
+	private String[] mCollectionProjection = new String[] { SyncListColumns.UPDATED_LIST };
 
 	public RemoteCollectionHandler(long startTime) {
 		super(BggContract.CONTENT_AUTHORITY);

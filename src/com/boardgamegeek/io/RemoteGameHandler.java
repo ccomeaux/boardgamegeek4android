@@ -16,16 +16,16 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends XmlHandler {
-	private static final String TAG = "RemoteGameHandler";
+	// private static final String TAG = "RemoteGameHandler";
 
 	private XmlPullParser mParser;
 	private ContentResolver mResolver;
@@ -47,7 +47,7 @@ public class RemoteGameHandler extends XmlHandler {
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(parser.getName())) {
-				mId = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
+				mId = parseIntegerAttribute(Tags.ID);
 
 				ContentValues values = parseGame();
 
@@ -81,11 +81,14 @@ public class RemoteGameHandler extends XmlHandler {
 				tag = mParser.getName();
 
 				if (Tags.NAME.equals(tag)) {
-					sortIndex = Utility.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
-					String primary = mParser.getAttributeValue(null, Tags.PRIMARY);
+					sortIndex = parseIntegerAttribute(Tags.SORT_INDEX, 1);
+					String primary = parseStringAttribute(Tags.PRIMARY);
 					if (!Tags.TRUE.equals(primary)) {
 						tag = null;
 					}
+				} else if (Tags.DESIGNER.equals(tag)) {
+					parseDesigner();
+					tag = null;
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -118,8 +121,24 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		values.put(Games.UPDATED_DETAIL, System.currentTimeMillis());
+		values.put(Games.UPDATED, System.currentTimeMillis());
 		return values;
+	}
+
+	private void parseDesigner() throws XmlPullParserException, IOException {
+
+		ContentValues values = new ContentValues();
+		values.put(Designers.DESIGNER_ID, parseIntegerAttribute(Tags.ID));
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Designers.DESIGNER_NAME, mParser.getText());
+			}
+		}
+		
+		mResolver.insert(Designers.CONTENT_URI, values);
 	}
 
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -176,14 +195,16 @@ public class RemoteGameHandler extends XmlHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				if (Tags.STATS_RANKS_RANK.equals(mParser.getName())) {
-					ContentValues cv = new ContentValues();
-					cv.put(GameRanks.GAME_RANK_BAYES_AVERAGE, parseDoubleAttribute(Tags.STATS_RANKS_RANK_BAYESAVERAGE));
-					cv.put(GameRanks.GAME_RANK_FRIENDLY_NAME, parseStringAttribute(Tags.STATS_RANKS_RANK_FRIENDLYNAME));
-					cv.put(GameRanks.GAME_RANK_ID, parseIntegerAttribute(Tags.STATS_RANKS_RANK_ID));
-					cv.put(GameRanks.GAME_RANK_NAME, parseStringAttribute(Tags.STATS_RANKS_RANK_NAME));
-					cv.put(GameRanks.GAME_RANK_TYPE, parseStringAttribute(Tags.STATS_RANKS_RANK_TYPE));
-					cv.put(GameRanks.GAME_RANK_VALUE, parseIntegerAttribute(Tags.STATS_RANKS_RANK_VALUE));
-					valuesList.add(cv);
+					ContentValues values = new ContentValues();
+					values.put(GameRanks.GAME_RANK_BAYES_AVERAGE,
+							parseDoubleAttribute(Tags.STATS_RANKS_RANK_BAYESAVERAGE));
+					values.put(GameRanks.GAME_RANK_FRIENDLY_NAME,
+							parseStringAttribute(Tags.STATS_RANKS_RANK_FRIENDLYNAME));
+					values.put(GameRanks.GAME_RANK_ID, parseIntegerAttribute(Tags.STATS_RANKS_RANK_ID));
+					values.put(GameRanks.GAME_RANK_NAME, parseStringAttribute(Tags.STATS_RANKS_RANK_NAME));
+					values.put(GameRanks.GAME_RANK_TYPE, parseStringAttribute(Tags.STATS_RANKS_RANK_TYPE));
+					values.put(GameRanks.GAME_RANK_VALUE, parseIntegerAttribute(Tags.STATS_RANKS_RANK_VALUE));
+					valuesList.add(values);
 				}
 			} else if (type == END_TAG) {
 				if (Tags.STATS_RANKS.equals(mParser.getName())) {
@@ -233,6 +254,10 @@ public class RemoteGameHandler extends XmlHandler {
 		return Utility.parseInt(parseStringAttribute(tag));
 	}
 
+	private int parseIntegerAttribute(String tag, int defaultValue) {
+		return Utility.parseInt(parseStringAttribute(tag), defaultValue);
+	}
+
 	private interface Tags {
 		String BOARDGAME = "boardgame";
 		String ID = "objectid";
@@ -247,6 +272,7 @@ public class RemoteGameHandler extends XmlHandler {
 		String DESCRIPTION = "description";
 		String THUMBNAIL = "thumbnail";
 		String IMAGE = "image";
+		String DESIGNER = "boardgamedesigner";
 		// family
 		// expansion
 		// artist

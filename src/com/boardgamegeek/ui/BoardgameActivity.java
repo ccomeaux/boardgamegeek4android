@@ -93,7 +93,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mName = cursor.getString(GameQuery.GAME_NAME);
 			mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
 			mImageUrl = cursor.getString(GameQuery.IMAGE_URL);
-			mUpdatedDate = cursor.getLong(GameQuery.UPDATED_DETAIL);
+			mUpdatedDate = cursor.getLong(GameQuery.UPDATED);
 
 			mNameView.setText(mName);
 
@@ -315,13 +315,13 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private interface GameQuery {
 		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL,
-				Games.UPDATED_DETAIL, };
+				Games.UPDATED, };
 
 		// int ID = 0;
 		int GAME_NAME = 1;
 		int GAME_ID = 2;
 		int THUMBNAIL_URL = 3;
 		int IMAGE_URL = 4;
-		int UPDATED_DETAIL = 5;
+		int UPDATED = 5;
 	}
 }

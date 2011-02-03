@@ -8,8 +8,11 @@ import com.boardgamegeek.Utility;
 public class BggContract {
 
 	public interface SyncColumns {
+		String UPDATED = "updated";
+	}
+
+	public interface SyncListColumns {
 		String UPDATED_LIST = "updated_list";
-		String UPDATED_DETAIL = "updated_detail";
 	}
 
 	interface GamesColumns {
@@ -41,12 +44,23 @@ public class BggContract {
 	}
 
 	interface GameRanksColumns {
-		String GAME_RANK_ID = "id";
-		String GAME_RANK_TYPE = "type";
-		String GAME_RANK_NAME = "name";
-		String GAME_RANK_FRIENDLY_NAME = "friendly_name";
-		String GAME_RANK_VALUE = "value";
-		String GAME_RANK_BAYES_AVERAGE = "bayes_average";
+		String GAME_RANK_ID = "gamerank_id";
+		String GAME_RANK_TYPE = "gamerank_type";
+		String GAME_RANK_NAME = "gamerank_name";
+		String GAME_RANK_FRIENDLY_NAME = "gamerank_friendly_name";
+		String GAME_RANK_VALUE = "gamerank_value";
+		String GAME_RANK_BAYES_AVERAGE = "gamerank_bayes_average";
+	}
+
+	interface DesignersColumns {
+		String DESIGNER_ID = "designer_id";
+		String DESIGNER_NAME = "designer_name";
+		String DESIGNER_DESCRIPTION = "designer_description";
+	}
+
+	interface GameDesignersColumns {
+		String GAME_ID = "game_id";
+		String DESIGNER_ID = "designer_id";
 	}
 
 	interface CollectionColumns {
@@ -85,7 +99,8 @@ public class BggContract {
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	private static final String PATH_GAMES = "games";
-	private static final String PATH_GAME_RANKS = "ranks";
+	private static final String PATH_RANKS = "ranks";
+	private static final String PATH_DESIGNERS = "designers";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -94,7 +109,7 @@ public class BggContract {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
 	}
 
-	public static class Games implements GamesColumns, BaseColumns, SyncColumns {
+	public static class Games implements GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game";
@@ -112,7 +127,7 @@ public class BggContract {
 	}
 
 	public static class GameRanks implements GameRanksColumns, GamesColumns, BaseColumns {
-		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_GAME_RANKS).build();
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_RANKS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.rank";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.rank";
@@ -121,7 +136,7 @@ public class BggContract {
 				+ GameRanksColumns.GAME_RANK_FRIENDLY_NAME + " ASC";
 
 		public static Uri buildGameUri(int gameId) {
-			return Games.CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(PATH_GAME_RANKS).build();
+			return Games.CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(PATH_RANKS).build();
 		}
 
 		public static Uri buildGameRankUri(int gameRankId) {
@@ -133,7 +148,24 @@ public class BggContract {
 		}
 	}
 
-	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns {
+	public static class Designers implements DesignersColumns, BaseColumns, SyncColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_DESIGNERS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.designer";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.designer";
+
+		public static final String DEFAULT_SORT = DesignersColumns.DESIGNER_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildDesignerUri(int designerId) {
+			return CONTENT_URI.buildUpon().appendPath("" + designerId).build();
+		}
+		
+		public static int getDesignerId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
@@ -150,7 +182,7 @@ public class BggContract {
 		}
 	}
 
-	public static class Buddies implements BuddiesColumns, BaseColumns, SyncColumns {
+	public static class Buddies implements BuddiesColumns, BaseColumns, SyncColumns, SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BUDDIES).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.buddy";
