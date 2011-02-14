@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.net.Uri;
+import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 
 import com.boardgamegeek.Utility;
@@ -58,11 +59,6 @@ public class BggContract {
 		String DESIGNER_DESCRIPTION = "designer_description";
 	}
 
-	interface GameDesignersColumns {
-		String GAME_ID = "game_id";
-		String DESIGNER_ID = "designer_id";
-	}
-
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -118,7 +114,19 @@ public class BggContract {
 		public static final String DEFAULT_SORT = GamesColumns.GAME_SORT_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildGameUri(int gameId) {
-			return CONTENT_URI.buildUpon().appendPath("" + gameId).build();
+			return getUriBuilder(gameId).build();
+		}
+
+		public static Uri buildRanksUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_RANKS).build();
+		}
+
+		public static Uri buildDesignersUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_DESIGNERS).build();
+		}
+		
+		private static Builder getUriBuilder(int gameId){
+			return CONTENT_URI.buildUpon().appendPath("" + gameId);
 		}
 
 		public static int getGameId(Uri uri) {
@@ -134,10 +142,6 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = GameRanksColumns.GAME_RANK_TYPE + " DESC, "
 				+ GameRanksColumns.GAME_RANK_FRIENDLY_NAME + " ASC";
-
-		public static Uri buildGameUri(int gameId) {
-			return Games.CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(PATH_RANKS).build();
-		}
 
 		public static Uri buildGameRankUri(int gameRankId) {
 			return CONTENT_URI.buildUpon().appendPath("" + gameRankId).build();

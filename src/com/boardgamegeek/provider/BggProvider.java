@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,6 +29,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
+import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -47,6 +49,7 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_RANKS = 102;
 	private static final int GAMES_RANKS_ID = 103;
 	private static final int GAMES_ID_RANKS = 104;
+	private static final int GAMES_ID_DESIGNERS = 105;
 	private static final int DESIGNERS = 110;
 	private static final int DESIGNERS_ID = 111;
 	private static final int COLLECTION = 200;
@@ -65,6 +68,7 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/ranks", GAMES_RANKS);
 		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
+		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
@@ -118,6 +122,8 @@ public class BggProvider extends ContentProvider {
 				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_RANKS:
 				return GameRanks.CONTENT_TYPE;
+			case GAMES_ID_DESIGNERS:
+				return Designers.CONTENT_TYPE;
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
@@ -235,6 +241,11 @@ public class BggProvider extends ContentProvider {
 				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
 				break;
 			}
+			case GAMES_ID_DESIGNERS: {
+				db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
+				newUri = Designers.buildDesignerUri(values.getAsInteger(GamesDesigners.DESIGNER_ID));
+				break;
+			}
 			case COLLECTION: {
 				db.insertOrThrow(Tables.COLLECTION, null, values);
 				newUri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
@@ -260,7 +271,9 @@ public class BggProvider extends ContentProvider {
 		}
 
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		final SelectionBuilder builder = buildSimpleSelection(uri);
+		final int match = sUriMatcher.match(uri);
+
+		final SelectionBuilder builder = buildSimpleSelection(uri, match);
 		final int rowCount = builder.where(selection, selectionArgs).update(db, values);
 
 		if (LOGV) {
@@ -280,9 +293,9 @@ public class BggProvider extends ContentProvider {
 
 		int rowCount = 0;
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		final SelectionBuilder builder = buildSimpleSelection(uri).where(selection, selectionArgs);
-
 		final int match = sUriMatcher.match(uri);
+
+		final SelectionBuilder builder = buildSimpleSelection(uri, match).where(selection, selectionArgs);
 		if (match == GAMES_ID || match == GAMES) {
 			deleteGameChildren(db, builder);
 		}
@@ -309,9 +322,8 @@ public class BggProvider extends ContentProvider {
 		return null;
 	}
 
-	private SelectionBuilder buildSimpleSelection(Uri uri) {
+	private SelectionBuilder buildSimpleSelection(Uri uri, int match) {
 		final SelectionBuilder builder = new SelectionBuilder();
-		final int match = sUriMatcher.match(uri);
 
 		switch (match) {
 			case GAMES:
@@ -332,6 +344,10 @@ public class BggProvider extends ContentProvider {
 			}
 			case DESIGNERS:
 				return builder.table(Tables.DESIGNERS);
+			case GAMES_ID_DESIGNERS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_DESIGNERS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
 			case DESIGNERS_ID:
 				final int designerId = Designers.getDesignerId(uri);
 				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
@@ -353,29 +369,6 @@ public class BggProvider extends ContentProvider {
 	private SelectionBuilder buildExpandedSelection(Uri uri, int match) {
 		final SelectionBuilder builder = new SelectionBuilder();
 		switch (match) {
-			case GAMES:
-				return builder.table(Tables.GAMES);
-			case GAMES_ID: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
-			}
-			case GAMES_RANKS:
-				return builder.table(Tables.GAME_RANKS);
-			case GAMES_RANKS_ID: {
-				final int rankId = GameRanks.getRankId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", "" + rankId);
-				// TODO: join with game table?
-			}
-			case GAMES_ID_RANKS: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
-				// TODO: join with game table?
-			}
-			case DESIGNERS:
-				return builder.table(Tables.DESIGNERS);
-			case DESIGNERS_ID:
-				final int designerId = Designers.getDesignerId(uri);
-				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION);
@@ -384,24 +377,21 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 						.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
-			case BUDDIES:
-				return builder.table(Tables.BUDDIES);
-			case BUDDIES_ID:
-				final int blockId = Buddies.getBuddyId(uri);
-				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", "" + blockId);
 			default:
-				throw new UnsupportedOperationException("Unknown uri: " + uri);
+				return buildSimpleSelection(uri, match);
 		}
 	}
 
 	private void deleteGameChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
 		Cursor c = builder.query(db, new String[] { Games.GAME_ID }, null);
 		try {
+			ContentResolver cr = getContext().getContentResolver();
 			while (c.moveToNext()) {
 				int gameId = c.getInt(0);
 				String[] gameArg = new String[] { "" + gameId };
-				getContext().getContentResolver().delete(GameRanks.CONTENT_URI, GameRanks.GAME_ID + "=?", gameArg);
-				getContext().getContentResolver().delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
+				cr.delete(GameRanks.CONTENT_URI, GameRanks.GAME_ID + "=?", gameArg);
+				cr.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
+				cr.delete(Games.buildDesignersUri(gameId), null, null);
 			}
 		} finally {
 			c.close();

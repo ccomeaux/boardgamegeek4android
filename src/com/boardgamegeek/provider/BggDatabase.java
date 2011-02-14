@@ -22,21 +22,31 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 19;
+	private static final int DATABASE_VERSION = 20;
 
 	interface Tables {
 		String GAMES = "games";
 		String GAME_RANKS = "game_ranks";
 		String DESIGNERS = "designers";
+		String GAMES_DESIGNERS = "games_designers";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
+
+		String GAMES_DESIGNERS_JOIN_DESIGNERS = GAMES_DESIGNERS + " "
+			+ "LEFT OUTER JOIN designers ON games_designers.designer_id=designers.designer_id";
 
 		String COLLECTION_JOIN_GAMES = "collection "
 			+ "LEFT OUTER JOIN games ON collection.game_id=games.game_id ";
 	}
 
+	public interface GamesDesigners {
+		String GAME_ID = "game_id";
+		String DESIGNER_ID = "designer_id";
+	}
+
 	private interface References {
 		String GAME_ID = "REFERENCES " + Tables.GAMES + "(" + Games.GAME_ID + ")";
+		String DESIGNER_ID = "REFERENCES " + Tables.DESIGNERS + "(" + Designers.DESIGNER_ID + ")";
 	}
 
 	public BggDatabase(Context context) {
@@ -94,6 +104,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ Designers.DESIGNER_DESCRIPTION + " TEXT,"
 			+ "UNIQUE (" + Designers.DESIGNER_ID + ") ON CONFLICT IGNORE)");
 
+		db.execSQL("CREATE TABLE " + Tables.GAMES_DESIGNERS + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ GamesDesigners.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
+			+ GamesDesigners.DESIGNER_ID + " INTEGER NOT NULL " + References.DESIGNER_ID + ","
+			+ "UNIQUE (" + GamesDesigners.GAME_ID + "," + GamesDesigners.DESIGNER_ID + ") ON CONFLICT IGNORE)");
+
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED + " INTEGER,"
@@ -143,6 +159,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

@@ -63,7 +63,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private void setUris() {
 		mGameUri = getIntent().getData();
 		final int gameId = Games.getGameId(mGameUri);
-		mRankUri = GameRanks.buildGameUri(gameId);
+		mRankUri = Games.buildRanksUri(gameId);
 	}
 
 	private void setUiVariables() {
