@@ -154,6 +154,7 @@
 
 	<string name="tab_title_info">Info</string>
 	<string name="tab_title_stats">Stats</string>
+	<string name="tab_title_lists">Lists</string>
 
 	<string name="search_label">Search BoardGameGeek.com</string>
 	<string name="search_hint">Name of Game</string>

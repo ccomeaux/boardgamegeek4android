@@ -64,8 +64,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mGameUri = getIntent().getData();
 
 		setUiVariables();
-		setupInfoTab();
-		setupStatsTab();
+		setupTabs();
 
 		getContentResolver().registerContentObserver(mGameUri, true, new GameObserver(null));
 
@@ -126,26 +125,21 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		startActivity(i);
 	}
 
-	private void setupInfoTab() {
-		final TabHost host = getTabHost();
-
-		final Intent intent = new Intent(this, GameInfoActivityTab.class);
-		intent.setAction(Intent.ACTION_VIEW);
-		intent.setData(mGameUri);
-		intent.addCategory(Intent.CATEGORY_TAB);
-
-		host.addTab(host.newTabSpec("info").setIndicator(buildIndicator(R.string.tab_title_info)).setContent(intent));
+	private void setupTabs() {
+		setupTab(GameInfoActivityTab.class, "info", R.string.tab_title_info);
+		setupTab(GameStatsActivityTab.class, "stats", R.string.tab_title_stats);
+		setupTab(GameListsActivityTab.class, "lists", R.string.tab_title_lists);
 	}
 
-	private void setupStatsTab() {
+	private void setupTab(Class<?> cls, String tag, int indicatorResource) {
 		final TabHost host = getTabHost();
 
-		final Intent intent = new Intent(this, GameStatsActivityTab.class);
+		final Intent intent = new Intent(this, cls);
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.setData(mGameUri);
 		intent.addCategory(Intent.CATEGORY_TAB);
 
-		host.addTab(host.newTabSpec("stats").setIndicator(buildIndicator(R.string.tab_title_stats)).setContent(intent));
+		host.addTab(host.newTabSpec(tag).setIndicator(buildIndicator(indicatorResource)).setContent(intent));
 	}
 
 	private View buildIndicator(int textRes) {

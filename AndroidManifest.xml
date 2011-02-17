@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.boardgamegeek" android:versionCode="17" android:versionName="2.5 beta">
+	package="com.boardgamegeek" android:versionName="3.0 beta" android:versionCode="17">
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -37,15 +37,19 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.GameInfoActivityTab"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.GameInfoActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.GameStatsActivityTab"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.GameStatsActivityTab" android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<category android:name="android.intent.category.TAB" />
+			</intent-filter>
+		</activity>
+		
+		<activity android:name=".ui.GameListsActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
