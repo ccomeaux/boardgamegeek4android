@@ -36,8 +36,7 @@ import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
 	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = true; // Log.isLoggable(TAG,
-	// Log.VERBOSE);
+	private static final boolean LOGV = true; // Log.isLoggable(TAG, Log.VERBOSE);
 
 	private BggDatabase mOpenHelper;
 
@@ -377,6 +376,13 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 						.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 						.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
+			case GAMES_ID_DESIGNERS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
+					.mapToTable(Designers._ID, Tables.DESIGNERS)
+					.mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
+					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
+			}
 			default:
 				return buildSimpleSelection(uri, match);
 		}
@@ -396,5 +402,9 @@ public class BggProvider extends ContentProvider {
 		} finally {
 			c.close();
 		}
+	}
+
+	private interface Qualified {
+		String GAMES_DESIGNERS_GAME_ID = Tables.GAMES_DESIGNERS + "." + GamesDesigners.GAME_ID;
 	}
 }
