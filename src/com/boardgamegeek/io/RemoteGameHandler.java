@@ -19,9 +19,11 @@ import android.net.Uri;
 
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.util.StringUtils;
 
@@ -90,6 +92,9 @@ public class RemoteGameHandler extends XmlHandler {
 				} else if (Tags.DESIGNER.equals(tag)) {
 					parseDesigner();
 					tag = null;
+				} else if (Tags.ARTIST.equals(tag)) {
+					parseArtist();
+					tag = null;
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -148,6 +153,30 @@ public class RemoteGameHandler extends XmlHandler {
 		mResolver.insert(Games.buildDesignersUri(mGameId), values);
 		
 		// TODO: delete all unused games-designers records
+	}
+
+	private void parseArtist() throws XmlPullParserException, IOException {
+
+		ContentValues values = new ContentValues();
+		final int artistId = parseIntegerAttribute(Tags.ID);
+		values.put(Artists.ARTIST_ID, artistId);
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Artists.ARTIST_NAME, mParser.getText());
+			}
+		}
+
+		mResolver.insert(Artists.CONTENT_URI, values);
+
+		values.clear();
+		values.put(GamesArtists.GAME_ID, mGameId);
+		values.put(GamesArtists.ARTIST_ID, artistId);
+		mResolver.insert(Games.buildArtistsUri(mGameId), values);
+		
+		// TODO: delete all unused games-artists records
 	}
 
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -282,11 +311,10 @@ public class RemoteGameHandler extends XmlHandler {
 		String THUMBNAIL = "thumbnail";
 		String IMAGE = "image";
 		String DESIGNER = "boardgamedesigner";
+		String ARTIST = "boardgameartist";
 		// family
 		// expansion
-		// artist
 		// mechanic
-		// designer
 		// publisher
 		// podcastepisode
 		// version

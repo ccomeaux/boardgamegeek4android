@@ -59,6 +59,12 @@ public class BggContract {
 		String DESIGNER_DESCRIPTION = "designer_description";
 	}
 
+	interface ArtistsColumns {
+		String ARTIST_ID = "artist_id";
+		String ARTIST_NAME = "artist_name";
+		String ARTIST_DESCRIPTION = "artist_description";
+	}
+
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -97,6 +103,7 @@ public class BggContract {
 	private static final String PATH_GAMES = "games";
 	private static final String PATH_RANKS = "ranks";
 	private static final String PATH_DESIGNERS = "designers";
+	private static final String PATH_ARTISTS = "artists";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -125,6 +132,10 @@ public class BggContract {
 			return getUriBuilder(gameId).appendPath(PATH_DESIGNERS).build();
 		}
 		
+		public static Uri buildArtistsUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_ARTISTS).build();
+		}
+
 		private static Builder getUriBuilder(int gameId){
 			return CONTENT_URI.buildUpon().appendPath("" + gameId);
 		}
@@ -165,6 +176,23 @@ public class BggContract {
 		}
 		
 		public static int getDesignerId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTISTS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.artist";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.artist";
+
+		public static final String DEFAULT_SORT = ArtistsColumns.ARTIST_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildArtistUri(int artistId) {
+			return CONTENT_URI.buildUpon().appendPath("" + artistId).build();
+		}
+		
+		public static int getArtistId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}

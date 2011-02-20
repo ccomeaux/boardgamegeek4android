@@ -41,12 +41,18 @@ public class HttpUtils {
 
 	public static String constructGameUrl(String gameId) {
 		// TODO: test gameId is an int?
+		// http://www.boardgamegeek.com/xmlapi/boardgame/13
 		return BASE_URL + "boardgame/" + gameId + "?stats=1";
 	}
 
 	public static String constructDesignerUrl(int designerId) {
 		// http://www.boardgamegeek.com/xmlapi/designer/13
 		return BASE_URL + "designer/" + designerId;
+	}
+
+	public static String constructArtistUrl(int artistId) {
+		// http://www.boardgamegeek.com/xmlapi/boardgameartist/9798
+		return BASE_URL + "boardgameartist/" + artistId;
 	}
 
 	public static String constructGameUrl(List<String> gameIds) {

@@ -21,6 +21,7 @@ import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -29,6 +30,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
+import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.ImageCache;
@@ -49,8 +51,11 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_RANKS_ID = 103;
 	private static final int GAMES_ID_RANKS = 104;
 	private static final int GAMES_ID_DESIGNERS = 105;
+	private static final int GAMES_ID_ARTISTS = 106;
 	private static final int DESIGNERS = 110;
 	private static final int DESIGNERS_ID = 111;
+	private static final int ARTISTS = 112;
+	private static final int ARTISTS_ID = 113;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -68,8 +73,11 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
+		matcher.addURI(authority, "games/#/artists", GAMES_ID_ARTISTS);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
+		matcher.addURI(authority, "artists", ARTISTS);
+		matcher.addURI(authority, "artists/#", ARTISTS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -123,10 +131,16 @@ public class BggProvider extends ContentProvider {
 				return GameRanks.CONTENT_TYPE;
 			case GAMES_ID_DESIGNERS:
 				return Designers.CONTENT_TYPE;
+			case GAMES_ID_ARTISTS:
+				return Artists.CONTENT_TYPE;
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
 				return Designers.CONTENT_ITEM_TYPE;
+			case ARTISTS:
+				return Artists.CONTENT_TYPE;
+			case ARTISTS_ID:
+				return Artists.CONTENT_ITEM_TYPE;
 			case COLLECTION:
 				return Collection.CONTENT_TYPE;
 			case COLLECTION_ID:
@@ -235,14 +249,24 @@ public class BggProvider extends ContentProvider {
 				newUri = ContentUris.withAppendedId(GameRanks.CONTENT_URI, gameRankId);
 				break;
 			}
+			case GAMES_ID_DESIGNERS: {
+				db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
+				newUri = Designers.buildDesignerUri(values.getAsInteger(GamesDesigners.DESIGNER_ID));
+				break;
+			}
+			case GAMES_ID_ARTISTS: {
+				db.insertOrThrow(Tables.GAMES_ARTISTS, null, values);
+				newUri = Artists.buildArtistUri(values.getAsInteger(GamesArtists.ARTIST_ID));
+				break;
+			}
 			case DESIGNERS: {
 				db.insertOrThrow(Tables.DESIGNERS, null, values);
 				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
 				break;
 			}
-			case GAMES_ID_DESIGNERS: {
-				db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
-				newUri = Designers.buildDesignerUri(values.getAsInteger(GamesDesigners.DESIGNER_ID));
+			case ARTISTS: {
+				db.insertOrThrow(Tables.ARTISTS, null, values);
+				newUri = Artists.buildArtistUri(values.getAsInteger(GamesArtists.ARTIST_ID));
 				break;
 			}
 			case COLLECTION: {
@@ -341,15 +365,24 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_RANKS).where(Games.GAME_ID + "=?", "" + gameId);
 			}
-			case DESIGNERS:
-				return builder.table(Tables.DESIGNERS);
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_DESIGNERS).where(Games.GAME_ID + "=?", "" + gameId);
 			}
+			case GAMES_ID_ARTISTS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_ARTISTS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
+			case DESIGNERS:
+				return builder.table(Tables.DESIGNERS);
 			case DESIGNERS_ID:
 				final int designerId = Designers.getDesignerId(uri);
 				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
+			case ARTISTS:
+				return builder.table(Tables.ARTISTS);
+			case ARTISTS_ID:
+				final int artistId = Artists.getArtistId(uri);
+				return builder.table(Tables.ARTISTS).where(Artists.ARTIST_ID + "=?", "" + artistId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -384,6 +417,14 @@ public class BggProvider extends ContentProvider {
 					.mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
 					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
 			}
+			case GAMES_ID_ARTISTS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_ARTISTS_JOIN_ARTISTS)
+					.mapToTable(Artists._ID, Tables.ARTISTS)
+					.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS)
+					.mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
+					.where(Qualified.GAMES_ARTISTS_GAME_ID + "=?", "" + gameId);
+			}
 			default:
 				return buildSimpleSelection(uri, match);
 		}
@@ -399,6 +440,7 @@ public class BggProvider extends ContentProvider {
 				cr.delete(GameRanks.CONTENT_URI, GameRanks.GAME_ID + "=?", gameArg);
 				cr.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
 				cr.delete(Games.buildDesignersUri(gameId), null, null);
+				cr.delete(Games.buildArtistsUri(gameId), null, null);
 			}
 		} finally {
 			c.close();
@@ -407,5 +449,6 @@ public class BggProvider extends ContentProvider {
 
 	private interface Qualified {
 		String GAMES_DESIGNERS_GAME_ID = Tables.GAMES_DESIGNERS + "." + GamesDesigners.GAME_ID;
+		String GAMES_ARTISTS_GAME_ID = Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID;
 	}
 }
