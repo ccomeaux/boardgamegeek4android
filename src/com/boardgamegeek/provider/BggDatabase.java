@@ -15,23 +15,28 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesColumns;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
+import com.boardgamegeek.util.CreateTableBuilder;
+import com.boardgamegeek.util.CreateTableBuilder.COLUMN_TYPE;
 
 public class BggDatabase extends SQLiteOpenHelper {
 	private static final String TAG = "BggDatabase";
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 22;
+	private static final int DATABASE_VERSION = 24;
 
 	interface Tables {
+		String DESIGNERS = "designers";
+		String ARTISTS = "artists";
+		String PUBLISHERS = "publishers";
 		String GAMES = "games";
 		String GAME_RANKS = "game_ranks";
-		String DESIGNERS = "designers";
 		String GAMES_DESIGNERS = "games_designers";
-		String ARTISTS = "artists";
 		String GAMES_ARTISTS = "games_artists";
+		String GAMES_PUBLISHERS = "games_publishers";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
 
@@ -41,8 +46,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_ARTISTS_JOIN_ARTISTS = GAMES_ARTISTS + " "
 			+ "LEFT OUTER JOIN artists ON games_artists.artist_id=artists.artist_id";
 
+		String GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID);
+
 		String COLLECTION_JOIN_GAMES = "collection "
 			+ "LEFT OUTER JOIN games ON collection.game_id=games.game_id ";
+	}
+	
+	private static String createJoin(String table1, String table2, String column){
+		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column + "=" + table2 + "." + column;
 	}
 
 	public interface GamesDesigners {
@@ -53,6 +64,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public interface GamesArtists {
 		String GAME_ID = "game_id";
 		String ARTIST_ID = "artist_id";
+	}
+
+	public interface GamesPublishers {
+		String GAME_ID = Games.GAME_ID;
+		String PUBLISHER_ID = Publishers.PUBLISHER_ID;
 	}
 
 	private interface References {
@@ -67,6 +83,31 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		CreateTableBuilder builder = new CreateTableBuilder();
+
+		db.execSQL("CREATE TABLE " + Tables.DESIGNERS + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ SyncColumns.UPDATED + " INTEGER,"
+			+ Designers.DESIGNER_ID + " INTEGER NOT NULL,"
+			+ Designers.DESIGNER_NAME + " TEXT NOT NULL,"
+			+ Designers.DESIGNER_DESCRIPTION + " TEXT,"
+			+ "UNIQUE (" + Designers.DESIGNER_ID + ") ON CONFLICT IGNORE)");
+
+		db.execSQL("CREATE TABLE " + Tables.ARTISTS + " ("
+			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ SyncColumns.UPDATED + " INTEGER,"
+			+ Artists.ARTIST_ID + " INTEGER NOT NULL,"
+			+ Artists.ARTIST_NAME + " TEXT NOT NULL,"
+			+ Artists.ARTIST_DESCRIPTION + " TEXT,"
+			+ "UNIQUE (" + Artists.ARTIST_ID + ") ON CONFLICT IGNORE)");
+
+		builder.reset().table(Tables.PUBLISHERS).defaultPrimaryKey()
+			.column(SyncColumns.UPDATED, COLUMN_TYPE.INTEGER)
+			.column(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
+			.column(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.create(db);
+
 		db.execSQL("CREATE TABLE " + Tables.GAMES + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED + " INTEGER,"
@@ -109,33 +150,22 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GameRanksColumns.GAME_RANK_BAYES_AVERAGE + " REAL,"
 			+ "UNIQUE (" + GameRanksColumns.GAME_RANK_ID + "," + GameRanks.GAME_ID + ") ON CONFLICT REPLACE)");
 		
-		db.execSQL("CREATE TABLE " + Tables.DESIGNERS + " ("
-			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED + " INTEGER,"
-			+ Designers.DESIGNER_ID + " INTEGER NOT NULL,"
-			+ Designers.DESIGNER_NAME + " TEXT NOT NULL,"
-			+ Designers.DESIGNER_DESCRIPTION + " TEXT,"
-			+ "UNIQUE (" + Designers.DESIGNER_ID + ") ON CONFLICT IGNORE)");
-
 		db.execSQL("CREATE TABLE " + Tables.GAMES_DESIGNERS + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ GamesDesigners.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
 			+ GamesDesigners.DESIGNER_ID + " INTEGER NOT NULL " + References.DESIGNER_ID + ","
 			+ "UNIQUE (" + GamesDesigners.GAME_ID + "," + GamesDesigners.DESIGNER_ID + ") ON CONFLICT IGNORE)");
 
-		db.execSQL("CREATE TABLE " + Tables.ARTISTS + " ("
-			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED + " INTEGER,"
-			+ Artists.ARTIST_ID + " INTEGER NOT NULL,"
-			+ Artists.ARTIST_NAME + " TEXT NOT NULL,"
-			+ Artists.ARTIST_DESCRIPTION + " TEXT,"
-			+ "UNIQUE (" + Artists.ARTIST_ID + ") ON CONFLICT IGNORE)");
-
 		db.execSQL("CREATE TABLE " + Tables.GAMES_ARTISTS + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ GamesArtists.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
 			+ GamesArtists.ARTIST_ID + " INTEGER NOT NULL " + References.ARTIST_ID + ","
 			+ "UNIQUE (" + GamesArtists.GAME_ID + "," + GamesArtists.ARTIST_ID + ") ON CONFLICT IGNORE)");
+		
+		builder.reset().table(Tables.GAMES_PUBLISHERS).defaultPrimaryKey()
+			.column(GamesPublishers.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID)
+			.column(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PUBLISHERS, Publishers.PUBLISHER_ID)
+			.create(db);
 
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -183,12 +213,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 		if (oldVersion != DATABASE_VERSION) {
 			Log.w(TAG, "Destroying old data during upgrade");
 
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.ARTISTS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.PUBLISHERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_DESIGNERS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.ARTISTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_ARTISTS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_PUBLISHERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

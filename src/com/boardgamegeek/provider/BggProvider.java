@@ -9,7 +9,6 @@ import java.util.HashMap;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -27,18 +26,21 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
 	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = true; // Log.isLoggable(TAG, Log.VERBOSE);
+	private static final boolean LOGV = true; // Log.isLoggable(TAG,
+												// Log.VERBOSE);
 
 	private BggDatabase mOpenHelper;
 
@@ -52,10 +54,13 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_RANKS = 104;
 	private static final int GAMES_ID_DESIGNERS = 105;
 	private static final int GAMES_ID_ARTISTS = 106;
+	private static final int GAMES_ID_PUBLISHERS = 107;
 	private static final int DESIGNERS = 110;
 	private static final int DESIGNERS_ID = 111;
 	private static final int ARTISTS = 112;
 	private static final int ARTISTS_ID = 113;
+	private static final int PUBLISHERS = 114;
+	private static final int PUBLISHERS_ID = 115;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -74,10 +79,13 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
 		matcher.addURI(authority, "games/#/artists", GAMES_ID_ARTISTS);
+		matcher.addURI(authority, "games/#/publishers", GAMES_ID_PUBLISHERS);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "artists", ARTISTS);
 		matcher.addURI(authority, "artists/#", ARTISTS_ID);
+		matcher.addURI(authority, "publishers", PUBLISHERS);
+		matcher.addURI(authority, "publishers/#", PUBLISHERS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -108,6 +116,12 @@ public class BggProvider extends ContentProvider {
 		return map;
 	}
 
+	private interface Qualified {
+		String GAMES_DESIGNERS_GAME_ID = Tables.GAMES_DESIGNERS + "." + GamesDesigners.GAME_ID;
+		String GAMES_ARTISTS_GAME_ID = Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID;
+		String GAMES_PUBLISHERS_GAME_ID = Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID;
+	}
+
 	@Override
 	public boolean onCreate() {
 		final Context context = getContext();
@@ -133,6 +147,8 @@ public class BggProvider extends ContentProvider {
 				return Designers.CONTENT_TYPE;
 			case GAMES_ID_ARTISTS:
 				return Artists.CONTENT_TYPE;
+			case GAMES_ID_PUBLISHERS:
+				return Publishers.CONTENT_TYPE;
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
@@ -141,6 +157,10 @@ public class BggProvider extends ContentProvider {
 				return Artists.CONTENT_TYPE;
 			case ARTISTS_ID:
 				return Artists.CONTENT_ITEM_TYPE;
+			case PUBLISHERS:
+				return Publishers.CONTENT_TYPE;
+			case PUBLISHERS_ID:
+				return Publishers.CONTENT_ITEM_TYPE;
 			case COLLECTION:
 				return Collection.CONTENT_TYPE;
 			case COLLECTION_ID:
@@ -245,8 +265,7 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				values.put(GameRanks.GAME_ID, gameId);
 				final long gameRankId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
-				// TODO: use a method from GameRanks
-				newUri = ContentUris.withAppendedId(GameRanks.CONTENT_URI, gameRankId);
+				newUri = GameRanks.buildGameRankUri((int) gameRankId);
 				break;
 			}
 			case GAMES_ID_DESIGNERS: {
@@ -259,6 +278,11 @@ public class BggProvider extends ContentProvider {
 				newUri = Artists.buildArtistUri(values.getAsInteger(GamesArtists.ARTIST_ID));
 				break;
 			}
+			case GAMES_ID_PUBLISHERS: {
+				db.insertOrThrow(Tables.GAMES_PUBLISHERS, null, values);
+				newUri = Publishers.buildPublisherUri(values.getAsInteger(GamesPublishers.PUBLISHER_ID));
+				break;
+			}
 			case DESIGNERS: {
 				db.insertOrThrow(Tables.DESIGNERS, null, values);
 				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
@@ -266,7 +290,12 @@ public class BggProvider extends ContentProvider {
 			}
 			case ARTISTS: {
 				db.insertOrThrow(Tables.ARTISTS, null, values);
-				newUri = Artists.buildArtistUri(values.getAsInteger(GamesArtists.ARTIST_ID));
+				newUri = Artists.buildArtistUri(values.getAsInteger(Artists.ARTIST_ID));
+				break;
+			}
+			case PUBLISHERS: {
+				db.insertOrThrow(Tables.PUBLISHERS, null, values);
+				newUri = Publishers.buildPublisherUri(values.getAsInteger(Publishers.PUBLISHER_ID));
 				break;
 			}
 			case COLLECTION: {
@@ -373,6 +402,10 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_ARTISTS).where(Games.GAME_ID + "=?", "" + gameId);
 			}
+			case GAMES_ID_PUBLISHERS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_PUBLISHERS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
 			case DESIGNERS:
 				return builder.table(Tables.DESIGNERS);
 			case DESIGNERS_ID:
@@ -383,6 +416,11 @@ public class BggProvider extends ContentProvider {
 			case ARTISTS_ID:
 				final int artistId = Artists.getArtistId(uri);
 				return builder.table(Tables.ARTISTS).where(Artists.ARTIST_ID + "=?", "" + artistId);
+			case PUBLISHERS:
+				return builder.table(Tables.PUBLISHERS);
+			case PUBLISHERS_ID:
+				final int publisherId = Publishers.getPublisherId(uri);
+				return builder.table(Tables.PUBLISHERS).where(Publishers.PUBLISHER_ID + "=?", "" + publisherId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -412,18 +450,26 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
-					.mapToTable(Designers._ID, Tables.DESIGNERS)
-					.mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
-					.mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
-					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
+						.mapToTable(Designers._ID, Tables.DESIGNERS)
+						.mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
+						.mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
+						.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
 			}
 			case GAMES_ID_ARTISTS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_ARTISTS_JOIN_ARTISTS)
-					.mapToTable(Artists._ID, Tables.ARTISTS)
-					.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS)
-					.mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
-					.where(Qualified.GAMES_ARTISTS_GAME_ID + "=?", "" + gameId);
+						.mapToTable(Artists._ID, Tables.ARTISTS)
+						.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS)
+						.mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
+						.where(Qualified.GAMES_ARTISTS_GAME_ID + "=?", "" + gameId);
+			}
+			case GAMES_ID_PUBLISHERS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_PUBLISHERS_JOIN_PUBLISHERS)
+						.mapToTable(Publishers._ID, Tables.PUBLISHERS)
+						.mapToTable(Publishers.PUBLISHER_ID, Tables.PUBLISHERS)
+						.mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
+						.where(Qualified.GAMES_PUBLISHERS_GAME_ID + "=?", "" + gameId);
 			}
 			default:
 				return buildSimpleSelection(uri, match);
@@ -441,14 +487,10 @@ public class BggProvider extends ContentProvider {
 				cr.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
 				cr.delete(Games.buildDesignersUri(gameId), null, null);
 				cr.delete(Games.buildArtistsUri(gameId), null, null);
+				cr.delete(Games.buildPublishersUri(gameId), null, null);
 			}
 		} finally {
 			c.close();
 		}
-	}
-
-	private interface Qualified {
-		String GAMES_DESIGNERS_GAME_ID = Tables.GAMES_DESIGNERS + "." + GamesDesigners.GAME_ID;
-		String GAMES_ARTISTS_GAME_ID = Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID;
 	}
 }

@@ -65,6 +65,12 @@ public class BggContract {
 		String ARTIST_DESCRIPTION = "artist_description";
 	}
 
+	interface PublishersColumns {
+		String PUBLISHER_ID = "publisher_id";
+		String PUBLISHER_NAME = "publisher_name";
+		String PUBLISHER_DESCRIPTION = "publisher_description";
+	}
+
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -104,6 +110,7 @@ public class BggContract {
 	private static final String PATH_RANKS = "ranks";
 	private static final String PATH_DESIGNERS = "designers";
 	private static final String PATH_ARTISTS = "artists";
+	private static final String PATH_PUBLISHERS = "publishers";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -134,6 +141,10 @@ public class BggContract {
 		
 		public static Uri buildArtistsUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_ARTISTS).build();
+		}
+
+		public static Uri buildPublishersUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_PUBLISHERS).build();
 		}
 
 		private static Builder getUriBuilder(int gameId){
@@ -193,6 +204,23 @@ public class BggContract {
 		}
 		
 		public static int getArtistId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Publishers implements PublishersColumns, BaseColumns, SyncColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PUBLISHERS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.publisher";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.publisher";
+
+		public static final String DEFAULT_SORT = PublishersColumns.PUBLISHER_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildPublisherUri(int publisherId) {
+			return CONTENT_URI.buildUpon().appendPath("" + publisherId).build();
+		}
+		
+		public static int getPublisherId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}
