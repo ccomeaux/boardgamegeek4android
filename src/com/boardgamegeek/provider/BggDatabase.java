@@ -22,7 +22,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 20;
+	private static final int DATABASE_VERSION = 21;
 
 	interface Tables {
 		String GAMES = "games";
@@ -99,6 +99,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		
 		db.execSQL("CREATE TABLE " + Tables.DESIGNERS + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+			+ SyncColumns.UPDATED + " INTEGER,"
 			+ Designers.DESIGNER_ID + " INTEGER NOT NULL,"
 			+ Designers.DESIGNER_NAME + " TEXT NOT NULL,"
 			+ Designers.DESIGNER_DESCRIPTION + " TEXT,"

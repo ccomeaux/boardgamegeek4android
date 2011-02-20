@@ -44,6 +44,11 @@ public class HttpUtils {
 		return BASE_URL + "boardgame/" + gameId + "?stats=1";
 	}
 
+	public static String constructDesignerUrl(int designerId) {
+		// http://www.boardgamegeek.com/xmlapi/designer/13
+		return BASE_URL + "designer/" + designerId;
+	}
+
 	public static String constructGameUrl(List<String> gameIds) {
 
 		if (gameIds == null) {

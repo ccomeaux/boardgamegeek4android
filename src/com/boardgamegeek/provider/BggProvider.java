@@ -381,6 +381,7 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
 					.mapToTable(Designers._ID, Tables.DESIGNERS)
 					.mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
+					.mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
 					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
 			}
 			default:
