@@ -71,6 +71,11 @@ public class BggContract {
 		String PUBLISHER_DESCRIPTION = "publisher_description";
 	}
 
+	interface MechanicsColumns {
+		String MECHANIC_ID = "mechanic_id";
+		String MECHANIC_NAME = "mechanic_name";
+	}
+
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -111,6 +116,7 @@ public class BggContract {
 	private static final String PATH_DESIGNERS = "designers";
 	private static final String PATH_ARTISTS = "artists";
 	private static final String PATH_PUBLISHERS = "publishers";
+	private static final String PATH_MECHANICS = "mechanics";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -145,6 +151,10 @@ public class BggContract {
 
 		public static Uri buildPublishersUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_PUBLISHERS).build();
+		}
+
+		public static Uri buildMechanicsUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_MECHANICS).build();
 		}
 
 		private static Builder getUriBuilder(int gameId){
@@ -221,6 +231,23 @@ public class BggContract {
 		}
 		
 		public static int getPublisherId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Mechanics implements MechanicsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MECHANICS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.mechanic";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.mechanic";
+
+		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildMechanicUri(int mechanicId) {
+			return CONTENT_URI.buildUpon().appendPath("" + mechanicId).build();
+		}
+		
+		public static int getMechanicId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}

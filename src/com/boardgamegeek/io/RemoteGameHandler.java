@@ -23,9 +23,11 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.StringUtils;
 
@@ -99,6 +101,9 @@ public class RemoteGameHandler extends XmlHandler {
 					tag = null;
 				} else if (Tags.PUBLISHER.equals(tag)) {
 					parsePublisher();
+					tag = null;
+				} else if (Tags.MECHANIC.equals(tag)) {
+					parseMechanic();
 					tag = null;
 				}
 			} else if (type == END_TAG) {
@@ -208,6 +213,30 @@ public class RemoteGameHandler extends XmlHandler {
 		// TODO: delete all unused games-publishers records
 	}
 
+	private void parseMechanic() throws XmlPullParserException, IOException {
+
+		ContentValues values = new ContentValues();
+		final int mechanicId = parseIntegerAttribute(Tags.ID);
+		values.put(Mechanics.MECHANIC_ID, mechanicId);
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Mechanics.MECHANIC_NAME, mParser.getText());
+			}
+		}
+
+		mResolver.insert(Mechanics.CONTENT_URI, values);
+
+		values.clear();
+		values.put(GamesMechanics.GAME_ID, mGameId);
+		values.put(GamesMechanics.MECHANIC_ID, mechanicId);
+		mResolver.insert(Games.buildMechanicsUri(mGameId), values);
+		
+		// TODO: delete all unused games-mechanics records
+	}
+	
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
 		String tag = null;
 		final int depth = mParser.getDepth();
@@ -342,9 +371,9 @@ public class RemoteGameHandler extends XmlHandler {
 		String DESIGNER = "boardgamedesigner";
 		String ARTIST = "boardgameartist";
 		String PUBLISHER = "boardgamepublisher";
+		String MECHANIC = "boardgamemechanic";
 		// family
 		// expansion
-		// mechanic
 		// podcastepisode
 		// version
 		// subdomain

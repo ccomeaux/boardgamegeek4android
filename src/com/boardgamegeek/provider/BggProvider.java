@@ -26,12 +26,14 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.ImageCache;
@@ -55,12 +57,15 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_DESIGNERS = 105;
 	private static final int GAMES_ID_ARTISTS = 106;
 	private static final int GAMES_ID_PUBLISHERS = 107;
-	private static final int DESIGNERS = 110;
-	private static final int DESIGNERS_ID = 111;
-	private static final int ARTISTS = 112;
-	private static final int ARTISTS_ID = 113;
-	private static final int PUBLISHERS = 114;
-	private static final int PUBLISHERS_ID = 115;
+	private static final int GAMES_ID_MECHANICS = 108;
+	private static final int DESIGNERS = 301;
+	private static final int DESIGNERS_ID = 302;
+	private static final int ARTISTS = 303;
+	private static final int ARTISTS_ID = 304;
+	private static final int PUBLISHERS = 305;
+	private static final int PUBLISHERS_ID = 306;
+	private static final int MECHANICS = 307;
+	private static final int MECHANICS_ID = 308;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -80,12 +85,15 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
 		matcher.addURI(authority, "games/#/artists", GAMES_ID_ARTISTS);
 		matcher.addURI(authority, "games/#/publishers", GAMES_ID_PUBLISHERS);
+		matcher.addURI(authority, "games/#/mechanics", GAMES_ID_MECHANICS);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "artists", ARTISTS);
 		matcher.addURI(authority, "artists/#", ARTISTS_ID);
 		matcher.addURI(authority, "publishers", PUBLISHERS);
 		matcher.addURI(authority, "publishers/#", PUBLISHERS_ID);
+		matcher.addURI(authority, "mechanics", MECHANICS);
+		matcher.addURI(authority, "mechanics/#", MECHANICS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -120,6 +128,7 @@ public class BggProvider extends ContentProvider {
 		String GAMES_DESIGNERS_GAME_ID = Tables.GAMES_DESIGNERS + "." + GamesDesigners.GAME_ID;
 		String GAMES_ARTISTS_GAME_ID = Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID;
 		String GAMES_PUBLISHERS_GAME_ID = Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID;
+		String GAMES_MECHANICS_GAME_ID = Tables.GAMES_MECHANICS + "." + GamesMechanics.GAME_ID;
 	}
 
 	@Override
@@ -149,6 +158,8 @@ public class BggProvider extends ContentProvider {
 				return Artists.CONTENT_TYPE;
 			case GAMES_ID_PUBLISHERS:
 				return Publishers.CONTENT_TYPE;
+			case GAMES_ID_MECHANICS:
+				return Mechanics.CONTENT_TYPE;
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
@@ -159,6 +170,10 @@ public class BggProvider extends ContentProvider {
 				return Artists.CONTENT_ITEM_TYPE;
 			case PUBLISHERS:
 				return Publishers.CONTENT_TYPE;
+			case MECHANICS:
+				return Mechanics.CONTENT_TYPE;
+			case MECHANICS_ID:
+				return Mechanics.CONTENT_ITEM_TYPE;
 			case PUBLISHERS_ID:
 				return Publishers.CONTENT_ITEM_TYPE;
 			case COLLECTION:
@@ -283,6 +298,11 @@ public class BggProvider extends ContentProvider {
 				newUri = Publishers.buildPublisherUri(values.getAsInteger(GamesPublishers.PUBLISHER_ID));
 				break;
 			}
+			case GAMES_ID_MECHANICS: {
+				db.insertOrThrow(Tables.GAMES_MECHANICS, null, values);
+				newUri = Mechanics.buildMechanicUri(values.getAsInteger(GamesMechanics.MECHANIC_ID));
+				break;
+			}
 			case DESIGNERS: {
 				db.insertOrThrow(Tables.DESIGNERS, null, values);
 				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
@@ -296,6 +316,11 @@ public class BggProvider extends ContentProvider {
 			case PUBLISHERS: {
 				db.insertOrThrow(Tables.PUBLISHERS, null, values);
 				newUri = Publishers.buildPublisherUri(values.getAsInteger(Publishers.PUBLISHER_ID));
+				break;
+			}
+			case MECHANICS: {
+				db.insertOrThrow(Tables.MECHANICS, null, values);
+				newUri = Mechanics.buildMechanicUri(values.getAsInteger(Mechanics.MECHANIC_ID));
 				break;
 			}
 			case COLLECTION: {
@@ -406,6 +431,10 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_PUBLISHERS).where(Games.GAME_ID + "=?", "" + gameId);
 			}
+			case GAMES_ID_MECHANICS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_MECHANICS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
 			case DESIGNERS:
 				return builder.table(Tables.DESIGNERS);
 			case DESIGNERS_ID:
@@ -421,6 +450,11 @@ public class BggProvider extends ContentProvider {
 			case PUBLISHERS_ID:
 				final int publisherId = Publishers.getPublisherId(uri);
 				return builder.table(Tables.PUBLISHERS).where(Publishers.PUBLISHER_ID + "=?", "" + publisherId);
+			case MECHANICS:
+				return builder.table(Tables.MECHANICS);
+			case MECHANICS_ID:
+				final int mechanicId = Mechanics.getMechanicId(uri);
+				return builder.table(Tables.MECHANICS).where(Mechanics.MECHANIC_ID + "=?", "" + mechanicId);
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -471,6 +505,13 @@ public class BggProvider extends ContentProvider {
 						.mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
 						.where(Qualified.GAMES_PUBLISHERS_GAME_ID + "=?", "" + gameId);
 			}
+			case GAMES_ID_MECHANICS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
+						.mapToTable(Mechanics._ID, Tables.MECHANICS)
+						.mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
+						.where(Qualified.GAMES_MECHANICS_GAME_ID + "=?", "" + gameId);
+			}
 			default:
 				return buildSimpleSelection(uri, match);
 		}
@@ -488,6 +529,7 @@ public class BggProvider extends ContentProvider {
 				cr.delete(Games.buildDesignersUri(gameId), null, null);
 				cr.delete(Games.buildArtistsUri(gameId), null, null);
 				cr.delete(Games.buildPublishersUri(gameId), null, null);
+				cr.delete(Games.buildMechanicsUri(gameId), null, null);
 			}
 		} finally {
 			c.close();

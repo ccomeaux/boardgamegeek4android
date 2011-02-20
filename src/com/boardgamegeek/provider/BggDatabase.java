@@ -15,6 +15,7 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesColumns;
+import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
@@ -26,27 +27,46 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 24;
+	private static final int DATABASE_VERSION = 25;
+
+	public interface GamesDesigners {
+		String GAME_ID = Games.GAME_ID;
+		String DESIGNER_ID = Designers.DESIGNER_ID;
+	}
+
+	public interface GamesArtists {
+		String GAME_ID = Games.GAME_ID;
+		String ARTIST_ID = Artists.ARTIST_ID;
+	}
+
+	public interface GamesPublishers {
+		String GAME_ID = Games.GAME_ID;
+		String PUBLISHER_ID = Publishers.PUBLISHER_ID;
+	}
+
+	public interface GamesMechanics {
+		String GAME_ID = Games.GAME_ID;
+		String MECHANIC_ID = Mechanics.MECHANIC_ID;
+	}
 
 	interface Tables {
 		String DESIGNERS = "designers";
 		String ARTISTS = "artists";
 		String PUBLISHERS = "publishers";
+		String MECHANICS = "mechanics";
 		String GAMES = "games";
 		String GAME_RANKS = "game_ranks";
 		String GAMES_DESIGNERS = "games_designers";
 		String GAMES_ARTISTS = "games_artists";
 		String GAMES_PUBLISHERS = "games_publishers";
+		String GAMES_MECHANICS = "games_mechanics";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
 
-		String GAMES_DESIGNERS_JOIN_DESIGNERS = GAMES_DESIGNERS + " "
-			+ "LEFT OUTER JOIN designers ON games_designers.designer_id=designers.designer_id";
-
-		String GAMES_ARTISTS_JOIN_ARTISTS = GAMES_ARTISTS + " "
-			+ "LEFT OUTER JOIN artists ON games_artists.artist_id=artists.artist_id";
-
+		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS,Designers.DESIGNER_ID);
+		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
 		String GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID);
+		String GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.MECHANIC_ID);
 
 		String COLLECTION_JOIN_GAMES = "collection "
 			+ "LEFT OUTER JOIN games ON collection.game_id=games.game_id ";
@@ -54,21 +74,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 	
 	private static String createJoin(String table1, String table2, String column){
 		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column + "=" + table2 + "." + column;
-	}
-
-	public interface GamesDesigners {
-		String GAME_ID = "game_id";
-		String DESIGNER_ID = "designer_id";
-	}
-
-	public interface GamesArtists {
-		String GAME_ID = "game_id";
-		String ARTIST_ID = "artist_id";
-	}
-
-	public interface GamesPublishers {
-		String GAME_ID = Games.GAME_ID;
-		String PUBLISHER_ID = Publishers.PUBLISHER_ID;
 	}
 
 	private interface References {
@@ -106,6 +111,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.column(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
 			.column(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
+			.create(db);
+
+		builder.reset().table(Tables.MECHANICS).defaultPrimaryKey()
+			.column(Mechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(Mechanics.MECHANIC_NAME, COLUMN_TYPE.TEXT, true)
 			.create(db);
 
 		db.execSQL("CREATE TABLE " + Tables.GAMES + " ("
@@ -167,6 +177,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PUBLISHERS, Publishers.PUBLISHER_ID)
 			.create(db);
 
+		builder.reset().table(Tables.GAMES_MECHANICS).defaultPrimaryKey()
+			.column(GamesMechanics.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID)
+			.column(GamesMechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true, Tables.MECHANICS, Mechanics.MECHANIC_ID)
+			.create(db);
+
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED + " INTEGER,"
@@ -216,11 +231,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.ARTISTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.PUBLISHERS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.MECHANICS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_ARTISTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_PUBLISHERS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_MECHANICS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

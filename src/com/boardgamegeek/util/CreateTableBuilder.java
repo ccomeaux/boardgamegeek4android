@@ -30,6 +30,7 @@ public class CreateTableBuilder {
 		mPrimaryKey = null;
 		mColumns = new ArrayList<Column>();
 		mUniqueColumnNames = new ArrayList<String>();
+		mResolution = CONFLICT_RESOLUTION.IGNORE;
 		return this;
 	}
 
@@ -66,6 +67,11 @@ public class CreateTableBuilder {
 
 	public CreateTableBuilder table(String table) {
 		mTable = table;
+		return this;
+	}
+
+	public CreateTableBuilder conflictResolution(CONFLICT_RESOLUTION resolution) {
+		mResolution = resolution;
 		return this;
 	}
 

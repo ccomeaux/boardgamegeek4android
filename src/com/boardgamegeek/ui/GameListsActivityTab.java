@@ -37,10 +37,12 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -59,10 +61,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_ARTISTS_UPDATE = 4;
 	private static final int TOKEN_PUBLISHERS = 5;
 	private static final int TOKEN_PUBLISHERS_UPDATE = 6;
+	private static final int TOKEN_MECHANICS = 7;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
 	private static final int GROUP_PUBLISHERS = 2;
+	private static final int GROUP_MECHANICS = 3;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -72,6 +76,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private Uri mDesignersUri;
 	private Uri mArtistsUri;
 	private Uri mPublishersUri;
+	private Uri mMechanicsUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
 	private List<Map<String, String>> mGroupData;
@@ -93,6 +98,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
 	}
 
 	private void setAndObserveUris() {
@@ -101,10 +107,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mDesignersUri = Games.buildDesignersUri(gameId);
 		mArtistsUri = Games.buildArtistsUri(gameId);
 		mPublishersUri = Games.buildPublishersUri(gameId);
+		mMechanicsUri = Games.buildMechanicsUri(gameId);
 
 		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
 		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
 		getContentResolver().registerContentObserver(mPublishersUri, true, new PublishersObserver(null));
+		getContentResolver().registerContentObserver(mMechanicsUri, true, new MechanicsObserver(null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,7 +125,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mName = (String) childItem.get(KEY_NAME);
 		mDescription = (String) childItem.get(KEY_DESCRIPTION);
 		if (TextUtils.isEmpty(mDescription)) {
-			Toast.makeText(this, "No extra information", Toast.LENGTH_LONG).show();
+			showToast(R.string.msg_no_description);
 		} else {
 			showDialog(ID_DIALOG_RESULTS);
 		}
@@ -194,7 +202,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 								new PublisherObserver(null));
 						addId(cursor, ids, id, PublisherQuery.UPDATED);
 					}
-					addChildItem(cursor, publishers, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_DESCRIPTION);
+					addChildItem(cursor, publishers, PublisherQuery.PUBLISHER_NAME,
+							PublisherQuery.PUBLISHER_DESCRIPTION);
 				}
 				updateGroup(GROUP_PUBLISHERS, publishers);
 
@@ -203,6 +212,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new PublisherTask().execute(array);
 				}
+			} else if (token == TOKEN_MECHANICS) {
+				List<ChildItem> mechanics = new ArrayList<ChildItem>();
+				while (cursor.moveToNext()) {
+					addChildItem(cursor, mechanics, MechanicQuery.MECHANIC_NAME);
+				}
+				updateGroup(GROUP_MECHANICS, mechanics);
 			}
 
 			mAdapter = new SimpleExpandableListAdapter(this, mGroupData, R.layout.grouprow, new String[] { KEY_NAME,
@@ -228,6 +243,13 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		list.add(childItem);
 	}
 
+	private void addChildItem(Cursor cursor, List<ChildItem> list, int nameColumnIndex) {
+		final ChildItem childItem = new ChildItem();
+		childItem.Name = cursor.getString(nameColumnIndex);
+		childItem.Description = null;
+		list.add(childItem);
+	}
+
 	private void initializeGroupData() {
 		mGroupData = new ArrayList<Map<String, String>>();
 		mChildData = new ArrayList<List<Map<String, String>>>();
@@ -235,6 +257,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		createGroup(R.string.designers);
 		createGroup(R.string.artists);
 		createGroup(R.string.publishers);
+		createGroup(R.string.mechanics);
 	}
 
 	private void createGroup(int nameResourceId) {
@@ -325,6 +348,17 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, mPublishersUri, PublisherQuery.PROJECTION);
+		}
+	}
+
+	class MechanicsObserver extends ContentObserver {
+		public MechanicsObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
 		}
 	}
 
@@ -446,12 +480,19 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	}
 
 	private interface PublisherQuery {
-		String[] PROJECTION = { GamesPublishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION,
-				SyncColumns.UPDATED };
+		String[] PROJECTION = { GamesPublishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME,
+				Publishers.PUBLISHER_DESCRIPTION, SyncColumns.UPDATED };
 
 		int PUBLISHER_ID = 0;
 		int PUBLISHER_NAME = 1;
 		int PUBLISHER_DESCRIPTION = 2;
 		int UPDATED = 3;
+	}
+
+	private interface MechanicQuery {
+		String[] PROJECTION = { GamesMechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME };
+
+		// int MECHANIC_ID = 0;
+		int MECHANIC_NAME = 1;
 	}
 }
