@@ -55,6 +55,11 @@ public class HttpUtils {
 		return BASE_URL + "boardgameartist/" + artistId;
 	}
 
+	public static String constructPublisherUrl(int publisherId) {
+		// http://www.boardgamegeek.com/xmlapi/publisher/10
+		return BASE_URL + "publisher/" + publisherId;
+	}
+
 	public static String constructGameUrl(List<String> gameIds) {
 
 		if (gameIds == null) {

@@ -23,8 +23,10 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends XmlHandler {
@@ -94,6 +96,9 @@ public class RemoteGameHandler extends XmlHandler {
 					tag = null;
 				} else if (Tags.ARTIST.equals(tag)) {
 					parseArtist();
+					tag = null;
+				} else if (Tags.PUBLISHER.equals(tag)) {
+					parsePublisher();
 					tag = null;
 				}
 			} else if (type == END_TAG) {
@@ -177,6 +182,30 @@ public class RemoteGameHandler extends XmlHandler {
 		mResolver.insert(Games.buildArtistsUri(mGameId), values);
 		
 		// TODO: delete all unused games-artists records
+	}
+
+	private void parsePublisher() throws XmlPullParserException, IOException {
+
+		ContentValues values = new ContentValues();
+		final int publisherId = parseIntegerAttribute(Tags.ID);
+		values.put(Publishers.PUBLISHER_ID, publisherId);
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Publishers.PUBLISHER_NAME, mParser.getText());
+			}
+		}
+
+		mResolver.insert(Publishers.CONTENT_URI, values);
+
+		values.clear();
+		values.put(GamesPublishers.GAME_ID, mGameId);
+		values.put(GamesPublishers.PUBLISHER_ID, publisherId);
+		mResolver.insert(Games.buildPublishersUri(mGameId), values);
+		
+		// TODO: delete all unused games-publishers records
 	}
 
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -312,10 +341,10 @@ public class RemoteGameHandler extends XmlHandler {
 		String IMAGE = "image";
 		String DESIGNER = "boardgamedesigner";
 		String ARTIST = "boardgameartist";
+		String PUBLISHER = "boardgamepublisher";
 		// family
 		// expansion
 		// mechanic
-		// publisher
 		// podcastepisode
 		// version
 		// subdomain

@@ -32,13 +32,16 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteArtistHandler;
 import com.boardgamegeek.io.RemoteDesignerHandler;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemotePublisherHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -54,9 +57,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_DESIGNERS_UPDATE = 2;
 	private static final int TOKEN_ARTISTS = 3;
 	private static final int TOKEN_ARTISTS_UPDATE = 4;
+	private static final int TOKEN_PUBLISHERS = 5;
+	private static final int TOKEN_PUBLISHERS_UPDATE = 6;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
+	private static final int GROUP_PUBLISHERS = 2;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -65,6 +71,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private int mPadding;
 	private Uri mDesignersUri;
 	private Uri mArtistsUri;
+	private Uri mPublishersUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
 	private List<Map<String, String>> mGroupData;
@@ -80,21 +87,24 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		mPadding = (int) getResources().getDimension(R.dimen.padding_standard);
 		initializeGroupData();
-		setUris();
-
-		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
-		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
+		setAndObserveUris();
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
 	}
 
-	private void setUris() {
+	private void setAndObserveUris() {
 		final Uri gameUri = getIntent().getData();
 		final int gameId = Games.getGameId(gameUri);
 		mDesignersUri = Games.buildDesignersUri(gameId);
 		mArtistsUri = Games.buildArtistsUri(gameId);
+		mPublishersUri = Games.buildPublishersUri(gameId);
+
+		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
+		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
+		getContentResolver().registerContentObserver(mPublishersUri, true, new PublishersObserver(null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -174,6 +184,25 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new ArtistTask().execute(array);
 				}
+			} else if (token == TOKEN_PUBLISHERS || token == TOKEN_PUBLISHERS_UPDATE) {
+				List<Integer> ids = new ArrayList<Integer>();
+				List<ChildItem> publishers = new ArrayList<ChildItem>();
+				while (cursor.moveToNext()) {
+					if (token == TOKEN_PUBLISHERS) {
+						int id = cursor.getInt(PublisherQuery.PUBLISHER_ID);
+						getContentResolver().registerContentObserver(Publishers.buildPublisherUri(id), true,
+								new PublisherObserver(null));
+						addId(cursor, ids, id, PublisherQuery.UPDATED);
+					}
+					addChildItem(cursor, publishers, PublisherQuery.PUBLISHER_NAME, PublisherQuery.PUBLISHER_DESCRIPTION);
+				}
+				updateGroup(GROUP_PUBLISHERS, publishers);
+
+				if (ids.size() > 0) {
+					Integer[] array = new Integer[ids.size()];
+					ids.toArray(array);
+					new PublisherTask().execute(array);
+				}
 			}
 
 			mAdapter = new SimpleExpandableListAdapter(this, mGroupData, R.layout.grouprow, new String[] { KEY_NAME,
@@ -205,6 +234,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		createGroup(R.string.designers);
 		createGroup(R.string.artists);
+		createGroup(R.string.publishers);
 	}
 
 	private void createGroup(int nameResourceId) {
@@ -276,6 +306,28 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		}
 	}
 
+	class PublishersObserver extends ContentObserver {
+		public PublishersObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
+		}
+	}
+
+	class PublisherObserver extends ContentObserver {
+		public PublisherObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, mPublishersUri, PublisherQuery.PROJECTION);
+		}
+	}
+
 	class DesignerTask extends AsyncTask<Integer, Void, Void> {
 
 		private HttpClient mHttpClient;
@@ -338,6 +390,37 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		}
 	}
 
+	class PublisherTask extends AsyncTask<Integer, Void, Void> {
+
+		private HttpClient mHttpClient;
+		private RemoteExecutor mExecutor;
+
+		@Override
+		protected void onPreExecute() {
+			mHttpClient = HttpUtils.createHttpClient(GameListsActivityTab.this, true);
+			mExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
+		}
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			for (int publisherId : params) {
+				Log.d(TAG, "Fetching publisher ID = " + publisherId);
+				final String url = HttpUtils.constructPublisherUrl(publisherId);
+				try {
+					mExecutor.executeGet(url, new RemotePublisherHandler(publisherId));
+				} catch (HandlerException e) {
+					Log.e(TAG, "Exception trying to fetch publisher ID = " + publisherId, e);
+					runOnUiThread(new Runnable() {
+						public void run() {
+							showToast(R.string.msg_error_remote);
+						}
+					});
+				}
+			}
+			return null;
+		}
+	}
+
 	private void showToast(int messageId) {
 		Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
 	}
@@ -359,6 +442,16 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		int ARTIST_ID = 0;
 		int ARTIST_NAME = 1;
 		int ARTIST_DESCRIPTION = 2;
+		int UPDATED = 3;
+	}
+
+	private interface PublisherQuery {
+		String[] PROJECTION = { GamesPublishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION,
+				SyncColumns.UPDATED };
+
+		int PUBLISHER_ID = 0;
+		int PUBLISHER_NAME = 1;
+		int PUBLISHER_DESCRIPTION = 2;
 		int UPDATED = 3;
 	}
 }
