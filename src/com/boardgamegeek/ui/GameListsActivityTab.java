@@ -55,17 +55,21 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_ARTISTS = 3;
 	// private static final int TOKEN_ARTISTS_UPDATE = 4;
 
-	private static final String NAME = "NAME";
-	private static final String COUNT = "COUNT";
-	private static final String DESCRIPTION = "DESCRIPTION";
+	private static final int GROUP_DESIGNERS = 0;
+	private static final int GROUP_ARTISTS = 1;
 
+	private static final String KEY_NAME = "NAME";
+	private static final String KEY_COUNT = "COUNT";
+	private static final String KEY_DESCRIPTION = "DESCRIPTION";
+
+	private int mPadding;
 	private Uri mDesignersUri;
 	private Uri mArtistsUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
-	private List<Map<String, String>> groupData;
-	private List<List<Map<String, String>>> childData;
-	private ExpandableListAdapter adapter;
+	private List<Map<String, String>> mGroupData;
+	private List<List<Map<String, String>>> mChildData;
+	private ExpandableListAdapter mAdapter;
 
 	private String mName;
 	private String mDescription;
@@ -74,7 +78,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setUiVariables();
+		mPadding = (int) getResources().getDimension(R.dimen.padding_standard);
+		initializeGroupData();
 		setUris();
 
 		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignerObserver(null));
@@ -83,11 +88,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
-	}
-
-	private void setUiVariables() {
-		groupData = new ArrayList<Map<String, String>>();
-		childData = new ArrayList<List<Map<String, String>>>();
 	}
 
 	private void setUris() {
@@ -103,9 +103,9 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		removeDialog(ID_DIALOG_RESULTS);
 
-		Map<String, Object> childItem = (Map<String, Object>) adapter.getChild(groupPosition, childPosition);
-		mName = (String) childItem.get(NAME);
-		mDescription = (String) childItem.get(DESCRIPTION);
+		Map<String, Object> childItem = (Map<String, Object>) mAdapter.getChild(groupPosition, childPosition);
+		mName = (String) childItem.get(KEY_NAME);
+		mDescription = (String) childItem.get(KEY_DESCRIPTION);
 		if (TextUtils.isEmpty(mDescription)) {
 			Toast.makeText(this, "No extra information", Toast.LENGTH_LONG).show();
 		} else {
@@ -125,7 +125,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			tv.setAutoLinkMask(Linkify.ALL);
 			tv.setText(StringUtils.unescapeHtml(mDescription));
 			ScrollView sv = new ScrollView(this);
-			sv.setPadding(6, 0, 6, 6);
+			sv.setPadding(mPadding, mPadding, mPadding, mPadding);
 			sv.addView(tv);
 			dialog.setContentView(sv);
 			dialog.setCancelable(true);
@@ -145,17 +145,10 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					Uri uri = Designers.buildDesignerUri(id);
 					getContentResolver().registerContentObserver(uri, true, new DesignerObserver(null));
 
-					long lastUpdated = cursor.getLong(DesignerQuery.UPDATED);
-					if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 14) {
-						ids.add(id);
-					}
-
-					final ChildItem childItem = new ChildItem();
-					childItem.Name = cursor.getString(DesignerQuery.DESIGNER_NAME);
-					childItem.Description = cursor.getString(DesignerQuery.DESIGNER_DESCRIPTION);
-					designers.add(childItem);
+					addId(cursor, ids, id, DesignerQuery.UPDATED);
+					addChildItem(cursor, designers, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_DESCRIPTION);
 				}
-				createGroup(R.string.designers, designers);
+				updateGroup(GROUP_DESIGNERS, designers);
 
 				if (ids.size() > 0) {
 					Integer[] array = new Integer[ids.size()];
@@ -169,19 +162,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					int id = cursor.getInt(ArtistQuery.ARTIST_ID);
 
 					Uri uri = Artists.buildArtistUri(id);
-					getContentResolver().registerContentObserver(uri, true, new ArtistObserver(null)); // TODO
+					getContentResolver().registerContentObserver(uri, true, new ArtistObserver(null));
 
-					long lastUpdated = cursor.getLong(ArtistQuery.UPDATED);
-					if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 14) {
-						ids.add(id);
-					}
-
-					final ChildItem childItem = new ChildItem();
-					childItem.Name = cursor.getString(ArtistQuery.ARTIST_NAME);
-					childItem.Description = cursor.getString(ArtistQuery.ARTIST_DESCRIPTION);
-					artists.add(childItem);
+					addId(cursor, ids, id, ArtistQuery.UPDATED);
+					addChildItem(cursor, artists, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_DESCRIPTION);
 				}
-				createGroup(R.string.artists, artists);
+				updateGroup(GROUP_ARTISTS, artists);
 
 				if (ids.size() > 0) {
 					Integer[] array = new Integer[ids.size()];
@@ -190,29 +176,55 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 				}
 			}
 
-			adapter = new SimpleExpandableListAdapter(this, groupData, R.layout.grouprow, new String[] { NAME, COUNT },
-					new int[] { R.id.name, R.id.count }, childData, R.layout.childrow, new String[] { NAME },
-					new int[] { R.id.name });
-			setListAdapter(adapter);
+			mAdapter = new SimpleExpandableListAdapter(this, mGroupData, R.layout.grouprow, new String[] { KEY_NAME,
+					KEY_COUNT }, new int[] { R.id.name, R.id.count }, mChildData, R.layout.childrow,
+					new String[] { KEY_NAME }, new int[] { R.id.name });
+			setListAdapter(mAdapter);
 		} finally {
 			cursor.close();
 		}
 	}
 
-	private void createGroup(int nameId, Collection<ChildItem> children) {
-		Map<String, String> groupMap = new HashMap<String, String>();
-		groupData.add(groupMap);
-		groupMap.put(NAME, getResources().getString(nameId));
-		groupMap.put(COUNT, "" + children.size());
+	private void addId(Cursor cursor, List<Integer> list, int id, int updatedColumnIndex) {
+		long lastUpdated = cursor.getLong(updatedColumnIndex);
+		if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 14) {
+			list.add(id);
+		}
+	}
 
-		List<Map<String, String>> childrenMap = new ArrayList<Map<String, String>>();
+	private void addChildItem(Cursor cursor, List<ChildItem> list, int nameColumnIndex, int descriptionColumnIndex) {
+		final ChildItem childItem = new ChildItem();
+		childItem.Name = cursor.getString(nameColumnIndex);
+		childItem.Description = cursor.getString(descriptionColumnIndex);
+		list.add(childItem);
+	}
+
+	private void initializeGroupData() {
+		mGroupData = new ArrayList<Map<String, String>>();
+		mChildData = new ArrayList<List<Map<String, String>>>();
+
+		createGroup(R.string.designers);
+		createGroup(R.string.artists);
+	}
+
+	private void createGroup(int nameResourceId) {
+		Map<String, String> groupMap = new HashMap<String, String>();
+		groupMap.put(KEY_NAME, getResources().getString(nameResourceId));
+		mGroupData.add(groupMap);
+		mChildData.add(new ArrayList<Map<String, String>>());
+	}
+
+	private void updateGroup(int group, Collection<ChildItem> children) {
+		mGroupData.get(group).put(KEY_COUNT, "" + children.size());
+
+		List<Map<String, String>> childList = mChildData.get(group);
+		childList.clear();
 		for (ChildItem child : children) {
 			Map<String, String> childMap = new HashMap<String, String>();
-			childrenMap.add(childMap);
-			childMap.put(NAME, child.Name);
-			childMap.put(DESCRIPTION, child.Description);
+			childList.add(childMap);
+			childMap.put(KEY_NAME, child.Name);
+			childMap.put(KEY_DESCRIPTION, child.Description);
 		}
-		childData.add(childrenMap);
 	}
 
 	class ChildItem {
