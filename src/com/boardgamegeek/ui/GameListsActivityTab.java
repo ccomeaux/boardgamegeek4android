@@ -53,7 +53,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_DESIGNERS = 1;
 	private static final int TOKEN_DESIGNERS_UPDATE = 2;
 	private static final int TOKEN_ARTISTS = 3;
-	// private static final int TOKEN_ARTISTS_UPDATE = 4;
+	private static final int TOKEN_ARTISTS_UPDATE = 4;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
@@ -82,8 +82,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		initializeGroupData();
 		setUris();
 
-		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignerObserver(null));
-		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistObserver(null));
+		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
+		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
@@ -120,14 +120,14 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		if (id == ID_DIALOG_RESULTS) {
 			Dialog dialog = new Dialog(this);
 			dialog.setTitle(mName);
-			TextView tv = new TextView(this);
-			tv.setTextColor(Color.WHITE);
-			tv.setAutoLinkMask(Linkify.ALL);
-			tv.setText(StringUtils.unescapeHtml(mDescription));
-			ScrollView sv = new ScrollView(this);
-			sv.setPadding(mPadding, mPadding, mPadding, mPadding);
-			sv.addView(tv);
-			dialog.setContentView(sv);
+			TextView textView = new TextView(this);
+			textView.setTextColor(Color.WHITE);
+			textView.setAutoLinkMask(Linkify.ALL);
+			textView.setText(StringUtils.unescapeHtml(mDescription));
+			ScrollView scrollView = new ScrollView(this);
+			scrollView.setPadding(mPadding, mPadding, mPadding, mPadding);
+			scrollView.addView(textView);
+			dialog.setContentView(scrollView);
 			dialog.setCancelable(true);
 			return dialog;
 		}
@@ -136,16 +136,16 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
-			if (token == TOKEN_DESIGNERS) {
+			if (token == TOKEN_DESIGNERS || token == TOKEN_DESIGNERS_UPDATE) {
 				List<Integer> ids = new ArrayList<Integer>();
 				List<ChildItem> designers = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
-					int id = cursor.getInt(DesignerQuery.DESIGNER_ID);
-
-					Uri uri = Designers.buildDesignerUri(id);
-					getContentResolver().registerContentObserver(uri, true, new DesignerObserver(null));
-
-					addId(cursor, ids, id, DesignerQuery.UPDATED);
+					if (token == TOKEN_DESIGNERS) {
+						int id = cursor.getInt(DesignerQuery.DESIGNER_ID);
+						getContentResolver().registerContentObserver(Designers.buildDesignerUri(id), true,
+								new DesignerObserver(null));
+						addId(cursor, ids, id, DesignerQuery.UPDATED);
+					}
 					addChildItem(cursor, designers, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_DESCRIPTION);
 				}
 				updateGroup(GROUP_DESIGNERS, designers);
@@ -155,16 +155,16 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new DesignerTask().execute(array);
 				}
-			} else if (token == TOKEN_ARTISTS) {
+			} else if (token == TOKEN_ARTISTS || token == TOKEN_ARTISTS_UPDATE) {
 				List<Integer> ids = new ArrayList<Integer>();
 				List<ChildItem> artists = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
-					int id = cursor.getInt(ArtistQuery.ARTIST_ID);
-
-					Uri uri = Artists.buildArtistUri(id);
-					getContentResolver().registerContentObserver(uri, true, new ArtistObserver(null));
-
-					addId(cursor, ids, id, ArtistQuery.UPDATED);
+					if (token == TOKEN_ARTISTS) {
+						int id = cursor.getInt(ArtistQuery.ARTIST_ID);
+						getContentResolver().registerContentObserver(Artists.buildArtistUri(id), true,
+								new ArtistObserver(null));
+						addId(cursor, ids, id, ArtistQuery.UPDATED);
+					}
 					addChildItem(cursor, artists, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_DESCRIPTION);
 				}
 				updateGroup(GROUP_ARTISTS, artists);
@@ -232,6 +232,17 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		String Description;
 	}
 
+	class DesignersObserver extends ContentObserver {
+		public DesignersObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
+		}
+	}
+
 	class DesignerObserver extends ContentObserver {
 		public DesignerObserver(Handler handler) {
 			super(handler);
@@ -239,8 +250,18 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			// Log.d(TAG, "Caught changed URI = " + mDesignersUri);
 			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, mDesignersUri, DesignerQuery.PROJECTION);
+		}
+	}
+
+	class ArtistsObserver extends ContentObserver {
+		public ArtistsObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
 		}
 	}
 
@@ -251,7 +272,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, mArtistsUri, ArtistQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, mArtistsUri, ArtistQuery.PROJECTION);
 		}
 	}
 
