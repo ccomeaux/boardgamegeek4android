@@ -20,12 +20,14 @@ import android.net.Uri;
 import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
+import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
@@ -104,6 +106,9 @@ public class RemoteGameHandler extends XmlHandler {
 					tag = null;
 				} else if (Tags.MECHANIC.equals(tag)) {
 					parseMechanic();
+					tag = null;
+				}else if (Tags.CATEGORY.equals(tag)) {
+					parseCategory();
 					tag = null;
 				}
 			} else if (type == END_TAG) {
@@ -235,6 +240,30 @@ public class RemoteGameHandler extends XmlHandler {
 		mResolver.insert(Games.buildMechanicsUri(mGameId), values);
 		
 		// TODO: delete all unused games-mechanics records
+	}
+	
+	private void parseCategory() throws XmlPullParserException, IOException {
+
+		ContentValues values = new ContentValues();
+		final int categoryId = parseIntegerAttribute(Tags.ID);
+		values.put(Categories.CATEGORY_ID, categoryId);
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Categories.CATEGORY_NAME, mParser.getText());
+			}
+		}
+
+		mResolver.insert(Categories.CONTENT_URI, values);
+
+		values.clear();
+		values.put(GamesCategories.GAME_ID, mGameId);
+		values.put(GamesCategories.CATEGORY_ID, categoryId);
+		mResolver.insert(Games.buildCategoriesUri(mGameId), values);
+		
+		// TODO: delete all unused games-categories records
 	}
 	
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -372,12 +401,12 @@ public class RemoteGameHandler extends XmlHandler {
 		String ARTIST = "boardgameartist";
 		String PUBLISHER = "boardgamepublisher";
 		String MECHANIC = "boardgamemechanic";
+		String CATEGORY = "boardgamecategory";
 		// family
 		// expansion
 		// podcastepisode
 		// version
 		// subdomain
-		// category
 		// poll
 		String STATISTICS = "statistics";
 		String STATS_USERS_RATED = "usersrated";

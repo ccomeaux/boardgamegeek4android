@@ -35,6 +35,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePublisherHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -42,7 +43,6 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
-import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -62,11 +62,13 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_PUBLISHERS = 5;
 	private static final int TOKEN_PUBLISHERS_UPDATE = 6;
 	private static final int TOKEN_MECHANICS = 7;
+	private static final int TOKEN_CATEGORIES = 8;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
 	private static final int GROUP_PUBLISHERS = 2;
 	private static final int GROUP_MECHANICS = 3;
+	private static final int GROUP_CATEGORIES = 3;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -77,6 +79,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private Uri mArtistsUri;
 	private Uri mPublishersUri;
 	private Uri mMechanicsUri;
+	private Uri mCategoriesUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
 	private List<Map<String, String>> mGroupData;
@@ -99,6 +102,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
 	}
 
 	private void setAndObserveUris() {
@@ -108,11 +112,13 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mArtistsUri = Games.buildArtistsUri(gameId);
 		mPublishersUri = Games.buildPublishersUri(gameId);
 		mMechanicsUri = Games.buildMechanicsUri(gameId);
+		mCategoriesUri = Games.buildCategoriesUri(gameId);
 
 		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
 		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
 		getContentResolver().registerContentObserver(mPublishersUri, true, new PublishersObserver(null));
 		getContentResolver().registerContentObserver(mMechanicsUri, true, new MechanicsObserver(null));
+		getContentResolver().registerContentObserver(mCategoriesUri, true, new CategoriesObserver(null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -218,6 +224,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					addChildItem(cursor, mechanics, MechanicQuery.MECHANIC_NAME);
 				}
 				updateGroup(GROUP_MECHANICS, mechanics);
+			} else if (token == TOKEN_CATEGORIES) {
+				List<ChildItem> categories = new ArrayList<ChildItem>();
+				while (cursor.moveToNext()) {
+					addChildItem(cursor, categories, CategoryQuery.CATEGORY_NAME);
+				}
+				 updateGroup(GROUP_CATEGORIES, categories);
 			}
 
 			mAdapter = new SimpleExpandableListAdapter(this, mGroupData, R.layout.grouprow, new String[] { KEY_NAME,
@@ -258,11 +270,13 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		createGroup(R.string.artists);
 		createGroup(R.string.publishers);
 		createGroup(R.string.mechanics);
+		createGroup(R.string.categories);
 	}
 
 	private void createGroup(int nameResourceId) {
 		Map<String, String> groupMap = new HashMap<String, String>();
 		groupMap.put(KEY_NAME, getResources().getString(nameResourceId));
+		groupMap.put(KEY_COUNT, "0");
 		mGroupData.add(groupMap);
 		mChildData.add(new ArrayList<Map<String, String>>());
 	}
@@ -359,6 +373,17 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
+		}
+	}
+
+	class CategoriesObserver extends ContentObserver {
+		public CategoriesObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
 		}
 	}
 
@@ -490,9 +515,14 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	}
 
 	private interface MechanicQuery {
-		String[] PROJECTION = { GamesMechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME };
+		String[] PROJECTION = { Mechanics.MECHANIC_NAME };
 
-		// int MECHANIC_ID = 0;
-		int MECHANIC_NAME = 1;
+		int MECHANIC_NAME = 0;
+	}
+
+	private interface CategoryQuery {
+		String[] PROJECTION = { Categories.CATEGORY_NAME };
+
+		int CATEGORY_NAME = 0;
 	}
 }

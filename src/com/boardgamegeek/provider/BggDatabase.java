@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
+import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -27,7 +28,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 25;
+	private static final int DATABASE_VERSION = 26;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -49,17 +50,24 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String MECHANIC_ID = Mechanics.MECHANIC_ID;
 	}
 
+	public interface GamesCategories {
+		String GAME_ID = Games.GAME_ID;
+		String CATEGORY_ID = Categories.CATEGORY_ID;
+	}
+
 	interface Tables {
 		String DESIGNERS = "designers";
 		String ARTISTS = "artists";
 		String PUBLISHERS = "publishers";
 		String MECHANICS = "mechanics";
+		String CATEGORIES = "categories";
 		String GAMES = "games";
 		String GAME_RANKS = "game_ranks";
 		String GAMES_DESIGNERS = "games_designers";
 		String GAMES_ARTISTS = "games_artists";
 		String GAMES_PUBLISHERS = "games_publishers";
 		String GAMES_MECHANICS = "games_mechanics";
+		String GAMES_CATEGORIES = "games_categories";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
 
@@ -67,6 +75,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
 		String GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID);
 		String GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.MECHANIC_ID);
+		String GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.CATEGORY_ID);
 
 		String COLLECTION_JOIN_GAMES = "collection "
 			+ "LEFT OUTER JOIN games ON collection.game_id=games.game_id ";
@@ -116,6 +125,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 		builder.reset().table(Tables.MECHANICS).defaultPrimaryKey()
 			.column(Mechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true)
 			.column(Mechanics.MECHANIC_NAME, COLUMN_TYPE.TEXT, true)
+			.create(db);
+
+		builder.reset().table(Tables.CATEGORIES).defaultPrimaryKey()
+			.column(Categories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(Categories.CATEGORY_NAME, COLUMN_TYPE.TEXT, true)
 			.create(db);
 
 		db.execSQL("CREATE TABLE " + Tables.GAMES + " ("
@@ -182,6 +196,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(GamesMechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true, Tables.MECHANICS, Mechanics.MECHANIC_ID)
 			.create(db);
 
+		builder.reset().table(Tables.GAMES_CATEGORIES).defaultPrimaryKey()
+			.column(GamesCategories.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID)
+			.column(GamesCategories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.CATEGORIES, Categories.CATEGORY_ID)
+			.create(db);
+
 		db.execSQL("CREATE TABLE " + Tables.COLLECTION + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ SyncColumns.UPDATED + " INTEGER,"
@@ -232,12 +251,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.ARTISTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.PUBLISHERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.MECHANICS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.CATEGORIES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_DESIGNERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_ARTISTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_PUBLISHERS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_MECHANICS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_CATEGORIES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
 

@@ -76,6 +76,11 @@ public class BggContract {
 		String MECHANIC_NAME = "mechanic_name";
 	}
 
+	interface CategoriesColumns {
+		String CATEGORY_ID = "category_id";
+		String CATEGORY_NAME = "category_name";
+	}
+
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
 		String COLLECTION_NAME = "collection_name";
@@ -117,6 +122,7 @@ public class BggContract {
 	private static final String PATH_ARTISTS = "artists";
 	private static final String PATH_PUBLISHERS = "publishers";
 	private static final String PATH_MECHANICS = "mechanics";
+	private static final String PATH_CATEGORIES = "categories";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_THUMBNAILS = "thumbnails";
@@ -155,6 +161,10 @@ public class BggContract {
 
 		public static Uri buildMechanicsUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_MECHANICS).build();
+		}
+
+		public static Uri buildCategoriesUri(int gameId) {
+			return getUriBuilder(gameId).appendPath(PATH_CATEGORIES).build();
 		}
 
 		private static Builder getUriBuilder(int gameId){
@@ -248,6 +258,23 @@ public class BggContract {
 		}
 		
 		public static int getMechanicId(Uri uri) {
+			return Utility.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static class Categories implements CategoriesColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_CATEGORIES).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.category";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.category";
+
+		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildCategoryUri(int categoryId) {
+			return CONTENT_URI.buildUpon().appendPath("" + categoryId).build();
+		}
+		
+		public static int getCategoryId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}
