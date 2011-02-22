@@ -30,6 +30,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -95,6 +96,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mUpdatedDate = cursor.getLong(GameQuery.UPDATED);
 
 			mNameView.setText(mName);
+
+			long lastUpdated = cursor.getLong(GameQuery.UPDATED);
+			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 7) {
+				refresh();
+			}
 
 			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
 				new ThumbnailTask().execute(mThumbnailUrl);
