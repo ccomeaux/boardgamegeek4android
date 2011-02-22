@@ -68,7 +68,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int GROUP_ARTISTS = 1;
 	private static final int GROUP_PUBLISHERS = 2;
 	private static final int GROUP_MECHANICS = 3;
-	private static final int GROUP_CATEGORIES = 3;
+	private static final int GROUP_CATEGORIES = 4;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
