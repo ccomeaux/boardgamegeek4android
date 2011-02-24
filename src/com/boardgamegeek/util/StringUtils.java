@@ -1,5 +1,8 @@
 package com.boardgamegeek.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,17 +11,48 @@ import android.util.Log;
  */
 public class StringUtils {
 	private final static String TAG = "StringUtils";
+	
+	private static Pattern mVertialWhiteSpacePattern;
+	
+	static {
+		mVertialWhiteSpacePattern = Pattern.compile("[\n]{3,}");
+	}
+	
+	public static String formatDescription(String input) {
+		if (TextUtils.isEmpty(input)) {
+			return null;
+		}
+
+		final long startLocal = System.currentTimeMillis();
+
+		String output = input;
+		output = convertBreaks(output);
+		output = unescapeHtml(output);
+		output = trimLineEndings(output);
+		output = removeVerticalWhiteSpace(output);
+
+		Log.d(TAG, "Formatting description took " + (System.currentTimeMillis() - startLocal) + "ms");
+
+		return output;
+	}
+
+	private static String convertBreaks(String input){
+		return input.replace("<br/>", "\n");
+	}
+
+	private static String trimLineEndings(String input) {
+		return input.replaceAll("[ \t]+$", "");
+	}
+	
+	private static String removeVerticalWhiteSpace(String input){
+		Matcher matcher = mVertialWhiteSpacePattern.matcher(input);
+		return matcher.replaceAll("\n\n").trim();
+	}
 
 	/**
 	 * Replaces escaped HTML with the unescaped equivalent.
 	 */
-	public static String unescapeHtml(String escapedHtml) {
-		if (TextUtils.isEmpty(escapedHtml)) {
-			return null;
-		}
-		
-		final long startLocal = System.currentTimeMillis();
-
+	private static String unescapeHtml(String escapedHtml) {
 		String unescapedText = escapedHtml;
 		unescapedText = unescapedText.replace("&nbsp;", " ");
 		unescapedText = unescapedText.replace("&lt;", "<");
@@ -73,11 +107,7 @@ public class StringUtils {
 		unescapedText = unescapedText.replace("&euro;", "\u20a0");
 		unescapedText = unescapedText.replace("&bull;", "\u0095");
 		unescapedText = unescapedText.replace("&#10;", "\n");
-		unescapedText = unescapedText.replace("<br/>", "\n");
-		
-		Log.d(TAG, "unescaping HTML took " + (System.currentTimeMillis() - startLocal) + "ms");
-		
-		return unescapedText.trim();
+		return unescapedText;
 	}
 
 	public static String createSortName(String name, int sortIndex) {
@@ -86,4 +116,5 @@ public class StringUtils {
 		}
 		int i = sortIndex - 1;
 		return name.substring(i) + ", " + name.substring(0, i).trim();
-	}}
+	}
+}

@@ -109,7 +109,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				}
 
 				mIdView.setText(cursor.getString(GameQuery.GAME_ID));
-				mDescriptionView.setText(StringUtils.unescapeHtml(cursor.getString(GameQuery.DESCRIPTION)));
+				mDescriptionView.setText(StringUtils.formatDescription(cursor.getString(GameQuery.DESCRIPTION)));
 			} else if (token == TOKEN_RANK) {
 				setRank(cursor);
 			} else {

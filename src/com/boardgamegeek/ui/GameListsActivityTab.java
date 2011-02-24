@@ -147,7 +147,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			TextView textView = new TextView(this);
 			textView.setTextColor(Color.WHITE);
 			textView.setAutoLinkMask(Linkify.ALL);
-			textView.setText(StringUtils.unescapeHtml(mDescription));
+			textView.setText(StringUtils.formatDescription(mDescription));
 			ScrollView scrollView = new ScrollView(this);
 			scrollView.setPadding(mPadding, mPadding, mPadding, mPadding);
 			scrollView.addView(textView);

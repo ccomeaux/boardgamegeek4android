@@ -329,7 +329,7 @@ public class BoardGameExtraTab extends ExpandableListActivity {
 			dialog.setTitle(name);
 			TextView tv = new TextView(this);
 			tv.setAutoLinkMask(Linkify.ALL);
-			tv.setText(StringUtils.unescapeHtml(description));
+			tv.setText(StringUtils.formatDescription(description));
 			ScrollView sv = new ScrollView(this);
 			sv.setPadding(5, 0, 5, 5);
 			sv.addView(tv);

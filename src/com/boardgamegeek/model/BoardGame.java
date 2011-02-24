@@ -305,7 +305,7 @@ public class BoardGame {
 
 	// game description
 	public String getDescription() {
-		return StringUtils.unescapeHtml(description);
+		return StringUtils.formatDescription(description);
 	}
 
 	public void setDescription(String description) {
