@@ -102,7 +102,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				refresh();
 			}
 
-			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
+			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)
+					&& mThumbnail.getVisibility() != View.VISIBLE) {
 				new ThumbnailTask().execute(mThumbnailUrl);
 			}
 		} finally {
