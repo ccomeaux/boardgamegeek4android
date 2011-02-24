@@ -4,37 +4,47 @@
 	android:layout_height="wrap_content">
 	
 	<LinearLayout android:id="@+id/rankLayout"
-		android:padding="10dp"
+		android:padding="@dimen/padding_extra"
 		android:orientation="vertical"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
 		
 		<LinearLayout android:orientation="horizontal"
-			android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="Ratings" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+		</LinearLayout>
+		<View style="@style/BodySeparator" />
+		
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="Ratings" style="@style/StatsHeading" />
 			<TextView android:id="@+id/statsRatingCount"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/text_size_small"
 				android:gravity="right" />
 		</LinearLayout>
 		<RelativeLayout style="@style/StatRow">
 			<ProgressBar android:id="@+id/averageBar" style="@style/StatProgressBar" />
 			<TextView android:id="@+id/averageText"
 				style="@style/StatProgressBarText"
-				android:layout_alignTop="@id/averageBar" android:layout_alignBottom="@id/averageBar" />
+				android:layout_alignTop="@id/averageBar"
+				android:layout_alignBottom="@id/averageBar" />
 		</RelativeLayout>
 		<RelativeLayout style="@style/StatRow">
 			<ProgressBar android:id="@+id/bayesBar" style="@style/StatProgressBar" />
 			<TextView android:id="@+id/bayesText"
 				style="@style/StatProgressBarText"
-				android:layout_alignTop="@id/bayesBar" android:layout_alignBottom="@id/bayesBar" />
+				android:layout_alignTop="@id/bayesBar"
+				android:layout_alignBottom="@id/bayesBar" />
 		</RelativeLayout>
 		<RelativeLayout style="@style/StatRow" android:id="@+id/medianRow">
 			<ProgressBar android:id="@+id/medianBar" style="@style/StatProgressBar" />
 			<TextView android:id="@+id/medianText"
 				style="@style/StatProgressBarText"
-				android:layout_alignTop="@id/medianBar" android:layout_alignBottom="@id/medianBar" />
+				android:layout_alignTop="@id/medianBar"
+				android:layout_alignBottom="@id/medianBar" />
 		</RelativeLayout>
 		<RelativeLayout style="@style/StatRow">
 			<ProgressBar android:id="@+id/stdDevBar" style="@style/StatProgressBar" />
@@ -42,34 +52,34 @@
 				style="@style/StatProgressBarText"
 				android:layout_alignTop="@id/stdDevBar" android:layout_alignBottom="@id/stdDevBar" />
 		</RelativeLayout>
-		<View android:layout_width="fill_parent" android:layout_height="1dip"
-			android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
-			android:background="@android:drawable/divider_horizontal_dark" />
+		<View style="@style/BodySeparator" />
 		<LinearLayout android:orientation="horizontal"
-			android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="@string/weight"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="@string/weight" style="@style/StatsHeading" />
 			<TextView android:id="@+id/statsWeightCount"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/text_size_small"
 				android:gravity="right" />
 		</LinearLayout>
 		<RelativeLayout style="@style/StatRow">
-			<ProgressBar android:id="@+id/weightBar" style="@style/StatProgressBar" />
+			<ProgressBar android:id="@+id/weightBar"
+				style="@style/StatProgressBar" />
 			<TextView android:id="@+id/weightText"
 				style="@style/StatProgressBarText"
-				android:layout_alignTop="@id/weightBar" android:layout_alignBottom="@id/weightBar" />
+				android:layout_alignTop="@id/weightBar"
+				android:layout_alignBottom="@id/weightBar" />
 		</RelativeLayout>
-		<View android:layout_width="fill_parent" android:layout_height="1dip"
-			android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
-			android:background="@android:drawable/divider_horizontal_dark" />
+		<View style="@style/BodySeparator" />
 		<LinearLayout android:orientation="horizontal"
-			android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<TextView android:text="@string/users" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" />
-			<TextView android:id="@+id/usersCount" android:layout_width="fill_parent"
-				android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<TextView android:text="@string/users" style="@style/StatsHeading" />
+			<TextView android:id="@+id/usersCount"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/text_size_small"
 				android:gravity="right" />
 		</LinearLayout>
 		<RelativeLayout style="@style/StatRow">

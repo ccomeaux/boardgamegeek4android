@@ -105,11 +105,27 @@
     	<item name="android:layout_height">20dp</item>
     </style>
     
-    <style name="StatProgressBarText" parent="@android:style/TextAppearance.Small">
+    <style name="StatProgressBarText">
+    	<item name="android:textSize">@dimen/text_size_small</item>
     	<item name="android:layout_width">fill_parent</item>
     	<item name="android:layout_height">wrap_content</item>
     	<item name="android:textColor">#000</item>
     	<item name="android:gravity">center</item>
+	</style>
+	
+	<style name="BodySeparator">
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">1dip</item>
+		<item name="android:layout_marginTop">@dimen/padding_standard</item>
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
+		<item name="android:background">@android:drawable/divider_horizontal_bright</item>
+	</style>
+	
+	<style name="StatsHeading">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:textSize">@dimen/text_size_small</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
 </resources>

@@ -150,7 +150,7 @@ public class BggContract {
 		public static Uri buildDesignersUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_DESIGNERS).build();
 		}
-		
+
 		public static Uri buildArtistsUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_ARTISTS).build();
 		}
@@ -167,7 +167,7 @@ public class BggContract {
 			return getUriBuilder(gameId).appendPath(PATH_CATEGORIES).build();
 		}
 
-		private static Builder getUriBuilder(int gameId){
+		private static Builder getUriBuilder(int gameId) {
 			return CONTENT_URI.buildUpon().appendPath("" + gameId);
 		}
 
@@ -182,8 +182,8 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.rank";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.rank";
 
-		public static final String DEFAULT_SORT = GameRanksColumns.GAME_RANK_TYPE + " DESC, "
-				+ GameRanksColumns.GAME_RANK_FRIENDLY_NAME + " ASC";
+		public static final String DEFAULT_SORT = GameRanksColumns.GAME_RANK_TYPE + " DESC,"
+				+ GameRanksColumns.GAME_RANK_VALUE + "," + GameRanksColumns.GAME_RANK_FRIENDLY_NAME;
 
 		public static Uri buildGameRankUri(int gameRankId) {
 			return CONTENT_URI.buildUpon().appendPath("" + gameRankId).build();
@@ -205,7 +205,7 @@ public class BggContract {
 		public static Uri buildDesignerUri(int designerId) {
 			return CONTENT_URI.buildUpon().appendPath("" + designerId).build();
 		}
-		
+
 		public static int getDesignerId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
@@ -222,7 +222,7 @@ public class BggContract {
 		public static Uri buildArtistUri(int artistId) {
 			return CONTENT_URI.buildUpon().appendPath("" + artistId).build();
 		}
-		
+
 		public static int getArtistId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
@@ -239,7 +239,7 @@ public class BggContract {
 		public static Uri buildPublisherUri(int publisherId) {
 			return CONTENT_URI.buildUpon().appendPath("" + publisherId).build();
 		}
-		
+
 		public static int getPublisherId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
@@ -256,7 +256,7 @@ public class BggContract {
 		public static Uri buildMechanicUri(int mechanicId) {
 			return CONTENT_URI.buildUpon().appendPath("" + mechanicId).build();
 		}
-		
+
 		public static int getMechanicId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
@@ -273,13 +273,14 @@ public class BggContract {
 		public static Uri buildCategoryUri(int categoryId) {
 			return CONTENT_URI.buildUpon().appendPath("" + categoryId).build();
 		}
-		
+
 		public static int getCategoryId(Uri uri) {
 			return Utility.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
-	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
+	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
+			SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
