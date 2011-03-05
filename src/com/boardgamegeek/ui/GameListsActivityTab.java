@@ -96,13 +96,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mPadding = (int) getResources().getDimension(R.dimen.padding_standard);
 		initializeGroupData();
 		setAndObserveUris();
-
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
-		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
-		mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
-		mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
-		mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
+		startQueries();
 	}
 
 	private void setAndObserveUris() {
@@ -119,6 +113,19 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		getContentResolver().registerContentObserver(mPublishersUri, true, new PublishersObserver(null));
 		getContentResolver().registerContentObserver(mMechanicsUri, true, new MechanicsObserver(null));
 		getContentResolver().registerContentObserver(mCategoriesUri, true, new CategoriesObserver(null));
+	}
+
+	private void startQueries() {
+		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
+				Designers.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null, Artists.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_PUBLISHERS, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
+				Publishers.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_MECHANICS, null, mMechanicsUri, MechanicQuery.PROJECTION, null, null,
+				Mechanics.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
+				Categories.DEFAULT_SORT);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,7 +236,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 				while (cursor.moveToNext()) {
 					addChildItem(cursor, categories, CategoryQuery.CATEGORY_NAME);
 				}
-				 updateGroup(GROUP_CATEGORIES, categories);
+				updateGroup(GROUP_CATEGORIES, categories);
 			}
 
 			mAdapter = new SimpleExpandableListAdapter(this, mGroupData, R.layout.grouprow, new String[] { KEY_NAME,
