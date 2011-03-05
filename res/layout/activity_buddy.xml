@@ -5,7 +5,7 @@
 	android:layout_height="fill_parent">
 
 	<include layout="@layout/titlebar" />
-	
+
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
@@ -17,14 +17,14 @@
 			android:textSize="@dimen/text_size_large"
 			android:gravity="center" />
 		<ProgressBar android:id="@+id/buddy_progress" 
-			android:layout_width="64dp"
-			android:layout_height="64dp"
-			android:padding="6dp"
+			android:layout_width="@dimen/image_size"
+			android:layout_height="@dimen/image_size"
+			android:padding="@dimen/padding_standard"
 			android:visibility="gone" />
 		<ImageView android:id="@+id/buddy_avatar" 
-			android:layout_width="64dp"
-			android:layout_height="64dp"
-			android:padding="6dp"
+			android:layout_width="@dimen/image_size"
+			android:layout_height="@dimen/image_size"
+			android:padding="@dimen/padding_standard"
 			android:visibility="gone" />
 		<TextView android:id="@+id/buddy_name"
 			android:layout_width="fill_parent"
