@@ -44,7 +44,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
-	private boolean mRetry;
+	private boolean mShouldRetry;
+	private boolean mIsLoaded;
 
 	private int mId;
 	private String mName;
@@ -69,7 +70,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		getContentResolver().registerContentObserver(mGameUri, true, new GameObserver(null));
 
-		mRetry = true;
+		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
 	}
@@ -82,8 +83,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
 			if (!cursor.moveToFirst()) {
-				if (mRetry) {
-					mRetry = false;
+				if (mShouldRetry) {
+					mShouldRetry = false;
 					refresh();
 				}
 				return;
@@ -99,6 +100,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mUpdatedDate = cursor.getLong(GameQuery.UPDATED);
 
 			mNameView.setText(mName);
+			mIsLoaded = true;
 
 			long lastUpdated = cursor.getLong(GameQuery.UPDATED);
 			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 7) {
@@ -169,12 +171,22 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		// only allow logging a play once the game is populated
+		// only enable options when the game is loaded
 
-		// TODO: extend this to other buttons
-		MenuItem mi = menu.findItem(R.id.log_play);
-		mi.setEnabled(!TextUtils.isEmpty(mName));
+		enableMenuItem(menu, R.id.log_play);
+		enableMenuItem(menu, R.id.log_play_quick);
+		enableMenuItem(menu, R.id.refresh);
+		enableMenuItem(menu, R.id.links);
+		enableMenuItem(menu, R.id.share);
+
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	private void enableMenuItem(Menu menu, int id) {
+		MenuItem mi = menu.findItem(id);
+		if (mi != null) {
+			mi.setEnabled(mIsLoaded);
+		}
 	}
 
 	@Override
