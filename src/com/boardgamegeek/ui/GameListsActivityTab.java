@@ -69,6 +69,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int GROUP_PUBLISHERS = 2;
 	private static final int GROUP_MECHANICS = 3;
 	private static final int GROUP_CATEGORIES = 4;
+	private static final int GROUP_TOTAL_COUNT = 5;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -85,6 +86,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private List<Map<String, String>> mGroupData;
 	private List<List<Map<String, String>>> mChildData;
 	private ExpandableListAdapter mAdapter;
+	private ExpandableListView mListView;
+	private boolean[] mGroupStatus;
 
 	private String mName;
 	private String mDescription;
@@ -243,8 +246,46 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					KEY_COUNT }, new int[] { R.id.name, R.id.count }, mChildData, R.layout.childrow,
 					new String[] { KEY_NAME }, new int[] { R.id.name });
 			setListAdapter(mAdapter);
+
+			restoreListView();
 		} finally {
 			cursor.close();
+		}
+	}
+
+	private void restoreListView() {
+		ensureListView();
+		ensureGroupStatus();
+		for (int i = 0; i < mGroupStatus.length; i++) {
+			if (mGroupStatus[i]) {
+				mListView.expandGroup(i);
+			}
+		}
+	}
+
+	@Override
+	public void onGroupExpand(int groupPosition) {
+		ensureGroupStatus();
+		mGroupStatus[groupPosition] = true;
+		super.onGroupExpand(groupPosition);
+	}
+
+	@Override
+	public void onGroupCollapse(int groupPosition) {
+		ensureGroupStatus();
+		mGroupStatus[groupPosition] = false;
+		super.onGroupCollapse(groupPosition);
+	}
+
+	private void ensureListView() {
+		if (mListView == null) {
+			mListView = (ExpandableListView) findViewById(android.R.id.list);
+		}
+	}
+
+	private void ensureGroupStatus() {
+		if (mGroupStatus == null) {
+			mGroupStatus = new boolean[GROUP_TOTAL_COUNT];
 		}
 	}
 
