@@ -29,7 +29,7 @@
 			android:summary="@string/pref_imageLoad_summary" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_database">
-		<com.boardgamegeek.ClearDialogPreference
+		<com.boardgamegeek.pref.ClearDialogPreference
 			android:key="clearDatabase" android:title="@string/pref_database_clear"
 			android:summary="@string/pref_database_clear_summary"
 			android:positiveButtonText="@string/pref_database_clear_pos"

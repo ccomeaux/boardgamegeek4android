@@ -97,17 +97,15 @@
 			android:label="@string/title_log_play"
 			android:theme="@style/Theme.Bgg" />
 
-		<activity android:name=".ui.OldBoardgameActivity" android:theme="@style/Theme.Bgg" />
 		<activity android:name=".view.BoardGameStatsTab" />
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />
 		<activity android:name=".view.BoardGamePollsTab" />
-		<activity android:name=".Preferences" android:label="@string/app_name" android:theme="@style/Theme.BggTitle"/>
+		<activity android:name=".pref.Preferences" android:label="@string/app_name" />
 		<activity android:name=".ui.AboutActivity" android:theme="@style/Theme.Bgg" />
-		
+
 		<service android:name=".service.SyncService" />
 
-		<provider android:name=".BoardGameGeekProvider" android:authorities="com.boardgamegeek.provider" />
 		<provider android:name=".provider.BggProvider" android:authorities="com.boardgamegeek" />
 
 		<meta-data android:name="android.app.default_searchable"
