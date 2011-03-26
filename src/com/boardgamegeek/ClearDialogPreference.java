@@ -14,7 +14,6 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.util.ImageCache;
 
 public class ClearDialogPreference extends DialogPreference {
 
@@ -51,7 +50,8 @@ public class ClearDialogPreference extends DialogPreference {
 	protected View onCreateDialogView() {
 		TextView tw = new TextView(context);
 		tw.setText(R.string.pref_database_clear_message);
-		tw.setPadding(10, 8, 10, 8);
+		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
+		tw.setPadding(padding, padding, padding, padding);
 		return tw;
 	}
 }
