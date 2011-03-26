@@ -1,4 +1,4 @@
-package com.boardgamegeek;
+package com.boardgamegeek.pref;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;

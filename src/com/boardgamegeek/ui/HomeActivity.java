@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
+import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;

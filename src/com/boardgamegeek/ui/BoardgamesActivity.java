@@ -38,13 +38,13 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.BoardGameListHandler;
 import com.boardgamegeek.DataHelper;
-import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
-import com.boardgamegeek.BoardGameGeekData.BoardGames;
 import com.boardgamegeek.model.BoardGame;
+import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.util.UIUtils;
 
 public class BoardgamesActivity extends ListActivity {

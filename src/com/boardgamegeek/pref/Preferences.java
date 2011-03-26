@@ -1,9 +1,11 @@
-package com.boardgamegeek;
+package com.boardgamegeek.pref;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+
+import com.boardgamegeek.R;
 
 public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override

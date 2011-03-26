@@ -48,9 +48,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
-import com.boardgamegeek.Preferences;
 import com.boardgamegeek.R;
 import com.boardgamegeek.Utility;
+import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.UIUtils;
 
