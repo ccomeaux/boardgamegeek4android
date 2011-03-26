@@ -1,17 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array name="databaseDurationValues">
-		<item>86400000</item>
-		<item>259200000</item>
-		<item>604800000</item>
-		<item>1209600000</item>
-		<item>2592000000</item>
-	</string-array>
-	<string-array name="databaseDurationEntries">
-		<item>1 day</item>
-		<item>3 days</item>
-		<item>7 days</item>
-		<item>14 days</item>
-		<item>30 days</item>
-	</string-array>
 </resources>

@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="tab_main">Main</string>
+
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
-	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays
-	</string>
+	<string name="pref_user_username_summary">BoardGameGeek.com username</string>
 	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
+
 	<string name="pref_user_password_title">BGG password</string>
-	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays
-	</string>
+	<string name="pref_user_password_summary">BoardGameGeek.com password</string>
 	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
 		your password is stored locally, but the only entity we share it with
 		is BoardGameGeek. Promise.</string>
+
 	<string name="pref_search">Search settings</string>
-	<string name="pref_imageLoad_title">Load images</string>
-	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
-		connection</string>
 	<string name="pref_exactSearch_title">Exact search</string>
 	<string name="pref_exactSearch_summary">Disable this to get more search results or do
 		partial-name searches</string>
 	<string name="pref_skipResults_title">Skip results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
 		there is only one result</string>
-	<string name="pref_database">Database settings</string>
-	<string name="pref_database_duration">Boardgame expiration</string>
-	<string name="pref_database_duration_summary">Maximum number of days a board game will be out of
-		sync</string>
-	<string name="pref_database_duration_extra">Extra information expiration</string>
-	<string name="pref_database_duration_extra_summary">Maximum number of days non-board game information
-		will be out of sync</string>
+
+	<string name="pref_general">General settings</string>
+	<string name="pref_imageLoad_title">Load images</string>
+	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
+		connection</string>
+
+	<string name="pref_database">Collection settings</string>
 	<string name="pref_database_clear">Clear database</string>
 	<string name="pref_database_clear_summary">Deletes all information stored in the database
 	</string>
@@ -36,6 +34,7 @@
 	<string name="pref_database_clear_neg">Cancel</string>
 	<string name="pref_database_clear_message">Are you sure you want to clear the database? NOTE:
 		This operation can\'t be reversed.</string>
+
 	<string name="menu_view_database">View Database</string>
 	<string name="menu_settings">Settings</string>
 	<string name="menu_about">About</string>

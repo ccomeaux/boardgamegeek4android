@@ -1,12 +1,20 @@
 package com.boardgamegeek;
 
-import com.boardgamegeek.BoardGameGeekData.*;
-
+import android.content.ContentResolver;
 import android.content.Context;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+
+import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Categories;
+import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Mechanics;
+import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.util.ImageCache;
 
 public class ClearDialogPreference extends DialogPreference {
 
@@ -25,14 +33,17 @@ public class ClearDialogPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-			// delete all tables. NOTE: deleting boardgames will delete its
-			// child tables too (including thumbnails)
-			context.getContentResolver().delete(BoardGames.CONTENT_URI, null, null);
-			context.getContentResolver().delete(Artists.CONTENT_URI, null, null);
-			context.getContentResolver().delete(Designers.CONTENT_URI, null, null);
-			context.getContentResolver().delete(Publishers.CONTENT_URI, null, null);
-			context.getContentResolver().delete(Categories.CONTENT_URI, null, null);
-			context.getContentResolver().delete(Mechanics.CONTENT_URI, null, null);
+			// delete all tables.
+			// NOTE: deleting games will delete its child tables too
+			ContentResolver cr = context.getContentResolver();
+			cr.delete(Games.CONTENT_URI, null, null);
+			cr.delete(Artists.CONTENT_URI, null, null);
+			cr.delete(Designers.CONTENT_URI, null, null);
+			cr.delete(Publishers.CONTENT_URI, null, null);
+			cr.delete(Categories.CONTENT_URI, null, null);
+			cr.delete(Mechanics.CONTENT_URI, null, null);
+			cr.delete(Buddies.CONTENT_URI, null, null);
+			// TODO: delete thumbnails
 		}
 	}
 

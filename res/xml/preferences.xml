@@ -14,27 +14,21 @@
 			android:password="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_search">
+		<CheckBoxPreference android:key="exactSearch"
+			android:defaultValue="true"
+			android:title="@string/pref_exactSearch_title"
+			android:summary="@string/pref_exactSearch_summary" />
+		<CheckBoxPreference android:key="skipResults"
+			android:defaultValue="true"
+			android:title="@string/pref_skipResults_title"
+			android:summary="@string/pref_skipResults_summary" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_general">
 		<CheckBoxPreference android:key="imageLoad"
 			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
 			android:summary="@string/pref_imageLoad_summary" />
-		<CheckBoxPreference android:key="exactSearch"
-			android:defaultValue="true" android:title="@string/pref_exactSearch_title"
-			android:summary="@string/pref_exactSearch_summary" />
-		<CheckBoxPreference android:key="skipResults"
-			android:defaultValue="true" android:title="@string/pref_skipResults_title"
-			android:summary="@string/pref_skipResults_summary" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_database">
-		<ListPreference android:key="databaseDuration"
-			android:defaultValue="259200000" 
-			android:title="@string/pref_database_duration"
-			android:summary="@string/pref_database_duration_summary"
-			android:entries="@array/databaseDurationEntries"
-			android:entryValues="@array/databaseDurationValues" />
-		<ListPreference android:key="databaseDurationExtra"
-			android:defaultValue="1209600000" android:title="@string/pref_database_duration_extra"
-			android:summary="@string/pref_database_duration_extra_summary"
-			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
 		<com.boardgamegeek.ClearDialogPreference
 			android:key="clearDatabase" android:title="@string/pref_database_clear"
 			android:summary="@string/pref_database_clear_summary"
