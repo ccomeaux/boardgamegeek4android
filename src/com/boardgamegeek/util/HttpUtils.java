@@ -65,7 +65,7 @@ public class HttpUtils {
 		if (gameIds == null) {
 			return null;
 		}
-		
+
 		StringBuilder ids = new StringBuilder();
 		for (int i = 0; i < gameIds.size(); i++) {
 			if (i > 0) {
@@ -93,6 +93,17 @@ public class HttpUtils {
 
 	public static String constructCollectionUrl(String username, String filter) {
 		return BASE_URL + "collection/" + username + (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
+	}
+
+	public static String constructCollectionUrl(String username, String filterIn, List<String> filterOut) {
+		String out = "";
+		for (int i = 0; i < filterOut.size(); i++) {
+			String outValue = filterOut.get(i).trim();
+			if (!TextUtils.isEmpty(outValue)) {
+				out += ";" + outValue + "=0";
+			}
+		}
+		return BASE_URL + "collection/" + username + (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
 	}
 
 	public static HttpClient createHttpClient(Context context, boolean useGzip) {

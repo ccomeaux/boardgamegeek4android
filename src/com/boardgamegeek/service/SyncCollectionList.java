@@ -1,5 +1,8 @@
 package com.boardgamegeek.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.content.Context;
 
@@ -22,17 +25,14 @@ public class SyncCollectionList extends SyncTask {
 		ContentResolver resolver = context.getContentResolver();
 
 		mUsername = BggApplication.getInstance().getUserName();
+		String[] statuses = BggApplication.getInstance().getSyncStatuses();
 
-		String[] filters = new String[] { "own", "prevowned", "trade", "want", "wanttoplay", "wanttobuy", "wishlist",
-				"preordered" };
-		String filterOff = "";
-		for (int i = 0; i < filters.length; i++) {
-			executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, filters[i]), new RemoteCollectionHandler(
-					startTime));
-			filterOff = filterOff + "," + filters[i] + "=0";
+		List<String> filterOff = new ArrayList<String>(statuses.length);
+		for (int i = 0; i < statuses.length; i++) {
+			executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, statuses[i], filterOff),
+					new RemoteCollectionHandler(startTime));
+			filterOff.add(statuses[i]);
 		}
-		executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, null) + "?" + filterOff.substring(1),
-				new RemoteCollectionHandler(startTime));
 		resolver.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", new String[] { "" + startTime });
 	}
 

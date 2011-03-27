@@ -25,12 +25,22 @@
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_general">
 		<CheckBoxPreference android:key="imageLoad"
-			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
+			android:defaultValue="true"
+			android:title="@string/pref_imageLoad_title"
 			android:summary="@string/pref_imageLoad_summary" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_database">
+		<com.boardgamegeek.pref.ListPreferenceMultiSelect
+			android:defaultValue="own"
+			android:key="syncStatuses"
+			android:title="@string/pref_database_statuses"
+			android:dialogTitle="@string/pref_database_statuses"
+			android:summary="@string/pref_database_statuses_summary"
+			android:entries="@array/pref_sync_status_entries"
+			android:entryValues="@array/pref_sync_status_values"/>
 		<com.boardgamegeek.pref.ClearDialogPreference
-			android:key="clearDatabase" android:title="@string/pref_database_clear"
+			android:key="clearDatabase"
+			android:title="@string/pref_database_clear"
 			android:summary="@string/pref_database_clear_summary"
 			android:positiveButtonText="@string/pref_database_clear_pos"
 			android:negativeButtonText="@string/pref_database_clear_neg" />
