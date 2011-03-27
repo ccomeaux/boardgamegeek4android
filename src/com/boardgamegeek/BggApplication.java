@@ -50,4 +50,9 @@ public class BggApplication extends Application {
 		String statuses = preferences.getString("syncStatuses", "");
 		return ListPreferenceMultiSelect.parseStoredValue(statuses);
 	}
+
+	public boolean getSyncBuddies(){
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("syncBuddies", true);
+	}
 }

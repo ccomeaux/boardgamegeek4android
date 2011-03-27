@@ -38,6 +38,10 @@
 			android:summary="@string/pref_database_statuses_summary"
 			android:entries="@array/pref_sync_status_entries"
 			android:entryValues="@array/pref_sync_status_values"/>
+		<CheckBoxPreference android:key="syncBuddies"
+			android:defaultValue="true"
+			android:title="@string/pref_database_buddies"
+			android:summary="@string/pref_database_buddies_summary" />
 		<com.boardgamegeek.pref.ClearDialogPreference
 			android:key="clearDatabase"
 			android:title="@string/pref_database_clear"

@@ -33,8 +33,10 @@
 	<string name="pref_database_clear_neg">Cancel</string>
 	<string name="pref_database_clear_message">Are you sure you want to clear all downloaded
 		information? NOTE: This operation can\'t be reversed.</string>
-	<string name="pref_database_statuses">Statuses to sync</string>
+	<string name="pref_database_statuses">Statuses</string>
 	<string name="pref_database_statuses_summary">Games statuses to sync</string>
+	<string name="pref_database_buddies">Buddies</string>
+	<string name="pref_database_buddies_summary">Determines if buddies are synced</string>
 
 	<string name="menu_view_database">View Database</string>
 	<string name="menu_settings">Settings</string>

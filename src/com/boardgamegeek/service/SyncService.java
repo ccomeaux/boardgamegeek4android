@@ -50,9 +50,12 @@ public class SyncService extends IntentService {
 		mHttpClient = HttpUtils.createHttpClient(this, mUseGzip);
 
 		mTasks.add(new SyncCollectionList());
-		mTasks.add(new SyncCollectionDetail());
-		mTasks.add(new SyncBuddiesList());
-		mTasks.add(new SyncBuddiesDetail());
+		// TODO: make this faster
+		// mTasks.add(new SyncCollectionDetail());
+		if (BggApplication.getInstance().getSyncBuddies()) {
+			mTasks.add(new SyncBuddiesList());
+			mTasks.add(new SyncBuddiesDetail());
+		}
 	}
 
 	@Override
@@ -83,7 +86,7 @@ public class SyncService extends IntentService {
 			}
 
 			Log.d(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
-				+ (mUseGzip ? "on" : "off"));
+					+ (mUseGzip ? "on" : "off"));
 		} catch (Exception e) {
 			Log.e(TAG, e.toString());
 			sendError(e.toString());
@@ -133,18 +136,17 @@ public class SyncService extends IntentService {
 		final String message = getResources().getString(messageId);
 		final String status = getResources().getString(statusId);
 
-		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message, System
-			.currentTimeMillis());
+		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message,
+				System.currentTimeMillis());
 
 		Intent i = null;
 		if (includeIntent) {
 			i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
-				Intent.ACTION_SYNC);
+					Intent.ACTION_SYNC);
 		}
 		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
 
-		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status,
-			pi);
+		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
 }
