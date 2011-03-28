@@ -46,6 +46,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private Uri mGameUri;
 	private boolean mShouldRetry;
 	private boolean mIsLoaded;
+	private GameObserver mObserver;
 
 	private int mId;
 	private String mName;
@@ -68,14 +69,25 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		setUiVariables();
 		setupTabs();
 
-		getContentResolver().registerContentObserver(mGameUri, true, new GameObserver(null));
-
 		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		getContentResolver().registerContentObserver(mGameUri, true, mObserver);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		getContentResolver().unregisterContentObserver(mObserver);
+	}
+
 	private void setUiVariables() {
+		mObserver = new GameObserver(null);
 		mNameView = (TextView) findViewById(R.id.game_name);
 		mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
 	}

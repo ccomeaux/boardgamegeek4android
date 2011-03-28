@@ -36,6 +36,8 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	private Uri mBoardgameUri;
 	private Uri mRankUri;
 	private NotifyingAsyncQueryHandler mHandler;
+	private GameObserver mGameObserver;
+	
 	private NumberFormat mFormat = NumberFormat.getInstance();
 	private int mRankIndex = 0;
 	private float mRankTextSize;
@@ -78,11 +80,23 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 		mBoardgameUri = getIntent().getData();
 		mRankUri = Games.buildRanksUri(Games.getGameId(mBoardgameUri));
-		getContentResolver().registerContentObserver(mBoardgameUri, true, new GameObserver(null));
+		mGameObserver = new GameObserver(null);
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_GAME, mBoardgameUri, GameQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_RANK, null, mRankUri, RankQuery.PROJECTION, null, null, GameRanks.DEFAULT_SORT);
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		getContentResolver().registerContentObserver(mBoardgameUri, true, mGameObserver);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		getContentResolver().unregisterContentObserver(mGameObserver);
 	}
 
 	private void setUiVariables() {
@@ -195,6 +209,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 				while (cursor.moveToNext()) {
 					String name = cursor.getString(RankQuery.GAME_RANK_FRIENDLY_NAME);
 					int rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
+					double rating = cursor.getDouble(RankQuery.GAME_RANK_BAYES_AVERAGE);
 					String type = cursor.getString(RankQuery.GAME_RANK_TYPE);
 					addRankRow(name, rank, "subtype".equals(type));
 				}
@@ -292,10 +307,12 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	}
 
 	private interface RankQuery {
-		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE };
+		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
+				GameRanks.GAME_RANK_BAYES_AVERAGE };
 
 		int GAME_RANK_FRIENDLY_NAME = 0;
 		int GAME_RANK_VALUE = 1;
 		int GAME_RANK_TYPE = 2;
+		int GAME_RANK_BAYES_AVERAGE = 3;
 	}
 }

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -31,6 +32,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
 	private Uri mRankUri;
+	private GameObserver mGameObserver;
+	private RankObserver mRankObserver;
 
 	private TextView mRatingView;
 	private TextView mNumberRatingView;
@@ -50,20 +53,35 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		setContentView(R.layout.activity_tab_game_info);
 
 		setUiVariables();
-		setUris();
-
-		getContentResolver().registerContentObserver(mGameUri, true, new GameObserver(null));
-		getContentResolver().registerContentObserver(mRankUri, true, new RankObserver(null));
+		setUrisAndObservers();
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_GAME, mGameUri, GameQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
 	}
 
-	private void setUris() {
+	@Override
+	protected void onStart() {
+		super.onStart();
+		final ContentResolver cr = getContentResolver();
+		cr.registerContentObserver(mGameUri, true, mGameObserver);
+		cr.registerContentObserver(mGameUri, true, mRankObserver);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		final ContentResolver cr = getContentResolver();
+		cr.unregisterContentObserver(mGameObserver);
+		cr.unregisterContentObserver(mRankObserver);
+	}
+
+	private void setUrisAndObservers() {
 		mGameUri = getIntent().getData();
 		final int gameId = Games.getGameId(mGameUri);
 		mRankUri = Games.buildRanksUri(gameId);
+		mGameObserver = new GameObserver(null);
+		mRankObserver = new RankObserver(null);
 	}
 
 	private void setUiVariables() {

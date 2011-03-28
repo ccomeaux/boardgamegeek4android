@@ -10,6 +10,7 @@ import org.apache.http.client.HttpClient;
 
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
+import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -83,6 +84,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private Uri mCategoriesUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
+	private DesignersObserver mDesignersObserver;
+	private ArtistsObserver mArtistsObserver;
+	private PublishersObserver mPublishersObserver;
+	private MechanicsObserver mMechanicsObserver;
+	private CategoriesObserver mCategoriesObserver;
+
 	private List<Map<String, String>> mGroupData;
 	private List<List<Map<String, String>>> mChildData;
 	private ExpandableListAdapter mAdapter;
@@ -102,6 +109,28 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		startQueries();
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		final ContentResolver cr = getContentResolver();
+		cr.registerContentObserver(mDesignersUri, true, mDesignersObserver);
+		cr.registerContentObserver(mArtistsUri, true, mArtistsObserver);
+		cr.registerContentObserver(mPublishersUri, true, mPublishersObserver);
+		cr.registerContentObserver(mMechanicsUri, true, mMechanicsObserver);
+		cr.registerContentObserver(mCategoriesUri, true, mCategoriesObserver);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		final ContentResolver cr = getContentResolver();
+		cr.unregisterContentObserver(mDesignersObserver);
+		cr.unregisterContentObserver(mArtistsObserver);
+		cr.unregisterContentObserver(mPublishersObserver);
+		cr.unregisterContentObserver(mMechanicsObserver);
+		cr.unregisterContentObserver(mCategoriesObserver);
+	}
+
 	private void setAndObserveUris() {
 		final Uri gameUri = getIntent().getData();
 		final int gameId = Games.getGameId(gameUri);
@@ -111,11 +140,11 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mMechanicsUri = Games.buildMechanicsUri(gameId);
 		mCategoriesUri = Games.buildCategoriesUri(gameId);
 
-		getContentResolver().registerContentObserver(mDesignersUri, true, new DesignersObserver(null));
-		getContentResolver().registerContentObserver(mArtistsUri, true, new ArtistsObserver(null));
-		getContentResolver().registerContentObserver(mPublishersUri, true, new PublishersObserver(null));
-		getContentResolver().registerContentObserver(mMechanicsUri, true, new MechanicsObserver(null));
-		getContentResolver().registerContentObserver(mCategoriesUri, true, new CategoriesObserver(null));
+		mDesignersObserver = new DesignersObserver(null);
+		mArtistsObserver = new ArtistsObserver(null);
+		mPublishersObserver = new PublishersObserver(null);
+		mMechanicsObserver = new MechanicsObserver(null);
+		mCategoriesObserver = new CategoriesObserver(null);
 	}
 
 	private void startQueries() {
