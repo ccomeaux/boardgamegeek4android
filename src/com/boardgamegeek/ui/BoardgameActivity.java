@@ -40,7 +40,7 @@ import com.boardgamegeek.util.UIUtils;
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	private final static String TAG = "BoardgameActivity";
 
-	private static final long THROTTLE_IN_MILLIS = 1800000; // 1 hour
+	private static final long REFRESH_THROTTLE_IN_MILLIS = 1800000; // 1/2 hour
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
@@ -212,7 +212,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return true;
 			case R.id.refresh:
 				long now = System.currentTimeMillis();
-				if (now - mUpdatedDate > THROTTLE_IN_MILLIS) {
+				if (now - mUpdatedDate > REFRESH_THROTTLE_IN_MILLIS) {
 					refresh();
 				} else {
 					showToast(R.string.msg_refresh_exceeds_throttle);
@@ -269,6 +269,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
 	}
 
+	private void showToastOnUiThread(final int messageId) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				showToast(messageId);
+			}
+		});
+	}
+
 	class GameObserver extends ContentObserver {
 
 		public GameObserver(Handler handler) {
@@ -277,13 +285,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		@Override
 		public void onChange(boolean selfChange) {
-			Log.d(TAG, "Caught changed URI = " + mGameUri);
 			mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
-			runOnUiThread(new Runnable() {
-				public void run() {
-					showToast(R.string.msg_updated);
-				}
-			});
+			showToastOnUiThread(R.string.msg_updated);
 		}
 	}
 
@@ -307,11 +310,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				mExecutor.executeGet(url, new RemoteGameHandler());
 			} catch (HandlerException e) {
 				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
-				runOnUiThread(new Runnable() {
-					public void run() {
-						showToast(R.string.msg_error_remote);
-					}
-				});
+				showToastOnUiThread(R.string.msg_updated);
 			}
 			return null;
 		}
