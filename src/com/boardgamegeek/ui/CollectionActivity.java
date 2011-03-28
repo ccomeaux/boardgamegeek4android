@@ -3,10 +3,12 @@ package com.boardgamegeek.ui;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.BaseColumns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +28,13 @@ import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends ListActivity implements AsyncQueryListener {
 
+	private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10 seconds
+
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
+	private Uri mUri;
+	private CollectionObserver mGameObserver;
+	private long mLastUpdated;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +44,25 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
 
+		mGameObserver = new CollectionObserver(null);
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);
 
-		Uri uri = getIntent().getData();
+		mUri = getIntent().getData();
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(uri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
+		mHandler.startQuery(mUri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		getContentResolver().registerContentObserver(mUri, true, mGameObserver);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		getContentResolver().unregisterContentObserver(mGameObserver);
 	}
 
 	@Override
@@ -69,6 +89,22 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final Uri gameUri = Games.buildGameUri(gameId);
 		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
+	}
+
+	class CollectionObserver extends ContentObserver {
+
+		public CollectionObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			long now = System.currentTimeMillis();
+			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
+				mHandler.startQuery(mUri, Query.PROJECTION);
+				mLastUpdated = System.currentTimeMillis();
+			}
+		}
 	}
 
 	private class CollectionAdapter extends CursorAdapter {
