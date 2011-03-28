@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private TextView mRatingView;
 	private TextView mNumberRatingView;
 	private TextView mRankView;
+	private RatingBar mRatingBar;
 	private TextView mYearPublishedView;
 	private TextView mPlayersView;
 	private TableRow mPlayingTimeRow;
@@ -88,6 +90,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mRatingView = (TextView) findViewById(R.id.rating);
 		mNumberRatingView = (TextView) findViewById(R.id.number_rating);
 		mRankView = (TextView) findViewById(R.id.rank);
+		mRatingBar = (RatingBar) findViewById(R.id.rating_bar);
 		mYearPublishedView = (TextView) findViewById(R.id.yearPublished);
 		mPlayersView = (TextView) findViewById(R.id.numOfPlayers);
 		mPlayingTimeRow = (TableRow) findViewById(R.id.playing_time_row);
@@ -106,6 +109,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				}
 
 				mRatingView.setText(getRating(cursor));
+				mRatingBar.setRating((float) cursor.getDouble(GameQuery.STATS_AVERAGE));
 				mNumberRatingView.setText(cursor.getInt(GameQuery.STATS_USERS_RATED) + " Ratings");
 				mYearPublishedView.setText(getYearPublished(cursor));
 				mPlayersView.setText(getPlayerDescription(cursor));
