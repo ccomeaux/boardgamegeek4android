@@ -11,13 +11,13 @@ import android.util.Log;
  */
 public class StringUtils {
 	private final static String TAG = "StringUtils";
-	
+
 	private static Pattern mVertialWhiteSpacePattern;
-	
+
 	static {
 		mVertialWhiteSpacePattern = Pattern.compile("[\n]{3,}");
 	}
-	
+
 	public static String formatDescription(String input) {
 		if (TextUtils.isEmpty(input)) {
 			return null;
@@ -36,15 +36,15 @@ public class StringUtils {
 		return output;
 	}
 
-	private static String convertBreaks(String input){
+	private static String convertBreaks(String input) {
 		return input.replace("<br/>", "\n");
 	}
 
 	private static String trimLineEndings(String input) {
 		return input.replaceAll("[ \t]+$", "");
 	}
-	
-	private static String removeVerticalWhiteSpace(String input){
+
+	private static String removeVerticalWhiteSpace(String input) {
 		Matcher matcher = mVertialWhiteSpacePattern.matcher(input);
 		return matcher.replaceAll("\n\n").trim();
 	}
@@ -116,5 +116,59 @@ public class StringUtils {
 		}
 		int i = sortIndex - 1;
 		return name.substring(i) + ", " + name.substring(0, i).trim();
+	}
+
+	public static int parseInt(String text) {
+		return parseInt(text, 0);
+	}
+
+	public static int parseInt(String text, int defaultValue) {
+		try {
+			return Integer.parseInt(text);
+		} catch (NumberFormatException ex) {
+			return defaultValue;
+		}
+	}
+
+	public static double parseDouble(String text) {
+		return parseDouble(text, 0);
+	}
+
+	public static double parseDouble(String text, double defaultValue) {
+		try {
+			return Double.parseDouble(text);
+		} catch (NumberFormatException ex) {
+			return defaultValue;
+		}
+	}
+
+	/**
+	 * Gets the ordinal (1st) for the given cardinal (1)
+	 * 
+	 * @param cardinal
+	 * @return
+	 */
+	public static String getOrdinal(int cardinal) {
+
+		if (cardinal < 0) {
+			return "";
+		}
+
+		String c = "" + cardinal;
+		String n = "0";
+		if (c.length() > 1) {
+			n = c.substring(c.length() - 2, c.length() - 1);
+		}
+		String l = c.substring(c.length() - 1);
+		if (!n.equals("1")) {
+			if (l.equals("1")) {
+				return c + "st";
+			} else if (l.equals("2")) {
+				return c + "nd";
+			} else if (l.equals("3")) {
+				return c + "rd";
+			}
+		}
+		return c + "th";
 	}
 }

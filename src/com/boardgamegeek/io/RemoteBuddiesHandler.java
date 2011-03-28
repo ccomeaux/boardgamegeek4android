@@ -16,9 +16,9 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddiesHandler extends XmlHandler {
 	private static final String TAG = "RemoteBuddiesHandler";
@@ -39,8 +39,8 @@ public class RemoteBuddiesHandler extends XmlHandler {
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BUDDIES.equals(parser.getName())) {
-				buddyCount = Utility.parseInt(parser.getAttributeValue(null, Tags.TOTAL));
-				page = Utility.parseInt(parser.getAttributeValue(null, Tags.PAGE));
+				buddyCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL));
+				page = StringUtils.parseInt(parser.getAttributeValue(null, Tags.PAGE));
 
 				parseBuddies(parser, resolver);
 			}
@@ -66,7 +66,7 @@ public class RemoteBuddiesHandler extends XmlHandler {
 			while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
 				if (type == START_TAG && Tags.BUDDY.equals(parser.getName())) {
 
-					int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
+					int id = StringUtils.parseInt(parser.getAttributeValue(null, Tags.ID));
 
 					if (id > 0) {
 

@@ -3,10 +3,17 @@ package com.boardgamegeek;
 import com.boardgamegeek.pref.ListPreferenceMultiSelect;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class BggApplication extends Application {
+	private final static String TAG = "BggApplication";
+	public final static String siteUrl = "http://www.boardgamegeek.com/";
 
 	private static BggApplication singleton;
 
@@ -19,6 +26,18 @@ public class BggApplication extends Application {
 		super.onCreate();
 		singleton = this;
 	}
+
+	public static String getVersionDescription(Context context) {
+		try {
+			PackageManager pm = context.getPackageManager();
+			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);
+			return "Version " + pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			Log.e(TAG, "NameNotFoundException in getVersion", e);
+		}
+		return "";
+	}
+
 
 	public String getUserName() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);

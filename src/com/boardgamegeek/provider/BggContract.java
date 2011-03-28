@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 
-import com.boardgamegeek.Utility;
+import com.boardgamegeek.util.StringUtils;
 
 public class BggContract {
 
@@ -172,7 +172,7 @@ public class BggContract {
 		}
 
 		public static int getGameId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -190,7 +190,7 @@ public class BggContract {
 		}
 
 		public static int getRankId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -207,7 +207,7 @@ public class BggContract {
 		}
 
 		public static int getDesignerId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -224,7 +224,7 @@ public class BggContract {
 		}
 
 		public static int getArtistId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -241,7 +241,7 @@ public class BggContract {
 		}
 
 		public static int getPublisherId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -258,7 +258,7 @@ public class BggContract {
 		}
 
 		public static int getMechanicId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -275,7 +275,7 @@ public class BggContract {
 		}
 
 		public static int getCategoryId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -293,7 +293,7 @@ public class BggContract {
 		}
 
 		public static int getItemId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 
@@ -311,7 +311,7 @@ public class BggContract {
 		}
 
 		public static int getBuddyId(Uri uri) {
-			return Utility.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
 

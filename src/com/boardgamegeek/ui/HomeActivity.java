@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -41,7 +41,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		UIUtils.allowTypeToSearch(this);
 
 		UIUtils.setTitle(this);
-		((TextView) findViewById(R.id.version)).setText(Utility.getVersionDescription(this));
+		((TextView) findViewById(R.id.version)).setText(BggApplication.getVersionDescription(this));
 
 		if (Intent.ACTION_SYNC.equals(getIntent().getAction())) {
 			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

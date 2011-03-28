@@ -15,9 +15,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddyUserHandler extends XmlHandler {
 	private static final String TAG = "RemoteBuddyUserHandler";
@@ -35,7 +35,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		int type;
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.USER.equals(parser.getName())) {
-				int id = Utility.parseInt(parser.getAttributeValue(null, Tags.ID));
+				int id = StringUtils.parseInt(parser.getAttributeValue(null, Tags.ID));
 
 				Uri uri = Buddies.buildBuddyUri(id);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);

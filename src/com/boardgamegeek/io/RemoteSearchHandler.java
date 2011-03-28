@@ -14,8 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
 
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteSearchHandler extends XmlHandler {
 	// private static final String TAG = "RemoteSearchHandler";
@@ -80,7 +80,7 @@ public class RemoteSearchHandler extends XmlHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
 
-				int id = Utility.parseInt(mParser.getAttributeValue(null, Tags.OBJECT_ID));
+				int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.OBJECT_ID));
 
 				SearchResult result = parseItem();
 				result.Id = id;
@@ -110,7 +110,7 @@ public class RemoteSearchHandler extends XmlHandler {
 				if (Tags.NAME.equals(tag)) {
 					sr.Name = text;
 				} else if (Tags.YEAR_PUBLISHED.equals(tag)) {
-					sr.YearPublished = Utility.parseInt(text);
+					sr.YearPublished = StringUtils.parseInt(text);
 				}
 			}
 		}

@@ -49,9 +49,10 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayActivity extends Activity {
@@ -127,8 +128,7 @@ public class LogPlayActivity extends Activity {
 		}
 		((TextView) findViewById(R.id.game_name)).setText(mGameName);
 		setDateButtonText();
-		if (BggApplication.getInstance().getImageLoad()
-				&& !TextUtils.isEmpty(mThumbnailUrl)) {
+		if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
 			mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
 			new ThumbnailTask().execute(mThumbnailUrl);
 		}
@@ -163,17 +163,15 @@ public class LogPlayActivity extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case DATE_DIALOG_ID:
-			return new DatePickerDialog(this, mDateSetListener, mYear, mMonth,
-					mDay);
-		case LOGGING_DIALOG_ID:
-			ProgressDialog dialog = new ProgressDialog(this);
-			dialog.setTitle(R.string.logPlayDialogTitle);
-			dialog.setMessage(getResources().getString(
-					R.string.logPlayDialogMessage));
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
-			return dialog;
+			case DATE_DIALOG_ID:
+				return new DatePickerDialog(this, mDateSetListener, mYear, mMonth, mDay);
+			case LOGGING_DIALOG_ID:
+				ProgressDialog dialog = new ProgressDialog(this);
+				dialog.setTitle(R.string.logPlayDialogTitle);
+				dialog.setMessage(getResources().getString(R.string.logPlayDialogMessage));
+				dialog.setIndeterminate(true);
+				dialog.setCancelable(true);
+				return dialog;
 		}
 		return null;
 	}
@@ -188,12 +186,12 @@ public class LogPlayActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.save:
-			logPlay();
-			return true;
-		case R.id.cancel:
-			finish();
-			return true;
+			case R.id.save:
+				logPlay();
+				return true;
+			case R.id.cancel:
+				finish();
+				return true;
 		}
 		return false;
 	}
@@ -235,8 +233,7 @@ public class LogPlayActivity extends Activity {
 		if (cookies == null || cookies.size() == 0) {
 			return false;
 		}
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = preferences.edit();
 		for (int i = 0; i < 10; i++) {
 			if (i < cookies.size()) {
@@ -247,8 +244,7 @@ public class LogPlayActivity extends Activity {
 				editor.putString("cookie" + i + "domain", cookie.getDomain());
 				Date expiryDate = cookie.getExpiryDate();
 				if (expiryDate != null) {
-					editor.putLong("cookie" + i + "expirydate",
-							expiryDate.getTime());
+					editor.putLong("cookie" + i + "expirydate", expiryDate.getTime());
 				}
 			} else {
 				editor.remove("cookie" + i + "value");
@@ -263,25 +259,21 @@ public class LogPlayActivity extends Activity {
 
 	private BasicCookieStore loadCookies() {
 		BasicCookieStore cookieStore = new BasicCookieStore();
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		for (int i = 0; i < 10; i++) {
 			String name = preferences.getString("cookie" + i + "name", "");
 			String value = preferences.getString("cookie" + i + "value", "");
 			if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(value)) {
 				BasicClientCookie cookie = new BasicClientCookie(name, value);
 				cookie.setPath(preferences.getString("cookie" + i + "path", ""));
-				cookie.setDomain(preferences.getString("cookie" + i + "domain",
-						""));
-				cookie.setExpiryDate(new Date(preferences.getLong("cookie" + i
-						+ "expirydate", 0)));
+				cookie.setDomain(preferences.getString("cookie" + i + "domain", ""));
+				cookie.setExpiryDate(new Date(preferences.getLong("cookie" + i + "expirydate", 0)));
 				cookieStore.addCookie(cookie);
 			} else {
 				break;
 			}
 		}
-		if (cookieStore.getCookies() != null
-				&& cookieStore.getCookies().size() > 0) {
+		if (cookieStore.getCookies() != null && cookieStore.getCookies().size() > 0) {
 			return cookieStore;
 		}
 		return null;
@@ -299,8 +291,7 @@ public class LogPlayActivity extends Activity {
 
 		loadPreferences();
 		if (TextUtils.isEmpty(mUsername) || TextUtils.isEmpty(mPassword)) {
-			Toast.makeText(this, R.string.setUsernamePassword,
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 			startActivity(new Intent(this, Preferences.class));
 			finish();
 			return false;
@@ -316,7 +307,7 @@ public class LogPlayActivity extends Activity {
 		protected String doInBackground(String... params) {
 
 			final DefaultHttpClient client = new DefaultHttpClient();
-			final HttpPost post = new HttpPost(Utility.siteUrl + "login");
+			final HttpPost post = new HttpPost(BggApplication.siteUrl + "login");
 			List<NameValuePair> pair = new ArrayList<NameValuePair>();
 			pair.add(new BasicNameValuePair("username", mUsername));
 			pair.add(new BasicNameValuePair("password", mPassword));
@@ -341,24 +332,18 @@ public class LogPlayActivity extends Activity {
 			}
 
 			if (response == null) {
-				message = getResources().getString(R.string.logInError)
-						+ " : "
-						+ getResources().getString(
-								R.string.logInErrorSuffixNoResponse);
+				message = getResources().getString(R.string.logInError) + " : "
+						+ getResources().getString(R.string.logInErrorSuffixNoResponse);
 			}
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				message = getResources().getString(R.string.logInError)
-						+ " : "
-						+ getResources().getString(
-								R.string.logInErrorSuffixBadResponse) + " "
-						+ response.toString() + ".";
+				message = getResources().getString(R.string.logInError) + " : "
+						+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString()
+						+ ".";
 			}
 			List<Cookie> cookies = client.getCookieStore().getCookies();
 			if (cookies == null || cookies.isEmpty()) {
-				message = getResources().getString(R.string.logInError)
-						+ " : "
-						+ getResources().getString(
-								R.string.logInErrorSuffixMissingCookies);
+				message = getResources().getString(R.string.logInError) + " : "
+						+ getResources().getString(R.string.logInErrorSuffixMissingCookies);
 			}
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("bggpassword")) {
@@ -367,10 +352,8 @@ public class LogPlayActivity extends Activity {
 				}
 			}
 			if (mCookieStore == null) {
-				message = getResources().getString(R.string.logInError)
-						+ " : "
-						+ getResources().getString(
-								R.string.logInErrorSuffixBadCookies);
+				message = getResources().getString(R.string.logInError) + " : "
+						+ getResources().getString(R.string.logInErrorSuffixBadCookies);
 			}
 			if (mCookieStore != null) {
 				saveCookies(mCookieStore.getCookies());
@@ -385,8 +368,7 @@ public class LogPlayActivity extends Activity {
 		protected void onPostExecute(String result) {
 			if (!TextUtils.isEmpty(result)) {
 				Log.w(TAG, result);
-				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
 			} else {
 				Button button = (Button) findViewById(R.id.logPlaySaveButton);
 				button.setEnabled(true);
@@ -407,7 +389,7 @@ public class LogPlayActivity extends Activity {
 			final DefaultHttpClient client = new DefaultHttpClient();
 			client.setCookieStore(mCookieStore);
 
-			final HttpPost post = new HttpPost(Utility.siteUrl + "geekplay.php");
+			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
 
 			String message = null;
@@ -416,19 +398,15 @@ public class LogPlayActivity extends Activity {
 				response = client.execute(post);
 				if (response != null) {
 					if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-						message = Utility.parseResponse(response);
+						message = HttpUtils.parseResponse(response);
 					} else {
-						message = getResources().getString(R.string.logInError)
-								+ " : "
-								+ getResources().getString(
-										R.string.logInErrorSuffixBadResponse)
-								+ " " + response.toString() + ".";
+						message = getResources().getString(R.string.logInError) + " : "
+								+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " "
+								+ response.toString() + ".";
 					}
 				} else {
-					message = getResources().getString(R.string.logInError)
-							+ " : "
-							+ getResources().getString(
-									R.string.logInErrorSuffixNoResponse);
+					message = getResources().getString(R.string.logInError) + " : "
+							+ getResources().getString(R.string.logInErrorSuffixNoResponse);
 				}
 			} catch (ClientProtocolException e) {
 				return e.toString();
@@ -451,43 +429,35 @@ public class LogPlayActivity extends Activity {
 			if (TextUtils.isEmpty(result)) {
 				return;
 			}
-			if (result.startsWith("Plays: <a")
-					|| result.startsWith("{\"html\":\"Plays:")) {
+			if (result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:")) {
 				Log.d(TAG, result);
 				int start = result.indexOf(">");
 				int end = result.indexOf("<", start);
-				int playCount = Utility.parseInt(
-						result.substring(start + 1, end), 1);
+				int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
 
 				String countDescription = "";
 				int quantity = getQuantity();
 				switch (quantity) {
-				case 1:
-					countDescription = Utility.getOrdinal(playCount);
-					break;
-				case 2:
-					countDescription = Utility.getOrdinal(playCount - 1)
-							+ " & " + Utility.getOrdinal(playCount);
-					break;
-				default:
-					countDescription = Utility.getOrdinal(playCount - quantity
-							+ 1)
-							+ " - " + Utility.getOrdinal(playCount);
-					break;
+					case 1:
+						countDescription = StringUtils.getOrdinal(playCount);
+						break;
+					case 2:
+						countDescription = StringUtils.getOrdinal(playCount - 1) + " & "
+								+ StringUtils.getOrdinal(playCount);
+						break;
+					default:
+						countDescription = StringUtils.getOrdinal(playCount - quantity + 1) + " - "
+								+ StringUtils.getOrdinal(playCount);
+						break;
 				}
 
-				Toast.makeText(
-						getBaseContext(),
-						String.format(
-								getResources().getString(
-										R.string.logPlaySuccess),
-								countDescription, mGameName), Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(getBaseContext(),
+						String.format(getResources().getString(R.string.logPlaySuccess), countDescription, mGameName),
+						Toast.LENGTH_LONG).show();
 				finish();
 			} else {
 				Log.w(TAG, result);
-				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -495,8 +465,7 @@ public class LogPlayActivity extends Activity {
 	@SuppressWarnings("unchecked")
 	private void logPlay(int gameId) {
 
-		String date = String.format("%04d", mYear) + "-"
-				+ String.format("%02d", mMonth + 1) + "-"
+		String date = String.format("%04d", mYear) + "-" + String.format("%02d", mMonth + 1) + "-"
 				+ String.format("%02d", mDay);
 
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -513,10 +482,8 @@ public class LogPlayActivity extends Activity {
 		nvps.add(new BasicNameValuePair("length", "" + getLength()));
 		nvps.add(new BasicNameValuePair("location", getLocation()));
 		nvps.add(new BasicNameValuePair("quantity", "" + getQuantity()));
-		nvps.add(new BasicNameValuePair("incomplete", getIncomplete() ? "1"
-				: "0"));
-		nvps.add(new BasicNameValuePair("nowinstats", getNoWinStats() ? "1"
-				: "0"));
+		nvps.add(new BasicNameValuePair("incomplete", getIncomplete() ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("nowinstats", getNoWinStats() ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("comments", getComments()));
 		Log.d(TAG, nvps.toString());
 
@@ -531,8 +498,7 @@ public class LogPlayActivity extends Activity {
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
-		public void onDateSet(DatePicker view, int year, int monthOfYear,
-				int dayOfMonth) {
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 			mYear = year;
 			mMonth = monthOfYear;
 			mDay = dayOfMonth;
@@ -547,7 +513,7 @@ public class LogPlayActivity extends Activity {
 
 	private int getQuantity() {
 		EditText view = (EditText) findViewById(R.id.logQuantity);
-		return Utility.parseInt(view.getText().toString(), 1);
+		return StringUtils.parseInt(view.getText().toString(), 1);
 	}
 
 	private void setQuantity(int quantity) {
@@ -557,7 +523,7 @@ public class LogPlayActivity extends Activity {
 
 	private int getLength() {
 		EditText view = (EditText) findViewById(R.id.logLength);
-		return Utility.parseInt(view.getText().toString(), 0);
+		return StringUtils.parseInt(view.getText().toString(), 0);
 	}
 
 	private void setLength(int length) {

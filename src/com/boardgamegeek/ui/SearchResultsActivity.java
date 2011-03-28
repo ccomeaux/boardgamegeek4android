@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +23,13 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
 import com.boardgamegeek.io.SearchResult;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends ListActivity {
@@ -98,7 +97,7 @@ public class SearchResultsActivity extends ListActivity {
 				showError("Trying to view an unspecified game.");
 			} else {
 				Uri uri = Uri.parse(data);
-				viewBoardGame(Utility.parseInt(uri.getLastPathSegment(), 0));
+				viewBoardGame(StringUtils.parseInt(uri.getLastPathSegment(), 0));
 				finish();
 			}
 		} else {
@@ -167,22 +166,12 @@ public class SearchResultsActivity extends ListActivity {
 		}
 
 		private void executeGet(boolean useExact) {
-			String url = constructUrl(useExact);
+			String url = HttpUtils.constructSearchUrl(mSearchText, useExact);
 			try {
 				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
 				Log.e(TAG, e.toString());
 			}
-		}
-
-		private String constructUrl(boolean useExact) {
-			// http://boardgamegeek.com/xmlapi2/search?query=puerto+rico
-			String queryUrl = Utility.siteUrl + "xmlapi/search?search=" + URLEncoder.encode(mSearchText);
-			if (useExact) {
-				queryUrl += "&exact=1";
-			}
-			Log.d(TAG, "Query: " + queryUrl);
-			return queryUrl;
 		}
 	}
 

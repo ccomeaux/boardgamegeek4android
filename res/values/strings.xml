@@ -26,17 +26,17 @@
 	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
 		connection</string>
 
-	<string name="pref_database">Collection settings</string>
-	<string name="pref_database_clear">Clear</string>
-	<string name="pref_database_clear_summary">Deletes all downloaded information</string>
-	<string name="pref_database_clear_pos">Clear</string>
-	<string name="pref_database_clear_neg">Cancel</string>
-	<string name="pref_database_clear_message">Are you sure you want to clear all downloaded
-		information? NOTE: This operation can\'t be reversed.</string>
-	<string name="pref_database_statuses">Statuses</string>
-	<string name="pref_database_statuses_summary">Games statuses to sync</string>
+	<string name="pref_database">Sync settings</string>
+	<string name="pref_database_statuses">Collection statuses</string>
+	<string name="pref_database_statuses_summary">Collection statuses to sync</string>
 	<string name="pref_database_buddies">Buddies</string>
 	<string name="pref_database_buddies_summary">Determines if buddies are synced</string>
+	<string name="pref_database_clear">Clear</string>
+	<string name="pref_database_clear_summary">Deletes all synchronized information</string>
+	<string name="pref_database_clear_pos">Clear</string>
+	<string name="pref_database_clear_neg">Cancel</string>
+	<string name="pref_database_clear_message">Are you sure you want to clear all synchronized
+		information? NOTE: This operation can\'t be reversed.</string>
 
 	<string name="menu_view_database">View Database</string>
 	<string name="menu_settings">Settings</string>

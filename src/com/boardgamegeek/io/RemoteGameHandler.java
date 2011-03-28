@@ -17,7 +17,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -119,13 +118,13 @@ public class RemoteGameHandler extends XmlHandler {
 				if (Tags.YEAR_PUBLISHED.equals(tag)) {
 					values.put(Games.YEAR_PUBLISHED, text);
 				} else if (Tags.MIN_PLAYERS.equals(tag)) {
-					values.put(Games.MIN_PLAYERS, Utility.parseInt(text));
+					values.put(Games.MIN_PLAYERS, StringUtils.parseInt(text));
 				} else if (Tags.MAX_PLAYERS.equals(tag)) {
-					values.put(Games.MAX_PLAYERS, Utility.parseInt(text));
+					values.put(Games.MAX_PLAYERS, StringUtils.parseInt(text));
 				} else if (Tags.PLAYING_TIME.equals(tag)) {
-					values.put(Games.PLAYING_TIME, Utility.parseInt(text));
+					values.put(Games.PLAYING_TIME, StringUtils.parseInt(text));
 				} else if (Tags.AGE.equals(tag)) {
-					values.put(Games.MINIMUM_AGE, Utility.parseInt(text));
+					values.put(Games.MINIMUM_AGE, StringUtils.parseInt(text));
 				} else if (Tags.NAME.equals(tag)) {
 					values.put(Games.GAME_NAME, text);
 					values.put(Games.GAME_SORT_NAME, StringUtils.createSortName(text, sortIndex));
@@ -284,29 +283,29 @@ public class RemoteGameHandler extends XmlHandler {
 				String text = mParser.getText();
 
 				if (Tags.STATS_USERS_RATED.equals(tag)) {
-					values.put(Games.STATS_USERS_RATED, Utility.parseInt(text));
+					values.put(Games.STATS_USERS_RATED, StringUtils.parseInt(text));
 				} else if (Tags.STATS_AVERAGE.equals(tag)) {
-					values.put(Games.STATS_AVERAGE, Utility.parseDouble(text));
+					values.put(Games.STATS_AVERAGE, StringUtils.parseDouble(text));
 				} else if (Tags.STATS_BAYES_AVERAGE.equals(tag)) {
-					values.put(Games.STATS_BAYES_AVERAGE, Utility.parseDouble(text));
+					values.put(Games.STATS_BAYES_AVERAGE, StringUtils.parseDouble(text));
 				} else if (Tags.STATS_STANDARD_DEVIATION.equals(tag)) {
-					values.put(Games.STATS_STANDARD_DEVIATION, Utility.parseDouble(text));
+					values.put(Games.STATS_STANDARD_DEVIATION, StringUtils.parseDouble(text));
 				} else if (Tags.STATS_MEDIAN.equals(tag)) {
-					values.put(Games.STATS_MEDIAN, Utility.parseInt(text));
+					values.put(Games.STATS_MEDIAN, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_OWNED.equals(tag)) {
-					values.put(Games.STATS_NUMBER_OWNED, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_OWNED, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_TRADING.equals(tag)) {
-					values.put(Games.STATS_NUMBER_TRADING, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_TRADING, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_WANTING.equals(tag)) {
-					values.put(Games.STATS_NUMBER_WANTING, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_WANTING, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_WISHING.equals(tag)) {
-					values.put(Games.STATS_NUMBER_WISHING, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_WISHING, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_COMMENTS.equals(tag)) {
-					values.put(Games.STATS_NUMBER_COMMENTS, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_COMMENTS, StringUtils.parseInt(text));
 				} else if (Tags.STATS_NUMBER_WEIGHTS.equals(tag)) {
-					values.put(Games.STATS_NUMBER_WEIGHTS, Utility.parseInt(text));
+					values.put(Games.STATS_NUMBER_WEIGHTS, StringUtils.parseInt(text));
 				} else if (Tags.STATS_AVERAGE_WEIGHT.equals(tag)) {
-					values.put(Games.STATS_AVERAGE_WEIGHT, Utility.parseDouble(text));
+					values.put(Games.STATS_AVERAGE_WEIGHT, StringUtils.parseDouble(text));
 				}
 			}
 		}
@@ -372,15 +371,15 @@ public class RemoteGameHandler extends XmlHandler {
 	}
 
 	private double parseDoubleAttribute(String tag) {
-		return Utility.parseDouble(parseStringAttribute(tag));
+		return StringUtils.parseDouble(parseStringAttribute(tag));
 	}
 
 	private int parseIntegerAttribute(String tag) {
-		return Utility.parseInt(parseStringAttribute(tag));
+		return StringUtils.parseInt(parseStringAttribute(tag));
 	}
 
 	private int parseIntegerAttribute(String tag, int defaultValue) {
-		return Utility.parseInt(parseStringAttribute(tag), defaultValue);
+		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
 	}
 
 	private interface Tags {

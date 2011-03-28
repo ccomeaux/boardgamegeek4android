@@ -16,7 +16,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.boardgamegeek.Utility;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -59,7 +58,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 		while ((type = mParser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEMS.equals(mParser.getName())) {
 
-				int itemCount = Utility.parseInt(parser.getAttributeValue(null, Tags.TOTAL_ITEMS));
+				int itemCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL_ITEMS));
 				Log.i(TAG, "Expecting " + itemCount + " items");
 
 				parseItems();
@@ -79,8 +78,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
 
-				int gameId = Utility.parseInt(mParser.getAttributeValue(null, Tags.GAME_ID));
-				int collectionId = Utility.parseInt(mParser.getAttributeValue(null, Tags.COLLECTION_ID));
+				int gameId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.GAME_ID));
+				int collectionId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.COLLECTION_ID));
 
 				gameValues.clear();
 				collectionValues.clear();
@@ -165,7 +164,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 				tag = mParser.getName();
 
 				if (Tags.NAME.equals(tag)) {
-					sortIndex = Utility.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
+					sortIndex = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
 				} else if (Tags.STATS.equals(tag)) {
 					gameValues.put(Games.MIN_PLAYERS, mParser.getAttributeValue(null, Tags.MIN_PLAYERS));
 					gameValues.put(Games.MAX_PLAYERS, mParser.getAttributeValue(null, Tags.MAX_PLAYERS));
@@ -209,7 +208,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 				} else if (Tags.THUMBNAIL.equals(tag)) {
 					gameValues.put(Games.THUMBNAIL_URL, text);
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
-					gameValues.put(Games.NUM_PLAYS, Utility.parseInt(mParser.getAttributeValue(null,
+					gameValues.put(Games.NUM_PLAYS, StringUtils.parseInt(mParser.getAttributeValue(null,
 						Tags.NUM_PLAYS)));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					parsePrivateInfo(collectionValues);

@@ -1,7 +1,10 @@
 package com.boardgamegeek.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -28,8 +31,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 public class HttpUtils {
+	private final static String TAG = "HttpUtils";
 
 	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
 	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
@@ -38,6 +43,16 @@ public class HttpUtils {
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
+
+	public static String constructSearchUrl(String searchTerm, boolean useExact) {
+		// http://boardgamegeek.com/xmlapi2/search?query=puerto+rico
+		String queryUrl = BASE_URL + "search?search=" + URLEncoder.encode(searchTerm);
+		if (useExact) {
+			queryUrl += "&exact=1";
+		}
+		Log.d(TAG, "Query: " + queryUrl);
+		return queryUrl;
+	}
 
 	public static String constructGameUrl(String gameId) {
 		// TODO: test gameId is an int?
@@ -179,5 +194,39 @@ public class HttpUtils {
 		public long getContentLength() {
 			return -1;
 		}
+	}
+
+	public static String parseResponse(HttpResponse response) throws IOException {
+		if (response == null) {
+			return null;
+		}
+
+		final HttpEntity entity = response.getEntity();
+		if (entity == null) {
+			return null;
+		}
+
+		final InputStream stream = entity.getContent();
+		if (stream == null) {
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		try {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				Log.w(TAG, e.toString());
+				return null;
+			}
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append('\n');
+			}
+		} finally {
+			stream.close();
+		}
+		return sb.toString().trim();
 	}
 }
