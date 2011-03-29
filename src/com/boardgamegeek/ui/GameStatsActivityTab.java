@@ -260,7 +260,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		layout.addView(tv);
 
 		LinearLayout ll = (LinearLayout) findViewById(R.id.rankLayout);
-		ll.addView(layout, ++mRankIndex);
+		ll.addView(layout, mRankIndex++);
 	}
 
 	private void setText(TextView tv, String text, boolean bold) {

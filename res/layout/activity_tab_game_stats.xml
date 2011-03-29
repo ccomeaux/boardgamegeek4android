@@ -7,14 +7,10 @@
 		android:padding="@dimen/padding_extra"
 		android:orientation="vertical"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
-		
-		<LinearLayout android:orientation="horizontal"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-		</LinearLayout>
+		android:layout_height="wrap_content">
+
 		<View style="@style/BodySeparator" />
-		
+
 		<LinearLayout android:orientation="horizontal"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content">

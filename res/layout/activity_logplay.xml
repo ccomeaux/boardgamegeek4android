@@ -10,13 +10,15 @@
 
 	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<LinearLayout android:orientation="vertical"
-			android:gravity="top" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:padding="5dip">
+			android:gravity="top"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_standard">
 			<TableLayout android:layout_width="fill_parent"
 				android:layout_height="wrap_content" android:stretchColumns="1">
 				<TableRow>
 					<TextView android:text="@string/date"
-						android:padding="5dip"
+						android:padding="@dimen/padding_standard"
 						android:textAppearance="?android:attr/textAppearanceMedium" />
 					<Button android:id="@+id/logDateButton"
 						android:text=""
@@ -24,33 +26,47 @@
 						android:onClick="onDateClick" />
 				</TableRow>
 				<TableRow>
-					<TextView android:text="@string/quantity" android:padding="5dip"
+					<TextView android:text="@string/quantity"
+						android:padding="@dimen/padding_standard"
 						android:textAppearance="?android:attr/textAppearanceMedium" />
-					<EditText android:id="@+id/logQuantity" android:text="1"
-						android:inputType="number" android:hint="@string/quantityHint" />
+					<EditText android:id="@+id/logQuantity"
+						android:text="1"
+						android:inputType="number"
+						android:hint="@string/quantityHint" />
 				</TableRow>
 				<TableRow>
-					<TextView android:text="@string/length" android:padding="5dip"
+					<TextView android:text="@string/length"
+						android:padding="@dimen/padding_standard"
 						android:textAppearance="?android:attr/textAppearanceMedium" />
-					<EditText android:id="@+id/logLength" android:text=""
-						android:inputType="number" android:hint="@string/lengthHint" />
+					<EditText android:id="@+id/logLength"
+						android:inputType="number"
+						android:text=""
+						android:hint="@string/lengthHint" />
 				</TableRow>
 				<TableRow>
-					<TextView android:text="@string/location" android:padding="5dip"
+					<TextView android:text="@string/location"
+						android:padding="@dimen/padding_standard"
 						android:textAppearance="?android:attr/textAppearanceMedium" />
-					<EditText android:id="@+id/logLocation" android:text=""
-						android:inputType="text" android:hint="@string/locationHint" />
+					<EditText android:id="@+id/logLocation"
+						android:inputType="text"
+						android:text=""
+						android:hint="@string/locationHint" />
 				</TableRow>
-				<CheckBox android:id="@+id/logIncomplete" android:text="@string/incomplete"
+				<CheckBox android:id="@+id/logIncomplete"
+					android:text="@string/incomplete"
 					android:checked="false" />
-				<CheckBox android:id="@+id/logNoWinStats" android:text="@string/noWinStats"
+				<CheckBox android:id="@+id/logNoWinStats"
+					android:text="@string/noWinStats"
 					android:checked="false" />
-				<TextView android:text="@string/comments" android:padding="5dip"
+				<TextView android:text="@string/comments"
+					android:padding="@dimen/padding_standard"
 					android:textAppearance="?android:attr/textAppearanceMedium" />
-				<EditText android:id="@+id/logComments" android:text=""
-					android:inputType="textMultiLine|textAutoCorrect" android:hint="@string/commentsHint" />
+				<EditText android:id="@+id/logComments"
+					android:inputType="textMultiLine|textAutoCorrect"
+					android:text=""
+					android:hint="@string/commentsHint" />
 			</TableLayout>
-			
+
 			<LinearLayout android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content">
@@ -68,7 +84,7 @@
 					android:text="@string/cancel"
 					android:onClick="onCancelClick" />
 			</LinearLayout>
-			
+
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>
