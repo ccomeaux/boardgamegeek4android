@@ -383,7 +383,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
+					Designers.DEFAULT_SORT);
 		}
 	}
 
@@ -394,7 +395,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, mDesignersUri, DesignerQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
+					Designers.DEFAULT_SORT);
 		}
 	}
 
@@ -405,7 +407,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
+					Artists.DEFAULT_SORT);
 		}
 	}
 
@@ -416,7 +419,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, mArtistsUri, ArtistQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
+					Artists.DEFAULT_SORT);
 		}
 	}
 
@@ -427,7 +431,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_PUBLISHERS, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
+					Publishers.DEFAULT_SORT);
 		}
 	}
 
@@ -438,7 +443,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, mPublishersUri, PublisherQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
+					Publishers.DEFAULT_SORT);
 		}
 	}
 
@@ -449,7 +455,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_MECHANICS, null, mMechanicsUri, MechanicQuery.PROJECTION, null, null,
+					Mechanics.DEFAULT_SORT);
 		}
 	}
 
@@ -460,7 +467,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
+					Categories.DEFAULT_SORT);
 		}
 	}
 
