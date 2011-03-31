@@ -77,7 +77,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mGameUri, true, mObserver);
+		getContentResolver().registerContentObserver(mGameUri, false, mObserver);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -21,6 +22,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.GamesPollsResult;
+import com.boardgamegeek.provider.BggContract.GamesPollsResults;
+import com.boardgamegeek.provider.BggContract.GamesPolls;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -61,6 +65,11 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_PUBLISHERS = 107;
 	private static final int GAMES_ID_MECHANICS = 108;
 	private static final int GAMES_ID_CATEGORIES = 109;
+	private static final int GAMES_ID_POLLS = 110;
+	private static final int GAMES_ID_POLLS_ID_POLLSRESULTS = 111;
+	private static final int GAMES_ID_POLLS_ID_POLLSRESULTS_ID = 112;
+	private static final int GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT = 113;	
+	private static final int GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT_ID = 114;		
 	private static final int DESIGNERS = 301;
 	private static final int DESIGNERS_ID = 302;
 	private static final int ARTISTS = 303;
@@ -75,6 +84,8 @@ public class BggProvider extends ContentProvider {
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
+	private static final int GAMES_POLLS = 1100;
+	private static final int GAMES_POLLS_ID = 1101;	
 	private static final int SEARCH_SUGGEST = 9998;
 	private static final int SHORTCUT_REFRESH = 9999;
 
@@ -92,6 +103,11 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/publishers", GAMES_ID_PUBLISHERS);
 		matcher.addURI(authority, "games/#/mechanics", GAMES_ID_MECHANICS);
 		matcher.addURI(authority, "games/#/categories", GAMES_ID_CATEGORIES);
+		matcher.addURI(authority, "games/#/polls", GAMES_ID_POLLS);
+		matcher.addURI(authority, "games/#/polls/#/pollsresults", GAMES_ID_POLLS_ID_POLLSRESULTS);
+		matcher.addURI(authority, "games/#/polls/#/pollsresults/#", GAMES_ID_POLLS_ID_POLLSRESULTS_ID);
+		matcher.addURI(authority, "games/#/polls/#/pollsresults/#/pollsresult", GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT);
+		matcher.addURI(authority, "games/#/polls/#/pollsresults/#/pollsresult/#", GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT_ID);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "artists", ARTISTS);
@@ -106,6 +122,8 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
+		matcher.addURI(authority, "polls", GAMES_POLLS);
+		matcher.addURI(authority, "polls/#", GAMES_POLLS_ID);		
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH_SUGGEST);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_SHORTCUT, SHORTCUT_REFRESH);
@@ -171,6 +189,16 @@ public class BggProvider extends ContentProvider {
 				return Mechanics.CONTENT_TYPE;
 			case GAMES_ID_CATEGORIES:
 				return Categories.CONTENT_TYPE;
+			case GAMES_ID_POLLS:
+				return GamesPolls.CONTENT_TYPE;
+			case GAMES_ID_POLLS_ID_POLLSRESULTS:
+				return GamesPollsResults.CONTENT_TYPE;
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID:
+				return GamesPollsResults.CONTENT_ITEM_TYPE;
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT:
+				return GamesPollsResult.CONTENT_TYPE;
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT_ID:
+				return GamesPollsResult.CONTENT_ITEM_TYPE;					
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
@@ -198,7 +226,7 @@ public class BggProvider extends ContentProvider {
 			case BUDDIES:
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
-				return Buddies.CONTENT_ITEM_TYPE;
+				return Buddies.CONTENT_ITEM_TYPE;					
 			case SEARCH_SUGGEST:
 				return SearchManager.SUGGEST_MIME_TYPE;
 			case SHORTCUT_REFRESH:
@@ -284,86 +312,113 @@ public class BggProvider extends ContentProvider {
 
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final int match = sUriMatcher.match(uri);
-		Uri newUri;
+		Uri newUri = null;
+		long rowId = -1;
+		
 		switch (match) {
 			case GAMES: {
-				db.insertOrThrow(Tables.GAMES, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES, null, values);
 				newUri = Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
 				break;
 			}
 			case GAMES_ID_RANKS: {
 				final int gameId = Games.getGameId(uri);
 				values.put(GameRanks.GAME_ID, gameId);
-				final long gameRankId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
-				newUri = GameRanks.buildGameRankUri((int) gameRankId);
+				rowId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
+				newUri = GameRanks.buildGameRankUri((int) rowId);
 				break;
 			}
 			case GAMES_ID_DESIGNERS: {
-				db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
 				newUri = Designers.buildDesignerUri(values.getAsInteger(GamesDesigners.DESIGNER_ID));
 				break;
 			}
 			case GAMES_ID_ARTISTS: {
-				db.insertOrThrow(Tables.GAMES_ARTISTS, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES_ARTISTS, null, values);
 				newUri = Artists.buildArtistUri(values.getAsInteger(GamesArtists.ARTIST_ID));
 				break;
 			}
 			case GAMES_ID_PUBLISHERS: {
-				db.insertOrThrow(Tables.GAMES_PUBLISHERS, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES_PUBLISHERS, null, values);
 				newUri = Publishers.buildPublisherUri(values.getAsInteger(GamesPublishers.PUBLISHER_ID));
 				break;
 			}
 			case GAMES_ID_MECHANICS: {
-				db.insertOrThrow(Tables.GAMES_MECHANICS, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES_MECHANICS, null, values);
 				newUri = Mechanics.buildMechanicUri(values.getAsInteger(GamesMechanics.MECHANIC_ID));
 				break;
 			}
 			case GAMES_ID_CATEGORIES: {
-				db.insertOrThrow(Tables.GAMES_CATEGORIES, null, values);
+				rowId = db.insertOrThrow(Tables.GAMES_CATEGORIES, null, values);
 				newUri = Categories.buildCategoryUri(values.getAsInteger(GamesCategories.CATEGORY_ID));
 				break;
 			}
+			case GAMES_ID_POLLS: {
+				final int gameId = Games.getGameId(uri);
+				values.put(GamesPolls.GAME_ID, gameId);	
+				rowId = db.insertOrThrow(Tables.GAMES_POLLS, null, values);
+				newUri = GamesPolls.buildPollUri(rowId);
+				break;
+			}		
+			case GAMES_ID_POLLS_ID_POLLSRESULTS: {
+				final int pollId = GamesPolls.getPollId(uri);
+				values.put(GamesPollsResults.POLL_ID, pollId);
+				rowId = db.insertOrThrow(Tables.GAMES_POLLS_RESULTS, null, values);
+				newUri = ContentUris.withAppendedId(uri, rowId);
+				break;
+			}	
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT: {
+				final int pollResultsId = GamesPollsResults.getPollsResultsId(uri);
+				values.put(GamesPollsResult.POLL_RESULTS_ID, pollResultsId);				
+				rowId = db.insertOrThrow(Tables.GAMES_POLLS_RESULT, null, values);
+				newUri = ContentUris.withAppendedId(uri, rowId);
+				break;
+			}				
 			case DESIGNERS: {
-				db.insertOrThrow(Tables.DESIGNERS, null, values);
+				rowId = db.insertOrThrow(Tables.DESIGNERS, null, values);
 				newUri = Designers.buildDesignerUri(values.getAsInteger(Designers.DESIGNER_ID));
 				break;
 			}
 			case ARTISTS: {
-				db.insertOrThrow(Tables.ARTISTS, null, values);
+				rowId = db.insertOrThrow(Tables.ARTISTS, null, values);
 				newUri = Artists.buildArtistUri(values.getAsInteger(Artists.ARTIST_ID));
 				break;
 			}
 			case PUBLISHERS: {
-				db.insertOrThrow(Tables.PUBLISHERS, null, values);
+				rowId = db.insertOrThrow(Tables.PUBLISHERS, null, values);
 				newUri = Publishers.buildPublisherUri(values.getAsInteger(Publishers.PUBLISHER_ID));
 				break;
 			}
 			case MECHANICS: {
-				db.insertOrThrow(Tables.MECHANICS, null, values);
+				rowId = db.insertOrThrow(Tables.MECHANICS, null, values);
 				newUri = Mechanics.buildMechanicUri(values.getAsInteger(Mechanics.MECHANIC_ID));
 				break;
 			}
 			case CATEGORIES: {
-				db.insertOrThrow(Tables.CATEGORIES, null, values);
+				rowId = db.insertOrThrow(Tables.CATEGORIES, null, values);
 				newUri = Categories.buildCategoryUri(values.getAsInteger(Categories.CATEGORY_ID));
 				break;
 			}
 			case COLLECTION: {
-				db.insertOrThrow(Tables.COLLECTION, null, values);
+				rowId = db.insertOrThrow(Tables.COLLECTION, null, values);
 				newUri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
 				break;
 			}
 			case BUDDIES: {
-				db.insertOrThrow(Tables.BUDDIES, null, values);
+				rowId = db.insertOrThrow(Tables.BUDDIES, null, values);
 				newUri = Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
 				break;
-			}
+			}			
 			default: {
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
 			}
 		}
-		getContext().getContentResolver().notifyChange(newUri, null);
-		return uri;
+		
+		if(newUri != null)
+		{
+			getContext().getContentResolver().notifyChange(newUri, null);
+		}
+		return ContentUris.withAppendedId(uri, rowId);
 	}
 
 	@Override
@@ -499,6 +554,38 @@ public class BggProvider extends ContentProvider {
 			case BUDDIES_ID:
 				final int blockId = Buddies.getBuddyId(uri);
 				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", "" + blockId);
+			case GAMES_POLLS:
+				return builder.table(Tables.GAMES_POLLS);
+			case GAMES_POLLS_ID: {
+				final int pollId = GamesPolls.getPollId(uri);
+				return builder.table(Tables.GAMES_POLLS).where(GamesPolls._ID + "=?", "" + pollId);	
+			}
+			case GAMES_ID_POLLS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAMES_POLLS).where(Games.GAME_ID + "=?", "" + gameId);
+			}
+			case GAMES_ID_POLLS_ID_POLLSRESULTS: {
+				final int pollId = GamesPolls.getPollId(uri);
+				return builder.table(Tables.GAMES_POLLS_RESULTS).where(
+						GamesPollsResults.POLL_ID + "=?", 
+						"" + pollId
+						);
+			}
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID: {
+				final int pollResultsId = GamesPollsResults.getPollsResultsId(uri);
+				return builder.table(Tables.GAMES_POLLS_RESULTS).where(GamesPollsResults._ID + "=?", "" + pollResultsId);
+			}
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT: {
+				final int pollResultsId = GamesPollsResults.getPollsResultsId(uri);
+				return builder.table(Tables.GAMES_POLLS_RESULT).where(
+						GamesPollsResult.POLL_RESULTS_ID + "=?", 
+						"" + pollResultsId
+						);
+			}
+			case GAMES_ID_POLLS_ID_POLLSRESULTS_ID_POLLRESULT_ID: {
+				final int pollResultId = GamesPollsResult.getPollsResultId(uri);
+				return builder.table(Tables.GAMES_POLLS_RESULT).where(GamesPollsResult._ID + "=?", "" + pollResultId);
+			}
 			default:
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -572,6 +659,8 @@ public class BggProvider extends ContentProvider {
 				cr.delete(Games.buildPublishersUri(gameId), null, null);
 				cr.delete(Games.buildMechanicsUri(gameId), null, null);
 				cr.delete(Games.buildCategoriesUri(gameId), null, null);
+				cr.delete(Games.buildPollsUri(gameId), null, null);
+				//TODO: delete pollResults and pollResult rows
 			}
 		} finally {
 			c.close();

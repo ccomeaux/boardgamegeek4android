@@ -13,6 +13,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +24,9 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.GamesPolls;
+import com.boardgamegeek.provider.BggContract.GamesPollsResult;
+import com.boardgamegeek.provider.BggContract.GamesPollsResults;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
@@ -109,7 +113,10 @@ public class RemoteGameHandler extends XmlHandler {
 				}else if (Tags.CATEGORY.equals(tag)) {
 					parseCategory();
 					tag = null;
-				}
+				} else if (Tags.POLL.equals(tag)) {
+					parsePoll();
+					tag = null;
+				}				
 			} else if (type == END_TAG) {
 				tag = null;
 			} else if (type == TEXT) {
@@ -137,7 +144,7 @@ public class RemoteGameHandler extends XmlHandler {
 				} else if (Tags.STATISTICS.equals(tag)) {
 					parseStats(values);
 					tag = null;
-				}
+				} 				
 			}
 		}
 
@@ -351,11 +358,129 @@ public class RemoteGameHandler extends XmlHandler {
 			mResolver.delete(GameRanks.buildGameRankUri(id.intValue()), null, null);
 		}
 	}
+	
+	private void parsePoll() throws XmlPullParserException, IOException {
+		final int depth = mParser.getDepth();
+		int type;
+		
+		ContentValues values = new ContentValues();
+		values.put(GamesPolls.GAME_ID, mGameId);
+		values.put(GamesPolls.POLL_NAME, parseStringAttribute(Tags.POLL_NAME));
+		values.put(GamesPolls.POLL_TITLE, parseStringAttribute(Tags.POLL_TITLE));
+		values.put(GamesPolls.POLL_TOTAL_VOTES, parseStringAttribute(Tags.POLL_TOTAL_VOTES));
+		
+		long currentPollId = getCurrentPoll(values.getAsString(GamesPolls.POLL_NAME));
+		Uri pollUri = Games.buildPollsUri(mGameId);
+		if(currentPollId == -1) {
+			pollUri = mResolver.insert(pollUri, values);
+		} else {			
+			mResolver.update(pollUri, values, null, null);
+			pollUri = ContentUris.withAppendedId(pollUri, currentPollId);
+			
+			// Delete any previous results data
+			List<Integer> resultsIds = getCurrentPollResults(pollUri, currentPollId);
+			for (int resultsId : resultsIds) {
+				Uri deletePollResultsUri = GamesPollsResults.buildPollsResultsUri(pollUri, resultsId);
+				mResolver.delete(deletePollResultsUri, null, null);
+				
+				List<Integer> resultIds = getCurrentResultFromResults(deletePollResultsUri, resultsId);
+				for (int resultId : resultIds) {							
+					mResolver.delete(GamesPollsResult.buildPollsResultUri(deletePollResultsUri, resultId), null, null);
+				}
+			}
+		}		
+		
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {			
+			if (type == START_TAG) {
+				if (Tags.POLL_RESULTS.equals(mParser.getName())) {
+					parsePollResults(pollUri);
+				}
+			} 
+		}		
+	}
+	
+	private void parsePollResults(Uri pollUri) throws XmlPullParserException, IOException {
+		final int depth = mParser.getDepth();
+		int type;				
+		long pollId = ContentUris.parseId(pollUri);
+		
+		ContentValues values = new ContentValues();
+		values.put(GamesPollsResults.POLL_ID, pollId);
+		values.put(GamesPollsResults.PLAYERS, parseStringAttribute(Tags.POLL_RESULTS_PLAYERS));		
+		
+		Uri pollResultsUri = mResolver.insert(GamesPollsResults.buildPollsResultsUri(pollUri), values);					
+		long pollResultsId = ContentUris.parseId(pollResultsUri);
+		List<ContentValues> valuesList = new ArrayList<ContentValues>();
+		
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == START_TAG) {
+				if (Tags.POLL_RESULT.equals(mParser.getName())) {
+					ContentValues resultValues = new ContentValues();
+					resultValues.put(GamesPollsResult.POLL_RESULTS_ID, pollResultsId);
+					resultValues.put(GamesPollsResult.VALUE, parseStringAttribute(Tags.POLL_RESULT_VALUE));
+					resultValues.put(GamesPollsResult.VOTES, parseIntegerAttribute(Tags.POLL_RESULT_VOTES));
+					resultValues.put(GamesPollsResult.LEVEL, parseStringAttribute(Tags.POLL_RESULT_LEVEL));
+					valuesList.add(resultValues);
+				}
+			}
+		}	
+		
+		mResolver.bulkInsert(GamesPollsResult.buildPollsResultUri(pollResultsUri), 
+				valuesList.toArray(new ContentValues[valuesList.size()]));			
+	}	
 
 	private List<Integer> getCurrentGameRankIds() {
 		List<Integer> ids = new ArrayList<Integer>();
 		Cursor c = mResolver.query(GameRanks.CONTENT_URI, new String[] { GameRanks.GAME_RANK_ID }, GameRanks.GAME_ID
 				+ "=?", new String[] { "" + mGameId }, null);
+		try {
+			while (c.moveToNext()) {
+				ids.add(c.getInt(0));
+			}
+			return ids;
+		} finally {
+			c.close();
+		}
+	}
+	
+	private long getCurrentPoll(String pollName) {
+		long rowId = -1;
+		Cursor c = mResolver.query(GamesPolls.CONTENT_URI, new String[] { GamesPolls._ID }, GamesPolls.GAME_ID
+				+ "=? AND " + GamesPolls.POLL_NAME + "=?", new String[] { "" + mGameId, pollName }, null);
+		try {
+			while (c.moveToNext()) {
+				rowId = c.getInt(0);
+			}
+			return rowId;
+		} finally {
+			c.close();
+		}		
+	}
+	
+	private List<Integer> getCurrentPollResults(Uri pollUri, long pollId) {
+		List<Integer> ids = new ArrayList<Integer>();
+		Cursor c = mResolver.query(GamesPollsResults.buildPollsResultsUri(pollUri), 
+				new String[] { GamesPollsResults._ID }, 
+				GamesPollsResults.POLL_ID + "=?", 
+				new String[] { "" + pollId }, 
+				null);
+		try {
+			while (c.moveToNext()) {
+				ids.add(c.getInt(0));
+			}
+			return ids;
+		} finally {
+			c.close();
+		}
+	}
+	
+	private List<Integer> getCurrentResultFromResults(Uri pollResultsUri, long pollResultsId) {
+		List<Integer> ids = new ArrayList<Integer>();
+		Cursor c = mResolver.query(GamesPollsResult.buildPollsResultUri(pollResultsUri), 
+				new String[] { GamesPollsResult._ID }, 
+				GamesPollsResult.POLL_RESULTS_ID + "=?", 
+				new String[] { "" + pollResultsId }, 
+				null);
 		try {
 			while (c.moveToNext()) {
 				ids.add(c.getInt(0));
@@ -406,7 +531,16 @@ public class RemoteGameHandler extends XmlHandler {
 		// podcastepisode
 		// version
 		// subdomain
-		// poll
+		String POLL = "poll";
+		String POLL_NAME = "name";
+		String POLL_TITLE = "title";
+		String POLL_TOTAL_VOTES = "totalvotes";
+		String POLL_RESULTS = "results";
+		String POLL_RESULTS_PLAYERS = "numplayers";
+		String POLL_RESULT = "result";
+		String POLL_RESULT_VALUE = "value";
+		String POLL_RESULT_VOTES = "numvotes";
+		String POLL_RESULT_LEVEL = "level";
 		String STATISTICS = "statistics";
 		String STATS_USERS_RATED = "usersrated";
 		String STATS_AVERAGE = "average";
