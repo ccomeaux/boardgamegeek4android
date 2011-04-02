@@ -1,5 +1,6 @@
 package com.boardgamegeek.provider;
 
+import android.content.ContentUris;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
@@ -111,24 +112,23 @@ public class BggContract {
 		String BUDDY_LASTNAME = "buddy_lastname";
 		String AVATAR_URL = "avatar_url";
 	}
-	
+
 	interface GamePollsColumns {
-		String GAME_ID = "game_id";
 		String POLL_NAME = "poll_name";
 		String POLL_TITLE = "poll_title";
 		String POLL_TOTAL_VOTES = "poll_total_votes";
 	}
-	
-	interface GamesPollsResultsColumns {
+
+	interface GamePollResultsColumns {
 		String POLL_ID = "poll_id";
-		String PLAYERS = "players";
+		String POLL_RESULTS_PLAYERS = "pollresults_players";
 	}
-	
-	interface GamesPollsResultColumns {
+
+	interface GamePollResultsResultColumns {
 		String POLL_RESULTS_ID = "pollresults_id";
-		String LEVEL = "result_level";
-		String VALUE = "result_value";
-		String VOTES = "result_votes";
+		String POLL_RESULTS_RESULT_LEVEL = "pollresultsresult_level";
+		String POLL_RESULTS_RESULT_VALUE = "pollresultsresult_value";
+		String POLL_RESULTS_RESULT_VOTES = "polltreultsresult_votes";
 	}
 
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
@@ -145,8 +145,8 @@ public class BggContract {
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_POLLS = "polls";
-	private static final String PATH_POLLS_RESULTS = "pollsresults";
-	private static final String PATH_POLLS_RESULT = "pollsresult";
+	private static final String PATH_POLL_RESULTS = "results";
+	private static final String PATH_POLL_RESULTS_RESULT = "result";
 	private static final String PATH_THUMBNAILS = "thumbnails";
 
 	public static class Thumbnails {
@@ -188,7 +188,7 @@ public class BggContract {
 		public static Uri buildCategoriesUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_CATEGORIES).build();
 		}
-		
+
 		public static Uri buildPollsUri(int gameId) {
 			return getUriBuilder(gameId).appendPath(PATH_POLLS).build();
 		}
@@ -340,65 +340,93 @@ public class BggContract {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
-	
-	public static class GamesPolls implements GamePollsColumns, BaseColumns {
-		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_POLLS).build();
+
+	public static class GamePolls implements GamePollsColumns, GamesColumns, BaseColumns {
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_POLLS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll";
 
-		public static final String DEFAULT_SORT = GamePollsColumns.POLL_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = GamePollsColumns.POLL_TITLE + " COLLATE NOCASE ASC";
 
 		public static Uri buildPollUri(long pollId) {
 			return CONTENT_URI.buildUpon().appendPath("" + pollId).build();
 		}
 
-		public static int getPollId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(3));
-		}
-		
-	}
-
-	public static final class GamesPollsResults implements GamesPollsResultsColumns, BaseColumns {
-		// No Content Uri since needs to be built from a GamesPoll		
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresults";
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresults";	
-
-		public static final String DEFAULT_SORT = POLL_ID + " COLLATE NOCASE ASC, " + PLAYERS + " COLLATE NOCASE ASC";
-
-		public static Uri buildPollsResultsUri(Uri pollUri) {
-			return pollUri.buildUpon().appendPath(PATH_POLLS_RESULTS).build();
-		}		
-		
-		public static Uri buildPollsResultsUri(Uri pollUri, long id) {
-			return pollUri.buildUpon().appendPath(PATH_POLLS_RESULTS).appendPath("" + id).build();
+		public static Uri buildPollResultsUri(long pollId) {
+			return buildPollUri(pollId).buildUpon().appendPath(PATH_POLL_RESULTS).build();
 		}
 
-		public static int getPollsResultsId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(5));
-		}	
-		
+		public static long getPollId(Uri uri) {
+			boolean isNextId = false;
+			for (String segment : uri.getPathSegments()) {
+				if (isNextId) {
+					try {
+						return Long.parseLong(segment);
+					} catch (NumberFormatException e) {
+						return -1;
+					}
+				}
+				if (PATH_POLLS.equals(segment)) {
+					isNextId = true;
+				}
+			}
+			return -1;
+		}
 	}
 
-	public static final class GamesPollsResult implements GamesPollsResultColumns, BaseColumns {
-		// No Content Uri since needs to be built from a GamesPoll and GamesPollsResults
+	public static final class GamePollResults implements GamePollResultsColumns, GamePollsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = GamePolls.CONTENT_URI.buildUpon().appendPath(PATH_POLL_RESULTS).build();
+
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_ID + " COLLATE NOCASE ASC";
-		
-		public static Uri buildPollsResultUri(Uri pollResultsUri) {
-			return pollResultsUri.buildUpon().appendPath(PATH_POLLS_RESULT).build();
+		public static final String DEFAULT_SORT = POLL_ID + " ASC, " + POLL_RESULTS_PLAYERS + " ASC";
+
+		public static Uri buildPollResultsUri(long resultsId) {
+			return CONTENT_URI.buildUpon().appendPath("" + resultsId).build();
 		}
 
-		public static Uri buildPollsResultUri(Uri pollResultsUri, int resultId) {
-			return pollResultsUri.buildUpon().appendPath(PATH_POLLS_RESULT).appendPath("" + resultId).build();
+		public static Uri buildPollResultsResultUri(long resultsId) {
+			return buildPollResultsUri(resultsId).buildUpon().appendPath(PATH_POLL_RESULTS_RESULT).build();
 		}
-		
-		public static int getPollsResultId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(7));
+
+		public static long getPollsResultsId(Uri uri) {
+			boolean isNextId = false;
+			for (String segment : uri.getPathSegments()) {
+				if (isNextId) {
+					try {
+						return Long.parseLong(segment);
+					} catch (NumberFormatException e) {
+						return -1;
+					}
+				}
+				if (PATH_POLL_RESULTS.equals(segment)) {
+					isNextId = true;
+				}
+			}
+			return -1;
 		}
-		
+	}
+
+	public static final class GamePollResultsResult implements GamePollResultsResultColumns, GamePollResultsColumns,
+			BaseColumns {
+		public static final Uri CONTENT_URI = GamePollResults.CONTENT_URI.buildUpon()
+				.appendPath(PATH_POLL_RESULTS_RESULT).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
+
+		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_LEVEL + " ASC, " + POLL_RESULTS_RESULT_VALUE
+				+ " ASC";
+
+		public static Uri buildPollsResultUri(long resultId) {
+			return CONTENT_URI.buildUpon().appendPath("" + resultId).build();
+		}
+
+		public static long getPollsResultsResultId(Uri uri) {
+			return ContentUris.parseId(uri);
+		}
 	}
 
 	private BggContract() {

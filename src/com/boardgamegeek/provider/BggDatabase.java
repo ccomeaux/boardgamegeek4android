@@ -7,16 +7,14 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Artists;
-import com.boardgamegeek.provider.BggContract.GamesPollsResults;
-import com.boardgamegeek.provider.BggContract.GamesPolls;
-import com.boardgamegeek.provider.BggContract.GamesPollsResultColumns;
-import com.boardgamegeek.provider.BggContract.GamesPollsResultsColumns;
-import com.boardgamegeek.provider.BggContract.GamePollsColumns;
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GamePollResultsColumns;
+import com.boardgamegeek.provider.BggContract.GamePollResultsResultColumns;
+import com.boardgamegeek.provider.BggContract.GamePollsColumns;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -33,7 +31,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 27;
+	private static final int DATABASE_VERSION = 32;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -75,9 +73,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_CATEGORIES = "games_categories";
 		String COLLECTION = "collection";
 		String BUDDIES = "buddies";
-		String GAMES_POLLS = "games_polls";
-		String GAMES_POLLS_RESULTS = "games_polls_results";
-		String GAMES_POLLS_RESULT = "games_polls_result";
+		String GAME_POLLS = "game_polls";
+		String GAME_POLL_RESULTS = "game_poll_results";
+		String GAME_POLL_RESULTS_RESULT = "game_poll_results_result";
 
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
@@ -97,8 +95,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_ID = "REFERENCES " + Tables.GAMES + "(" + Games.GAME_ID + ")";
 		String DESIGNER_ID = "REFERENCES " + Tables.DESIGNERS + "(" + Designers.DESIGNER_ID + ")";
 		String ARTIST_ID = "REFERENCES " + Tables.ARTISTS + "(" + Artists.ARTIST_ID + ")";
-		String GAME_POLL_ID = "REFERENCES " + Tables.GAMES_POLLS + "(" + GamesPolls._ID + ")";
-		String GAME_POLL_RESULTS_ID = "REFERENCES " + Tables.GAMES_POLLS_RESULTS + "(" + GamesPollsResults._ID + ")";
 	}
 
 	public BggDatabase(Context context) {
@@ -175,7 +171,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 		db.execSQL("CREATE TABLE " + Tables.GAME_RANKS + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ GameRanks.GAME_ID + " TEXT " + References.GAME_ID + ","
+			+ GameRanks.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
 			+ GameRanksColumns.GAME_RANK_ID + " INTEGER NOT NULL,"
 			+ GameRanksColumns.GAME_RANK_TYPE + " TEXT NOT NULL,"
 			+ GameRanksColumns.GAME_RANK_NAME + " TEXT NOT NULL,"
@@ -249,25 +245,24 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ BuddiesColumns.AVATAR_URL + " TEXT,"
 			+ "UNIQUE (" + BuddiesColumns.BUDDY_ID + ") ON CONFLICT REPLACE)");
 		
-		db.execSQL("CREATE TABLE " + Tables.GAMES_POLLS + " ("
-				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ GamePollsColumns.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + "," 
-				+ GamePollsColumns.POLL_NAME + " TEXT NOT NULL, " 
-				+ GamePollsColumns.POLL_TITLE + " TEXT, " 
-				+ GamePollsColumns.POLL_TOTAL_VOTES + " INTEGER,"
-				+ "UNIQUE (" + GamePollsColumns.POLL_NAME + "," + GamePollsColumns.GAME_ID + ") ON CONFLICT REPLACE)");			
-		
-		db.execSQL("CREATE TABLE " + Tables.GAMES_POLLS_RESULTS + " ("
-				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ GamesPollsResultsColumns.POLL_ID + " INTEGER NOT NULL " + References.GAME_POLL_ID + "," 
-				+ GamesPollsResultsColumns.PLAYERS + " STRING)");	
-		
-		db.execSQL("CREATE TABLE " + Tables.GAMES_POLLS_RESULT + " ("
-				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ GamesPollsResultColumns.POLL_RESULTS_ID + " INTEGER NOT NULL " + References.GAME_POLL_RESULTS_ID + ","  
-				+ GamesPollsResultColumns.LEVEL + " INTEGER, " 
-				+ GamesPollsResultColumns.VALUE + " TEXT NOT NULL, " 
-				+ GamesPollsResultColumns.VOTES + " INTEGER NOT NULL)");		
+		builder.reset().table(Tables.GAME_POLLS).defaultPrimaryKey()
+			.column(GamesColumns.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, GamesColumns.GAME_ID)
+			.column(GamePollsColumns.POLL_NAME, COLUMN_TYPE.TEXT, true, true)
+			.column(GamePollsColumns.POLL_TITLE, COLUMN_TYPE.TEXT, true)
+			.column(GamePollsColumns.POLL_TOTAL_VOTES, COLUMN_TYPE.INTEGER, true)
+			.create(db);
+
+		builder.reset().table(Tables.GAME_POLL_RESULTS).defaultPrimaryKey()
+			.column(GamePollResultsColumns.POLL_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAME_POLLS, BaseColumns._ID)
+			.column(GamePollResultsColumns.POLL_RESULTS_PLAYERS, COLUMN_TYPE.INTEGER)
+			.create(db);
+
+		builder.reset().table(Tables.GAME_POLL_RESULTS_RESULT).defaultPrimaryKey()
+			.column(GamePollResultsResultColumns.POLL_RESULTS_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAME_POLL_RESULTS, BaseColumns._ID)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_LEVEL, COLUMN_TYPE.INTEGER)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true, true)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
+			.create(db);
 	}
 
 	@Override
@@ -291,9 +286,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_CATEGORIES);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_POLLS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_POLLS_RESULTS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_POLLS_RESULT);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLLS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS_RESULT);
 
 			onCreate(db);
 		}
