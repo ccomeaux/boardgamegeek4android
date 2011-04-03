@@ -1,7 +1,5 @@
 package com.boardgamegeek.pref;
 
-// TODO: show the statuses in the preference summary
-
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -89,24 +87,61 @@ public class ListPreferenceMultiSelect extends ListPreference {
 	}
 
 	@Override
-	protected void onDialogClosed(boolean positiveResult) {
-		// super.onDialogClosed(positiveResult);
+	public CharSequence getSummary() {
+
+		String[] checkedValues = parseStoredValue(getValue());
+		if (checkedValues == null) {
+			return "";
+		}
 
 		CharSequence[] entryValues = getEntryValues();
-		if (positiveResult && entryValues != null) {
-			StringBuffer value = new StringBuffer();
+		CharSequence[] entries = getEntries();
+		StringBuffer buffer = new StringBuffer();
+		for (int j = 0; j < checkedValues.length; j++) {
+			String val = checkedValues[j].trim();
 			for (int i = 0; i < entryValues.length; i++) {
-				if (mClickedDialogEntryIndices[i]) {
-					value.append(entryValues[i]).append(SEPARATOR);
+				CharSequence entry = entryValues[i];
+				if (entry.equals(val)) {
+					buffer.append(entries[i]);
+					buffer.append(", ");
+					break;
 				}
 			}
+		}
+		return buffer.substring(0, buffer.length() - 2);
+	}
+
+	@Override
+	protected void onDialogClosed(boolean positiveResult) {
+
+		if (!positiveResult) {
+			return;
+		}
+
+		CharSequence[] entryValues = getEntryValues();
+		if (shouldPersist() && entryValues != null) {
+			String value = calculateValue(entryValues);
 
 			if (callChangeListener(value)) {
-				String val = value.toString();
-				if (val.length() > 0)
-					val = val.substring(0, val.length() - SEPARATOR.length());
-				setValue(val);
+				setValue(value);
 			}
 		}
+
+		notifyChanged();
+	}
+
+	private String calculateValue(CharSequence[] entryValues) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < entryValues.length; i++) {
+			if (mClickedDialogEntryIndices[i]) {
+				buffer.append(entryValues[i]).append(SEPARATOR);
+			}
+		}
+		// remove trailing separator
+		String value = buffer.toString();
+		if (value.length() > 0) {
+			value = value.substring(0, value.length() - SEPARATOR.length());
+		}
+		return value;
 	}
 }
