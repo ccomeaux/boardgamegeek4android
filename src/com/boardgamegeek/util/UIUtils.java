@@ -47,6 +47,18 @@ public class UIUtils {
 	public static void allowTypeToSearch(Activity activity) {
 		activity.setDefaultKeyMode(Activity.DEFAULT_KEYS_SEARCH_LOCAL);
 	}
+		
+	public static String[] projectionFromEnums(Enum<?> e[]) {		
+		String projection[] = new String[e.length];
+		
+		int index = 0;		
+		for(Enum<?> currentEnum : e) {			
+			projection[index] = currentEnum.toString();
+			index++;
+		}
+		
+		return projection;		
+	}
 
 	public static void showListMessage(Activity activity, int messageResourceId) {
 		showListMessage(activity, messageResourceId, true);

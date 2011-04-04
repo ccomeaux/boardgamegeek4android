@@ -211,4 +211,5 @@
 	<string name="gameId">Game ID</string>
 
 	<string name="search_title">Searching</string>
+	<string name="tab_title_polls">Polls</string>
 </resources>

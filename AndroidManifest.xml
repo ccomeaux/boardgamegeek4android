@@ -3,23 +3,16 @@
 	package="com.boardgamegeek" android:versionName="3.0 beta" android:versionCode="17">
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /><application android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:name="BggApplication">
 
-	<application android:icon="@drawable/ic_launcher" android:label="@string/app_name"
-		android:name="BggApplication">
-
-		<activity android:name=".ui.HomeActivity"
-			android:label="@string/app_name"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.HomeActivity" android:label="@string/app_name" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.CollectionActivity"
-			android:label="@string/title_collection"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.CollectionActivity" android:label="@string/title_collection" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -27,9 +20,7 @@
 			</intent-filter>
 		</activity>
 		
-		<activity android:name=".ui.BoardgameActivity"
-			android:label="@string/title_boardgame"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.BoardgameActivity" android:label="@string/title_boardgame" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -54,15 +45,17 @@
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
+
+		<activity android:name=".ui.GamePollsActivityTab" android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<category android:name="android.intent.category.TAB" />
+			</intent-filter>
+		</activity>		
 		
-		<activity android:name=".ui.ImageActivity"
-			android:label="@string/title_image"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.ImageActivity" android:label="@string/title_image" android:theme="@style/Theme.Bgg">
 		</activity>
 
-		<activity android:name=".ui.BuddiesActivity"
-			android:label="@string/title_buddies"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.BuddiesActivity" android:label="@string/title_buddies" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -70,9 +63,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.BuddyActivity"
-			android:label="@string/title_buddy"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.BuddyActivity" android:label="@string/title_buddy" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -80,22 +71,15 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.SearchResultsActivity"
-			android:label="@string/title_search_results"
-			android:configChanges="keyboardHidden|orientation"
-			android:launchMode="singleTop"
-			android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.SearchResultsActivity" android:label="@string/title_search_results" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTop" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
-			<meta-data android:name="android.app.searchable"
-				android:resource="@xml/searchable" />
+			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 		</activity>
 		
-		<activity android:name=".ui.LogPlayActivity"
-			android:label="@string/title_log_play"
-			android:theme="@style/Theme.Bgg" />
+		<activity android:name=".ui.LogPlayActivity" android:label="@string/title_log_play" android:theme="@style/Theme.Bgg" />
 
 		<activity android:name=".view.BoardGameStatsTab" />
 		<activity android:name=".view.BoardGameExtraTab" />
@@ -108,7 +92,6 @@
 
 		<provider android:name=".provider.BggProvider" android:authorities="com.boardgamegeek" />
 
-		<meta-data android:name="android.app.default_searchable"
-			android:value=".ui.SearchResultsActivity" />
+		<meta-data android:name="android.app.default_searchable" android:value=".ui.SearchResultsActivity" />
 	</application>
 </manifest>
