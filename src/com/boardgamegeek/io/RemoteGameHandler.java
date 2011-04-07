@@ -22,11 +22,11 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GamePollResults;
+import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
+import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
-import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
@@ -42,6 +42,11 @@ public class RemoteGameHandler extends XmlHandler {
 	private XmlPullParser mParser;
 	private ContentResolver mResolver;
 	private int mGameId;
+	private List<Integer> mDesignerIds;
+	private List<Integer> mArtistIds;
+	private List<Integer> mPublisherIds;
+	private List<Integer> mMechanicIds;
+	private List<Integer> mCategoryIds;
 
 	public RemoteGameHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -61,6 +66,8 @@ public class RemoteGameHandler extends XmlHandler {
 			if (type == START_TAG && Tags.BOARDGAME.equals(parser.getName())) {
 				mGameId = parseIntegerAttribute(Tags.ID);
 
+				saveChildRecords();
+
 				ContentValues values = parseGame();
 
 				Uri uri = Games.buildGameUri(mGameId);
@@ -73,11 +80,39 @@ public class RemoteGameHandler extends XmlHandler {
 					mResolver.update(uri, values, null, null);
 				}
 
+				deleteChildRecords();
+
 				cursor.close();
 			}
 		}
 
 		return false;
+	}
+
+	private void saveChildRecords() {
+		mDesignerIds = getIds(Games.buildDesignersUri(mGameId), Designers.DESIGNER_ID);
+		mArtistIds = getIds(Games.buildArtistsUri(mGameId), Artists.ARTIST_ID);
+		mPublisherIds = getIds(Games.buildPublishersUri(mGameId), Publishers.PUBLISHER_ID);
+		mMechanicIds = getIds(Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
+		mCategoryIds = getIds(Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
+	}
+
+	private void deleteChildRecords() {
+		for (Integer designerId : mDesignerIds) {
+			mResolver.delete(Games.buildDesignersUri(mGameId, designerId), null, null);
+		}
+		for (Integer artistId : mArtistIds) {
+			mResolver.delete(Games.buildArtistsUri(mGameId, artistId), null, null);
+		}
+		for (Integer publisherId : mPublisherIds) {
+			mResolver.delete(Games.buildPublishersUri(mGameId, publisherId), null, null);
+		}
+		for (Integer mechanicId : mMechanicIds) {
+			mResolver.delete(Games.buildMechanicsUri(mGameId, mechanicId), null, null);
+		}
+		for (Integer categoryId : mCategoryIds) {
+			mResolver.delete(Games.buildCategoriesUri(mGameId, categoryId), null, null);
+		}
 	}
 
 	private ContentValues parseGame() throws XmlPullParserException, IOException {
@@ -166,14 +201,14 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		mResolver.insert(Designers.CONTENT_URI, values);
+		if (!mDesignerIds.remove(new Integer(designerId))) {
+			mResolver.insert(Designers.CONTENT_URI, values);
 
-		values.clear();
-		values.put(GamesDesigners.GAME_ID, mGameId);
-		values.put(GamesDesigners.DESIGNER_ID, designerId);
-		mResolver.insert(Games.buildDesignersUri(mGameId), values);
-
-		// TODO: delete all unused games-designers records
+			values.clear();
+			values.put(GamesDesigners.GAME_ID, mGameId);
+			values.put(GamesDesigners.DESIGNER_ID, designerId);
+			mResolver.insert(Games.buildDesignersUri(mGameId), values);
+		}
 	}
 
 	private void parseArtist() throws XmlPullParserException, IOException {
@@ -190,14 +225,14 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		mResolver.insert(Artists.CONTENT_URI, values);
+		if (!mArtistIds.remove(new Integer(artistId))) {
+			mResolver.insert(Artists.CONTENT_URI, values);
 
-		values.clear();
-		values.put(GamesArtists.GAME_ID, mGameId);
-		values.put(GamesArtists.ARTIST_ID, artistId);
-		mResolver.insert(Games.buildArtistsUri(mGameId), values);
-
-		// TODO: delete all unused games-artists records
+			values.clear();
+			values.put(GamesArtists.GAME_ID, mGameId);
+			values.put(GamesArtists.ARTIST_ID, artistId);
+			mResolver.insert(Games.buildArtistsUri(mGameId), values);
+		}
 	}
 
 	private void parsePublisher() throws XmlPullParserException, IOException {
@@ -214,14 +249,14 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		mResolver.insert(Publishers.CONTENT_URI, values);
+		if (!mPublisherIds.remove(new Integer(publisherId))) {
+			mResolver.insert(Publishers.CONTENT_URI, values);
 
-		values.clear();
-		values.put(GamesPublishers.GAME_ID, mGameId);
-		values.put(GamesPublishers.PUBLISHER_ID, publisherId);
-		mResolver.insert(Games.buildPublishersUri(mGameId), values);
-
-		// TODO: delete all unused games-publishers records
+			values.clear();
+			values.put(GamesPublishers.GAME_ID, mGameId);
+			values.put(GamesPublishers.PUBLISHER_ID, publisherId);
+			mResolver.insert(Games.buildPublishersUri(mGameId), values);
+		}
 	}
 
 	private void parseMechanic() throws XmlPullParserException, IOException {
@@ -238,14 +273,14 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		mResolver.insert(Mechanics.CONTENT_URI, values);
+		if (!mMechanicIds.remove(new Integer(mechanicId))) {
+			mResolver.insert(Mechanics.CONTENT_URI, values);
 
-		values.clear();
-		values.put(GamesMechanics.GAME_ID, mGameId);
-		values.put(GamesMechanics.MECHANIC_ID, mechanicId);
-		mResolver.insert(Games.buildMechanicsUri(mGameId), values);
-
-		// TODO: delete all unused games-mechanics records
+			values.clear();
+			values.put(GamesMechanics.GAME_ID, mGameId);
+			values.put(GamesMechanics.MECHANIC_ID, mechanicId);
+			mResolver.insert(Games.buildMechanicsUri(mGameId), values);
+		}
 	}
 
 	private void parseCategory() throws XmlPullParserException, IOException {
@@ -262,14 +297,14 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		mResolver.insert(Categories.CONTENT_URI, values);
+		if (!mCategoryIds.remove(new Integer(categoryId))) {
+			mResolver.insert(Categories.CONTENT_URI, values);
 
-		values.clear();
-		values.put(GamesCategories.GAME_ID, mGameId);
-		values.put(GamesCategories.CATEGORY_ID, categoryId);
-		mResolver.insert(Games.buildCategoriesUri(mGameId), values);
-
-		// TODO: delete all unused games-categories records
+			values.clear();
+			values.put(GamesCategories.GAME_ID, mGameId);
+			values.put(GamesCategories.CATEGORY_ID, categoryId);
+			mResolver.insert(Games.buildCategoriesUri(mGameId), values);
+		}
 	}
 
 	private ContentValues parseStats(ContentValues values) throws XmlPullParserException, IOException {
@@ -360,6 +395,7 @@ public class RemoteGameHandler extends XmlHandler {
 	}
 
 	private void parsePoll() throws XmlPullParserException, IOException {
+		// TODO: Parse this without deleting
 		final int depth = mParser.getDepth();
 		int type;
 
@@ -424,12 +460,21 @@ public class RemoteGameHandler extends XmlHandler {
 			}
 		}
 
-		// for (ContentValues cv : valuesList) {
-		// mResolver.insert(GamePollResults.buildPollResultsResultUri(pollResultsId),
-		// cv);
-		// }
 		mResolver.bulkInsert(GamePollResults.buildPollResultsResultUri(pollResultsId),
 				valuesList.toArray(new ContentValues[valuesList.size()]));
+	}
+
+	private List<Integer> getIds(Uri uri, String columnName) {
+		List<Integer> ids = new ArrayList<Integer>();
+		Cursor c = mResolver.query(uri, new String[] { columnName }, null, null, null);
+		try {
+			while (c.moveToNext()) {
+				ids.add(c.getInt(0));
+			}
+			return ids;
+		} finally {
+			c.close();
+		}
 	}
 
 	private List<Integer> getCurrentGameRankIds() {

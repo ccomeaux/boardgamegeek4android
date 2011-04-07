@@ -166,35 +166,87 @@ public class BggContract {
 		}
 
 		public static Uri buildRanksUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_RANKS).build();
+			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
 
 		public static Uri buildDesignersUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_DESIGNERS).build();
+			return getUriBuilder(gameId, PATH_DESIGNERS).build();
+		}
+
+		public static Uri buildDesignersUri(int gameId, int designerId) {
+			return getUriBuilder(gameId, PATH_DESIGNERS, designerId).build();
+		}
+
+		public static Uri buildDesignersUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_DESIGNERS).appendPath("" + rowId).build();
 		}
 
 		public static Uri buildArtistsUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_ARTISTS).build();
+			return getUriBuilder(gameId, PATH_ARTISTS).build();
+		}
+
+		public static Uri buildArtistsUri(int gameId, int artistId) {
+			return getUriBuilder(gameId, PATH_ARTISTS, artistId).build();
+		}
+
+		public static Uri buildArtistUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_ARTISTS).appendPath("" + rowId).build();
 		}
 
 		public static Uri buildPublishersUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_PUBLISHERS).build();
+			return getUriBuilder(gameId, PATH_PUBLISHERS).build();
+		}
+
+		public static Uri buildPublishersUri(int gameId, int publisherId) {
+			return getUriBuilder(gameId, PATH_PUBLISHERS, publisherId).build();
+		}
+
+		public static Uri buildPublisherUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_PUBLISHERS).appendPath("" + rowId).build();
 		}
 
 		public static Uri buildMechanicsUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_MECHANICS).build();
+			return getUriBuilder(gameId, PATH_MECHANICS).build();
+		}
+
+		public static Uri buildMechanicsUri(int gameId, int mechanicId) {
+			return getUriBuilder(gameId, PATH_MECHANICS, mechanicId).build();
+		}
+
+		public static Uri buildMechanicUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_MECHANICS).appendPath("" + rowId).build();
 		}
 
 		public static Uri buildCategoriesUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_CATEGORIES).build();
+			return getUriBuilder(gameId, PATH_CATEGORIES).build();
+		}
+
+		public static Uri buildCategoriesUri(int gameId, int categoryId) {
+			return getUriBuilder(gameId, PATH_CATEGORIES, categoryId).build();
+		}
+
+		public static Uri buildCategoryUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath("" + rowId).build();
 		}
 
 		public static Uri buildPollsUri(int gameId) {
-			return getUriBuilder(gameId).appendPath(PATH_POLLS).build();
+			return getUriBuilder(gameId, PATH_POLLS).build();
+		}
+
+		private static Builder getUriBuilder() {
+			return CONTENT_URI.buildUpon();
 		}
 
 		private static Builder getUriBuilder(int gameId) {
 			return CONTENT_URI.buildUpon().appendPath("" + gameId);
+		}
+
+		private static Builder getUriBuilder(int gameId, String path) {
+			return CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(path);
+		}
+
+		private static Builder getUriBuilder(int gameId, String path, int id) {
+			return CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(path).appendPath("" + id);
 		}
 
 		public static int getGameId(Uri uri) {
