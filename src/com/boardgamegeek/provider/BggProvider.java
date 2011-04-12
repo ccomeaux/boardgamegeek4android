@@ -3,12 +3,13 @@ package com.boardgamegeek.provider;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -35,7 +36,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
-import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesCategories;
@@ -334,15 +334,6 @@ public class BggProvider extends ContentProvider {
 			}
 			default: {
 				final SelectionBuilder builder = buildExpandedSelection(uri, match);
-				// TODO: move this to selection builder map
-				if (match == COLLECTION_ID) {
-					for (int i = 0; i < projection.length; i++) {
-						if (SyncColumns.UPDATED.equals(projection[i])
-								|| SyncListColumns.UPDATED_LIST.equals(projection[i])) {
-							builder.mapToTable(projection[i], Tables.COLLECTION);
-						}
-					}
-				}
 				return builder.where(selection, selectionArgs).query(db, projection, sortOrder);
 			}
 		}
@@ -507,6 +498,21 @@ public class BggProvider extends ContentProvider {
 		return id;
 	}
 
+	private List<String> getList(final SQLiteDatabase db, final SelectionBuilder builder, String columnName) {
+		List<String> list = new ArrayList<String>();
+		Cursor c = builder.query(db, new String[] { columnName }, null);
+		try {
+			if (c.moveToNext()) {
+				list.add(c.getString(0));
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return list;
+	}
+
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		if (LOGV) {
@@ -544,28 +550,25 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID:
 				deleteGameChildren(db, builder);
 				break;
-//			case GAMES_ID_POLLS: {
-//				int gameId = Games.getGameId(uri);
-//				delete(Games.buildPollsUri(gameId), null, null);
-//				break;
-//			}
-//			case GAMES_ID_POLLS_NAME:
-//			case GAMES_ID_POLLS_NAME_RESULTS: {
-//				// TODO: delete poll children
-//				int gameId = Games.getGameId(uri);
-//				String pollName = Games.getPollName(uri);
-//				delete(Games.buildPollResultsUri(gameId, pollName), null, null);
-//				break;
-//			}
-//			case GAMES_ID_POLLS_NAME_RESULTS_KEY:
-//			case GAMES_ID_POLLS_NAME_RESULTS_KEY_RESULT: {
-//				// TODO: delete poll children
-//				int gameId = Games.getGameId(uri);
-//				String pollName = Games.getPollName(uri);
-//				String key = Games.getPollResultsKey(uri);
-//				delete(Games.buildPollResultsResultUri(gameId, pollName, key), null, null);
-//				break;
-//			}
+			case GAMES_ID_POLLS:
+			case GAMES_ID_POLLS_NAME: {
+				List<String> pollIds = getList(db, builder, GamePolls._ID);
+				for (String pollId : pollIds) {
+					db.delete(Tables.GAME_POLL_RESULTS_RESULT,
+						"pollresults_id IN (SELECT game_poll_results._id from game_poll_results WHERE poll_id=?)",
+						new String[] { pollId });
+					db.delete(Tables.GAME_POLL_RESULTS, GamePollResults.POLL_ID + "=?", new String[] { pollId });
+				}
+				break;
+			}
+			case GAMES_ID_POLLS_NAME_RESULTS:
+			case GAMES_ID_POLLS_NAME_RESULTS_KEY: {
+				List<String> pollResultIds = getList(db, builder, GamePollResults._ID);
+				for (String pollResultId : pollResultIds) {
+					db.delete(Tables.GAME_POLL_RESULTS_RESULT, GamePollResultsResult.POLL_RESULTS_ID, new String[] { pollResultId });
+				}				
+				break;
+			}
 			default:
 				break;
 		}
@@ -780,6 +783,8 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.COLLECTION_JOIN_GAMES)
 					.mapToTable(Collection._ID, Tables.COLLECTION)
 					.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
+					.mapToTable(Collection.UPDATED, Tables.COLLECTION)
+					.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
 					.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
@@ -854,24 +859,23 @@ public class BggProvider extends ContentProvider {
 	private void deleteGameChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
 		Cursor c = builder.query(db, new String[] { Games.GAME_ID }, null);
 		try {
-			ContentResolver cr = getContext().getContentResolver();
 			while (c.moveToNext()) {
 				int gameId = c.getInt(0);
 				String[] gameArg = new String[] { "" + gameId };
-				cr.delete(GameRanks.CONTENT_URI, GameRanks.GAME_ID + "=?", gameArg);
-				cr.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", gameArg);
-				cr.delete(Games.buildDesignersUri(gameId), null, null);
-				cr.delete(Games.buildArtistsUri(gameId), null, null);
-				cr.delete(Games.buildPublishersUri(gameId), null, null);
-				cr.delete(Games.buildMechanicsUri(gameId), null, null);
-				cr.delete(Games.buildCategoriesUri(gameId), null, null);
-				//cr.delete(Games.buildPollsUri(gameId), null, null);
-				// TODO: delete pollResults and pollResult rows
-				//db.delete(Tables.GAME_POLL_RESULTS_RESULT,
-				//	"pollresults_id IN (SELECT game_poll_results._id from game_poll_results WHERE game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?))",
-				//	new String[] { "" + gameId });
-				//db.delete(Tables.POLLS_JOIN_POLL_RESULTS, GamePolls.GAME_ID + "=?", new String[] { "" + gameId });
-				//db.delete(Tables.GAME_POLLS, GamePolls.GAME_ID + "=?", new String[] { "" + gameId });
+				db.delete(Tables.GAME_RANKS, GameRanks.GAME_ID + "=?", gameArg);
+				db.delete(Tables.COLLECTION, Collection.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_DESIGNERS, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_ARTISTS, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_PUBLISHERS, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_MECHANICS, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_CATEGORIES, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAME_POLL_RESULTS_RESULT,
+					"pollresults_id IN (SELECT game_poll_results._id from game_poll_results WHERE game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?))",
+					gameArg);
+				db.delete(Tables.GAME_POLL_RESULTS,
+					"game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?)",
+					gameArg);
+				db.delete(Tables.GAME_POLLS, GamePolls.GAME_ID + "=?", gameArg);
 			}
 		} finally {
 			c.close();
