@@ -35,6 +35,10 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	private static int TOKEN_POLL_RESULTS = 2;
 	private static int TOKEN_POLL_RESULTS_RESULT = 3;
 
+	private static final String ID = "ID";
+	private static final String TITLE = "NAME";
+	private static final String COUNT = "COUNT";
+
 	private List<Map<String, String>> mGroupData;
 	private List<List<PollResult>> mChildData;
 	private ExpandableListAdapter mAdapter;
@@ -44,9 +48,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	private Uri mPollsUri;
 	private PollsObserver mPollsObserver;
 
-	private static final String ID = "ID";
-	private static final String TITLE = "NAME";
-	private static final String COUNT = "COUNT";
+	private int mGameId;
 
 	private class Poll {
 		int id;
@@ -95,8 +97,8 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 
 	private void setAndObserveUris() {
 		final Uri gameUri = getIntent().getData();
-		final int gameId = Games.getGameId(gameUri);
-		mPollsUri = Games.buildPollsUri(gameId);
+		mGameId = Games.getGameId(gameUri);
+		mPollsUri = Games.buildPollsUri(mGameId);
 
 		mPollsObserver = new PollsObserver(null);
 	}
@@ -111,19 +113,20 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 					poll.title = cursor.getString(GamePollsQuery.POLL_TITLE.ordinal());
 					poll.totalVotes = cursor.getInt(GamePollsQuery.POLL_TOTAL_VOTES.ordinal());
 
+					// TODO: move string to const
 					if (!poll.name.equals("suggested_numplayers")) {
 						createPollGroup(poll.id, poll.title, poll.totalVotes, new ArrayList<PollResult>());
 					}
 
-					mHandler.startQuery(TOKEN_POLL_RESULTS, poll, GamePolls.buildPollResultsUri(poll.id),
+					mHandler.startQuery(TOKEN_POLL_RESULTS, poll, Games.buildPollResultsUri(mGameId, poll.name),
 							GamePollResultsQuery.PROJECTION, null, null, GamePollResults.DEFAULT_SORT);
 				}
 
 			} else if (token == TOKEN_POLL_RESULTS) {
 				while (cursor.moveToNext()) {
 					Poll poll = (Poll) cookie;
+					String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
 					String players = cursor.getString(GamePollResultsQuery.POLL_RESULTS_PLAYERS.ordinal());
-					int id = cursor.getInt(GamePollResultsQuery._ID.ordinal());
 					int groupPosition = -1;
 					if (poll.name.equals("suggested_numplayers")) {
 						createPollGroup(poll.id, poll.title + ": " + players, poll.totalVotes,
@@ -133,11 +136,9 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 						groupPosition = getPollGroupPosition(poll.id);
 					}
 
-					// TODO: default sort doesn't work correctly for player age
-					// due to it being saved as string
 					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, groupPosition,
-							GamePollResults.buildPollResultsResultUri(id), GamePollResultsResultQuery.PROJECTION, null,
-							null, GamePollResultsResult.DEFAULT_SORT);
+							Games.buildPollResultsResultUri(mGameId, poll.name, key),
+							GamePollResultsResultQuery.PROJECTION, null, null, GamePollResultsResult.DEFAULT_SORT);
 				}
 
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
@@ -313,6 +314,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	private enum GamePollResultsQuery {
 		_ID(GamePollResults._ID),
 		POLL_ID(GamePollResults.POLL_ID),
+		POLL_RESULTS_KEY(GamePollResults.POLL_RESULTS_KEY),
 		POLL_RESULTS_PLAYERS(GamePollResults.POLL_RESULTS_PLAYERS);
 
 		public static String[] PROJECTION = UIUtils.projectionFromEnums(GamePollResultsQuery.values());

@@ -12,8 +12,11 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsColumns;
+import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResultColumns;
+import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GamePollsColumns;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
@@ -31,7 +34,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 32;
+	private static final int DATABASE_VERSION = 35;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -82,13 +85,17 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID);
 		String GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.MECHANIC_ID);
 		String GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.CATEGORY_ID);
-
-		String COLLECTION_JOIN_GAMES = "collection "
-			+ "LEFT OUTER JOIN games ON collection.game_id=games.game_id ";
+		String POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, GamePolls._ID, GamePollResults.POLL_ID);
+		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
+		String COLLECTION_JOIN_GAMES =createJoin(COLLECTION, GAMES, Collection.GAME_ID);
 	}
-	
-	private static String createJoin(String table1, String table2, String column){
+
+	private static String createJoin(String table1, String table2, String column) {
 		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column + "=" + table2 + "." + column;
+	}
+
+	private static String createJoin(String table1, String table2, String column1, String column2) {
+		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}
 
 	private interface References {
@@ -179,7 +186,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GameRanksColumns.GAME_RANK_VALUE + " INTEGER NOT NULL,"
 			+ GameRanksColumns.GAME_RANK_BAYES_AVERAGE + " REAL,"
 			+ "UNIQUE (" + GameRanksColumns.GAME_RANK_ID + "," + GameRanks.GAME_ID + ") ON CONFLICT REPLACE)");
-		
+
 		db.execSQL("CREATE TABLE " + Tables.GAMES_DESIGNERS + " ("
 			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 			+ GamesDesigners.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
@@ -191,7 +198,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GamesArtists.GAME_ID + " INTEGER NOT NULL " + References.GAME_ID + ","
 			+ GamesArtists.ARTIST_ID + " INTEGER NOT NULL " + References.ARTIST_ID + ","
 			+ "UNIQUE (" + GamesArtists.GAME_ID + "," + GamesArtists.ARTIST_ID + ") ON CONFLICT IGNORE)");
-		
+
 		builder.reset().table(Tables.GAMES_PUBLISHERS).defaultPrimaryKey()
 			.column(GamesPublishers.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID)
 			.column(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PUBLISHERS, Publishers.PUBLISHER_ID)
@@ -244,7 +251,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ BuddiesColumns.BUDDY_LASTNAME + " TEXT,"
 			+ BuddiesColumns.AVATAR_URL + " TEXT,"
 			+ "UNIQUE (" + BuddiesColumns.BUDDY_ID + ") ON CONFLICT REPLACE)");
-		
+
 		builder.reset().table(Tables.GAME_POLLS).defaultPrimaryKey()
 			.column(GamesColumns.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, GamesColumns.GAME_ID)
 			.column(GamePollsColumns.POLL_NAME, COLUMN_TYPE.TEXT, true, true)
@@ -253,15 +260,19 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.create(db);
 
 		builder.reset().table(Tables.GAME_POLL_RESULTS).defaultPrimaryKey()
-			.column(GamePollResultsColumns.POLL_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAME_POLLS, BaseColumns._ID)
-			.column(GamePollResultsColumns.POLL_RESULTS_PLAYERS, COLUMN_TYPE.INTEGER)
+			.column(GamePollResultsColumns.POLL_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAME_POLLS, BaseColumns._ID)
+			.column(GamePollResultsColumns.POLL_RESULTS_KEY, COLUMN_TYPE.TEXT, true, true)
+			.column(GamePollResultsColumns.POLL_RESULTS_PLAYERS, COLUMN_TYPE.TEXT)
+			.column(GamePollResultsColumns.POLL_RESULTS_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
 			.create(db);
 
 		builder.reset().table(Tables.GAME_POLL_RESULTS_RESULT).defaultPrimaryKey()
 			.column(GamePollResultsResultColumns.POLL_RESULTS_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAME_POLL_RESULTS, BaseColumns._ID)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_KEY, COLUMN_TYPE.TEXT, true, true)
 			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_LEVEL, COLUMN_TYPE.INTEGER)
-			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true, true)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true)
 			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
+			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
 			.create(db);
 	}
 

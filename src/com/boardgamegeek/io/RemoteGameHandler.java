@@ -13,10 +13,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -47,6 +47,7 @@ public class RemoteGameHandler extends XmlHandler {
 	private List<Integer> mPublisherIds;
 	private List<Integer> mMechanicIds;
 	private List<Integer> mCategoryIds;
+	private List<String> mPollNames;
 
 	public RemoteGameHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -95,6 +96,7 @@ public class RemoteGameHandler extends XmlHandler {
 		mPublisherIds = getIds(Games.buildPublishersUri(mGameId), Publishers.PUBLISHER_ID);
 		mMechanicIds = getIds(Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
 		mCategoryIds = getIds(Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
+		mPollNames = getPollNames();
 	}
 
 	private void deleteChildRecords() {
@@ -112,6 +114,9 @@ public class RemoteGameHandler extends XmlHandler {
 		}
 		for (Integer categoryId : mCategoryIds) {
 			mResolver.delete(Games.buildCategoriesUri(mGameId, categoryId), null, null);
+		}
+		for (String pollName : mPollNames) {
+			mResolver.delete(Games.buildPollsUri(mGameId, pollName), null, null);
 		}
 	}
 
@@ -395,73 +400,102 @@ public class RemoteGameHandler extends XmlHandler {
 	}
 
 	private void parsePoll() throws XmlPullParserException, IOException {
-		// TODO: Parse this without deleting
 		final int depth = mParser.getDepth();
 		int type;
 
+		List<String> players = new ArrayList<String>();
+
+		final String pollName = parseStringAttribute(Tags.POLL_NAME);
 		ContentValues values = new ContentValues();
-		values.put(GamePolls.POLL_NAME, parseStringAttribute(Tags.POLL_NAME));
+		values.put(GamePolls.POLL_NAME, pollName);
 		values.put(GamePolls.POLL_TITLE, parseStringAttribute(Tags.POLL_TITLE));
 		values.put(GamePolls.POLL_TOTAL_VOTES, parseStringAttribute(Tags.POLL_TOTAL_VOTES));
 
-		long currentPollId = getCurrentPoll(values.getAsString(GamePolls.POLL_NAME));
-		if (currentPollId == -1) {
-			Uri pollUri = Games.buildPollsUri(mGameId);
-			pollUri = mResolver.insert(pollUri, values);
-			currentPollId = ContentUris.parseId(pollUri);
-		} else {
-			Uri pollUri = GamePolls.buildPollUri(currentPollId);
+		if (mPollNames.contains(pollName)) {
+			// update
+			Uri pollUri = Games.buildPollsUri(mGameId, pollName);
 			mResolver.update(pollUri, values, null, null);
-
-			// Delete any previous results data
-			List<Integer> resultsIds = getCurrentPollResults(pollUri, currentPollId);
-			for (int resultsId : resultsIds) {
-				Uri deletePollResultsUri = GamePollResults.buildPollResultsUri(resultsId);
-				mResolver.delete(deletePollResultsUri, null, null);
-
-				List<Integer> resultIds = getCurrentResultFromResults(deletePollResultsUri, resultsId);
-				for (int resultId : resultIds) {
-					mResolver.delete(GamePollResultsResult.buildPollsResultUri(resultId), null, null);
-				}
-			}
+			// get existing results
+			pollUri = Games.buildPollResultsUri(mGameId, pollName);
+			players = getList(pollUri, GamePollResults.POLL_RESULTS_PLAYERS);
+			// remove
+			mPollNames.remove(pollName);
+		} else {
+			// insert
+			Uri pollUri = mResolver.insert(Games.buildPollsUri(mGameId), values);
+			Log.d("BGG", pollUri.toString());
 		}
 
+		int sortIndex = 0;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				if (Tags.POLL_RESULTS.equals(mParser.getName())) {
-					parsePollResults(currentPollId);
+					parsePollResults(players, pollName, ++sortIndex);
 				}
 			}
 		}
+		
+		for (String player : players) {
+			mResolver.delete(Games.buildPollResultsUri(mGameId, pollName, player), null, null);
+		}
 	}
 
-	private void parsePollResults(long pollId) throws XmlPullParserException, IOException {
+	private void parsePollResults(List<String> existingPlayers, String pollName, int sortIndex)
+			throws XmlPullParserException, IOException {
 		ContentValues values = new ContentValues();
-		values.put(GamePollResults.POLL_RESULTS_PLAYERS, parseStringAttribute(Tags.POLL_RESULTS_PLAYERS));
+		String players = parseStringAttribute(Tags.POLL_RESULTS_PLAYERS);
+		if (players == null) {
+			players = "X";
+		}
+		values.put(GamePollResults.POLL_RESULTS_PLAYERS, players);
+		values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, sortIndex);
 
-		Uri pollResultsUri = mResolver.insert(GamePolls.buildPollResultsUri(pollId), values);
-		long pollResultsId = ContentUris.parseId(pollResultsUri);
-		List<ContentValues> valuesList = new ArrayList<ContentValues>();
+		List<String> existingValues = new ArrayList<String>();
+		if (existingPlayers.contains(players)) {
+			// update
+			mResolver.update(Games.buildPollResultsUri(mGameId, pollName, players), values, null, null);
+			existingValues = getList(Games.buildPollResultsResultUri(mGameId, pollName, players),
+					GamePollResultsResult.POLL_RESULTS_RESULT_VALUE);
+			existingPlayers.remove(players);
+		} else {
+			// insert
+			mResolver.insert(Games.buildPollResultsUri(mGameId, pollName), values);
+		}
 
+		List<ContentValues> inserts = new ArrayList<ContentValues>();
+
+		int resultSortIndex = 0;
 		final int depth = mParser.getDepth();
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				if (Tags.POLL_RESULT.equals(mParser.getName())) {
 					ContentValues resultValues = new ContentValues();
-					resultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE,
-							parseStringAttribute(Tags.POLL_RESULT_VALUE));
+					final String value = parseStringAttribute(Tags.POLL_RESULT_VALUE);
+					resultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, value);
 					resultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES,
 							parseIntegerAttribute(Tags.POLL_RESULT_VOTES));
 					resultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL,
 							parseStringAttribute(Tags.POLL_RESULT_LEVEL));
-					valuesList.add(resultValues);
+					resultValues.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
+
+					if (existingValues.contains(value)) {
+						mResolver.update(Games.buildPollResultsResultUri(mGameId, pollName, players, value),
+								resultValues, null, null);
+						existingValues.remove(value);
+					} else {
+						inserts.add(resultValues);
+					}
 				}
 			}
 		}
 
-		mResolver.bulkInsert(GamePollResults.buildPollResultsResultUri(pollResultsId),
-				valuesList.toArray(new ContentValues[valuesList.size()]));
+		mResolver.bulkInsert(Games.buildPollResultsResultUri(mGameId, pollName, players),
+				inserts.toArray(new ContentValues[inserts.size()]));
+
+		for (String value : existingValues) {
+			mResolver.delete(Games.buildPollResultsResultUri(mGameId, pollName, players, value), null, null);
+		}
 	}
 
 	private List<Integer> getIds(Uri uri, String columnName) {
@@ -477,52 +511,24 @@ public class RemoteGameHandler extends XmlHandler {
 		}
 	}
 
+	private List<String> getPollNames() {
+		List<String> ids = new ArrayList<String>();
+		Cursor c = mResolver
+				.query(Games.buildPollsUri(mGameId), new String[] { GamePolls.POLL_NAME }, null, null, null);
+		try {
+			while (c.moveToNext()) {
+				ids.add(c.getString(0));
+			}
+			return ids;
+		} finally {
+			c.close();
+		}
+	}
+
 	private List<Integer> getCurrentGameRankIds() {
 		List<Integer> ids = new ArrayList<Integer>();
 		Cursor c = mResolver.query(GameRanks.CONTENT_URI, new String[] { GameRanks.GAME_RANK_ID }, GameRanks.GAME_ID
 				+ "=?", new String[] { "" + mGameId }, null);
-		try {
-			while (c.moveToNext()) {
-				ids.add(c.getInt(0));
-			}
-			return ids;
-		} finally {
-			c.close();
-		}
-	}
-
-	private long getCurrentPoll(String pollName) {
-		long rowId = -1;
-		Cursor c = mResolver.query(Games.buildPollsUri(mGameId), new String[] { GamePolls._ID }, GamePolls.POLL_NAME
-				+ "=?", new String[] { pollName }, null);
-		try {
-			while (c.moveToNext()) {
-				rowId = c.getInt(0);
-			}
-			return rowId;
-		} finally {
-			c.close();
-		}
-	}
-
-	private List<Integer> getCurrentPollResults(Uri pollUri, long pollId) {
-		List<Integer> ids = new ArrayList<Integer>();
-		Cursor c = mResolver.query(GamePolls.buildPollResultsUri(pollId), new String[] { GamePollResults._ID }, null,
-				null, null);
-		try {
-			while (c.moveToNext()) {
-				ids.add(c.getInt(0));
-			}
-			return ids;
-		} finally {
-			c.close();
-		}
-	}
-
-	private List<Integer> getCurrentResultFromResults(Uri pollResultsUri, long pollResultsId) {
-		List<Integer> ids = new ArrayList<Integer>();
-		Cursor c = mResolver.query(GamePollResults.buildPollResultsResultUri(pollResultsId),
-				new String[] { GamePollResultsResult._ID }, null, null, null);
 		try {
 			while (c.moveToNext()) {
 				ids.add(c.getInt(0));
@@ -605,5 +611,20 @@ public class RemoteGameHandler extends XmlHandler {
 		String STATS_NUMBER_WEIGHTS = "numweights";
 		String STATS_AVERAGE_WEIGHT = "averageweight";
 		String TRUE = "true";
+	}
+
+	private List<String> getList(Uri uri, String columnName) {
+		List<String> list = new ArrayList<String>();
+		Cursor c = mResolver.query(uri, new String[] { columnName }, null, null, null);
+		try {
+			while (c.moveToNext()) {
+				list.add(c.getString(0));
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return list;
 	}
 }

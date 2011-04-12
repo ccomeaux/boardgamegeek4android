@@ -1,9 +1,9 @@
 package com.boardgamegeek.provider;
 
-import android.content.ContentUris;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
 
@@ -121,14 +121,18 @@ public class BggContract {
 
 	interface GamePollResultsColumns {
 		String POLL_ID = "poll_id";
+		String POLL_RESULTS_KEY = "pollresults_key";
 		String POLL_RESULTS_PLAYERS = "pollresults_players";
+		String POLL_RESULTS_SORT_INDEX = "pollresults_sortindex";
 	}
 
 	interface GamePollResultsResultColumns {
 		String POLL_RESULTS_ID = "pollresults_id";
+		String POLL_RESULTS_RESULT_KEY = "pollresultsresult_key";
 		String POLL_RESULTS_RESULT_LEVEL = "pollresultsresult_level";
 		String POLL_RESULTS_RESULT_VALUE = "pollresultsresult_value";
-		String POLL_RESULTS_RESULT_VOTES = "polltreultsresult_votes";
+		String POLL_RESULTS_RESULT_VOTES = "pollresultsresult_votes";
+		String POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex";
 	}
 
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
@@ -233,6 +237,29 @@ public class BggContract {
 			return getUriBuilder(gameId, PATH_POLLS).build();
 		}
 
+		public static Uri buildPollsUri(int gameId, String pollName) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).build();
+		}
+
+		public static Uri buildPollResultsUri(int gameId, String pollName) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).build();
+		}
+
+		public static Uri buildPollResultsUri(int gameId, String pollName, String key) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
+					.appendPath(key).build();
+		}
+
+		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
+					.appendPath(key).appendPath(PATH_POLL_RESULTS_RESULT).build();
+		}
+
+		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
+					.appendPath(key).appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+		}
+
 		private static Builder getUriBuilder() {
 			return CONTENT_URI.buildUpon();
 		}
@@ -251,6 +278,34 @@ public class BggContract {
 
 		public static int getGameId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static String getPollName(Uri uri) {
+			return getPathValue(uri, PATH_POLLS);
+		}
+
+		public static String getPollResultsKey(Uri uri) {
+			return getPathValue(uri, PATH_POLL_RESULTS);
+		}
+
+		public static String getPollResultsResultKey(Uri uri) {
+			return getPathValue(uri, PATH_POLL_RESULTS_RESULT);
+		}
+
+		public static String getPathValue(Uri uri, String path) {
+			if (TextUtils.isEmpty(path)) {
+				return "";
+			}
+			boolean isNextValue = false;
+			for (String segment : uri.getPathSegments()) {
+				if (isNextValue) {
+					return segment;
+				}
+				if (path.equals(segment)) {
+					isNextValue = true;
+				}
+			}
+			return "";
 		}
 	}
 
@@ -400,31 +455,6 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll";
 
 		public static final String DEFAULT_SORT = GamePollsColumns.POLL_TITLE + " COLLATE NOCASE ASC";
-
-		public static Uri buildPollUri(long pollId) {
-			return CONTENT_URI.buildUpon().appendPath("" + pollId).build();
-		}
-
-		public static Uri buildPollResultsUri(long pollId) {
-			return buildPollUri(pollId).buildUpon().appendPath(PATH_POLL_RESULTS).build();
-		}
-
-		public static long getPollId(Uri uri) {
-			boolean isNextId = false;
-			for (String segment : uri.getPathSegments()) {
-				if (isNextId) {
-					try {
-						return Long.parseLong(segment);
-					} catch (NumberFormatException e) {
-						return -1;
-					}
-				}
-				if (PATH_POLLS.equals(segment)) {
-					isNextId = true;
-				}
-			}
-			return -1;
-		}
 	}
 
 	public static final class GamePollResults implements GamePollResultsColumns, GamePollsColumns, BaseColumns {
@@ -433,32 +463,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresult";
 
-		public static final String DEFAULT_SORT = POLL_ID + " ASC, " + POLL_RESULTS_PLAYERS + " ASC";
-
-		public static Uri buildPollResultsUri(long resultsId) {
-			return CONTENT_URI.buildUpon().appendPath("" + resultsId).build();
-		}
-
-		public static Uri buildPollResultsResultUri(long resultsId) {
-			return buildPollResultsUri(resultsId).buildUpon().appendPath(PATH_POLL_RESULTS_RESULT).build();
-		}
-
-		public static long getPollsResultsId(Uri uri) {
-			boolean isNextId = false;
-			for (String segment : uri.getPathSegments()) {
-				if (isNextId) {
-					try {
-						return Long.parseLong(segment);
-					} catch (NumberFormatException e) {
-						return -1;
-					}
-				}
-				if (PATH_POLL_RESULTS.equals(segment)) {
-					isNextId = true;
-				}
-			}
-			return -1;
-		}
+		public static final String DEFAULT_SORT = POLL_RESULTS_SORT_INDEX + " ASC";
 	}
 
 	public static final class GamePollResultsResult implements GamePollResultsResultColumns, GamePollResultsColumns,
@@ -469,16 +474,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
-		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_LEVEL + " ASC, " + POLL_RESULTS_RESULT_VALUE
-				+ " ASC";
-
-		public static Uri buildPollsResultUri(long resultId) {
-			return CONTENT_URI.buildUpon().appendPath("" + resultId).build();
-		}
-
-		public static long getPollsResultsResultId(Uri uri) {
-			return ContentUris.parseId(uri);
-		}
+		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
 	}
 
 	private BggContract() {
