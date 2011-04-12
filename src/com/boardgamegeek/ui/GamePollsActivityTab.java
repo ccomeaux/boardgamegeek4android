@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	private static final String ID = "ID";
 	private static final String TITLE = "NAME";
 	private static final String COUNT = "COUNT";
+	private static final String PLAYERS = "PLAYERS";
 
 	private List<Map<String, String>> mGroupData;
 	private List<List<PollResult>> mChildData;
@@ -115,7 +117,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 
 					// TODO: move string to const
 					if (!poll.name.equals("suggested_numplayers")) {
-						createPollGroup(poll.id, poll.title, poll.totalVotes, new ArrayList<PollResult>());
+						createPollGroup(poll.id, poll.title, poll.totalVotes, "");
 					}
 
 					mHandler.startQuery(TOKEN_POLL_RESULTS, poll, Games.buildPollResultsUri(mGameId, poll.name),
@@ -129,8 +131,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 					String players = cursor.getString(GamePollResultsQuery.POLL_RESULTS_PLAYERS.ordinal());
 					int groupPosition = -1;
 					if (poll.name.equals("suggested_numplayers")) {
-						createPollGroup(poll.id, poll.title + ": " + players, poll.totalVotes,
-								new ArrayList<PollResult>());
+						createPollGroup(poll.id, poll.title, poll.totalVotes, players);
 						groupPosition = mGroupData.size() - 1;
 					} else {
 						groupPosition = getPollGroupPosition(poll.id);
@@ -180,13 +181,31 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 		throw new IllegalArgumentException("pollId does not exist in Poll Groups");
 	}
 
-	private void createPollGroup(int pollId, String title, int numVotes, List<PollResult> resultList) {
-		Map<String, String> groupMap = new HashMap<String, String>();
-		mGroupData.add(groupMap);
+	private void createPollGroup(int pollId, String title, int numVotes, String players) {
+
+		Map<String, String> groupMap = null;
+		String id = "" + pollId;
+		for (Map<String, String> data : mGroupData) {
+			if (id.equals(data.get(ID)) && players.equals(data.get(PLAYERS))) {
+				groupMap = data;
+				break;
+			}
+		}
+		if (groupMap == null) {
+			groupMap = new HashMap<String, String>();
+			mGroupData.add(groupMap);
+			mChildData.add(new ArrayList<PollResult>());
+		}
+
+		String displayTitle = title;
+		if (!TextUtils.isEmpty(players)) {
+			displayTitle += ": " + players;
+		}
+		
 		groupMap.put(ID, "" + pollId);
-		groupMap.put(TITLE, title);
+		groupMap.put(TITLE, displayTitle);
 		groupMap.put(COUNT, "" + numVotes);
-		mChildData.add(resultList);
+		groupMap.put(PLAYERS, players);
 	}
 
 	private class PollsObserver extends ContentObserver {
