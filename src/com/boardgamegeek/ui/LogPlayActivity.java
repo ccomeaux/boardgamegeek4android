@@ -179,7 +179,7 @@ public class LogPlayActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.logplay_menu, menu);
+		menuInflater.inflate(R.menu.logplay, menu);
 		return true;
 	}
 
