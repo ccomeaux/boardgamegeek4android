@@ -69,7 +69,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mPollsUri, true, mPollsObserver);
+		getContentResolver().registerContentObserver(mPollsUri, false, mPollsObserver);
 	}
 
 	@Override
@@ -133,6 +133,10 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
 				int groupPosition = (Integer) cookie;
+				
+				if(groupPosition == -1)
+					return;
+				
 				mChildData.get(groupPosition).clear();
 				while (cursor.moveToNext()) {
 					PollResult result = new PollResult();
@@ -158,7 +162,8 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 
 		for (int i = 0; i < mGroupData.size(); i++) {
 			Map<String, String> entryMap = mGroupData.get(i);
-			if (entryMap.get(ID).equals("" + pollId) && players.equals(entryMap.get(PLAYERS))) {
+			if (entryMap.get(ID).equals("" + pollId) && 
+					(players == null || players.equals(entryMap.get(PLAYERS)))) {
 				return i;
 			}
 		}
@@ -175,9 +180,9 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 			groupMap = new HashMap<String, String>();
 			mGroupData.add(groupMap);
 			mChildData.add(new ArrayList<PollResult>());
+			position = mChildData.size() - 1;
 		} else {
 			groupMap = mGroupData.get(position);
-			mChildData.get(position).clear();
 		}
 
 		String displayTitle = title;
