@@ -40,7 +40,7 @@ import com.boardgamegeek.util.UIUtils;
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	private final static String TAG = "BoardgameActivity";
 
-	private static final long REFRESH_THROTTLE_IN_MILLIS = 1800000; // 1/2 hour
+	private static final long REFRESH_THROTTLE_IN_MILLIS = 3600000; // 1 hour
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
