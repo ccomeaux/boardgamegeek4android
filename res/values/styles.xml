@@ -9,7 +9,7 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <!-- Variation on the Light theme that turns off the title -->
+    <!-- Variation on the Light theme that shows off the title -->
     <style name="Theme.BggTitle" parent="Theme.Bgg">
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -68,14 +68,14 @@
         <item name="android:layout_height">fill_parent</item>
         <item name="android:background">@drawable/title_button</item>
     </style>
-    
+
     <style name="HomeRow">
     	<item name="android:orientation">horizontal</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
     </style>
-    
+
     <style name="HomeButton">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">wrap_content</item>
@@ -99,12 +99,12 @@
     	<item name="android:layout_height">fill_parent</item>
     	<item name="android:padding">2dp</item>
     </style>
-    
+
     <style name="StatProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
     	<item name="android:layout_width">fill_parent</item>
     	<item name="android:layout_height">20dp</item>
     </style>
-    
+
     <style name="StatProgressBarText">
     	<item name="android:textSize">@dimen/text_size_small</item>
     	<item name="android:layout_width">fill_parent</item>
@@ -112,7 +112,7 @@
     	<item name="android:textColor">#000</item>
     	<item name="android:gravity">center</item>
 	</style>
-	
+
 	<style name="BodySeparator">
 		<item name="android:layout_width">fill_parent</item>
 		<item name="android:layout_height">1dip</item>

@@ -55,8 +55,7 @@ public class HttpUtils {
 	}
 
 	public static String constructGameUrl(String gameId) {
-		// TODO: test gameId is an int?
-		// http://www.boardgamegeek.com/xmlapi/boardgame/13
+		// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
 		return BASE_URL + "boardgame/" + gameId + "?stats=1";
 	}
 
