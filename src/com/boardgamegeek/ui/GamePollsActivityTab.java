@@ -134,8 +134,9 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
 				int groupPosition = (Integer) cookie;
 				
-				if(groupPosition == -1)
+				if(groupPosition == -1) {
 					return;
+				}
 				
 				mChildData.get(groupPosition).clear();
 				while (cursor.moveToNext()) {
@@ -180,7 +181,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 			groupMap = new HashMap<String, String>();
 			mGroupData.add(groupMap);
 			mChildData.add(new ArrayList<PollResult>());
-			position = mChildData.size() - 1;
+			position = mGroupData.size() - 1;
 		} else {
 			groupMap = mGroupData.get(position);
 		}

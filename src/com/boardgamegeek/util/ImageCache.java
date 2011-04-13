@@ -65,7 +65,9 @@ public class ImageCache {
 		final String fileName = getFileNameFromUrl(url);
 		if (!TextUtils.isEmpty(fileName)) {
 			final File file = new File(getCacheDirectory(), fileName);
-			return Drawable.createFromPath(file.getAbsolutePath());
+			if(file.exists()) {
+				return Drawable.createFromPath(file.getAbsolutePath());
+			}
 		}
 		return null;
 	}
