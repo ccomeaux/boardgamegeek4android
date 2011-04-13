@@ -27,11 +27,13 @@ public class SyncCollectionList extends SyncTask {
 		mUsername = BggApplication.getInstance().getUserName();
 		String[] statuses = BggApplication.getInstance().getSyncStatuses();
 
-		List<String> filterOff = new ArrayList<String>(statuses.length);
-		for (int i = 0; i < statuses.length; i++) {
-			executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, statuses[i], filterOff),
-					new RemoteCollectionHandler(startTime));
-			filterOff.add(statuses[i]);
+		if (statuses != null) {
+			List<String> filterOff = new ArrayList<String>(statuses.length);
+			for (int i = 0; i < statuses.length; i++) {
+				executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, statuses[i], filterOff),
+						new RemoteCollectionHandler(startTime));
+				filterOff.add(statuses[i]);
+			}
 		}
 		resolver.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", new String[] { "" + startTime });
 	}
