@@ -2,10 +2,13 @@ package com.boardgamegeek.pref;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -15,8 +18,10 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.util.ImageCache;
 
 public class ClearDialogPreference extends DialogPreference {
+	private static final String TAG = "ClearDialogPreference";
 
 	private Context context;
 
@@ -33,17 +38,45 @@ public class ClearDialogPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-			// delete all tables.
-			// NOTE: deleting games will delete its child tables too
-			ContentResolver cr = context.getContentResolver();
-			cr.delete(Games.CONTENT_URI, null, null);
-			cr.delete(Artists.CONTENT_URI, null, null);
-			cr.delete(Designers.CONTENT_URI, null, null);
-			cr.delete(Publishers.CONTENT_URI, null, null);
-			cr.delete(Categories.CONTENT_URI, null, null);
-			cr.delete(Mechanics.CONTENT_URI, null, null);
-			cr.delete(Buddies.CONTENT_URI, null, null);
-			// TODO: delete thumbnails
+			new ClearTask().execute("");
+		}
+		notifyChanged();
+	}
+
+	private class ClearTask extends AsyncTask<String, Void, Void> {
+
+		private ContentResolver mResolver;
+
+		@Override
+		protected void onPreExecute() {
+			mResolver = context.getContentResolver();
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+
+			int count = 0;
+			count += mResolver.delete(Games.CONTENT_URI, null, null); 
+			count += mResolver.delete(Artists.CONTENT_URI, null, null);
+			count += mResolver.delete(Designers.CONTENT_URI, null, null);
+			count += mResolver.delete(Publishers.CONTENT_URI, null, null);
+			count += mResolver.delete(Categories.CONTENT_URI, null, null);
+			count += mResolver.delete(Mechanics.CONTENT_URI, null, null);
+			count += mResolver.delete(Buddies.CONTENT_URI, null, null);
+			Log.d(TAG, "Removed " + count + " records");
+
+			if (ImageCache.clear()) {
+				Log.d(TAG, "Cleared image cache");
+			} else {
+				Log.d(TAG, "Unable to clear image cache (expected)");
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			Toast.makeText(getContext(), "Clear complete.", Toast.LENGTH_SHORT).show();
 		}
 	}
 

@@ -80,6 +80,15 @@ public class ImageCache {
 		return null;
 	}
 
+	public static boolean clear() {
+		// TODO: this isn't working, may have to delete each file instead of the folder
+		File cacheDirectory = getCacheDirectory();
+		if (cacheDirectory.exists()) {
+			return cacheDirectory.delete();
+		}
+		return true;
+	}
+
 	private static Bitmap loadFromDisk(String url) {
 		final File file = new File(getCacheDirectory(), getFileNameFromUrl(url));
 		if (file.exists()) {
