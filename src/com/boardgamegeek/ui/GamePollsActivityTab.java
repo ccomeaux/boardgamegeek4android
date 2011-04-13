@@ -115,27 +115,16 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 					poll.title = cursor.getString(GamePollsQuery.POLL_TITLE.ordinal());
 					poll.totalVotes = cursor.getInt(GamePollsQuery.POLL_TOTAL_VOTES.ordinal());
 
-					// TODO: move string to const
-					if (!poll.name.equals("suggested_numplayers")) {
-						createPollGroup(poll.id, poll.title, poll.totalVotes, "");
-					}
-
 					mHandler.startQuery(TOKEN_POLL_RESULTS, poll, Games.buildPollResultsUri(mGameId, poll.name),
 							GamePollResultsQuery.PROJECTION, null, null, GamePollResults.DEFAULT_SORT);
 				}
 
 			} else if (token == TOKEN_POLL_RESULTS) {
+				Poll poll = (Poll) cookie;
 				while (cursor.moveToNext()) {
-					Poll poll = (Poll) cookie;
 					String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
 					String players = cursor.getString(GamePollResultsQuery.POLL_RESULTS_PLAYERS.ordinal());
-					int groupPosition = -1;
-					if (poll.name.equals("suggested_numplayers")) {
-						createPollGroup(poll.id, poll.title, poll.totalVotes, players);
-						groupPosition = mGroupData.size() - 1;
-					} else {
-						groupPosition = getPollGroupPosition(poll.id);
-					}
+					int groupPosition = createPollGroup(poll.id, poll.title, poll.totalVotes, players);
 
 					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, groupPosition,
 							Games.buildPollResultsResultUri(mGameId, poll.name, key),
@@ -144,7 +133,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
 				int groupPosition = (Integer) cookie;
-
+				mChildData.get(groupPosition).clear();
 				while (cursor.moveToNext()) {
 					PollResult result = new PollResult();
 					result.id = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_ID.ordinal());
@@ -165,40 +154,34 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 		}
 	}
 
-	/**
-	 * @param pollId
-	 * @return the groupPosition.
-	 */
-	private int getPollGroupPosition(int pollId) {
+	private int getPollGroupPosition(int pollId, String players) {
 
 		for (int i = 0; i < mGroupData.size(); i++) {
 			Map<String, String> entryMap = mGroupData.get(i);
-			if (entryMap.get(ID).equals("" + pollId)) {
+			if (entryMap.get(ID).equals("" + pollId) && players.equals(entryMap.get(PLAYERS))) {
 				return i;
 			}
 		}
 
-		throw new IllegalArgumentException("pollId does not exist in Poll Groups");
+		return -1;
 	}
 
-	private void createPollGroup(int pollId, String title, int numVotes, String players) {
+	private int createPollGroup(int pollId, String title, int numVotes, String players) {
 
 		Map<String, String> groupMap = null;
-		String id = "" + pollId;
-		for (Map<String, String> data : mGroupData) {
-			if (id.equals(data.get(ID)) && players.equals(data.get(PLAYERS))) {
-				groupMap = data;
-				break;
-			}
-		}
-		if (groupMap == null) {
+		int position = getPollGroupPosition(pollId, players);
+		
+		if (position == -1) {
 			groupMap = new HashMap<String, String>();
 			mGroupData.add(groupMap);
 			mChildData.add(new ArrayList<PollResult>());
+		} else {
+			groupMap = mGroupData.get(position);
+			mChildData.get(position).clear();
 		}
 
 		String displayTitle = title;
-		if (!TextUtils.isEmpty(players)) {
+		if (!TextUtils.isEmpty(players) && !"X".equals(players)) {
 			displayTitle += ": " + players;
 		}
 		
@@ -206,6 +189,8 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 		groupMap.put(TITLE, displayTitle);
 		groupMap.put(COUNT, "" + numVotes);
 		groupMap.put(PLAYERS, players);
+		
+		return position;
 	}
 
 	private class PollsObserver extends ContentObserver {
