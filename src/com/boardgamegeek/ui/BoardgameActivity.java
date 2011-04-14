@@ -102,6 +102,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return;
 			}
 
+			findViewById(R.id.header_divider).setVisibility(View.GONE);
+			findViewById(R.id.loading).setVisibility(View.GONE);
+			findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
+
 			mId = cursor.getInt(GameQuery.GAME_ID);
 			mName = cursor.getString(GameQuery.GAME_NAME);
 			mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
@@ -315,13 +319,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				showToastOnUiThread(R.string.msg_updated);
 			}
 			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			findViewById(R.id.header_divider).setVisibility(View.GONE);
-			findViewById(R.id.loading).setVisibility(View.GONE);
-			findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
 		}
 	}
 
