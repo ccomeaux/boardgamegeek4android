@@ -6,6 +6,7 @@
 
 	<include layout="@layout/titlebar" />
 	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" android:id="@+id/header_divider" />
 
 	<FrameLayout
 		android:layout_width="fill_parent"
