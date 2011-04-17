@@ -38,9 +38,10 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
-	private final static String TAG = "BoardgameActivity";
+	private static final String TAG = "BoardgameActivity";
 
-	private static final long REFRESH_THROTTLE_IN_MILLIS = 3600000; // 1 hour
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final long REFRESH_THROTTLE_IN_HOURS = 1;
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
@@ -116,7 +117,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mIsLoaded = true;
 
 			long lastUpdated = cursor.getLong(GameQuery.UPDATED);
-			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > 7) {
+			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > AGE_IN_DAYS_TO_REFRESH) {
 				refresh();
 			}
 
@@ -186,7 +187,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// only enable options when the game is loaded
-
 		enableMenuItem(menu, R.id.log_play);
 		enableMenuItem(menu, R.id.log_play_quick);
 		enableMenuItem(menu, R.id.refresh);
@@ -213,8 +213,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				logPlay(true);
 				return true;
 			case R.id.refresh:
-				long now = System.currentTimeMillis();
-				if (now - mUpdatedDate > REFRESH_THROTTLE_IN_MILLIS) {
+				if (DateTimeUtils.howManyHoursOld(mUpdatedDate) > REFRESH_THROTTLE_IN_HOURS) {
 					refresh();
 				} else {
 					showToast(R.string.msg_refresh_exceeds_throttle);

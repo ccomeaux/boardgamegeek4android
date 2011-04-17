@@ -882,3 +882,4 @@ public class BggProvider extends ContentProvider {
 		}
 	}
 }
+// TODO: improve the magical where clauses with table and column constants

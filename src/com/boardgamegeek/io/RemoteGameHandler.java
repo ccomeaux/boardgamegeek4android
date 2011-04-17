@@ -16,7 +16,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -413,17 +412,12 @@ public class RemoteGameHandler extends XmlHandler {
 
 		if (mPollNames.contains(pollName)) {
 			// update
-			Uri pollUri = Games.buildPollsUri(mGameId, pollName);
-			mResolver.update(pollUri, values, null, null);
-			// get existing results
-			pollUri = Games.buildPollResultsUri(mGameId, pollName);
-			players = getList(pollUri, GamePollResults.POLL_RESULTS_PLAYERS);
-			// remove
+			mResolver.update(Games.buildPollsUri(mGameId, pollName), values, null, null);
+			players = getList(Games.buildPollResultsUri(mGameId, pollName), GamePollResults.POLL_RESULTS_PLAYERS);
 			mPollNames.remove(pollName);
 		} else {
 			// insert
-			Uri pollUri = mResolver.insert(Games.buildPollsUri(mGameId), values);
-			Log.d("BGG", pollUri.toString());
+			mResolver.insert(Games.buildPollsUri(mGameId), values);
 		}
 
 		int sortIndex = 0;
