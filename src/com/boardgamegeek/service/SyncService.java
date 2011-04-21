@@ -32,6 +32,7 @@ public class SyncService extends IntentService {
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;
 
+	private boolean mIsRunning = false;
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
 	private List<SyncTask> mTasks = new ArrayList<SyncTask>();
@@ -69,10 +70,16 @@ public class SyncService extends IntentService {
 
 		mResultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
 
+		if (mIsRunning) {
+			sendResultToReceiver(STATUS_RUNNING);
+			return;
+		}
+
 		if (!ensureUsername()) {
 			return;
 		}
 
+		mIsRunning = true;
 		signalStart();
 
 		try {
@@ -90,10 +97,11 @@ public class SyncService extends IntentService {
 		} catch (Exception e) {
 			Log.e(TAG, e.toString());
 			sendError(e.toString());
+		} finally {
+			signalEnd();
+			mResultReceiver = null;
+			mIsRunning = false;
 		}
-
-		signalEnd();
-		mResultReceiver = null;
 	}
 
 	private boolean ensureUsername() {
@@ -106,26 +114,33 @@ public class SyncService extends IntentService {
 	}
 
 	private void sendError(String errorMessage) {
-		if (mResultReceiver != null) {
-			final Bundle bundle = new Bundle();
-			bundle.putString(Intent.EXTRA_TEXT, errorMessage);
-			mResultReceiver.send(STATUS_ERROR, bundle);
-		}
+		sendResultToReceiver(STATUS_ERROR, errorMessage);
 		mNotificationManager.cancel(NOTIFICATION_ID);
 	}
 
 	private void signalStart() {
-		if (mResultReceiver != null) {
-			mResultReceiver.send(STATUS_RUNNING, Bundle.EMPTY);
-		}
+		sendResultToReceiver(STATUS_RUNNING);
 		createNotification(R.string.notification_text_start);
 	}
 
 	private void signalEnd() {
-		if (mResultReceiver != null) {
-			mResultReceiver.send(STATUS_COMPLETE, Bundle.EMPTY);
-		}
+		sendResultToReceiver(STATUS_COMPLETE);
 		createNotification(R.string.notification_text_complete, R.string.notification_status_complete, true);
+	}
+
+	private void sendResultToReceiver(int resultCode) {
+		sendResultToReceiver(resultCode, null);
+	}
+
+	private void sendResultToReceiver(int resultCode, String message) {
+		if (mResultReceiver != null) {
+			Bundle bundle = Bundle.EMPTY;
+			if (!TextUtils.isEmpty(message)) {
+				bundle = new Bundle();
+				bundle.putString(Intent.EXTRA_TEXT, message);
+			}
+			mResultReceiver.send(resultCode, bundle);
+		}
 	}
 
 	private void createNotification(int messageId) {
