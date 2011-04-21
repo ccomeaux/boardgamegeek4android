@@ -41,12 +41,12 @@
 				android:text="@string/home_btn_about"
 				android:drawableTop="@drawable/home_btn_about"/>
 		</LinearLayout>
-		
+
 		<TextView android:id="@id/version"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
-			
+			android:textSize="@dimen/text_size_tiny" />
+
 	</LinearLayout>
 </LinearLayout>
