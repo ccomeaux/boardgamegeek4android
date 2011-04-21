@@ -2,7 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -53,7 +53,7 @@ public class ImageActivity extends Activity {
 		onSearchRequested();
 	}
 
-	private class ImageTask extends AsyncTask<String, Void, Bitmap> {
+	private class ImageTask extends AsyncTask<String, Void, Drawable> {
 		private boolean mOomError = false;
 
 		@Override
@@ -62,7 +62,7 @@ public class ImageActivity extends Activity {
 		}
 
 		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Drawable doInBackground(String... params) {
 			try {
 				return ImageCache.getImage(ImageActivity.this, params[0]);
 			} catch (OutOfMemoryError e) {
@@ -72,11 +72,11 @@ public class ImageActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap result) {
+		protected void onPostExecute(Drawable result) {
 			findViewById(R.id.image_progress).setVisibility(View.GONE);
 			if (result != null) {
 				mImageView.setVisibility(View.VISIBLE);
-				mImageView.setImageBitmap(result);
+				mImageView.setImageDrawable(result);
 			} else if (mOomError) {
 				findViewById(R.id.image_error).setVisibility(View.VISIBLE);
 			}

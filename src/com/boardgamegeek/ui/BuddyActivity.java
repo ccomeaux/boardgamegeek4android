@@ -3,7 +3,7 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -83,7 +83,7 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 		onSearchRequested();
 	}
 
-	private class AvatarTask extends AsyncTask<String, Void, Bitmap> {
+	private class AvatarTask extends AsyncTask<String, Void, Drawable> {
 
 		@Override
 		protected void onPreExecute() {
@@ -91,18 +91,18 @@ public class BuddyActivity extends Activity implements AsyncQueryListener {
 		}
 
 		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Drawable doInBackground(String... params) {
 			return ImageCache.getImage(BuddyActivity.this, params[0]);
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap result) {
+		protected void onPostExecute(Drawable result) {
 			findViewById(R.id.buddy_progress).setVisibility(View.GONE);
 			if (result == null) {
 				mAvatarImage.setVisibility(View.GONE);
 			} else {
 				mAvatarImage.setVisibility(View.VISIBLE);
-				mAvatarImage.setImageBitmap(result);
+				mAvatarImage.setImageDrawable(result);
 			}
 		}
 	}

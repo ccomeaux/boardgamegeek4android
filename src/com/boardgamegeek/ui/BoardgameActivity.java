@@ -8,7 +8,7 @@ import android.app.TabActivity;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -321,7 +321,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 	}
 
-	private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
+	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
 
 		@Override
 		protected void onPreExecute() {
@@ -329,16 +329,16 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 
 		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Drawable doInBackground(String... params) {
 			return ImageCache.getImage(BoardgameActivity.this, params[0]);
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap result) {
+		protected void onPostExecute(Drawable result) {
 			findViewById(R.id.thumbnail_progress).setVisibility(View.GONE);
 			mThumbnail.setVisibility(View.VISIBLE);
 			if (result != null) {
-				mThumbnail.setImageBitmap(result);
+				mThumbnail.setImageDrawable(result);
 			} else {
 				mThumbnail.setImageResource(R.drawable.noimage);
 			}

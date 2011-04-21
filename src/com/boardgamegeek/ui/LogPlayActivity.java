@@ -29,7 +29,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -578,7 +578,7 @@ public class LogPlayActivity extends Activity {
 		mDay = c.get(Calendar.DAY_OF_MONTH);
 	}
 
-	private class ThumbnailTask extends AsyncTask<String, Void, Bitmap> {
+	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
 
 		@Override
 		protected void onPreExecute() {
@@ -586,16 +586,16 @@ public class LogPlayActivity extends Activity {
 		}
 
 		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Drawable doInBackground(String... params) {
 			return ImageCache.getImage(LogPlayActivity.this, params[0]);
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap result) {
+		protected void onPostExecute(Drawable result) {
 			findViewById(R.id.thumbnail_progress).setVisibility(View.GONE);
 			mThumbnail.setVisibility(View.VISIBLE);
 			if (result != null) {
-				mThumbnail.setImageBitmap(result);
+				mThumbnail.setImageDrawable(result);
 			} else {
 				mThumbnail.setImageResource(R.drawable.noimage);
 			}

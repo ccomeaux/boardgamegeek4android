@@ -2,11 +2,9 @@ package com.boardgamegeek.util;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -31,12 +30,12 @@ public class ImageCache {
 
 	private static HttpClient sHttpClient;
 
-	public static Bitmap getImage(Context context, String url) throws OutOfMemoryError {
+	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
 
-		Bitmap bitmap = loadFromDisk(url);
-		if (bitmap != null) {
+		Drawable drawable = getDrawableFromCache(url);
+		if (drawable != null) {
 			Log.i(TAG, url + " found in cache!");
-			return bitmap;
+			return drawable;
 		}
 
 		try {
@@ -48,12 +47,13 @@ public class ImageCache {
 			final int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != HttpStatus.SC_OK || entity == null) {
 				Log.w(TAG, "Didn't find thumbnail");
+				return null;
 			}
 
 			final byte[] imageData = EntityUtils.toByteArray(entity);
-			bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-			addThumbnailToCache(url, bitmap);
-			return bitmap;
+			Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+			addImageToCache(url, bitmap);
+			return new BitmapDrawable(bitmap);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Problem loading thumbnail", e);
@@ -63,11 +63,9 @@ public class ImageCache {
 
 	public static Drawable getDrawableFromCache(String url) {
 		final String fileName = getFileNameFromUrl(url);
-		if (!TextUtils.isEmpty(fileName)) {
-			final File file = new File(getCacheDirectory(), fileName);
-			if(file.exists()) {
-				return Drawable.createFromPath(file.getAbsolutePath());
-			}
+		final File file = getExistingImageFile(fileName);
+		if (file != null) {
+			return Drawable.createFromPath(file.getAbsolutePath());
 		}
 		return null;
 	}
@@ -91,34 +89,15 @@ public class ImageCache {
 		return true;
 	}
 
-	private static Bitmap loadFromDisk(String url) {
-		final File file = new File(getCacheDirectory(), getFileNameFromUrl(url));
-		if (file.exists()) {
-			InputStream stream = null;
-			try {
-				stream = new FileInputStream(file);
-				return BitmapFactory.decodeStream(stream, null, null);
-			} catch (FileNotFoundException e) {
-				// Ignore
-			} finally {
-				closeStream(stream);
-			}
-		}
-		return null;
-	}
-
-	private static boolean addThumbnailToCache(String url, Bitmap bitmap) {
-		File cacheDirectory;
-		try {
-			cacheDirectory = ensureCache();
-		} catch (IOException e) {
+	private static boolean addImageToCache(String url, Bitmap bitmap) {
+		if (!ensureCache()) {
 			return false;
 		}
 
-		File coverFile = new File(cacheDirectory, getFileNameFromUrl(url));
+		File imageFile = new File(getCacheDirectory(), getFileNameFromUrl(url));
 		FileOutputStream out = null;
 		try {
-			out = new FileOutputStream(coverFile);
+			out = new FileOutputStream(imageFile);
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 		} catch (FileNotFoundException e) {
 			return false;
@@ -145,20 +124,25 @@ public class ImageCache {
 		return new File(file, ".imagecache");
 	}
 
+	private static boolean ensureCache() {
+		try {
+			File cacheDirectory = getCacheDirectory();
+			if (!cacheDirectory.exists()) {
+				cacheDirectory.mkdirs();
+				new File(cacheDirectory, ".nomedia").createNewFile();
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Could not create cache directory", e);
+			return false;
+		}
+		return true;
+	}
+
 	private static synchronized HttpClient getHttpClient(Context context) {
 		if (sHttpClient == null) {
 			sHttpClient = HttpUtils.createHttpClient(context, true);
 		}
 		return sHttpClient;
-	}
-
-	private static File ensureCache() throws IOException {
-		File cacheDirectory = getCacheDirectory();
-		if (!cacheDirectory.exists()) {
-			cacheDirectory.mkdirs();
-			new File(cacheDirectory, ".nomedia").createNewFile();
-		}
-		return cacheDirectory;
 	}
 
 	private static void closeStream(Closeable stream) {
