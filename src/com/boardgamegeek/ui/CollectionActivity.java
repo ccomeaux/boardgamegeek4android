@@ -184,7 +184,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
-			frame = (FrameLayout)view.findViewById(R.id.listThumbnailFrame);
+			frame = (FrameLayout) view.findViewById(R.id.listThumbnailFrame);
 			thumbnail = (ImageView) view.findViewById(R.id.listThumbnail);
 		}
 	}
@@ -240,7 +240,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			final int count = view.getChildCount();
 			for (int i = 0; i < count; i++) {
 				ViewHolder vh = (ViewHolder) view.getChildAt(i).getTag();
-				if (vh.thumbnail.getVisibility() == View.GONE && vh.thumbnailUrl != null) {
+				if (vh.thumbnailUrl != null) {
 					mThumbnailQueue.offer(vh.thumbnailUrl);
 				}
 			}
