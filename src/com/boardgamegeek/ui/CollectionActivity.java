@@ -127,7 +127,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		public void onChange(boolean selfChange) {
 			long now = System.currentTimeMillis();
 			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				mHandler.startQuery(mUri, Query.PROJECTION);
+				mHandler.startQuery(mUri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
 				mLastUpdated = System.currentTimeMillis();
 			}
 		}
