@@ -21,10 +21,20 @@
 			android:textSize="@dimen/text_size_tiny" />
 	</LinearLayout>
 
-	<ImageView android:id="@+id/listThumbnail"
-		android:scaleType="centerCrop"
-		android:layout_width="45dp"
-		android:layout_height="45dp"
+	<FrameLayout android:id="@+id/listThumbnailFrame"
 		android:layout_gravity="right|center_vertical"
-		android:visibility="gone" />
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="gone" >
+		<ImageView android:id="@+id/listThumbnail"
+			android:scaleType="centerCrop"
+			android:layout_width="45dp"
+			android:layout_height="45dp" />
+		<ImageView
+			android:src="@drawable/frame_thumbnail"
+			android:scaleType="centerCrop"
+			android:layout_width="45dp"
+			android:layout_height="45dp" />
+	</FrameLayout>
+
 </LinearLayout>

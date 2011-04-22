@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -164,11 +165,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			Drawable thumbnail = ImageCache.getDrawableFromCache(holder.thumbnailUrl);
 
 			if (thumbnail == null) {
-				holder.thumbnail.setVisibility(View.GONE);
+				holder.frame.setVisibility(View.GONE);
 			} else {
 				holder.thumbnailUrl = null;
-				holder.thumbnail.setVisibility(View.VISIBLE);
 				holder.thumbnail.setImageDrawable(thumbnail);
+				holder.frame.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -176,12 +177,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	static class ViewHolder {
 		TextView name;
 		TextView year;
+		FrameLayout frame;
 		ImageView thumbnail;
 		String thumbnailUrl;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
+			frame = (FrameLayout)view.findViewById(R.id.listThumbnailFrame);
 			thumbnail = (ImageView) view.findViewById(R.id.listThumbnail);
 		}
 	}
