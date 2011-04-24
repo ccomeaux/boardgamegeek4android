@@ -108,6 +108,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		UIUtils.showListMessage(this, R.string.empty_collection);
 		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
+
+		if (cursor != null) {
+			TextView tv = (TextView) findViewById(R.id.collection_info);
+			String message = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
+			tv.setText(message);
+		}
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {

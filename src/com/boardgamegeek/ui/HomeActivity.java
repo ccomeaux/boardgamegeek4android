@@ -37,7 +37,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		}
 		mState.mReceiver.setReceiver(this);
 		updateUiForSync();
-		
+
 		UIUtils.allowTypeToSearch(this);
 
 		UIUtils.setTitle(this);
