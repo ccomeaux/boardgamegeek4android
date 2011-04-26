@@ -45,7 +45,7 @@ public class SearchResultsActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_searchresults);
 
-		UIUtils.setTitle(this);
+		UIUtils.setTitle(this, getResources().getString(R.string.title_search_results));
 		UIUtils.allowTypeToSearch(this);
 
 		mAdapter = new BoardGameAdapter();

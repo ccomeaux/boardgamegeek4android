@@ -128,8 +128,8 @@
 	<string name="tab_title_lists">Lists</string>
 	<string name="tab_title_polls">Polls</string>
 
-	<string name="search_label">Search BoardGameGeek.com</string>
-	<string name="search_hint">Name of Game</string>
+	<string name="search_label">BoardGameGeek</string>
+	<string name="search_hint">Search BoardGameGeek.com</string>
 	<string name="search_settings_description">Names of board games</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
@@ -178,6 +178,4 @@
 	<string name="suggested_ages">Suggested Ages</string>
 	<string name="age_suffix">and up</string>
 	<string name="gameId">Game ID</string>
-
-	<string name="search_title">Searching</string>
 </resources>
