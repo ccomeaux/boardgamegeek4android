@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<include layout="@layout/titlebar" />
+	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" />
+
+	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<LinearLayout android:orientation="vertical"
+			android:gravity="top"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_standard">
+			<TableLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:stretchColumns="1">
+				<TableRow>
+					<TextView android:text="@string/date"
+						android:padding="@dimen/padding_standard"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+					<Button android:id="@+id/logDateButton"
+						android:text=""
+						android:gravity="left|center_vertical"
+						android:onClick="onDateClick" />
+				</TableRow>
+				<TableRow>
+					<TextView android:text="@string/quantity"
+						android:padding="@dimen/padding_standard"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+					<EditText android:id="@+id/logQuantity"
+						android:text="1"
+						android:inputType="number"
+						android:hint="@string/quantityHint" />
+				</TableRow>
+				<TableRow>
+					<TextView android:text="@string/length"
+						android:padding="@dimen/padding_standard"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+					<EditText android:id="@+id/logLength"
+						android:inputType="number"
+						android:text=""
+						android:hint="@string/lengthHint" />
+				</TableRow>
+				<TableRow>
+					<TextView android:text="@string/location"
+						android:padding="@dimen/padding_standard"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+					<EditText android:id="@+id/logLocation"
+						android:inputType="text"
+						android:text=""
+						android:hint="@string/locationHint" />
+				</TableRow>
+				<CheckBox android:id="@+id/logIncomplete"
+					android:text="@string/incomplete"
+					android:checked="false" />
+				<CheckBox android:id="@+id/logNoWinStats"
+					android:text="@string/noWinStats"
+					android:checked="false" />
+				<TextView android:text="@string/comments"
+					android:padding="@dimen/padding_standard"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+				<EditText android:id="@+id/logComments"
+					android:inputType="textMultiLine|textAutoCorrect"
+					android:text=""
+					android:hint="@string/commentsHint" />
+			</TableLayout>
+
+			<LinearLayout android:orientation="horizontal"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/logPlaySaveButton"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/save"
+					android:enabled="false"
+					android:onClick="onSaveClick" />
+				<Button android:id="@+id/logPlayCancelButton"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/cancel"
+					android:onClick="onCancelClick" />
+			</LinearLayout>
+
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>

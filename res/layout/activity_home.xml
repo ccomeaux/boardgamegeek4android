@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<include layout="@layout/titlebar" />
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:gravity="center">
+		
+		<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_collection"
+				style="@style/HomeButton"
+				android:onClick="onCollectionClick"
+				android:text="@string/home_btn_collection"
+				android:drawableTop="@drawable/home_btn_collection"/>
+			<Button android:id="@+id/home_btn_buddies"
+				style="@style/HomeButton"
+				android:onClick="onBuddiesClick"
+				android:text="@string/home_btn_buddies"
+				android:drawableTop="@drawable/home_btn_buddies"/>
+		</LinearLayout>
+
+		<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_sync"
+				style="@style/HomeButton"
+				android:onClick="onSyncClick"
+				android:text="@string/home_btn_sync"
+				android:drawableTop="@drawable/home_btn_sync"/>
+			<Button android:id="@+id/home_btn_settings"
+				style="@style/HomeButton"
+				android:onClick="onSettingsClick"
+				android:text="@string/home_btn_settings"
+				android:drawableTop="@drawable/home_btn_settings"/>
+		</LinearLayout>
+
+		<LinearLayout style="@style/HomeRow">
+			<Button android:id="@+id/home_btn_about"
+				style="@style/HomeButton"
+				android:onClick="onAboutClick"
+				android:text="@string/home_btn_about"
+				android:drawableTop="@drawable/home_btn_about"/>
+		</LinearLayout>
+
+		<TextView android:id="@id/version"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:textSize="@dimen/text_size_tiny" />
+
+	</LinearLayout>
+</LinearLayout>

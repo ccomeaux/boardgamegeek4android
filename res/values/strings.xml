@@ -1,89 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="search_results">BoardGameGeek</string>
-	<string name="app_name">BoardGameGeek</string>
 	<string name="tab_main">Main</string>
-	<string name="search_label">Search BoardGameGeek.com</string>
-	<string name="search_hint">Name of Game</string>
+
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
-	<string name="pref_user_username_summary">BoardGameGeek.com username for logging plays
-	</string>
+	<string name="pref_user_username_summary">BoardGameGeek.com username</string>
 	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
+
 	<string name="pref_user_password_title">BGG password</string>
-	<string name="pref_user_password_summary">BoardGameGeek.com password for logging plays
-	</string>
+	<string name="pref_user_password_summary">BoardGameGeek.com password</string>
 	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
 		your password is stored locally, but the only entity we share it with
 		is BoardGameGeek. Promise.</string>
+
 	<string name="pref_search">Search settings</string>
-	<string name="pref_imageLoad_title">Load images</string>
-	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
-		connection</string>
 	<string name="pref_exactSearch_title">Exact search</string>
 	<string name="pref_exactSearch_summary">Disable this to get more search results or do
 		partial-name searches</string>
 	<string name="pref_skipResults_title">Skip results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
 		there is only one result</string>
-	<string name="pref_database">Database settings</string>
-	<string name="pref_database_duration">Boardgame expiration</string>
-	<string name="pref_database_duration_summary">Maximum number of days a board game will be out of
-		sync</string>
-	<string name="pref_database_duration_extra">Extra information expiration</string>
-	<string name="pref_database_duration_extra_summary">Maximum number of days non-board game information
-		will be out of sync</string>
-	<string name="pref_database_clear">Clear database</string>
-	<string name="pref_database_clear_summary">Deletes all information stored in the database
-	</string>
+
+	<string name="pref_general">General settings</string>
+	<string name="pref_imageLoad_title">Load images</string>
+	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
+		connection</string>
+
+	<string name="pref_database">Sync settings</string>
+	<string name="pref_database_statuses">Collection statuses</string>
+	<string name="pref_database_statuses_summary">Collection statuses to sync</string>
+	<string name="pref_database_buddies">GeekBuddies</string>
+	<string name="pref_database_buddies_summary">Enable to sync GeekBuddies</string>
+	<string name="pref_database_clear">Clear</string>
+	<string name="pref_database_clear_summary">Deletes all synchronized information</string>
 	<string name="pref_database_clear_pos">Clear</string>
 	<string name="pref_database_clear_neg">Cancel</string>
-	<string name="pref_database_clear_message">Are you sure you want to clear the database? NOTE:
-		This operation can\'t be reversed.</string>
-	<string name="menu_search">Search</string>
-	<string name="menu_view_database">View Database</string>
-	<string name="menu_log_play">Log Play</string>
-	<string name="menu_settings">Settings</string>
-	<string name="menu_about">About</string>
-	<string name="title_text">BoardGameGeek.com</string>
-	<string name="search_text">Search</string>
-	<string name="search_message">Searching for \&quot;%s\&quot;...</string>
-	<string name="search_title">Searching</string>
-	<string name="loading_database_message">Loading database...</string>
-	<string name="downloading_message">Downloading...</string>
-	<string name="view_database_title">Viewing Database</string>
-	<string name="error_downloading">There was an error downloading this game. Please go
-		back and try again.</string>
-	<string name="bgg_down_title">BoardGameGeek.com is down!</string>
-	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
-		maintenance. Please try again later.</string>
-	<string name="no_results">No results for \&quot;%s\&quot;.\n\nThis may mean
-		there are no games matching your search, or BoardGameGeek.com could be
-		down. The search function also doesn\&apos;t like some common words.
-		Try again, dropping \&quot;the\&quot;, \&quot;a\&quot;,
-		and
-		\&quot;of\&quot;, etc.</string>
-	<string name="empty_database">The database is empty. Games will be automatically
-		added to the database as you view them. To start viewing games, just
-		type to start a search on BoardGameGeek.com.</string>
-	<string name="database_updated">Database updated.</string>
-	<string name="rank">Rank</string>
-	<string name="yearPublished">Year Published</string>
-	<string name="numberOfPlayers"># of Players</string>
-	<string name="playingTime">Playing Time</string>
-	<string name="suggestedAges">Suggested Ages</string>
-	<string name="gameId">Game ID</string>
-	<string name="rank_boardgame">Board Game Rank</string>
-	<string name="rank_abstract">Abstract Game Rank</string>
-	<string name="rank_collectible">Collectible Rank</string>
-	<string name="rank_family">Family Game Rank</string>
-	<string name="rank_kids">Children\'s Game Rank</string>
-	<string name="rank_party">Party Game Rank</string>
-	<string name="rank_strategy">Strategy Game Rank</string>
-	<string name="rank_theme">Thematic Rank</string>
-	<string name="rank_war">War Game Rank</string>
-	<string name="not_available">N/A</string>
-	<string name="user_rating">User Rating</string>
+	<string name="pref_database_clear_message">Are you sure you want to clear all synchronized
+		information? NOTE: This operation can\'t be reversed.</string>
+
 	<string name="average_meter_text">Average = %s</string>
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
@@ -102,14 +56,7 @@
 	<string name="wanting_meter_text">%s Wanting</string>
 	<string name="wishing_meter_text">%s Wishing</string>
 	<string name="weighting_meter_text">%s Weighting</string>
-	<string name="main_tab_title">Main</string>
-	<string name="stats_tab_title">Stats</string>
-	<string name="extra_tab_title">Extra</string>
-	<string name="links_tab_title">Links</string>
-	<string name="polls_tab_title">Polls</string>
 	<string name="id_list_text">ID: %s</string>
-	<string name="bg_view_title">BGG - %s</string>
-	<string name="bg_list_title">%1$s results for \&quot;%2$s\&quot;</string>
 	<string name="designers">Designers</string>
 	<string name="artists">Artists</string>
 	<string name="publishers">Publishers</string>
@@ -118,10 +65,6 @@
 	<string name="expansions">Expansions</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
-	<string name="search_settings_description">Names of board games</string>
-	<string name="designer">Designer</string>
-	<string name="artist">Artist</string>
-	<string name="publisher">Publisher</string>
 	<string name="logPlayDialogTitle">Logging</string>
 	<string name="logPlayDialogMessage">Logging play...</string>
 	<string name="logInError">Unable to log in</string>
@@ -131,8 +74,7 @@
 	<string name="logInErrorSuffixMissingCookies">cookies are missing.</string>
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete.</string>
 	<string name="logInErrorSuffixEntityNull">entity null.</string>
-	<string name="logPlaySuccess">You just played your %s game of %s!</string>
-	<string name="logPlayTitle">Log Play for</string>
+	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
 	<string name="quantityHint">Number of games played</string>
@@ -146,4 +88,96 @@
 	<string name="commentsHint">Game play comments</string>
 	<string name="save">Save</string>
 	<string name="cancel">Cancel</string>
+
+	<string name="app_name">BoardGameGeek</string>
+	<string name="description_logo">BoardGameGeek</string>
+	<string name="description_search">Search</string>
+
+	<string name="title_search_results">Search Results</string>
+	<string name="title_collection">Collection</string>
+	<string name="title_boardgame">Board Game</string>
+	<string name="title_image">Image</string>
+	<string name="title_buddies">GeekBuddies</string>
+	<string name="title_buddy">GeekBuddy</string>
+	<string name="title_log_play">Log Play</string>
+
+	<string name="home_btn_collection">Collection</string>
+	<string name="home_btn_buddies">GeekBuddies</string>
+	<string name="home_btn_sync">Sync</string>
+	<string name="home_btn_settings">Settings</string>
+	<string name="home_btn_about">About</string>
+
+	<string name="notification_title">BoardGameGeek</string>
+	<string name="notification_status_default">Syncing...</string>
+	<string name="notification_status_complete">Sync complete</string>
+	<string name="notification_text_start">BGG sync started</string>
+	<string name="notification_text_buddies_list">BGG buddies list synced</string>
+	<string name="notification_text_buddies_detail">BGG buddies detail synced</string>
+	<string name="notification_text_collection_list">BGG collection list synced</string>
+	<string name="notification_text_collection_detail">BGG collection detail synced</string>
+	<string name="notification_text_complete">BGG sync complete</string>
+
+	<string name="pref_warning_username">Please set your username first.</string>
+
+	<string name="loading">Loading...</string>
+	<string name="empty_buddies">No buddies</string>
+	<string name="empty_collection">No games in your collection</string>
+
+	<string name="tab_title_info">Info</string>
+	<string name="tab_title_stats">Stats</string>
+	<string name="tab_title_lists">Lists</string>
+	<string name="tab_title_polls">Polls</string>
+
+	<string name="search_label">Search BoardGameGeek.com</string>
+	<string name="search_hint">Name of Game</string>
+	<string name="search_settings_description">Names of board games</string>
+	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
+		maintenance. Please try again later.</string>
+	<string name="search_message">Searching...</string>
+	<string name="search_searching">Searching for \&quot;%s\&quot;</string>
+	<string name="search_results">%1$s matches for \&quot;%2$s\&quot;</string>
+	<string name="search_no_results">No results for \&quot;%s\&quot;</string>
+	<string name="search_no_results_details">No results.\n\nThe search
+		function doesn\&apos;t like some common words. Try again,
+		dropping \&quot;the\&quot;, \&quot;a\&quot;, and \&quot;of\&quot;,
+		etc.
+	</string>
+
+	<string name="menu_log_play">Log Play</string>
+	<string name="menu_log_play_quick">Quick Log Play</string>
+	<string name="menu_refresh">Refresh</string>
+	<string name="menu_links">Links</string>
+	<string name="menu_link_bgg">BoardGameGeek</string>
+	<string name="menu_link_bg_prices">Board Game Prices</string>
+	<string name="menu_link_amazon">Amazon</string>
+	<string name="menu_link_ebay">eBay</string>
+	<string name="menu_share">Share</string>
+
+	<string name="image_too_large">Sorry, but this image is too large to load.</string>
+
+	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
+	<string name="msg_updated">Updated!</string>
+	<string name="msg_error_remote">"Error refreshing, try again later."</string>
+	<string name="msg_no_description">No description available.</string>
+	<string name="msg_collection_info">%s games</string>
+
+	<string name="share_title">Share Game</string>
+	<string name="share_subject">%s on BoardGameGeek</string>
+	<string name="share_text">I found this game using BoardGameGeek on Android
+		that I thought you might like:\n\n%1$s (%2$s)</string>
+
+	<string name="text_not_available">N/A</string>
+	<string name="text_unknown">\?</string>
+
+	<string name="user_rating">User Rating</string>
+	<string name="rank">Rank</string>
+	<string name="yearPublished">Year Published</string>
+	<string name="numberOfPlayers"># of Players</string>
+	<string name="playing_time">Playing Time</string>
+	<string name="time_suffix">minutes</string>
+	<string name="suggested_ages">Suggested Ages</string>
+	<string name="age_suffix">and up</string>
+	<string name="gameId">Game ID</string>
+
+	<string name="search_title">Searching</string>
 </resources>

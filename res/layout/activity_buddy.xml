@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<include layout="@layout/titlebar" />
+
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:gravity="center">
+		
+		<TextView android:id="@+id/buddy_full_name"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textSize="@dimen/text_size_large"
+			android:gravity="center" />
+		<ProgressBar android:id="@+id/buddy_progress" 
+			android:layout_width="@dimen/image_size"
+			android:layout_height="@dimen/image_size"
+			android:padding="@dimen/padding_standard"
+			android:visibility="gone" />
+		<ImageView android:id="@+id/buddy_avatar" 
+			android:layout_width="@dimen/image_size"
+			android:layout_height="@dimen/image_size"
+			android:padding="@dimen/padding_standard"
+			android:visibility="gone" />
+		<TextView android:id="@+id/buddy_name"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textSize="@dimen/text_size_medium"
+			android:gravity="center" />
+		<TextView android:id="@+id/buddy_id"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textSize="@dimen/text_size_small"
+			android:gravity="center" /> 
+	</LinearLayout>
+</LinearLayout>
