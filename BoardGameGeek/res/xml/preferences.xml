@@ -2,37 +2,48 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/pref_user">
 		<EditTextPreference android:key="username"
-			android:title="@string/pref_user_username_title" android:summary="@string/pref_user_username_summary"
+			android:title="@string/pref_user_username_title"
+			android:summary="@string/pref_user_username_summary"
 			android:dialogTitle="@string/pref_user_username_title"
 			android:dialogMessage="@string/pref_user_username_message" />
 		<EditTextPreference android:key="password"
-			android:title="@string/pref_user_password_title" android:summary="@string/pref_user_password_summary"
+			android:title="@string/pref_user_password_title"
+			android:summary="@string/pref_user_password_summary"
 			android:dialogTitle="@string/pref_user_password_title"
 			android:dialogMessage="@string/pref_user_password_message"
 			android:password="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_search">
-		<CheckBoxPreference android:key="imageLoad"
-			android:defaultValue="true" android:title="@string/pref_imageLoad_title"
-			android:summary="@string/pref_imageLoad_summary" />
 		<CheckBoxPreference android:key="exactSearch"
-			android:defaultValue="true" android:title="@string/pref_exactSearch_title"
+			android:defaultValue="true"
+			android:title="@string/pref_exactSearch_title"
 			android:summary="@string/pref_exactSearch_summary" />
 		<CheckBoxPreference android:key="skipResults"
-			android:defaultValue="true" android:title="@string/pref_skipResults_title"
+			android:defaultValue="true"
+			android:title="@string/pref_skipResults_title"
 			android:summary="@string/pref_skipResults_summary" />
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_general">
+		<CheckBoxPreference android:key="imageLoad"
+			android:defaultValue="true"
+			android:title="@string/pref_imageLoad_title"
+			android:summary="@string/pref_imageLoad_summary" />
+	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_database">
-		<ListPreference android:key="databaseDuration"
-			android:defaultValue="259200000" android:title="@string/pref_database_duration"
-			android:summary="@string/pref_database_duration_summary"
-			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
-		<ListPreference android:key="databaseDurationExtra"
-			android:defaultValue="1209600000" android:title="@string/pref_database_duration_extra"
-			android:summary="@string/pref_database_duration_extra_summary"
-			android:entries="@array/databaseDurationEntries" android:entryValues="@array/databaseDurationValues" />
-		<com.boardgamegeek.ClearDialogPreference
-			android:key="clearDatabase" android:title="@string/pref_database_clear"
+		<com.boardgamegeek.pref.ListPreferenceMultiSelect
+			android:defaultValue="own"
+			android:key="syncStatuses"
+			android:title="@string/pref_database_statuses"
+			android:dialogTitle="@string/pref_database_statuses"
+			android:entries="@array/pref_sync_status_entries"
+			android:entryValues="@array/pref_sync_status_values"/>
+		<CheckBoxPreference android:key="syncBuddies"
+			android:defaultValue="true"
+			android:title="@string/pref_database_buddies"
+			android:summary="@string/pref_database_buddies_summary" />
+		<com.boardgamegeek.pref.ClearDialogPreference
+			android:key="clearDatabase"
+			android:title="@string/pref_database_clear"
 			android:summary="@string/pref_database_clear_summary"
 			android:positiveButtonText="@string/pref_database_clear_pos"
 			android:negativeButtonText="@string/pref_database_clear_neg" />

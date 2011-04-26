@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<include layout="@layout/titlebar" />
+	
+	<TextView android:id="@+id/search_text"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:textSize="@dimen/text_size_small"
+		android:background="@color/background_light"
+		android:padding="@dimen/padding_standard"
+		android:gravity="center_horizontal" />
+			
+	<include layout="@layout/header_divider" />
+
+	<include layout="@layout/list" />
+
+</LinearLayout>
