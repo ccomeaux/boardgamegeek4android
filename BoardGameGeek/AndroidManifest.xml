@@ -71,7 +71,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".ui.SearchResultsActivity" android:label="@string/title_search_results" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTop" android:theme="@style/Theme.Bgg">
+		<activity android:name=".ui.SearchResultsActivity" android:label="@string/search_label" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTop" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
