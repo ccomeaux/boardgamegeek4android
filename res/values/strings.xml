@@ -157,6 +157,7 @@
 
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updated">Updated!</string>
+	<string name="msg_update_error">Error updating.</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
