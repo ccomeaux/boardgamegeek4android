@@ -103,9 +103,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return;
 			}
 
-			findViewById(R.id.header_divider).setVisibility(View.GONE);
-			findViewById(R.id.loading).setVisibility(View.GONE);
-			findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
+			hideLoadingMessage();
 
 			mId = cursor.getInt(GameQuery.GAME_ID);
 			mName = cursor.getString(GameQuery.GAME_NAME);
@@ -128,6 +126,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		} finally {
 			cursor.close();
 		}
+	}
+
+	private void hideLoadingMessage() {
+		findViewById(R.id.header_divider).setVisibility(View.GONE);
+		findViewById(R.id.loading).setVisibility(View.GONE);
+		findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -291,7 +295,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 	}
 
-	private class RefreshTask extends AsyncTask<String, Void, Void> {
+	private class RefreshTask extends AsyncTask<String, Void, Boolean> {
 
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
@@ -307,7 +311,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 
 		@Override
-		protected Void doInBackground(String... params) {
+		protected Boolean doInBackground(String... params) {
 			String gameId = params[0];
 			Log.d(TAG, "Refreshing game ID = " + gameId);
 			final String url = HttpUtils.constructGameUrl(gameId);
@@ -315,9 +319,17 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				mExecutor.executeGet(url, new RemoteGameHandler());
 			} catch (HandlerException e) {
 				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
-				showToastOnUiThread(R.string.msg_updated);
+				showToastOnUiThread(R.string.msg_update_error);
+				return true;
 			}
-			return null;
+			return false;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (result) {
+				hideLoadingMessage();
+			}
 		}
 	}
 
