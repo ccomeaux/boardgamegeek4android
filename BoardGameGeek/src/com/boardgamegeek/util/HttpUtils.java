@@ -106,7 +106,8 @@ public class HttpUtils {
 	}
 
 	public static String constructCollectionUrl(String username, String filter) {
-		return BASE_URL + "collection/" + username + (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
+		return BASE_URL + "collection/" + URLEncoder.encode(username)
+				+ (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
 	}
 
 	public static String constructCollectionUrl(String username, String filterIn, List<String> filterOut) {
@@ -117,7 +118,8 @@ public class HttpUtils {
 				out += ";" + outValue + "=0";
 			}
 		}
-		return BASE_URL + "collection/" + username + (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
+		return BASE_URL + "collection/" + URLEncoder.encode(username)
+				+ (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
 	}
 
 	public static HttpClient createHttpClient(Context context, boolean useGzip) {
