@@ -11,6 +11,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
 
@@ -35,7 +36,11 @@ public class SyncCollectionList extends SyncTask {
 				filterOff.add(statuses[i]);
 			}
 		}
-		resolver.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", new String[] { "" + startTime });
+
+		String[] selectionArgs = new String[] { "" + startTime };
+		resolver.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", selectionArgs);
+		// This next delete removes old collection entries for current games
+		resolver.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?", selectionArgs);
 	}
 
 	@Override
