@@ -5,16 +5,20 @@
 	android:paddingRight="16dip" android:paddingTop="4dip"
 	android:paddingBottom="4dip">
 	<ProgressBar android:id="@+id/bar"
-		style="?android:attr/progressBarStyleHorizontal" android:layout_width="fill_parent"
-		android:layout_height="18sp" />
-	<TextView android:id="@+id/text" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textSize="12sp" android:lines="2"
-		android:ellipsize="marquee" android:textColor="#000" android:gravity="left"
-		android:layout_alignTop="@id/bar" android:layout_alignBottom="@id/bar"
-		android:paddingLeft="6dip" />
-	<TextView android:id="@+id/count" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:textSize="12sp"
-		android:textColor="#000" android:gravity="right"
-		android:layout_alignTop="@id/bar" android:layout_alignBottom="@id/bar"
-		android:paddingRight="6dip" />
+		style="@style/PollProgressBar" />
+	<TextView android:id="@+id/text"
+		style="@style/PollProgressBarText"
+		android:layout_width="wrap_content"
+		android:ellipsize="marquee"
+		android:gravity="left"
+		android:layout_alignTop="@id/bar"
+		android:layout_alignBottom="@id/bar"
+		android:paddingLeft="6dp" />
+	<TextView android:id="@+id/count"
+		style="@style/PollProgressBarText"
+		android:layout_width="fill_parent"
+		android:gravity="right"
+		android:layout_alignTop="@id/bar"
+		android:layout_alignBottom="@id/bar"
+		android:paddingRight="6dp" />
 </RelativeLayout>
