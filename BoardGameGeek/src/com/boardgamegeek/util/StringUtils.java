@@ -66,7 +66,8 @@ public class StringUtils {
 		unescapedText = unescapedText.replace("&rsquo;", "'");
 		unescapedText = unescapedText.replace("&acute;", "'");
 		unescapedText = unescapedText.replace("&trade;", "™");
-		unescapedText = unescapedText.replace("&ndash;", "–");
+		unescapedText = unescapedText.replace("&mdash;", "–");
+		unescapedText = unescapedText.replace("&ndash;", "-");
 		unescapedText = unescapedText.replace("&agrave;", "à");
 		unescapedText = unescapedText.replace("&Agrave;", "À");
 		unescapedText = unescapedText.replace("&acirc;", "â");
