@@ -12,8 +12,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class BggApplication extends Application {
-	private final static String TAG = "BggApplication";
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
+	private final static String TAG = "BggApplication";
+	private static String HELP_BOARDGAME_KEY = "help.boardgame";
 
 	private static BggApplication singleton;
 
@@ -37,7 +38,6 @@ public class BggApplication extends Application {
 		}
 		return "";
 	}
-
 
 	public String getUserName() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -70,8 +70,19 @@ public class BggApplication extends Application {
 		return ListPreferenceMultiSelect.parseStoredValue(statuses);
 	}
 
-	public boolean getSyncBuddies(){
+	public boolean getSyncBuddies() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getBoolean("syncBuddies", true);
+	}
+
+	public boolean getShowBoardGameHelp(int version) {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		final int shownVersion = preferences.getInt(HELP_BOARDGAME_KEY, 0);
+		return version > shownVersion;
+	}
+
+	public boolean updateBoardGameHelp(int version) {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.edit().putInt(HELP_BOARDGAME_KEY, version).commit();
 	}
 }

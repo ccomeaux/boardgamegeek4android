@@ -4,7 +4,10 @@ import java.net.URLEncoder;
 
 import org.apache.http.client.HttpClient;
 
+import android.app.AlertDialog.Builder;
 import android.app.TabActivity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -40,6 +43,7 @@ import com.boardgamegeek.util.UIUtils;
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	private static final String TAG = "BoardgameActivity";
 
+	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final long REFRESH_THROTTLE_IN_HOURS = 1;
 
@@ -79,6 +83,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	protected void onStart() {
 		super.onStart();
 		getContentResolver().registerContentObserver(mGameUri, false, mObserver);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		showHelpDialog();
 	}
 
 	@Override
@@ -128,12 +138,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 	}
 
-	private void hideLoadingMessage() {
-		findViewById(R.id.header_divider).setVisibility(View.GONE);
-		findViewById(R.id.loading).setVisibility(View.GONE);
-		findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
-	}
-
 	@Override
 	public void setTitle(CharSequence title) {
 		UIUtils.setTitle(this, title);
@@ -178,6 +182,30 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				.inflate(R.layout.tab_indicator, getTabWidget(), false);
 		indicator.setText(textRes);
 		return indicator;
+	}
+
+	private void showHelpDialog() {
+		if (BggApplication.getInstance().getShowBoardGameHelp(HELP_VERSION)) {
+			Builder builder = new Builder(this);
+			builder.setTitle(R.string.help_title)
+					.setCancelable(false)
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setMessage(R.string.help_boardgame)
+					.setPositiveButton(R.string.help_button_close, null)
+					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							BggApplication.getInstance().updateBoardGameHelp(HELP_VERSION);
+						}
+					});
+			builder.create().show();
+		}
+	}
+
+	private void hideLoadingMessage() {
+		findViewById(R.id.header_divider).setVisibility(View.GONE);
+		findViewById(R.id.loading).setVisibility(View.GONE);
+		findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
 	}
 
 	@Override
