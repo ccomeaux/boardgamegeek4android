@@ -39,12 +39,13 @@ public class HttpUtils {
 	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
 	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
 
-	private static final int TIMEOUT_SECS = 20;
+	private static final int TIMEOUT_SECS = 60;
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
 
 	public static String constructSearchUrl(String searchTerm, boolean useExact) {
+		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
 		// http://boardgamegeek.com/xmlapi2/search?query=puerto+rico
 		String queryUrl = BASE_URL + "search?search=" + URLEncoder.encode(searchTerm);
 		if (useExact) {
