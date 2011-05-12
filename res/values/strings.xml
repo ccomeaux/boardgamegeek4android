@@ -179,4 +179,15 @@
 	<string name="suggested_ages">Suggested Ages</string>
 	<string name="age_suffix">and up</string>
 	<string name="gameId">Game ID</string>
+
+	<string name="help_title">Help</string>
+	<string name="help_boardgame">Be sure to check out the options available from the menu button.
+ - Log plays
+ - Refresh from the \'Geek
+ - Access links
+ - Share
+
+Also, the image thumbnail can be clicked to view a larger version.</string>
+	<string name="help_button_close">Close</string>
+	<string name="help_button_hide">Don\'t show again</string>
 </resources>
