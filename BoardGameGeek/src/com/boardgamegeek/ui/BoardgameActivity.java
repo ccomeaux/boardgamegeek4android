@@ -82,9 +82,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	private void extractIntentInfo() {
-		final Intent intent =getIntent(); 
+		final Intent intent = getIntent();
 		mGameUri = intent.getData();
-		mName = intent.getExtras().getString(KEY_GAME_NAME);
+		if (intent.hasExtra(KEY_GAME_NAME)) {
+			mName = intent.getExtras().getString(KEY_GAME_NAME);
+		}
 	}
 
 	@Override
