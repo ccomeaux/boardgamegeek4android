@@ -151,7 +151,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 			if (SUBTYPE.equals(cursor.getString(RankQuery.GAME_RANK_TYPE))) {
 				final int rank = cursor.getInt(RankQuery.GAME_RANK_VALUE);
 				if (rank == 0) {
-					mRankView.setText(R.string.text_unknown);
+					mRankView.setText(R.string.text_not_available);
 				} else {
 					mRankView.setText("" + rank);
 				}

@@ -255,7 +255,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		tv.setTextAppearance(this, android.R.style.TextAppearance_Small);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
 		tv.setGravity(Gravity.RIGHT);
-		String rankText = (rank == 0) ? getResources().getString(R.string.text_unknown) : "" + rank;
+		String rankText = (rank == 0) ? getResources().getString(R.string.text_not_available) : "" + rank;
 		setText(tv, rankText, bold);
 		layout.addView(tv);
 
