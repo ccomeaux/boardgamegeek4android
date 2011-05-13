@@ -160,7 +160,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			ViewHolder holder = (ViewHolder) view.getTag();
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 
-			String yearPublished = "?";
+			String yearPublished = getResources().getString(R.string.text_unknown);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
 			if (year > 0) {
 				yearPublished = "" + year;
