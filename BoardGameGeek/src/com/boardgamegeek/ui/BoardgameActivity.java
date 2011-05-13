@@ -43,6 +43,7 @@ import com.boardgamegeek.util.UIUtils;
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
 	private static final String TAG = "BoardgameActivity";
 
+	public static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final long REFRESH_THROTTLE_IN_HOURS = 1;
@@ -71,14 +72,19 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
 
-		mGameUri = getIntent().getData();
-
+		extractIntentInfo();
 		setUiVariables();
 		setupTabs();
 
 		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		startQuery();
+	}
+
+	private void extractIntentInfo() {
+		final Intent intent =getIntent(); 
+		mGameUri = intent.getData();
+		mName = intent.getExtras().getString(KEY_GAME_NAME);
 	}
 
 	@Override
@@ -104,6 +110,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mNameView = (TextView) findViewById(R.id.game_name);
 		mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
 		mUpdatePanel = findViewById(R.id.update_panel);
+
+		mNameView.setText(mName);
 	}
 
 	private void startQuery() {
