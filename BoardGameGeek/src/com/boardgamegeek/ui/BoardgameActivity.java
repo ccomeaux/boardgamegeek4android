@@ -51,6 +51,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private Uri mGameUri;
 	private boolean mShouldRetry;
 	private boolean mIsLoaded;
+	private boolean mIsRefreshing;
 	private GameObserver mObserver;
 
 	private int mId;
@@ -61,6 +62,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private TextView mNameView;
 	private ImageView mThumbnail;
+	private View mUpdatePanel;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
+		startQuery();
 	}
 
 	@Override
@@ -101,6 +103,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mObserver = new GameObserver(null);
 		mNameView = (TextView) findViewById(R.id.game_name);
 		mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
+		mUpdatePanel = findViewById(R.id.update_panel);
+	}
+
+	private void startQuery() {
+		mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
+		showLoadingMessage();
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -112,8 +120,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				}
 				return;
 			}
-
-			hideLoadingMessage();
 
 			mId = cursor.getInt(GameQuery.GAME_ID);
 			mName = cursor.getString(GameQuery.GAME_NAME);
@@ -132,6 +138,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)
 					&& mThumbnail.getVisibility() != View.VISIBLE) {
 				new ThumbnailTask().execute(mThumbnailUrl);
+			}
+
+			if (!mIsRefreshing) {
+				hideLoadingMessage();
 			}
 		} finally {
 			cursor.close();
@@ -152,11 +162,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	public void onThumbnailClick(View v) {
-		Intent i = new Intent(this, ImageActivity.class);
-		i.setAction(Intent.ACTION_VIEW);
-		i.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
-		i.putExtra(ImageActivity.KEY_GAME_NAME, mName);
-		startActivity(i);
+		final Intent intent = new Intent(this, ImageActivity.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+		intent.putExtra(ImageActivity.KEY_GAME_NAME, mName);
+		startActivity(intent);
 	}
 
 	private void setupTabs() {
@@ -202,10 +212,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		}
 	}
 
+	private void showLoadingMessage() {
+		mUpdatePanel.setVisibility(View.VISIBLE);
+	}
+
 	private void hideLoadingMessage() {
-		findViewById(R.id.header_divider).setVisibility(View.GONE);
-		findViewById(R.id.loading).setVisibility(View.GONE);
-		findViewById(android.R.id.tabhost).setVisibility(View.VISIBLE);
+		mUpdatePanel.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -318,8 +330,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
-			showToastOnUiThread(R.string.msg_updated);
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					startQuery();
+				}
+			});
 		}
 	}
 
@@ -330,10 +346,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		@Override
 		protected void onPreExecute() {
-			findViewById(R.id.header_divider).setVisibility(View.VISIBLE);
-			findViewById(R.id.loading).setVisibility(View.VISIBLE);
-			findViewById(android.R.id.tabhost).setVisibility(View.GONE);
-
+			mIsRefreshing = true;
+			showLoadingMessage();
 			mHttpClient = HttpUtils.createHttpClient(BoardgameActivity.this, true);
 			mExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
 		}
@@ -355,9 +369,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		@Override
 		protected void onPostExecute(Boolean result) {
-			if (result) {
-				hideLoadingMessage();
-			}
+			mIsRefreshing = false;
+			hideLoadingMessage();
 		}
 	}
 
