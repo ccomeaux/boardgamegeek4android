@@ -43,13 +43,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.StringUtils;
@@ -85,7 +85,7 @@ public class LogPlayActivity extends Activity {
 	private int mYear;
 	private int mMonth;
 	private int mDay;
-	private ImageView mThumbnail;
+	private BezelImageView mThumbnail;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -129,7 +129,7 @@ public class LogPlayActivity extends Activity {
 		((TextView) findViewById(R.id.game_name)).setText(mGameName);
 		setDateButtonText();
 		if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
-			mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
+			mThumbnail = (BezelImageView) findViewById(R.id.game_thumbnail);
 			new ThumbnailTask().execute(mThumbnailUrl);
 		}
 	}
