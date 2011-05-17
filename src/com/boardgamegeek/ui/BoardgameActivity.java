@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +32,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
@@ -62,7 +62,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private long mUpdatedDate;
 
 	private TextView mNameView;
-	private ImageView mThumbnail;
+	private BezelImageView mThumbnail;
 	private View mUpdatePanel;
 
 	@Override
@@ -110,7 +110,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private void setUiVariables() {
 		mObserver = new GameObserver(null);
 		mNameView = (TextView) findViewById(R.id.game_name);
-		mThumbnail = (ImageView) findViewById(R.id.game_thumbnail);
+		mThumbnail = (BezelImageView) findViewById(R.id.game_thumbnail);
 		mUpdatePanel = findViewById(R.id.update_panel);
 
 		mNameView.setText(mName);
