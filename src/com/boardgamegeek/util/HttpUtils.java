@@ -55,6 +55,10 @@ public class HttpUtils {
 		return queryUrl;
 	}
 
+	public static String constructHotnessUrl() {
+		return BASE_URL_2 + "hot";
+	}
+
 	public static String constructGameUrl(String gameId) {
 		// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
 		return BASE_URL + "boardgame/" + gameId + "?stats=1";

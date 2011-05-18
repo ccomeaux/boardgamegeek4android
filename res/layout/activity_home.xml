@@ -3,54 +3,45 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	
+
 	<include layout="@layout/titlebar" />
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<com.boardgamegeek.ui.widget.DashboardLayout
 		android:orientation="vertical"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:gravity="center">
-		
-		<LinearLayout style="@style/HomeRow">
-			<Button android:id="@+id/home_btn_collection"
-				style="@style/HomeButton"
-				android:onClick="onCollectionClick"
-				android:text="@string/home_btn_collection"
-				android:drawableTop="@drawable/home_btn_collection"/>
-			<Button android:id="@+id/home_btn_buddies"
-				style="@style/HomeButton"
-				android:onClick="onBuddiesClick"
-				android:text="@string/home_btn_buddies"
-				android:drawableTop="@drawable/home_btn_buddies"/>
-		</LinearLayout>
+		android:layout_height="fill_parent">
 
-		<LinearLayout style="@style/HomeRow">
-			<Button android:id="@+id/home_btn_sync"
-				style="@style/HomeButton"
-				android:onClick="onSyncClick"
-				android:text="@string/home_btn_sync"
-				android:drawableTop="@drawable/home_btn_sync"/>
-			<Button android:id="@+id/home_btn_settings"
-				style="@style/HomeButton"
-				android:onClick="onSettingsClick"
-				android:text="@string/home_btn_settings"
-				android:drawableTop="@drawable/home_btn_settings"/>
-		</LinearLayout>
+		<Button android:id="@+id/home_btn_collection"
+			style="@style/HomeButton"
+			android:onClick="onCollectionClick"
+			android:text="@string/home_btn_collection"
+			android:gravity="center"
+			android:drawableTop="@drawable/home_btn_collection"/>
+		<Button android:id="@+id/home_btn_hotness"
+			style="@style/HomeButton"
+			android:onClick="onHotnessClick"
+			android:text="@string/home_btn_hotness"
+			android:drawableTop="@drawable/home_btn_hotness"/>
+		<Button android:id="@+id/home_btn_buddies"
+			style="@style/HomeButton"
+			android:onClick="onBuddiesClick"
+			android:text="@string/home_btn_buddies"
+			android:drawableTop="@drawable/home_btn_buddies"/>
+		<Button android:id="@+id/home_btn_sync"
+			style="@style/HomeButton"
+			android:onClick="onSyncClick"
+			android:text="@string/home_btn_sync"
+			android:drawableTop="@drawable/home_btn_sync"/>
+		<Button android:id="@+id/home_btn_settings"
+			style="@style/HomeButton"
+			android:onClick="onSettingsClick"
+			android:text="@string/home_btn_settings"
+			android:drawableTop="@drawable/home_btn_settings"/>
+		<Button android:id="@+id/home_btn_about"
+			style="@style/HomeButton"
+			android:onClick="onAboutClick"
+			android:text="@string/home_btn_about"
+			android:drawableTop="@drawable/home_btn_about"/>
 
-		<LinearLayout style="@style/HomeRow">
-			<Button android:id="@+id/home_btn_about"
-				style="@style/HomeButton"
-				android:onClick="onAboutClick"
-				android:text="@string/home_btn_about"
-				android:drawableTop="@drawable/home_btn_about"/>
-		</LinearLayout>
-
-		<TextView android:id="@id/version"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
-			android:textSize="@dimen/text_size_tiny" />
-
-	</LinearLayout>
+	</com.boardgamegeek.ui.widget.DashboardLayout>
 </LinearLayout>
