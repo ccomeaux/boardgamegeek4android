@@ -95,6 +95,7 @@
 
 	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
+	<string name="title_hotness">The Hotness</string>
 	<string name="title_boardgame">Board Game</string>
 	<string name="title_image">Image</string>
 	<string name="title_buddies">GeekBuddies</string>
@@ -102,6 +103,7 @@
 	<string name="title_log_play">Log Play</string>
 
 	<string name="home_btn_collection">Collection</string>
+	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_buddies">GeekBuddies</string>
 	<string name="home_btn_sync">Sync</string>
 	<string name="home_btn_settings">Settings</string>
@@ -142,6 +144,7 @@
 		dropping \&quot;the\&quot;, \&quot;a\&quot;, and \&quot;of\&quot;,
 		etc.
 	</string>
+	<string name="hotness_no_results_details">The hotness has gone cold.</string>
 
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>

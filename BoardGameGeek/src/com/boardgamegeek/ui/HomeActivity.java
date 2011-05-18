@@ -7,10 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -39,9 +37,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		updateUiForSync();
 
 		UIUtils.allowTypeToSearch(this);
-
 		UIUtils.setTitle(this);
-		((TextView) findViewById(R.id.version)).setText(BggApplication.getVersionDescription(this));
 
 		if (Intent.ACTION_SYNC.equals(getIntent().getAction())) {
 			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -70,6 +66,11 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 	public void onCollectionClick(View v) {
 		final Intent intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+		startActivity(intent);
+	}
+
+	public void onHotnessClick(View v) {
+		final Intent intent = new Intent(this, HotnessActivity.class);
 		startActivity(intent);
 	}
 
