@@ -49,9 +49,10 @@ public class DashboardLayout extends ViewGroup {
 		mMaxChildWidth = 0;
 		mMaxChildHeight = 0;
 
-		final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
+		// Measure once to find the maximum child size.
+		int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 				MeasureSpec.AT_MOST);
-		final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
+		int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
 				MeasureSpec.AT_MOST);
 
 		final int count = getChildCount();
@@ -65,6 +66,19 @@ public class DashboardLayout extends ViewGroup {
 
 			mMaxChildWidth = Math.max(mMaxChildWidth, child.getMeasuredWidth());
 			mMaxChildHeight = Math.max(mMaxChildHeight, child.getMeasuredHeight());
+		}
+
+		// Measure again for each child to be exactly the same size.
+		childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxChildWidth, MeasureSpec.EXACTLY);
+		childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxChildHeight, MeasureSpec.EXACTLY);
+
+		for (int i = 0; i < count; i++) {
+			final View child = getChildAt(i);
+			if (child.getVisibility() == GONE) {
+				continue;
+			}
+
+			child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 		}
 
 		setMeasuredDimension(resolveSize(mMaxChildWidth, widthMeasureSpec),
@@ -93,9 +107,8 @@ public class DashboardLayout extends ViewGroup {
 		}
 
 		// Calculate what number of rows and columns will optimize for even
-		// horizontal and
-		// vertical whitespace between items. Start with a 1 x N grid, then try
-		// 2 x N, and so on.
+		// horizontal and vertical whitespace between items. Start with a 1 x N
+		// grid, then try 2 x N, and so on.
 		int bestSpaceDifference = Integer.MAX_VALUE;
 		int spaceDifference;
 
@@ -150,8 +163,6 @@ public class DashboardLayout extends ViewGroup {
 		// Re-use width/height variables to be child width/height.
 		width = (width - hSpace * (cols + 1)) / cols;
 		height = (height - vSpace * (rows + 1)) / rows;
-		// width = width / cols;
-		// height = height / rows;
 
 		int left, top;
 		int col, row;
@@ -167,12 +178,9 @@ public class DashboardLayout extends ViewGroup {
 
 			left = hSpace * (col + 1) + width * col;
 			top = vSpace * (row + 1) + height * row;
-			// left = width * col;
-			// top = height * row;
 
 			child.layout(left, top, (hSpace == 0 && col == cols - 1) ? r : (left + width),
 					(vSpace == 0 && row == rows - 1) ? b : (top + height));
-			// child.layout(left, top, left + width, top + height);
 			++visibleIndex;
 		}
 	}
