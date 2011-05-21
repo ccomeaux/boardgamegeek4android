@@ -427,7 +427,7 @@ public class BggProvider extends ContentProvider {
 					key = values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE);
 					int index = key.indexOf(" ");
 					if (index > -1) {
-						key = key.substring(0, index - 1);
+						key = key.substring(0, index);
 					}
 				}
 				values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key);
