@@ -65,7 +65,7 @@ public class UIUtils {
 	}
 
 	public static void showListMessage(Activity activity, int messageResourceId, boolean hideProgressBar) {
-		TextView tv = (TextView) activity.findViewById(R.id.listMessage);
+		TextView tv = (TextView) activity.findViewById(R.id.list_message);
 		tv.setText(messageResourceId);
 
 		hideProgressBar(activity, hideProgressBar);
@@ -76,14 +76,14 @@ public class UIUtils {
 	}
 
 	public static void showListMessage(Activity activity, String message, boolean hideProgressBar) {
-		TextView tv = (TextView) activity.findViewById(R.id.listMessage);
+		TextView tv = (TextView) activity.findViewById(R.id.list_message);
 		tv.setText(message);
 
 		hideProgressBar(activity, hideProgressBar);
 	}
 
 	private static void hideProgressBar(Activity activity, boolean hide) {
-		ProgressBar pb = (ProgressBar) activity.findViewById(R.id.listProgress);
+		ProgressBar pb = (ProgressBar) activity.findViewById(R.id.list_progress);
 		if (hide) {
 			pb.setVisibility(View.GONE);
 		} else {

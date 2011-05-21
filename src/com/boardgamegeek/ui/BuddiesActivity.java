@@ -61,10 +61,10 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener 
 	}
 	
 	private void changeEmptyMessage() {
-		TextView tv = (TextView) findViewById(R.id.listMessage);
+		TextView tv = (TextView) findViewById(R.id.list_message);
 		tv.setText(R.string.empty_buddies);
 
-		ProgressBar pb = (ProgressBar) findViewById(R.id.listProgress);
+		ProgressBar pb = (ProgressBar) findViewById(R.id.list_progress);
 		pb.setVisibility(View.GONE);
 	}
 	
