@@ -8,6 +8,7 @@
 	<dimen name="text_size_medium">18sp</dimen>
 	<dimen name="text_size_large">22sp</dimen>
 
+	<dimen name="padding_small">2dp</dimen>
 	<dimen name="padding_standard">6dp</dimen>
 	<dimen name="padding_extra">12dp</dimen>
 
