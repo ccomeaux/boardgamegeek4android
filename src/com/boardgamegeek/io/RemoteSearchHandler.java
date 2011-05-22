@@ -9,71 +9,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
-
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteSearchHandler extends XmlHandler {
+public class RemoteSearchHandler extends RemoteBggHandler {
 	// private static final String TAG = "RemoteSearchHandler";
 
-	private XmlPullParser mParser;
-	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
-	private boolean mIsBggDown;
-
-	public int getCount() {
-		return mSearchResults.size();
-	}
+	List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 
 	public List<SearchResult> getResults() {
 		return mSearchResults;
 	}
 
-	public boolean isBggDown() {
-		return mIsBggDown;
-	}
-
-	public RemoteSearchHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+	@Override
+	public int getCount() {
+		return mSearchResults.size();
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
+	protected void clearResults() {
 		mSearchResults.clear();
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG) {
-				String name = mParser.getName();
-				if (Tags.BOARDGAMES.equals(name)) {
-					parseItems();
-				} else if (Tags.ANCHOR.equals(name)) {
-					// This method is currently broken since the meta element is
-					// unclosed
-					String href = mParser.getAttributeValue(null, Tags.HREF);
-					if (Tags.DOWN_LINK.equals(href)) {
-						mSearchResults.clear();
-						mIsBggDown = true;
-						break;
-					}
-				} else if (Tags.HTML.equals(name)) {
-					mSearchResults.clear();
-					mIsBggDown = true;
-					break;
-				}
-			}
-		}
-
-		return false;
+	}
+	
+	@Override
+	protected String getRootNodeName() {
+		return "boardgames";
 	}
 
-	private void parseItems() throws XmlPullParserException, IOException {
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 
 		final int depth = mParser.getDepth();
 		int type;
@@ -118,7 +83,7 @@ public class RemoteSearchHandler extends XmlHandler {
 		return sr;
 	}
 
-	private interface Tags {
+	interface Tags {
 		String BOARDGAMES = "boardgames";
 		String BOARDGAME = "boardgame";
 		String OBJECT_ID = "objectid";
@@ -126,10 +91,6 @@ public class RemoteSearchHandler extends XmlHandler {
 		String PRIMARY = "primary";
 		String TRUE = "true";
 		String YEAR_PUBLISHED = "yearpublished";
-		String ANCHOR = "a";
-		String HREF = "href";
-		String DOWN_LINK = "http://groups.google.com/group/bgg_down";
-		String HTML = "html";
 	}
 
 	// Example:

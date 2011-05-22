@@ -8,71 +8,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
-
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteHotnessHandler extends XmlHandler {
+public class RemoteHotnessHandler extends RemoteBggHandler {
 	// private static final String TAG = "RemoteHotnessHandler";
 
-	private XmlPullParser mParser;
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
-	private boolean mIsBggDown;
-
-	public int getCount() {
-		return mHotGames.size();
-	}
 
 	public List<HotGame> getResults() {
 		return mHotGames;
 	}
 
-	public boolean isBggDown() {
-		return mIsBggDown;
-	}
-
-	public RemoteHotnessHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+	@Override
+	public int getCount() {
+		return mHotGames.size();
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
+	protected void clearResults() {
 		mHotGames.clear();
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG) {
-				String name = mParser.getName();
-				if (Tags.ITEMS.equals(name)) {
-					parseItems();
-				} else if (Tags.ANCHOR.equals(name)) {
-					// This method is currently broken since the meta element is
-					// unclosed
-					String href = mParser.getAttributeValue(null, Tags.HREF);
-					if (Tags.DOWN_LINK.equals(href)) {
-						mHotGames.clear();
-						mIsBggDown = true;
-						break;
-					}
-				} else if (Tags.HTML.equals(name)) {
-					mHotGames.clear();
-					mIsBggDown = true;
-					break;
-				}
-			}
-		}
-
-		return false;
 	}
 
-	private void parseItems() throws XmlPullParserException, IOException {
+	@Override
+	protected String getRootNodeName() {
+		return "items";
+	}
+
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 
 		final int depth = mParser.getDepth();
 		int type;
@@ -116,7 +81,6 @@ public class RemoteHotnessHandler extends XmlHandler {
 	}
 
 	private interface Tags {
-		String ITEMS = "items";
 		String ITEM = "item";
 		String ID = "id";
 		String NAME = "name";
@@ -124,11 +88,6 @@ public class RemoteHotnessHandler extends XmlHandler {
 		String THUMBNAIL = "thumbnail";
 		String VALUE = "value";
 		String YEAR_PUBLISHED = "yearpublished";
-
-		String ANCHOR = "a";
-		String HREF = "href";
-		String DOWN_LINK = "http://groups.google.com/group/bgg_down";
-		String HTML = "html";
 	}
 
 	// Example from XMLAPI2:
