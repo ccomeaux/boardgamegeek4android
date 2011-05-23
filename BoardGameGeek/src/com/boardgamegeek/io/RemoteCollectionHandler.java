@@ -49,7 +49,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-		throws XmlPullParserException, IOException {
+			throws XmlPullParserException, IOException {
 
 		mParser = parser;
 		mResolver = resolver;
@@ -89,10 +89,10 @@ public class RemoteCollectionHandler extends XmlHandler {
 				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues);
 			}
 		}
-		Log.i(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped "
-			+ mSkipGameCount + " games");
-		Log.i(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount
-			+ ", skipped " + mSkipCollectionCount + " collection items");
+		Log.i(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
+				+ " games");
+		Log.i(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
+				+ mSkipCollectionCount + " collection items");
 	}
 
 	private void insertOrUpdateGame(int gameId, ContentValues values) {
@@ -150,8 +150,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 		}
 	}
 
-	private void parseItem(ContentValues gameValues, ContentValues collectionValues)
-		throws XmlPullParserException, IOException {
+	private void parseItem(ContentValues gameValues, ContentValues collectionValues) throws XmlPullParserException,
+			IOException {
 
 		String tag = null;
 		int sortIndex = 1;
@@ -171,22 +171,22 @@ public class RemoteCollectionHandler extends XmlHandler {
 					gameValues.put(Games.PLAYING_TIME, mParser.getAttributeValue(null, Tags.PLAYING_TIME));
 					gameValues.put(Games.NUM_OWNED, mParser.getAttributeValue(null, Tags.NUM_OWNED));
 				} else if (Tags.STATUS.equals(tag)) {
-					collectionValues.put(Collection.STATUS_OWN, mParser.getAttributeValue(null,
-						Tags.STATUS_OWN));
-					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED, mParser.getAttributeValue(null,
-						Tags.STATUS_PREVIOUSLY_OWNED));
-					collectionValues.put(Collection.STATUS_FOR_TRADE, mParser.getAttributeValue(null,
-						Tags.STATUS_FOR_TRADE));
-					collectionValues.put(Collection.STATUS_WANT, mParser.getAttributeValue(null,
-						Tags.STATUS_WANT));
-					collectionValues.put(Collection.STATUS_WANT_TO_PLAY, mParser.getAttributeValue(null,
-						Tags.STATUS_WANT_TO_PLAY));
-					collectionValues.put(Collection.STATUS_WANT_TO_BUY, mParser.getAttributeValue(null,
-						Tags.STATUS_WANT_TO_BUY));
-					collectionValues.put(Collection.STATUS_WISHLIST, mParser.getAttributeValue(null,
-						Tags.STATUS_WISHLIST));
-					collectionValues.put(Collection.STATUS_PREORDERED, mParser.getAttributeValue(null,
-						Tags.STATUS_PREORDERED));
+					collectionValues.put(Collection.STATUS_OWN, mParser.getAttributeValue(null, Tags.STATUS_OWN));
+					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED,
+							mParser.getAttributeValue(null, Tags.STATUS_PREVIOUSLY_OWNED));
+					collectionValues.put(Collection.STATUS_FOR_TRADE,
+							mParser.getAttributeValue(null, Tags.STATUS_FOR_TRADE));
+					collectionValues.put(Collection.STATUS_WANT, mParser.getAttributeValue(null, Tags.STATUS_WANT));
+					collectionValues.put(Collection.STATUS_WANT_TO_PLAY,
+							mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_PLAY));
+					collectionValues.put(Collection.STATUS_WANT_TO_BUY,
+							mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_BUY));
+					collectionValues.put(Collection.STATUS_WISHLIST,
+							mParser.getAttributeValue(null, Tags.STATUS_WISHLIST));
+					collectionValues.put(Collection.STATUS_WISHLIST_PRIORITY,
+							mParser.getAttributeValue(null, Tags.STATUS_WISHLIST_PRIORITY));
+					collectionValues.put(Collection.STATUS_PREORDERED,
+							mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -208,8 +208,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 				} else if (Tags.THUMBNAIL.equals(tag)) {
 					gameValues.put(Games.THUMBNAIL_URL, text);
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
-					gameValues.put(Games.NUM_PLAYS, StringUtils.parseInt(mParser.getAttributeValue(null,
-						Tags.NUM_PLAYS)));
+					gameValues.put(Games.NUM_PLAYS,
+							StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_PLAYS)));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					parsePrivateInfo(collectionValues);
 					tag = null;
@@ -285,6 +285,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 		String STATUS_WANT_TO_PLAY = "wanttoplay";
 		String STATUS_WANT_TO_BUY = "wanttobuy";
 		String STATUS_WISHLIST = "wishlist";
+		String STATUS_WISHLIST_PRIORITY = "wishlistpriority";
 		String STATUS_PREORDERED = "preordered";
 
 		String NUM_PLAYS = "numplays";
