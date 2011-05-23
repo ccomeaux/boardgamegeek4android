@@ -93,6 +93,7 @@ public class BggContract {
 		String STATUS_WANT_TO_PLAY = "want_to_play";
 		String STATUS_WANT_TO_BUY = "want_to_buy";
 		String STATUS_WISHLIST = "wishlist";
+		String STATUS_WISHLIST_PRIORITY = "wishlist_priority";
 		String STATUS_PREORDERED = "preordered";
 		String COMMENT = "comment";
 		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "price_paid_currency";
@@ -246,18 +247,18 @@ public class BggContract {
 		}
 
 		public static Uri buildPollResultsUri(int gameId, String pollName, String key) {
-			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
-					.appendPath(key).build();
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
+					.build();
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key) {
-			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
-					.appendPath(key).appendPath(PATH_POLL_RESULTS_RESULT).build();
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
+					.appendPath(PATH_POLL_RESULTS_RESULT).build();
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
-			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
-					.appendPath(key).appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
+					.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
 		}
 
 		private static Builder getUriBuilder() {

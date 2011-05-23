@@ -34,7 +34,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	private static final int DATABASE_VERSION = 1;
+	// NOTE: carefully update onUpgrade() when bumping database versions to make
+	// sure user data is saved.
+	private static final int VER_INITIAL = 1;
+	private static final int VER_WISHLIST_PRIORITY = 2;
+	private static final int DATABASE_VERSION = VER_WISHLIST_PRIORITY;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -228,6 +232,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ CollectionColumns.STATUS_WANT + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.STATUS_WANT_TO_PLAY + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.STATUS_WANT_TO_BUY + " INTEGER NOT NULL DEFAULT 0,"
+			+ CollectionColumns.STATUS_WISHLIST_PRIORITY + " INTEGER,"
 			+ CollectionColumns.STATUS_WISHLIST + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.STATUS_PREORDERED + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.COMMENT + " TEXT,"
@@ -280,7 +285,21 @@ public class BggDatabase extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.d(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
 
-		if (oldVersion != DATABASE_VERSION) {
+		// NOTE: This switch statement is designed to handle cascading database
+		// updates, starting at the current version and falling through to all
+		// future upgrade cases. Only use "break;" when you want to drop and
+		// recreate the entire database.
+		int version = oldVersion;
+
+		switch (version) {
+			case VER_INITIAL:
+				// Version 2 added column for collection wishlist priority.
+				db.execSQL("ALTER TABLE " + Tables.COLLECTION + " ADD COLUMN "
+						+ CollectionColumns.STATUS_WISHLIST_PRIORITY + " INTEGER");
+				version = VER_WISHLIST_PRIORITY;
+		}
+
+		if (version != DATABASE_VERSION) {
 			Log.w(TAG, "Destroying old data during upgrade");
 
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
