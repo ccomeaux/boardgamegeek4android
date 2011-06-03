@@ -3,7 +3,8 @@
 	package="com.boardgamegeek" android:versionCode="18" android:versionName="3.1">
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /><application android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:name="BggApplication">
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<application android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:name="BggApplication">
 
 		<activity android:name=".ui.HomeActivity" android:label="@string/app_name" android:theme="@style/Theme.Bgg">
 			<intent-filter>
@@ -32,24 +33,28 @@
 
 		<activity android:name=".ui.GameInfoActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
 
 		<activity android:name=".ui.GameStatsActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
 
 		<activity android:name=".ui.GameListsActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
 
 		<activity android:name=".ui.GamePollsActivityTab" android:theme="@style/Theme.Bgg">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>		

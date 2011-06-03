@@ -35,7 +35,6 @@ public class ImageActivity extends Activity {
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		((TextView) findViewById(R.id.game_name)).setText(gameName);
-		// setTitle(intent.getStringExtra(KEY_GAME_NAME));
 
 		new ImageTask().execute(mImageUrl);
 	}
