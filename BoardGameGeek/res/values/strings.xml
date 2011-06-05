@@ -43,7 +43,7 @@
 	<string name="median_meter_text">Median = %s</string>
 	<string name="stdDev_meter_text">Standard Deviation = %s</string>
 	<string name="weight_1_text">%s - \"Light\"</string>
-	<string name="weight_2_text">%s - \Medium Light\"</string>
+	<string name="weight_2_text">%s - \"Medium Light\"</string>
 	<string name="weight_3_text">%s - \"Medium\"</string>
 	<string name="weight_4_text">%s - \"Medium Heavy\"</string>
 	<string name="weight_5_text">%s - \"Heavy\"</string>
@@ -67,13 +67,13 @@
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
 	<string name="logPlayDialogMessage">Logging play...</string>
-	<string name="logInError">Unable to log in</string>
+	<string name="logInError">Unable to log in, please verify your username and password are correct.</string>
 	<string name="setUsernamePassword">Please set your username and password.</string>
-	<string name="logInErrorSuffixNoResponse">no response.</string>
-	<string name="logInErrorSuffixBadResponse">received a bad response -</string>
-	<string name="logInErrorSuffixMissingCookies">cookies are missing.</string>
-	<string name="logInErrorSuffixBadCookies">cookies are incomplete.</string>
-	<string name="logInErrorSuffixEntityNull">entity null.</string>
+	<string name="logInErrorSuffixNoResponse">no response</string>
+	<string name="logInErrorSuffixBadResponse">received a bad response</string>
+	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
+	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
+	<string name="logInErrorSuffixEntityNull">entity null</string>
 	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>

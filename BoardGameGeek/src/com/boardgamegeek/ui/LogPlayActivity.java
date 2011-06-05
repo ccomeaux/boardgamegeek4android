@@ -12,13 +12,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
@@ -27,12 +23,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -52,64 +45,77 @@ import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.LogInHelper;
+import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayActivity extends Activity {
+public class LogPlayActivity extends Activity implements LogInListener {
+	private static final String TAG = "LogPlayActivity";
 
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
-	private static final String TAG = "LogPlayView";
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
-	private final String yearKey = "YEAR";
-	private final String monthKey = "MONTH";
-	private final String dayKey = "DAY";
-	private final String quantityKey = "QUANTITY";
-	private final String lengthKey = "LENGTH";
-	private final String locationKey = "LOCATION";
-	private final String incompleteKey = "INCOMPLETE";
-	private final String noWinStatsKey = "NO_WIN_STATS";
-	private final String commentsKey = "COMMENTS";
+	private static final String yearKey = "YEAR";
+	private static final String monthKey = "MONTH";
+	private static final String dayKey = "DAY";
+	private static final String quantityKey = "QUANTITY";
+	private static final String lengthKey = "LENGTH";
+	private static final String locationKey = "LOCATION";
+	private static final String incompleteKey = "INCOMPLETE";
+	private static final String noWinStatsKey = "NO_WIN_STATS";
+	private static final String commentsKey = "COMMENTS";
 
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
-	private String mUsername;
-	private String mPassword;
-	private CookieStore mCookieStore;
+
+	private LogInHelper mLogInHelper;
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+
 	private int mYear;
 	private int mMonth;
 	private int mDay;
+
 	private BezelImageView mThumbnail;
+	private Button mDateButton;
+	private EditText mQuantityView;
+	private EditText mLengthView;
+	private EditText mLocationView;
+	private CheckBox mIncompleteView;
+	private CheckBox mNoWinStatsView;
+	private EditText mCommentsView;
+	private Button mSaveButton;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
 		UIUtils.setTitle(this);
+		setUiVariables();
+		mLogInHelper = new LogInHelper(this, this);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
-
 			loadCurrentDate();
+			if (mGameId == -1) {
+				Log.w(TAG, "Didn't get a game ID");
+				finish();
+			}
+
 			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 				mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-				logPlay();
+				quickLogPlay();
 				finish();
 			} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 				Log.w(TAG, "Received bad intent action: " + intent.getAction());
-				finish();
-			}
-			if (mGameId == -1) {
-				Log.w(TAG, "Didn't get a game ID");
 				finish();
 			}
 		} else {
@@ -119,12 +125,12 @@ public class LogPlayActivity extends Activity {
 			mYear = savedInstanceState.getInt(yearKey);
 			mMonth = savedInstanceState.getInt(monthKey);
 			mDay = savedInstanceState.getInt(dayKey);
-			setQuantity(savedInstanceState.getInt(quantityKey));
-			setLength(savedInstanceState.getInt(lengthKey));
-			setLocation(savedInstanceState.getString(locationKey));
-			setIncomplete(savedInstanceState.getBoolean(incompleteKey));
-			setNoWinStats(savedInstanceState.getBoolean(noWinStatsKey));
-			setComments(savedInstanceState.getString(commentsKey));
+			mQuantityView.setText("" + savedInstanceState.getInt(quantityKey));
+			mLengthView.setText("" + savedInstanceState.getInt(lengthKey));
+			mLocationView.setText(savedInstanceState.getString(locationKey));
+			mIncompleteView.setChecked(savedInstanceState.getBoolean(incompleteKey));
+			mNoWinStatsView.setChecked(savedInstanceState.getBoolean(noWinStatsKey));
+			mCommentsView.setText(savedInstanceState.getString(commentsKey));
 		}
 		((TextView) findViewById(R.id.game_name)).setText(mGameName);
 		setDateButtonText();
@@ -137,10 +143,7 @@ public class LogPlayActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (getCookieStore()) {
-			Button button = (Button) findViewById(R.id.logPlaySaveButton);
-			button.setEnabled(true);
-		}
+		mLogInHelper.logIn();
 	}
 
 	@Override
@@ -184,10 +187,18 @@ public class LogPlayActivity extends Activity {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.save);
+		mi.setEnabled(mSaveButton.isEnabled());
+
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.save:
-				logPlay();
+				logPlay(mGameId);
 				return true;
 			case R.id.cancel:
 				finish();
@@ -214,165 +225,29 @@ public class LogPlayActivity extends Activity {
 	}
 
 	public void onSaveClick(View v) {
-		logPlay();
+		logPlay(mGameId);
 	}
 
 	public void onCancelClick(View v) {
 		finish();
 	}
 
-	private void logPlay() {
-		if (getCookieStore()) {
+	private void setUiVariables() {
+		mDateButton = (Button) findViewById(R.id.logDateButton);
+		mQuantityView = (EditText) findViewById(R.id.logQuantity);
+		mLengthView = (EditText) findViewById(R.id.logLength);
+		mLocationView = (EditText) findViewById(R.id.logLocation);
+		mIncompleteView = (CheckBox) findViewById(R.id.logIncomplete);
+		mNoWinStatsView = (CheckBox) findViewById(R.id.logNoWinStats);
+		mCommentsView = (EditText) findViewById(R.id.logComments);
+		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
+	}
+
+	private void quickLogPlay() {
+		if (mLogInHelper.checkCookies()) {
 			logPlay(mGameId);
 		} else {
-			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG);
-		}
-	}
-
-	private boolean saveCookies(List<Cookie> cookies) {
-		if (cookies == null || cookies.size() == 0) {
-			return false;
-		}
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		Editor editor = preferences.edit();
-		for (int i = 0; i < 10; i++) {
-			if (i < cookies.size()) {
-				Cookie cookie = cookies.get(i);
-				editor.putString("cookie" + i + "value", cookie.getValue());
-				editor.putString("cookie" + i + "name", cookie.getName());
-				editor.putString("cookie" + i + "path", cookie.getPath());
-				editor.putString("cookie" + i + "domain", cookie.getDomain());
-				Date expiryDate = cookie.getExpiryDate();
-				if (expiryDate != null) {
-					editor.putLong("cookie" + i + "expirydate", expiryDate.getTime());
-				}
-			} else {
-				editor.remove("cookie" + i + "value");
-				editor.remove("cookie" + i + "name");
-				editor.remove("cookie" + i + "path");
-				editor.remove("cookie" + i + "domain");
-				editor.remove("cookie" + i + "expirydate");
-			}
-		}
-		return editor.commit();
-	}
-
-	private BasicCookieStore loadCookies() {
-		BasicCookieStore cookieStore = new BasicCookieStore();
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		for (int i = 0; i < 10; i++) {
-			String name = preferences.getString("cookie" + i + "name", "");
-			String value = preferences.getString("cookie" + i + "value", "");
-			if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(value)) {
-				BasicClientCookie cookie = new BasicClientCookie(name, value);
-				cookie.setPath(preferences.getString("cookie" + i + "path", ""));
-				cookie.setDomain(preferences.getString("cookie" + i + "domain", ""));
-				cookie.setExpiryDate(new Date(preferences.getLong("cookie" + i + "expirydate", 0)));
-				cookieStore.addCookie(cookie);
-			} else {
-				break;
-			}
-		}
-		if (cookieStore.getCookies() != null && cookieStore.getCookies().size() > 0) {
-			return cookieStore;
-		}
-		return null;
-	}
-
-	private boolean getCookieStore() {
-
-		if (mCookieStore != null) {
-			return true;
-		}
-		mCookieStore = loadCookies();
-		if (mCookieStore != null) {
-			return true;
-		}
-
-		loadPreferences();
-		if (TextUtils.isEmpty(mUsername) || TextUtils.isEmpty(mPassword)) {
-			Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
-			startActivity(new Intent(this, Preferences.class));
-			finish();
-			return false;
-		}
-
-		LogInTask task = new LogInTask();
-		task.execute();
-		return false;
-	}
-
-	class LogInTask extends AsyncTask<String, Void, String> {
-		@Override
-		protected String doInBackground(String... params) {
-
-			final DefaultHttpClient client = new DefaultHttpClient();
-			final HttpPost post = new HttpPost(BggApplication.siteUrl + "login");
-			List<NameValuePair> pair = new ArrayList<NameValuePair>();
-			pair.add(new BasicNameValuePair("username", mUsername));
-			pair.add(new BasicNameValuePair("password", mPassword));
-
-			UrlEncodedFormEntity entity;
-			try {
-				entity = new UrlEncodedFormEntity(pair, HTTP.UTF_8);
-			} catch (UnsupportedEncodingException e) {
-				return e.toString();
-			}
-			post.setEntity(entity);
-			String message = null;
-			HttpResponse response;
-			try {
-				response = client.execute(post);
-			} catch (ClientProtocolException e) {
-				return e.toString();
-			} catch (IOException e) {
-				return e.toString();
-			} finally {
-				client.getConnectionManager().shutdown();
-			}
-
-			if (response == null) {
-				message = getResources().getString(R.string.logInError) + " : "
-						+ getResources().getString(R.string.logInErrorSuffixNoResponse);
-			}
-			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				message = getResources().getString(R.string.logInError) + " : "
-						+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString()
-						+ ".";
-			}
-			List<Cookie> cookies = client.getCookieStore().getCookies();
-			if (cookies == null || cookies.isEmpty()) {
-				message = getResources().getString(R.string.logInError) + " : "
-						+ getResources().getString(R.string.logInErrorSuffixMissingCookies);
-			}
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("bggpassword")) {
-					mCookieStore = client.getCookieStore();
-					break;
-				}
-			}
-			if (mCookieStore == null) {
-				message = getResources().getString(R.string.logInError) + " : "
-						+ getResources().getString(R.string.logInErrorSuffixBadCookies);
-			}
-			if (mCookieStore != null) {
-				saveCookies(mCookieStore.getCookies());
-			} else {
-				message = getResources().getString(R.string.logInError);
-			}
-
-			return message;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (!TextUtils.isEmpty(result)) {
-				Log.w(TAG, result);
-				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
-			} else {
-				Button button = (Button) findViewById(R.id.logPlaySaveButton);
-				button.setEnabled(true);
-			}
+			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -387,7 +262,7 @@ public class LogPlayActivity extends Activity {
 				return e.toString();
 			}
 			final DefaultHttpClient client = new DefaultHttpClient();
-			client.setCookieStore(mCookieStore);
+			client.setCookieStore(mLogInHelper.getCookieStore());
 
 			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
@@ -491,11 +366,6 @@ public class LogPlayActivity extends Activity {
 		task.execute(nvps);
 	}
 
-	private void loadPreferences() {
-		mUsername = BggApplication.getInstance().getUserName();
-		mPassword = BggApplication.getInstance().getPassword();
-	}
-
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
 		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -507,68 +377,31 @@ public class LogPlayActivity extends Activity {
 	};
 
 	private void setDateButtonText() {
-		Button button = (Button) findViewById(R.id.logDateButton);
-		button.setText(df.format(new Date(mYear - 1900, mMonth, mDay)));
+		mDateButton.setText(df.format(new Date(mYear - 1900, mMonth, mDay)));
 	}
 
 	private int getQuantity() {
-		EditText view = (EditText) findViewById(R.id.logQuantity);
-		return StringUtils.parseInt(view.getText().toString(), 1);
-	}
-
-	private void setQuantity(int quantity) {
-		EditText view = (EditText) findViewById(R.id.logQuantity);
-		view.setText("" + quantity);
+		return StringUtils.parseInt(mQuantityView.getText().toString(), 1);
 	}
 
 	private int getLength() {
-		EditText view = (EditText) findViewById(R.id.logLength);
-		return StringUtils.parseInt(view.getText().toString(), 0);
-	}
-
-	private void setLength(int length) {
-		EditText view = (EditText) findViewById(R.id.logLength);
-		view.setText("" + length);
+		return StringUtils.parseInt(mLengthView.getText().toString(), 0);
 	}
 
 	private String getLocation() {
-		EditText view = (EditText) findViewById(R.id.logLocation);
-		return view.getText().toString();
-	}
-
-	private void setLocation(String location) {
-		EditText view = (EditText) findViewById(R.id.logLocation);
-		view.setText(location);
+		return mLocationView.getText().toString();
 	}
 
 	private boolean getIncomplete() {
-		CheckBox view = (CheckBox) findViewById(R.id.logIncomplete);
-		return view.isChecked();
-	}
-
-	private void setIncomplete(boolean incomplete) {
-		CheckBox view = (CheckBox) findViewById(R.id.logIncomplete);
-		view.setChecked(incomplete);
+		return mIncompleteView.isChecked();
 	}
 
 	private boolean getNoWinStats() {
-		CheckBox view = (CheckBox) findViewById(R.id.logNoWinStats);
-		return view.isChecked();
-	}
-
-	private void setNoWinStats(boolean noWinStats) {
-		CheckBox view = (CheckBox) findViewById(R.id.logNoWinStats);
-		view.setChecked(noWinStats);
+		return mNoWinStatsView.isChecked();
 	}
 
 	private String getComments() {
-		EditText view = (EditText) findViewById(R.id.logComments);
-		return view.getText().toString();
-	}
-
-	private void setComments(String comments) {
-		EditText view = (EditText) findViewById(R.id.logComments);
-		view.setText(comments);
+		return mCommentsView.getText().toString();
 	}
 
 	private void loadCurrentDate() {
@@ -576,6 +409,10 @@ public class LogPlayActivity extends Activity {
 		mYear = c.get(Calendar.YEAR);
 		mMonth = c.get(Calendar.MONTH);
 		mDay = c.get(Calendar.DAY_OF_MONTH);
+	}
+
+	private void enableSave() {
+		mSaveButton.setEnabled(true);
 	}
 
 	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
@@ -600,5 +437,23 @@ public class LogPlayActivity extends Activity {
 				mThumbnail.setImageResource(R.drawable.noimage);
 			}
 		}
+	}
+
+	@Override
+	public void onLogInSuccess() {
+		enableSave();
+	}
+
+	@Override
+	public void onLogInError(String errorMessage) {
+		Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onNeedCredentials() {
+		Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
+		startActivity(new Intent(this, Preferences.class));
+		finish();
+
 	}
 }
