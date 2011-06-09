@@ -23,7 +23,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -36,15 +36,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.StringUtils;
@@ -60,28 +57,12 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
-	private static final String yearKey = "YEAR";
-	private static final String monthKey = "MONTH";
-	private static final String dayKey = "DAY";
-	private static final String quantityKey = "QUANTITY";
-	private static final String lengthKey = "LENGTH";
-	private static final String locationKey = "LOCATION";
-	private static final String incompleteKey = "INCOMPLETE";
-	private static final String noWinStatsKey = "NO_WIN_STATS";
-	private static final String commentsKey = "COMMENTS";
-
-	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
+	private Play mPlay;
 
 	private LogInHelper mLogInHelper;
-	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 
-	private int mYear;
-	private int mMonth;
-	private int mDay;
-
-	private BezelImageView mThumbnail;
 	private Button mDateButton;
 	private EditText mQuantityView;
 	private EditText mLengthView;
@@ -101,17 +82,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
-			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+			final int gameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
-			loadCurrentDate();
-			if (mGameId == -1) {
+			if (gameId == -1) {
 				Log.w(TAG, "Didn't get a game ID");
 				finish();
 			}
 
+			mPlay = new Play(gameId);
+
 			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-				mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 				quickLogPlay();
 				finish();
 			} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
@@ -119,25 +100,22 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				finish();
 			}
 		} else {
-			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
+			mPlay = new Play(savedInstanceState);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
-			mYear = savedInstanceState.getInt(yearKey);
-			mMonth = savedInstanceState.getInt(monthKey);
-			mDay = savedInstanceState.getInt(dayKey);
-			mQuantityView.setText("" + savedInstanceState.getInt(quantityKey));
-			mLengthView.setText("" + savedInstanceState.getInt(lengthKey));
-			mLocationView.setText(savedInstanceState.getString(locationKey));
-			mIncompleteView.setChecked(savedInstanceState.getBoolean(incompleteKey));
-			mNoWinStatsView.setChecked(savedInstanceState.getBoolean(noWinStatsKey));
-			mCommentsView.setText(savedInstanceState.getString(commentsKey));
+
+			mQuantityView.setText("" + mPlay.Quantity);
+			mLengthView.setText("" + mPlay.Length);
+			mLocationView.setText(mPlay.Location);
+			mIncompleteView.setChecked(mPlay.Incomplete);
+			mNoWinStatsView.setChecked(mPlay.NoWinStats);
+			mCommentsView.setText(mPlay.Comments);
 		}
-		((TextView) findViewById(R.id.game_name)).setText(mGameName);
+
+		UIUtils u = new UIUtils(this);
+		u.setGameName(mGameName);
+		u.setThumbnail(mThumbnailUrl);
 		setDateButtonText();
-		if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)) {
-			mThumbnail = (BezelImageView) findViewById(R.id.game_thumbnail);
-			new ThumbnailTask().execute(mThumbnailUrl);
-		}
 	}
 
 	@Override
@@ -149,25 +127,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_GAME_ID, mGameId);
+		captureForm();
+		mPlay.saveState(outState);
 		outState.putString(KEY_GAME_NAME, mGameName);
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
-		outState.putInt(yearKey, mYear);
-		outState.putInt(monthKey, mMonth);
-		outState.putInt(dayKey, mDay);
-		outState.putInt(quantityKey, getQuantity());
-		outState.putInt(lengthKey, getLength());
-		outState.putString(locationKey, getLocation());
-		outState.putBoolean(incompleteKey, getIncomplete());
-		outState.putBoolean(noWinStatsKey, getNoWinStats());
-		outState.putString(commentsKey, getComments());
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 			case DATE_DIALOG_ID:
-				return new DatePickerDialog(this, mDateSetListener, mYear, mMonth, mDay);
+				return new DatePickerDialog(this, mDateSetListener, mPlay.Year, mPlay.Month, mPlay.Day);
 			case LOGGING_DIALOG_ID:
 				ProgressDialog dialog = new ProgressDialog(this);
 				dialog.setTitle(R.string.logPlayDialogTitle);
@@ -190,7 +160,6 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem mi = menu.findItem(R.id.save);
 		mi.setEnabled(mSaveButton.isEnabled());
-
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -198,7 +167,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.save:
-				logPlay(mGameId);
+				logPlay();
 				return true;
 			case R.id.cancel:
 				finish();
@@ -225,7 +194,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onSaveClick(View v) {
-		logPlay(mGameId);
+		logPlay();
 	}
 
 	public void onCancelClick(View v) {
@@ -245,25 +214,49 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 	private void quickLogPlay() {
 		if (mLogInHelper.checkCookies()) {
-			logPlay(mGameId);
+			logPlay();
 		} else {
 			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG).show();
 		}
 	}
 
-	class LogPlayTask extends AsyncTask<List<NameValuePair>, Void, String> {
-		@Override
-		protected String doInBackground(List<NameValuePair>... params) {
+	private void logPlay() {
+		captureForm();
+		LogPlayTask task = new LogPlayTask();
+		task.execute(mPlay);
+	}
 
+	class LogPlayTask extends AsyncTask<Play, Void, String> {
+		Play mPlay;
+		Resources r;
+
+		LogPlayTask() {
+			r = getResources();
+		}
+
+		@Override
+		protected void onPreExecute() {
+			showDialog(LOGGING_DIALOG_ID);
+		}
+
+		@Override
+		protected String doInBackground(Play... params) {
+			mPlay = params[0];
+
+			// create form entity
 			UrlEncodedFormEntity entity;
+			List<NameValuePair> nvps = mPlay.toNameValuePairs();
 			try {
-				entity = new UrlEncodedFormEntity(params[0], HTTP.ASCII);
+				entity = new UrlEncodedFormEntity(nvps, HTTP.ASCII);
 			} catch (UnsupportedEncodingException e) {
 				return e.toString();
 			}
+
+			// client
 			final DefaultHttpClient client = new DefaultHttpClient();
 			client.setCookieStore(mLogInHelper.getCookieStore());
 
+			// post
 			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
 
@@ -275,168 +268,93 @@ public class LogPlayActivity extends Activity implements LogInListener {
 					if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 						message = HttpUtils.parseResponse(response);
 					} else {
-						message = getResources().getString(R.string.logInError) + " : "
-								+ getResources().getString(R.string.logInErrorSuffixBadResponse) + " "
-								+ response.toString() + ".";
+						message = r.getString(R.string.logInError) + " : "
+								+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".";
 					}
 				} else {
-					message = getResources().getString(R.string.logInError) + " : "
-							+ getResources().getString(R.string.logInErrorSuffixNoResponse);
+					message = r.getString(R.string.logInError) + " : "
+							+ r.getString(R.string.logInErrorSuffixNoResponse);
 				}
 			} catch (ClientProtocolException e) {
 				return e.toString();
 			} catch (IOException e) {
 				return e.toString();
+			} finally {
+				if (client != null && client.getConnectionManager() != null) {
+					client.getConnectionManager().shutdown();
+				}
 			}
-			client.getConnectionManager().shutdown();
 			return message;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			showDialog(LOGGING_DIALOG_ID);
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
 			Log.d(TAG, "play result: " + result);
 			removeDialog(LOGGING_DIALOG_ID);
-			if (TextUtils.isEmpty(result)) {
-				return;
-			}
-			if (result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:")) {
-				Log.d(TAG, result);
-				int start = result.indexOf(">");
-				int end = result.indexOf("<", start);
-				int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
-
-				String countDescription = "";
-				int quantity = getQuantity();
-				switch (quantity) {
-					case 1:
-						countDescription = StringUtils.getOrdinal(playCount);
-						break;
-					case 2:
-						countDescription = StringUtils.getOrdinal(playCount - 1) + " & "
-								+ StringUtils.getOrdinal(playCount);
-						break;
-					default:
-						countDescription = StringUtils.getOrdinal(playCount - quantity + 1) + " - "
-								+ StringUtils.getOrdinal(playCount);
-						break;
-				}
-
-				Toast.makeText(getBaseContext(),
-						String.format(getResources().getString(R.string.logPlaySuccess), countDescription, mGameName),
-						Toast.LENGTH_LONG).show();
+			if (isValidResponse(result)) {
+				final int playCount = parsePlayCount(result);
+				final String countDescription = getPlayCountDescription(playCount);
+				showToast(String.format(r.getString(R.string.logPlaySuccess), countDescription, mGameName));
 				finish();
 			} else {
-				Log.w(TAG, result);
-				Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
+				showToast(result);
 			}
 		}
-	}
 
-	@SuppressWarnings("unchecked")
-	private void logPlay(int gameId) {
+		private boolean isValidResponse(String result) {
+			if (TextUtils.isEmpty(result)) {
+				return false;
+			}
+			return result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:");
+		}
 
-		String date = String.format("%04d", mYear) + "-" + String.format("%02d", mMonth + 1) + "-"
-				+ String.format("%02d", mDay);
+		private int parsePlayCount(String result) {
+			int start = result.indexOf(">");
+			int end = result.indexOf("<", start);
+			int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
+			return playCount;
+		}
 
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("ajax", "1"));
-		nvps.add(new BasicNameValuePair("action", "save"));
-		nvps.add(new BasicNameValuePair("version", "2"));
-		nvps.add(new BasicNameValuePair("objecttype", "thing"));
-		nvps.add(new BasicNameValuePair("objectid", "" + gameId));
-		nvps.add(new BasicNameValuePair("playdate", date));
-		// TODO: ask Aldie what this is
-		// String today = android.text.format.DateFormat.format("yyyy-MM-dd",
-		// new Date()).toString();
-		nvps.add(new BasicNameValuePair("dateinput", date));
-		nvps.add(new BasicNameValuePair("length", "" + getLength()));
-		nvps.add(new BasicNameValuePair("location", getLocation()));
-		nvps.add(new BasicNameValuePair("quantity", "" + getQuantity()));
-		nvps.add(new BasicNameValuePair("incomplete", getIncomplete() ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("nowinstats", getNoWinStats() ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("comments", getComments()));
-		Log.d(TAG, nvps.toString());
+		private String getPlayCountDescription(int playCount) {
+			String countDescription = "";
+			int quantity = mPlay.Quantity;
+			switch (quantity) {
+				case 1:
+					countDescription = StringUtils.getOrdinal(playCount);
+					break;
+				case 2:
+					countDescription = StringUtils.getOrdinal(playCount - 1) + " & "
+							+ StringUtils.getOrdinal(playCount);
+					break;
+				default:
+					countDescription = StringUtils.getOrdinal(playCount - quantity + 1) + " - "
+							+ StringUtils.getOrdinal(playCount);
+					break;
+			}
+			return countDescription;
+		}
 
-		LogPlayTask task = new LogPlayTask();
-		task.execute(nvps);
+		private void showToast(String result) {
+			if (!TextUtils.isEmpty(result)) {
+				Toast.makeText(LogPlayActivity.this, result, Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
 		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-			mYear = year;
-			mMonth = monthOfYear;
-			mDay = dayOfMonth;
+			mPlay.setDate(year, monthOfYear, dayOfMonth);
 			setDateButtonText();
 		}
 	};
 
 	private void setDateButtonText() {
-		mDateButton.setText(df.format(new Date(mYear - 1900, mMonth, mDay)));
-	}
-
-	private int getQuantity() {
-		return StringUtils.parseInt(mQuantityView.getText().toString(), 1);
-	}
-
-	private int getLength() {
-		return StringUtils.parseInt(mLengthView.getText().toString(), 0);
-	}
-
-	private String getLocation() {
-		return mLocationView.getText().toString();
-	}
-
-	private boolean getIncomplete() {
-		return mIncompleteView.isChecked();
-	}
-
-	private boolean getNoWinStats() {
-		return mNoWinStatsView.isChecked();
-	}
-
-	private String getComments() {
-		return mCommentsView.getText().toString();
-	}
-
-	private void loadCurrentDate() {
-		final Calendar c = Calendar.getInstance();
-		mYear = c.get(Calendar.YEAR);
-		mMonth = c.get(Calendar.MONTH);
-		mDay = c.get(Calendar.DAY_OF_MONTH);
+		mDateButton.setText(mPlay.getDateText());
 	}
 
 	private void enableSave() {
 		mSaveButton.setEnabled(true);
-	}
-
-	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
-
-		@Override
-		protected void onPreExecute() {
-			findViewById(R.id.thumbnail_progress).setVisibility(View.VISIBLE);
-		}
-
-		@Override
-		protected Drawable doInBackground(String... params) {
-			return ImageCache.getImage(LogPlayActivity.this, params[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Drawable result) {
-			findViewById(R.id.thumbnail_progress).setVisibility(View.GONE);
-			mThumbnail.setVisibility(View.VISIBLE);
-			if (result != null) {
-				mThumbnail.setImageDrawable(result);
-			} else {
-				mThumbnail.setImageResource(R.drawable.noimage);
-			}
-		}
 	}
 
 	@Override
@@ -454,6 +372,113 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 		startActivity(new Intent(this, Preferences.class));
 		finish();
+	}
 
+	private void captureForm() {
+		// date info already captured
+		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString(), 1);
+		mPlay.Length = StringUtils.parseInt(mLengthView.getText().toString(), 0);
+		mPlay.Location = mLocationView.getText().toString();
+		mPlay.Incomplete = mIncompleteView.isChecked();
+		mPlay.NoWinStats = mNoWinStatsView.isChecked();
+		mPlay.Comments = mCommentsView.getText().toString();
+	}
+
+	private class Play {
+		private static final String KEY_YEAR = "YEAR";
+		private static final String KEY_MONTH = "MONTH";
+		private static final String KEY_DATY = "DAY";
+		private static final String KEY_QUANTITY = "QUANTITY";
+		private static final String KEY_LENGTH = "LENGTH";
+		private static final String KEY_LOCATION = "LOCATION";
+		private static final String KEY_INCOMPLETE = "INCOMPLETE";
+		private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
+		private static final String KEY_COMMENTS = "COMMENTS";
+
+		private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+
+		public Play(int gameId) {
+			GameId = gameId;
+			Quantity = 1;
+			// set current date
+			final Calendar c = Calendar.getInstance();
+			Year = c.get(Calendar.YEAR);
+			Month = c.get(Calendar.MONTH);
+			Day = c.get(Calendar.DAY_OF_MONTH);
+		}
+
+		public Play(Bundle bundle) {
+			GameId = bundle.getInt(KEY_GAME_ID);
+			Year = bundle.getInt(KEY_YEAR);
+			Month = bundle.getInt(KEY_MONTH);
+			Day = bundle.getInt(KEY_DATY);
+			Quantity = bundle.getInt(KEY_QUANTITY);
+			Length = bundle.getInt(KEY_LENGTH);
+			Location = bundle.getString(KEY_LOCATION);
+			Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
+			NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
+			Comments = bundle.getString(KEY_COMMENTS);
+		}
+
+		int GameId;
+		int Year;
+		int Month;
+		int Day;
+		int Quantity;
+		int Length;
+		String Location;
+		boolean Incomplete;
+		boolean NoWinStats;
+		String Comments;
+
+		// String today = android.text.format.DateFormat.format("yyyy-MM-dd",
+		// new Date()).toString();
+		public String getFormattedDate() {
+			return String.format("%04d", Year) + "-" + String.format("%02d", Month + 1) + "-"
+					+ String.format("%02d", Day);
+		}
+
+		public CharSequence getDateText() {
+			return df.format(new Date(Year - 1900, Month, Day));
+		}
+
+		public void setDate(int year, int month, int day) {
+			Year = year;
+			Month = month;
+			Day = day;
+		}
+
+		public void saveState(Bundle bundle) {
+			bundle.putInt(KEY_GAME_ID, GameId);
+			bundle.putInt(KEY_YEAR, Year);
+			bundle.putInt(KEY_MONTH, Month);
+			bundle.putInt(KEY_DATY, Day);
+			bundle.putInt(KEY_QUANTITY, Quantity);
+			bundle.putInt(KEY_LENGTH, Length);
+			bundle.putString(KEY_LOCATION, Location);
+			bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
+			bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
+			bundle.putString(KEY_COMMENTS, Comments);
+		}
+
+		public List<NameValuePair> toNameValuePairs() {
+			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+			nvps.add(new BasicNameValuePair("ajax", "1"));
+			nvps.add(new BasicNameValuePair("action", "save"));
+			nvps.add(new BasicNameValuePair("version", "2"));
+			nvps.add(new BasicNameValuePair("objecttype", "thing"));
+			nvps.add(new BasicNameValuePair("objectid", "" + mPlay.GameId));
+			nvps.add(new BasicNameValuePair("playdate", mPlay.getFormattedDate()));
+			// TODO: ask Aldie what this is
+			nvps.add(new BasicNameValuePair("dateinput", mPlay.getFormattedDate()));
+			nvps.add(new BasicNameValuePair("length", "" + mPlay.Length));
+			nvps.add(new BasicNameValuePair("location", mPlay.Location));
+			nvps.add(new BasicNameValuePair("quantity", "" + mPlay.Quantity));
+			nvps.add(new BasicNameValuePair("incomplete", mPlay.Incomplete ? "1" : "0"));
+			nvps.add(new BasicNameValuePair("nowinstats", mPlay.NoWinStats ? "1" : "0"));
+			nvps.add(new BasicNameValuePair("comments", mPlay.Comments));
+			Log.d(TAG, nvps.toString());
+			return nvps;
+		}
 	}
 }
