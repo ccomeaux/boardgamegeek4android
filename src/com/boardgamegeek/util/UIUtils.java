@@ -3,14 +3,25 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.HomeActivity;
+import com.boardgamegeek.ui.widget.BezelImageView;
 
 public class UIUtils {
+
+	private Activity mActivity;
+
+	public UIUtils(Activity activity) {
+		mActivity = activity;
+	}
 
 	/**
 	 * Sets the current activity to the home screen.
@@ -42,6 +53,64 @@ public class UIUtils {
 	 */
 	public static void setTitle(Activity activity, CharSequence title) {
 		((TextView) activity.findViewById(R.id.title_text)).setText(title);
+	}
+
+	public static void setGameName(Activity activity, CharSequence gameName) {
+		((TextView) activity.findViewById(R.id.game_name)).setText(gameName);
+	}
+
+	public void setGameName(CharSequence gameName) {
+		setGameName(mActivity, gameName);
+	}
+
+	public void setThumbnail(String thumbnailUrl) {
+		if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(thumbnailUrl)) {
+			new ThumbnailTask(mActivity).execute(thumbnailUrl);
+		}
+	}
+
+	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
+		private Activity mActivity;
+		private BezelImageView mThumbnail;
+		private View mProgress;
+
+		public ThumbnailTask(Activity activity) {
+			if (activity != null) {
+				mActivity = activity;
+				mThumbnail = (BezelImageView) mActivity.findViewById(R.id.game_thumbnail);
+				mProgress = mActivity.findViewById(R.id.thumbnail_progress);
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			if (mProgress != null) {
+				mProgress.setVisibility(View.VISIBLE);
+			}
+		}
+
+		@Override
+		protected Drawable doInBackground(String... params) {
+			if (mActivity == null || mThumbnail == null) {
+				return null;
+			}
+			return ImageCache.getImage(mActivity.getBaseContext(), params[0]);
+		}
+
+		@Override
+		protected void onPostExecute(Drawable result) {
+			if (mProgress != null) {
+				mProgress.setVisibility(View.GONE);
+			}
+			if (mThumbnail != null) {
+				mThumbnail.setVisibility(View.VISIBLE);
+				if (result != null) {
+					mThumbnail.setImageDrawable(result);
+				} else {
+					mThumbnail.setImageResource(R.drawable.noimage);
+				}
+			}
+		}
 	}
 
 	public static void allowTypeToSearch(Activity activity) {
