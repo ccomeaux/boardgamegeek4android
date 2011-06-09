@@ -12,9 +12,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
@@ -252,29 +252,22 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				return e.toString();
 			}
 
-			// client
-			final DefaultHttpClient client = new DefaultHttpClient();
-			client.setCookieStore(mLogInHelper.getCookieStore());
+			final HttpClient client = HttpUtils.createHttpClient(LogPlayActivity.this, mLogInHelper.getCookieStore());
 
-			// post
 			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
 
-			String message = null;
 			HttpResponse response = null;
 			try {
 				response = client.execute(post);
-				if (response != null) {
-					if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-						message = HttpUtils.parseResponse(response);
-					} else {
-						message = r.getString(R.string.logInError) + " : "
-								+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".";
-					}
-				} else {
-					message = r.getString(R.string.logInError) + " : "
-							+ r.getString(R.string.logInErrorSuffixNoResponse);
+				if (response == null) {
+					return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
 				}
+				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+					return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
+							+ " " + response.toString() + ".";
+				}
+				return HttpUtils.parseResponse(response);
 			} catch (ClientProtocolException e) {
 				return e.toString();
 			} catch (IOException e) {
@@ -284,7 +277,6 @@ public class LogPlayActivity extends Activity implements LogInListener {
 					client.getConnectionManager().shutdown();
 				}
 			}
-			return message;
 		}
 
 		@Override

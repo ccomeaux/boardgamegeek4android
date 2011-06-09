@@ -11,12 +11,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,10 +30,8 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
@@ -61,8 +57,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private String mImageUrl;
 	private long mUpdatedDate;
 
-	private TextView mNameView;
-	private BezelImageView mThumbnail;
 	private View mUpdatePanel;
 
 	@Override
@@ -86,6 +80,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mGameUri = intent.getData();
 		if (intent.hasExtra(KEY_GAME_NAME)) {
 			mName = intent.getExtras().getString(KEY_GAME_NAME);
+			UIUtils.setGameName(this, mName);
 		}
 	}
 
@@ -109,11 +104,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private void setUiVariables() {
 		mObserver = new GameObserver(null);
-		mNameView = (TextView) findViewById(R.id.game_name);
-		mThumbnail = (BezelImageView) findViewById(R.id.game_thumbnail);
 		mUpdatePanel = findViewById(R.id.update_panel);
-
-		mNameView.setText(mName);
 	}
 
 	private void startQuery() {
@@ -137,18 +128,15 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			mImageUrl = cursor.getString(GameQuery.IMAGE_URL);
 			mUpdatedDate = cursor.getLong(GameQuery.UPDATED);
 
-			mNameView.setText(mName);
-			mIsLoaded = true;
-
 			long lastUpdated = cursor.getLong(GameQuery.UPDATED);
 			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > AGE_IN_DAYS_TO_REFRESH) {
 				refresh();
 			}
 
-			if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(mThumbnailUrl)
-					&& mThumbnail.getVisibility() != View.VISIBLE) {
-				new ThumbnailTask().execute(mThumbnailUrl);
-			}
+			UIUtils u = new UIUtils(this);
+			u.setGameName(mName);
+			u.setThumbnail(mThumbnailUrl);
+			mIsLoaded = true;
 
 			if (!mIsRefreshing) {
 				hideLoadingMessage();
@@ -381,30 +369,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		protected void onPostExecute(Boolean result) {
 			mIsRefreshing = false;
 			hideLoadingMessage();
-		}
-	}
-
-	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
-
-		@Override
-		protected void onPreExecute() {
-			findViewById(R.id.thumbnail_progress).setVisibility(View.VISIBLE);
-		}
-
-		@Override
-		protected Drawable doInBackground(String... params) {
-			return ImageCache.getImage(BoardgameActivity.this, params[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Drawable result) {
-			findViewById(R.id.thumbnail_progress).setVisibility(View.GONE);
-			mThumbnail.setVisibility(View.VISIBLE);
-			if (result != null) {
-				mThumbnail.setImageDrawable(result);
-			} else {
-				mThumbnail.setImageResource(R.drawable.noimage);
-			}
 		}
 	}
 
