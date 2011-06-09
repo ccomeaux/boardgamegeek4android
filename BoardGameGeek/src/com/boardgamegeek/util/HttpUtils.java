@@ -16,6 +16,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -125,6 +126,13 @@ public class HttpUtils {
 		}
 		return BASE_URL + "collection/" + URLEncoder.encode(username)
 				+ (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
+	}
+
+	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
+		final HttpParams params = createHttpParams(context, false);
+		final DefaultHttpClient client = new DefaultHttpClient(params);
+		client.setCookieStore(cookieStore);
+		return client;
 	}
 
 	public static HttpClient createHttpClient(Context context, boolean useGzip) {
