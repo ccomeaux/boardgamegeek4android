@@ -35,15 +35,12 @@ import com.boardgamegeek.util.UIUtils;
 public class CollectionActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
 	private static final String TAG = "CollectionActivity";
 
-	private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10 seconds
-
 	private CollectionAdapter mAdapter;
-	private NotifyingAsyncQueryHandler mHandler;
+	private Cursor mCursor;
 	private Uri mUri;
-	private CollectionObserver mGameObserver;
-	private long mLastUpdated;
 	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
 	private ThumbnailTask mThumbnailTask;
+	private TextView mInfoView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +49,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
+		mInfoView = (TextView) findViewById(R.id.collection_info);
 
 		getListView().setOnScrollListener(this);
 
-		mGameObserver = new CollectionObserver(null);
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);
 
 		mUri = getIntent().getData();
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mUri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
+		new NotifyingAsyncQueryHandler(getContentResolver(), this).startQuery(mUri, Query.PROJECTION, null, null,
+				Collection.DEFAULT_SORT);
 	}
 
 	@Override
@@ -73,6 +70,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (mCursor != null) {
+			mCursor.requery();
+		}
 		mThumbnailTask = new ThumbnailTask();
 		mThumbnailTask.execute();
 	}
@@ -88,6 +88,18 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	protected void onStop() {
 		super.onStop();
 		getContentResolver().unregisterContentObserver(mGameObserver);
+		if (mCursor != null) {
+			mCursor.deactivate();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (mCursor != null) {
+			mCursor.close();
+			mCursor = null;
+		}
+		super.onDestroy();
 	}
 
 	@Override
@@ -105,13 +117,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		UIUtils.showListMessage(this, R.string.empty_collection);
-		startManagingCursor(cursor);
+		mCursor = cursor;
 		mAdapter.changeCursor(cursor);
 
 		if (cursor != null) {
-			TextView tv = (TextView) findViewById(R.id.collection_info);
-			String message = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
-			tv.setText(message);
+			mInfoView.setText(String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount()));
 		}
 	}
 
@@ -122,21 +132,22 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
 	}
 
-	class CollectionObserver extends ContentObserver {
+	private ContentObserver mGameObserver = new ContentObserver(new Handler()) {
+		private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10s
 
-		public CollectionObserver(Handler handler) {
-			super(handler);
-		}
+		private long mLastUpdated;
 
 		@Override
 		public void onChange(boolean selfChange) {
-			long now = System.currentTimeMillis();
-			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				mHandler.startQuery(mUri, Query.PROJECTION, null, null, Collection.DEFAULT_SORT);
-				mLastUpdated = System.currentTimeMillis();
+			if (mCursor != null) {
+				long now = System.currentTimeMillis();
+				if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
+					mCursor.requery();
+					mLastUpdated = System.currentTimeMillis();
+				}
 			}
 		}
-	}
+	};
 
 	private class CollectionAdapter extends CursorAdapter {
 		private LayoutInflater mInflater;
@@ -240,15 +251,19 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 		if (scrollState == SCROLL_STATE_IDLE) {
-			final int count = view.getChildCount();
-			for (int i = 0; i < count; i++) {
-				ViewHolder vh = (ViewHolder) view.getChildAt(i).getTag();
-				if (vh.thumbnailUrl != null) {
-					mThumbnailQueue.offer(vh.thumbnailUrl);
-				}
-			}
+			getThumbnails(view);
 		} else {
 			mThumbnailQueue.clear();
+		}
+	}
+
+	private void getThumbnails(AbsListView view) {
+		final int count = view.getChildCount();
+		for (int i = 0; i < count; i++) {
+			ViewHolder vh = (ViewHolder) view.getChildAt(i).getTag();
+			if (vh.thumbnailUrl != null) {
+				mThumbnailQueue.offer(vh.thumbnailUrl);
+			}
 		}
 	}
 }
