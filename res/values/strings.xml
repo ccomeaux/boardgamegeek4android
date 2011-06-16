@@ -154,6 +154,10 @@
 	<string name="menu_link_amazon">Amazon</string>
 	<string name="menu_link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
+	<string name="menu_collection_filter">Filter</string>
+	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_number_of_players">Number of Players</string>
+	<string name="menu_collection_random_game">Random Game</string>	
 
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>

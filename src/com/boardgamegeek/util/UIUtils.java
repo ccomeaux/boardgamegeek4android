@@ -1,5 +1,7 @@
 package com.boardgamegeek.util;
 
+import java.util.Random;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import com.boardgamegeek.ui.widget.BezelImageView;
 public class UIUtils {
 
 	private Activity mActivity;
+	private static Random mRandom;
 
 	public UIUtils(Activity activity) {
 		mActivity = activity;
@@ -158,5 +161,12 @@ public class UIUtils {
 		} else {
 			pb.setVisibility(View.VISIBLE);
 		}
+	}
+
+	public static Random getRandom() {
+		if(mRandom == null) {
+			mRandom = new Random();
+		}
+		return mRandom;
 	}
 }
