@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -16,20 +18,31 @@ import android.os.Handler;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.data.CollectionFilter;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
+import com.boardgamegeek.ui.dialog.NumberOfPlayersFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
@@ -41,7 +54,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
 	private ThumbnailTask mThumbnailTask;
 	private TextView mInfoView;
+	
+	LinearLayout mFilterLinearLayout;
+	List<CollectionFilter> mFilters = new ArrayList<CollectionFilter>();
 
+	private NumberOfPlayersFilter mNumberOfPlayersFilter = new NumberOfPlayersFilter();
+	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,8 +76,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		setListAdapter(mAdapter);
 
 		mUri = getIntent().getData();
-		new NotifyingAsyncQueryHandler(getContentResolver(), this).startQuery(mUri, Query.PROJECTION, null, null,
-				Collection.DEFAULT_SORT);
+		
+		mFilterLinearLayout = (LinearLayout)findViewById(R.id.filterLinearLayout);
+		((HorizontalScrollView)findViewById(R.id.filterHorizontalScrollView)).setHorizontalScrollBarEnabled(false);
+
+		applyFilters();
 	}
 
 	@Override
@@ -101,6 +123,86 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 		super.onDestroy();
 	}
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.collection, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	
+    	switch(item.getItemId()) {
+    	case R.id.menu_collection_random_game:
+    		final Cursor cursor = (Cursor) mAdapter.getItem(
+    				UIUtils.getRandom().nextInt(mAdapter.getCount()));
+    		final int gameId = cursor.getInt(Query.GAME_ID);
+    		final Uri gameUri = Games.buildGameUri(gameId);
+    		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
+    		return true;
+    	}
+    	
+    	if(launchFilterDialog(item.getItemId()))
+			return true;
+    	
+    	return super.onOptionsItemSelected(item);
+    }
+    
+    private boolean launchFilterDialog(int id) {
+        switch (id) {
+	        case R.id.menu_number_of_players:
+	        	mNumberOfPlayersFilter.createDialog(this);
+	        	return true;
+	        case R.id.menu_collection_status:
+	        	mCollectionStatusFilter.createDialog(this);
+	        	return true;
+        }
+        return false;
+    }
+
+	private void applyFilters() {
+		StringBuilder where = new StringBuilder();
+		String[] args = {};
+		for(CollectionFilter filter : mFilters) {
+			if(where.length() > 0)
+				where.append(" AND ");
+			
+			where.append(filter.getSelection());			
+			args = StringUtils.concat(args, filter.getSelectionArgs());
+		}
+		
+		queryCollection(where.toString(), args);	
+	}	
+	
+	private Button createFilterButton(final int id, String text) {
+		final Button button = new Button(this);
+		button.setText(text);
+		button.setTextSize(18);
+		button.setLongClickable(true);
+		button.setBackgroundResource(R.drawable.button_filter_normal);
+		button.setLayoutParams(new LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT));	
+		button.setOnClickListener(new View.OnClickListener() {			
+			
+			@Override
+			public void onClick(View v) {	
+				mFilters.remove(new CollectionFilter().id(id));
+				applyFilters();
+			}
+		});
+		button.setOnLongClickListener(new View.OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {				
+				return launchFilterDialog(v.getId());
+			}
+		});
+		button.setId(id);
+		return button;
+	}
 
 	@Override
 	public void setTitle(CharSequence title) {
@@ -122,6 +224,27 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		if (cursor != null) {
 			mInfoView.setText(String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount()));
+		}
+		
+		syncFilterButtons();
+	}
+
+	private void syncFilterButtons() {		
+		for(CollectionFilter filter : mFilters) {
+			Button button = (Button)mFilterLinearLayout.findViewById(filter.getId());
+			if(button == null) {
+				mFilterLinearLayout.addView(createFilterButton(filter.getId(), filter.getDisplayText()));
+			} else {
+				button.setText(filter.getDisplayText());
+			}
+		}	
+		
+		//Could be when button is clicked, but this keeps filters synced with collection
+		for(int i = 0; i < mFilterLinearLayout.getChildCount(); ++i) {
+			Button button = (Button)mFilterLinearLayout.getChildAt(i);
+			if(!mFilters.contains(new CollectionFilter().id(button.getId()))) {
+				mFilterLinearLayout.removeView(button);
+			} 
 		}
 	}
 
@@ -265,5 +388,21 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mThumbnailQueue.offer(vh.thumbnailUrl);
 			}
 		}
+	}
+	
+	private void queryCollection(String selection, String[] selectionArgs) {
+		new NotifyingAsyncQueryHandler(getContentResolver(), this).startQuery(mUri, Query.PROJECTION, selection, selectionArgs,
+				Collection.DEFAULT_SORT);
+	}
+
+	public void removeFilter(CollectionFilter filter) {
+		mFilters.remove(filter);
+		applyFilters();
+	}
+
+	public void addFilter(CollectionFilter filter) {
+    	mFilters.remove(filter);
+    	mFilters.add(filter);
+    	applyFilters();
 	}
 }

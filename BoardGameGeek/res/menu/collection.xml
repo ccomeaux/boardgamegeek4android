@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/collection_filter"
+		android:title="@string/menu_collection_filter"
+		android:icon="@drawable/ic_menu_agenda">
+		<menu>
+			<item android:id="@+id/menu_number_of_players" 
+				android:title="@string/menu_number_of_players" />
+			<item android:id="@+id/menu_collection_status" 
+				android:title="@string/menu_collection_status" />
+		</menu>
+	</item>
+	<item android:id="@+id/menu_collection_random_game"
+		android:title="@string/menu_collection_random_game"
+		android:icon="@drawable/ic_menu_emoticons" />
+</menu>
