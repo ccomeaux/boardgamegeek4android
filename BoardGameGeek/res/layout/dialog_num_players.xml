@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/layout_root"
-  android:orientation="vertical"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
-    <TextView android:id="@+id/text_interval" android:textSize="20sp"
-    	android:textColor="@android:color/white" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-    <com.boardgamegeek.ui.widget.DualSliderView android:id="@+id/num_players_slider" android:layout_width="fill_parent" android:layout_height="120px"/>
-    <CheckBox android:id="@+id/exact_checkbox" android:text="Exact" android:layout_width="wrap_content" android:layout_height="wrap_content"
-     android:textColor="@android:color/white" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <TextView android:id="@+id/text_interval"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <com.boardgamegeek.ui.widget.DualSliderView
+        android:id="@+id/num_players_slider"
+        android:layout_width="fill_parent"
+        android:layout_height="120px" />
+    <CheckBox android:id="@+id/exact_checkbox"
+        android:text="@string/exact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white" />
 </LinearLayout>
