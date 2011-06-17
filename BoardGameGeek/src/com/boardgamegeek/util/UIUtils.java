@@ -164,7 +164,7 @@ public class UIUtils {
 	}
 
 	public static Random getRandom() {
-		if(mRandom == null) {
+		if (mRandom == null) {
 			mRandom = new Random();
 		}
 		return mRandom;
