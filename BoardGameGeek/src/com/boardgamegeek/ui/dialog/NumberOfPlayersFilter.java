@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilter;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.data.PlayerNumberFilter;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
@@ -26,6 +26,13 @@ public class NumberOfPlayersFilter {
 
 	private int mMinPlayers = MIN_RANGE;
 	private int mMaxPlayers = MAX_RANGE;
+	private boolean mExact;
+
+	public void setValues(PlayerNumberFilter filter) {
+		mMinPlayers = filter.getMin();
+		mMaxPlayers = filter.getMax();
+		mExact = filter.isExact();
+	}
 
 	public void createDialog(final CollectionActivity activity) {
 		AlertDialog.Builder builder;
@@ -37,19 +44,22 @@ public class NumberOfPlayersFilter {
 
 		final TextView textInterval = (TextView) layout.findViewById(R.id.text_interval);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
+		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.exact_checkbox);
 
 		sliderView.setRange(MIN_RANGE, MAX_RANGE);
 		sliderView.setStartKnobValue(mMinPlayers);
 		sliderView.setEndKnobValue(mMaxPlayers);
+		sliderView.setSecondThumbEnabled(!mExact);
+		checkbox.setChecked(mExact);
 
 		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
 
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
-				if (!sliderView.isSecondThumbEnabled() && knobEndChanged)
+				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
 					textInterval.setText("" + knobEnd);
-				else if (knobStartChanged || knobEndChanged) {
+				} else if (knobStartChanged || knobEndChanged) {
 					if (knobStart == knobEnd) {
 						textInterval.setText("" + knobEnd);
 					} else if (knobStart < knobEnd) {
@@ -83,31 +93,13 @@ public class NumberOfPlayersFilter {
 					mMinPlayers = sliderView.getSecondKnobValue();
 					mMaxPlayers = sliderView.getFirstKnobValue();
 				}
-				String startValue = String.valueOf(mMinPlayers);
-				String endValue = String.valueOf(mMaxPlayers);
+				mExact = checkbox.isChecked();
 
-				CollectionFilter filter = null;
-				String players = activity.getResources().getString(R.string.players);
-				if (sliderView.isSecondThumbEnabled()) {
-					filter = new CollectionFilter()
-							.selection(Games.MIN_PLAYERS + "<=? AND " + Games.MAX_PLAYERS + ">=?")
-							.selectionargs(endValue, startValue).id(R.id.menu_number_of_players);
-					if (mMinPlayers == mMaxPlayers) {
-						filter.name(endValue + " " + players);
-					} else {
-						filter.name(startValue + "-" + endValue + " " + players);
-					}
-				} else {
-					filter = new CollectionFilter().name(endValue + " " + players)
-							.selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?")
-							.selectionargs(endValue, endValue).id(R.id.menu_number_of_players);
-				}
-
+				PlayerNumberFilter filter = new PlayerNumberFilter(activity, mMinPlayers, mMaxPlayers, mExact);
 				activity.addFilter(filter);
 			}
 		});
 
-		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.exact_checkbox);
 		checkbox.setOnClickListener(new View.OnClickListener() {
 
 			@Override
