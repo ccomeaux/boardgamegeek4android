@@ -172,11 +172,11 @@ public class StringUtils {
 		}
 		return c + "th";
 	}
-	
+
 	public static String[] concat(String[] first, String[] second) {
 		String[] result = new String[first.length + second.length];
 		System.arraycopy(first, 0, result, 0, first.length);
 		System.arraycopy(second, 0, result, first.length, second.length);
-		return result;		
-	}	
+		return result;
+	}
 }
