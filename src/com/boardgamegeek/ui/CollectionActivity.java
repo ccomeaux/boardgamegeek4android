@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilter;
+import com.boardgamegeek.data.PlayerNumberFilter;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
@@ -146,6 +147,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_number_of_players:
+				PlayerNumberFilter filter = (PlayerNumberFilter) findFilter(id);
+				if (filter != null) {
+					mNumberOfPlayersFilter.setValues(filter);
+				}
 				mNumberOfPlayersFilter.createDialog(this);
 				return true;
 			case R.id.menu_collection_status:
@@ -167,7 +172,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			args = StringUtils.concat(args, filter.getSelectionArgs());
 		}
 
-		queryCollection(where.toString(), args);
+		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, Collection.DEFAULT_SORT);
 	}
 
 	@Override
@@ -225,7 +230,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setBackgroundResource(R.drawable.button_filter_normal);
 		button.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
-		// TODO: switch clicks
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -383,8 +387,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 	}
 
-	private void queryCollection(String selection, String[] selectionArgs) {
-		mHandler.startQuery(mUri, Query.PROJECTION, selection, selectionArgs, Collection.DEFAULT_SORT);
+	private CollectionFilter findFilter(int id) {
+		for (CollectionFilter filter : mFilters) {
+			if (filter.getId() == id) {
+				return filter;
+			}
+		}
+		return null;
 	}
 
 	public void removeFilter(CollectionFilter filter) {
