@@ -89,6 +89,11 @@
 	<string name="save">Save</string>
 	<string name="cancel">Cancel</string>
 	<string name="exact">Exact</string>
+	<string name="clear">Clear</string>
+	<string name="set">Set</string>
+	<string name="players">Players</string>
+	<string name="or">Or</string>
+	<string name="and">And</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>

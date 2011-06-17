@@ -63,14 +63,14 @@ public class NumberOfPlayersFilter {
 
 		builder = new AlertDialog.Builder(activity);
 		builder.setTitle(R.string.menu_number_of_players);
-		builder.setNegativeButton("Clear", new DialogInterface.OnClickListener() {
+		builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				CollectionFilter filter = new CollectionFilter().id(R.id.menu_number_of_players);
 				activity.removeFilter(filter);
 			}
-		}).setPositiveButton("Set", new DialogInterface.OnClickListener() {
+		}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int id) {
@@ -87,17 +87,18 @@ public class NumberOfPlayersFilter {
 				String endValue = String.valueOf(mMaxPlayers);
 
 				CollectionFilter filter = null;
+				String players = activity.getResources().getString(R.string.players);
 				if (sliderView.isSecondThumbEnabled()) {
 					filter = new CollectionFilter()
 							.selection(Games.MIN_PLAYERS + "<=? AND " + Games.MAX_PLAYERS + ">=?")
 							.selectionargs(endValue, startValue).id(R.id.menu_number_of_players);
 					if (mMinPlayers == mMaxPlayers) {
-						filter.name(endValue + " Players");
+						filter.name(endValue + " " + players);
 					} else {
-						filter.name(startValue + "-" + endValue + " Players");
+						filter.name(startValue + "-" + endValue + " " + players);
 					}
 				} else {
-					filter = new CollectionFilter().name(endValue + " Players")
+					filter = new CollectionFilter().name(endValue + " " + players)
 							.selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?")
 							.selectionargs(endValue, endValue).id(R.id.menu_number_of_players);
 				}
