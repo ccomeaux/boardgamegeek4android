@@ -15,8 +15,14 @@
 		android:padding="@dimen/padding_standard" />
 	<include layout="@layout/header_divider" />
 
-	<HorizontalScrollView android:id="@+id/filterHorizontalScrollView" android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<LinearLayout android:id="@+id/filterLinearLayout" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal"></LinearLayout>
+	<HorizontalScrollView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:scrollbars="none">
+		<LinearLayout android:id="@+id/filterLinearLayout"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" />
 	</HorizontalScrollView>
 
 	<include layout="@layout/list" />
