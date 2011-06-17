@@ -229,14 +229,15 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mFilters.remove(new CollectionFilter().id(id));
-				applyFilters();
+				launchFilterDialog(v.getId());
 			}
 		});
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				return launchFilterDialog(v.getId());
+				mFilters.remove(new CollectionFilter().id(id));
+				applyFilters();
+				return true;
 			}
 		});
 		return button;
