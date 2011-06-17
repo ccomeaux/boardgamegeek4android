@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/collection_filter"
-		android:title="@string/menu_collection_filter"
-		android:icon="@drawable/ic_menu_agenda">
+	<item android:id="@+id/collection_filter_add"
+		android:title="@string/menu_collection_filter_add"
+		android:icon="@drawable/ic_menu_tags">
 		<menu>
 			<item android:id="@+id/menu_number_of_players" 
 				android:title="@string/menu_number_of_players" />
@@ -10,6 +10,9 @@
 				android:title="@string/menu_collection_status" />
 		</menu>
 	</item>
+	<item android:id="@+id/menu_collection_filter_clear"
+		android:title="@string/menu_collection_filter_clear"
+		android:icon="@android:drawable/ic_menu_close_clear_cancel" />
 	<item android:id="@+id/menu_collection_random_game"
 		android:title="@string/menu_collection_random_game"
 		android:icon="@drawable/ic_menu_emoticons" />
