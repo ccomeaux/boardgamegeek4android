@@ -110,8 +110,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.collection, menu);
-		// TODO: disable clear if no filter is applied
 		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.menu_collection_filter_clear);
+		mi.setEnabled(mFilters != null && mFilters.size() > 0);
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -152,12 +158,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private void applyFilters() {
 		StringBuilder where = new StringBuilder();
 		String[] args = {};
-		// TODO: surround them with parens
+
 		for (CollectionFilter filter : mFilters) {
 			if (where.length() > 0) {
 				where.append(" AND ");
 			}
-			where.append(filter.getSelection());
+			where.append("(").append(filter.getSelection()).append(")");
 			args = StringUtils.concat(args, filter.getSelectionArgs());
 		}
 
