@@ -30,4 +30,24 @@
         <item>hasparts</item>
         <item>wantparts</item>
     </string-array>
+    <string-array name="collection_status_filter_entries">
+        <item>Own</item>
+        <item>Previously Owned</item>
+        <item>For Trade</item>
+        <item>Want in Trade</item>
+        <item>Want to Buy</item>
+        <item>Wishlist</item>
+        <item>Want to Play</item>
+        <item>Preordered</item>
+    </string-array>
+    <string-array name="collection_status_filter_values">
+        <item>own</item>
+        <item>previously_owned</item>
+        <item>for_trade</item>
+        <item>want</item>
+        <item>want_to_buy</item>
+        <item>wishlist</item>
+        <item>want_to_play</item>
+        <item>preordered</item>
+    </string-array>
 </resources>
