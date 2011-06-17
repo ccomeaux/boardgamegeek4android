@@ -32,7 +32,6 @@ public class LogInHelper {
 	private Context mContext;
 	private LogInListener mListener;
 	private Cookies mCookies;
-	private LogInTask mTask;
 	private String mUsername;
 	private String mPassword;
 
@@ -40,7 +39,6 @@ public class LogInHelper {
 		mContext = context;
 		mListener = listner;
 		mCookies = new Cookies(mContext);
-		mTask = new LogInTask();
 	}
 
 	public CookieStore getCookieStore() {
@@ -61,7 +59,7 @@ public class LogInHelper {
 			return;
 		}
 
-		mTask.execute();
+		 new LogInTask().execute();
 	}
 
 	public boolean checkCookies() {
