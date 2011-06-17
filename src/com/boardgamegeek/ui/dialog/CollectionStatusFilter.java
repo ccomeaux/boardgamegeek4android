@@ -31,19 +31,19 @@ public class CollectionStatusFilter {
 				mSelected[which] = isChecked;
 			}
 		});
-		builder.setNeutralButton("Or", new DialogInterface.OnClickListener() {
+		builder.setNeutralButton(R.string.or, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				CollectionFilter filter = createFilter("OR", "|");
 				activity.addFilter(filter);
 			}
-		}).setPositiveButton("And", new DialogInterface.OnClickListener() {
+		}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				CollectionFilter filter = createFilter("AND", "&");
 				activity.addFilter(filter);
 			}
-		}).setNegativeButton("Clear", new DialogInterface.OnClickListener() {
+		}).setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
