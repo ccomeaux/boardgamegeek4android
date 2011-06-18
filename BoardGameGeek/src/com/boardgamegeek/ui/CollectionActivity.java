@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -148,10 +149,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		switch (id) {
 			case R.id.menu_number_of_players:
 				PlayerNumberFilter filter = (PlayerNumberFilter) findFilter(id);
-				if (filter != null) {
-					mNumberOfPlayersFilter.setValues(filter);
-				}
-				mNumberOfPlayersFilter.createDialog(this);
+				mNumberOfPlayersFilter.createDialog(this, filter);
 				return true;
 			case R.id.menu_collection_status:
 				mCollectionStatusFilter.createDialog(this);
@@ -165,11 +163,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		String[] args = {};
 
 		for (CollectionFilter filter : mFilters) {
-			if (where.length() > 0) {
-				where.append(" AND ");
+			if (!TextUtils.isEmpty(filter.getSelection())) {
+				if (where.length() > 0) {
+					where.append(" AND ");
+				}
+				where.append("(").append(filter.getSelection()).append(")");
+				args = StringUtils.concat(args, filter.getSelectionArgs());
 			}
-			where.append("(").append(filter.getSelection()).append(")");
-			args = StringUtils.concat(args, filter.getSelectionArgs());
 		}
 
 		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, Collection.DEFAULT_SORT);

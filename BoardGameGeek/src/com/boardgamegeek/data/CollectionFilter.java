@@ -4,7 +4,7 @@ public class CollectionFilter {
 
 	private String displayText;
 	private String selection;
-	private String[] selectionArgs;
+	private String[] selectionArgs = {};
 	private int id;
 
 	public String getSelection() {
@@ -33,7 +33,7 @@ public class CollectionFilter {
 		return this;
 	}
 
-	public CollectionFilter selectionargs(String... selectionArgs) {
+	public CollectionFilter selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
 		return this;
 	}

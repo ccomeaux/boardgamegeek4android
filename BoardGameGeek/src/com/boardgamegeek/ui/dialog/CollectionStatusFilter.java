@@ -74,7 +74,7 @@ public class CollectionStatusFilter {
 		name = name.substring(0, name.length() - (2 + nameDelimiter.length()));
 		selection = selection.substring(0, selection.length() - (2 + selectionConjunction.length()));
 
-		filter.name(name).selection(selection).selectionargs(selectionArgs.toArray(new String[selectionArgs.size()]))
+		filter.name(name).selection(selection).selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]))
 				.id(R.id.menu_collection_status);
 		return filter;
 	}

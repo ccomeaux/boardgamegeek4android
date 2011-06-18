@@ -6,6 +6,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
 public class PlayerNumberFilter extends CollectionFilter {
+	public static final int MIN_RANGE = 0;
+	public static final int MAX_RANGE = 12;
+
 	private int mMin;
 	private int mMax;
 	private boolean mExact;
@@ -19,12 +22,12 @@ public class PlayerNumberFilter extends CollectionFilter {
 		String endValue = String.valueOf(mMax);
 
 		// TODO: handle null DB values
-		// TODO: treat 12 as 12+?
+		// TODO: treat 12 as 12+
 		id(R.id.menu_number_of_players);
 		String namePrefix = "";
 		if (!mExact) {
 			selection(Games.MIN_PLAYERS + "<=? AND " + Games.MAX_PLAYERS + ">=?");
-			selectionargs(endValue, startValue);
+			selectionArgs(endValue, startValue);
 			if (mMin == mMax) {
 				namePrefix = endValue;
 			} else {
@@ -32,7 +35,7 @@ public class PlayerNumberFilter extends CollectionFilter {
 			}
 		} else {
 			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionargs(endValue, endValue);
+			selectionArgs(endValue, endValue);
 			namePrefix = endValue;
 		}
 		name(namePrefix + " " + context.getResources().getString(R.string.players));
