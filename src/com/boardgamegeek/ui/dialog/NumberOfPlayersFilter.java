@@ -21,20 +21,13 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class NumberOfPlayersFilter {
 
-	private static final int MIN_RANGE = 0;
-	private static final int MAX_RANGE = 12;
-
-	private int mMinPlayers = MIN_RANGE;
-	private int mMaxPlayers = MAX_RANGE;
+	private int mMinPlayers;
+	private int mMaxPlayers;
 	private boolean mExact;
 
-	public void setValues(PlayerNumberFilter filter) {
-		mMinPlayers = filter.getMin();
-		mMaxPlayers = filter.getMax();
-		mExact = filter.isExact();
-	}
+	public void createDialog(final CollectionActivity activity, PlayerNumberFilter filter) {
+		initValues(filter);
 
-	public void createDialog(final CollectionActivity activity) {
 		AlertDialog.Builder builder;
 		AlertDialog alertDialog;
 
@@ -46,7 +39,7 @@ public class NumberOfPlayersFilter {
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.exact_checkbox);
 
-		sliderView.setRange(MIN_RANGE, MAX_RANGE);
+		sliderView.setRange(PlayerNumberFilter.MIN_RANGE, PlayerNumberFilter.MAX_RANGE);
 		sliderView.setStartKnobValue(mMinPlayers);
 		sliderView.setEndKnobValue(mMaxPlayers);
 		sliderView.setSecondThumbEnabled(!mExact);
@@ -58,14 +51,14 @@ public class NumberOfPlayersFilter {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
 				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					textInterval.setText("" + knobEnd);
+					textInterval.setText(setIntervalText(knobEnd));
 				} else if (knobStartChanged || knobEndChanged) {
 					if (knobStart == knobEnd) {
-						textInterval.setText("" + knobEnd);
+						textInterval.setText(setIntervalText(knobEnd));
 					} else if (knobStart < knobEnd) {
-						textInterval.setText(knobStart + " - " + knobEnd);
+						textInterval.setText(setIntervalText(knobStart, knobEnd));
 					} else {
-						textInterval.setText(knobEnd + " - " + knobStart);
+						textInterval.setText(setIntervalText(knobEnd, knobStart));
 					}
 				}
 			}
@@ -118,5 +111,26 @@ public class NumberOfPlayersFilter {
 		sliderView.setLayoutParams(params);
 
 		alertDialog.show();
+	}
+
+	private void initValues(PlayerNumberFilter filter) {
+		if (filter == null) {
+			mMinPlayers = PlayerNumberFilter.MIN_RANGE;
+			mMaxPlayers = PlayerNumberFilter.MAX_RANGE;
+			mExact = false;
+
+		} else {
+			mMinPlayers = filter.getMin();
+			mMaxPlayers = filter.getMax();
+			mExact = filter.isExact();
+		}
+	}
+
+	private String setIntervalText(int number) {
+		return "" + number + ((number == PlayerNumberFilter.MAX_RANGE) ? "+" : "");
+	}
+
+	private String setIntervalText(int min, int max) {
+		return min + " - " + setIntervalText(max);
 	}
 }
