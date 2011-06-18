@@ -127,10 +127,10 @@ public class NumberOfPlayersFilter {
 	}
 
 	private String setIntervalText(int number) {
-		return "" + number + ((number == PlayerNumberFilter.MAX_RANGE) ? "+" : "");
+		return "" + number;
 	}
 
 	private String setIntervalText(int min, int max) {
-		return min + " - " + setIntervalText(max);
+		return min + " - " + max;
 	}
 }
