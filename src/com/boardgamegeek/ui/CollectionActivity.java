@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -79,6 +80,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		mUri = getIntent().getData();
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+
+		if (savedInstanceState != null) {
+			mFilters = savedInstanceState.getParcelableArrayList("FILTERS");
+		}
 		applyFilters();
 	}
 
@@ -93,6 +98,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		super.onResume();
 		mThumbnailTask = new ThumbnailTask();
 		mThumbnailTask.execute();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelableArrayList("FILTERS", (ArrayList<? extends Parcelable>) mFilters);
 	}
 
 	@Override
