@@ -239,8 +239,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setTextSize(18); // TODO: put in style
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
-		button.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT));
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT);
+		params.setMargins(2, 1, 2, 1); // TODO: put in style
+		button.setLayoutParams(params);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
