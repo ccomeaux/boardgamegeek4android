@@ -51,14 +51,14 @@ public class NumberOfPlayersFilter {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
 				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					textInterval.setText(setIntervalText(knobEnd));
+					textInterval.setText(intervalText(knobEnd));
 				} else if (knobStartChanged || knobEndChanged) {
 					if (knobStart == knobEnd) {
-						textInterval.setText(setIntervalText(knobEnd));
+						textInterval.setText(intervalText(knobEnd));
 					} else if (knobStart < knobEnd) {
-						textInterval.setText(setIntervalText(knobStart, knobEnd));
+						textInterval.setText(intervalText(knobStart, knobEnd));
 					} else {
-						textInterval.setText(setIntervalText(knobEnd, knobStart));
+						textInterval.setText(intervalText(knobEnd, knobStart));
 					}
 				}
 			}
@@ -126,11 +126,11 @@ public class NumberOfPlayersFilter {
 		}
 	}
 
-	private String setIntervalText(int number) {
+	private String intervalText(int number) {
 		return "" + number;
 	}
 
-	private String setIntervalText(int min, int max) {
+	private String intervalText(int min, int max) {
 		return min + " - " + max;
 	}
 }
