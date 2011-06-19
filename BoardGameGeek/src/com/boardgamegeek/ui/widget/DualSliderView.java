@@ -76,9 +76,9 @@ public class DualSliderView extends View {
 			 */
 			mRatio = (double) mDeltaBound / mRangeDelta;
 
-			mPointKnobStart.x = (int) (mStartKnobValue * mRatio) + mLeftBound - mknobRadius;
+			mPointKnobStart.x = (int) ((mStartKnobValue - mMinRange) * mRatio) + mLeftBound - mknobRadius;
 			mPointKnobStart.y = (int) (mSliderHeight / 2.0);
-			mPointKnobEnd.x = (int) (mEndKnobValue * mRatio) + mLeftBound - mknobRadius;
+			mPointKnobEnd.x = (int) ((mEndKnobValue - mMinRange) * mRatio) + mLeftBound - mknobRadius;
 			mPointKnobEnd.y = (int) (mSliderHeight / 2.0);
 
 			mKnobs[0] = new Knob(getContext(), R.drawable.knob, mPointKnobStart);
