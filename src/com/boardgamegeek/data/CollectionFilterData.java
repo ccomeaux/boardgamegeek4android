@@ -3,14 +3,14 @@ package com.boardgamegeek.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class CollectionFilter implements Parcelable {
+public class CollectionFilterData implements Parcelable {
 
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
 	private int id;
 
-	public CollectionFilter() {
+	public CollectionFilterData() {
 	}
 
 	public String getSelection() {
@@ -29,33 +29,33 @@ public class CollectionFilter implements Parcelable {
 		return id;
 	}
 
-	public CollectionFilter name(String name) {
+	public CollectionFilterData name(String name) {
 		this.displayText = name;
 		return this;
 	}
 
-	public CollectionFilter selection(String selection) {
+	public CollectionFilterData selection(String selection) {
 		this.selection = selection;
 		return this;
 	}
 
-	public CollectionFilter selectionArgs(String... selectionArgs) {
+	public CollectionFilterData selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
 		return this;
 	}
 
-	public CollectionFilter id(int id) {
+	public CollectionFilterData id(int id) {
 		this.id = id;
 		return this;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof CollectionFilter)) {
+		if (o == null || !(o instanceof CollectionFilterData)) {
 			return false;
 		}
 
-		CollectionFilter other = (CollectionFilter) o;
+		CollectionFilterData other = (CollectionFilterData) o;
 
 		return other.getId() == this.getId();
 	}
@@ -78,17 +78,17 @@ public class CollectionFilter implements Parcelable {
 		out.writeInt(id);
 	}
 
-	public static final Parcelable.Creator<CollectionFilter> CREATOR = new Parcelable.Creator<CollectionFilter>() {
-		public CollectionFilter createFromParcel(Parcel in) {
-			return new CollectionFilter(in);
+	public static final Parcelable.Creator<CollectionFilterData> CREATOR = new Parcelable.Creator<CollectionFilterData>() {
+		public CollectionFilterData createFromParcel(Parcel in) {
+			return new CollectionFilterData(in);
 		}
 
-		public CollectionFilter[] newArray(int size) {
-			return new CollectionFilter[size];
+		public CollectionFilterData[] newArray(int size) {
+			return new CollectionFilterData[size];
 		}
 	};
 
-	private CollectionFilter(Parcel in) {
+	private CollectionFilterData(Parcel in) {
 		displayText = in.readString();
 		selection = in.readString();
 		in.readStringArray(selectionArgs);

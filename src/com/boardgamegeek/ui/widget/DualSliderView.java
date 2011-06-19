@@ -63,7 +63,7 @@ public class DualSliderView extends View {
 			mMargin = mSliderWidth - mSliderWidth / 12;
 
 			// left and right bound of slider and the difference
-			mLeftBound = (int) (mMargin / mRangeDelta);
+			mLeftBound = (int) mSliderWidth / 12;
 			mRightBound = (int) mMargin;
 			mDeltaBound = mRightBound - mLeftBound;
 
@@ -102,11 +102,14 @@ public class DualSliderView extends View {
 			mRectangleNotSelected1 = new Rect();
 			mRectangleNotSelected2 = new Rect();
 		}
+		
+		canvas.drawLine((float) mLeftBound, (float) (mSliderHeight / 3.0),
+				(float) mLeftBound, (float) (mSliderHeight / 2.3), mPaintText);
+		canvas.drawLine((float) mSliderWidth / 2, (float) (mSliderHeight / 3.0),
+				(float) mSliderWidth / 2, (float) (mSliderHeight / 2.3), mPaintText);
+		canvas.drawLine((float) mRightBound, (float) (mSliderHeight / 3.0),
+				(float) mRightBound, (float) (mSliderHeight / 2.3), mPaintText);
 
-		for (int i = 0; i <= mRangeDelta; i++) {
-			canvas.drawLine((float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 3.0),
-					(float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 2.3), mPaintText);
-		}
 
 		int startX, endX, startY, endY;
 		// rectangle between knobs
@@ -123,7 +126,7 @@ public class DualSliderView extends View {
 			}
 
 			// rectangle from left margin to first knob
-			startX = (int) (mMargin / mRangeDelta);
+			startX = (int) mLeftBound;
 			endX = mKnobs[0].getX();
 			mRectangleNotSelected1.set(startX, startY, endX, endY);
 

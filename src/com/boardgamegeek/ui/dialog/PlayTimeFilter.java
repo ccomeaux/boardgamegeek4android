@@ -14,18 +14,18 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.PlayerNumberFilterData;
+import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
-public class NumberOfPlayersFilter {
+public class PlayTimeFilter {
 
-	private int mMinPlayers;
-	private int mMaxPlayers;
-	private boolean mExact;
+	private int mMinTime;
+	private int mMaxTime;
+	private boolean mUndefined;
 
-	public void createDialog(final CollectionActivity activity, PlayerNumberFilterData filter) {
+	public void createDialog(final CollectionActivity activity, PlayTimeFilterData filter) {
 		initValues(filter);
 
 		AlertDialog.Builder builder;
@@ -33,17 +33,16 @@ public class NumberOfPlayersFilter {
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater
-				.inflate(R.layout.dialog_num_players, (ViewGroup) activity.findViewById(R.id.layout_root));
+				.inflate(R.layout.dialog_play_time, (ViewGroup) activity.findViewById(R.id.layout_root));
 
 		final TextView textInterval = (TextView) layout.findViewById(R.id.text_interval);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
-		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.exact_checkbox);
-
-		sliderView.setRange(PlayerNumberFilterData.MIN_RANGE, PlayerNumberFilterData.MAX_RANGE);
-		sliderView.setStartKnobValue(mMinPlayers);
-		sliderView.setEndKnobValue(mMaxPlayers);
-		sliderView.setSecondThumbEnabled(!mExact);
-		checkbox.setChecked(mExact);
+		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.undefined_checkbox);
+		
+		sliderView.setRange(PlayTimeFilterData.MIN_RANGE, PlayTimeFilterData.MAX_RANGE);
+		sliderView.setStartKnobValue(mMinTime);
+		sliderView.setEndKnobValue(mMaxTime);
+		checkbox.setChecked(mUndefined);
 
 		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
 
@@ -65,12 +64,12 @@ public class NumberOfPlayersFilter {
 		});
 
 		builder = new AlertDialog.Builder(activity);
-		builder.setTitle(R.string.menu_number_of_players);
+		builder.setTitle(R.string.menu_play_time);
 		builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_number_of_players);
+				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_play_time);
 				activity.removeFilter(filter);
 			}
 		}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
@@ -80,27 +79,19 @@ public class NumberOfPlayersFilter {
 				// Sliders can be on either side so need to check which one is
 				// smaller
 				if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-					mMinPlayers = sliderView.getFirstKnobValue();
-					mMaxPlayers = sliderView.getSecondKnobValue();
+					mMinTime = sliderView.getFirstKnobValue();
+					mMaxTime = sliderView.getSecondKnobValue();
 				} else {
-					mMinPlayers = sliderView.getSecondKnobValue();
-					mMaxPlayers = sliderView.getFirstKnobValue();
+					mMinTime = sliderView.getSecondKnobValue();
+					mMaxTime = sliderView.getFirstKnobValue();
 				}
-				mExact = checkbox.isChecked();
+				mUndefined = checkbox.isChecked();
 
-				PlayerNumberFilterData filter = new PlayerNumberFilterData(activity, mMinPlayers, mMaxPlayers, mExact);
+				PlayTimeFilterData filter = new PlayTimeFilterData(activity, mMinTime, mMaxTime, mUndefined);
 				activity.addFilter(filter);
 			}
 		});
-
-		checkbox.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				sliderView.setSecondThumbEnabled(!checkbox.isChecked());
-			}
-		});
-
+		
 		builder.setView(layout);
 		alertDialog = builder.create();
 
@@ -113,24 +104,33 @@ public class NumberOfPlayersFilter {
 		alertDialog.show();
 	}
 
-	private void initValues(PlayerNumberFilterData filter) {
+	private void initValues(PlayTimeFilterData filter) {
 		if (filter == null) {
-			mMinPlayers = PlayerNumberFilterData.MIN_RANGE;
-			mMaxPlayers = PlayerNumberFilterData.MAX_RANGE;
-			mExact = false;
-
+			mMinTime = PlayTimeFilterData.MIN_RANGE;
+			mMaxTime = PlayTimeFilterData.MAX_RANGE;
+			mUndefined = false;
 		} else {
-			mMinPlayers = filter.getMin();
-			mMaxPlayers = filter.getMax();
-			mExact = filter.isExact();
+			mMinTime = filter.getMin();
+			mMaxTime = filter.getMax();
+			mUndefined = filter.isUndefined();
 		}
 	}
 
 	private String intervalText(int number) {
-		return "" + number;
+		if(number == PlayTimeFilterData.MAX_RANGE) {
+			return number + "+";
+		}
+		else {
+			return "" + number;
+		}
 	}
 
 	private String intervalText(int min, int max) {
-		return min + " - " + max;
+		if(max == PlayTimeFilterData.MAX_RANGE) {
+			return min + " - " + max + "+";
+		}
+		else {
+			return min + " - " + max;
+		}
 	}
 }

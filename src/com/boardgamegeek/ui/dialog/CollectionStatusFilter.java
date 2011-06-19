@@ -7,7 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilter;
+import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.ui.CollectionActivity;
 
 public class CollectionStatusFilter {
@@ -34,20 +34,20 @@ public class CollectionStatusFilter {
 		builder.setNeutralButton(R.string.or, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilter filter = createFilter("OR", "|");
+				CollectionFilterData filter = createFilter("OR", "|");
 				activity.addFilter(filter);
 			}
 		}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilter filter = createFilter("AND", "&");
+				CollectionFilterData filter = createFilter("AND", "&");
 				activity.addFilter(filter);
 			}
 		}).setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilter filter = new CollectionFilter().id(R.id.menu_collection_status);
+				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_collection_status);
 				activity.removeFilter(filter);
 			}
 		});
@@ -56,8 +56,8 @@ public class CollectionStatusFilter {
 		alert.show();
 	}
 
-	private CollectionFilter createFilter(String selectionConjunction, String nameDelimiter) {
-		CollectionFilter filter = new CollectionFilter();
+	private CollectionFilterData createFilter(String selectionConjunction, String nameDelimiter) {
+		CollectionFilterData filter = new CollectionFilterData();
 		String name = "";
 		String selection = "";
 		List<String> selectionArgs = new ArrayList<String>(mSelected.length);

@@ -25,7 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
@@ -34,12 +33,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilter;
-import com.boardgamegeek.data.PlayerNumberFilter;
+import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.data.PlayTimeFilterData;
+import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.NumberOfPlayersFilter;
+import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -58,9 +59,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private TextView mInfoView;
 
 	private LinearLayout mFilterLinearLayout;
-	private List<CollectionFilter> mFilters = new ArrayList<CollectionFilter>();
+	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 
 	private NumberOfPlayersFilter mNumberOfPlayersFilter = new NumberOfPlayersFilter();
+	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
 
 	@Override
@@ -159,12 +161,15 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_number_of_players:
-				PlayerNumberFilter filter = (PlayerNumberFilter) findFilter(id);
-				mNumberOfPlayersFilter.createDialog(this, filter);
+				mNumberOfPlayersFilter.createDialog(this, 
+						(PlayerNumberFilterData) findFilter(id));
 				return true;
 			case R.id.menu_collection_status:
 				mCollectionStatusFilter.createDialog(this);
 				return true;
+			case R.id.menu_play_time:
+				mPlayTimeFilter.createDialog(this, 
+						(PlayTimeFilterData) findFilter(id));
 		}
 		return false;
 	}
@@ -173,7 +178,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		StringBuilder where = new StringBuilder();
 		String[] args = {};
 
-		for (CollectionFilter filter : mFilters) {
+		for (CollectionFilterData filter : mFilters) {
 			if (!TextUtils.isEmpty(filter.getSelection())) {
 				if (where.length() > 0) {
 					where.append(" AND ");
@@ -212,7 +217,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	private void syncFilterButtons() {
-		for (CollectionFilter filter : mFilters) {
+		for (CollectionFilterData filter : mFilters) {
 			Button button = (Button) mFilterLinearLayout.findViewById(filter.getId());
 			if (button == null) {
 				mFilterLinearLayout.addView(createFilterButton(filter.getId(), filter.getDisplayText()));
@@ -225,7 +230,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		// collection
 		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
 			Button button = (Button) mFilterLinearLayout.getChildAt(i);
-			if (!mFilters.contains(new CollectionFilter().id(button.getId()))) {
+			if (!mFilters.contains(new CollectionFilterData().id(button.getId()))) {
 				mFilterLinearLayout.removeView(button);
 				i--;
 			}
@@ -252,7 +257,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				mFilters.remove(new CollectionFilter().id(id));
+				mFilters.remove(new CollectionFilterData().id(id));
 				applyFilters();
 				return true;
 			}
@@ -400,8 +405,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 	}
 
-	private CollectionFilter findFilter(int id) {
-		for (CollectionFilter filter : mFilters) {
+	private <T> CollectionFilterData findFilter(int id) {
+		for (CollectionFilterData filter : mFilters) {
 			if (filter.getId() == id) {
 				return filter;
 			}
@@ -409,12 +414,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		return null;
 	}
 
-	public void removeFilter(CollectionFilter filter) {
+	public void removeFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
 		applyFilters();
 	}
 
-	public void addFilter(CollectionFilter filter) {
+	public void addFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
 		mFilters.add(filter);
 		applyFilters();

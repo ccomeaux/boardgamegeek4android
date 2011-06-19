@@ -5,7 +5,7 @@ import android.content.Context;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class PlayerNumberFilter extends CollectionFilter {
+public class PlayerNumberFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
 
@@ -13,7 +13,7 @@ public class PlayerNumberFilter extends CollectionFilter {
 	private int mMax;
 	private boolean mExact;
 
-	public PlayerNumberFilter(Context context, int min, int max, boolean exact) {
+	public PlayerNumberFilterData(Context context, int min, int max, boolean exact) {
 		mMin = min;
 		mMax = max;
 		mExact = exact;
