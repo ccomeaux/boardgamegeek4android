@@ -31,6 +31,7 @@ public class DualSliderView extends View {
 
 	private double mMargin;
 	private int mRangeDelta;
+	private int mLineSpacing = 1;
 
 	private int mLeftBound;
 	private int mRightBound;
@@ -103,13 +104,19 @@ public class DualSliderView extends View {
 			mRectangleNotSelected2 = new Rect();
 		}
 		
+		for (int i = 0; i <= mRangeDelta; i += mLineSpacing) {
+			canvas.drawLine((float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 3.0),
+					(float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 2.3), mPaintText);
+		}
+		
+		/*
 		canvas.drawLine((float) mLeftBound, (float) (mSliderHeight / 3.0),
 				(float) mLeftBound, (float) (mSliderHeight / 2.3), mPaintText);
 		canvas.drawLine((float) mSliderWidth / 2, (float) (mSliderHeight / 3.0),
 				(float) mSliderWidth / 2, (float) (mSliderHeight / 2.3), mPaintText);
 		canvas.drawLine((float) mRightBound, (float) (mSliderHeight / 3.0),
 				(float) mRightBound, (float) (mSliderHeight / 2.3), mPaintText);
-
+		*/
 
 		int startX, endX, startY, endY;
 		// rectangle between knobs
@@ -272,6 +279,14 @@ public class DualSliderView extends View {
 
 	public void setEndKnobValue(int endKnobValue) {
 		this.mEndKnobValue = endKnobValue;
+	}
+	
+	public void setLineSpacing(int lineSpacing) {
+		mLineSpacing = lineSpacing;
+	}
+
+	public int getLineSpacing() {
+		return mLineSpacing;
 	}
 
 	/**

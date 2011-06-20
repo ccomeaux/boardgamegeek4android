@@ -21,6 +21,8 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class PlayTimeFilter {
 
+	private static final int LINE_SPACING = 25;
+	
 	private int mMinTime;
 	private int mMaxTime;
 	private boolean mUndefined;
@@ -41,6 +43,7 @@ public class PlayTimeFilter {
 		sliderView.setRange(PlayTimeFilterData.MIN_RANGE, PlayTimeFilterData.MAX_RANGE);
 		sliderView.setStartKnobValue(mMinTime);
 		sliderView.setEndKnobValue(mMaxTime);
+		sliderView.setLineSpacing(LINE_SPACING);
 		checkbox.setChecked(mUndefined);
 
 		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
