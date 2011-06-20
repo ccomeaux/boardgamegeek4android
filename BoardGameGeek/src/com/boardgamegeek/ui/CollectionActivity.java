@@ -405,7 +405,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 	}
 
-	private <T> CollectionFilterData findFilter(int id) {
+	private CollectionFilterData findFilter(int id) {
 		for (CollectionFilterData filter : mFilters) {
 			if (filter.getId() == id) {
 				return filter;
