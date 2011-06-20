@@ -32,13 +32,12 @@ public class PlayTimeFilter {
 		AlertDialog alertDialog;
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater
-				.inflate(R.layout.dialog_play_time, (ViewGroup) activity.findViewById(R.id.layout_root));
+		View layout = inflater.inflate(R.layout.dialog_play_time, (ViewGroup) activity.findViewById(R.id.layout_root));
 
 		final TextView textInterval = (TextView) layout.findViewById(R.id.text_interval);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.undefined_checkbox);
-		
+
 		sliderView.setRange(PlayTimeFilterData.MIN_RANGE, PlayTimeFilterData.MAX_RANGE);
 		sliderView.setStartKnobValue(mMinTime);
 		sliderView.setEndKnobValue(mMaxTime);
@@ -91,7 +90,7 @@ public class PlayTimeFilter {
 				activity.addFilter(filter);
 			}
 		});
-		
+
 		builder.setView(layout);
 		alertDialog = builder.create();
 
@@ -117,19 +116,17 @@ public class PlayTimeFilter {
 	}
 
 	private String intervalText(int number) {
-		if(number == PlayTimeFilterData.MAX_RANGE) {
+		if (number == PlayTimeFilterData.MAX_RANGE) {
 			return number + "+";
-		}
-		else {
+		} else {
 			return "" + number;
 		}
 	}
 
 	private String intervalText(int min, int max) {
-		if(max == PlayTimeFilterData.MAX_RANGE) {
+		if (max == PlayTimeFilterData.MAX_RANGE) {
 			return min + " - " + max + "+";
-		}
-		else {
+		} else {
 			return min + " - " + max;
 		}
 	}

@@ -9,7 +9,7 @@
 			<item android:id="@+id/menu_collection_status" 
 				android:title="@string/menu_collection_status" />
 			<item android:id="@+id/menu_play_time" 
-				android:title="@string/menu_play_time" />				
+				android:title="@string/menu_play_time" />
 		</menu>
 	</item>
 	<item android:id="@+id/menu_collection_filter_clear"

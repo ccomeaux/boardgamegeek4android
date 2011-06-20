@@ -22,25 +22,26 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		String maxValue = String.valueOf(mMax);
 
 		id(R.id.menu_play_time);
-		String namePrefix = "";				
-		if(max == MAX_RANGE) {
+		if (max == MAX_RANGE) {
 			selection("(" + Games.PLAYING_TIME + ">=?)");
 			selectionArgs(minValue);
 		} else {
 			selection("(" + Games.PLAYING_TIME + ">=? AND " + Games.PLAYING_TIME + "<=?)");
 			selectionArgs(minValue, maxValue);
 		}
-		
-		if(mUndefined) {
+
+		if (mUndefined) {
 			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
 		}
-					
-		if (mMin == mMax) {
-			namePrefix = maxValue;
+
+		if (mMax == MAX_RANGE) {
+			name(mMin + "+");
+		} else if (mMin == mMax) {
+			name(maxValue);
 		} else {
-			namePrefix = minValue + "-" + maxValue;
+			name(minValue + "-" + maxValue);
 		}
-		name(namePrefix + " " + context.getResources().getString(R.string.playing_time));
+		name(getDisplayText() + " " + context.getResources().getString(R.string.time_suffix));
 	}
 
 	public int getMin() {
