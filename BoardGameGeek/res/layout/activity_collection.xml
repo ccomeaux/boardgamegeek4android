@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent">
 		
 	<LinearLayout 
-		android:layout_above="@+id/collection_scroll_view"
+		android:layout_above="@+id/filter_scroll_view"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:orientation="vertical">
