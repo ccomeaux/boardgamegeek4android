@@ -1,6 +1,7 @@
 package com.boardgamegeek.data;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -17,28 +18,31 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		mMin = min;
 		mMax = max;
 		mExact = exact;
+		final Resources r = context.getResources();
 
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
 		id(R.id.menu_number_of_players);
-		String namePrefix = "";
-		if (!mExact) {						
-			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" +
-					" OR " + Games.MAX_PLAYERS + " IS NULL)");			
+		if (!mExact) {
+			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
+					+ " IS NULL)");
 			selectionArgs(minValue, maxValue);
-			
+
 			if (mMin == mMax) {
-				namePrefix = maxValue;
+				name(maxValue);
 			} else {
-				namePrefix = minValue + "-" + maxValue;
+				name(minValue + "-" + maxValue);
 			}
 		} else {
 			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
 			selectionArgs(maxValue, maxValue);
-			namePrefix = maxValue;
+			name(maxValue);
 		}
-		name(namePrefix + " " + context.getResources().getString(R.string.players));
+		name(getDisplayText() + " " + r.getString(R.string.players));
+		if (mExact) {
+			name(r.getString(R.string.exactly) + getDisplayText());
+		}
 	}
 
 	public int getMin() {

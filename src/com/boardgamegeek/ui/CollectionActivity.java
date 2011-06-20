@@ -19,6 +19,7 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -161,15 +162,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_number_of_players:
-				mNumberOfPlayersFilter.createDialog(this, 
-						(PlayerNumberFilterData) findFilter(id));
+				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
 				return true;
 			case R.id.menu_collection_status:
 				mCollectionStatusFilter.createDialog(this);
 				return true;
 			case R.id.menu_play_time:
-				mPlayTimeFilter.createDialog(this, 
-						(PlayTimeFilterData) findFilter(id));
+				mPlayTimeFilter.createDialog(this, (PlayTimeFilterData) findFilter(id));
 		}
 		return false;
 	}
@@ -241,12 +240,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final Button button = new Button(this);
 		button.setId(id);
 		button.setText(text);
-		button.setTextSize(18); // TODO: put in style
+		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_medium));
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT);
-		params.setMargins(2, 1, 2, 1); // TODO: put in style
+		int margin = (int) getResources().getDimension(R.dimen.padding_small);
+		params.setMargins(margin, margin, margin, margin);
 		button.setLayoutParams(params);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
