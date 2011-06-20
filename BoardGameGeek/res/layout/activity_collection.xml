@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent">
 		
 	<LinearLayout 
-		android:layout_above="@+id/filter_scroll_view"
+		android:layout_above="@+id/filter_linear_layout"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:orientation="vertical">
@@ -25,17 +25,24 @@
 
 	</LinearLayout>
 
-	<HorizontalScrollView
-		android:id="@+id/filter_scroll_view"
+	<LinearLayout
+		android:id="@+id/filter_linear_layout"
 		android:layout_alignParentBottom="true"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/background_light"
-		android:scrollbars="none">
-		<LinearLayout android:id="@+id/filterLinearLayout"
-			android:layout_width="wrap_content"
+		android:orientation="vertical">
+		<include layout="@layout/header_divider" />
+		<HorizontalScrollView
+			android:id="@+id/filter_scroll_view"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal" />
-	</HorizontalScrollView>	
+			android:background="@color/background_light"
+			android:scrollbars="none">
+			<LinearLayout android:id="@+id/filterLinearLayout"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" />
+		</HorizontalScrollView>	
+	</LinearLayout>	
 
 </RelativeLayout>	
