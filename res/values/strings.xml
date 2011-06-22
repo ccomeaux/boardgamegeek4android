@@ -96,6 +96,8 @@
 	<string name="players">Players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
+	<string name="edit">Edit</string>
+	<string name="delete">Delete</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -109,6 +111,7 @@
 	<string name="title_buddies">GeekBuddies</string>
 	<string name="title_buddy">GeekBuddy</string>
 	<string name="title_log_play">Log Play</string>
+	<string name="title_log_player">Log Player</string>
 
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>

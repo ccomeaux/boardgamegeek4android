@@ -2,10 +2,6 @@ package com.boardgamegeek.ui;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -15,7 +11,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 import android.app.Activity;
@@ -32,15 +27,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
@@ -70,6 +70,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
 	private EditText mCommentsView;
+	private LinearLayout mPlayerList;
 	private Button mSaveButton;
 
 	@Override
@@ -193,12 +194,57 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		showDialog(DATE_DIALOG_ID);
 	}
 
+	public void onAddPlayerClick(View v) {
+		Intent intent = new Intent(this, LogPlayerActivity.class);
+		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+		startActivityForResult(intent, 0);
+	}
+
 	public void onSaveClick(View v) {
 		logPlay();
 	}
 
 	public void onCancelClick(View v) {
 		finish();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (resultCode == RESULT_OK) {
+			Player p = new Player(data);
+
+			PlayerRow pr = new PlayerRow(this);
+			pr.setPlayer(p);
+			pr.setOnEditListener(onPlayerEdit());
+			pr.setOnDeleteListener(onPlayerDelete());
+			mPlayerList.addView(pr);
+		}
+	}
+
+	private OnClickListener onPlayerEdit() {
+		return new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO: implement this for real
+				Toast.makeText(LogPlayActivity.this, "Edit " + ((PlayerRow) v).getPlayer().Name, Toast.LENGTH_LONG)
+						.show();
+			}
+		};
+	}
+
+	private OnClickListener onPlayerDelete() {
+		return new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO: implement are you sure?
+				Toast.makeText(LogPlayActivity.this, "Player deleted.", Toast.LENGTH_SHORT).show();
+				mPlayerList.removeView(v);
+				Toast.makeText(LogPlayActivity.this, "Player deleted.", Toast.LENGTH_SHORT).show();
+			}
+		};
 	}
 
 	private void setUiVariables() {
@@ -209,6 +255,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mIncompleteView = (CheckBox) findViewById(R.id.logIncomplete);
 		mNoWinStatsView = (CheckBox) findViewById(R.id.logNoWinStats);
 		mCommentsView = (EditText) findViewById(R.id.logComments);
+		mPlayerList = (LinearLayout) findViewById(R.id.player_list);
 		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
 	}
 
@@ -374,103 +421,5 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mPlay.Incomplete = mIncompleteView.isChecked();
 		mPlay.NoWinStats = mNoWinStatsView.isChecked();
 		mPlay.Comments = mCommentsView.getText().toString();
-	}
-
-	private class Play {
-		private static final String KEY_YEAR = "YEAR";
-		private static final String KEY_MONTH = "MONTH";
-		private static final String KEY_DATY = "DAY";
-		private static final String KEY_QUANTITY = "QUANTITY";
-		private static final String KEY_LENGTH = "LENGTH";
-		private static final String KEY_LOCATION = "LOCATION";
-		private static final String KEY_INCOMPLETE = "INCOMPLETE";
-		private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
-		private static final String KEY_COMMENTS = "COMMENTS";
-
-		private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
-
-		public Play(int gameId) {
-			GameId = gameId;
-			Quantity = 1;
-			// set current date
-			final Calendar c = Calendar.getInstance();
-			Year = c.get(Calendar.YEAR);
-			Month = c.get(Calendar.MONTH);
-			Day = c.get(Calendar.DAY_OF_MONTH);
-		}
-
-		public Play(Bundle bundle) {
-			GameId = bundle.getInt(KEY_GAME_ID);
-			Year = bundle.getInt(KEY_YEAR);
-			Month = bundle.getInt(KEY_MONTH);
-			Day = bundle.getInt(KEY_DATY);
-			Quantity = bundle.getInt(KEY_QUANTITY);
-			Length = bundle.getInt(KEY_LENGTH);
-			Location = bundle.getString(KEY_LOCATION);
-			Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
-			NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
-			Comments = bundle.getString(KEY_COMMENTS);
-		}
-
-		int GameId;
-		int Year;
-		int Month;
-		int Day;
-		int Quantity;
-		int Length;
-		String Location;
-		boolean Incomplete;
-		boolean NoWinStats;
-		String Comments;
-
-		// String today = android.text.format.DateFormat.format("yyyy-MM-dd",
-		// new Date()).toString();
-		public String getFormattedDate() {
-			return String.format("%04d", Year) + "-" + String.format("%02d", Month + 1) + "-"
-					+ String.format("%02d", Day);
-		}
-
-		public CharSequence getDateText() {
-			return df.format(new Date(Year - 1900, Month, Day));
-		}
-
-		public void setDate(int year, int month, int day) {
-			Year = year;
-			Month = month;
-			Day = day;
-		}
-
-		public void saveState(Bundle bundle) {
-			bundle.putInt(KEY_GAME_ID, GameId);
-			bundle.putInt(KEY_YEAR, Year);
-			bundle.putInt(KEY_MONTH, Month);
-			bundle.putInt(KEY_DATY, Day);
-			bundle.putInt(KEY_QUANTITY, Quantity);
-			bundle.putInt(KEY_LENGTH, Length);
-			bundle.putString(KEY_LOCATION, Location);
-			bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
-			bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
-			bundle.putString(KEY_COMMENTS, Comments);
-		}
-
-		public List<NameValuePair> toNameValuePairs() {
-			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-			nvps.add(new BasicNameValuePair("ajax", "1"));
-			nvps.add(new BasicNameValuePair("action", "save"));
-			nvps.add(new BasicNameValuePair("version", "2"));
-			nvps.add(new BasicNameValuePair("objecttype", "thing"));
-			nvps.add(new BasicNameValuePair("objectid", "" + mPlay.GameId));
-			nvps.add(new BasicNameValuePair("playdate", mPlay.getFormattedDate()));
-			// TODO: ask Aldie what this is
-			nvps.add(new BasicNameValuePair("dateinput", mPlay.getFormattedDate()));
-			nvps.add(new BasicNameValuePair("length", "" + mPlay.Length));
-			nvps.add(new BasicNameValuePair("location", mPlay.Location));
-			nvps.add(new BasicNameValuePair("quantity", "" + mPlay.Quantity));
-			nvps.add(new BasicNameValuePair("incomplete", mPlay.Incomplete ? "1" : "0"));
-			nvps.add(new BasicNameValuePair("nowinstats", mPlay.NoWinStats ? "1" : "0"));
-			nvps.add(new BasicNameValuePair("comments", mPlay.Comments));
-			Log.d(TAG, nvps.toString());
-			return nvps;
-		}
 	}
 }

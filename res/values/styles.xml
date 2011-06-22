@@ -125,4 +125,8 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="FormLabel" parent="android:Widget.TextView">
+        <item name="android:padding">@dimen/padding_standard</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
+    </style>
 </resources>
