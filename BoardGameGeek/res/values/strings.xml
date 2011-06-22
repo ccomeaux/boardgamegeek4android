@@ -98,6 +98,16 @@
 	<string name="and">And</string>
 	<string name="edit">Edit</string>
 	<string name="delete">Delete</string>
+	<string name="name">Name</string>
+	<string name="player_name">Player Name</string>
+	<string name="username">Username</string>
+	<string name="team_color">Team/Color</string>
+	<string name="position">Position</string>
+	<string name="starting_position">Starting Position</string>
+	<string name="score">Score</string>
+	<string name="rating">Rating</string>
+	<string name="new_label">New</string>
+	<string name="win">Win</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
