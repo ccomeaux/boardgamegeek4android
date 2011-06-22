@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<include layout="@layout/titlebar" />
+	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" />
+
+	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<LinearLayout android:orientation="vertical"
+			android:gravity="top"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_standard">
+
+			<TableLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:stretchColumns="1">
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Name" />
+					<EditText android:id="@+id/logPlayerName"
+						android:inputType="text"
+						android:text=""
+						android:hint="Player Name"
+						android:maxLength="255" />
+				</TableRow>
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Username" />
+					<EditText android:id="@+id/logPlayerUsername"
+						android:inputType="text"
+						android:text=""
+						android:hint="Username"
+						android:maxLength="63" />
+				</TableRow>
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Team/Color" />
+					<EditText android:id="@+id/logPlayerTeamColor"
+						android:inputType="text"
+						android:text=""
+						android:hint="Team/Color"
+						android:maxLength="32" />
+				</TableRow>
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Position" />
+					<EditText android:id="@+id/logPlayerStartingPosition"
+						android:inputType="text"
+						android:text=""
+						android:hint="Starting Position"
+						android:maxLength="32" />
+				</TableRow>
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Score" />
+					<EditText android:id="@+id/logPlayerScore"
+						android:inputType="text"
+						android:text=""
+						android:hint="Score"
+						android:maxLength="32" />
+				</TableRow>
+
+				<TableRow>
+					<TextView style="@style/FormLabel" android:text="Rating" />
+					<EditText android:id="@+id/logPlayerRating"
+						android:inputType="numberDecimal"
+						android:text=""
+						android:hint="Rating"
+						android:maxLength="8" />
+				</TableRow>
+
+				<CheckBox android:id="@+id/logPlayerNew" android:text="New"/>
+				<CheckBox android:id="@+id/logPlayerWin" android:text="Win" />
+
+			</TableLayout>
+
+			<LinearLayout android:orientation="horizontal"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content">
+				<Button android:id="@+id/logPlaySaveButton"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/save"
+					android:enabled="true"
+					android:onClick="onSaveClick" />
+				<Button android:id="@+id/logPlayCancelButton"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/cancel"
+					android:onClick="onCancelClick" />
+			</LinearLayout>
+
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>
