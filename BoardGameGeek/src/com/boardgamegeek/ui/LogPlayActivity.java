@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.protocol.HTTP;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -72,6 +73,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private EditText mCommentsView;
 	private LinearLayout mPlayerList;
 	private Button mSaveButton;
+	private AlertDialog mCancelDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		UIUtils.setTitle(this);
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
+		mCancelDialog = UIUtils.createCancelDialog(this);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
@@ -171,7 +174,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				logPlay();
 				return true;
 			case R.id.cancel:
-				finish();
+				mCancelDialog.show();
 				return true;
 		}
 		return false;
@@ -206,7 +209,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onCancelClick(View v) {
-		finish();
+		mCancelDialog.show();
 	}
 
 	@Override

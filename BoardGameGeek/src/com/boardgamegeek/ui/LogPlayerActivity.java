@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ public class LogPlayerActivity extends Activity {
 	private EditText mRating;
 	private CheckBox mNew;
 	private CheckBox mWin;
+	private AlertDialog mCancelDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class LogPlayerActivity extends Activity {
 		setContentView(R.layout.activity_logplayer);
 		setUiVariables();
 		UIUtils.setTitle(this);
+		mCancelDialog = UIUtils.createCancelDialog(this);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
@@ -95,9 +98,7 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	public void onCancelClick(View v) {
-		// TODO: implement Are You Sure dialog
-		setResult(RESULT_CANCELED);
-		finish();
+		mCancelDialog.show();
 	}
 
 	private void save() {
