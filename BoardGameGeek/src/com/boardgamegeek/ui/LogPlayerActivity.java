@@ -48,7 +48,8 @@ public class LogPlayerActivity extends Activity {
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
-			mPlayer = new Player();
+			mPlayer = new Player(intent);
+			bindUi();
 
 			UIUtils u = new UIUtils(this);
 			u.setGameName(mGameName);
@@ -65,6 +66,17 @@ public class LogPlayerActivity extends Activity {
 		mRating = (EditText) findViewById(R.id.logPlayerRating);
 		mNew = (CheckBox) findViewById(R.id.logPlayerNew);
 		mWin = (CheckBox) findViewById(R.id.logPlayerWin);
+	}
+
+	private void bindUi() {
+		mName.setText(mPlayer.Name);
+		mUsername.setText(mPlayer.Username);
+		mTeamColor.setText(mPlayer.TeamColor);
+		mStartingPosition.setText(mPlayer.StartingPosition);
+		mScore.setText(mPlayer.Score);
+		mRating.setText("" + mPlayer.Rating);
+		mNew.setChecked(mPlayer.New);
+		mWin.setChecked(mPlayer.Win);
 	}
 
 	@Override

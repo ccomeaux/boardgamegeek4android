@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 public class Player {
+	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_USERNAME = "USERNAME";
 	private static final String KEY_TEAM_COLOR = "TEAM_COLOR";
@@ -18,14 +19,16 @@ public class Player {
 
 	public Player(Intent intent) {
 		final Bundle bundle = intent.getExtras();
-		Name = bundle.getString(KEY_NAME);
-		Username = bundle.getString(KEY_USERNAME);
-		TeamColor = bundle.getString(KEY_TEAM_COLOR);
-		StartingPosition = bundle.getString(KEY_STARTING_POSITION);
-		Score = bundle.getString(KEY_SCORE);
-		Rating = bundle.getDouble(KEY_RATING);
-		New = bundle.getBoolean(KEY_NEW);
-		Win = bundle.getBoolean(KEY_WIN);
+		if (bundle.getBoolean(KEY_EXISTS)) {
+			Name = bundle.getString(KEY_NAME);
+			Username = bundle.getString(KEY_USERNAME);
+			TeamColor = bundle.getString(KEY_TEAM_COLOR);
+			StartingPosition = bundle.getString(KEY_STARTING_POSITION);
+			Score = bundle.getString(KEY_SCORE);
+			Rating = bundle.getDouble(KEY_RATING);
+			New = bundle.getBoolean(KEY_NEW);
+			Win = bundle.getBoolean(KEY_WIN);
+		}
 	}
 
 	public String Name;
@@ -39,6 +42,7 @@ public class Player {
 
 	public Intent toIntent() {
 		Intent intent = new Intent();
+		intent.putExtra(KEY_EXISTS, true);
 		intent.putExtra(KEY_NAME, Name);
 		intent.putExtra(KEY_USERNAME, Username);
 		intent.putExtra(KEY_TEAM_COLOR, TeamColor);

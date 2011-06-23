@@ -198,10 +198,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onAddPlayerClick(View v) {
-		Intent intent = new Intent(this, LogPlayerActivity.class);
-		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
-		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
-		startActivityForResult(intent, 0);
+		addPlayer(new Intent());
 	}
 
 	public void onSaveClick(View v) {
@@ -231,9 +228,9 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		return new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO: implement this for real
-				Toast.makeText(LogPlayActivity.this, "Edit " + ((PlayerRow) v).getPlayer().Name, Toast.LENGTH_LONG)
-						.show();
+				PlayerRow row = (PlayerRow) v;
+				Player player = row.getPlayer();
+				addPlayer(player.toIntent());
 			}
 		};
 	}
@@ -243,11 +240,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			@Override
 			public void onClick(View v) {
 				// TODO: implement are you sure?
-				Toast.makeText(LogPlayActivity.this, "Player deleted.", Toast.LENGTH_SHORT).show();
 				mPlayerList.removeView(v);
 				Toast.makeText(LogPlayActivity.this, "Player deleted.", Toast.LENGTH_SHORT).show();
 			}
 		};
+	}
+
+	private void addPlayer(Intent intent) {
+		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
+		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+		startActivityForResult(intent, 0);
 	}
 
 	private void setUiVariables() {
