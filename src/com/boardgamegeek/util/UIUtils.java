@@ -3,7 +3,9 @@ package com.boardgamegeek.util;
 import java.util.Random;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -168,5 +170,23 @@ public class UIUtils {
 			mRandom = new Random();
 		}
 		return mRandom;
+	}
+
+	public static AlertDialog createCancelDialog(final Activity activity) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		builder.setTitle(R.string.are_you_sure_title)
+			.setMessage(R.string.are_you_sure_message)
+			.setCancelable(false)
+			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					activity.finish();
+				}
+			}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					activity.setResult(Activity.RESULT_CANCELED);
+					dialog.cancel();
+				}
+			});
+		return builder.create();
 	}
 }

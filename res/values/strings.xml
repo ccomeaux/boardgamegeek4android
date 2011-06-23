@@ -108,6 +108,10 @@
 	<string name="rating">Rating</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
+	<string name="are_you_sure_title">Are You Sure?</string>
+	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all of your changes.</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
