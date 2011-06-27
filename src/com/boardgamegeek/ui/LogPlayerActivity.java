@@ -95,7 +95,7 @@ public class LogPlayerActivity extends Activity {
 				save();
 				return true;
 			case R.id.cancel:
-				finish();
+				cancel();
 				return true;
 		}
 		return false;
@@ -119,13 +119,17 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	public void onCancelClick(View v) {
-		mCancelDialog.show();
+		cancel();
 	}
 
 	private void save() {
 		captureForm();
 		setResult(RESULT_OK, mPlayer.toIntent());
 		finish();
+	}
+
+	private void cancel() {
+		mCancelDialog.show();
 	}
 
 	private void captureForm() {
