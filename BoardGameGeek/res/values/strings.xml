@@ -195,6 +195,7 @@
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
+	<string name="msg_player_deleted">Player deleted.</string>
 
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
