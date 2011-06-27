@@ -82,6 +82,10 @@ public class Play {
 		Day = day;
 	}
 
+	public void clearPlayers() {
+		mPlayers.clear();
+	}
+
 	public void addPlayer(Player player) {
 		mPlayers.add(player);
 	}
@@ -115,6 +119,11 @@ public class Play {
 		nvps.add(new BasicNameValuePair("incomplete", Incomplete ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("nowinstats", NoWinStats ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("comments", Comments));
+
+		for (int i = 0; i < mPlayers.size(); i++) {
+			nvps.addAll(mPlayers.get(i).toNameValuePairs(i));
+		}
+
 		Log.d(TAG, nvps.toString());
 		return nvps;
 	}
