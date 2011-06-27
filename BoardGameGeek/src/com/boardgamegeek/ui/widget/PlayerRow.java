@@ -1,11 +1,14 @@
 package com.boardgamegeek.ui.widget;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,9 +18,11 @@ import com.boardgamegeek.model.Player;
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
 
-	private Button mEditButton;
-	private Button mDeleteButton;
 	private TextView mName;
+	private TextView mUsername;
+	private TextView mTeamColor;
+	private ImageView mDeleteButton;
+	private ImageView mEditButton;
 
 	private OnClickListener mEditClickListener;
 	private OnClickListener mDeleteClickListener;
@@ -28,22 +33,36 @@ public class PlayerRow extends LinearLayout {
 
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		inflater.inflate(R.layout.row_player, this);
+		initializeUi();
 	}
 
-	private void init(Context context) {
-		setOrientation(LinearLayout.HORIZONTAL);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		setGravity(Gravity.CENTER_VERTICAL);
+	private void initializeUi() {
+		mName = (TextView) findViewById(R.id.name);
+		mUsername = (TextView) findViewById(R.id.usernname);
+		mTeamColor = (TextView) findViewById(R.id.team_color);
 
-		// float smallTextSize =
-		// getResources().getDimension(R.dimen.text_size_small);
-		float mediumTextSize = getResources().getDimension(R.dimen.text_size_medium);
-		LayoutParams simpleWrap = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
+		mDeleteButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerRow.this.getContext());
+				builder.setTitle(R.string.are_you_sure_title)
+					.setMessage(R.string.are_you_sure_delete_player)
+					.setCancelable(false)
+					.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							if (mDeleteClickListener != null) {
+								mDeleteClickListener.onClick(PlayerRow.this);
+							}
+						}
+					}).setNegativeButton(R.string.no, null);
+				builder.create().show();
+			}
+		});
 
-		mEditButton = new Button(context);
-		mEditButton.setText(R.string.edit);
-		mEditButton.setLayoutParams(simpleWrap);
+		mEditButton = (ImageView) findViewById(R.id.log_player_edit);
 		mEditButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -52,26 +71,6 @@ public class PlayerRow extends LinearLayout {
 				}
 			}
 		});
-
-		mDeleteButton = new Button(context);
-		mDeleteButton.setText(R.string.delete);
-		mDeleteButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (mDeleteClickListener != null) {
-					mDeleteClickListener.onClick(PlayerRow.this);
-				}
-			}
-		});
-
-		mName = new TextView(context);
-		mName.setTextSize(TypedValue.COMPLEX_UNIT_PX, mediumTextSize);
-		mName.setGravity(Gravity.CENTER_VERTICAL);
-		mName.setLayoutParams(simpleWrap);
-
-		addView(mName);
-		addView(mEditButton);
-		addView(mDeleteButton, simpleWrap);
 	}
 
 	public void setOnEditListener(OnClickListener l) {
@@ -94,8 +93,29 @@ public class PlayerRow extends LinearLayout {
 	private void bindUi() {
 		if (mPlayer == null) {
 			mName.setText("");
+			mUsername.setText("");
+			mTeamColor.setText("");
 		} else {
 			mName.setText(mPlayer.Name);
+			if (mPlayer.New && mPlayer.Win) {
+				mName.setTypeface(mName.getTypeface(), Typeface.BOLD_ITALIC);
+			} else if (mPlayer.New) {
+				mName.setTypeface(mName.getTypeface(), Typeface.ITALIC);
+			} else if (mPlayer.Win) {
+				mName.setTypeface(mName.getTypeface(), Typeface.BOLD);
+			}
+
+			setText(mUsername, mPlayer.Username);
+			setText(mTeamColor, mPlayer.TeamColor);
+		}
+	}
+
+	private void setText(TextView textView, String text) {
+		if (TextUtils.isEmpty(text)) {
+			textView.setVisibility(View.GONE);
+		} else {
+			textView.setVisibility(View.VISIBLE);
+			textView.setText(text);
 		}
 	}
 }

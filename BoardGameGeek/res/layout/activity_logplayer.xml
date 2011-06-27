@@ -23,7 +23,7 @@
 				<TableRow>
 					<TextView style="@style/FormLabel" android:text="@string/name" />
 					<EditText android:id="@+id/logPlayerName"
-						android:inputType="text"
+						android:inputType="textCapWords"
 						android:text=""
 						android:hint="@string/player_name"
 						android:maxLength="255" />
@@ -41,7 +41,7 @@
 				<TableRow>
 					<TextView style="@style/FormLabel" android:text="@string/team_color" />
 					<EditText android:id="@+id/logPlayerTeamColor"
-						android:inputType="text"
+						android:inputType="textCapWords"
 						android:text=""
 						android:hint="@string/team_color"
 						android:maxLength="32" />
