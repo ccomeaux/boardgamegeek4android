@@ -1,9 +1,18 @@
 package com.boardgamegeek.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 public class Player {
+	private static final String TAG = "Player";
+
 	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_USERNAME = "USERNAME";
@@ -57,5 +66,24 @@ public class Player {
 	@Override
 	public String toString() {
 		return String.format("%1$s (%2$s) - %3$s", Name, Username, TeamColor);
+	}
+
+	public List<NameValuePair> toNameValuePairs(int index) {
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		addPair(nvps, index, "playerid", "player_" + index);
+		addPair(nvps, index, "name", Name);
+		addPair(nvps, index, "username", Username);
+		addPair(nvps, index, "color", TeamColor);
+		addPair(nvps, index, "position", StartingPosition);
+		addPair(nvps, index, "score", Score);
+		addPair(nvps, index, "rating", "" + Rating);
+		addPair(nvps, index, "new", New ? "1" : "0");
+		addPair(nvps, index, "win", Win ? "1" : "0");
+		Log.d(TAG, nvps.toString());
+		return nvps;
+	}
+
+	private void addPair(List<NameValuePair> nvps, int index, String key, String value) {
+		nvps.add(new BasicNameValuePair("players[" + index + "][" + key + "]", value));
 	}
 }

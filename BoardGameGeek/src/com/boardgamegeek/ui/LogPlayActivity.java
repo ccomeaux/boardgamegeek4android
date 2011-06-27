@@ -176,7 +176,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				logPlay();
 				return true;
 			case R.id.cancel:
-				mCancelDialog.show();
+				cancel();
 				return true;
 		}
 		return false;
@@ -208,7 +208,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onCancelClick(View v) {
-		mCancelDialog.show();
+		cancel();
 	}
 
 	@Override
@@ -284,6 +284,10 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		captureForm();
 		LogPlayTask task = new LogPlayTask();
 		task.execute(mPlay);
+	}
+
+	private void cancel() {
+		mCancelDialog.show();
 	}
 
 	class LogPlayTask extends AsyncTask<Play, Void, String> {
@@ -434,5 +438,14 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mPlay.Incomplete = mIncompleteView.isChecked();
 		mPlay.NoWinStats = mNoWinStatsView.isChecked();
 		mPlay.Comments = mCommentsView.getText().toString();
+		mPlay.clearPlayers();
+		for (int i = 0; i < mPlayerList.getChildCount(); i++) {
+			View view = mPlayerList.getChildAt(i);
+			if (view instanceof PlayerRow) {
+				PlayerRow pr = (PlayerRow) view;
+				Player p = pr.getPlayer();
+				mPlay.addPlayer(p);
+			}
+		}
 	}
 }

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -55,6 +57,13 @@ public class LogPlayerActivity extends Activity {
 			u.setGameName(mGameName);
 			u.setThumbnail(mThumbnailUrl);
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.logplay, menu);
+		return true;
 	}
 
 	private void setUiVariables() {
