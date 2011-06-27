@@ -9,7 +9,8 @@
 	<include layout="@layout/header_divider" />
 
 	<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
-		<LinearLayout android:orientation="vertical"
+		<LinearLayout android:id="@+id/player_list"
+			android:orientation="vertical"
 			android:gravity="top"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
@@ -59,26 +60,22 @@
 					android:hint="@string/commentsHint" />
 			</TableLayout>
 
-			<LinearLayout android:id="@+id/player_list"
-				android:orientation="vertical"
+			<LinearLayout android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:padding="0px">
-				<LinearLayout android:orientation="horizontal"
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content">
-					<TextView android:textSize="@dimen/text_size_large"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:text="Players" />
-					<Button android:id="@+id/addPlayer"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="right"
-						android:text="Add..."
-						android:onClick="onAddPlayerClick" />
-				</LinearLayout>
+				android:padding="@dimen/padding_standard"
+				android:gravity="center_vertical">
+				<TextView android:textSize="@dimen/text_size_large"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/players" />
+				<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					android:src="@drawable/add"
+					android:onClick="onAddPlayerClick" />
 			</LinearLayout>
 
 			<LinearLayout android:orientation="horizontal"

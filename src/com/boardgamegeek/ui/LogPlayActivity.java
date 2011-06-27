@@ -53,6 +53,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
+	private static final int REQUEST_ADD_PLAYER = 0;
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -61,6 +62,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private String mGameName;
 	private String mThumbnailUrl;
 	private Play mPlay;
+	private int mNextPlayerTag = 1;
 
 	private LogInHelper mLogInHelper;
 
@@ -198,7 +200,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onAddPlayerClick(View v) {
-		addPlayer(new Intent());
+		addPlayer(new Intent(), REQUEST_ADD_PLAYER);
 	}
 
 	public void onSaveClick(View v) {
@@ -215,12 +217,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 		if (resultCode == RESULT_OK) {
 			Player p = new Player(data);
-
-			PlayerRow pr = new PlayerRow(this);
-			pr.setPlayer(p);
-			pr.setOnEditListener(onPlayerEdit());
-			pr.setOnDeleteListener(onPlayerDelete());
-			mPlayerList.addView(pr);
+			if (requestCode == REQUEST_ADD_PLAYER) {
+				PlayerRow pr = new PlayerRow(this);
+				pr.setPlayer(p);
+				pr.setTag(mNextPlayerTag++);
+				pr.setOnEditListener(onPlayerEdit());
+				pr.setOnDeleteListener(onPlayerDelete());
+				mPlayerList.addView(pr, mPlayerList.getChildCount() - 1);
+			} else {
+				PlayerRow pr = (PlayerRow) mPlayerList.findViewWithTag(requestCode);
+				pr.setPlayer(p);
+			}
 		}
 	}
 
@@ -230,7 +237,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			public void onClick(View v) {
 				PlayerRow row = (PlayerRow) v;
 				Player player = row.getPlayer();
-				addPlayer(player.toIntent());
+				addPlayer(player.toIntent(), (Integer) row.getTag());
 			}
 		};
 	}
@@ -241,16 +248,16 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			public void onClick(View v) {
 				// TODO: implement are you sure?
 				mPlayerList.removeView(v);
-				Toast.makeText(LogPlayActivity.this, "Player deleted.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
 			}
 		};
 	}
 
-	private void addPlayer(Intent intent) {
+	private void addPlayer(Intent intent, int requestCode) {
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
 		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
-		startActivityForResult(intent, 0);
+		startActivityForResult(intent, requestCode);
 	}
 
 	private void setUiVariables() {
