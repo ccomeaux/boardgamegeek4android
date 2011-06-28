@@ -19,7 +19,7 @@
 				<TextView android:id="@+id/rating" android:textSize="@dimen/text_size_small" android:textStyle="bold" />
 			</TableRow>
 			<TableRow android:gravity="center_horizontal">
-				<RatingBar android:id="@+id/rating_bar"
+				<RatingBar android:id="@+id/rating_stars"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					style="?android:attr/ratingBarStyleSmall"

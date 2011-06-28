@@ -90,7 +90,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mRatingView = (TextView) findViewById(R.id.rating);
 		mNumberRatingView = (TextView) findViewById(R.id.number_rating);
 		mRankView = (TextView) findViewById(R.id.rank);
-		mRatingBar = (RatingBar) findViewById(R.id.rating_bar);
+		mRatingBar = (RatingBar) findViewById(R.id.rating_stars);
 		mYearPublishedView = (TextView) findViewById(R.id.yearPublished);
 		mPlayersView = (TextView) findViewById(R.id.numOfPlayers);
 		mPlayingTimeRow = (TableRow) findViewById(R.id.playing_time_row);
