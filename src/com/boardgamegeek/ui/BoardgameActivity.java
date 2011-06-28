@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.net.URLEncoder;
-
 import org.apache.http.client.HttpClient;
 
 import android.app.AlertDialog.Builder;
@@ -30,6 +28,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -250,10 +249,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.log_play:
-				logPlay(false);
+				ActivityUtils.logPlay(this, false, mId, mName, mThumbnailUrl);
 				return true;
 			case R.id.log_play_quick:
-				logPlay(true);
+				ActivityUtils.logPlay(this, true, mId, mName, mThumbnailUrl);
 				return true;
 			case R.id.refresh:
 				if (DateTimeUtils.howManyHoursOld(mUpdatedDate) > REFRESH_THROTTLE_IN_HOURS) {
@@ -263,50 +262,26 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				}
 				return true;
 			case R.id.menu_bgg:
-				link("http://www.boardgamegeek.com/boardgame/" + mId);
+				ActivityUtils.linkBgg(this, mId);
 				return true;
 			case R.id.menu_bg_prices:
-				link("http://boardgameprices.com/iphone/?s=" + URLEncoder.encode(mName));
+				ActivityUtils.linkBgPrices(this, mName);
 				return true;
 			case R.id.menu_amazon:
-				link("http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + URLEncoder.encode(mName)
-						+ "&i=toys-and-games&submitSearch=GO");
+				ActivityUtils.linkAmazon(this, mName);
 				return true;
 			case R.id.menu_ebay:
-				link("http://shop.mobileweb.ebay.com/searchresults?kw=" + URLEncoder.encode(mName));
+				ActivityUtils.linkEbay(this, mName);
 				return true;
 			case R.id.share:
-				share();
+				ActivityUtils.shareGame(this, mId, mName);
 				return true;
 		}
 		return false;
 	}
 
-	private void logPlay(boolean quick) {
-		Intent intent = new Intent(this, LogPlayActivity.class);
-		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, mId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, mName);
-		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
-		startActivity(intent);
-	}
-
 	private void refresh() {
 		new RefreshTask().execute(mGameUri.getLastPathSegment());
-	}
-
-	private void link(String link) {
-		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
-	}
-
-	private void share() {
-		Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-				String.format(getResources().getString(R.string.share_subject), mName));
-		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getResources().getString(R.string.share_text), mName,
-				"http://www.boardgamegeek.com/boardgame/" + mId));
-		startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_title)));
 	}
 
 	private void showToast(int messageId) {

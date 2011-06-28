@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -23,6 +23,8 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +32,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
@@ -47,6 +51,7 @@ import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.NumberOfPlayersFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -72,6 +77,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
 
+	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
+	private AdapterContextMenuInfo mLinksMenuInfo = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,6 +91,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filterLinearLayout);
 
 		getListView().setOnScrollListener(this);
+		getListView().setOnCreateContextMenuListener(this);
 
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);
@@ -149,9 +158,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
-				final int gameId = cursor.getInt(Query.GAME_ID);
-				final Uri gameUri = Games.buildGameUri(gameId);
-				startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
+				showGame(cursor.getInt(Query.GAME_ID));
 				return true;
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
@@ -164,6 +171,94 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		if (cursor == null) {
+			return;
+		}
+		final String gameName = cursor.getString(Query.COLLECTION_NAME);
+		UIUtils.createBoardgameContextMenu(menu, menuInfo, gameName);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			if (info == null && mLinksMenuInfo != null) {
+				info = mLinksMenuInfo;
+			}
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return false;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		if (cursor == null) {
+			return false;
+		}
+
+		final int gameId = cursor.getInt(Query.GAME_ID);
+		final String gameName = cursor.getString(Query.COLLECTION_NAME);
+		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+		Log.d(TAG, gameName);
+
+		switch (item.getItemId()) {
+			case UIUtils.MENU_ITEM_VIEW: {
+				showGame(gameId);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LOG_PLAY: {
+				ActivityUtils.logPlay(this, false, gameId, gameName, thumbnailUrl);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_QUICK_LOG_PLAY: {
+				ActivityUtils.logPlay(this, true, gameId, gameName, thumbnailUrl);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_SHARE: {
+				ActivityUtils.shareGame(this, gameId, gameName);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINKS: {
+				mLinksMenuInfo = info;
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_BGG: {
+				ActivityUtils.linkBgg(this, gameId);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_BG_PRICES: {
+				ActivityUtils.linkBgPrices(this, gameName);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_AMAZON: {
+				ActivityUtils.linkAmazon(this, gameName);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_EBAY: {
+				ActivityUtils.linkEbay(this, gameName);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void onContextMenuClosed(Menu menu) {
+		// We don't need it anymore
+		mLinksMenuInfo = null;
 	}
 
 	private boolean launchFilterDialog(int id) {
@@ -274,7 +369,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final int gameId = cursor.getInt(Query.GAME_ID);
+		showGame(cursor.getInt(Query.GAME_ID));
+	}
+
+	private void showGame(final int gameId) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
 	}
@@ -435,17 +533,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private void showHelpDialog() {
 		if (BggApplication.getInstance().getShowCollectionHelp(HELP_VERSION)) {
 			Builder builder = new Builder(this);
-			builder.setTitle(R.string.help_title)
-				.setCancelable(false)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setMessage(R.string.help_collection)
-				.setPositiveButton(R.string.help_button_close, null)
-				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						BggApplication.getInstance().updateCollectionHelp(HELP_VERSION);
-					}
-				});
+			builder.setTitle(R.string.help_title).setCancelable(false).setIcon(android.R.drawable.ic_dialog_info)
+					.setMessage(R.string.help_collection).setPositiveButton(R.string.help_button_close, null)
+					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							BggApplication.getInstance().updateCollectionHelp(HELP_VERSION);
+						}
+					});
 			builder.create().show();
 		}
 	}

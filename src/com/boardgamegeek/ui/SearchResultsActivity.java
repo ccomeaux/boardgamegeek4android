@@ -13,9 +13,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,6 +34,7 @@ import com.boardgamegeek.io.RemoteSearchHandler;
 import com.boardgamegeek.io.SearchResult;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -40,6 +47,9 @@ public class SearchResultsActivity extends ListActivity {
 	private TextView mSearchTextView;
 	private String mSearchText;
 
+	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
+	private AdapterContextMenuInfo mLinksMenuInfo = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,6 +58,7 @@ public class SearchResultsActivity extends ListActivity {
 		UIUtils.setTitle(this, getResources().getString(R.string.title_search_results));
 		UIUtils.allowTypeToSearch(this);
 
+		getListView().setOnCreateContextMenuListener(this);
 		mAdapter = new BoardGameAdapter();
 		mSearchTextView = (TextView) findViewById(R.id.search_text);
 
@@ -75,6 +86,85 @@ public class SearchResultsActivity extends ListActivity {
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		SearchResult game = (SearchResult) mAdapter.getItem(position);
 		viewBoardGame(game.Id, game.Name);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return;
+		}
+
+		SearchResult game = (SearchResult) mAdapter.getItem(info.position);
+		UIUtils.createBoardgameContextMenu(menu, menuInfo, game.Name);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			if (info == null && mLinksMenuInfo != null) {
+				info = mLinksMenuInfo;
+			}
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return false;
+		}
+
+		SearchResult game = (SearchResult) mAdapter.getItem(info.position);
+		if (game == null) {
+			return false;
+		}
+
+		switch (item.getItemId()) {
+			case UIUtils.MENU_ITEM_VIEW: {
+				viewBoardGame(game.Id, game.Name);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LOG_PLAY: {
+				ActivityUtils.logPlay(this, false, game.Id, game.Name, null);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_QUICK_LOG_PLAY: {
+				ActivityUtils.logPlay(this, true, game.Id, game.Name, null);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_SHARE: {
+				ActivityUtils.shareGame(this, game.Id, game.Name);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINKS: {
+				mLinksMenuInfo = info;
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_BGG: {
+				ActivityUtils.linkBgg(this, game.Id);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_BG_PRICES: {
+				ActivityUtils.linkBgPrices(this, game.Name);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_AMAZON: {
+				ActivityUtils.linkAmazon(this, game.Name);
+				return true;
+			}
+			case UIUtils.MENU_ITEM_LINK_EBAY: {
+				ActivityUtils.linkEbay(this, game.Name);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void onContextMenuClosed(Menu menu) {
+		// We don't need it anymore
+		mLinksMenuInfo = null;
 	}
 
 	private void parseIntent(Intent intent) {
