@@ -15,6 +15,7 @@ public class BggApplication extends Application {
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
 	private final static String TAG = "BggApplication";
 	private static String HELP_BOARDGAME_KEY = "help.boardgame";
+	private static String HELP_COLLECTION_KEY = "help.collection";
 
 	private static BggApplication singleton;
 
@@ -76,13 +77,29 @@ public class BggApplication extends Application {
 	}
 
 	public boolean getShowBoardGameHelp(int version) {
+		return getShowHelp(version, HELP_BOARDGAME_KEY);
+	}
+
+	public boolean getShowCollectionHelp(int version) {
+		return getShowHelp(version, HELP_COLLECTION_KEY);
+	}
+
+	private boolean getShowHelp(int version, String key) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		final int shownVersion = preferences.getInt(HELP_BOARDGAME_KEY, 0);
+		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
 	public boolean updateBoardGameHelp(int version) {
+		return updateHelp(version, HELP_BOARDGAME_KEY);
+	}
+
+	public boolean updateCollectionHelp(int version) {
+		return updateHelp(version, HELP_COLLECTION_KEY);
+	}
+
+	private boolean updateHelp(int version, String key) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.edit().putInt(HELP_BOARDGAME_KEY, version).commit();
+		return preferences.edit().putInt(key, version).commit();
 	}
 }

@@ -6,8 +6,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import android.app.ListActivity;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -33,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
@@ -51,6 +55,8 @@ import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
 	private static final String TAG = "CollectionActivity";
+
+	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -88,6 +94,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList("FILTERS");
 		}
 		applyFilters();
+		showHelpDialog();
 	}
 
 	@Override
@@ -423,5 +430,23 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mFilters.remove(filter);
 		mFilters.add(filter);
 		applyFilters();
+	}
+
+	private void showHelpDialog() {
+		if (BggApplication.getInstance().getShowCollectionHelp(HELP_VERSION)) {
+			Builder builder = new Builder(this);
+			builder.setTitle(R.string.help_title)
+				.setCancelable(false)
+				.setIcon(android.R.drawable.ic_dialog_info)
+				.setMessage(R.string.help_collection)
+				.setPositiveButton(R.string.help_button_close, null)
+				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						BggApplication.getInstance().updateCollectionHelp(HELP_VERSION);
+					}
+				});
+			builder.create().show();
+		}
 	}
 }

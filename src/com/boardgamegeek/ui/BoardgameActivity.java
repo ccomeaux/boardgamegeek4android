@@ -73,6 +73,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		startQuery();
+
+		showHelpDialog();
 	}
 
 	private void extractIntentInfo() {
@@ -93,7 +95,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	@Override
 	protected void onResume() {
 		super.onResume();
-		showHelpDialog();
 	}
 
 	@Override
