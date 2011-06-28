@@ -5,11 +5,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -103,7 +100,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList("FILTERS");
 		}
 		applyFilters();
-		showHelpDialog();
+		UIUtils.showHelpDialog(this, BggApplication.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
 	@Override
@@ -528,20 +525,5 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mFilters.remove(filter);
 		mFilters.add(filter);
 		applyFilters();
-	}
-
-	private void showHelpDialog() {
-		if (BggApplication.getInstance().getShowCollectionHelp(HELP_VERSION)) {
-			Builder builder = new Builder(this);
-			builder.setTitle(R.string.help_title).setCancelable(false).setIcon(android.R.drawable.ic_dialog_info)
-					.setMessage(R.string.help_collection).setPositiveButton(R.string.help_button_close, null)
-					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							BggApplication.getInstance().updateCollectionHelp(HELP_VERSION);
-						}
-					});
-			builder.create().show();
-		}
 	}
 }

@@ -189,7 +189,7 @@
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_collection_random_game">Random Game</string>
-	<string name="menu_display_game">Display</string>	
+	<string name="menu_display_game">Display</string>
 
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>
@@ -226,7 +226,9 @@
 		links\n - Share\n\nAlso, the image thumbnail can be clicked to view a
 		larger version.</string>
 	<string name="help_collection">Got lots of games? Click the Menu button to filter
-		your collection and choose a random game from this list.</string>
+		your collection and choose a random game from this list.\n\nYou can
+		also long-click on a game for more options.</string>
+	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
 </resources>
