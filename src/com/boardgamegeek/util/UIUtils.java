@@ -4,9 +4,11 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -217,5 +219,23 @@ public class UIUtils {
 		links.add(0, MENU_ITEM_LINK_BG_PRICES, 0, R.string.menu_link_bg_prices);
 		links.add(0, MENU_ITEM_LINK_AMAZON, 0, R.string.menu_link_amazon);
 		links.add(0, MENU_ITEM_LINK_EBAY, 0, R.string.menu_link_ebay);
+	}
+
+	public static void showHelpDialog(Context context, final String key, final int version, int messageId) {
+		if (BggApplication.getInstance().showHelp(key, version)) {
+			Builder builder = new Builder(context);
+			builder.setTitle(R.string.help_title)
+					.setCancelable(false)
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setMessage(messageId)
+					.setPositiveButton(R.string.help_button_close, null)
+					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							BggApplication.getInstance().updateHelp(key, version);
+						}
+					});
+			builder.create().show();
+		}
 	}
 }

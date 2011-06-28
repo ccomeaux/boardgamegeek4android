@@ -2,10 +2,7 @@ package com.boardgamegeek.ui;
 
 import org.apache.http.client.HttpClient;
 
-import android.app.AlertDialog.Builder;
 import android.app.TabActivity;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -73,7 +70,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		startQuery();
 
-		showHelpDialog();
+		UIUtils.showHelpDialog(this, BggApplication.HELP_BOARDGAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	private void extractIntentInfo() {
@@ -190,24 +187,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				.inflate(R.layout.tab_indicator, getTabWidget(), false);
 		indicator.setText(textRes);
 		return indicator;
-	}
-
-	private void showHelpDialog() {
-		if (BggApplication.getInstance().getShowBoardGameHelp(HELP_VERSION)) {
-			Builder builder = new Builder(this);
-			builder.setTitle(R.string.help_title)
-					.setCancelable(false)
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setMessage(R.string.help_boardgame)
-					.setPositiveButton(R.string.help_button_close, null)
-					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							BggApplication.getInstance().updateBoardGameHelp(HELP_VERSION);
-						}
-					});
-			builder.create().show();
-		}
 	}
 
 	private void showLoadingMessage() {

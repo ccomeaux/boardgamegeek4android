@@ -41,6 +41,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends ListActivity {
 	private final String TAG = "SearchResultsActivity";
+	private static final int HELP_VERSION = 1;
 
 	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 	private BoardGameAdapter mAdapter;
@@ -63,6 +64,8 @@ public class SearchResultsActivity extends ListActivity {
 		mSearchTextView = (TextView) findViewById(R.id.search_text);
 
 		parseIntent(getIntent());
+
+		UIUtils.showHelpDialog(this, BggApplication.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override
