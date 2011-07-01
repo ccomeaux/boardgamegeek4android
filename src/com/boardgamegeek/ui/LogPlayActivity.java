@@ -109,13 +109,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			mPlay = new Play(savedInstanceState);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
-
-			mQuantityView.setText("" + mPlay.Quantity);
-			mLengthView.setText("" + mPlay.Length);
-			mLocationView.setText(mPlay.Location);
-			mIncompleteView.setChecked(mPlay.Incomplete);
-			mNoWinStatsView.setChecked(mPlay.NoWinStats);
-			mCommentsView.setText(mPlay.Comments);
+			bindUi();
 		}
 
 		UIUtils u = new UIUtils(this);
@@ -218,17 +212,33 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		if (resultCode == RESULT_OK) {
 			Player p = new Player(data);
 			if (requestCode == REQUEST_ADD_PLAYER) {
-				PlayerRow pr = new PlayerRow(this);
-				pr.setPlayer(p);
-				pr.setTag(mNextPlayerTag++);
-				pr.setOnEditListener(onPlayerEdit());
-				pr.setOnDeleteListener(onPlayerDelete());
-				mPlayerList.addView(pr, mPlayerList.getChildCount() - 1);
+				addPlayer(p);
 			} else {
 				PlayerRow pr = (PlayerRow) mPlayerList.findViewWithTag(requestCode);
 				pr.setPlayer(p);
 			}
 		}
+	}
+
+	private void bindUi() {
+		mQuantityView.setText(String.valueOf(mPlay.Quantity));
+		mLengthView.setText(String.valueOf(mPlay.Length));
+		mLocationView.setText(mPlay.Location);
+		mIncompleteView.setChecked(mPlay.Incomplete);
+		mNoWinStatsView.setChecked(mPlay.NoWinStats);
+		mCommentsView.setText(mPlay.Comments);
+		for (Player player : mPlay.getPlayers()) {
+			addPlayer(player);
+		}
+	}
+
+	private void addPlayer(Player p) {
+		PlayerRow pr = new PlayerRow(this);
+		pr.setPlayer(p);
+		pr.setTag(mNextPlayerTag++);
+		pr.setOnEditListener(onPlayerEdit());
+		pr.setOnDeleteListener(onPlayerDelete());
+		mPlayerList.addView(pr, mPlayerList.getChildCount() - 1);
 	}
 
 	private OnClickListener onPlayerEdit() {
@@ -246,7 +256,6 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		return new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO: implement are you sure?
 				mPlayerList.removeView(v);
 				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
 			}
