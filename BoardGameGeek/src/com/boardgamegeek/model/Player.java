@@ -8,9 +8,11 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
-public class Player {
+public class Player implements Parcelable {
 	private static final String TAG = "Player";
 
 	private static final String KEY_EXISTS = "EXISTS";
@@ -85,5 +87,47 @@ public class Player {
 
 	private void addPair(List<NameValuePair> nvps, int index, String key, String value) {
 		nvps.add(new BasicNameValuePair("players[" + index + "][" + key + "]", value));
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel out, int flags) {
+		out.writeString(Name);
+		out.writeString(Username);
+		out.writeString(TeamColor);
+		out.writeString(StartingPosition);
+		out.writeString(Score);
+		out.writeDouble(Rating);
+		out.writeInt(New ? 1 : 0);
+		out.writeInt(Win ? 1 : 0);
+	}
+
+	public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>() {
+		public Player createFromParcel(Parcel in) {
+			return new Player(in);
+		}
+
+		public Player[] newArray(int size) {
+			return new Player[size];
+		}
+	};
+
+	private Player(Parcel in) {
+		Name = in.readString();
+		Username = in.readString();
+		TeamColor = in.readString();
+		StartingPosition = in.readString();
+		Score = in.readString();
+		Rating = in.readDouble();
+		if (in.readInt() == 1) {
+			New = true;
+		}
+		if (in.readInt() == 1) {
+			Win = true;
+		}
 	}
 }

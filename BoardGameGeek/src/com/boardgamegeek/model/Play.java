@@ -10,11 +10,11 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 
 public class Play {
 	private static final String TAG = "Play";
-
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_YEAR = "YEAR";
 	private static final String KEY_MONTH = "MONTH";
@@ -25,9 +25,9 @@ public class Play {
 	private static final String KEY_INCOMPLETE = "INCOMPLETE";
 	private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
 	private static final String KEY_COMMENTS = "COMMENTS";
+	private static final String KEY_PLAYERS = "PLAYERS";
 
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
-
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play(int gameId) {
@@ -51,6 +51,7 @@ public class Play {
 		Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
 		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
 		Comments = bundle.getString(KEY_COMMENTS);
+		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
 	}
 
 	public int GameId;
@@ -101,6 +102,7 @@ public class Play {
 		bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
 		bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
 		bundle.putString(KEY_COMMENTS, Comments);
+		bundle.putParcelableArrayList(KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
 	}
 
 	public List<NameValuePair> toNameValuePairs() {
@@ -109,7 +111,7 @@ public class Play {
 		nvps.add(new BasicNameValuePair("action", "save"));
 		nvps.add(new BasicNameValuePair("version", "2"));
 		nvps.add(new BasicNameValuePair("objecttype", "thing"));
-		nvps.add(new BasicNameValuePair("objectid", "" + GameId));
+		nvps.add(new BasicNameValuePair("objectid", String.valueOf(GameId)));
 		nvps.add(new BasicNameValuePair("playdate", getFormattedDate()));
 		// TODO: ask Aldie what this is
 		nvps.add(new BasicNameValuePair("dateinput", getFormattedDate()));
