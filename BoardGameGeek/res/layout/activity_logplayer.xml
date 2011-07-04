@@ -24,17 +24,17 @@
 					<TextView style="@style/FormLabel" android:text="@string/name" />
 					<EditText android:id="@+id/logPlayerName"
 						android:inputType="textCapWords"
-						android:text=""
 						android:hint="@string/player_name"
 						android:maxLength="255" />
 				</TableRow>
 
 				<TableRow>
 					<TextView style="@style/FormLabel" android:text="@string/username" />
-					<EditText android:id="@+id/logPlayerUsername"
+					<AutoCompleteTextView android:id="@+id/logPlayerUsername"
 						android:inputType="text"
-						android:text=""
 						android:hint="@string/username"
+						android:textColor="#000"
+						android:completionThreshold="1"
 						android:maxLength="63" />
 				</TableRow>
 
@@ -42,7 +42,6 @@
 					<TextView style="@style/FormLabel" android:text="@string/team_color" />
 					<EditText android:id="@+id/logPlayerTeamColor"
 						android:inputType="textCapWords"
-						android:text=""
 						android:hint="@string/team_color"
 						android:maxLength="32" />
 				</TableRow>
@@ -51,7 +50,6 @@
 					<TextView style="@style/FormLabel" android:text="@string/position" />
 					<EditText android:id="@+id/logPlayerStartingPosition"
 						android:inputType="text"
-						android:text=""
 						android:hint="@string/starting_position"
 						android:maxLength="32" />
 				</TableRow>
@@ -60,7 +58,6 @@
 					<TextView style="@style/FormLabel" android:text="@string/score" />
 					<EditText android:id="@+id/logPlayerScore"
 						android:inputType="text"
-						android:text=""
 						android:hint="@string/score"
 						android:maxLength="32" />
 				</TableRow>
@@ -69,7 +66,6 @@
 					<TextView style="@style/FormLabel" android:text="@string/rating" />
 					<EditText android:id="@+id/logPlayerRating"
 						android:inputType="numberDecimal"
-						android:text=""
 						android:hint="@string/rating"
 						android:maxLength="8" />
 				</TableRow>

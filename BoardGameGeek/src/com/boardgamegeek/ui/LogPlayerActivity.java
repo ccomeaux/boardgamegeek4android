@@ -2,17 +2,25 @@ package com.boardgamegeek.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -25,10 +33,11 @@ public class LogPlayerActivity extends Activity {
 	private String mGameName;
 	private String mThumbnailUrl;
 
+	private UsernameAdapter mAdapter;
 	private Player mPlayer;
 
 	private EditText mName;
-	private EditText mUsername;
+	private AutoCompleteTextView mUsername;
 	private EditText mTeamColor;
 	private EditText mStartingPosition;
 	private EditText mScore;
@@ -57,6 +66,9 @@ public class LogPlayerActivity extends Activity {
 			u.setGameName(mGameName);
 			u.setThumbnail(mThumbnailUrl);
 		}
+
+		mAdapter = new UsernameAdapter(this);
+		mUsername.setAdapter(mAdapter);
 	}
 
 	@Override
@@ -68,7 +80,7 @@ public class LogPlayerActivity extends Activity {
 
 	private void setUiVariables() {
 		mName = (EditText) findViewById(R.id.logPlayerName);
-		mUsername = (EditText) findViewById(R.id.logPlayerUsername);
+		mUsername = (AutoCompleteTextView) findViewById(R.id.logPlayerUsername);
 		mTeamColor = (EditText) findViewById(R.id.logPlayerTeamColor);
 		mStartingPosition = (EditText) findViewById(R.id.logPlayerStartingPosition);
 		mScore = (EditText) findViewById(R.id.logPlayerScore);
@@ -141,5 +153,43 @@ public class LogPlayerActivity extends Activity {
 		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString());
 		mPlayer.New = mNew.isChecked();
 		mPlayer.Win = mWin.isChecked();
+	}
+
+	private class UsernameAdapter extends CursorAdapter {
+		public UsernameAdapter(Context context) {
+			super(context, null);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return getLayoutInflater().inflate(R.layout.list_item, parent, false);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			final TextView textView = (TextView) view.findViewById(R.id.list_item);
+			textView.setText(cursor.getString(BuddiesQuery.NAME));
+		}
+
+		@Override
+		public CharSequence convertToString(Cursor cursor) {
+			return cursor.getString(BuddiesQuery.NAME);
+		}
+
+		@Override
+		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+			String selection = null;
+			if (!TextUtils.isEmpty(constraint)) {
+				selection = Buddies.BUDDY_NAME + " LIKE '" + constraint + "%'";
+			}
+			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, null,
+					Buddies.NAME_SORT);
+		}
+	}
+
+	private interface BuddiesQuery {
+		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, };
+		// int _ID = 0;
+		int NAME = 1;
 	}
 }

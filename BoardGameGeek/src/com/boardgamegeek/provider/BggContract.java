@@ -183,7 +183,7 @@ public class BggContract {
 		}
 
 		public static Uri buildDesignersUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_DESIGNERS).appendPath("" + rowId).build();
+			return getUriBuilder().appendPath(PATH_DESIGNERS).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildArtistsUri(int gameId) {
@@ -195,7 +195,7 @@ public class BggContract {
 		}
 
 		public static Uri buildArtistUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_ARTISTS).appendPath("" + rowId).build();
+			return getUriBuilder().appendPath(PATH_ARTISTS).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildPublishersUri(int gameId) {
@@ -207,7 +207,7 @@ public class BggContract {
 		}
 
 		public static Uri buildPublisherUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_PUBLISHERS).appendPath("" + rowId).build();
+			return getUriBuilder().appendPath(PATH_PUBLISHERS).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildMechanicsUri(int gameId) {
@@ -219,7 +219,7 @@ public class BggContract {
 		}
 
 		public static Uri buildMechanicUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_MECHANICS).appendPath("" + rowId).build();
+			return getUriBuilder().appendPath(PATH_MECHANICS).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildCategoriesUri(int gameId) {
@@ -231,7 +231,7 @@ public class BggContract {
 		}
 
 		public static Uri buildCategoryUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath("" + rowId).build();
+			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildPollsUri(int gameId) {
@@ -266,15 +266,16 @@ public class BggContract {
 		}
 
 		private static Builder getUriBuilder(int gameId) {
-			return CONTENT_URI.buildUpon().appendPath("" + gameId);
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId));
 		}
 
 		private static Builder getUriBuilder(int gameId, String path) {
-			return CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(path);
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 		}
 
 		private static Builder getUriBuilder(int gameId, String path, int id) {
-			return CONTENT_URI.buildUpon().appendPath("" + gameId).appendPath(path).appendPath("" + id);
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
+					.appendPath(String.valueOf(id));
 		}
 
 		public static int getGameId(Uri uri) {
@@ -320,7 +321,7 @@ public class BggContract {
 				+ GameRanksColumns.GAME_RANK_VALUE + "," + GameRanksColumns.GAME_RANK_FRIENDLY_NAME;
 
 		public static Uri buildGameRankUri(int gameRankId) {
-			return CONTENT_URI.buildUpon().appendPath("" + gameRankId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameRankId)).build();
 		}
 
 		public static int getRankId(Uri uri) {
@@ -337,7 +338,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = DesignersColumns.DESIGNER_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildDesignerUri(int designerId) {
-			return CONTENT_URI.buildUpon().appendPath("" + designerId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(designerId)).build();
 		}
 
 		public static int getDesignerId(Uri uri) {
@@ -354,7 +355,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = ArtistsColumns.ARTIST_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildArtistUri(int artistId) {
-			return CONTENT_URI.buildUpon().appendPath("" + artistId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).build();
 		}
 
 		public static int getArtistId(Uri uri) {
@@ -371,7 +372,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = PublishersColumns.PUBLISHER_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildPublisherUri(int publisherId) {
-			return CONTENT_URI.buildUpon().appendPath("" + publisherId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(publisherId)).build();
 		}
 
 		public static int getPublisherId(Uri uri) {
@@ -388,7 +389,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildMechanicUri(int mechanicId) {
-			return CONTENT_URI.buildUpon().appendPath("" + mechanicId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId)).build();
 		}
 
 		public static int getMechanicId(Uri uri) {
@@ -405,7 +406,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildCategoryUri(int categoryId) {
-			return CONTENT_URI.buildUpon().appendPath("" + categoryId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId)).build();
 		}
 
 		public static int getCategoryId(Uri uri) {
@@ -423,7 +424,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildItemUri(int itemId) {
-			return CONTENT_URI.buildUpon().appendPath("" + itemId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).build();
 		}
 
 		public static int getItemId(Uri uri) {
@@ -440,8 +441,10 @@ public class BggContract {
 		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_LASTNAME + " COLLATE NOCASE ASC, "
 				+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
 
+		public static final String NAME_SORT = BuddiesColumns.BUDDY_NAME + " COLLATE NOCASE ASC";
+
 		public static Uri buildBuddyUri(int buddyId) {
-			return CONTENT_URI.buildUpon().appendPath("" + buddyId).build();
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(buddyId)).build();
 		}
 
 		public static int getBuddyId(Uri uri) {
