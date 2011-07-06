@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
+import java.text.DecimalFormat;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,10 +19,14 @@ import com.boardgamegeek.model.Player;
 
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
+	private DecimalFormat mFormat = new DecimalFormat("0.0######");
 
 	private TextView mName;
 	private TextView mUsername;
 	private TextView mTeamColor;
+	private TextView mScore;
+	private TextView mStartingPosition;
+	private TextView mRating;
 	private ImageView mDeleteButton;
 	private ImageView mEditButton;
 
@@ -42,6 +48,9 @@ public class PlayerRow extends LinearLayout {
 		mName = (TextView) findViewById(R.id.name);
 		mUsername = (TextView) findViewById(R.id.usernname);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
+		mScore = (TextView) findViewById(R.id.score);
+		mRating = (TextView) findViewById(R.id.rating);
+		mStartingPosition = (TextView) findViewById(R.id.starting_position);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 		mDeleteButton.setOnClickListener(new OnClickListener() {
@@ -95,6 +104,9 @@ public class PlayerRow extends LinearLayout {
 			mName.setText("");
 			mUsername.setText("");
 			mTeamColor.setText("");
+			mScore.setText("");
+			mRating.setText("");
+			mStartingPosition.setText("");
 		} else {
 			mName.setText(mPlayer.Name);
 			if (mPlayer.New && mPlayer.Win) {
@@ -107,15 +119,22 @@ public class PlayerRow extends LinearLayout {
 
 			setText(mUsername, mPlayer.Username);
 			setText(mTeamColor, mPlayer.TeamColor);
+			setText(mScore, mPlayer.Score);
+			setText(mStartingPosition, mPlayer.StartingPosition, "#");
+			setText(mRating, mFormat.format(mPlayer.Rating));
 		}
 	}
 
 	private void setText(TextView textView, String text) {
+		setText(textView, text, "");
+	}
+
+	private void setText(TextView textView, String text, String prefix) {
 		if (TextUtils.isEmpty(text)) {
-			textView.setVisibility(View.GONE);
+			textView.setVisibility(View.INVISIBLE);
 		} else {
 			textView.setVisibility(View.VISIBLE);
-			textView.setText(text);
+			textView.setText(prefix + text);
 		}
 	}
 }
