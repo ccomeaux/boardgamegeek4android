@@ -27,6 +27,7 @@ import com.boardgamegeek.util.UIUtils;
 public class LogPlayerActivity extends Activity {
 	// private static final String TAG = "LogPlayerActivity";
 
+	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
@@ -61,14 +62,27 @@ public class LogPlayerActivity extends Activity {
 
 			mPlayer = new Player(intent);
 			bindUi();
-
-			UIUtils u = new UIUtils(this);
-			u.setGameName(mGameName);
-			u.setThumbnail(mThumbnailUrl);
+		} else {
+			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
+			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
+			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
+			bindUi();
 		}
+
+		UIUtils u = new UIUtils(this);
+		u.setGameName(mGameName);
+		u.setThumbnail(mThumbnailUrl);
 
 		mAdapter = new UsernameAdapter(this);
 		mUsername.setAdapter(mAdapter);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable(KEY_PLAYER, mPlayer);
+		outState.putString(KEY_GAME_NAME, mGameName);
+		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 	}
 
 	@Override
