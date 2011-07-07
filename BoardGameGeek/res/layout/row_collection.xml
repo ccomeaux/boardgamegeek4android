@@ -3,8 +3,8 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal"
-	android:layout_gravity="center_horizontal"
-	android:padding="@dimen/padding_standard">
+	android:padding="@dimen/padding_standard"
+	android:gravity="center">
 
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="0dp"
@@ -13,8 +13,7 @@
 		<TextView android:id="@+id/name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_medium"
-			android:gravity="center_vertical" />
+			android:textSize="@dimen/text_size_medium" />
 		<TextView android:id="@+id/year"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
