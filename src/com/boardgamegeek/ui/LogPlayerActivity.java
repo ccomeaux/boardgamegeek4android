@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -90,6 +91,18 @@ public class LogPlayerActivity extends Activity {
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.logplay, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_ENTER) {
+			if (mUsername.hasFocus()) {
+				// sends focus to autoComplete2 (user pressed "Next")
+				mTeamColor.requestFocus();
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 
 	private void setUiVariables() {
