@@ -66,17 +66,18 @@
 				android:layout_height="wrap_content"
 				android:padding="@dimen/padding_standard"
 				android:gravity="center_vertical">
-				<TextView android:textSize="@dimen/text_size_large"
+				<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:src="@drawable/add"
+					android:paddingRight="@dimen/padding_standard"
+					android:onClick="onAddPlayerClick" />
+				<TextView android:id="@+id/player_header"
+					android:textSize="@dimen/text_size_large"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/players" />
-				<ImageView
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:src="@drawable/add"
-					android:onClick="onAddPlayerClick" />
 			</LinearLayout>
 
 			<LinearLayout android:orientation="horizontal"

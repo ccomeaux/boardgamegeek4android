@@ -34,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
@@ -73,6 +74,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
 	private EditText mCommentsView;
+	private TextView mPlayerHeader;
 	private LinearLayout mPlayerList;
 	private Button mSaveButton;
 	private AlertDialog mCancelDialog;
@@ -194,7 +196,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onAddPlayerClick(View v) {
-		addPlayer(new Intent(), REQUEST_ADD_PLAYER);
+		addPlayer(new Player());
 	}
 
 	public void onSaveClick(View v) {
@@ -239,6 +241,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		pr.setOnEditListener(onPlayerEdit());
 		pr.setOnDeleteListener(onPlayerDelete());
 		mPlayerList.addView(pr, mPlayerList.getChildCount() - 1);
+		displayPlayerCount();
+	}
+
+	private void displayPlayerCount() {
+		Resources r = getResources();
+		int playerCount = mPlayerList.getChildCount() - 4;
+		if (playerCount <= 0) {
+			mPlayerHeader.setText(r.getString(R.string.players));
+		} else {
+			mPlayerHeader.setText(String.valueOf(playerCount) + " " + r.getString(R.string.players));
+		}
 	}
 
 	private OnClickListener onPlayerEdit() {
@@ -258,6 +271,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			public void onClick(View v) {
 				mPlayerList.removeView(v);
 				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+				displayPlayerCount();
 			}
 		};
 	}
@@ -277,6 +291,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mIncompleteView = (CheckBox) findViewById(R.id.logIncomplete);
 		mNoWinStatsView = (CheckBox) findViewById(R.id.logNoWinStats);
 		mCommentsView = (EditText) findViewById(R.id.logComments);
+		mPlayerHeader = (TextView) findViewById(R.id.player_header);
 		mPlayerList = (LinearLayout) findViewById(R.id.player_list);
 		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
 	}
