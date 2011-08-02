@@ -127,6 +127,11 @@ public class HttpUtils {
 		return BASE_URL + "collection/" + URLEncoder.encode(username)
 				+ (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
 	}
+	
+	public static String constructCommentsUrl(int gameId, int page)
+	{
+		return BASE_URL_2 + "thing?id=" + gameId + "&comments=1&page=" + page;
+	}
 
 	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
 		final HttpParams params = createHttpParams(context, false);

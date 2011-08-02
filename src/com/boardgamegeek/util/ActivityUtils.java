@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.ui.CommentsActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
 public class ActivityUtils {
@@ -52,5 +53,12 @@ public class ActivityUtils {
 
 	private static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+	}
+
+	public static void showComments(Context context, int gameId, String gameName) {
+		Intent intent = new Intent(context, CommentsActivity.class);
+		intent.putExtra(CommentsActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(CommentsActivity.KEY_GAME_NAME, gameName);
+		context.startActivity(intent);
 	}
 }

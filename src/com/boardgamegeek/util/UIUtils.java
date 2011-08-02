@@ -39,6 +39,7 @@ public class UIUtils {
 	public static final int MENU_ITEM_LINK_BG_PRICES = Menu.FIRST + 6;
 	public static final int MENU_ITEM_LINK_AMAZON = Menu.FIRST + 7;
 	public static final int MENU_ITEM_LINK_EBAY = Menu.FIRST + 8;
+	public static final int MENU_ITEM_COMMENTS = Menu.FIRST + 9;
 
 	public UIUtils(Activity activity) {
 		mActivity = activity;
@@ -213,6 +214,7 @@ public class UIUtils {
 		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_display_game);
 		menu.add(0, MENU_ITEM_LOG_PLAY, 0, R.string.menu_log_play);
 		menu.add(0, MENU_ITEM_QUICK_LOG_PLAY, 0, R.string.menu_log_play_quick);
+		menu.add(0, MENU_ITEM_COMMENTS, 0, R.string.menu_comments);
 		menu.add(0, MENU_ITEM_SHARE, 0, R.string.menu_share);
 		SubMenu links = menu.addSubMenu(0, MENU_ITEM_LINKS, 0, R.string.menu_links);
 		links.add(0, MENU_ITEM_LINK_BGG, 0, R.string.menu_link_bgg);

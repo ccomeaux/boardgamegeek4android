@@ -130,6 +130,7 @@
 	<string name="title_buddy">GeekBuddy</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
+	<string name="title_comments">Comments</string>
 
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
@@ -147,6 +148,7 @@
 	<string name="notification_text_collection_list">BGG collection list synced</string>
 	<string name="notification_text_collection_detail">BGG collection detail synced</string>
 	<string name="notification_text_complete">BGG sync complete</string>
+	<string name="notification_text_comments">BGG comments synced</string>
 
 	<string name="pref_warning_username">Please set your username first.</string>
 
@@ -173,6 +175,7 @@
 		etc.
 	</string>
 	<string name="hotness_no_results_details">The hotness has gone cold.</string>
+	<string name="comments_no_results">No comments for \"%s\"".</string>
 
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>
@@ -190,6 +193,9 @@
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_collection_random_game">Random Game</string>
 	<string name="menu_display_game">Display</string>
+	<string name="menu_comments">Comments</string>
+	<string name="menu_back">Back</string>
+	<string name="menu_forward">Forward</string>
 
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>
