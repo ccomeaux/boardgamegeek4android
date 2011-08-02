@@ -160,6 +160,9 @@ public class SearchResultsActivity extends ListActivity {
 				ActivityUtils.linkEbay(this, game.Name);
 				return true;
 			}
+			case UIUtils.MENU_ITEM_COMMENTS: {
+				ActivityUtils.showComments(this, game.Id, game.Name);
+			}
 		}
 		return false;
 	}

@@ -248,6 +248,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				ActivityUtils.linkEbay(this, gameName);
 				return true;
 			}
+			case UIUtils.MENU_ITEM_COMMENTS: {
+				ActivityUtils.showComments(this, gameId, gameName);
+			}
 		}
 		return false;
 	}

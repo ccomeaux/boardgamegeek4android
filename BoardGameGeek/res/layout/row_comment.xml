@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_standard"
+	android:gravity="center">
+	
+	<TableLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:paddingBottom="@dimen/padding_extra">
+		<TableRow android:gravity="center_horizontal">
+			<TextView android:id="@+id/username" style="@style/TableLabel" android:textStyle="bold"/>
+			<TextView android:id="@+id/rating" android:textSize="@dimen/text_size_small" android:textStyle="bold" android:padding="@dimen/padding_extra"/>
+		</TableRow>
+	</TableLayout>
+	<TextView android:id="@+id/comment"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:textSize="@dimen/text_size_small" />
+
+</LinearLayout>

@@ -88,6 +88,8 @@
 		<activity android:name=".ui.LogPlayActivity" android:label="@string/title_log_play" android:theme="@style/Theme.Bgg" />
 		<activity android:name=".ui.LogPlayerActivity" android:label="@string/title_log_player" android:theme="@style/Theme.Bgg" />
 
+		<activity android:name=".ui.CommentsActivity" android:label="@string/title_comments" android:theme="@style/Theme.Bgg" />
+
 		<activity android:name=".view.BoardGameStatsTab" />
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />
