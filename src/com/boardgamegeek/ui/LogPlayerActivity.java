@@ -97,7 +97,7 @@ public class LogPlayerActivity extends Activity {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_ENTER) {
 			if (mUsername.hasFocus()) {
-				// sends focus to autoComplete2 (user pressed "Next")
+				// sends focus to the next field (user pressed "Next")
 				mTeamColor.requestFocus();
 				return true;
 			}
@@ -194,8 +194,11 @@ public class LogPlayerActivity extends Activity {
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView textView = (TextView) view.findViewById(R.id.list_item);
-			textView.setText(cursor.getString(BuddiesQuery.NAME));
+			final TextView nameTextView = (TextView) view.findViewById(R.id.buddy_name);
+			nameTextView.setText(cursor.getString(BuddiesQuery.NAME));
+			final TextView descriptionTextView = (TextView) view.findViewById(R.id.buddy_description);
+			descriptionTextView.setText((cursor.getString(BuddiesQuery.FIRST_NAME) + " " + cursor
+					.getString(BuddiesQuery.LAST_NAME)).trim());
 		}
 
 		@Override
@@ -215,8 +218,10 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, };
+		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME };
 		// int _ID = 0;
 		int NAME = 1;
+		int FIRST_NAME = 2;
+		int LAST_NAME = 3;
 	}
 }
