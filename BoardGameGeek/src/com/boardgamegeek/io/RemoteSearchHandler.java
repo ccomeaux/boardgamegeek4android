@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteSearchHandler extends RemoteBggHandler {

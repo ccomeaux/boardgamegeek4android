@@ -1,4 +1,4 @@
-package com.boardgamegeek.io;
+package com.boardgamegeek.model;
 
 public class SearchResult {
 	public int Id;

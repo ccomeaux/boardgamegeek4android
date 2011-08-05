@@ -14,6 +14,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentResolver;
 import android.util.Log;
 
+import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCommentsHandler extends RemoteBggHandler {

@@ -23,10 +23,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.HotGame;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteHotnessHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.HttpUtils;
