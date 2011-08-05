@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteHotnessHandler extends RemoteBggHandler {

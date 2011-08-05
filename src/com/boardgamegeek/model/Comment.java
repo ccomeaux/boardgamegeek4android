@@ -1,4 +1,4 @@
-package com.boardgamegeek.io;
+package com.boardgamegeek.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

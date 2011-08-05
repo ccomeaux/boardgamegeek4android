@@ -23,10 +23,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Comment;
 import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
