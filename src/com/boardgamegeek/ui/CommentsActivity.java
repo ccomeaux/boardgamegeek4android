@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +37,11 @@ public class CommentsActivity extends ListActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-
+	private static final String KEY_CURRENT_PAGE = "CURRENT_PAGE";
+	private static final String KEY_LAST_DISPLAYED_PAGE = "LAST_DISPLAYED_PAGE";
+	private static final String KEY_PAGE_COUNT = "PAGE_COUNT";
+	private static final String KEY_COMMENT_COUNT = "COMMENT_COUNT";
+	private static final String KEY_COMMENTS = "COMMENTS";
 	private static final int PAGE_SIZE = 100;
 
 	private static final int backgroundColors[] = {
@@ -60,12 +65,13 @@ public class CommentsActivity extends ListActivity {
 
 	private int mGameId;
 	private String mGameName;
+	private String mThumbnailUrl;
 
 	private int mCurrentPage;
 	/** Used to not download already downloaded comments. */
 	private int mLastDisplayedPage;
-	private int mAllPages;
-	private int mCount;
+	private int mPageCount;
+	private int mCommentCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,31 +79,46 @@ public class CommentsActivity extends ListActivity {
 
 		setContentView(R.layout.activity_comments);
 
-		final Intent intent = getIntent();
-		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-		if (mGameId < 1) {
-			Log.w(TAG, "Didn't get a game ID");
-			finish();
+		if (savedInstanceState == null) {
+			final Intent intent = getIntent();
+			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+			if (mGameId < 1) {
+				Log.w(TAG, "Didn't get a game ID");
+				finish();
+			}
+			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+			mCurrentPage = 1;
+			mLastDisplayedPage = 1;
+			mPageCount = -1;
+			mCommentCount = 0;
+		} else {
+			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
+			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
+			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
+			mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
+			mLastDisplayedPage = savedInstanceState.getInt(KEY_LAST_DISPLAYED_PAGE);
+			mPageCount = savedInstanceState.getInt(KEY_PAGE_COUNT);
+			mCommentCount = savedInstanceState.getInt(KEY_COMMENT_COUNT);
+			mAllComments = savedInstanceState.getParcelableArrayList(KEY_COMMENTS);
 		}
-		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-		String thumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
 		mInfoView = (TextView) findViewById(R.id.comment_info);
 
 		UIUtils.setTitle(this);
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
-		u.setThumbnail(thumbnailUrl);
+		u.setThumbnail(mThumbnailUrl);
 
 		mAdapter = new CommentsAdapter();
 		setListAdapter(mAdapter);
 
-		mCurrentPage = 1;
-		mLastDisplayedPage = 1;
-		mAllPages = -1;
-
-		CommentsTask task = new CommentsTask();
-		task.execute();
+		if (mAllComments == null || mAllComments.size() == 0) {
+			CommentsTask task = new CommentsTask();
+			task.execute();
+		} else {
+			updateDisplay();
+		}
 	}
 
 	public void onHomeClick(View v) {
@@ -106,6 +127,19 @@ public class CommentsActivity extends ListActivity {
 
 	public void onSearchClick(View v) {
 		onSearchRequested();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(KEY_GAME_ID, mGameId);
+		outState.putString(KEY_GAME_NAME, mGameName);
+		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
+		outState.putInt(KEY_CURRENT_PAGE, mCurrentPage);
+		outState.putInt(KEY_LAST_DISPLAYED_PAGE, mLastDisplayedPage);
+		outState.putInt(KEY_PAGE_COUNT, mPageCount);
+		outState.putInt(KEY_COMMENT_COUNT, mCommentCount);
+		outState.putParcelableArrayList(KEY_COMMENTS, (ArrayList<? extends Parcelable>) mAllComments);
 	}
 
 	@Override
@@ -122,7 +156,7 @@ public class CommentsActivity extends ListActivity {
 		mi.setEnabled(mCurrentPage > 1);
 
 		mi = menu.findItem(R.id.menu_forward);
-		mi.setEnabled(mCurrentPage < mAllPages);
+		mi.setEnabled(mCurrentPage < mPageCount);
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -178,26 +212,30 @@ public class CommentsActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(RemoteCommentsHandler result) {
-			mCount = result.getCount();
+			mCommentCount = result.getCount();
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(CommentsActivity.this, R.string.bgg_down);
-			} else if (mCount == 0) {
+			} else if (mCommentCount == 0) {
 				String message = String.format(getResources().getString(R.string.comments_no_results), mGameName);
 				UIUtils.showListMessage(CommentsActivity.this, message);
 			} else {
-				if (mAllPages == -1) {
-					mAllPages = (mCount - 1) / PAGE_SIZE + 1;
+				if (mPageCount == -1) {
+					mPageCount = (mCommentCount - 1) / PAGE_SIZE + 1;
 				}
-				setInfoText();
 				mAllComments.addAll(result.getResults());
-				setCurrentCommentsPage();
+				updateDisplay();
 			}
 		}
 	}
 
+	private void updateDisplay() {
+		setInfoText();
+		setCurrentCommentsPage();
+	}
+
 	private void setInfoText() {
 		mInfoView.setVisibility(View.VISIBLE);
-		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mCount + " comments");
+		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mCommentCount + " comments");
 	}
 
 	private void setCurrentCommentsPage() {
@@ -214,7 +252,7 @@ public class CommentsActivity extends ListActivity {
 	}
 
 	private int getPageEnd() {
-		return Math.min(mCurrentPage * PAGE_SIZE, mCount);
+		return Math.min(mCurrentPage * PAGE_SIZE, mCommentCount);
 	}
 
 	private int getPageStart() {
