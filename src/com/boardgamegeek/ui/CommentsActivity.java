@@ -37,22 +37,20 @@ public class CommentsActivity extends ListActivity {
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
-	private static final int backgroundColors[] =
-		{Color.WHITE,
-		 0xffff0000,
-		 0xffff3366,
-		 0xffff6699,
-		 0xffff66cc,
-		 0xffcc99ff,
-		 0xff9999ff,
-		 0xff99ffff,
-		 0xff66ff99,
-		 0xff33cc99,
-		 0xff00cc00};
-	private static final int MENU_BACK_POSITION = 0;
-	private static final int MENU_FORWARD_POSITION = 1;
-	private MenuItem mBackItem;
-	private MenuItem mForwardItem;
+	private static final int PAGE_SIZE = 100;
+
+	private static final int backgroundColors[] = {
+		Color.WHITE,
+		0xffff0000,
+		0xffff3366,
+		0xffff6699,
+		0xffff66cc,
+		0xffcc99ff,
+		0xff9999ff,
+		0xff99ffff,
+		0xff66ff99,
+		0xff33cc99,
+		0xff00cc00 };
 
 	private CommentsAdapter mAdapter;
 	private TextView mInfoView;
@@ -67,8 +65,7 @@ public class CommentsActivity extends ListActivity {
 	/** Used to not download already downloaded comments. */
 	private int mLastDisplayedPage;
 	private int mAllPages;
-	private int mCurrentPageBeginning = 1;
-	private int mCurrentPageEnding = 100;
+	private int mCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +83,6 @@ public class CommentsActivity extends ListActivity {
 		String thumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
 		mInfoView = (TextView) findViewById(R.id.comment_info);
-		mInfoView.setText(mGameName);
 
 		UIUtils.setTitle(this);
 		UIUtils u = new UIUtils(this);
@@ -117,37 +113,39 @@ public class CommentsActivity extends ListActivity {
 		super.onCreateOptionsMenu(menu);
 		final MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.comments, menu);
-
-		mBackItem = menu.getItem(MENU_BACK_POSITION);
-		mForwardItem = menu.getItem(MENU_FORWARD_POSITION);
-		setMenuItemsInvokation();
-
 		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.menu_back);
+		mi.setEnabled(mCurrentPage > 1);
+
+		mi = menu.findItem(R.id.menu_forward);
+		mi.setEnabled(mCurrentPage < mAllPages);
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		mCurrentComments.clear();
 		switch (item.getItemId()) {
-			case R.id.back:
+			case R.id.menu_back:
 				mCurrentPage--;
-				mCurrentPageBeginning -= 100;
-				mCurrentPageEnding -= 100;
+				setInfoText();
 				setCurrentCommentsPage();
-				setMenuItemsInvokation();
 				return true;
-			case R.id.forward:
+			case R.id.menu_forward:
 				mAdapter.notifyDataSetChanged();
 				mCurrentPage++;
-				mCurrentPageBeginning += 100;
-				mCurrentPageEnding += 100;
+				setInfoText();
 				if (mCurrentPage > mLastDisplayedPage) {
 					mLastDisplayedPage++;
 					CommentsTask task = new CommentsTask();
 					task.execute();
 				} else {
 					setCurrentCommentsPage();
-					setMenuItemsInvokation();
 				}
 				return true;
 		}
@@ -180,52 +178,31 @@ public class CommentsActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(RemoteCommentsHandler result) {
-			int count = result.getCount();
+			mCount = result.getCount();
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(CommentsActivity.this, R.string.bgg_down);
-			} else if (count == 0) {
+			} else if (mCount == 0) {
 				String message = String.format(getResources().getString(R.string.comments_no_results), mGameName);
 				UIUtils.showListMessage(CommentsActivity.this, message);
 			} else {
 				if (mAllPages == -1) {
-					mInfoView.setText(count + " comments");
-					mAllPages = 1;
-					while (count > 100) {
-						count -= 100;
-						mAllPages++;
-					}
+					mAllPages = (mCount - 1) / PAGE_SIZE + 1;
 				}
+				setInfoText();
 				mAllComments.addAll(result.getResults());
 				setCurrentCommentsPage();
-				setMenuItemsInvokation();
 			}
 		}
 	}
 
-	private void setMenuItemsInvokation() {
-		if (mBackItem != null && mForwardItem != null) { // if menu items have
-															// been initialized
-			if (mCurrentPage > 1) {
-				mBackItem.setEnabled(true);
-			} else {
-				mBackItem.setEnabled(false);
-			}
-			if (mCurrentPage < mAllPages) {
-				mForwardItem.setEnabled(true);
-			} else {
-				mForwardItem.setEnabled(false);
-			}
-		}
+	private void setInfoText() {
+		mInfoView.setVisibility(View.VISIBLE);
+		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mCount + " comments");
 	}
 
 	private void setCurrentCommentsPage() {
-		for (int i = mCurrentPageBeginning; i < mCurrentPageEnding; i++) {
-			try {
-				mCurrentComments.add(mAllComments.get(i - 1));
-			} catch (IndexOutOfBoundsException e) {
-				// no more comments in mAllComments, so break
-				break;
-			}
+		for (int i = getPageStart(); i < getPageEnd(); i++) {
+			mCurrentComments.add(mAllComments.get(i - 1));
 		}
 		if (mAdapter == null) {
 			mAdapter = new CommentsAdapter();
@@ -234,6 +211,14 @@ public class CommentsActivity extends ListActivity {
 			mAdapter.notifyDataSetChanged();
 			this.setSelection(0);
 		}
+	}
+
+	private int getPageEnd() {
+		return Math.min(mCurrentPage * PAGE_SIZE, mCount);
+	}
+
+	private int getPageStart() {
+		return (mCurrentPage - 1) * PAGE_SIZE + 1;
 	}
 
 	private class CommentsAdapter extends ArrayAdapter<Comment> {
