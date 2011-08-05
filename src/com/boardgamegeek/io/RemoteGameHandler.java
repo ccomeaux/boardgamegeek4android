@@ -522,7 +522,7 @@ public class RemoteGameHandler extends XmlHandler {
 	private List<Integer> getCurrentGameRankIds() {
 		List<Integer> ids = new ArrayList<Integer>();
 		Cursor c = mResolver.query(GameRanks.CONTENT_URI, new String[] { GameRanks.GAME_RANK_ID }, GameRanks.GAME_ID
-				+ "=?", new String[] { "" + mGameId }, null);
+				+ "=?", new String[] { String.valueOf(mGameId) }, null);
 		try {
 			while (c.moveToNext()) {
 				ids.add(c.getInt(0));

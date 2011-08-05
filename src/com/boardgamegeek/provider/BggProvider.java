@@ -603,132 +603,132 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.GAMES);
 			case GAMES_ID: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_RANKS:
 				return builder.table(Tables.GAME_RANKS);
 			case GAMES_RANKS_ID: {
 				final int rankId = GameRanks.getRankId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", "" + rankId);
+				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", String.valueOf(rankId));
 			}
 			case GAMES_ID_RANKS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_DESIGNERS).where(GamesDesigners.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES_DESIGNERS).where(GamesDesigners.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_DESIGNERS_ID: {
 				final int gameId = Games.getGameId(uri);
 				final long designerId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_DESIGNERS).where(GamesDesigners.GAME_ID + "=?", "" + gameId)
-						.where(GamesDesigners.DESIGNER_ID + "=?", "" + designerId);
+				return builder.table(Tables.GAMES_DESIGNERS).where(GamesDesigners.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesDesigners.DESIGNER_ID + "=?", String.valueOf(designerId));
 			}
 			case GAMES_ID_ARTISTS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_ARTISTS).where(GamesArtists.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES_ARTISTS).where(GamesArtists.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_ARTISTS_ID: {
 				final int gameId = Games.getGameId(uri);
 				final long artistId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_ARTISTS).where(GamesArtists.GAME_ID + "=?", "" + gameId)
-						.where(GamesArtists.ARTIST_ID + "=?", "" + artistId);
+				return builder.table(Tables.GAMES_ARTISTS).where(GamesArtists.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesArtists.ARTIST_ID + "=?", String.valueOf(artistId));
 			}
 			case GAMES_ID_PUBLISHERS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_PUBLISHERS).where(GamesPublishers.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES_PUBLISHERS).where(GamesPublishers.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_PUBLISHERS_ID: {
 				final int gameId = Games.getGameId(uri);
 				final long publisherId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_PUBLISHERS).where(GamesPublishers.GAME_ID + "=?", "" + gameId)
-						.where(GamesPublishers.PUBLISHER_ID + "=?", "" + publisherId);
+				return builder.table(Tables.GAMES_PUBLISHERS).where(GamesPublishers.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesPublishers.PUBLISHER_ID + "=?", String.valueOf(publisherId));
 			}
 			case GAMES_ID_MECHANICS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_MECHANICS).where(GamesMechanics.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES_MECHANICS).where(GamesMechanics.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_MECHANICS_ID: {
 				final int gameId = Games.getGameId(uri);
 				final long mechanicId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_MECHANICS).where(GamesMechanics.GAME_ID + "=?", "" + gameId)
-						.where(GamesMechanics.MECHANIC_ID + "=?", "" + mechanicId);
+				return builder.table(Tables.GAMES_MECHANICS).where(GamesMechanics.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesMechanics.MECHANIC_ID + "=?", String.valueOf(mechanicId));
 			}
 			case GAMES_ID_CATEGORIES: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_CATEGORIES).where(GamesCategories.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAMES_CATEGORIES).where(GamesCategories.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_CATEGORIES_ID: {
 				final int gameId = Games.getGameId(uri);
 				final long categoryId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_CATEGORIES).where(GamesCategories.GAME_ID + "=?", "" + gameId)
-						.where(GamesCategories.CATEGORY_ID + "=?", "" + categoryId);
+				return builder.table(Tables.GAMES_CATEGORIES).where(GamesCategories.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesCategories.CATEGORY_ID + "=?", String.valueOf(categoryId));
 			}
 			case GAMES_DESIGNERS_ID: {
 				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_DESIGNERS).where(BaseColumns._ID + "=?", "" + id);
+				return builder.table(Tables.GAMES_DESIGNERS).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case GAMES_ARTISTS_ID: {
 				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_ARTISTS).where(BaseColumns._ID + "=?", "" + id);
+				return builder.table(Tables.GAMES_ARTISTS).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case GAMES_PUBLISHERS_ID: {
 				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_PUBLISHERS).where(BaseColumns._ID + "=?", "" + id);
+				return builder.table(Tables.GAMES_PUBLISHERS).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case GAMES_MECHANICS_ID: {
 				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_MECHANICS).where(BaseColumns._ID + "=?", "" + id);
+				return builder.table(Tables.GAMES_MECHANICS).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case GAMES_CATEGORIES_ID: {
 				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_CATEGORIES).where(BaseColumns._ID + "=?", "" + id);
+				return builder.table(Tables.GAMES_CATEGORIES).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case DESIGNERS:
 				return builder.table(Tables.DESIGNERS);
 			case DESIGNERS_ID:
 				final int designerId = Designers.getDesignerId(uri);
-				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", "" + designerId);
+				return builder.table(Tables.DESIGNERS).where(Designers.DESIGNER_ID + "=?", String.valueOf(designerId));
 			case ARTISTS:
 				return builder.table(Tables.ARTISTS);
 			case ARTISTS_ID:
 				final int artistId = Artists.getArtistId(uri);
-				return builder.table(Tables.ARTISTS).where(Artists.ARTIST_ID + "=?", "" + artistId);
+				return builder.table(Tables.ARTISTS).where(Artists.ARTIST_ID + "=?", String.valueOf(artistId));
 			case PUBLISHERS:
 				return builder.table(Tables.PUBLISHERS);
 			case PUBLISHERS_ID:
 				final int publisherId = Publishers.getPublisherId(uri);
-				return builder.table(Tables.PUBLISHERS).where(Publishers.PUBLISHER_ID + "=?", "" + publisherId);
+				return builder.table(Tables.PUBLISHERS).where(Publishers.PUBLISHER_ID + "=?", String.valueOf(publisherId));
 			case MECHANICS:
 				return builder.table(Tables.MECHANICS);
 			case MECHANICS_ID:
 				final int mechanicId = Mechanics.getMechanicId(uri);
-				return builder.table(Tables.MECHANICS).where(Mechanics.MECHANIC_ID + "=?", "" + mechanicId);
+				return builder.table(Tables.MECHANICS).where(Mechanics.MECHANIC_ID + "=?", String.valueOf(mechanicId));
 			case CATEGORIES:
 				return builder.table(Tables.CATEGORIES);
 			case CATEGORIES_ID:
 				final int categoryId = Categories.getCategoryId(uri);
-				return builder.table(Tables.CATEGORIES).where(Categories.CATEGORY_ID + "=?", "" + categoryId);
+				return builder.table(Tables.CATEGORIES).where(Categories.CATEGORY_ID + "=?", String.valueOf(categoryId));
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
 				final int itemId = Collection.getItemId(uri);
-				return builder.table(Tables.COLLECTION).where(Collection.COLLECTION_ID + "=?", "" + itemId);
+				return builder.table(Tables.COLLECTION).where(Collection.COLLECTION_ID + "=?", String.valueOf(itemId));
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
-				final int blockId = Buddies.getBuddyId(uri);
-				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", "" + blockId);
+				final int buddyId = Buddies.getBuddyId(uri);
+				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", String.valueOf(buddyId));
 			case GAMES_ID_POLLS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAME_POLLS).where(GamePolls.GAME_ID + "=?", "" + gameId);
+				return builder.table(Tables.GAME_POLLS).where(GamePolls.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_POLLS_NAME: {
 				final int gameId = Games.getGameId(uri);
 				final String pollName = uri.getLastPathSegment();
 				return builder.table(Tables.GAME_POLLS)
-					.where(GamePolls.GAME_ID + "=?", "" + gameId)
+					.where(GamePolls.GAME_ID + "=?", String.valueOf(gameId))
 					.where(GamePolls.POLL_NAME + "=?", pollName);
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS: {
@@ -736,7 +736,7 @@ public class BggProvider extends ContentProvider {
 				final String pollName = Games.getPollName(uri);
 				return builder.table(Tables.GAME_POLL_RESULTS)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", "" + gameId, pollName);
+					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", String.valueOf(gameId), pollName);
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS_KEY: {
 				final int gameId = Games.getGameId(uri);
@@ -744,7 +744,7 @@ public class BggProvider extends ContentProvider {
 				final String key = Games.getPollResultsKey(uri);
 				return builder.table(Tables.GAME_POLL_RESULTS)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", "" + gameId, pollName)
+					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", String.valueOf(gameId), pollName)
 					.where(GamePollResults.POLL_RESULTS_PLAYERS + "=?", key);
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS_KEY_RESULT: {
@@ -753,7 +753,7 @@ public class BggProvider extends ContentProvider {
 				final String key = Games.getPollResultsKey(uri);
 				return builder.table(Tables.GAME_POLL_RESULTS_RESULT)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where("game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", "" + gameId, pollName)
+					.where("game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", String.valueOf(gameId), pollName)
 					.where(GamePollResults.POLL_RESULTS_KEY + "=?", key);
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS_KEY_RESULT_KEY: {
@@ -763,7 +763,7 @@ public class BggProvider extends ContentProvider {
 				final String key2 = Games.getPollResultsResultKey(uri);
 				return builder.table(Tables.GAME_POLL_RESULTS_RESULT)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where("pollresults_id = (SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.pollresults_key=? AND game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)))", key, "" + gameId, pollName)
+					.where("pollresults_id = (SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.pollresults_key=? AND game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)))", key, String.valueOf(gameId), pollName)
 					.where(GamePollResultsResult.POLL_RESULTS_RESULT_KEY + "=?", key2);
 			}
 			default:
@@ -785,14 +785,14 @@ public class BggProvider extends ContentProvider {
 					.mapToTable(Collection.GAME_ID, Tables.COLLECTION)
 					.mapToTable(Collection.UPDATED, Tables.COLLECTION)
 					.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
-					.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", "" + itemId);
+					.where(Tables.COLLECTION + "." + Collection.COLLECTION_ID + "=?", String.valueOf(itemId));
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_DESIGNERS_JOIN_DESIGNERS)
 					.mapToTable(Designers._ID, Tables.DESIGNERS)
 					.mapToTable(Designers.DESIGNER_ID, Tables.DESIGNERS)
 					.mapToTable(SyncColumns.UPDATED, Tables.DESIGNERS)
-					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", "" + gameId);
+					.where(Qualified.GAMES_DESIGNERS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_ARTISTS: {
 				final int gameId = Games.getGameId(uri);
@@ -800,7 +800,7 @@ public class BggProvider extends ContentProvider {
 					.mapToTable(Artists._ID, Tables.ARTISTS)
 					.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS)
 					.mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
-					.where(Qualified.GAMES_ARTISTS_GAME_ID + "=?", "" + gameId);
+					.where(Qualified.GAMES_ARTISTS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_PUBLISHERS: {
 				final int gameId = Games.getGameId(uri);
@@ -808,28 +808,28 @@ public class BggProvider extends ContentProvider {
 					.mapToTable(Publishers._ID, Tables.PUBLISHERS)
 					.mapToTable(Publishers.PUBLISHER_ID, Tables.PUBLISHERS)
 					.mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
-					.where(Qualified.GAMES_PUBLISHERS_GAME_ID + "=?", "" + gameId);
+					.where(Qualified.GAMES_PUBLISHERS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_MECHANICS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
 					.mapToTable(Mechanics._ID, Tables.MECHANICS)
 					.mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
-					.where(Qualified.GAMES_MECHANICS_GAME_ID + "=?", "" + gameId);
+					.where(Qualified.GAMES_MECHANICS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_CATEGORIES: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_CATEGORIES_JOIN_CATEGORIES)
 					.mapToTable(Categories._ID, Tables.CATEGORIES)
 					.mapToTable(Categories.CATEGORY_ID, Tables.CATEGORIES)
-					.where(Qualified.GAMES_CATEGORIES_GAME_ID + "=?", "" + gameId);
+					.where(Qualified.GAMES_CATEGORIES_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS: {
 				final int gameId = Games.getGameId(uri);
 				final String pollName = Games.getPollName(uri);
 				return builder.table(Tables.POLLS_JOIN_POLL_RESULTS)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where(GamePolls.GAME_ID + "=?", "" + gameId)
+					.where(GamePolls.GAME_ID + "=?", String.valueOf(gameId))
 					.where(GamePolls.POLL_NAME + "=?", pollName);
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS_KEY: {
@@ -838,7 +838,7 @@ public class BggProvider extends ContentProvider {
 				final String players = Games.getPollResultsKey(uri);
 				return builder.table(Tables.POLLS_JOIN_POLL_RESULTS)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-					.where(GamePolls.GAME_ID + "=?", "" + gameId)
+					.where(GamePolls.GAME_ID + "=?", String.valueOf(gameId))
 					.where(GamePolls.POLL_NAME + "=?", pollName)
 					.where(GamePollResults.POLL_RESULTS_PLAYERS + "=?", players);
 			}
@@ -848,7 +848,7 @@ public class BggProvider extends ContentProvider {
 				final String players = Games.getPollResultsKey(uri);
 				return builder.table(Tables.POLL_RESULTS_JOIN_POLL_RESULTS_RESULT)
 					.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS_RESULT)
-					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", "" + gameId, pollName)
+					.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)", String.valueOf(gameId), pollName)
 					.where(GamePollResults.POLL_RESULTS_PLAYERS + "=?", players);
 			}
 			default:
@@ -861,7 +861,7 @@ public class BggProvider extends ContentProvider {
 		try {
 			while (c.moveToNext()) {
 				int gameId = c.getInt(0);
-				String[] gameArg = new String[] { "" + gameId };
+				String[] gameArg = new String[] { String.valueOf(gameId) };
 				db.delete(Tables.GAME_RANKS, GameRanks.GAME_ID + "=?", gameArg);
 				db.delete(Tables.COLLECTION, Collection.GAME_ID + "=?", gameArg);
 				db.delete(Tables.GAMES_DESIGNERS, Games.GAME_ID + "=?", gameArg);

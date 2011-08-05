@@ -35,7 +35,7 @@ public class SyncCollectionDetail extends SyncTask {
 			List<String> ids = new ArrayList<String>();
 			long days = System.currentTimeMillis() - (SYNC_GAME_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, SyncColumns.UPDATED + "<? OR "
-					+ SyncColumns.UPDATED + " IS NULL", new String[] { "" + days }, null);
+					+ SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			while (cursor.moveToNext()) {
 				final String id = cursor.getString(0);
 				count++;

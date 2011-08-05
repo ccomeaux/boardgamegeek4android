@@ -115,9 +115,9 @@ public class Play {
 		nvps.add(new BasicNameValuePair("playdate", getFormattedDate()));
 		// TODO: ask Aldie what this is
 		nvps.add(new BasicNameValuePair("dateinput", getFormattedDate()));
-		nvps.add(new BasicNameValuePair("length", "" + Length));
+		nvps.add(new BasicNameValuePair("length", String.valueOf(Length)));
 		nvps.add(new BasicNameValuePair("location", Location));
-		nvps.add(new BasicNameValuePair("quantity", "" + Quantity));
+		nvps.add(new BasicNameValuePair("quantity", String.valueOf(Quantity)));
 		nvps.add(new BasicNameValuePair("incomplete", Incomplete ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("nowinstats", NoWinStats ? "1" : "0"));
 		nvps.add(new BasicNameValuePair("comments", Comments));

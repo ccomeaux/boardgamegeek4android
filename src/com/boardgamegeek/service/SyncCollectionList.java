@@ -37,7 +37,7 @@ public class SyncCollectionList extends SyncTask {
 			}
 		}
 
-		String[] selectionArgs = new String[] { "" + startTime };
+		String[] selectionArgs = new String[] { String.valueOf(startTime) };
 		resolver.delete(Games.CONTENT_URI, Games.UPDATED_LIST + "<?", selectionArgs);
 		// This next delete removes old collection entries for current games
 		resolver.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?", selectionArgs);

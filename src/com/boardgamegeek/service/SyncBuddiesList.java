@@ -21,7 +21,7 @@ public class SyncBuddiesList extends SyncTask {
 
 		final long startTime = System.currentTimeMillis();
 		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), new RemoteBuddiesHandler());
-		resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?", new String[] { "" + startTime });
+		resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?", new String[] { String.valueOf(startTime) });
 	}
 
 	@Override
