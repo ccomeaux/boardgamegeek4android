@@ -256,7 +256,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				ActivityUtils.shareGame(this, mId, mName);
 				return true;
 			case R.id.comments:
-				ActivityUtils.showComments(this, mId, mName);
+				ActivityUtils.showComments(this, mId, mName, mThumbnailUrl);
 				return true;
 		}
 		return false;
