@@ -155,7 +155,7 @@ public class StringUtils {
 			return "";
 		}
 
-		String c = "" + cardinal;
+		String c = String.valueOf(cardinal);
 		String n = "0";
 		if (c.length() > 1) {
 			n = c.substring(c.length() - 2, c.length() - 1);

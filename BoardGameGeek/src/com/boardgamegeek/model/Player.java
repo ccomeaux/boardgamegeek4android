@@ -78,7 +78,7 @@ public class Player implements Parcelable {
 		addPair(nvps, index, "color", TeamColor);
 		addPair(nvps, index, "position", StartingPosition);
 		addPair(nvps, index, "score", Score);
-		addPair(nvps, index, "rating", "" + Rating);
+		addPair(nvps, index, "rating", String.valueOf(Rating));
 		addPair(nvps, index, "new", New ? "1" : "0");
 		addPair(nvps, index, "win", Win ? "1" : "0");
 		Log.d(TAG, nvps.toString());
