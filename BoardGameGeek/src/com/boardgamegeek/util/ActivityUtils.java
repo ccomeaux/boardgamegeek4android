@@ -55,10 +55,11 @@ public class ActivityUtils {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
 
-	public static void showComments(Context context, int gameId, String gameName) {
+	public static void showComments(Context context, int gameId, String gameName, String thumbnailUrl) {
 		Intent intent = new Intent(context, CommentsActivity.class);
 		intent.putExtra(CommentsActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(CommentsActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(CommentsActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
 	}
 }

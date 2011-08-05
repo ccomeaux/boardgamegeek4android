@@ -19,19 +19,14 @@ import com.boardgamegeek.util.StringUtils;
 public class RemoteCommentsHandler extends RemoteBggHandler {
 
 	private static final String TAG = "RemoteCommentsHandler";
-	
 	private XmlPullParser mParser;
-	
 	private List<Comment> mComments = new ArrayList<Comment>();
-
 	private int mCommentsCount;
-	
-//	private String gameId;
 
 	public List<Comment> getResults() {
 		return mComments;
 	}
-	
+
 	@Override
 	public int getCount() {
 		return mCommentsCount;
@@ -41,18 +36,18 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 	protected void clearResults() {
 		mComments.clear();
 	}
-	
+
 	@Override
 	protected String getRootNodeName() {
 		return "items";
 	}
-	
+
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 			throws XmlPullParserException, IOException {
 
 		mParser = parser;
-		
+
 		int type;
 		while ((type = mParser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEMS.equals(mParser.getName())) {
@@ -61,14 +56,11 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 		}
 		return false;
 	}
-	
+
 	protected void parseItems() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
-//			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
-//				gameId = mParser.getAttributeValue(null, Tags.ID);
-//			}
 			if (type == START_TAG && Tags.COMMENTS.equals(mParser.getName())) {
 
 				mCommentsCount = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.TOTAL_ITEMS));
@@ -79,9 +71,8 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 		}
 	}
 
-	private void parseComments()
-			throws XmlPullParserException, IOException {
-		
+	private void parseComments() throws XmlPullParserException, IOException {
+
 		String tag = null;
 
 		final int depth = mParser.getDepth();
@@ -101,11 +92,11 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 	}
 
 	private interface Tags {
-//		String ITEM = "item";
-//		String ID = "id";
+		// String ITEM = "item";
+		// String ID = "id";
 		String ITEMS = "items";
 		String COMMENTS = "comments";
-//		String PAGE = "page";
+		// String PAGE = "page";
 		String TOTAL_ITEMS = "totalitems";
 		String COMMENT = "comment";
 		String USERNAME = "username";
