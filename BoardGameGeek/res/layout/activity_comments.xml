@@ -18,7 +18,8 @@
 			android:gravity="center"
 			android:background="@color/background_light"
 			android:textSize="@dimen/text_size_small"
-			android:padding="@dimen/padding_standard" />
+			android:padding="@dimen/padding_standard"
+			android:visibility="gone" />
 		<include layout="@layout/header_divider" />
 
 		<include layout="@layout/list" />
