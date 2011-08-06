@@ -488,7 +488,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			UrlEncodedFormEntity entity;
 			List<NameValuePair> nvps = mPlay.toNameValuePairs();
 			try {
-				entity = new UrlEncodedFormEntity(nvps, HTTP.ASCII);
+				entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
 			} catch (UnsupportedEncodingException e) {
 				return e.toString();
 			}
