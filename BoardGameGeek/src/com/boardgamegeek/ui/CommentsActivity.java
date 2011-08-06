@@ -78,6 +78,7 @@ public class CommentsActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_comments);
+		findViewById(R.id.game_thumbnail).setClickable(false);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
