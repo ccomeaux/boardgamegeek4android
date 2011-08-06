@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -18,6 +19,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -59,6 +61,12 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
+	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
+	private static final String KEY_INCOMPLETE_SHOWN = "INCOMPLETE_SHOWN";
+	private static final String KEY_NO_WIN_STATS_SHOWN = "NO_WIN_STATS_SHOWN";
+	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
+	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 
 	private String mGameName;
 	private String mThumbnailUrl;
@@ -78,6 +86,13 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private LinearLayout mPlayerList;
 	private Button mSaveButton;
 	private AlertDialog mCancelDialog;
+
+	private boolean mLengthShown;
+	private boolean mLocationShown;
+	private boolean mIncompleteShown;
+	private boolean mNoWinStatsShown;
+	private boolean mCommentsShown;
+	private boolean mPlayersShown;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -111,8 +126,16 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			mPlay = new Play(savedInstanceState);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
+			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
+			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
+			mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
+			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
+			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
+			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			bindUi();
 		}
+
+		hideFields();
 
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
@@ -133,6 +156,12 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mPlay.saveState(outState);
 		outState.putString(KEY_GAME_NAME, mGameName);
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
+		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
+		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
+		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
+		outState.putBoolean(KEY_NO_WIN_STATS_SHOWN, mNoWinStatsShown);
+		outState.putBoolean(KEY_COMMENTS_SHOWN, mCommentsShown);
+		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
 	}
 
 	@Override
@@ -162,6 +191,11 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem mi = menu.findItem(R.id.save);
 		mi.setEnabled(mSaveButton.isEnabled());
+
+		mi = menu.findItem(R.id.add_field);
+		mi.setEnabled(hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments()
+				|| hidePlayers());
+
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -174,8 +208,75 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			case R.id.cancel:
 				cancel();
 				return true;
+			case R.id.add_field:
+				final CharSequence[] array = createAddFieldArray();
+				if (array == null || array.length == 0) {
+					return false;
+				}
+
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle("Add Field");
+				builder.setItems(array, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Resources r = getResources();
+
+						String selection = array[which].toString();
+						if (selection == r.getString(R.string.length)) {
+							mLengthShown = true;
+							findViewById(R.id.log_length_row).setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.location)) {
+							mLocationShown = true;
+							findViewById(R.id.log_location_row).setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.incomplete)) {
+							mIncompleteShown = true;
+							findViewById(R.id.log_incomplete).setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.noWinStats)) {
+							mNoWinStatsShown = true;
+							findViewById(R.id.log_no_win_stats).setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.comments)) {
+							mCommentsShown = true;
+							findViewById(R.id.log_comments_label).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_comments).setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.players)) {
+							mPlayersShown = true;
+							findViewById(R.id.log_player_list_divider).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_player_list).setVisibility(View.VISIBLE);
+						}
+					}
+				});
+				builder.show();
+				return true;
 		}
 		return false;
+	}
+
+	private CharSequence[] createAddFieldArray() {
+		Resources r = getResources();
+		List<CharSequence> list = new ArrayList<CharSequence>();
+
+		if (hideLength()) {
+			list.add(r.getString(R.string.length));
+		}
+		if (hideLocation()) {
+			list.add(r.getString(R.string.location));
+		}
+		if (hideIncomplete()) {
+			list.add(r.getString(R.string.incomplete));
+		}
+		if (hideNoWinStats()) {
+			list.add(r.getString(R.string.noWinStats));
+		}
+		if (hideComments()) {
+			list.add(r.getString(R.string.comments));
+		}
+		if (hidePlayers()) {
+			list.add(r.getString(R.string.players));
+		}
+
+		CharSequence[] csa = {};
+		csa = list.toArray(csa);
+		return csa;
 	}
 
 	@Override
@@ -298,27 +399,53 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mPlayerHeader = (TextView) findViewById(R.id.player_header);
 		mPlayerList = (LinearLayout) findViewById(R.id.player_list);
 		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
+	}
 
-		if (BggApplication.getInstance().getPlayLoggingHideLength()) {
+	private void hideFields() {
+		if (hideLength()) {
 			findViewById(R.id.log_length_row).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHideLocation()) {
+		if (hideLocation()) {
 			findViewById(R.id.log_location_row).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHideIncomplete()) {
+		if (hideIncomplete()) {
 			findViewById(R.id.log_incomplete).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHideNoWinStats()) {
+		if (hideNoWinStats()) {
 			findViewById(R.id.log_no_win_stats).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHideComments()) {
+		if (hideComments()) {
 			findViewById(R.id.log_comments_label).setVisibility(View.GONE);
 			findViewById(R.id.log_comments).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHidePlayerList()) {
+		if (hidePlayers()) {
 			findViewById(R.id.log_player_list_divider).setVisibility(View.GONE);
 			findViewById(R.id.log_player_list).setVisibility(View.GONE);
 		}
+	}
+
+	private boolean hideLength() {
+		return BggApplication.getInstance().getPlayLoggingHideLength() && !mLengthShown;
+	}
+
+	private boolean hideLocation() {
+		return BggApplication.getInstance().getPlayLoggingHideLocation() && !mLocationShown;
+	}
+
+	private boolean hideIncomplete() {
+		return BggApplication.getInstance().getPlayLoggingHideIncomplete() && !mIncompleteShown;
+	}
+
+	private boolean hideNoWinStats() {
+		return BggApplication.getInstance().getPlayLoggingHideNoWinStats() && !mNoWinStatsShown;
+	}
+
+	private boolean hideComments() {
+		return BggApplication.getInstance().getPlayLoggingHideComments() && !mCommentsShown;
+	}
+
+	private boolean hidePlayers() {
+		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown;
 	}
 
 	private void quickLogPlay() {
