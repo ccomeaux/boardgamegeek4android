@@ -118,6 +118,11 @@ public class BggApplication extends Application {
 		return preferences.getBoolean("logHidePlayerList", false);
 	}
 
+	public boolean getPlayLoggingEditPlayer() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logEditPlayer", false);
+	}
+
 	public boolean getPlayLoggingHidePlayerTeamColor() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getBoolean("logHideTeamColor", false);

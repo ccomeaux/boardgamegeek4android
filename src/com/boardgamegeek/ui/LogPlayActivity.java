@@ -196,7 +196,11 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	public void onAddPlayerClick(View v) {
-		addPlayer(new Player());
+		if (BggApplication.getInstance().getPlayLoggingEditPlayer()) {
+			addPlayer(new Intent(), REQUEST_ADD_PLAYER);
+		} else {
+			addPlayer(new Player());
+		}
 	}
 
 	public void onSaveClick(View v) {
@@ -311,7 +315,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			findViewById(R.id.log_comments_label).setVisibility(View.GONE);
 			findViewById(R.id.log_comments).setVisibility(View.GONE);
 		}
-		if (BggApplication.getInstance().getPlayLoggingHidePlayerList()){
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerList()) {
 			findViewById(R.id.log_player_list_divider).setVisibility(View.GONE);
 			findViewById(R.id.log_player_list).setVisibility(View.GONE);
 		}
