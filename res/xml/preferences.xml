@@ -29,6 +29,60 @@
 			android:title="@string/pref_imageLoad_title"
 			android:summary="@string/pref_imageLoad_summary" />
 	</PreferenceCategory>
+	<PreferenceScreen android:title="Logging Plays" android:summary="Settings for Logging Plays">
+		<PreferenceCategory android:title="@string/pref_general">
+			<CheckBoxPreference android:key="logHideLength"
+				android:title="Hide Length"
+				android:summaryOff="Display the play Length"
+				android:summaryOn="Don't display the play Length" />
+			<CheckBoxPreference android:key="logHideLocation"
+				android:title="Hide Location"
+				android:summaryOff="Display the play Location"
+				android:summaryOn="Don't display the play Location" />
+			<CheckBoxPreference android:key="logHideIncomplete"
+				android:title="Hide Incomplete"
+				android:summaryOff="Display the Incomplete option"
+				android:summaryOn="Don't display the Incomplete option" />
+			<CheckBoxPreference android:key="logHideNoWinStats"
+				android:title="Hide Don't Count Win Stats"
+				android:summaryOff="Display the Don't Count Win Stats option"
+				android:summaryOn="Don't the display Don't Count Win Stats option" />
+			<CheckBoxPreference android:key="logHideComments"
+				android:title="Hide Comments"
+				android:summaryOff="Display the Comments"
+				android:summaryOn="Don't display the Comments" />
+		</PreferenceCategory>
+		<PreferenceCategory android:title="Player settings">
+			<CheckBoxPreference android:key="logHidePlayerList"
+				android:title="Hide Player List"
+				android:summaryOff="Display the player list"
+				android:summaryOn="Don't display the player list" />
+			<CheckBoxPreference android:key="logHideTeamColor"
+				android:title="Hide Team/Color"
+				android:summaryOff="Display the player Team/Color"
+				android:summaryOn="Don't display the player Team/Color" />
+			<CheckBoxPreference android:key="logHidePosition"
+				android:title="Hide Position"
+				android:summaryOff="Display the player Starting Position"
+				android:summaryOn="Don't display the player Starting Position" />
+			<CheckBoxPreference android:key="logHideScore"
+				android:title="Hide Score"
+				android:summaryOff="Display the player Score"
+				android:summaryOn="Don't display the player Score" />
+			<CheckBoxPreference android:key="logHideRating"
+				android:title="Hide Rating"
+				android:summaryOff="Display the player Rating"
+				android:summaryOn="Don't display the player Rating" />
+			<CheckBoxPreference android:key="logHideNew"
+				android:title="Hide New"
+				android:summaryOff="Display the player New option"
+				android:summaryOn="Don't display the player New option" />
+			<CheckBoxPreference android:key="logHideWin"
+				android:title="Hide Win"
+				android:summaryOff="Display the player Win option"
+				android:summaryOn="Don't display the player Win option" />
+		</PreferenceCategory>
+	</PreferenceScreen>
 	<PreferenceCategory android:title="@string/pref_database">
 		<com.boardgamegeek.pref.ListPreferenceMultiSelect
 			android:defaultValue="own"

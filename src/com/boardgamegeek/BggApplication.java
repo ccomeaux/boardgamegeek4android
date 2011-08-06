@@ -78,6 +78,66 @@ public class BggApplication extends Application {
 		return preferences.getBoolean("syncBuddies", true);
 	}
 
+	public boolean getPlayLoggingHideLocation() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideLocation", false);
+	}
+
+	public boolean getPlayLoggingHideLength() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideLength", false);
+	}
+
+	public boolean getPlayLoggingHideIncomplete() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideIncomplete", false);
+	}
+
+	public boolean getPlayLoggingHideNoWinStats() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideNoWinStats", false);
+	}
+
+	public boolean getPlayLoggingHideComments() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideComments", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerList() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHidePlayerList", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerTeamColor() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideTeamColor", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerPosition() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHidePosition", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerScore() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideScore", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerRating() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideRating", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerNew() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideNew", false);
+	}
+
+	public boolean getPlayLoggingHidePlayerWin() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideWin", false);
+	}
+
 	public boolean showHelp(String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		final int shownVersion = preferences.getInt(key, 0);
