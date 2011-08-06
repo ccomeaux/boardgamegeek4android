@@ -288,12 +288,33 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		mQuantityView = (EditText) findViewById(R.id.logQuantity);
 		mLengthView = (EditText) findViewById(R.id.logLength);
 		mLocationView = (EditText) findViewById(R.id.logLocation);
-		mIncompleteView = (CheckBox) findViewById(R.id.logIncomplete);
-		mNoWinStatsView = (CheckBox) findViewById(R.id.logNoWinStats);
-		mCommentsView = (EditText) findViewById(R.id.logComments);
+		mIncompleteView = (CheckBox) findViewById(R.id.log_incomplete);
+		mNoWinStatsView = (CheckBox) findViewById(R.id.log_no_win_stats);
+		mCommentsView = (EditText) findViewById(R.id.log_comments);
 		mPlayerHeader = (TextView) findViewById(R.id.player_header);
 		mPlayerList = (LinearLayout) findViewById(R.id.player_list);
 		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
+
+		if (BggApplication.getInstance().getPlayLoggingHideLength()) {
+			findViewById(R.id.log_length_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHideLocation()) {
+			findViewById(R.id.log_location_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHideIncomplete()) {
+			findViewById(R.id.log_incomplete).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHideNoWinStats()) {
+			findViewById(R.id.log_no_win_stats).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHideComments()) {
+			findViewById(R.id.log_comments_label).setVisibility(View.GONE);
+			findViewById(R.id.log_comments).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerList()){
+			findViewById(R.id.log_player_list_divider).setVisibility(View.GONE);
+			findViewById(R.id.log_player_list).setVisibility(View.GONE);
+		}
 	}
 
 	private void quickLogPlay() {

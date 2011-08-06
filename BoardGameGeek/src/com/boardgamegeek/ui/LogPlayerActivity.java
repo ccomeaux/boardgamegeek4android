@@ -19,6 +19,7 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -106,14 +107,33 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private void setUiVariables() {
-		mName = (EditText) findViewById(R.id.logPlayerName);
-		mUsername = (AutoCompleteTextView) findViewById(R.id.logPlayerUsername);
-		mTeamColor = (EditText) findViewById(R.id.logPlayerTeamColor);
-		mStartingPosition = (EditText) findViewById(R.id.logPlayerStartingPosition);
-		mScore = (EditText) findViewById(R.id.logPlayerScore);
-		mRating = (EditText) findViewById(R.id.logPlayerRating);
-		mNew = (CheckBox) findViewById(R.id.logPlayerNew);
-		mWin = (CheckBox) findViewById(R.id.logPlayerWin);
+		mName = (EditText) findViewById(R.id.log_player_name);
+		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
+		mTeamColor = (EditText) findViewById(R.id.log_player_team_color);
+		mStartingPosition = (EditText) findViewById(R.id.log_player_position);
+		mScore = (EditText) findViewById(R.id.log_player_score);
+		mRating = (EditText) findViewById(R.id.log_player_rating);
+		mNew = (CheckBox) findViewById(R.id.log_player_new);
+		mWin = (CheckBox) findViewById(R.id.log_player_win);
+
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerTeamColor()) {
+			findViewById(R.id.log_player_team_color_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerPosition()) {
+			findViewById(R.id.log_player_position_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerScore()) {
+			findViewById(R.id.log_player_score_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerRating()) {
+			findViewById(R.id.log_player_rating_row).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerNew()) {
+			findViewById(R.id.log_player_new).setVisibility(View.GONE);
+		}
+		if (BggApplication.getInstance().getPlayLoggingHidePlayerWin()) {
+			findViewById(R.id.log_player_win).setVisibility(View.GONE);
+		}
 	}
 
 	private void bindUi() {

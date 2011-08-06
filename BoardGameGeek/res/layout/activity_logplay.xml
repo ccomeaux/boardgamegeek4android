@@ -33,35 +33,36 @@
 						android:inputType="number"
 						android:hint="@string/quantityHint" />
 				</TableRow>
-				<TableRow>
+				<TableRow android:id="@+id/log_length_row">
 					<TextView style="@style/FormLabel" android:text="@string/length" />
 					<EditText android:id="@+id/logLength"
 						android:inputType="number"
 						android:text=""
 						android:hint="@string/lengthHint" />
 				</TableRow>
-				<TableRow>
+				<TableRow android:id="@+id/log_location_row">
 					<TextView style="@style/FormLabel" android:text="@string/location" />
 					<EditText android:id="@+id/logLocation"
 						android:inputType="text"
 						android:text=""
 						android:hint="@string/locationHint" />
 				</TableRow>
-				<CheckBox android:id="@+id/logIncomplete"
+				<CheckBox android:id="@+id/log_incomplete"
 					android:text="@string/incomplete"
 					android:checked="false" />
-				<CheckBox android:id="@+id/logNoWinStats"
+				<CheckBox android:id="@+id/log_no_win_stats"
 					android:text="@string/noWinStats"
 					android:checked="false" />
-				<TextView style="@style/FormLabel" android:text="@string/comments" />
-				<EditText android:id="@+id/logComments"
+				<TextView android:id="@+id/log_comments_label" style="@style/FormLabel" android:text="@string/comments" />
+				<EditText android:id="@+id/log_comments"
 					android:inputType="textMultiLine|textAutoCorrect"
 					android:text=""
 					android:hint="@string/commentsHint" />
 			</TableLayout>
 
-			<include layout="@layout/header_divider" />
-			<LinearLayout android:orientation="horizontal"
+			<include android:id="@+id/log_player_list_divider" layout="@layout/header_divider" />
+			<LinearLayout android:id="@+id/log_player_list"
+				android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:padding="@dimen/padding_standard"
