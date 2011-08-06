@@ -215,7 +215,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				}
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Add Field");
+				builder.setTitle(R.string.add_field);
 				builder.setItems(array, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
