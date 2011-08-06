@@ -4,4 +4,6 @@
 		android:icon="@android:drawable/ic_menu_save" />
 	<item android:id="@+id/cancel" android:title="@string/cancel"
 		android:icon="@android:drawable/ic_menu_close_clear_cancel" />
+	<item android:id="@+id/add_field" android:title="Add Field"
+		android:icon="@android:drawable/ic_menu_add" />
 </menu>
