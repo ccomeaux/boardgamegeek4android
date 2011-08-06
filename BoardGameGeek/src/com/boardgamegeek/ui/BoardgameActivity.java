@@ -214,6 +214,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		enableMenuItem(menu, R.id.links);
 		enableMenuItem(menu, R.id.share);
 
+		menu.findItem(R.id.log_play).setVisible(!BggApplication.getInstance().getPlayLoggingHideMenu());
+		menu.findItem(R.id.log_play_quick).setVisible(!BggApplication.getInstance().getPlayLoggingHideQuickMenu());
+
 		return super.onPrepareOptionsMenu(menu);
 	}
 

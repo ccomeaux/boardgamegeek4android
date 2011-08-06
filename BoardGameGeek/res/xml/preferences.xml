@@ -30,6 +30,14 @@
 			android:summary="@string/pref_imageLoad_summary" />
 	</PreferenceCategory>
 	<PreferenceScreen android:title="Logging Plays" android:summary="Settings for Logging Plays">
+		<CheckBoxPreference android:key="logHideLog"
+			android:title="Hide Log Play"
+			android:summaryOff="Display the Log Play menu option"
+			android:summaryOn="Don't display the Log Play menu option" />
+		<CheckBoxPreference android:key="logHideQuickLog"
+			android:title="Hide Quick Log Play"
+			android:summaryOff="Display the Quick Log Play menu option"
+			android:summaryOn="Don't display the Quick Log Play menu option" />
 		<PreferenceCategory android:title="@string/pref_general">
 			<CheckBoxPreference android:key="logHideLength"
 				android:title="Hide Length"
