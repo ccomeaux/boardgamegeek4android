@@ -98,6 +98,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
+		findViewById(R.id.game_thumbnail).setClickable(false);
 		UIUtils.setTitle(this);
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
