@@ -272,6 +272,7 @@
 	<string name="suggested_ages">Suggested Ages</string>
 	<string name="age_suffix">and up</string>
 	<string name="gameId">Game ID</string>
+	<string name="add_field">Add Field</string>
 
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
