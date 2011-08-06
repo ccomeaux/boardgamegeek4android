@@ -78,6 +78,16 @@ public class BggApplication extends Application {
 		return preferences.getBoolean("syncBuddies", true);
 	}
 
+	public boolean getPlayLoggingHideMenu() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideLog", false);
+	}
+
+	public boolean getPlayLoggingHideQuickMenu() {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("logHideQuickLog", false);
+	}
+
 	public boolean getPlayLoggingHideLocation() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getBoolean("logHideLocation", false);
