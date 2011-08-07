@@ -205,7 +205,7 @@ public class LogPlayerActivity extends Activity {
 		mUsername.setText(mPlayer.Username);
 		mTeamColor.setText(mPlayer.TeamColor);
 		mStartingPosition.setText(mPlayer.StartingPosition);
-		mScore.setText(String.valueOf(mPlayer.Score));
+		mScore.setText(mPlayer.Score);
 		mRating.setText(String.valueOf(mPlayer.Rating));
 		mNew.setChecked(mPlayer.New);
 		mWin.setChecked(mPlayer.Win);
