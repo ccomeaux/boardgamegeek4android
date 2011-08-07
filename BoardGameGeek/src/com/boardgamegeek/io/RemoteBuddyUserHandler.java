@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
@@ -36,14 +37,20 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		while ((type = parser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.USER.equals(parser.getName())) {
 				int id = StringUtils.parseInt(parser.getAttributeValue(null, Tags.ID));
+				String name = parser.getAttributeValue(null, Tags.NAME);
+				ContentValues values = parseUser(parser, resolver);
 
 				Uri uri = Buddies.buildBuddyUri(id);
 				Cursor cursor = resolver.query(uri, projection, null, null, null);
-
 				if (!cursor.moveToFirst()) {
-					Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
+					cursor.close();
+					if (name.equals(BggApplication.getInstance().getUserName())) {
+						resolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?", new String[] { name });
+					} else {
+						Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
+					}
 				} else {
-					parseUser(parser, resolver, uri);
+					resolver.update(uri, values, null, null);
 				}
 
 				cursor.close();
@@ -53,7 +60,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		return false;
 	}
 
-	private void parseUser(XmlPullParser parser, ContentResolver resolver, Uri uri) throws XmlPullParserException,
+	private ContentValues parseUser(XmlPullParser parser, ContentResolver resolver) throws XmlPullParserException,
 			IOException {
 
 		final int depth = parser.getDepth();
@@ -63,7 +70,7 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				final String tag = parser.getName();
-				final String attribute = parser.getAttributeValue(null, "value");
+				final String attribute = parser.getAttributeValue(null, Tags.VALUE);
 				if (Tags.FIRSTNAME.equals(tag)) {
 					values.put(Buddies.BUDDY_FIRSTNAME, attribute);
 				} else if (Tags.LASTNAME.equals(tag)) {
@@ -75,14 +82,16 @@ public class RemoteBuddyUserHandler extends XmlHandler {
 		}
 
 		values.put(Buddies.UPDATED, System.currentTimeMillis());
-		resolver.update(uri, values, null, null);
+		return values;
 	}
 
 	private interface Tags {
 		String USER = "user";
 		String ID = "id";
+		String NAME = "name";
 		String FIRSTNAME = "firstname";
 		String LASTNAME = "lastname";
 		String AVATAR = "avatarlink";
+		String VALUE = "value";
 	}
 }
