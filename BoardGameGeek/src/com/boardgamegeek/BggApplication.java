@@ -18,6 +18,7 @@ public class BggApplication extends Application {
 	public static String HELP_BOARDGAME_KEY = "help.boardgame";
 	public static String HELP_COLLECTION_KEY = "help.collection";
 	public static String HELP_SEARCHRESULTS_KEY = "help.searchresults";
+	public static String HELP_LOGPLAY_KEY = "help.logplay";
 
 	private static BggApplication singleton;
 

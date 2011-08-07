@@ -54,6 +54,7 @@ import com.boardgamegeek.util.UIUtils;
 public class LogPlayActivity extends Activity implements LogInListener {
 	private static final String TAG = "LogPlayActivity";
 
+	private static final int HELP_VERSION = 1;
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
@@ -142,6 +143,8 @@ public class LogPlayActivity extends Activity implements LogInListener {
 		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
 		setDateButtonText();
+
+		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
 
 	@Override
