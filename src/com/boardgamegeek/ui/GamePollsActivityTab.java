@@ -60,7 +60,7 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 	}
 
 	private class PollResult {
-		int id;
+		// int id;
 		int level;
 		String value;
 		int numberOfVotes;
@@ -141,7 +141,8 @@ public class GamePollsActivityTab extends ExpandableListActivity implements Asyn
 				mChildData.get(groupPosition).clear();
 				while (cursor.moveToNext()) {
 					PollResult result = new PollResult();
-					result.id = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_ID.ordinal());
+					// result.id =
+					// cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_ID.ordinal());
 					result.level = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_LEVEL.ordinal());
 					result.numberOfVotes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
 					result.value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
