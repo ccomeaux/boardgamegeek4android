@@ -28,6 +28,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
@@ -79,6 +80,8 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_POLLS_NAME_RESULTS_KEY = 1103;
 	private static final int GAMES_ID_POLLS_NAME_RESULTS_KEY_RESULT = 1104;
 	private static final int GAMES_ID_POLLS_NAME_RESULTS_KEY_RESULT_KEY = 1105;
+	private static final int GAMES_ID_COLORS = 111;
+	private static final int GAMES_ID_COLORS_NAME = 1110;
 	private static final int GAMES_DESIGNERS_ID = 401;
 	private static final int GAMES_ARTISTS_ID = 403;
 	private static final int GAMES_PUBLISHERS_ID = 405;
@@ -131,6 +134,8 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/publishers/#", GAMES_PUBLISHERS_ID);
 		matcher.addURI(authority, "games/mechanics/#", GAMES_MECHANICS_ID);
 		matcher.addURI(authority, "games/categories/#", GAMES_CATEGORIES_ID);
+		matcher.addURI(authority, "games/#/colors", GAMES_ID_COLORS);
+		matcher.addURI(authority, "games/#/colors/*", GAMES_ID_COLORS_NAME);
 		matcher.addURI(authority, "designers", DESIGNERS);
 		matcher.addURI(authority, "designers/#", DESIGNERS_ID);
 		matcher.addURI(authority, "artists", ARTISTS);
@@ -232,6 +237,10 @@ public class BggProvider extends ContentProvider {
 				return Categories.CONTENT_TYPE;
 			case GAMES_ID_CATEGORIES_ID:
 				return Categories.CONTENT_ITEM_TYPE;
+			case GAMES_ID_COLORS:
+				return GameColors.CONTENT_TYPE;
+			case GAMES_ID_COLORS_NAME:
+				return GameColors.CONTENT_ITEM_TYPE;
 			case GAMES_DESIGNERS_ID:
 				return Designers.CONTENT_ITEM_TYPE;
 			case GAMES_ARTISTS_ID:
@@ -435,6 +444,13 @@ public class BggProvider extends ContentProvider {
 				rowId = db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values);
 				newUri = Games.buildPollResultsResultUri(gameId, pollName, players,
 						values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+				break;
+			}
+			case GAMES_ID_COLORS: {
+				final int gameId = Games.getGameId(uri);
+				values.put(GameColors.GAME_ID, gameId);
+				rowId = db.insertOrThrow(Tables.GAME_COLORS, null, values);
+				newUri = GameColors.buildGameColorUri(values.getAsString(GameColors.COLOR));
 				break;
 			}
 			case DESIGNERS: {
@@ -685,6 +701,15 @@ public class BggProvider extends ContentProvider {
 				final long id = ContentUris.parseId(uri);
 				return builder.table(Tables.GAMES_CATEGORIES).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
+			case GAMES_ID_COLORS: {
+				final int gameId = Games.getGameId(uri);
+				return builder.table(Tables.GAME_COLORS).where(GamesCategories.GAME_ID + "=?", String.valueOf(gameId));
+			}
+			case GAMES_ID_COLORS_NAME: {
+				final int gameId = Games.getGameId(uri);
+				final String color = uri.getLastPathSegment();
+				return builder.table(Tables.GAME_COLORS).where(GamesCategories.GAME_ID + "=?", String.valueOf(gameId)).where(GameColors.COLOR + "=?", color);	
+			}
 			case DESIGNERS:
 				return builder.table(Tables.DESIGNERS);
 			case DESIGNERS_ID:
@@ -882,4 +907,4 @@ public class BggProvider extends ContentProvider {
 		}
 	}
 }
-// TODO: improve the magical where clauses with table and column constants
+// TODO: improve the magical where clauses with table and column constants - this should improve performance
