@@ -35,14 +35,18 @@
 						android:hint="@string/username"
 						android:textColor="#000"
 						android:completionThreshold="1"
+						android:dropDownHeight="fill_parent"
 						android:maxLength="63" />
 				</TableRow>
 
 				<TableRow android:id="@+id/log_player_team_color_row">
 					<TextView style="@style/FormLabel" android:text="@string/team_color" />
-					<EditText android:id="@+id/log_player_team_color"
-						android:inputType="textCapWords"
+					<AutoCompleteTextView android:id="@+id/log_player_team_color"
+						android:inputType="textCapSentences"
 						android:hint="@string/team_color"
+						android:textColor="#000"
+						android:completionThreshold="1"
+						android:dropDownHeight="fill_parent"
 						android:maxLength="32" />
 				</TableRow>
 
