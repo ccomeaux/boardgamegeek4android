@@ -90,6 +90,14 @@
 
 		<activity android:name=".ui.CommentsActivity" android:label="@string/title_comments" android:theme="@style/Theme.Bgg" />
 
+		<activity android:name=".ui.ColorsActivity" android:label="@string/title_colors" android:theme="@style/Theme.Bgg">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor" />
+			</intent-filter>
+		</activity>
+
 		<activity android:name=".view.BoardGameStatsTab" />
 		<activity android:name=".view.BoardGameExtraTab" />
 		<activity android:name=".view.BoardGameLinksTab" />
