@@ -28,6 +28,8 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -35,6 +37,7 @@ public class LogPlayerActivity extends Activity {
 	// private static final String TAG = "LogPlayerActivity";
 
 	private static final String KEY_PLAYER = "PLAYER";
+	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
@@ -44,15 +47,17 @@ public class LogPlayerActivity extends Activity {
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
 
+	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
 
-	private UsernameAdapter mAdapter;
+	private UsernameAdapter mUsernameAdapter;
+	private ColorAdapter mColorAdapter;
 	private Player mPlayer;
 
 	private EditText mName;
 	private AutoCompleteTextView mUsername;
-	private EditText mTeamColor;
+	private AutoCompleteTextView mTeamColor;
 	private EditText mStartingPosition;
 	private EditText mScore;
 	private EditText mRating;
@@ -77,6 +82,7 @@ public class LogPlayerActivity extends Activity {
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
+			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
@@ -84,6 +90,7 @@ public class LogPlayerActivity extends Activity {
 			bindUi();
 		} else {
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
+			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
@@ -100,14 +107,18 @@ public class LogPlayerActivity extends Activity {
 		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
 
-		mAdapter = new UsernameAdapter(this);
-		mUsername.setAdapter(mAdapter);
+		mUsernameAdapter = new UsernameAdapter(this);
+		mUsername.setAdapter(mUsernameAdapter);
+
+		mColorAdapter = new ColorAdapter(this);
+		mTeamColor.setAdapter(mColorAdapter);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_PLAYER, mPlayer);
+		outState.putInt(KEY_GAME_ID, mGameId);
 		outState.putString(KEY_GAME_NAME, mGameName);
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mTeamColorShown);
@@ -139,6 +150,9 @@ public class LogPlayerActivity extends Activity {
 				// sends focus to the next field (user pressed "Next")
 				mTeamColor.requestFocus();
 				return true;
+			} else if (mTeamColor.hasFocus()) {
+				mStartingPosition.requestFocus();
+				return true;
 			}
 		}
 		return super.onKeyUp(keyCode, event);
@@ -147,7 +161,7 @@ public class LogPlayerActivity extends Activity {
 	private void setUiVariables() {
 		mName = (EditText) findViewById(R.id.log_player_name);
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
-		mTeamColor = (EditText) findViewById(R.id.log_player_team_color);
+		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
 		mStartingPosition = (EditText) findViewById(R.id.log_player_position);
 		mScore = (EditText) findViewById(R.id.log_player_score);
 		mRating = (EditText) findViewById(R.id.log_player_rating);
@@ -366,11 +380,49 @@ public class LogPlayerActivity extends Activity {
 		}
 	}
 
+	private class ColorAdapter extends CursorAdapter {
+		public ColorAdapter(Context context) {
+			super(context, null);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return getLayoutInflater().inflate(R.layout.autocomplete_color, parent, false);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_color);
+			textView.setText(cursor.getString(ColorsQuery.COLOR));
+		}
+
+		@Override
+		public CharSequence convertToString(Cursor cursor) {
+			return cursor.getString(ColorsQuery.COLOR);
+		}
+
+		@Override
+		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+			String selection = null;
+			if (!TextUtils.isEmpty(constraint)) {
+				selection = GameColors.COLOR + " LIKE '" + constraint + "%'";
+			}
+			return getContentResolver().query(Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, selection, null,
+					null);
+		}
+	}
+
 	private interface BuddiesQuery {
 		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME };
 		// int _ID = 0;
 		int NAME = 1;
 		int FIRST_NAME = 2;
 		int LAST_NAME = 3;
+	}
+
+	private interface ColorsQuery {
+		String[] PROJECTION = { GameColors._ID, GameColors.COLOR };
+		// int _ID = 0;
+		int COLOR = 1;
 	}
 }
