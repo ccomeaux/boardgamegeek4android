@@ -7,23 +7,31 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class ColorsActivity extends ListActivity implements AsyncQueryListener {
-	// private final String TAG = "ColorActivity";
+	private final String TAG = "ColorActivity";
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final int MENU_COLOR_DELETE = Menu.FIRST;
 
 	private ColorAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -35,6 +43,7 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_colors);
+		getListView().setOnCreateContextMenuListener(this);
 
 		processIntent();
 
@@ -64,6 +73,52 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 
 	public void onSearchClick(View v) {
 		onSearchRequested();
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		if (cursor == null) {
+			return;
+		}
+		final String color = cursor.getString(Query.COLOR);
+
+		menu.setHeaderTitle(color);
+		menu.add(0, MENU_COLOR_DELETE, 0, R.string.delete);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info;
+		try {
+			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		} catch (ClassCastException e) {
+			Log.e(TAG, "bad menuInfo", e);
+			return false;
+		}
+
+		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		if (cursor == null) {
+			return false;
+		}
+		final String color = cursor.getString(Query.COLOR);
+
+		switch (item.getItemId()) {
+			case MENU_COLOR_DELETE: {
+				getContentResolver().delete(Games.buildColorsUri(Games.getGameId(mGameColorUri), color), null, null);
+				mHandler.startQuery(mGameColorUri, Query.PROJECTION);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
