@@ -136,6 +136,10 @@ public class BggContract {
 		String POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex";
 	}
 
+	interface GameColorsColumns {
+		String COLOR = "color";
+	}
+
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
 
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
@@ -153,6 +157,7 @@ public class BggContract {
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
 	private static final String PATH_THUMBNAILS = "thumbnails";
+	private static final String PATH_COLORS = "colors";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -259,6 +264,14 @@ public class BggContract {
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
 			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
 					.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+		}
+
+		public static Uri buildColorsUri(int gameId) {
+			return getUriBuilder(gameId, PATH_COLORS).build();
+		}
+
+		public static Uri buildColorsUri(int gameId, String color) {
+			return getUriBuilder(gameId, PATH_COLORS).appendPath(color).build();
 		}
 
 		private static Builder getUriBuilder() {
@@ -479,6 +492,19 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
 
 		public static final String DEFAULT_SORT = POLL_RESULTS_RESULT_SORT_INDEX + " ASC";
+	}
+
+	public static final class GameColors implements GameColorsColumns, GamesColumns, BaseColumns {
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_COLORS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamecolor";
+
+		public static final String DEFAULT_SORT = COLOR + " ASC";
+
+		public static Uri buildGameColorUri(String color) {
+			return CONTENT_URI.buildUpon().appendPath(color).build();
+		}
 	}
 
 	private BggContract() {

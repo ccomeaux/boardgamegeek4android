@@ -12,6 +12,7 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.GameColorsColumns;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsColumns;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
@@ -38,7 +39,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	// sure user data is saved.
 	private static final int VER_INITIAL = 1;
 	private static final int VER_WISHLIST_PRIORITY = 2;
-	private static final int DATABASE_VERSION = VER_WISHLIST_PRIORITY;
+	private static final int VER_GAME_COLORS = 3;
+	private static final int DATABASE_VERSION = VER_GAME_COLORS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -83,6 +85,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_POLLS = "game_polls";
 		String GAME_POLL_RESULTS = "game_poll_results";
 		String GAME_POLL_RESULTS_RESULT = "game_poll_results_result";
+		String GAME_COLORS = "game_colors";
 
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
@@ -279,6 +282,15 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
 			.column(GamePollResultsResultColumns.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
 			.create(db);
+		
+		createGameColorsTable(db, builder);
+	}
+
+	private void createGameColorsTable(SQLiteDatabase db, CreateTableBuilder builder) {
+		builder.reset().table(Tables.GAME_COLORS).defaultPrimaryKey()
+			.column(GamesColumns.GAME_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(GameColorsColumns.COLOR, COLUMN_TYPE.TEXT, true, true)
+			.create(db);
 	}
 
 	@Override
@@ -297,6 +309,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL("ALTER TABLE " + Tables.COLLECTION + " ADD COLUMN "
 						+ CollectionColumns.STATUS_WISHLIST_PRIORITY + " INTEGER");
 				version = VER_WISHLIST_PRIORITY;
+			case VER_WISHLIST_PRIORITY:
+				createGameColorsTable(db, new CreateTableBuilder());
+				version = VER_GAME_COLORS;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -319,6 +334,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLLS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS_RESULT);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_COLORS);
 
 			onCreate(db);
 		}
