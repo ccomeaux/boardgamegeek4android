@@ -19,7 +19,6 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -391,6 +390,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 	private void addPlayer(Intent intent, int requestCode) {
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
+		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
 		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivityForResult(intent, requestCode);
