@@ -210,9 +210,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		// only enable options when the game is loaded
 		enableMenuItem(menu, R.id.log_play);
 		enableMenuItem(menu, R.id.log_play_quick);
-		enableMenuItem(menu, R.id.refresh);
 		enableMenuItem(menu, R.id.links);
 		enableMenuItem(menu, R.id.share);
+		enableMenuItem(menu, R.id.colors);
+		enableMenuItem(menu, R.id.refresh);
 
 		menu.findItem(R.id.log_play).setVisible(!BggApplication.getInstance().getPlayLoggingHideMenu());
 		menu.findItem(R.id.log_play_quick).setVisible(!BggApplication.getInstance().getPlayLoggingHideQuickMenu());
@@ -260,6 +261,13 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return true;
 			case R.id.comments:
 				ActivityUtils.showComments(this, mId, mName, mThumbnailUrl);
+				return true;
+			case R.id.colors:
+				final Uri colorUri = Games.buildColorsUri(mId);
+				Intent intent = new Intent(Intent.ACTION_VIEW, colorUri);
+				intent.putExtra(ColorsActivity.KEY_GAME_NAME, mName);
+				intent.putExtra(ColorsActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+				startActivity(intent);
 				return true;
 		}
 		return false;

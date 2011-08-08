@@ -9,11 +9,8 @@
 	<item android:id="@+id/comments"
 		android:icon="@drawable/ic_menu_comments"
 		android:title="@string/menu_comments" />
-	<item android:id="@+id/refresh"
-		android:title="@string/menu_refresh"
-		android:icon="@drawable/ic_menu_refresh" />
 	<item android:id="@+id/links"
-	    android:title="@string/menu_links"
+		android:title="@string/menu_links"
 		android:icon="@android:drawable/ic_menu_more">
 		<menu>
 			<item android:id="@+id/menu_bgg" 
@@ -29,4 +26,10 @@
 	<item android:id="@+id/share"
 		android:title="@string/menu_share"
 		android:icon="@android:drawable/ic_menu_share" />
+	<item android:id="@+id/colors"
+		android:title="@string/menu_color"
+		android:icon="@drawable/ic_menu_friendslist" />
+	<item android:id="@+id/refresh"
+		android:title="@string/menu_refresh"
+		android:icon="@drawable/ic_menu_refresh" />
 </menu>

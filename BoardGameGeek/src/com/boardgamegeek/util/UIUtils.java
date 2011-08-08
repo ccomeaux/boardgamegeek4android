@@ -81,6 +81,14 @@ public class UIUtils {
 		((TextView) activity.findViewById(R.id.game_name)).setText(gameName);
 	}
 
+	public static void setGameHeader(Activity activity, CharSequence gameName, String thumbnailUrl){
+		setTitle(activity);
+		setGameName(activity, gameName);
+		UIUtils u = new UIUtils(activity);
+		u.setThumbnail(thumbnailUrl);
+		allowTypeToSearch(activity);
+	}
+
 	public void setGameName(CharSequence gameName) {
 		setGameName(mActivity, gameName);
 	}
