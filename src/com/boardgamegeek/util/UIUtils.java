@@ -86,6 +86,7 @@ public class UIUtils {
 		setGameName(activity, gameName);
 		UIUtils u = new UIUtils(activity);
 		u.setThumbnail(thumbnailUrl);
+		activity.findViewById(R.id.game_thumbnail).setClickable(false);
 		allowTypeToSearch(activity);
 	}
 
