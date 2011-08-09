@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -32,6 +33,7 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final int MENU_COLOR_DELETE = Menu.FIRST;
+	private static final int HELP_VERSION = 1;
 
 	private ColorAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -54,6 +56,8 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(mGameColorUri, Query.PROJECTION);
+
+		UIUtils.showHelpDialog(this, BggApplication.HELP_COLORS_KEY, HELP_VERSION, R.string.help_colors);
 	}
 
 	private void processIntent() {
