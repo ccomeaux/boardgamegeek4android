@@ -11,7 +11,7 @@
 		android:title="@string/menu_comments" />
 	<item android:id="@+id/links"
 		android:title="@string/menu_links"
-		android:icon="@android:drawable/ic_menu_more">
+		android:icon="@drawable/ic_menu_link">
 		<menu>
 			<item android:id="@+id/menu_bgg" 
 				android:title="@string/menu_link_bgg" />
