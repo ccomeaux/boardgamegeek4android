@@ -248,12 +248,10 @@ public class SearchResultsActivity extends ListActivity {
 				String message = String.format(getResources().getString(R.string.search_no_results), mSearchText);
 				mSearchTextView.setText(message);
 				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results_details);
-			} else if (count == 1) {
-				if (BggApplication.getInstance().getSkipResults()) {
-					SearchResult game = result.getResults().get(0);
-					viewBoardGame(game.Id, game.Name);
-					finish();
-				}
+			} else if (count == 1 && BggApplication.getInstance().getSkipResults()) {
+				SearchResult game = result.getResults().get(0);
+				viewBoardGame(game.Id, game.Name);
+				finish();
 			} else {
 				mSearchResults = result.getResults();
 				String message = String.format(getResources().getString(R.string.search_results),
