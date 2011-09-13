@@ -1,5 +1,10 @@
 package com.boardgamegeek.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import android.app.Activity;
@@ -13,10 +18,10 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,6 +32,9 @@ import com.boardgamegeek.ui.widget.BezelImageView;
 
 public class UIUtils {
 
+	private static final String BGG_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
+	private static final DateFormat FORMATER = new SimpleDateFormat(BGG_DATE_FORMAT, Locale.US);
+	
 	private Activity mActivity;
 	private static Random mRandom;
 
@@ -252,5 +260,21 @@ public class UIUtils {
 					});
 			builder.create().show();
 		}
+	}
+
+	/**
+	 * @param inDate date from BGG XMLs
+	 * @return string with parsed date (or original date if parsing not successful)
+	 */
+	public static String parseDate(String inDate) {
+		
+		String result;
+		try {
+			final Date date = FORMATER.parse(inDate);
+			result = date.toLocaleString();
+		} catch (ParseException e) {
+			result = inDate;
+		}
+		return result;
 	}
 }

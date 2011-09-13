@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_standard"
+	android:gravity="center">
+	
+	<TextView 
+		android:id="@+id/article_username"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:textSize="@dimen/text_size_small"
+		android:paddingBottom="@dimen/padding_small"
+		android:ellipsize="end" />
+	<View android:id="@+id/article_divider"
+	      xmlns:android="http://schemas.android.com/apk/res/android"
+	      android:layout_width="fill_parent"
+	      android:layout_height="1px"
+	      android:paddingBottom="@dimen/padding_small"
+	      android:background="@color/background_light" />/
+	<WebView android:id="@+id/article_webkit"
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:layout_weight="1" />
+
+</LinearLayout>

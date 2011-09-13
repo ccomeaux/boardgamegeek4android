@@ -9,6 +9,9 @@
 	<item android:id="@+id/comments"
 		android:icon="@drawable/ic_menu_comments"
 		android:title="@string/menu_comments" />
+	<item android:id="@+id/forums"
+		android:icon="@drawable/ic_menu_allfriends"
+		android:title="@string/menu_forums" />
 	<item android:id="@+id/links"
 		android:title="@string/menu_links"
 		android:icon="@drawable/ic_menu_link">

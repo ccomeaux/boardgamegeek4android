@@ -132,6 +132,21 @@ public class HttpUtils {
 	{
 		return BASE_URL_2 + "thing?id=" + gameId + "&comments=1&page=" + page;
 	}
+	
+	public static String constructForumlistUrl(int gameId)
+	{
+		return BASE_URL_2 + "forumlist?id=" + gameId + "&type=thing";
+	}
+	
+	public static String constructForumUrl(String forumId)
+	{
+		return BASE_URL_2 + "forum?id=" + forumId;
+	}
+	
+	public static String constructThreadUrl(String mThreadId)
+	{
+		return BASE_URL_2 + "thread?id=" + mThreadId;
+	}
 
 	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
 		final HttpParams params = createHttpParams(context, false);

@@ -89,6 +89,12 @@
 		<activity android:name=".ui.LogPlayerActivity" android:label="@string/title_log_player" android:theme="@style/Theme.Bgg" />
 
 		<activity android:name=".ui.CommentsActivity" android:label="@string/title_comments" android:theme="@style/Theme.Bgg" />
+		
+		<activity android:name=".ui.ForumlistActivity" android:label="@string/title_forumlist" android:theme="@style/Theme.Bgg" />
+		
+		<activity android:name=".ui.ForumActivity" android:label="@string/title_forum" android:theme="@style/Theme.Bgg" />
+		
+		<activity android:name=".ui.ThreadActivity" android:label="@string/title_thread" android:theme="@style/Theme.Bgg" />
 
 		<activity android:name=".ui.ColorsActivity" android:label="@string/title_colors" android:theme="@style/Theme.Bgg">
 			<intent-filter>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:layout_above="@+id/filter_linear_layout"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<include layout="@layout/titlebar" />
+	<include layout="@layout/game_header" />
+	<include layout="@layout/header_divider" />
+	<include layout="@layout/list" />
+
+</LinearLayout>
