@@ -1,0 +1,45 @@
+package com.boardgamegeek.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Forum implements Parcelable {
+
+	public String id;
+	public String title;
+	public String numthreads;
+	public String lastpostdate;
+	
+	public Forum() {
+	}
+	
+	public Forum(Parcel in) {
+		id = in.readString();
+		title = in.readString();
+		numthreads = in.readString();
+		lastpostdate = in.readString();
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(id);
+		dest.writeString(title);
+		dest.writeString(numthreads);
+		dest.writeString(lastpostdate);
+	}
+
+	public static final Parcelable.Creator<Forum> CREATOR = new Parcelable.Creator<Forum>() {
+		public Forum createFromParcel(Parcel in) {
+			return new Forum(in);
+		}
+
+		public Forum[] newArray(int size) {
+			return new Forum[size];
+		}
+	};	
+}

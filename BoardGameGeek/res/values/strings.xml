@@ -163,6 +163,7 @@
 		of your changes.</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?
 	</string>
+	<string name="threads">Threads</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -179,6 +180,9 @@
 	<string name="title_log_player">Log Player</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_colors">Teams/Colors</string>
+	<string name="title_forumlist">Forums List</string>
+	<string name="title_forum">Forum</string>
+	<string name="title_thread">Thread</string>
 
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
@@ -225,6 +229,9 @@
 	</string>
 	<string name="hotness_no_results_details">The hotness has gone cold.</string>
 	<string name="comments_no_results">No comments for \"%s\"".</string>
+	<string name="forumlist_no_results">No forums for \"%s\"".</string>
+	<string name="forum_no_results">No threads in \"%s\"".</string>
+	<string name="thread_no_results">No posts in thread \"%s\"".</string>
 
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>
@@ -246,6 +253,7 @@
 	<string name="menu_back">Back</string>
 	<string name="menu_forward">Forward</string>
 	<string name="menu_color">Teams/Colors</string>
+	<string name="menu_forums">Forums</string>
 
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>
@@ -293,4 +301,7 @@
 		entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
+	
+	<string name="forum_last_post">Last post:</string>
+	<string name="forum_thread_created">Created:</string>
 </resources>

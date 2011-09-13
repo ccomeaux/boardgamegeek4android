@@ -269,6 +269,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				intent.putExtra(ColorsActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 				startActivity(intent);
 				return true;
+			case R.id.forums:
+				Intent forumsIntent = new Intent(this, ForumlistActivity.class);
+				forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, mId);
+				forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, mName);
+				this.startActivity(forumsIntent);
 		}
 		return false;
 	}
