@@ -27,49 +27,53 @@ import com.boardgamegeek.util.UIUtils;
 
 public class ForumActivity extends ListActivity {
 	private final String TAG = "ForumActivity";
-	
+
 	public static final String KEY_FORUM_ID = "FORUM_ID";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_FORUM_TITLE = "FORUM_NAME";
 	public static final String KEY_NUM_THREADS = "NUM_THREADS";
-	
+
 	private ForumAdapter mAdapter;
 	private List<ForumThread> mForumThreads = new ArrayList<ForumThread>();
-	
+
 	private String mForumId;
+	private String mGameName;
 	private String mThumbnailUrl;
 	private String mForumName;
 	private String mNumThreads;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_forum);
 		findViewById(R.id.game_thumbnail).setClickable(false);
-		
+
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mForumId = intent.getExtras().getString(KEY_FORUM_ID);
+			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mForumName = intent.getExtras().getString(KEY_FORUM_TITLE);
 			mNumThreads = intent.getExtras().getString(KEY_NUM_THREADS);
 		} else {
 			mForumId = savedInstanceState.getString(KEY_FORUM_ID);
+			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mForumName = savedInstanceState.getString(KEY_FORUM_TITLE);
 			mNumThreads = savedInstanceState.getString(KEY_NUM_THREADS);
 		}
-		
-		UIUtils.setTitle(this);
+
+		UIUtils.setTitle(this, mForumName);
 		UIUtils u = new UIUtils(this);
-		u.setGameName(mForumName);
+		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
-		
+
 		ForumTask task = new ForumTask();
 		task.execute();
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -78,7 +82,7 @@ public class ForumActivity extends ListActivity {
 		outState.putString(KEY_FORUM_TITLE, mForumName);
 		outState.putString(KEY_NUM_THREADS, mNumThreads);
 	}
-	
+
 	public void onHomeClick(View v) {
 		UIUtils.goHome(this);
 	}
@@ -86,7 +90,7 @@ public class ForumActivity extends ListActivity {
 	public void onSearchClick(View v) {
 		onSearchRequested();
 	}
-	
+
 	private class ForumTask extends AsyncTask<Void, Void, RemoteForumHandler> {
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
@@ -97,7 +101,7 @@ public class ForumActivity extends ListActivity {
 			mHttpClient = HttpUtils.createHttpClient(ForumActivity.this, true);
 			mExecutor = new RemoteExecutor(mHttpClient, null);
 		}
-		
+
 		@Override
 		protected RemoteForumHandler doInBackground(Void... params) {
 			final String url = HttpUtils.constructForumUrl(mForumId);
@@ -109,7 +113,7 @@ public class ForumActivity extends ListActivity {
 			}
 			return mHandler;
 		}
-		
+
 		@Override
 		protected void onPostExecute(RemoteForumHandler result) {
 			Log.i(TAG, "Threads count " + result.getCount());
@@ -126,19 +130,20 @@ public class ForumActivity extends ListActivity {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ViewHolder holder = (ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent forumsIntent = new Intent(this, ThreadActivity.class);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
-//			forumsIntent.putExtra(ThreadActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+			// forumsIntent.putExtra(ThreadActivity.KEY_THUMBNAIL_URL,
+			// mThumbnailUrl);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
 			this.startActivity(forumsIntent);
 		}
 	}
-	
+
 	private class ForumAdapter extends ArrayAdapter<ForumThread> {
 		private LayoutInflater mInflater;
 
@@ -146,7 +151,7 @@ public class ForumActivity extends ListActivity {
 			super(ForumActivity.this, R.layout.row_forumthread, mForumThreads);
 			mInflater = getLayoutInflater();
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
@@ -157,24 +162,24 @@ public class ForumActivity extends ListActivity {
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
-			ForumThread forum;
+
+			ForumThread thread;
 			try {
-				forum = mForumThreads.get(position);
+				thread = mForumThreads.get(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
-			if (forum != null) {
-				holder.threadId = forum.id;
-				holder.subject.setText(forum.subject);
-				holder.author.setText(forum.author);
-				holder.lastpostdate.setText(forum.lastpostdate);
-				holder.postdate.setText(forum.postdate);
+			if (thread != null) {
+				holder.threadId = thread.id;
+				holder.subject.setText(thread.subject);
+				holder.author.setText(thread.author);
+				holder.lastpostdate.setText(thread.lastpostdate);
+				holder.postdate.setText(thread.postdate);
 			}
 			return convertView;
 		}
 	}
-	
+
 	static class ViewHolder {
 		String threadId;
 		TextView subject;

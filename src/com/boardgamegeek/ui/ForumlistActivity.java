@@ -27,25 +27,25 @@ import com.boardgamegeek.util.UIUtils;
 
 public class ForumlistActivity extends ListActivity {
 	private final String TAG = "ForumlistActivity";
-	
+
 	public static final String KEY_FORUMLIST_ID = "FORUMLIST_ID";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 
 	private ForumlistAdapter mAdapter;
 	private List<Forum> mForums = new ArrayList<Forum>();
-	
+
 	private int mForumlistId;
 	private String mThumbnailUrl;
 	private String mGameName;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_forumlist);
 		findViewById(R.id.game_thumbnail).setClickable(false);
-		
+
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mForumlistId = intent.getExtras().getInt(KEY_FORUMLIST_ID);
@@ -56,16 +56,16 @@ public class ForumlistActivity extends ListActivity {
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 		}
-		
+
 		UIUtils.setTitle(this);
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
-		
+
 		ForumlistTask task = new ForumlistTask();
 		task.execute();
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -73,7 +73,7 @@ public class ForumlistActivity extends ListActivity {
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putString(KEY_GAME_NAME, mGameName);
 	}
-	
+
 	public void onHomeClick(View v) {
 		UIUtils.goHome(this);
 	}
@@ -81,11 +81,8 @@ public class ForumlistActivity extends ListActivity {
 	public void onSearchClick(View v) {
 		onSearchRequested();
 	}
-	
+
 	private class ForumlistTask extends AsyncTask<Void, Void, RemoteForumlistHandler> {
-		//browser = (WebView) findViewById(R.id.webkit);
-		//browser.loadData(aaa, "text/html", "utf-8");
-		
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteForumlistHandler mHandler = new RemoteForumlistHandler();
@@ -124,13 +121,14 @@ public class ForumlistActivity extends ListActivity {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ViewHolder holder = (ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent forumsIntent = new Intent(this, ForumActivity.class);
 			forumsIntent.putExtra(ForumActivity.KEY_FORUM_ID, holder.forumId);
+			forumsIntent.putExtra(ForumActivity.KEY_GAME_NAME, mGameName);
 			forumsIntent.putExtra(ForumActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
 			forumsIntent.putExtra(ForumActivity.KEY_NUM_THREADS, holder.numThreads.getText());
@@ -145,7 +143,7 @@ public class ForumlistActivity extends ListActivity {
 			super(ForumlistActivity.this, R.layout.row_forum, mForums);
 			mInflater = getLayoutInflater();
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
@@ -156,7 +154,7 @@ public class ForumlistActivity extends ListActivity {
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
 			Forum forumlist;
 			try {
 				forumlist = mForums.get(position);
@@ -170,15 +168,14 @@ public class ForumlistActivity extends ListActivity {
 				if (forumlist.lastpostdate.length() > 0) {
 					holder.lastPost.setText(forumlist.lastpostdate);
 					holder.lastPostString.setVisibility(View.VISIBLE);
-				}
-				else {
+				} else {
 					holder.lastPostString.setVisibility(View.INVISIBLE);
 				}
 			}
 			return convertView;
 		}
 	}
-	
+
 	static class ViewHolder {
 		String forumId;
 		TextView forumTitle;
