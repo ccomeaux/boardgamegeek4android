@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ public class ForumlistActivity extends ListActivity {
 	public static final String KEY_FORUMLIST_ID = "FORUMLIST_ID";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_FORUMS = "FORUMS";
 
 	private ForumlistAdapter mAdapter;
 	private List<Forum> mForums = new ArrayList<Forum>();
@@ -56,6 +58,7 @@ public class ForumlistActivity extends ListActivity {
 			mForumlistId = savedInstanceState.getInt(KEY_FORUMLIST_ID);
 			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
+			mForums = savedInstanceState.getParcelableArrayList(KEY_FORUMS);
 		}
 
 		UIUtils.setTitle(this);
@@ -63,8 +66,13 @@ public class ForumlistActivity extends ListActivity {
 		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
 
-		ForumlistTask task = new ForumlistTask();
-		task.execute();
+		if (mForums == null || mForums.size() == 0) {
+			ForumlistTask task = new ForumlistTask();
+			task.execute();
+		} else {
+			mAdapter = new ForumlistAdapter();
+			setListAdapter(mAdapter);
+		}
 	}
 
 	@Override
@@ -73,6 +81,7 @@ public class ForumlistActivity extends ListActivity {
 		outState.putInt(KEY_FORUMLIST_ID, mForumlistId);
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putString(KEY_GAME_NAME, mGameName);
+		outState.putParcelableArrayList(KEY_FORUMS, (ArrayList<? extends Parcelable>) mForums);
 	}
 
 	public void onHomeClick(View v) {
