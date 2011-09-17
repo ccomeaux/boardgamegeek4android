@@ -7,6 +7,7 @@ import org.apache.http.client.HttpClient;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -148,8 +149,6 @@ public class ForumActivity extends ListActivity {
 		if (holder != null) {
 			Intent forumsIntent = new Intent(this, ThreadActivity.class);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
-			// forumsIntent.putExtra(ThreadActivity.KEY_THUMBNAIL_URL,
-			// mThumbnailUrl);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
 			this.startActivity(forumsIntent);
 		}
@@ -157,14 +156,18 @@ public class ForumActivity extends ListActivity {
 
 	private class ForumAdapter extends ArrayAdapter<ForumThread> {
 		private LayoutInflater mInflater;
-		String mLastPostText;
-		String mCreatedText;
+		private Resources mResources;
+		private String mAuthorText;
+		private String mLastPostText;
+		private String mCreatedText;
 
 		public ForumAdapter() {
 			super(ForumActivity.this, R.layout.row_forumthread, mForumThreads);
 			mInflater = getLayoutInflater();
-			mLastPostText = getResources().getString(R.string.forum_last_post);
-			mCreatedText = getResources().getString(R.string.forum_thread_created);
+			Resources mResources = getResources();
+			mAuthorText = mResources.getString(R.string.forum_thread_author);
+			mLastPostText = mResources.getString(R.string.forum_last_post);
+			mCreatedText = mResources.getString(R.string.forum_thread_created);
 		}
 
 		@Override
@@ -187,7 +190,10 @@ public class ForumActivity extends ListActivity {
 			if (thread != null) {
 				holder.threadId = thread.id;
 				holder.subject.setText(thread.subject);
-				holder.author.setText(thread.author);
+				holder.author.setText(String.format(mAuthorText, thread.author));
+				int replies = thread.numarticles - 1;
+				holder.numarticles.setText(mResources.getQuantityString(R.plurals.forum_thread_replies, replies,
+						replies));
 				holder.lastpostdate.setText(String.format(mLastPostText,
 						DateUtils.getRelativeTimeSpanString(ForumActivity.this, thread.lastpostdate)));
 				holder.postdate.setText(String.format(mCreatedText,
@@ -201,12 +207,14 @@ public class ForumActivity extends ListActivity {
 		String threadId;
 		TextView subject;
 		TextView author;
+		TextView numarticles;
 		TextView lastpostdate;
 		TextView postdate;
 
 		public ViewHolder(View view) {
 			subject = (TextView) view.findViewById(R.id.thread_title);
 			author = (TextView) view.findViewById(R.id.thread_author);
+			numarticles = (TextView) view.findViewById(R.id.thread_numarticles);
 			lastpostdate = (TextView) view.findViewById(R.id.thread_lastpostdate);
 			postdate = (TextView) view.findViewById(R.id.thread_postdate);
 		}

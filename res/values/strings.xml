@@ -304,4 +304,9 @@
 
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
+	<string name="forum_thread_author">by %s</string>
+	<plurals name="forum_thread_replies">
+		<item quantity="one">%s reply</item>
+		<item quantity="other">%s replies</item>
+	</plurals>
 </resources>
