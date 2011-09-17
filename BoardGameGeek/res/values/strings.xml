@@ -301,7 +301,7 @@
 		entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
-	
-	<string name="forum_last_post">Last post:</string>
-	<string name="forum_thread_created">Created:</string>
+
+	<string name="forum_last_post">Last post: %s</string>
+	<string name="forum_thread_created">Created: %s</string>
 </resources>

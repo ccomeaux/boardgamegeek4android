@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -146,10 +147,14 @@ public class ForumActivity extends ListActivity {
 
 	private class ForumAdapter extends ArrayAdapter<ForumThread> {
 		private LayoutInflater mInflater;
+		String mLastPostText;
+		String mCreatedText;
 
 		public ForumAdapter() {
 			super(ForumActivity.this, R.layout.row_forumthread, mForumThreads);
 			mInflater = getLayoutInflater();
+			mLastPostText = getResources().getString(R.string.forum_last_post);
+			mCreatedText = getResources().getString(R.string.forum_thread_created);
 		}
 
 		@Override
@@ -173,8 +178,10 @@ public class ForumActivity extends ListActivity {
 				holder.threadId = thread.id;
 				holder.subject.setText(thread.subject);
 				holder.author.setText(thread.author);
-				holder.lastpostdate.setText(thread.lastpostdate);
-				holder.postdate.setText(thread.postdate);
+				holder.lastpostdate.setText(String.format(mLastPostText,
+						DateUtils.getRelativeTimeSpanString(ForumActivity.this, thread.lastpostdate)));
+				holder.postdate.setText(String.format(mCreatedText,
+						DateUtils.getRelativeTimeSpanString(ForumActivity.this, thread.postdate)));
 			}
 			return convertView;
 		}

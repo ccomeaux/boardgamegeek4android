@@ -5,58 +5,47 @@
 	android:orientation="vertical"
 	android:padding="@dimen/padding_standard"
 	android:gravity="center">
-	
-	<LinearLayout
+
+	<TextView android:id="@+id/thread_title"
+		android:text="Thread Title or Subject"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView android:id="@+id/thread_title"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="@dimen/text_size_medium"
-			android:textStyle="bold" />
+		android:textSize="@dimen/text_size_medium"
+		android:textStyle="bold"
+		android:padding="@dimen/padding_small" />
+	<LinearLayout
+		android:id="@+id/thread_info"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
 		<TextView android:id="@+id/thread_author"
-			android:layout_width="wrap_content"
+			android:text="Thread Author"
+			android:layout_width="0px"
+			android:layout_weight="1"
 			android:layout_height="wrap_content"
 			android:layout_gravity="right|center_vertical"
 			android:textSize="@dimen/text_size_small"
-			android:padding="@dimen/padding_standard" />
-	</LinearLayout>
-	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView android:id="@+id/thread_postdate_string"
-			android:text="@string/forum_thread_created"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="@dimen/text_size_tiny"
-			android:layout_gravity="left|center_vertical" />
-		<TextView android:id="@+id/thread_lastpostdate_string"
-			android:text="@string/forum_last_post"
+			android:padding="@dimen/padding_small" />
+		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_tiny"
-			android:layout_gravity="right|center_vertical"
-			android:paddingRight="@dimen/padding_standard"/>
-	</LinearLayout>
-	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView android:id="@+id/thread_postdate"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="@dimen/text_size_tiny"
-			android:layout_gravity="left|center_vertical" />
-		<TextView android:id="@+id/thread_lastpostdate"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_tiny"
-			android:layout_gravity="right|center_vertical"
-			android:paddingRight="@dimen/padding_standard"/>
+			android:layout_height="wrap_content">
+			<TextView android:id="@+id/thread_postdate"
+				android:text="Created at Today"	
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:textSize="@dimen/text_size_tiny"
+				android:textColor="@color/light_text"
+				android:layout_gravity="left|center_vertical"
+				android:paddingLeft="@dimen/padding_small" />
+			<TextView android:id="@+id/thread_lastpostdate"
+				android:text="Last post at Another Day"	
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/text_size_tiny"
+				android:textColor="@color/light_text"
+				android:layout_gravity="left|center_vertical"
+				android:paddingLeft="@dimen/padding_small" />
+		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

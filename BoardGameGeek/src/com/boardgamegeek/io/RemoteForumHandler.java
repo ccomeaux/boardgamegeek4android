@@ -6,6 +6,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -14,17 +15,16 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentResolver;
 
 import com.boardgamegeek.model.ForumThread;
-import com.boardgamegeek.util.UIUtils;
 
 public class RemoteForumHandler extends RemoteBggHandler {
 
 	private XmlPullParser mParser;
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
-	
+
 	public List<ForumThread> getResults() {
 		return mThreads;
 	}
-	
+
 	@Override
 	protected void clearResults() {
 		mThreads.clear();
@@ -39,7 +39,7 @@ public class RemoteForumHandler extends RemoteBggHandler {
 	protected String getRootNodeName() {
 		return "forum";
 	}
-	
+
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 			throws XmlPullParserException, IOException {
@@ -67,16 +67,14 @@ public class RemoteForumHandler extends RemoteBggHandler {
 				thread.subject = mParser.getAttributeValue(null, Tags.SUBJECT);
 				thread.author = mParser.getAttributeValue(null, Tags.AUTHOR);
 				thread.numarticles = mParser.getAttributeValue(null, Tags.NUM_ARTICLES);
-				thread.lastpostdate = UIUtils.parseDate(mParser.getAttributeValue(null, Tags.LAST_POST_DATE));
-				thread.postdate = UIUtils.parseDate(mParser.getAttributeValue(null, Tags.POST_DATE));
+				thread.postdate = Date.parse(mParser.getAttributeValue(null, Tags.POST_DATE));
+				thread.lastpostdate = Date.parse(mParser.getAttributeValue(null, Tags.LAST_POST_DATE));
 				mThreads.add(thread);
 			}
 		}
 	}
 
 	private interface Tags {
-//		String FORUM = "forum";
-//		String TITLE = "title";
 		String NUM_ARTICLES = "numarticles";
 		String THREADS = "threads";
 		String THREAD = "thread";
