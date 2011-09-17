@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -138,10 +139,12 @@ public class ForumlistActivity extends ListActivity {
 
 	private class ForumlistAdapter extends ArrayAdapter<Forum> {
 		private LayoutInflater mInflater;
+		String mLastPostText;
 
 		public ForumlistAdapter() {
 			super(ForumlistActivity.this, R.layout.row_forum, mForums);
 			mInflater = getLayoutInflater();
+			mLastPostText = getResources().getString(R.string.forum_last_post);
 		}
 
 		@Override
@@ -165,11 +168,12 @@ public class ForumlistActivity extends ListActivity {
 				holder.forumId = forumlist.id;
 				holder.forumTitle.setText(forumlist.title);
 				holder.numThreads.setText(forumlist.numthreads + " " + getResources().getString(R.string.threads));
-				if (forumlist.lastpostdate.length() > 0) {
-					holder.lastPost.setText(forumlist.lastpostdate);
-					holder.lastPostString.setVisibility(View.VISIBLE);
+				if (forumlist.lastpostdate > 0) {
+					holder.lastPost.setText(String.format(mLastPostText,
+							DateUtils.getRelativeTimeSpanString(ForumlistActivity.this, forumlist.lastpostdate)));
+					holder.lastPost.setVisibility(View.VISIBLE);
 				} else {
-					holder.lastPostString.setVisibility(View.INVISIBLE);
+					holder.lastPost.setVisibility(View.GONE);
 				}
 			}
 			return convertView;
@@ -181,13 +185,11 @@ public class ForumlistActivity extends ListActivity {
 		TextView forumTitle;
 		TextView numThreads;
 		TextView lastPost;
-		TextView lastPostString;
 
 		public ViewHolder(View view) {
 			forumTitle = (TextView) view.findViewById(R.id.forum_title);
 			numThreads = (TextView) view.findViewById(R.id.numthreads);
 			lastPost = (TextView) view.findViewById(R.id.lastpost);
-			lastPostString = (TextView) view.findViewById(R.id.lastpost_string);
 		}
 	}
 }
