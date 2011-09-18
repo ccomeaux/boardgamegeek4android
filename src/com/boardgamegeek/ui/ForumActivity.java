@@ -149,6 +149,8 @@ public class ForumActivity extends ListActivity {
 		if (holder != null) {
 			Intent forumsIntent = new Intent(this, ThreadActivity.class);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
+			forumsIntent.putExtra(ThreadActivity.KEY_GAME_NAME, mGameName);
+			forumsIntent.putExtra(ThreadActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
 			this.startActivity(forumsIntent);
 		}
