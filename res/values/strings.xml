@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="tab_main">Main</string>
-
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
 	<string name="pref_user_username_summary">BoardGameGeek.com username</string>
@@ -163,7 +161,6 @@
 		of your changes.</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?
 	</string>
-	<string name="threads">Threads</string>
 
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -305,6 +302,10 @@
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
+	<plurals name="forum_threads">
+		<item quantity="one">%s thread</item>
+		<item quantity="other">%s threads</item>
+	</plurals>
 	<plurals name="forum_thread_replies">
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>

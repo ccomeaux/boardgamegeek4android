@@ -7,16 +7,16 @@ public class Forum implements Parcelable {
 
 	public String id;
 	public String title;
-	public String numthreads;
+	public int numthreads;
 	public long lastpostdate;
-	
+
 	public Forum() {
 	}
-	
+
 	public Forum(Parcel in) {
 		id = in.readString();
 		title = in.readString();
-		numthreads = in.readString();
+		numthreads = in.readInt();
 		lastpostdate = in.readLong();
 	}
 
@@ -29,7 +29,7 @@ public class Forum implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
 		dest.writeString(title);
-		dest.writeString(numthreads);
+		dest.writeInt(numthreads);
 		dest.writeLong(lastpostdate);
 	}
 
@@ -41,5 +41,5 @@ public class Forum implements Parcelable {
 		public Forum[] newArray(int size) {
 			return new Forum[size];
 		}
-	};	
+	};
 }

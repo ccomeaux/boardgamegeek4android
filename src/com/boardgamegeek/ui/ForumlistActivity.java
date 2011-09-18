@@ -7,6 +7,7 @@ import org.apache.http.client.HttpClient;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -148,12 +149,14 @@ public class ForumlistActivity extends ListActivity {
 
 	private class ForumlistAdapter extends ArrayAdapter<Forum> {
 		private LayoutInflater mInflater;
-		String mLastPostText;
+		private Resources mResources;
+		private String mLastPostText;
 
 		public ForumlistAdapter() {
 			super(ForumlistActivity.this, R.layout.row_forum, mForums);
 			mInflater = getLayoutInflater();
-			mLastPostText = getResources().getString(R.string.forum_last_post);
+			mResources = getResources();
+			mLastPostText = mResources.getString(R.string.forum_last_post);
 		}
 
 		@Override
@@ -176,7 +179,8 @@ public class ForumlistActivity extends ListActivity {
 			if (forumlist != null) {
 				holder.forumId = forumlist.id;
 				holder.forumTitle.setText(forumlist.title);
-				holder.numThreads.setText(forumlist.numthreads + " " + getResources().getString(R.string.threads));
+				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forumlist.numthreads,
+						forumlist.numthreads));
 				if (forumlist.lastpostdate > 0) {
 					holder.lastPost.setText(String.format(mLastPostText,
 							DateUtils.getRelativeTimeSpanString(ForumlistActivity.this, forumlist.lastpostdate)));

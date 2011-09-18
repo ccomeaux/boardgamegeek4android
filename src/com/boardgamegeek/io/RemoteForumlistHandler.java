@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentResolver;
 
 import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteForumlistHandler extends RemoteBggHandler {
 
@@ -65,7 +66,7 @@ public class RemoteForumlistHandler extends RemoteBggHandler {
 				final Forum forum = new Forum();
 				forum.id = mParser.getAttributeValue(null, Tags.ID);
 				forum.title = mParser.getAttributeValue(null, Tags.TITLE);
-				forum.numthreads = mParser.getAttributeValue(null, Tags.NUM_THREADS);
+				forum.numthreads = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_THREADS));
 				String date = mParser.getAttributeValue(null, Tags.LAST_POST_DATE);
 				if (date.length() > 0) {
 					forum.lastpostdate = Date.parse(date);

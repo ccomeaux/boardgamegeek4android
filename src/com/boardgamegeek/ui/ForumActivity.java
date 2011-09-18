@@ -164,7 +164,7 @@ public class ForumActivity extends ListActivity {
 		public ForumAdapter() {
 			super(ForumActivity.this, R.layout.row_forumthread, mForumThreads);
 			mInflater = getLayoutInflater();
-			Resources mResources = getResources();
+			mResources = getResources();
 			mAuthorText = mResources.getString(R.string.forum_thread_author);
 			mLastPostText = mResources.getString(R.string.forum_last_post);
 			mCreatedText = mResources.getString(R.string.forum_thread_created);
