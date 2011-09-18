@@ -20,6 +20,7 @@ import com.boardgamegeek.model.Player;
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
+	private Typeface mTypeface;
 
 	private TextView mName;
 	private TextView mUsername;
@@ -51,6 +52,8 @@ public class PlayerRow extends LinearLayout {
 		mScore = (TextView) findViewById(R.id.score);
 		mRating = (TextView) findViewById(R.id.rating);
 		mStartingPosition = (TextView) findViewById(R.id.starting_position);
+
+		mTypeface = mName.getTypeface();
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 		mDeleteButton.setOnClickListener(new OnClickListener() {
@@ -110,11 +113,13 @@ public class PlayerRow extends LinearLayout {
 		} else {
 			mName.setText(mPlayer.Name);
 			if (mPlayer.New && mPlayer.Win) {
-				mName.setTypeface(mName.getTypeface(), Typeface.BOLD_ITALIC);
+				mName.setTypeface(mTypeface, Typeface.BOLD_ITALIC);
 			} else if (mPlayer.New) {
-				mName.setTypeface(mName.getTypeface(), Typeface.ITALIC);
+				mName.setTypeface(mTypeface, Typeface.ITALIC);
 			} else if (mPlayer.Win) {
-				mName.setTypeface(mName.getTypeface(), Typeface.BOLD);
+				mName.setTypeface(mTypeface, Typeface.BOLD);
+			} else {
+				mName.setTypeface(mTypeface, Typeface.NORMAL);
 			}
 
 			setText(mUsername, mPlayer.Username);
