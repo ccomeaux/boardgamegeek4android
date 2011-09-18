@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-	android:layout_above="@+id/filter_linear_layout"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:orientation="vertical">
 
 	<include layout="@layout/titlebar" />
+	<include layout="@layout/game_header" />
 	<TextView 
 		android:id="@+id/thread_subject"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
+		android:background="@color/background_light"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="bold"
-		android:padding="@dimen/padding_standard"
-		android:ellipsize="end" />
+		android:padding="@dimen/padding_standard" />
 	<include layout="@layout/header_divider" />
 	<include layout="@layout/list" />
 

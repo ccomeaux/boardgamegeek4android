@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,47 +30,58 @@ public class ThreadActivity extends ListActivity {
 	private final String TAG = "ThreadActivity";
 
 	public static final String KEY_THREAD_ID = "THREAD_ID";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
-	
+	public static final String KEY_ARTICLES = "ARTICLES";
+
 	private ThreadAdapter mAdapter;
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
-	
+
 	private String mThreadId;
-//	private String mThumbnailUrl;
+	private String mGameName;
+	private String mThumbnailUrl;
 	private String mThreadSubject;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_thread);
-		
+
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mThreadId = intent.getExtras().getString(KEY_THREAD_ID);
-//			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = intent.getExtras().getString(KEY_THREAD_SUBJECT);
-		}
-		else {
+		} else {
 			mThreadId = savedInstanceState.getString(KEY_THREAD_ID);
-//			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
+			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
+			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = savedInstanceState.getString(KEY_THREAD_SUBJECT);
+			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
 		}
-		
-		((TextView)findViewById(R.id.thread_subject)).setText(mThreadSubject);
+
 		UIUtils.setTitle(this);
-		
-		ThreadTask task = new ThreadTask();
-		task.execute();
+		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		((TextView) findViewById(R.id.thread_subject)).setText(mThreadSubject);
+
+		if (mArticles == null || mArticles.size() == 0) {
+			ThreadTask task = new ThreadTask();
+			task.execute();
+		} else {
+			mAdapter = new ThreadAdapter();
+			setListAdapter(mAdapter);
+		}
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString(KEY_THREAD_ID, mThreadId);
-//		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putString(KEY_THREAD_SUBJECT, mThreadSubject);
+		outState.putParcelableArrayList(KEY_ARTICLES, (ArrayList<? extends Parcelable>) mArticles);
 	}
 
 	public void onHomeClick(View v) {
@@ -79,7 +91,7 @@ public class ThreadActivity extends ListActivity {
 	public void onSearchClick(View v) {
 		onSearchRequested();
 	}
-	
+
 	private class ThreadTask extends AsyncTask<Void, Void, RemoteThreadHandler> {
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
@@ -90,7 +102,7 @@ public class ThreadActivity extends ListActivity {
 			mHttpClient = HttpUtils.createHttpClient(ThreadActivity.this, true);
 			mExecutor = new RemoteExecutor(mHttpClient, null);
 		}
-		
+
 		@Override
 		protected RemoteThreadHandler doInBackground(Void... params) {
 			final String url = HttpUtils.constructThreadUrl(mThreadId);
@@ -102,7 +114,7 @@ public class ThreadActivity extends ListActivity {
 			}
 			return mHandler;
 		}
-		
+
 		@Override
 		protected void onPostExecute(RemoteThreadHandler result) {
 			Log.i(TAG, "Acticles count " + result.getCount());
@@ -119,15 +131,15 @@ public class ThreadActivity extends ListActivity {
 			}
 		}
 	}
-	
+
 	private class ThreadAdapter extends ArrayAdapter<ThreadArticle> {
 		private LayoutInflater mInflater;
-		
+
 		public ThreadAdapter() {
 			super(ThreadActivity.this, R.layout.row_threadarticle, mArticles);
 			mInflater = getLayoutInflater();
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
@@ -135,11 +147,10 @@ public class ThreadActivity extends ListActivity {
 				convertView = mInflater.inflate(R.layout.row_threadarticle, parent, false);
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
-			}
-			else {
+			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
 			ThreadArticle article;
 			try {
 				article = mArticles.get(position);
@@ -153,17 +164,15 @@ public class ThreadActivity extends ListActivity {
 			return convertView;
 		}
 	}
-	
+
 	static class ViewHolder {
 		TextView username;
-		View divider;
-//		TextView subject;
+		// TextView subject;
 		WebView body;
 
 		public ViewHolder(View view) {
 			username = (TextView) view.findViewById(R.id.article_username);
-			divider = (View) view.findViewById(R.id.article_divider);
-//			subject = (TextView) view.findViewById(R.id.thread_lastpostdate);
+			// subject = (TextView) view.findViewById(R.id.thread_lastpostdate);
 			body = (WebView) view.findViewById(R.id.article_webkit);
 		}
 	}
