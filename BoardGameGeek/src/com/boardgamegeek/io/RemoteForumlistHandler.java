@@ -63,6 +63,11 @@ public class RemoteForumlistHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.FORUM.equals(mParser.getName())) {
 
+				if (mParser.getAttributeValue(null, Tags.NO_POSTING).equals("1")) {
+					// ignore forums that are not writable
+					continue;
+				}
+				
 				final Forum forum = new Forum();
 				forum.id = mParser.getAttributeValue(null, Tags.ID);
 				forum.title = mParser.getAttributeValue(null, Tags.TITLE);
@@ -81,6 +86,7 @@ public class RemoteForumlistHandler extends RemoteBggHandler {
 		String FORUM = "forum";
 		String ID = "id";
 		String TITLE = "title";
+		String NO_POSTING = "noposting";
 		String NUM_THREADS = "numthreads";
 		String LAST_POST_DATE = "lastpostdate";
 	}

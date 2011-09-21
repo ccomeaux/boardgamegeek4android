@@ -5,8 +5,10 @@
 	android:orientation="vertical">
 
 	<include layout="@layout/titlebar" />
-	<include layout="@layout/game_header" />
-	<include layout="@layout/header_divider" />
+	<include android:id="@+id/forumlist_game_header"
+			 layout="@layout/game_header" />
+	<include android:id="@+id/forumlist_header_divider"
+			 layout="@layout/header_divider" />
 	<include layout="@layout/list" />
 
 </LinearLayout>
