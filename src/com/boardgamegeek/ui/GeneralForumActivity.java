@@ -16,7 +16,7 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ForumActivity extends ListActivity {
+public class GeneralForumActivity extends ListActivity {
 	private final String TAG = "ForumActivity";
 
 	public static final String KEY_FORUM_ID = "FORUM_ID";
@@ -29,8 +29,6 @@ public class ForumActivity extends ListActivity {
 	private List<ForumThread> mForumThreads = new ArrayList<ForumThread>();
 
 	private String mForumId;
-	private String mGameName;
-	private String mThumbnailUrl;
 	private String mForumName;
 	private String mNumThreads;
 
@@ -39,28 +37,22 @@ public class ForumActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_forum);
+		UIUtils.setTitle(this, mForumName);
 		findViewById(R.id.game_thumbnail).setClickable(false);
+		findViewById(R.id.forum_game_header).setVisibility(View.GONE);
+		findViewById(R.id.forum_header_divider).setVisibility(View.GONE);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mForumId = intent.getExtras().getString(KEY_FORUM_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mForumName = intent.getExtras().getString(KEY_FORUM_TITLE);
 			mNumThreads = intent.getExtras().getString(KEY_NUM_THREADS);
 		} else {
 			mForumId = savedInstanceState.getString(KEY_FORUM_ID);
-			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mForumName = savedInstanceState.getString(KEY_FORUM_TITLE);
 			mNumThreads = savedInstanceState.getString(KEY_NUM_THREADS);
 			mForumThreads = savedInstanceState.getParcelableArrayList(KEY_THREADS);
 		}
-
-		UIUtils.setTitle(this, mForumName);
-		UIUtils u = new UIUtils(this);
-		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
 
 		if (mForumThreads == null || mForumThreads.size() == 0) {
 			ForumsUtils.ForumTask task =
@@ -75,8 +67,6 @@ public class ForumActivity extends ListActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString(KEY_FORUM_ID, mForumId);
-		outState.putString(KEY_GAME_NAME, mGameName);
-		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putString(KEY_FORUM_TITLE, mForumName);
 		outState.putString(KEY_NUM_THREADS, mNumThreads);
 		outState.putParcelableArrayList(KEY_THREADS, (ArrayList<? extends Parcelable>) mForumThreads);
@@ -94,10 +84,8 @@ public class ForumActivity extends ListActivity {
 	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ForumsUtils.ForumViewHolder holder = (ForumsUtils.ForumViewHolder) convertView.getTag();
 		if (holder != null) {
-			Intent forumsIntent = new Intent(this, ThreadActivity.class);
+			Intent forumsIntent = new Intent(this, GeneralThreadActivity.class);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
-			forumsIntent.putExtra(ThreadActivity.KEY_GAME_NAME, mGameName);
-			forumsIntent.putExtra(ThreadActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
 			this.startActivity(forumsIntent);
 		}

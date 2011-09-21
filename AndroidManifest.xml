@@ -96,6 +96,12 @@
 
 		<activity android:name=".ui.ThreadActivity" android:label="@string/title_thread" android:theme="@style/Theme.Bgg" />
 
+		<activity android:name=".ui.GeneralForumlistActivity" android:label="@string/title_generalforumlist" android:theme="@style/Theme.Bgg" />
+		
+		<activity android:name=".ui.GeneralForumActivity" android:label="@string/title_forum" android:theme="@style/Theme.Bgg" />
+		
+		<activity android:name=".ui.GeneralThreadActivity" android:label="@string/title_thread" android:theme="@style/Theme.Bgg" />
+
 		<activity android:name=".ui.ColorsActivity" android:label="@string/title_colors" android:theme="@style/Theme.Bgg">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

@@ -58,6 +58,11 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 	public void onHomeClick(View v) {
 		// do nothing; we're already home
+		
+		// TODO
+		
+		Intent forumsIntent = new Intent(this, GeneralForumlistActivity.class);
+		this.startActivity(forumsIntent);
 	}
 
 	public void onSearchClick(View v) {

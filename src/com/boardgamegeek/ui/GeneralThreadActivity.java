@@ -16,7 +16,7 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ThreadActivity extends ListActivity {
+public class GeneralThreadActivity extends ListActivity {
 	private final String TAG = "ThreadActivity";
 
 	public static final String KEY_THREAD_ID = "THREAD_ID";
@@ -28,8 +28,6 @@ public class ThreadActivity extends ListActivity {
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 
 	private String mThreadId;
-	private String mGameName;
-	private String mThumbnailUrl;
 	private String mThreadSubject;
 
 	@Override
@@ -37,23 +35,19 @@ public class ThreadActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_thread);
+		UIUtils.setTitle(this);
+		findViewById(R.id.thread_game_header).setVisibility(View.GONE);
+		findViewById(R.id.thread_header_divider).setVisibility(View.GONE);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mThreadId = intent.getExtras().getString(KEY_THREAD_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = intent.getExtras().getString(KEY_THREAD_SUBJECT);
 		} else {
 			mThreadId = savedInstanceState.getString(KEY_THREAD_ID);
-			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = savedInstanceState.getString(KEY_THREAD_SUBJECT);
 			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
 		}
-
-		UIUtils.setTitle(this);
-		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 		((TextView) findViewById(R.id.thread_subject)).setText(mThreadSubject);
 
 		if (mArticles == null || mArticles.size() == 0) {
