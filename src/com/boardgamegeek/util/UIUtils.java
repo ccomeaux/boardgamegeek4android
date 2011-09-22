@@ -72,6 +72,13 @@ public class UIUtils {
 	/**
 	 * Sets the custom title since the default is hidden.
 	 */
+	public static void setTitle(Activity activity, int titleId) {
+		((TextView) activity.findViewById(R.id.title_text)).setText(titleId);
+	}
+
+	/**
+	 * Sets the custom title since the default is hidden.
+	 */
 	public static void setTitle(Activity activity, CharSequence title) {
 		((TextView) activity.findViewById(R.id.title_text)).setText(title);
 	}

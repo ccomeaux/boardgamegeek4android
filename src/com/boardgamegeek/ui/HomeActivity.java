@@ -58,10 +58,12 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 	public void onHomeClick(View v) {
 		// do nothing; we're already home
-		
+
 		// TODO
-		
-		Intent forumsIntent = new Intent(this, GeneralForumlistActivity.class);
+		Intent forumsIntent = new Intent(this, ForumlistActivity.class);
+		forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, 0);
+		forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, "");
+		forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, "");
 		this.startActivity(forumsIntent);
 	}
 
