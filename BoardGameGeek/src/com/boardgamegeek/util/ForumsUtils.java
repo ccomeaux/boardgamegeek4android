@@ -28,14 +28,14 @@ import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.model.ThreadArticle;
 
 public class ForumsUtils {
-	
+
 	public static class ForumlistTask extends AsyncTask<Void, Void, RemoteForumlistHandler> {
 		private Activity mActivity;
 		private List<Forum> mForums;
 		private String mUrl;
 		private String mGameName;
 		private String mTag;
-		
+
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteForumlistHandler mHandler = new RemoteForumlistHandler();
@@ -47,7 +47,7 @@ public class ForumsUtils {
 			this.mGameName = gameName;
 			this.mTag = tag;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			mHttpClient = HttpUtils.createHttpClient(mActivity, true);
@@ -72,7 +72,8 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
-				final String message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results), mGameName);
+				final String message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results),
+						mGameName);
 				UIUtils.showListMessage(mActivity, message);
 			} else {
 				mForums.addAll(result.getResults());
@@ -80,11 +81,11 @@ public class ForumsUtils {
 			}
 		}
 	}
-	
+
 	public static class ForumlistAdapter extends ArrayAdapter<Forum> {
 		private Activity mActivity;
 		private List<Forum> mForums;
-		
+
 		private LayoutInflater mInflater;
 		private Resources mResources;
 		private String mLastPostText;
@@ -121,8 +122,8 @@ public class ForumsUtils {
 				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forumlist.numthreads,
 						forumlist.numthreads));
 				if (forumlist.lastpostdate > 0) {
-					holder.lastPost.setText(String.format(mLastPostText,
-							DateUtils.getRelativeTimeSpanString(mActivity, forumlist.lastpostdate)));
+					holder.lastPost.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
+							forumlist.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
 					holder.lastPost.setVisibility(View.VISIBLE);
 				} else {
 					holder.lastPost.setVisibility(View.GONE);
@@ -144,14 +145,14 @@ public class ForumsUtils {
 			lastPost = (TextView) view.findViewById(R.id.lastpost);
 		}
 	}
-	
+
 	public static class ForumTask extends AsyncTask<Void, Void, RemoteForumHandler> {
 		private Activity mActivity;
 		private List<ForumThread> mForumThreads;
 		private String mUrl;
 		private String mForumName;
 		private String mTag;
-		
+
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteForumHandler mHandler = new RemoteForumHandler();
@@ -163,7 +164,7 @@ public class ForumsUtils {
 			this.mForumName = forumName;
 			this.mTag = tag;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			mHttpClient = HttpUtils.createHttpClient(mActivity, true);
@@ -188,7 +189,8 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
-				String message = String.format(mActivity.getResources().getString(R.string.forum_no_results), mForumName);
+				String message = String.format(mActivity.getResources().getString(R.string.forum_no_results),
+						mForumName);
 				UIUtils.showListMessage(mActivity, message);
 			} else {
 				mForumThreads.addAll(result.getResults());
@@ -196,11 +198,11 @@ public class ForumsUtils {
 			}
 		}
 	}
-	
+
 	public static class ForumAdapter extends ArrayAdapter<ForumThread> {
 		private Activity mActivity;
 		private List<ForumThread> mForumThreads;
-		
+
 		private LayoutInflater mInflater;
 		private Resources mResources;
 		private String mAuthorText;
@@ -242,10 +244,10 @@ public class ForumsUtils {
 				int replies = thread.numarticles - 1;
 				holder.numarticles.setText(mResources.getQuantityString(R.plurals.forum_thread_replies, replies,
 						replies));
-				holder.lastpostdate.setText(String.format(mLastPostText,
-						DateUtils.getRelativeTimeSpanString(mActivity, thread.lastpostdate)));
-				holder.postdate.setText(String.format(mCreatedText,
-						DateUtils.getRelativeTimeSpanString(mActivity, thread.postdate)));
+				holder.lastpostdate.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
+						thread.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
+				holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(
+						thread.postdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
 			}
 			return convertView;
 		}
@@ -267,14 +269,14 @@ public class ForumsUtils {
 			postdate = (TextView) view.findViewById(R.id.thread_postdate);
 		}
 	}
-	
+
 	public static class ThreadTask extends AsyncTask<Void, Void, RemoteThreadHandler> {
 		private Activity mActivity;
 		private List<ThreadArticle> mArticles;
 		private String mUrl;
 		private String mThreadSubject;
 		private String mTag;
-		
+
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteThreadHandler mHandler = new RemoteThreadHandler();
@@ -286,7 +288,7 @@ public class ForumsUtils {
 			this.mThreadSubject = threadSubject;
 			this.mTag = tag;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			mHttpClient = HttpUtils.createHttpClient(mActivity, true);
@@ -311,7 +313,8 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
-				String message = String.format(mActivity.getResources().getString(R.string.thread_no_results), mThreadSubject);
+				String message = String.format(mActivity.getResources().getString(R.string.thread_no_results),
+						mThreadSubject);
 				UIUtils.showListMessage(mActivity, message);
 			} else {
 				mArticles.addAll(result.getResults());
@@ -323,7 +326,7 @@ public class ForumsUtils {
 	public static class ThreadAdapter extends ArrayAdapter<ThreadArticle> {
 		private Activity mActivity;
 		private List<ThreadArticle> mArticles;
-		
+
 		private LayoutInflater mInflater;
 
 		public ThreadAdapter(Activity activity, List<ThreadArticle> articles) {
@@ -352,6 +355,8 @@ public class ForumsUtils {
 			}
 			if (article != null) {
 				holder.username.setText(article.username + ":");
+				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editdate,
+						System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0));
 				holder.body.loadData(article.body, "text/html", "UTF-8");
 			}
 			return convertView;
@@ -360,12 +365,12 @@ public class ForumsUtils {
 
 	public static class ThreadViewHolder {
 		TextView username;
-		// TextView subject;
+		TextView editdate;
 		WebView body;
 
 		public ThreadViewHolder(View view) {
 			username = (TextView) view.findViewById(R.id.article_username);
-			// subject = (TextView) view.findViewById(R.id.thread_lastpostdate);
+			editdate = (TextView) view.findViewById(R.id.article_editdate);
 			body = (WebView) view.findViewById(R.id.article_webkit);
 		}
 	}
