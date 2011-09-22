@@ -7,6 +7,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
 
@@ -58,13 +59,19 @@ public class ForumActivity extends ListActivity {
 		}
 
 		UIUtils.setTitle(this, mForumName);
-		UIUtils u = new UIUtils(this);
-		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
+		if (TextUtils.isEmpty(mGameName)) {
+			findViewById(R.id.game_thumbnail).setClickable(false);
+			findViewById(R.id.forum_game_header).setVisibility(View.GONE);
+			findViewById(R.id.forum_header_divider).setVisibility(View.GONE);
+		} else {
+			findViewById(R.id.forum_game_header).setVisibility(View.VISIBLE);
+			findViewById(R.id.forum_header_divider).setVisibility(View.VISIBLE);
+			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		}
 
 		if (mForumThreads == null || mForumThreads.size() == 0) {
-			ForumsUtils.ForumTask task =
-				new ForumsUtils.ForumTask(this, mForumThreads, HttpUtils.constructForumUrl(mForumId), this.getTitle().toString(), TAG);
+			ForumsUtils.ForumTask task = new ForumsUtils.ForumTask(this, mForumThreads,
+					HttpUtils.constructForumUrl(mForumId), this.getTitle().toString(), TAG);
 			task.execute();
 		} else {
 			setListAdapter(new ForumsUtils.ForumAdapter(this, mForumThreads));

@@ -7,6 +7,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -53,12 +54,21 @@ public class ThreadActivity extends ListActivity {
 		}
 
 		UIUtils.setTitle(this);
-		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		if (TextUtils.isEmpty(mGameName)) {
+			findViewById(R.id.game_thumbnail).setClickable(false);
+			findViewById(R.id.thread_game_header).setVisibility(View.GONE);
+			findViewById(R.id.thread_header_divider).setVisibility(View.GONE);
+
+		} else {
+			findViewById(R.id.thread_game_header).setVisibility(View.VISIBLE);
+			findViewById(R.id.thread_header_divider).setVisibility(View.VISIBLE);
+			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		}
 		((TextView) findViewById(R.id.thread_subject)).setText(mThreadSubject);
 
 		if (mArticles == null || mArticles.size() == 0) {
-			ForumsUtils.ThreadTask task =
-				new ForumsUtils.ThreadTask(this, mArticles, HttpUtils.constructThreadUrl(mThreadId), mThreadSubject, TAG);
+			ForumsUtils.ThreadTask task = new ForumsUtils.ThreadTask(this, mArticles,
+					HttpUtils.constructThreadUrl(mThreadId), mThreadSubject, TAG);
 			task.execute();
 		} else {
 			setListAdapter(new ForumsUtils.ThreadAdapter(this, mArticles));
