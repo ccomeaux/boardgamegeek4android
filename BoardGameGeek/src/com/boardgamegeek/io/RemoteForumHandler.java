@@ -5,22 +5,25 @@ import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
+import android.util.Log;
 
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteForumHandler extends RemoteBggHandler {
-
+	private static final String TAG = "RemoteForumHandler";
 	private XmlPullParser mParser;
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
+	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
 
 	public List<ForumThread> getResults() {
 		return mThreads;
@@ -68,8 +71,12 @@ public class RemoteForumHandler extends RemoteBggHandler {
 				thread.subject = mParser.getAttributeValue(null, Tags.SUBJECT);
 				thread.author = mParser.getAttributeValue(null, Tags.AUTHOR);
 				thread.numarticles = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_ARTICLES));
-				thread.postdate = Date.parse(mParser.getAttributeValue(null, Tags.POST_DATE));
-				thread.lastpostdate = Date.parse(mParser.getAttributeValue(null, Tags.LAST_POST_DATE));
+				try {
+					thread.postdate = mFormat.parse(mParser.getAttributeValue(null, Tags.POST_DATE)).getTime();
+					thread.lastpostdate = mFormat.parse(mParser.getAttributeValue(null, Tags.LAST_POST_DATE)).getTime();
+				} catch (ParseException e) {
+					Log.w(TAG, e.toString());
+				}
 				mThreads.add(thread);
 			}
 		}
