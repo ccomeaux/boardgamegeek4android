@@ -5,28 +5,27 @@ import java.util.List;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteForumlistHandler;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumlistActivity extends ListActivity {
-	private final String TAG = "ForumlistActivity";
+	private static final String TAG = "ForumlistActivity";
+	private static final String GENERAL_FORUMLIST_LINK = "http://boardgamegeek.com/xmlapi2/forumlist?id=1&type=region";
 
 	public static final String KEY_FORUMLIST_ID = "FORUMLIST_ID";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FORUMS = "FORUMS";
 
-//	private ArrayAdapter mAdapter;
 	private List<Forum> mForums = new ArrayList<Forum>();
 
 	private int mForumlistId;
@@ -38,7 +37,6 @@ public class ForumlistActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_forumlist);
-		findViewById(R.id.game_thumbnail).setClickable(false);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
@@ -52,14 +50,22 @@ public class ForumlistActivity extends ListActivity {
 			mForums = savedInstanceState.getParcelableArrayList(KEY_FORUMS);
 		}
 
-		UIUtils.setTitle(this);
-		UIUtils u = new UIUtils(this);
-		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
+		if (TextUtils.isEmpty(mGameName)) {
+			UIUtils.setTitle(this, R.string.title_generalforumlist);
+			findViewById(R.id.forumlist_game_header).setVisibility(View.GONE);
+			findViewById(R.id.forumlist_header_divider).setVisibility(View.GONE);
+		} else {
+			UIUtils.setTitle(this);
+			findViewById(R.id.forumlist_game_header).setVisibility(View.VISIBLE);
+			findViewById(R.id.forumlist_header_divider).setVisibility(View.VISIBLE);
+			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		}
 
 		if (mForums == null || mForums.size() == 0) {
-			AsyncTask<Void, Void, RemoteForumlistHandler> task =
-				new ForumsUtils.ForumlistTask(this, mForums, HttpUtils.constructForumlistUrl(mForumlistId), mGameName, TAG);
+			String url = TextUtils.isEmpty(mGameName) ? GENERAL_FORUMLIST_LINK : HttpUtils
+					.constructForumlistUrl(mForumlistId);
+			ForumsUtils.ForumlistTask task = new ForumsUtils.ForumlistTask(this, mForums, url, mGameName, TAG);
+
 			task.execute();
 		} else {
 			setListAdapter(new ForumsUtils.ForumlistAdapter(this, mForums));
