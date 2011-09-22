@@ -9,11 +9,12 @@ import java.util.Locale;
 import android.text.format.DateUtils;
 
 public class DateTimeUtils {
-	
+
 	private static final String BGG_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 	private static final DateFormat FORMATER = new SimpleDateFormat(BGG_DATE_FORMAT, Locale.US);
 
-	private DateTimeUtils(){}
+	private DateTimeUtils() {
+	}
 
 	public static int howManyDaysOld(long time) {
 		return (int) ((System.currentTimeMillis() - time) / DateUtils.DAY_IN_MILLIS);
@@ -23,24 +24,17 @@ public class DateTimeUtils {
 		return (int) ((System.currentTimeMillis() - time) / DateUtils.HOUR_IN_MILLIS);
 	}
 
-	/**
-	 * @param inDate date from BGG XMLs
-	 * @return string with parsed date (or original date if parsing not successful)
-	 */
 	public static long parseDate(String inDate) {
+		// TODO: need to apply time zone to get the right date
 		inDate = removeTimeZone(inDate);
 
-		String outDate;
 		try {
 			final Date date = FORMATER.parse(inDate);
-			outDate = date.toLocaleString();
+			return date.getTime();
 		} catch (ParseException e) {
-			outDate = inDate;
+			return 0;
 		}
-		
-		long result = Date.parse(outDate);
-		
-		return result;
+
 	}
 
 	private static String removeTimeZone(String inDate) {

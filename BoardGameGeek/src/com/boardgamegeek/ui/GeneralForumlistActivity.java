@@ -63,10 +63,12 @@ public class GeneralForumlistActivity extends ListActivity {
 	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ForumsUtils.ForumlistViewHolder holder = (ForumsUtils.ForumlistViewHolder) convertView.getTag();
 		if (holder != null) {
-			Intent forumsIntent = new Intent(this, GeneralForumActivity.class);
-			forumsIntent.putExtra(GeneralForumActivity.KEY_FORUM_ID, holder.forumId);
-			forumsIntent.putExtra(GeneralForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
-			forumsIntent.putExtra(GeneralForumActivity.KEY_NUM_THREADS, holder.numThreads.getText());
+			Intent forumsIntent = new Intent(this, ForumActivity.class);
+			forumsIntent.putExtra(ForumActivity.KEY_FORUM_ID, holder.forumId);
+			forumsIntent.putExtra(ForumActivity.KEY_GAME_NAME, "");
+			forumsIntent.putExtra(ForumActivity.KEY_THUMBNAIL_URL, "");
+			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
+			forumsIntent.putExtra(ForumActivity.KEY_NUM_THREADS, holder.numThreads.getText());
 			this.startActivity(forumsIntent);
 		}
 	}
