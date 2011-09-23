@@ -72,6 +72,7 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
+				// TODO: show a different message if mGameName is empty
 				final String message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results),
 						mGameName);
 				UIUtils.showListMessage(mActivity, message);
