@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.ListActivity;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -72,9 +73,13 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
-				// TODO: show a different message if mGameName is empty
-				final String message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results),
-						mGameName);
+				String message;
+				if (TextUtils.isEmpty(mGameName)) {
+					message = mActivity.getResources().getString(R.string.generalforumlist_no_results);
+				} else {
+					message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results),
+							mGameName);
+				}
 				UIUtils.showListMessage(mActivity, message);
 			} else {
 				mForums.addAll(result.getResults());

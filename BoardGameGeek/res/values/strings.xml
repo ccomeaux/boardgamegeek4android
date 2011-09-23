@@ -229,6 +229,7 @@
 	<string name="hotness_no_results_details">The hotness has gone cold.</string>
 	<string name="comments_no_results">No comments for \"%s\"".</string>
 	<string name="forumlist_no_results">No forums for \"%s\"".</string>
+	<string name="generalforumlist_no_results">No general forums.</string>
 	<string name="forum_no_results">No threads in \"%s\"".</string>
 	<string name="thread_no_results">No posts in thread \"%s\"".</string>
 
