@@ -58,13 +58,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 	public void onHomeClick(View v) {
 		// do nothing; we're already home
-
-		// TODO
-		Intent forumsIntent = new Intent(this, ForumlistActivity.class);
-		forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, 0);
-		forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, "");
-		forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, "");
-		this.startActivity(forumsIntent);
 	}
 
 	public void onSearchClick(View v) {
@@ -79,6 +72,14 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	public void onHotnessClick(View v) {
 		final Intent intent = new Intent(this, HotnessActivity.class);
 		startActivity(intent);
+	}
+
+	public void onForumsClick(View v) {
+		Intent forumsIntent = new Intent(this, ForumlistActivity.class);
+		forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, 0);
+		forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, "");
+		forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, "");
+		startActivity(forumsIntent);
 	}
 
 	public void onBuddiesClick(View v) {
