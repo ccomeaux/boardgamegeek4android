@@ -53,7 +53,7 @@ public class ThreadActivity extends ListActivity {
 			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
 		}
 
-		UIUtils.setTitle(this);
+		UIUtils.setTitle(this, mThreadSubject);
 		if (TextUtils.isEmpty(mGameName)) {
 			findViewById(R.id.game_thumbnail).setClickable(false);
 			findViewById(R.id.thread_game_header).setVisibility(View.GONE);
@@ -64,7 +64,6 @@ public class ThreadActivity extends ListActivity {
 			findViewById(R.id.thread_header_divider).setVisibility(View.VISIBLE);
 			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 		}
-		((TextView) findViewById(R.id.thread_subject)).setText(mThreadSubject);
 
 		if (mArticles == null || mArticles.size() == 0) {
 			ForumsUtils.ThreadTask task = new ForumsUtils.ThreadTask(this, mArticles,

@@ -7,14 +7,6 @@
 	<include layout="@layout/titlebar" />
 	<include android:id="@+id/thread_game_header"
 			 layout="@layout/game_header" />
-	<TextView 
-		android:id="@+id/thread_subject"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/background_light"
-		android:textSize="@dimen/text_size_medium"
-		android:textStyle="bold"
-		android:padding="@dimen/padding_standard" />
 	<include android:id="@+id/thread_header_divider"
 	 		 layout="@layout/header_divider" />
 	<include layout="@layout/list" />
