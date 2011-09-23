@@ -184,6 +184,7 @@
 
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
+	<string name="home_btn_forums">Forums</string>
 	<string name="home_btn_buddies">GeekBuddies</string>
 	<string name="home_btn_sync">Sync</string>
 	<string name="home_btn_settings">Settings</string>

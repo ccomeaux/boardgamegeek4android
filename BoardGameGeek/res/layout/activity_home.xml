@@ -21,6 +21,11 @@
 			android:onClick="onHotnessClick"
 			android:text="@string/home_btn_hotness"
 			android:drawableTop="@drawable/home_btn_hotness"/>
+		<Button android:id="@+id/home_btn_forums"
+			style="@style/HomeButton"
+			android:onClick="onForumsClick"
+			android:text="@string/home_btn_forums"
+			android:drawableTop="@drawable/home_btn_forums"/>
 		<Button android:id="@+id/home_btn_buddies"
 			style="@style/HomeButton"
 			android:onClick="onBuddiesClick"
