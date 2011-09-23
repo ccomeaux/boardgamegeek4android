@@ -10,7 +10,7 @@ import android.text.format.DateUtils;
 
 public class DateTimeUtils {
 
-	private static final String BGG_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+	private static final String BGG_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 	private static final DateFormat FORMATER = new SimpleDateFormat(BGG_DATE_FORMAT, Locale.US);
 
 	private DateTimeUtils() {
@@ -25,9 +25,7 @@ public class DateTimeUtils {
 	}
 
 	public static long parseDate(String inDate) {
-		// TODO: need to apply time zone to get the right date
-		inDate = removeTimeZone(inDate);
-
+		inDate = fixupTimeZone(inDate);
 		try {
 			final Date date = FORMATER.parse(inDate);
 			return date.getTime();
@@ -37,10 +35,11 @@ public class DateTimeUtils {
 
 	}
 
-	private static String removeTimeZone(String inDate) {
+	private static String fixupTimeZone(String inDate) {
 		int index = inDate.lastIndexOf("-");
+
 		if (index > 0) {
-			inDate = inDate.substring(0, index);
+			inDate = inDate.substring(0, index).concat("GMT").concat(inDate.substring(index));
 		}
 		return inDate;
 	}
