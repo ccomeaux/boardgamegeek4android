@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -56,6 +59,24 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		UIUtils.setTitle(this, title);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		final MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.home, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.home_btn_about:
+				startActivity(new Intent(this, AboutActivity.class));
+				return true;
+		}
+		return false;
+	}
+
 	public void onHomeClick(View v) {
 		// do nothing; we're already home
 	}
@@ -95,10 +116,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 	public void onSettingsClick(View v) {
 		startActivity(new Intent(this, Preferences.class));
-	}
-
-	public void onAboutClick(View v) {
-		startActivity(new Intent(this, AboutActivity.class));
 	}
 
 	public void onReceiveResult(int resultCode, Bundle resultData) {

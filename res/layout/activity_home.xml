@@ -21,16 +21,16 @@
 			android:onClick="onHotnessClick"
 			android:text="@string/home_btn_hotness"
 			android:drawableTop="@drawable/home_btn_hotness"/>
-		<Button android:id="@+id/home_btn_forums"
-			style="@style/HomeButton"
-			android:onClick="onForumsClick"
-			android:text="@string/home_btn_forums"
-			android:drawableTop="@drawable/home_btn_forums"/>
 		<Button android:id="@+id/home_btn_buddies"
 			style="@style/HomeButton"
 			android:onClick="onBuddiesClick"
 			android:text="@string/home_btn_buddies"
 			android:drawableTop="@drawable/home_btn_buddies"/>
+		<Button android:id="@+id/home_btn_forums"
+			style="@style/HomeButton"
+			android:onClick="onForumsClick"
+			android:text="@string/home_btn_forums"
+			android:drawableTop="@drawable/home_btn_forums"/>
 		<Button android:id="@+id/home_btn_sync"
 			style="@style/HomeButton"
 			android:onClick="onSyncClick"
@@ -41,11 +41,6 @@
 			android:onClick="onSettingsClick"
 			android:text="@string/home_btn_settings"
 			android:drawableTop="@drawable/home_btn_settings"/>
-		<Button android:id="@+id/home_btn_about"
-			style="@style/HomeButton"
-			android:onClick="onAboutClick"
-			android:text="@string/home_btn_about"
-			android:drawableTop="@drawable/home_btn_about"/>
 
 	</com.boardgamegeek.ui.widget.DashboardLayout>
 </LinearLayout>
