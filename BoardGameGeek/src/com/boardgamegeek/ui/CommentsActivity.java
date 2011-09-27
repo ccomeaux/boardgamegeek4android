@@ -240,7 +240,7 @@ public class CommentsActivity extends ListActivity {
 	}
 
 	private void setCurrentCommentsPage() {
-		for (int i = getPageStart(); i < getPageEnd(); i++) {
+		for (int i = getPageStart(); i <= getPageEnd(); i++) {
 			mCurrentComments.add(mAllComments.get(i - 1));
 		}
 		if (mAdapter == null) {
