@@ -196,7 +196,13 @@ public class ForumActivity extends ListActivity {
 	
 	public void setCurrentForumsPage() {
 		for (int i = getPageStart(); i <= getPageEnd(); i++) {
-			mCurrentForumThreads.add(mAllForumThreads.get(i - 1));
+			try {
+				mCurrentForumThreads.add(mAllForumThreads.get(i - 1));
+			} catch (IndexOutOfBoundsException e) {
+				Log.w(TAG, "Problem with XML API. Probably 'numthreads' " +
+						   "is not equal to 'thread' markers.");
+				// TODO probably 'catch' could be removed after fix in API
+			}
 		}
 		Log.i(TAG, "Displaying from " + getPageStart() + " to " + getPageEnd());
 		if (mAdapter == null) {
