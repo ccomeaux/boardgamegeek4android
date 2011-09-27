@@ -24,6 +24,7 @@ public class RemoteForumHandler extends RemoteBggHandler {
 	private XmlPullParser mParser;
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
+	private int mThreadsCount;
 
 	public List<ForumThread> getResults() {
 		return mThreads;
@@ -36,7 +37,7 @@ public class RemoteForumHandler extends RemoteBggHandler {
 
 	@Override
 	public int getCount() {
-		return mThreads.size();
+		return mThreadsCount;
 	}
 
 	@Override
@@ -52,8 +53,14 @@ public class RemoteForumHandler extends RemoteBggHandler {
 
 		int type;
 		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.THREADS.equals(mParser.getName())) {
-				parseItems();
+			if (type == START_TAG) {
+				if (Tags.THREADS.equals(mParser.getName())) {
+					parseItems();
+				}
+				else if (Tags.FORUM.equals(mParser.getName())) {
+					mThreadsCount = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_THREADS));
+					Log.i(TAG, "Expecting " + mThreadsCount + " threads");
+				}
 			}
 		}
 		return false;
@@ -83,6 +90,8 @@ public class RemoteForumHandler extends RemoteBggHandler {
 	}
 
 	private interface Tags {
+		String FORUM = "forum";
+		String NUM_THREADS = "numthreads";
 		String NUM_ARTICLES = "numarticles";
 		String THREADS = "threads";
 		String THREAD = "thread";

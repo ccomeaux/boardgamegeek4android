@@ -27,6 +27,7 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.ui.ForumActivity;
 
 public class ForumsUtils {
 
@@ -153,21 +154,16 @@ public class ForumsUtils {
 	}
 
 	public static class ForumTask extends AsyncTask<Void, Void, RemoteForumHandler> {
-		private Activity mActivity;
-		private List<ForumThread> mForumThreads;
-		private String mUrl;
-		private String mForumName;
+		private ForumActivity mActivity;
 		private String mTag;
 
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteForumHandler mHandler = new RemoteForumHandler();
+		
 
-		public ForumTask(Activity activity, List<ForumThread> forumThreads, String url, String forumName, String tag) {
+		public ForumTask(ForumActivity activity, String tag) {
 			this.mActivity = activity;
-			this.mForumThreads = forumThreads;
-			this.mUrl = url;
-			this.mForumName = forumName;
 			this.mTag = tag;
 		}
 
@@ -179,9 +175,10 @@ public class ForumsUtils {
 
 		@Override
 		protected RemoteForumHandler doInBackground(Void... params) {
-			Log.i(mTag, "Loading forum content from " + mUrl);
+			final String url = HttpUtils.constructForumUrl(mActivity.getForumId(), mActivity.getCurrentPage());  
+			Log.i(mTag, "Loading forum content from " + url);
 			try {
-				mExecutor.executeGet(mUrl, mHandler);
+				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
 				Log.e(mTag, e.toString());
 			}
@@ -191,16 +188,19 @@ public class ForumsUtils {
 		@Override
 		protected void onPostExecute(RemoteForumHandler result) {
 			Log.i(mTag, "Threads count " + result.getCount());
-			final int count = result.getCount();
+			mActivity.setThreadCount(result.getCount());
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
-			} else if (count == 0) {
+			} else if (mActivity.getThreadCount() == 0) {
 				String message = String.format(mActivity.getResources().getString(R.string.forum_no_results),
-						mForumName);
+						mActivity.getTitle().toString());
 				UIUtils.showListMessage(mActivity, message);
 			} else {
-				mForumThreads.addAll(result.getResults());
-				((ListActivity) mActivity).setListAdapter(new ForumAdapter(mActivity, mForumThreads));
+				if (mActivity.getPageCount() == -1) {
+					mActivity.setmPageCount((mActivity.getThreadCount() - 1) / ForumActivity.PAGE_SIZE + 1);
+				}
+				mActivity.addMoreForums(result.getResults());
+				mActivity.updateDisplay();
 			}
 		}
 	}

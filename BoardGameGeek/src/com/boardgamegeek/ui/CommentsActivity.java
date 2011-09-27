@@ -147,7 +147,7 @@ public class CommentsActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		final MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.comments, menu);
+		menuInflater.inflate(R.menu.paging, menu);
 		return true;
 	}
 
