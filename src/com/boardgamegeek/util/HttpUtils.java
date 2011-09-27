@@ -136,8 +136,8 @@ public class HttpUtils {
 		return BASE_URL_2 + "forumlist?id=" + gameId + "&type=thing";
 	}
 
-	public static String constructForumUrl(String forumId) {
-		return BASE_URL_2 + "forum?id=" + forumId;
+	public static String constructForumUrl(String forumId, int page) {
+		return BASE_URL_2 + "forum?id=" + forumId + "&page=" + page;
 	}
 
 	public static String constructThreadUrl(String mThreadId) {
