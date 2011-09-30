@@ -90,10 +90,8 @@ public class ForumActivity extends ListActivity {
 		if (TextUtils.isEmpty(mGameName)) {
 			findViewById(R.id.game_thumbnail).setClickable(false);
 			findViewById(R.id.forum_game_header).setVisibility(View.GONE);
-			findViewById(R.id.forum_header_divider).setVisibility(View.GONE);
 		} else {
 			findViewById(R.id.forum_game_header).setVisibility(View.VISIBLE);
-			findViewById(R.id.forum_header_divider).setVisibility(View.VISIBLE);
 			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 		}
 
