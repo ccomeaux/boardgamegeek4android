@@ -16,8 +16,7 @@
 		android:textSize="@dimen/text_size_small"
 		android:padding="@dimen/padding_standard"
 		android:visibility="gone" />
-	<include android:id="@+id/forum_header_divider"
-			 layout="@layout/header_divider" />
+	<include layout="@layout/header_divider" />
 	<include layout="@layout/list" />
 
 </LinearLayout>

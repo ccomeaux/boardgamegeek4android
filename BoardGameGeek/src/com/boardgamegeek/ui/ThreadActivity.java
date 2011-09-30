@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.ThreadArticle;
@@ -52,7 +54,8 @@ public class ThreadActivity extends ListActivity {
 			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
 		}
 
-		UIUtils.setTitle(this, mThreadSubject);
+		setSubjecxt();
+
 		if (TextUtils.isEmpty(mGameName)) {
 			findViewById(R.id.game_thumbnail).setClickable(false);
 			findViewById(R.id.thread_game_header).setVisibility(View.GONE);
@@ -71,6 +74,15 @@ public class ThreadActivity extends ListActivity {
 		} else {
 			setListAdapter(new ForumsUtils.ThreadAdapter(this, mArticles));
 		}
+	}
+
+	private void setSubjecxt() {
+		UIUtils.setTitle(this, mThreadSubject);
+		ListView lv = (ListView) findViewById(android.R.id.list);
+		View v = getLayoutInflater().inflate(R.layout.thread_header, null);
+		TextView tv = (TextView) v.findViewById(R.id.thread_header);
+		tv.setText(mThreadSubject);
+		lv.addHeaderView(v);
 	}
 
 	@Override
