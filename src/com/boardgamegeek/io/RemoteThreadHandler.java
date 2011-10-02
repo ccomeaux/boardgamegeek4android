@@ -76,7 +76,8 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 				if (Tags.SUBJECT.equals(tag)) {
 					article.subject = text;
 				} else if (Tags.BODY.equals(tag)) {
-					article.body = text;
+					// http://code.google.com/p/android/issues/detail?id=4401
+					article.body = text.replace("%", "&#37;");
 				}
 			} else if (type == END_TAG) {
 				tag = null;
