@@ -363,7 +363,7 @@ public class ForumsUtils {
 				holder.username.setText(article.username + ":");
 				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editdate,
 						System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0));
-				holder.body.loadData(article.body, "text/html", "UTF-8");
+				holder.body.loadDataWithBaseURL(null, article.body, "text/html", "UTF-8", null);
 			}
 			return convertView;
 		}
