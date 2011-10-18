@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This shape is a slight hack to mimic the drawing of a border around a TextView. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:shape="rectangle" >
+
+	<corners android:radius="5dp" />
+
+	<solid android:color="@color/background_light_transparent" />
+
+	<stroke
+		android:width="1dip"
+		android:color="@color/background_dark" />
+
+</shape>

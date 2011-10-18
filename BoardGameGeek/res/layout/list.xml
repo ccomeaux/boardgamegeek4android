@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent" >
+
 	<ListView
 		android:id="@android:id/list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:fastScrollEnabled="true" 
-		android:fadingEdge="vertical" />
-	<LinearLayout android:id="@id/android:empty"
-		android:orientation="horizontal"
+		android:fadingEdge="vertical"
+		android:fastScrollEnabled="true" />
+
+	<LinearLayout
+		android:id="@id/android:empty"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:gravity="center">
-		<ProgressBar android:id="@+id/list_progress"
+		android:gravity="center"
+		android:orientation="horizontal" >
+
+		<ProgressBar
+			android:id="@+id/list_progress"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:indeterminateOnly="true" />
-		<TextView android:id="@+id/list_message"
+
+		<TextView
+			android:id="@+id/list_message"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_extra"
 			android:text="@string/loading"
-			android:textSize="@dimen/text_size_medium"
-			android:padding="@dimen/padding_extra" />
+			android:textSize="@dimen/text_size_medium" />
 	</LinearLayout>
+
 </merge>
