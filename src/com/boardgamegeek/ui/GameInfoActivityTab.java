@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.RatingBar;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,7 +23,6 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
-import com.boardgamegeek.util.StringUtils;
 
 public class GameInfoActivityTab extends Activity implements AsyncQueryListener {
 	private static final String TAG = "GameInfoActivityTab";
@@ -47,7 +48,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private TableRow mSuggestedAgesRow;
 	private TextView mSuggestedAgesView;
 	private TextView mIdView;
-	private TextView mDescriptionView;
+	private WebView mDescriptionView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,10 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mSuggestedAgesRow = (TableRow) findViewById(R.id.suggested_ages_row);
 		mSuggestedAgesView = (TextView) findViewById(R.id.suggested_ages);
 		mIdView = (TextView) findViewById(R.id.gameId);
-		mDescriptionView = (TextView) findViewById(R.id.description);
+		mDescriptionView = (WebView) findViewById(R.id.description);
+		WebSettings webSettings = mDescriptionView.getSettings();
+		webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
+				.getDisplayMetrics().density));
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -131,7 +135,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				}
 
 				mIdView.setText(cursor.getString(GameQuery.GAME_ID));
-				mDescriptionView.setText(StringUtils.formatDescription(cursor.getString(GameQuery.DESCRIPTION)));
+				mDescriptionView.loadDataWithBaseURL(null, cursor.getString(GameQuery.DESCRIPTION), "text/html",
+						"UTF-8", null);
 			} else if (token == TOKEN_RANK) {
 				setRank(cursor);
 			} else {
