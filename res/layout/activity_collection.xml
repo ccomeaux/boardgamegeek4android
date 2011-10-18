@@ -1,48 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent" >
 
-	<LinearLayout 
-		android:layout_above="@+id/filter_linear_layout"
+	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:orientation="vertical">
+		android:layout_above="@+id/filter_linear_layout"
+		android:orientation="vertical" >
 
 		<include layout="@layout/titlebar" />
 
-		<TextView 
+		<TextView
 			android:id="@+id/collection_info"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center"
 			android:background="@color/background_light"
-			android:textSize="@dimen/text_size_small"
-			android:padding="@dimen/padding_standard" />
+			android:gravity="center"
+			android:padding="@dimen/padding_standard"
+			android:textSize="@dimen/text_size_small" />
+
 		<include layout="@layout/header_divider" />
 
 		<include layout="@layout/list" />
-
 	</LinearLayout>
 
 	<LinearLayout
 		android:id="@+id/filter_linear_layout"
-		android:layout_alignParentBottom="true"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:layout_alignParentBottom="true"
+		android:orientation="vertical" >
+
 		<include layout="@layout/header_divider" />
+
 		<HorizontalScrollView
 			android:id="@+id/filter_scroll_view"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:background="@color/background_light"
-			android:scrollbars="none">
-			<LinearLayout android:id="@+id/filterLinearLayout"
+			android:scrollbars="none" >
+
+			<LinearLayout
+				android:id="@+id/filterLinearLayout"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal" />
 		</HorizontalScrollView>
 	</LinearLayout>
+
+	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->
+	<TextView
+		android:id="@+id/fast_scroll_letter"
+		android:layout_width="50dp"
+		android:layout_height="50dp"
+		android:layout_alignTop="@id/filter_scroll_view"
+		android:layout_centerHorizontal="true"
+		android:layout_centerVertical="true"
+		android:background="@drawable/text_view_border"
+		android:gravity="center_vertical|center_horizontal"
+		android:inputType="textCapCharacters"
+		android:text=""
+		android:textSize="@dimen/text_size_huge"
+		android:visibility="invisible" >
+	</TextView>
 
 </RelativeLayout>

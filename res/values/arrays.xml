@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="pref_sync_status_entries">
-        <item>Own</item>
-        <item>Played</item>
-        <item>Rated</item>
-        <item>Commented</item>
-        <item>Previously Owned</item>
-        <item>For Trade</item>
-        <item>Want in Trade</item>
-        <item>Want to Buy</item>
-        <item>Wishlist</item>
-        <item>Want to Play</item>
-        <item>Preordered</item>
-        <item>Has Parts</item>
-        <item>Want Parts</item>
-    </string-array>
-    <string-array name="pref_sync_status_values">
-        <item>own</item>
-        <item>played</item>
-        <item>rated</item>
-        <item>comment</item>
-        <item>prevowned</item>
-        <item>trade</item>
-        <item>want</item>
-        <item>wanttobuy</item>
-        <item>wishlist</item>
-        <item>wanttoplay</item>
-        <item>preordered</item>
-        <item>hasparts</item>
-        <item>wantparts</item>
-    </string-array>
-    <string-array name="collection_status_filter_entries">
-        <item>Own</item>
-        <item>Previously Owned</item>
-        <item>For Trade</item>
-        <item>Want in Trade</item>
-        <item>Want to Buy</item>
-        <item>Wishlist</item>
-        <item>Want to Play</item>
-        <item>Preordered</item>
-    </string-array>
-    <string-array name="collection_status_filter_values">
-        <item>own</item>
-        <item>previously_owned</item>
-        <item>for_trade</item>
-        <item>want</item>
-        <item>want_to_buy</item>
-        <item>wishlist</item>
-        <item>want_to_play</item>
-        <item>preordered</item>
-    </string-array>
+
+	<string-array name="pref_sync_status_entries">
+		<item>Own</item>
+		<item>Played</item>
+		<item>Rated</item>
+		<item>Commented</item>
+		<item>Previously Owned</item>
+		<item>For Trade</item>
+		<item>Want in Trade</item>
+		<item>Want to Buy</item>
+		<item>Wishlist</item>
+		<item>Want to Play</item>
+		<item>Preordered</item>
+		<item>Has Parts</item>
+		<item>Want Parts</item>
+	</string-array>
+	<string-array name="pref_sync_status_values">
+		<item>own</item>
+		<item>played</item>
+		<item>rated</item>
+		<item>comment</item>
+		<item>prevowned</item>
+		<item>trade</item>
+		<item>want</item>
+		<item>wanttobuy</item>
+		<item>wishlist</item>
+		<item>wanttoplay</item>
+		<item>preordered</item>
+		<item>hasparts</item>
+		<item>wantparts</item>
+	</string-array>
+	<string-array name="collection_status_filter_entries">
+		<item>Own</item>
+		<item>Previously Owned</item>
+		<item>For Trade</item>
+		<item>Want in Trade</item>
+		<item>Want to Buy</item>
+		<item>Wishlist</item>
+		<item>Want to Play</item>
+		<item>Preordered</item>
+	</string-array>
+	<string-array name="collection_status_filter_values">
+		<item>own</item>
+		<item>previously_owned</item>
+		<item>for_trade</item>
+		<item>want</item>
+		<item>want_to_buy</item>
+		<item>wishlist</item>
+		<item>want_to_play</item>
+		<item>preordered</item>
+	</string-array>
+	<!--
+         These strings are ignored when determining the "first" character of a game name.
+         The comparison string will have had toUpper called on it so only one case is needed here.
+         Strings must be quoted in order to ensure the whitespace isn't trimmed
+	-->
+	<string-array name="alphabetical_sort_stop_words">
+		<item>"THE "</item>
+		<item>"AN "</item>
+		<item>"A "</item>
+	</string-array>
+
 </resources>

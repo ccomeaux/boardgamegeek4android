@@ -77,6 +77,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
 
+	// Variables used to manage the appearance of the fast scroll letter.
+	private TextView mFastScrollLetter;
+	private boolean mFastScrollLetterEnabled = false;
+	private String[] mPrefixes;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -86,6 +91,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		UIUtils.allowTypeToSearch(this);
 		mInfoView = (TextView) findViewById(R.id.collection_info);
 		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filterLinearLayout);
+		mFastScrollLetter = (TextView) findViewById(R.id.fast_scroll_letter);
 
 		getListView().setOnScrollListener(this);
 		getListView().setOnCreateContextMenuListener(this);
@@ -100,6 +106,15 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList("FILTERS");
 		}
 		applyFilters();
+
+		mPrefixes = getResources().getStringArray(R.array.alphabetical_sort_stop_words);
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mFastScrollLetterEnabled = true;
+			};
+		});
+
 		UIUtils.showHelpDialog(this, BggApplication.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
@@ -114,6 +129,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		super.onResume();
 		mThumbnailTask = new ThumbnailTask();
 		mThumbnailTask.execute();
+		mFastScrollLetterEnabled = true;
 	}
 
 	@Override
@@ -127,6 +143,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		super.onPause();
 		mThumbnailQueue.clear();
 		mThumbnailTask.cancel(true);
+		mFastScrollLetter.setVisibility(View.INVISIBLE);
+		mFastScrollLetterEnabled = false;
 	}
 
 	@Override
@@ -477,7 +495,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, };
+				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL,
+				Collection.COLLECTION_SORT_NAME };
 
 		// int _ID = 0;
 		// int COLLECTION_ID = 1;
@@ -486,16 +505,47 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		// int GAME_NAME = 4;
 		int GAME_ID = 5;
 		int THUMBNAIL_URL = 6;
+		int COLLECTION_SORT_NAME = 7;
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		// do nothing
+		if (mFastScrollLetterEnabled && mAdapter != null) {
+			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
+			if (cursor != null && cursor.getCount() > 0) {
+				char firstLetter = getFirstChar(cursor.getString(Query.COLLECTION_SORT_NAME));
+				mFastScrollLetter.setText(((Character) firstLetter).toString());
+			}
+		}
+	}
+
+	/**
+	 * Get the "first" character of a string.
+	 * 
+	 * <p>
+	 * The first character is the character this string is sorted under which
+	 * may not be the first character in the string if a stop word is present.
+	 * For example, the first letter of "A Few Acres of Snow" is "F".
+	 * 
+	 * @param string
+	 *            The string to obtain the first letter of.
+	 * @return The first letter of the string, capitalised.
+	 */
+	private char getFirstChar(String string) {
+		string = string.toUpperCase();
+		// for (String prefix : mPrefixes) {
+		// if (string.startsWith(prefix)) {
+		// return string.charAt(prefix.length());
+		// }
+		// }
+		return string.charAt(0);
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 		if (scrollState == SCROLL_STATE_IDLE) {
+			mFastScrollLetter.setVisibility(View.INVISIBLE);
 			getThumbnails(view);
 		} else {
+			mFastScrollLetter.setVisibility(View.VISIBLE);
 			mThumbnailQueue.clear();
 		}
 	}
