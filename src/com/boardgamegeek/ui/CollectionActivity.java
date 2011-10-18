@@ -80,7 +80,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	// Variables used to manage the appearance of the fast scroll letter.
 	private TextView mFastScrollLetter;
 	private boolean mFastScrollLetterEnabled = false;
-	private String[] mPrefixes;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +106,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 		applyFilters();
 
-		mPrefixes = getResources().getStringArray(R.array.alphabetical_sort_stop_words);
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -512,32 +510,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		if (mFastScrollLetterEnabled && mAdapter != null) {
 			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
 			if (cursor != null && cursor.getCount() > 0) {
-				char firstLetter = getFirstChar(cursor.getString(Query.COLLECTION_SORT_NAME));
+				char firstLetter = cursor.getString(Query.COLLECTION_SORT_NAME).toUpperCase().charAt(0);
 				mFastScrollLetter.setText(((Character) firstLetter).toString());
 			}
 		}
-	}
-
-	/**
-	 * Get the "first" character of a string.
-	 * 
-	 * <p>
-	 * The first character is the character this string is sorted under which
-	 * may not be the first character in the string if a stop word is present.
-	 * For example, the first letter of "A Few Acres of Snow" is "F".
-	 * 
-	 * @param string
-	 *            The string to obtain the first letter of.
-	 * @return The first letter of the string, capitalised.
-	 */
-	private char getFirstChar(String string) {
-		string = string.toUpperCase();
-		// for (String prefix : mPrefixes) {
-		// if (string.startsWith(prefix)) {
-		// return string.charAt(prefix.length());
-		// }
-		// }
-		return string.charAt(0);
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {

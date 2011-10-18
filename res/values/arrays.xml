@@ -51,15 +51,5 @@
 		<item>want_to_play</item>
 		<item>preordered</item>
 	</string-array>
-	<!--
-         These strings are ignored when determining the "first" character of a game name.
-         The comparison string will have had toUpper called on it so only one case is needed here.
-         Strings must be quoted in order to ensure the whitespace isn't trimmed
-	-->
-	<string-array name="alphabetical_sort_stop_words">
-		<item>"THE "</item>
-		<item>"AN "</item>
-		<item>"A "</item>
-	</string-array>
 
 </resources>
