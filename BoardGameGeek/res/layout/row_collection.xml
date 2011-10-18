@@ -2,30 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
+	android:gravity="center"
 	android:orientation="horizontal"
-	android:padding="@dimen/padding_standard"
-	android:gravity="center">
+	android:padding="@dimen/padding_standard" >
 
-	<LinearLayout android:orientation="vertical"
+	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_weight="1">
-		<TextView android:id="@+id/name"
+		android:layout_weight="1"
+		android:orientation="vertical" >
+
+		<TextView
+			android:id="@+id/name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textSize="@dimen/text_size_medium" />
-		<TextView android:id="@+id/year"
+
+		<TextView
+			android:id="@+id/year"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:textColor="@color/light_text"
 			android:textSize="@dimen/text_size_tiny" />
 	</LinearLayout>
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/listThumbnail"
-		android:scaleType="centerCrop"
-		android:layout_gravity="right|center_vertical"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
+		android:layout_gravity="right|center_vertical"
+		android:scaleType="centerCrop"
 		android:visibility="gone" />
 
 </LinearLayout>
