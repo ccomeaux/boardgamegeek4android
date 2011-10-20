@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
 	<string name="pref_user">User settings</string>
 	<string name="pref_user_username_title">BGG username</string>
 	<string name="pref_user_username_summary">BoardGameGeek.com username</string>
 	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
-
 	<string name="pref_user_password_title">BGG password</string>
 	<string name="pref_user_password_summary">BoardGameGeek.com password</string>
 	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
 		your password is stored locally, but the only entity we share it with
 		is BoardGameGeek. Promise.</string>
-
 	<string name="pref_search">Search settings</string>
 	<string name="pref_exactSearch_title">Exact search</string>
 	<string name="pref_exactSearch_summary">Disable this to get more search results or do
@@ -18,7 +17,6 @@
 	<string name="pref_skipResults_title">Skip results</string>
 	<string name="pref_skipResults_summary">Disable this to stop at the results page even if
 		there is only one result</string>
-
 	<string name="pref_general">General settings</string>
 	<string name="pref_imageLoad_title">Load images</string>
 	<string name="pref_imageLoad_summary">Disable this to improve performance over a slow
@@ -70,7 +68,6 @@
 	<string name="pref_log_hide_player_new_off">Display the player Win option</string>
 	<string name="pref_log_hide_player_new_on">"Don't display the player Win option"</string>
 	<string name="pref_log_hide_player_win">Hide Win</string>
-
 	<string name="pref_database">Sync settings</string>
 	<string name="pref_database_statuses">Collection statuses</string>
 	<string name="pref_database_statuses_summary">Collection statuses to sync</string>
@@ -82,7 +79,6 @@
 	<string name="pref_database_clear_neg">Cancel</string>
 	<string name="pref_database_clear_message">Are you sure you want to clear all synchronized
 		information? NOTE: This operation can\'t be reversed.</string>
-
 	<string name="average_meter_text">Average = %s</string>
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
@@ -161,11 +157,9 @@
 		of your changes.</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?
 	</string>
-
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
-
 	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
@@ -181,7 +175,6 @@
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
 	<string name="title_generalforumlist">General Forums</string>
-
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
@@ -189,7 +182,6 @@
 	<string name="home_btn_sync">Sync</string>
 	<string name="home_btn_settings">Settings</string>
 	<string name="home_btn_about">About</string>
-
 	<string name="notification_title">BoardGameGeek</string>
 	<string name="notification_status_default">Syncing...</string>
 	<string name="notification_status_complete">Sync complete</string>
@@ -200,19 +192,15 @@
 	<string name="notification_text_collection_detail">BGG collection detail synced</string>
 	<string name="notification_text_complete">BGG sync complete</string>
 	<string name="notification_text_comments">BGG comments synced</string>
-
 	<string name="pref_warning_username">Please set your username first.</string>
-
 	<string name="loading">Loading...</string>
 	<string name="empty_buddies">No buddies</string>
-	<string name="empty_collection">No games in your collection</string>
+	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
-
 	<string name="tab_title_info">Info</string>
 	<string name="tab_title_stats">Stats</string>
 	<string name="tab_title_lists">Lists</string>
 	<string name="tab_title_polls">Polls</string>
-
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search BoardGameGeek.com</string>
 	<string name="search_settings_description">Names of board games</string>
@@ -232,7 +220,6 @@
 	<string name="generalforumlist_no_results">No general forums.</string>
 	<string name="forum_no_results">No threads in \"%s\"".</string>
 	<string name="thread_no_results">No posts in thread \"%s\"".</string>
-
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>
 	<string name="menu_refresh">Refresh</string>
@@ -254,10 +241,8 @@
 	<string name="menu_forward">Forward</string>
 	<string name="menu_color">Teams/Colors</string>
 	<string name="menu_forums">Forums</string>
-
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>
-
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updating">Updating...</string>
 	<string name="msg_update_error">Error updating.</string>
@@ -265,15 +250,12 @@
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
 	<string name="msg_player_deleted">Player deleted.</string>
-
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android
 		that I thought you might like:\n\n%1$s (%2$s)</string>
-
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
-
 	<string name="user_rating">User Rating</string>
 	<string name="rank">Rank</string>
 	<string name="yearPublished">Year Published</string>
@@ -284,7 +266,6 @@
 	<string name="age_suffix">and up</string>
 	<string name="gameId">Game ID</string>
 	<string name="add_field">Add Field</string>
-
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
 		menu button.\n - Log plays\n - Read comments\n - Refresh from the \'Geek\n - Access
@@ -301,10 +282,10 @@
 		entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
-
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
+
 	<plurals name="forum_threads">
 		<item quantity="one">%s thread</item>
 		<item quantity="other">%s threads</item>
@@ -313,4 +294,5 @@
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
 	</plurals>
+
 </resources>
