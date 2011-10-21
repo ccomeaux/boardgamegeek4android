@@ -261,9 +261,10 @@
 	<string name="yearPublished">Year Published</string>
 	<string name="numberOfPlayers"># of Players</string>
 	<string name="playing_time">Playing Time</string>
-	<string name="time_suffix">minutes</string>
+	<string name="time_suffix">mins</string>
 	<string name="suggested_ages">Suggested Ages</string>
-	<string name="age_suffix">and up</string>
+	<string name="age_suffix">+</string>
+	<string name="languages">Languages</string>
 	<string name="gameId">Game ID</string>
 	<string name="add_field">Add Field</string>
 	<string name="help_title">Help</string>

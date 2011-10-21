@@ -7,115 +7,104 @@
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:gravity="center_horizontal"
 		android:orientation="vertical"
-		android:padding="@dimen/padding_standard" >
+		android:padding="@dimen/padding_extra" >
+
+		<TextView
+			android:id="@+id/rating"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:textStyle="bold" />
+
+		<RatingBar
+			android:id="@+id/rating_stars"
+			style="?android:attr/ratingBarStyleSmall"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:isIndicator="true"
+			android:numStars="10"
+			android:stepSize="0.01" />
+
+		<TextView
+			android:id="@+id/number_rating"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:textColor="@color/light_text"
+			android:textSize="@dimen/text_size_tiny" />
 
 		<TableLayout
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:paddingBottom="@dimen/padding_extra" >
+			android:layout_height="wrap_content" >
 
-			<TableRow android:gravity="center_horizontal" >
-
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/rank"
-					android:textStyle="bold" />
+			<TableRow >
 
 				<TextView
 					android:id="@+id/rank"
-					android:textSize="@dimen/text_size_small"
-					android:textStyle="bold" />
-			</TableRow>
-
-			<TableRow android:gravity="center_horizontal" >
-
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/user_rating"
+					style="@style/game_info_table"
+					android:drawableLeft="@drawable/info_trophy"
 					android:textStyle="bold" />
 
 				<TextView
-					android:id="@+id/rating"
-					android:textSize="@dimen/text_size_small"
-					android:textStyle="bold" />
+					android:id="@+id/year_published"
+					style="@style/game_info_table"
+					android:drawableLeft="@drawable/info_calendar" />
 			</TableRow>
 
-			<TableRow android:gravity="center_horizontal" >
-
-				<RatingBar
-					android:id="@+id/rating_stars"
-					style="?android:attr/ratingBarStyleSmall"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:isIndicator="true"
-					android:numStars="10"
-					android:stepSize="0.01" />
-			</TableRow>
-
-			<TableRow android:gravity="center_horizontal" >
-
-				<TextView
-					android:id="@+id/number_rating"
-					android:layout_width="fill_parent"
-					android:layout_span="2"
-					android:gravity="center_horizontal"
-					android:textSize="@dimen/text_size_tiny" />
-			</TableRow>
-
-			<TableRow android:gravity="center_horizontal" >
-
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/yearPublished" />
-			</TableRow>
-
-			<TableRow android:gravity="center_horizontal" >
-
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/numberOfPlayers" />
-
-				<TextView
-					android:id="@+id/numOfPlayers"
-					android:textSize="@dimen/text_size_small" />
-			</TableRow>
-
-			<TableRow
-				android:id="@+id/playing_time_row"
-				android:gravity="center_horizontal" >
-
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/playing_time" />
+			<TableRow >
 
 				<TextView
 					android:id="@+id/playing_time"
-					android:textSize="@dimen/text_size_small" />
+					style="@style/game_info_table"
+					android:drawableLeft="@drawable/info_clock" />
+
+				<LinearLayout
+					android:layout_weight="1"
+					android:orientation="horizontal" >
+
+					<ImageButton
+						android:id="@+id/num_of_players_button"
+						style="@style/game_info_button"
+						android:src="@drawable/info_users" />
+
+					<TextView
+						android:id="@+id/num_of_players"
+						style="@style/game_info_button_text" />
+				</LinearLayout>
 			</TableRow>
 
-			<TableRow
-				android:id="@+id/suggested_ages_row"
-				android:gravity="center_horizontal" >
+			<TableRow >
 
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/suggested_ages" />
+				<LinearLayout
+					android:layout_weight="1"
+					android:orientation="horizontal" >
 
-				<TextView
-					android:id="@+id/suggested_ages"
-					android:textSize="@dimen/text_size_small" />
-			</TableRow>
+					<ImageButton
+						android:id="@+id/suggested_ages_button"
+						style="@style/game_info_button"
+						android:src="@drawable/info_user" />
 
-			<TableRow android:gravity="center_horizontal" >
+					<TextView
+						android:id="@+id/suggested_ages"
+						style="@style/game_info_button_text" />
+				</LinearLayout>
 
-				<TextView
-					style="@style/TableLabel"
-					android:text="@string/gameId" />
+				<LinearLayout
+					android:layout_weight="1"
+					android:orientation="horizontal" >
 
-				<TextView
-					android:id="@+id/gameId"
-					android:textSize="@dimen/text_size_small" />
+					<ImageButton
+						android:id="@+id/languges_button"
+						style="@style/game_info_button"
+						android:src="@drawable/info_mouth" />
+
+					<TextView
+						style="@style/game_info_button_text"
+						android:text="@string/languages" />
+				</LinearLayout>
 			</TableRow>
 		</TableLayout>
 
@@ -123,6 +112,16 @@
 			android:id="@+id/description"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+
+		<TextView
+			android:id="@+id/game_id"
+			style="@style/game_info"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:text="ID: 4132"
+			android:textColor="@color/light_text"
+			android:textSize="@dimen/text_size_tiny" />
 	</LinearLayout>
 
 </ScrollView>

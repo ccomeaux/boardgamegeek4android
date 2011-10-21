@@ -14,7 +14,6 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.RatingBar;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,9 +42,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private RatingBar mRatingBar;
 	private TextView mYearPublishedView;
 	private TextView mPlayersView;
-	private TableRow mPlayingTimeRow;
 	private TextView mPlayingTimeView;
-	private TableRow mSuggestedAgesRow;
 	private TextView mSuggestedAgesView;
 	private TextView mIdView;
 	private WebView mDescriptionView;
@@ -92,13 +89,11 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mNumberRatingView = (TextView) findViewById(R.id.number_rating);
 		mRankView = (TextView) findViewById(R.id.rank);
 		mRatingBar = (RatingBar) findViewById(R.id.rating_stars);
-		mYearPublishedView = (TextView) findViewById(R.id.yearPublished);
-		mPlayersView = (TextView) findViewById(R.id.numOfPlayers);
-		mPlayingTimeRow = (TableRow) findViewById(R.id.playing_time_row);
+		mYearPublishedView = (TextView) findViewById(R.id.year_published);
+		mPlayersView = (TextView) findViewById(R.id.num_of_players);
 		mPlayingTimeView = (TextView) findViewById(R.id.playing_time);
-		mSuggestedAgesRow = (TableRow) findViewById(R.id.suggested_ages_row);
 		mSuggestedAgesView = (TextView) findViewById(R.id.suggested_ages);
-		mIdView = (TextView) findViewById(R.id.gameId);
+		mIdView = (TextView) findViewById(R.id.game_id);
 		mDescriptionView = (WebView) findViewById(R.id.description);
 		WebSettings webSettings = mDescriptionView.getSettings();
 		webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
@@ -119,24 +114,18 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				mPlayersView.setText(getPlayerDescription(cursor));
 
 				int time = cursor.getInt(GameQuery.PLAYING_TIME);
-				if (time == 0) {
-					mPlayingTimeRow.setVisibility(View.GONE);
-				} else {
-					mPlayingTimeView.setText(getPlayingTime(time));
-					mPlayingTimeRow.setVisibility(View.VISIBLE);
-				}
+				mPlayingTimeView.setText(getPlayingTime(time));
+				mPlayingTimeView.setVisibility(time == 0 ? View.GONE : View.VISIBLE);
 
 				int age = cursor.getInt(GameQuery.MINIMUM_AGE);
-				if (age == 0) {
-					mSuggestedAgesRow.setVisibility(View.GONE);
-				} else {
-					mSuggestedAgesView.setText(getAge(age));
-					mSuggestedAgesRow.setVisibility(View.VISIBLE);
-				}
+				mSuggestedAgesView.setText(getAge(age));
+				mSuggestedAgesView.setVisibility(age == 0 ? View.GONE : View.VISIBLE);
 
-				mIdView.setText(cursor.getString(GameQuery.GAME_ID));
 				mDescriptionView.loadDataWithBaseURL(null, cursor.getString(GameQuery.DESCRIPTION), "text/html",
 						"UTF-8", null);
+
+				mIdView.setText(String.format(getResources().getString(R.string.id_list_text),
+						cursor.getString(GameQuery.GAME_ID)));
 			} else if (token == TOKEN_RANK) {
 				setRank(cursor);
 			} else {
