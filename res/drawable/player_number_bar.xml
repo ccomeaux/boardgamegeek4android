@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item android:id="@+id/notRecommended">
+<shape >
+
+			<corners android:radius="4.0dp" />
+
+			<solid android:color="#ffff0000" />
+		</shape></item>
+
+	<item android:id="@+id/background">
+<clip >
+
+			<shape >
+
+				<corners android:radius="4.0dip" />
+
+				<solid android:color="#ff5a5d5a" />
+			</shape>
+		</clip></item>
+
+	<item android:id="@+id/recommended">
+<clip >
+
+			<shape >
+
+				<corners android:radius="4.0dp" />
+
+				<solid android:color="#ffffff00" />
+			</shape>
+		</clip></item>
+
+	<item android:id="@+id/best">
+<clip >
+
+			<shape >
+
+				<corners android:radius="4.0dp" />
+
+				<solid android:color="#ff00ff00" />
+			</shape>
+		</clip></item>
+
+</layer-list>

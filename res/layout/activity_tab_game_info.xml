@@ -68,6 +68,7 @@
 					<ImageButton
 						android:id="@+id/num_of_players_button"
 						style="@style/game_info_button"
+						android:onClick="onClick"
 						android:src="@drawable/info_users" />
 
 					<TextView
@@ -85,6 +86,7 @@
 					<ImageButton
 						android:id="@+id/suggested_ages_button"
 						style="@style/game_info_button"
+						android:onClick="onClick"
 						android:src="@drawable/info_user" />
 
 					<TextView
@@ -99,6 +101,7 @@
 					<ImageButton
 						android:id="@+id/languges_button"
 						style="@style/game_info_button"
+						android:onClick="onClick"
 						android:src="@drawable/info_mouth" />
 
 					<TextView

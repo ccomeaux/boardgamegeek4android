@@ -179,6 +179,10 @@
 		<activity
 			android:name=".ui.AboutActivity"
 			android:theme="@style/Theme.Bgg" />
+		<activity
+			android:label="@string/title_suggested_players"
+			android:name=".ui.PollActivity"
+			android:theme="@android:style/Theme.Dialog" />
 
 		<service android:name=".service.SyncService" />
 
