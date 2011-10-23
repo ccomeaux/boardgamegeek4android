@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical"
+	android:orientation="horizontal" >
+
+	<View
+		android:id="@+id/row_poll_key_view"
+		android:layout_width="@dimen/row_dimension"
+		android:layout_height="@dimen/row_dimension"
+		android:layout_margin="@dimen/padding_standard" />
+
+	<TextView
+		android:id="@+id/row_poll_key_text"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textSize="@dimen/text_size_small" />
+
+</LinearLayout>

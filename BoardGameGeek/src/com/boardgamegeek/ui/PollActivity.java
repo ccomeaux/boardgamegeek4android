@@ -3,12 +3,14 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -17,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
+import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
@@ -44,6 +47,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 	private LinearLayout mLinearLayout;
 
+	private int mKeyCount = 3;
 	private int mPollCount;
 
 	@Override
@@ -102,7 +106,18 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 		if (SUGGESTED_NUMPLAYERS.equals(type)) {
 			mPollUri = Games.buildPollsUri(mGameId, SUGGESTED_NUMPLAYERS);
 			mPollResultsUri = Games.buildPollResultsUri(mGameId, SUGGESTED_NUMPLAYERS);
+
+			addKeyRow(BEST, Color.GREEN);
+			addKeyRow(RECOMMENDED, Color.YELLOW);
+			addKeyRow(NOT_RECOMMENDED, Color.RED);
 		}
+	}
+
+	private void addKeyRow(String text, int color) {
+		PollKeyRow pkr = new PollKeyRow(this);
+		pkr.setText(text);
+		pkr.setColor(color);
+		mLinearLayout.addView(pkr);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -138,7 +153,8 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 						Log.w(TAG, "Bad key: " + key);
 					}
 				}
-				mLinearLayout.addView(pnr);
+				mLinearLayout.addView(pnr, mLinearLayout.getChildCount() - mKeyCount);
+
 				mLinearLayout.setVisibility(View.VISIBLE);
 				findViewById(R.id.progress).setVisibility(View.GONE);
 			} else {
