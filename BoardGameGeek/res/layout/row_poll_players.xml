@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal" >
+
+	<TextView
+		android:id="@+id/poll_player_text"
+		android:layout_width="24sp"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/padding_small"
+		android:textSize="@dimen/text_size_small" />
+
+	<com.boardgamegeek.ui.widget.PlayerNumberBar
+		android:id="@+id/poll_player_bar"
+		android:layout_width="0dp"
+		android:layout_height="20dp"
+		android:layout_weight="1"
+		android:padding="@dimen/padding_small" />
+
+</LinearLayout>

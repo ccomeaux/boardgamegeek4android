@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -31,6 +32,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private static final String SUBTYPE = "subtype";
 
 	private NotifyingAsyncQueryHandler mHandler;
+	private int mGameId;
 	private Uri mGameUri;
 	private Uri mRankUri;
 	private GameObserver mGameObserver;
@@ -78,8 +80,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 	private void setUrisAndObservers() {
 		mGameUri = getIntent().getData();
-		final int gameId = Games.getGameId(mGameUri);
-		mRankUri = Games.buildRanksUri(gameId);
+		mGameId = Games.getGameId(mGameUri);
+		mRankUri = Games.buildRanksUri(mGameId);
 		mGameObserver = new GameObserver(null);
 		mRankObserver = new RankObserver(null);
 	}
@@ -98,6 +100,20 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		WebSettings webSettings = mDescriptionView.getSettings();
 		webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
 				.getDisplayMetrics().density));
+	}
+
+	public void onClick(View v) {
+		Intent intent = new Intent(this, PollActivity.class);
+		intent.putExtra(PollActivity.KEY_GAME_ID, mGameId);
+		switch (v.getId()) {
+			case R.id.num_of_players_button:
+				intent.putExtra(PollActivity.KEY_TYPE, "suggested_numplayers");
+				break;
+			default:
+				Toast.makeText(this, "This poll is coming soon!", Toast.LENGTH_LONG).show();
+				return;
+		}
+		startActivity(intent);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
