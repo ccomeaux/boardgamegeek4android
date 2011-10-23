@@ -14,5 +14,6 @@
 	<dimen name="image_size">64dp</dimen>
 	<dimen name="thumbnail_list_size">45dp</dimen>
 	<dimen name="thumbnail_size">60dp</dimen>
+	<dimen name="row_dimension">20dp</dimen>
 
 </resources>
