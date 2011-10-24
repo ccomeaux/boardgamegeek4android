@@ -11,6 +11,7 @@ import org.apache.http.client.HttpClient;
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -38,6 +39,7 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.Expansions;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
@@ -64,13 +66,15 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_PUBLISHERS_UPDATE = 6;
 	private static final int TOKEN_MECHANICS = 7;
 	private static final int TOKEN_CATEGORIES = 8;
+	private static final int TOKEN_EXPANSIONS = 9;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
 	private static final int GROUP_PUBLISHERS = 2;
 	private static final int GROUP_MECHANICS = 3;
 	private static final int GROUP_CATEGORIES = 4;
-	private static final int GROUP_TOTAL_COUNT = 5;
+	private static final int GROUP_EXPANSIONS = 5;
+	private static final int GROUP_TOTAL_COUNT = 6;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -82,6 +86,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private Uri mPublishersUri;
 	private Uri mMechanicsUri;
 	private Uri mCategoriesUri;
+	private Uri mExpansionsUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
 	private DesignersObserver mDesignersObserver;
@@ -89,6 +94,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private PublishersObserver mPublishersObserver;
 	private MechanicsObserver mMechanicsObserver;
 	private CategoriesObserver mCategoriesObserver;
+	private ExpansionsObserver mExpansionsObserver;
 
 	private List<Map<String, String>> mGroupData;
 	private List<List<Map<String, String>>> mChildData;
@@ -118,6 +124,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		cr.registerContentObserver(mPublishersUri, true, mPublishersObserver);
 		cr.registerContentObserver(mMechanicsUri, true, mMechanicsObserver);
 		cr.registerContentObserver(mCategoriesUri, true, mCategoriesObserver);
+		cr.registerContentObserver(mExpansionsUri, true, mExpansionsObserver);
 	}
 
 	@Override
@@ -129,6 +136,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		cr.unregisterContentObserver(mPublishersObserver);
 		cr.unregisterContentObserver(mMechanicsObserver);
 		cr.unregisterContentObserver(mCategoriesObserver);
+		cr.unregisterContentObserver(mExpansionsObserver);
 	}
 
 	private void setAndObserveUris() {
@@ -139,12 +147,14 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mPublishersUri = Games.buildPublishersUri(gameId);
 		mMechanicsUri = Games.buildMechanicsUri(gameId);
 		mCategoriesUri = Games.buildCategoriesUri(gameId);
+		mExpansionsUri = Games.buildExpansionsUri(gameId);
 
 		mDesignersObserver = new DesignersObserver(null);
 		mArtistsObserver = new ArtistsObserver(null);
 		mPublishersObserver = new PublishersObserver(null);
 		mMechanicsObserver = new MechanicsObserver(null);
 		mCategoriesObserver = new CategoriesObserver(null);
+		mExpansionsObserver = new ExpansionsObserver(null);
 	}
 
 	private void startQueries() {
@@ -158,6 +168,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 				Mechanics.DEFAULT_SORT);
 		mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
 				Categories.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
+				Expansions.DEFAULT_SORT);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -167,14 +179,19 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		removeDialog(ID_DIALOG_RESULTS);
 
 		Map<String, Object> childItem = (Map<String, Object>) mAdapter.getChild(groupPosition, childPosition);
-		mName = (String) childItem.get(KEY_NAME);
-		mDescription = (String) childItem.get(KEY_DESCRIPTION);
-		if (TextUtils.isEmpty(mDescription)) {
-			showToast(R.string.msg_no_description);
+		if (groupPosition != GROUP_EXPANSIONS) {
+			mName = (String) childItem.get(KEY_NAME);
+			mDescription = (String) childItem.get(KEY_DESCRIPTION);
+			if (TextUtils.isEmpty(mDescription)) {
+				showToast(R.string.msg_no_description);
+			} else {
+				showDialog(ID_DIALOG_RESULTS);
+			}
 		} else {
-			showDialog(ID_DIALOG_RESULTS);
+			String gameId = (String) childItem.get(KEY_DESCRIPTION);
+			showGame(Integer.valueOf(gameId).intValue());
 		}
-
+		
 		return super.onChildClick(parent, v, groupPosition, childPosition, id);
 	}
 
@@ -257,6 +274,25 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new PublisherTask().execute(array);
 				}
+			} else if (token == TOKEN_EXPANSIONS) { // || token == TOKEN_EXPANSIONS_UPDATE) {
+//				List<Integer> ids = new ArrayList<Integer>();
+				List<ChildItem> expansions = new ArrayList<ChildItem>();
+				while (cursor.moveToNext()) {
+//					if (token == TOKEN_EXPANSIONS) {
+//						int id = cursor.getInt(ExpansionQuery.EXPANSION_ID);
+//						getContentResolver().registerContentObserver(uri, notifyForDescendents, observer)
+//						addId(cursor, ids, id, ExpansionQuery.UPDATED);
+//					}
+					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_NAME,
+							ExpansionQuery.EXPANSION_ID);
+				}
+				updateGroup(GROUP_EXPANSIONS, expansions);
+				
+//				if (ids.size() > 0) {
+//					Integer[] array = new Integer[ids.size()];
+//					ids.toArray(array);
+//					new PublisherTask().execute(array);
+//				}oci
 			} else if (token == TOKEN_MECHANICS) {
 				List<ChildItem> mechanics = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
@@ -348,6 +384,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		createGroup(R.string.publishers);
 		createGroup(R.string.mechanics);
 		createGroup(R.string.categories);
+		createGroup(R.string.expansions);
 	}
 
 	private void createGroup(int nameResourceId) {
@@ -369,6 +406,11 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			childMap.put(KEY_NAME, child.Name);
 			childMap.put(KEY_DESCRIPTION, child.Description);
 		}
+	}
+	
+	private void showGame(final int gameId) {
+		final Uri gameUri = Games.buildGameUri(gameId);
+		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
 	}
 
 	class ChildItem {
@@ -469,6 +511,18 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		public void onChange(boolean selfChange) {
 			mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
 					Categories.DEFAULT_SORT);
+		}
+	}
+	
+	class ExpansionsObserver extends ContentObserver {
+		public ExpansionsObserver(Handler handler) {
+			super(handler);
+		}
+		
+		@Override
+		public void onChange(boolean selfChange) {
+			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
+					Expansions.DEFAULT_SORT);
 		}
 	}
 
@@ -609,5 +663,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		String[] PROJECTION = { Categories.CATEGORY_NAME };
 
 		int CATEGORY_NAME = 0;
+	}
+	
+	private interface ExpansionQuery {
+		String[] PROJECTION = { Expansions.EXPANSION_ID, Expansions.EXPANSION_NAME };
+		
+		int EXPANSION_ID = 0;
+		int EXPANSION_NAME = 1;
 	}
 }

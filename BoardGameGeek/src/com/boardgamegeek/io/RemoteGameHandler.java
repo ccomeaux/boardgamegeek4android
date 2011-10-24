@@ -21,6 +21,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
+import com.boardgamegeek.provider.BggContract.Expansions;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
@@ -31,6 +32,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
+import com.boardgamegeek.provider.BggDatabase.GamesExpansions;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.StringUtils;
@@ -46,6 +48,7 @@ public class RemoteGameHandler extends XmlHandler {
 	private List<Integer> mPublisherIds;
 	private List<Integer> mMechanicIds;
 	private List<Integer> mCategoryIds;
+	private List<Integer> mExpansionIds;
 	private List<String> mPollNames;
 
 	public RemoteGameHandler() {
@@ -95,6 +98,7 @@ public class RemoteGameHandler extends XmlHandler {
 		mPublisherIds = getIds(Games.buildPublishersUri(mGameId), Publishers.PUBLISHER_ID);
 		mMechanicIds = getIds(Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
 		mCategoryIds = getIds(Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
+		mExpansionIds = getIds(Games.buildExpansionsUri(mGameId), Expansions.EXPANSION_ID);
 		mPollNames = getPollNames();
 	}
 
@@ -113,6 +117,9 @@ public class RemoteGameHandler extends XmlHandler {
 		}
 		for (Integer categoryId : mCategoryIds) {
 			mResolver.delete(Games.buildCategoriesUri(mGameId, categoryId), null, null);
+		}
+		for (Integer expansionId : mExpansionIds) {
+			mResolver.delete(Games.buildExpansionsUri(mGameId, expansionId), null, null);
 		}
 		for (String pollName : mPollNames) {
 			mResolver.delete(Games.buildPollsUri(mGameId, pollName), null, null);
@@ -154,6 +161,9 @@ public class RemoteGameHandler extends XmlHandler {
 					tag = null;
 				} else if (Tags.POLL.equals(tag)) {
 					parsePoll();
+					tag = null;
+				} else if (Tags.EXPANSION.equals(tag)) {
+					parseExpansion();
 					tag = null;
 				}
 			} else if (type == END_TAG) {
@@ -491,6 +501,29 @@ public class RemoteGameHandler extends XmlHandler {
 			mResolver.delete(Games.buildPollResultsResultUri(mGameId, pollName, players, value), null, null);
 		}
 	}
+	
+	private void parseExpansion() throws XmlPullParserException, IOException {
+		ContentValues values = new ContentValues();
+		final int expansionId = parseIntegerAttribute(Tags.ID);
+		values.put(Expansions.EXPANSION_ID, expansionId);
+
+		final int depth = mParser.getDepth();
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == TEXT) {
+				values.put(Expansions.EXPANSION_NAME, mParser.getText());
+			}
+		}
+
+		if (!mExpansionIds.remove(new Integer(expansionId))) {
+			mResolver.insert(Expansions.CONTENT_URI, values);
+
+			values.clear();
+			values.put(GamesExpansions.GAME_ID, mGameId);
+			values.put(GamesExpansions.EXPANSION_ID, expansionId);
+			mResolver.insert(Games.buildExpansionsUri(mGameId), values);
+		}
+	}
 
 	private List<Integer> getIds(Uri uri, String columnName) {
 		List<Integer> ids = new ArrayList<Integer>();
@@ -569,7 +602,7 @@ public class RemoteGameHandler extends XmlHandler {
 		String MECHANIC = "boardgamemechanic";
 		String CATEGORY = "boardgamecategory";
 		// family
-		// expansion
+		String EXPANSION = "boardgameexpansion";
 		// podcastepisode
 		// version
 		// subdomain
