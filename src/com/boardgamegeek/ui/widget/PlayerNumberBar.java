@@ -47,7 +47,7 @@ public class PlayerNumberBar extends View {
 	}
 
 	private void initPlayerNumberBar() {
-		mTotal = 100;
+		mTotal = 0;
 		mBest = 0;
 		mRecommended = 0;
 		mNotRecommended = 0;
@@ -196,8 +196,9 @@ public class PlayerNumberBar extends View {
 	}
 
 	public synchronized void setTotal(int total) {
-		if (total < 0) {
-			total = 0;
+		// HACK when total is 0, this doesn't display right
+		if (total < 1) {
+			total = 1;
 		}
 		if (total != mTotal) {
 			mTotal = total;
@@ -208,6 +209,7 @@ public class PlayerNumberBar extends View {
 				mRecommended = 0;
 				mNotRecommended = 0;
 			}
+			refresh(R.id.background, mTotal);
 		}
 	}
 
