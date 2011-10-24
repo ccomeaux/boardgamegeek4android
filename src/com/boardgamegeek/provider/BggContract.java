@@ -81,6 +81,11 @@ public class BggContract {
 		String CATEGORY_ID = "category_id";
 		String CATEGORY_NAME = "category_name";
 	}
+	
+	interface ExpansionsColumns {
+		String EXPANSION_ID = "expansion_id";
+		String EXPANSION_NAME = "expansion_name";
+	}
 
 	interface CollectionColumns {
 		String COLLECTION_ID = "collection_id";
@@ -151,6 +156,7 @@ public class BggContract {
 	private static final String PATH_PUBLISHERS = "publishers";
 	private static final String PATH_MECHANICS = "mechanics";
 	private static final String PATH_CATEGORIES = "categories";
+	private static final String PATH_EXPANSIONS = "expansions";
 	private static final String PATH_COLLECTION = "collection";
 	private static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_POLLS = "polls";
@@ -234,9 +240,21 @@ public class BggContract {
 		public static Uri buildCategoriesUri(int gameId, int categoryId) {
 			return getUriBuilder(gameId, PATH_CATEGORIES, categoryId).build();
 		}
+		
+		public static Uri buildExpansionsUri(int gameId) {
+			return getUriBuilder(gameId, PATH_EXPANSIONS).build();
+		}
+		
+		public static Uri buildExpansionsUri(int gameId, int expansionId) {
+			return getUriBuilder(gameId, PATH_EXPANSIONS, expansionId).build();
+		}
 
 		public static Uri buildCategoryUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(String.valueOf(rowId)).build();
+		}
+		
+		public static Uri buildExpansionUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_EXPANSIONS).appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildPollsUri(int gameId) {
@@ -423,6 +441,23 @@ public class BggContract {
 		}
 
 		public static int getCategoryId(Uri uri) {
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+	
+	public static class Expansions implements ExpansionsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_EXPANSIONS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.expansion";
+
+		public static final String DEFAULT_SORT = ExpansionsColumns.EXPANSION_NAME + " COLLATE NOCASE ASC";
+
+		public static Uri buildExpansionUri(int expansionId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(expansionId)).build();
+		}
+
+		public static int getExpansionId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
