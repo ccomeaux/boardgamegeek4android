@@ -168,7 +168,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		setupTab(GameInfoActivityTab.class, "info", R.string.tab_title_info);
 		setupTab(GameStatsActivityTab.class, "stats", R.string.tab_title_stats);
 		setupTab(GameListsActivityTab.class, "lists", R.string.tab_title_lists);
-		setupTab(GamePollsActivityTab.class, "polls", R.string.tab_title_polls);
 	}
 
 	private void setupTab(Class<?> cls, String tag, int indicatorResource) {

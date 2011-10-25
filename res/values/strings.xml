@@ -201,7 +201,6 @@
 	<string name="tab_title_info">Info</string>
 	<string name="tab_title_stats">Stats</string>
 	<string name="tab_title_lists">Lists</string>
-	<string name="tab_title_polls">Polls</string>
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search BoardGameGeek.com</string>
 	<string name="search_settings_description">Names of board games</string>
