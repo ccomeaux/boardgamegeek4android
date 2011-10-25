@@ -12,6 +12,12 @@
 		android:layout_gravity="center"
 		android:indeterminateOnly="true" />
 
+	<TextView
+		android:id="@+id/temp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="gone" />
+
 	<ScrollView
 		android:id="@+id/poll_scroll"
 		android:layout_width="fill_parent"

@@ -180,7 +180,7 @@
 			android:name=".ui.AboutActivity"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_suggested_players"
+			android:label="@string/title_poll"
 			android:name=".ui.PollActivity"
 			android:theme="@android:style/Theme.Dialog" />
 

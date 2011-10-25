@@ -106,11 +106,17 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		Intent intent = new Intent(this, PollActivity.class);
 		intent.putExtra(PollActivity.KEY_GAME_ID, mGameId);
 		switch (v.getId()) {
+			case R.id.languges_button:
+				intent.putExtra(PollActivity.KEY_TYPE, PollActivity.LANGUAGE_DEPENDENCE);
+				break;
+			case R.id.suggested_ages_button:
+				intent.putExtra(PollActivity.KEY_TYPE, PollActivity.SUGGESTED_PLAYERAGE);
+				break;
 			case R.id.num_of_players_button:
-				intent.putExtra(PollActivity.KEY_TYPE, "suggested_numplayers");
+				intent.putExtra(PollActivity.KEY_TYPE, PollActivity.SUGGESTED_NUMPLAYERS);
 				break;
 			default:
-				Toast.makeText(this, "This poll is coming soon!", Toast.LENGTH_LONG).show();
+				Log.w(TAG, "Unexpected button: " + v.getId());
 				return;
 		}
 		startActivity(intent);

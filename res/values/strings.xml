@@ -175,7 +175,7 @@
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
 	<string name="title_generalforumlist">General Forums</string>
-	<string name="title_suggested_players">Suggested Number of Players</string>
+	<string name="title_poll">Poll Information</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
@@ -263,7 +263,9 @@
 	<string name="numberOfPlayers"># of Players</string>
 	<string name="playing_time">Playing Time</string>
 	<string name="time_suffix">mins</string>
-	<string name="suggested_ages">Suggested Ages</string>
+	<string name="language_dependence">Language Dependence</string>
+	<string name="suggested_playerage">Suggested Ages</string>
+	<string name="suggested_numplayers">Suggested Number of Players</string>
 	<string name="age_suffix">+</string>
 	<string name="languages">Languages</string>
 	<string name="gameId">Game ID</string>
