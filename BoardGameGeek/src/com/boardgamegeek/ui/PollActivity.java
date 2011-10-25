@@ -29,9 +29,11 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_TYPE = "TYPE";
+	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
+	public static final String SUGGESTED_PLAYERAGE = "suggested_playerage";
+	public static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
 
 	private static final String TAG = "PollActivity";
-	private static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
 	// The following should not be externalized, they're used to match the
 	// incoming XML
 	private static final String BEST = "Best";
@@ -45,6 +47,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private Cursor mCursor;
 	private NotifyingAsyncQueryHandler mHandler;
 	private int mGameId;
+	private String mType;
 	private Uri mPollUri;
 	private Uri mPollResultsUri;
 
@@ -66,6 +69,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 		setUiVariables();
 		setUris();
+		initUi();
 		mHandler.startQuery(TOKEN_POLL, null, mPollUri, PollQuery.PROJECTION, null, null, GamePolls.DEFAULT_SORT);
 	}
 
@@ -110,11 +114,18 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 	private void setUris() {
 		mGameId = getIntent().getIntExtra(KEY_GAME_ID, -1);
-		String type = getIntent().getStringExtra(KEY_TYPE);
-		if (SUGGESTED_NUMPLAYERS.equals(type)) {
-			mPollUri = Games.buildPollsUri(mGameId, SUGGESTED_NUMPLAYERS);
-			mPollResultsUri = Games.buildPollResultsUri(mGameId, SUGGESTED_NUMPLAYERS);
+		mType = getIntent().getStringExtra(KEY_TYPE);
+		mPollUri = Games.buildPollsUri(mGameId, mType);
+		mPollResultsUri = Games.buildPollResultsUri(mGameId, mType);
+	}
 
+	private void initUi() {
+		if (LANGUAGE_DEPENDENCE.equals(mType)) {
+			setTitle(R.string.language_dependence);
+		} else if (SUGGESTED_PLAYERAGE.equals(mType)) {
+			setTitle(R.string.suggested_playerage);
+		} else if (SUGGESTED_NUMPLAYERS.equals(mType)) {
+			setTitle(R.string.suggested_numplayers);
 			addKeyRow(BEST, Color.GREEN);
 			addKeyRow(RECOMMENDED, Color.YELLOW);
 			addKeyRow(NOT_RECOMMENDED, Color.RED);
@@ -142,49 +153,63 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				while (cursor.moveToNext()) {
 					final String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
 					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, key,
-							Games.buildPollResultsResultUri(mGameId, SUGGESTED_NUMPLAYERS, key),
+							Games.buildPollResultsResultUri(mGameId, mType, key),
 							GamePollResultsResultQuery.PROJECTION, null, null, GamePollResultsResult.DEFAULT_SORT);
 				}
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
 				PlayerNumberRow pnr = new PlayerNumberRow(this);
-				pnr.setText(cookie.toString());
-				pnr.setTotal(mPollCount);
-				int[] voteCount = new int[3];
-				while (cursor.moveToNext()) {
-					String key = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
-					int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
-					if (BEST.equals(key)) {
-						pnr.setBest(votes);
-						voteCount[0] = votes;
-					} else if (RECOMMENDED.equals(key)) {
-						pnr.setRecommended(votes);
-						voteCount[1] = votes;
-					} else if (NOT_RECOMMENDED.equals(key)) {
-						pnr.setNotRecommended(votes);
-						voteCount[2] = votes;
-					} else {
-						Log.w(TAG, "Bad key: " + key);
+				String key = cookie.toString();
+				if ("X".equals(key)) {
+					String msg = "";
+					while (cursor.moveToNext()) {
+						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
+						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
+						msg += value + ": " + votes + "\n";
 					}
+					TextView tv = (TextView) findViewById(R.id.temp);
+					tv.setText(msg);
+					tv.setVisibility(View.VISIBLE);
+				} else {
+					pnr.setText(key);
+					pnr.setTotal(mPollCount);
+					int[] voteCount = new int[3];
+					while (cursor.moveToNext()) {
+						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
+						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
+						if (BEST.equals(value)) {
+							pnr.setBest(votes);
+							voteCount[0] = votes;
+						} else if (RECOMMENDED.equals(value)) {
+							pnr.setRecommended(votes);
+							voteCount[1] = votes;
+						} else if (NOT_RECOMMENDED.equals(value)) {
+							pnr.setNotRecommended(votes);
+							voteCount[2] = votes;
+						} else {
+							Log.w(TAG, "Bad key: " + value);
+						}
+					}
+					pnr.setTag(voteCount);
+
+					pnr.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							for (int i = 0; i < mLinearLayoutList.getChildCount(); i++) {
+								((PlayerNumberRow) mLinearLayoutList.getChildAt(i)).clearHighlight();
+							}
+							((PlayerNumberRow) v).setHighlight();
+
+							int[] voteCount = (int[]) v.getTag();
+							for (int i = 0; i < mLinearLayoutKey.getChildCount(); i++) {
+								((PollKeyRow) mLinearLayoutKey.getChildAt(i)).setInfo(String.valueOf(voteCount[i]));
+							}
+						}
+					});
+					mLinearLayoutList.addView(pnr);
+
+					mScrollView.setVisibility(View.VISIBLE);
 				}
-				pnr.setTag(voteCount);
 
-				pnr.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						for (int i = 0; i < mLinearLayoutList.getChildCount(); i++) {
-							((PlayerNumberRow) mLinearLayoutList.getChildAt(i)).clearHighlight();
-						}
-						((PlayerNumberRow) v).setHighlight();
-
-						int[] voteCount = (int[]) v.getTag();
-						for (int i = 0; i < mLinearLayoutKey.getChildCount(); i++) {
-							((PollKeyRow) mLinearLayoutKey.getChildAt(i)).setInfo(String.valueOf(voteCount[i]));
-						}
-					}
-				});
-				mLinearLayoutList.addView(pnr);
-
-				mScrollView.setVisibility(View.VISIBLE);
 				findViewById(R.id.progress).setVisibility(View.GONE);
 			} else {
 				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
