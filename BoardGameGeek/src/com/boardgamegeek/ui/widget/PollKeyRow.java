@@ -13,6 +13,7 @@ public class PollKeyRow extends LinearLayout {
 
 	private View mView;
 	private TextView mTextView;
+	private TextView mInfoView;
 
 	public PollKeyRow(Context context) {
 		this(context, null);
@@ -28,6 +29,7 @@ public class PollKeyRow extends LinearLayout {
 		li.inflate(R.layout.row_poll_key, this);
 		mView = (View) findViewById(R.id.row_poll_key_view);
 		mTextView = (TextView) findViewById(R.id.row_poll_key_text);
+		mInfoView = (TextView) findViewById(R.id.row_poll_key_info);
 	}
 
 	public void setColor(int color) {
@@ -36,5 +38,9 @@ public class PollKeyRow extends LinearLayout {
 
 	public void setText(CharSequence text) {
 		mTextView.setText(text);
+	}
+
+	public void setInfo(CharSequence text) {
+		mInfoView.setText(text);
 	}
 }

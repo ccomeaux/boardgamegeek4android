@@ -15,15 +15,35 @@
 	<ScrollView
 		android:id="@+id/poll_scroll"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" >
+		android:layout_height="wrap_content"
+		android:visibility="gone" >
 
 		<LinearLayout
-			android:id="@+id/poll_list"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
 			android:orientation="vertical"
-			android:visibility="gone" >
+			android:paddingLeft="@dimen/padding_standard"
+			android:paddingRight="@dimen/padding_standard" >
+
+			<TextView
+				android:id="@+id/poll_vote_total"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center" />
+
+			<LinearLayout
+				android:id="@+id/poll_list"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:orientation="vertical" />
+
+			<LinearLayout
+				android:id="@+id/poll_key"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:orientation="vertical" />
 		</LinearLayout>
 	</ScrollView>
 

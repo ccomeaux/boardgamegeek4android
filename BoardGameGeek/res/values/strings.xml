@@ -267,6 +267,7 @@
 	<string name="age_suffix">+</string>
 	<string name="languages">Languages</string>
 	<string name="gameId">Game ID</string>
+	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add Field</string>
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the

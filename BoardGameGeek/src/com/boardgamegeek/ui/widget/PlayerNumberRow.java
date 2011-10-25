@@ -47,4 +47,12 @@ public class PlayerNumberRow extends LinearLayout {
 	public void setNotRecommended(int notRecommended) {
 		mBar.setNotRecommended(notRecommended);
 	}
+
+	public void setHighlight() {
+		mTextView.setBackgroundResource(R.drawable.highlight);
+	}
+
+	public void clearHighlight() {
+		mTextView.setBackgroundDrawable(null);
+	}
 }
