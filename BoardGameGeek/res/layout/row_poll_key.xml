@@ -16,6 +16,9 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:ellipsize="end"
+		android:paddingRight="@dimen/padding_standard"
+		android:singleLine="true"
 		android:textSize="@dimen/text_size_small" />
 	<TextView
 		android:id="@+id/row_poll_key_info"
