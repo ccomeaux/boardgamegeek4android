@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -126,17 +127,10 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 			setTitle(R.string.suggested_playerage);
 		} else if (SUGGESTED_NUMPLAYERS.equals(mType)) {
 			setTitle(R.string.suggested_numplayers);
-			addKeyRow(BEST, Color.GREEN);
-			addKeyRow(RECOMMENDED, Color.YELLOW);
-			addKeyRow(NOT_RECOMMENDED, Color.RED);
+			addKeyRow(Color.GREEN, BEST);
+			addKeyRow(Color.YELLOW, RECOMMENDED);
+			addKeyRow(Color.RED, NOT_RECOMMENDED);
 		}
-	}
-
-	private void addKeyRow(String text, int color) {
-		PollKeyRow pkr = new PollKeyRow(this);
-		pkr.setText(text);
-		pkr.setColor(color);
-		mLinearLayoutKey.addView(pkr);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -160,15 +154,14 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				PlayerNumberRow pnr = new PlayerNumberRow(this);
 				String key = cookie.toString();
 				if ("X".equals(key)) {
-					String msg = "";
+					int[] colors = CreateColors(cursor.getCount());
+					int colorIndex = 0;
 					while (cursor.moveToNext()) {
 						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
 						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
-						msg += value + ": " + votes + "\n";
+						addKeyRow(colors[colorIndex], value, String.valueOf(votes));
+						colorIndex++;
 					}
-					TextView tv = (TextView) findViewById(R.id.temp);
-					tv.setText(msg);
-					tv.setVisibility(View.VISIBLE);
 				} else {
 					pnr.setText(key);
 					pnr.setTotal(mPollCount);
@@ -206,10 +199,9 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 						}
 					});
 					mLinearLayoutList.addView(pnr);
-
-					mScrollView.setVisibility(View.VISIBLE);
 				}
 
+				mScrollView.setVisibility(View.VISIBLE);
 				findViewById(R.id.progress).setVisibility(View.GONE);
 			} else {
 				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
@@ -219,6 +211,40 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				cursor.close();
 			}
 		}
+	}
+
+	private int[] CreateColors(int count) {
+		int[] colors = new int[count];
+		if (count > 0) {
+			float[] hsv = new float[3];
+			hsv[1] = 0.75f;
+			hsv[2] = 1f;
+			float factor = (float) (360.0 / count);
+			int colorIndex = 0;
+			for (int i = 0; i < count; i++) {
+				hsv[0] = i * factor;
+				colors[colorIndex] = Color.HSVToColor(hsv);
+				colorIndex += 2;
+				if (colorIndex >= colors.length) {
+					colorIndex = 1;
+				}
+			}
+		}
+		return colors;
+	}
+
+	private void addKeyRow(int color, CharSequence text, CharSequence info) {
+		PollKeyRow pkr = new PollKeyRow(this);
+		pkr.setColor(color);
+		pkr.setText(text);
+		if (!TextUtils.isEmpty(info)) {
+			pkr.setInfo(info);
+		}
+		mLinearLayoutKey.addView(pkr);
+	}
+
+	private void addKeyRow(int color, CharSequence text) {
+		addKeyRow(color, text, null);
 	}
 
 	private ContentObserver mPollObserver = new ContentObserver(new Handler()) {
