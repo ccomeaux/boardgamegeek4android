@@ -4,9 +4,14 @@
 	<item android:id="@+id/notRecommended">
 <shape >
 
-			<corners android:radius="4.0dp" />
+			<corners android:radius="4dp" />
 
-			<solid android:color="#ffff0000" />
+			<gradient
+				android:angle="270.0"
+				android:centerColor="#ffff0000"
+				android:centerY="0.4"
+				android:endColor="#ffdd0000"
+				android:startColor="#ffdd0000" />
 		</shape></item>
 
 	<item android:id="@+id/background">
@@ -14,9 +19,14 @@
 
 			<shape >
 
-				<corners android:radius="4.0dip" />
+				<corners android:radius="4dp" />
 
-				<solid android:color="#ff5a5d5a" />
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ff5a5d5a"
+					android:centerY="0.4"
+					android:endColor="#ff727272"
+					android:startColor="#ff727272" />
 			</shape>
 		</clip></item>
 
@@ -25,9 +35,14 @@
 
 			<shape >
 
-				<corners android:radius="4.0dp" />
+				<corners android:radius="4dp" />
 
-				<solid android:color="#ffffff00" />
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ffffff00"
+					android:centerY="0.4"
+					android:endColor="#ffdddd00"
+					android:startColor="#ffdddd00" />
 			</shape>
 		</clip></item>
 
@@ -36,9 +51,14 @@
 
 			<shape >
 
-				<corners android:radius="4.0dp" />
+				<corners android:radius="4dp" />
 
-				<solid android:color="#ff00ff00" />
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ff00ff00"
+					android:centerY="0.4"
+					android:endColor="#ff00dd00"
+					android:startColor="#ff00dd00" />
 			</shape>
 		</clip></item>
 
