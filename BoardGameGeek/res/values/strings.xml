@@ -266,7 +266,7 @@
 	<string name="suggested_playerage">Suggested Ages</string>
 	<string name="suggested_numplayers">Suggested Number of Players</string>
 	<string name="age_suffix">+</string>
-	<string name="languages">Languages</string>
+	<string name="language">Language</string>
 	<string name="gameId">Game ID</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add Field</string>

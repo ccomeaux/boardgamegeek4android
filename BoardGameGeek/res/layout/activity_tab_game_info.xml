@@ -106,7 +106,7 @@
 
 					<TextView
 						style="@style/game_info_button_text"
-						android:text="@string/languages" />
+						android:text="@string/language" />
 				</LinearLayout>
 			</TableRow>
 		</TableLayout>
