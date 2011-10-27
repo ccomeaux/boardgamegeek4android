@@ -31,6 +31,13 @@
 				android:layout_height="wrap_content"
 				android:gravity="center" />
 
+			<com.boardgamegeek.ui.widget.PieChartView
+				android:id="@+id/pie_chart"
+				android:layout_width="150dp"
+				android:layout_height="150dp"
+				android:layout_gravity="center"
+				android:visibility="gone" />
+
 			<LinearLayout
 				android:id="@+id/poll_list"
 				android:layout_width="fill_parent"

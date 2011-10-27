@@ -20,6 +20,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.widget.PieChartView;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -54,6 +55,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 	private ScrollView mScrollView;
 	private TextView mVoteTotalView;
+	private PieChartView mPieChart;
 	private LinearLayout mLinearLayoutList;
 	private LinearLayout mLinearLayoutKey;
 
@@ -109,6 +111,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private void setUiVariables() {
 		mScrollView = (ScrollView) findViewById(R.id.poll_scroll);
 		mVoteTotalView = (TextView) findViewById(R.id.poll_vote_total);
+		mPieChart = (PieChartView) findViewById(R.id.pie_chart);
 		mLinearLayoutList = (LinearLayout) findViewById(R.id.poll_list);
 		mLinearLayoutKey = (LinearLayout) findViewById(R.id.poll_key);
 	}
@@ -159,9 +162,11 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 					while (cursor.moveToNext()) {
 						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
 						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
+						mPieChart.addSlice(votes, colors[colorIndex]);
 						addKeyRow(colors[colorIndex], value, String.valueOf(votes));
 						colorIndex++;
 					}
+					mPieChart.setVisibility(View.VISIBLE);
 				} else {
 					pnr.setText(key);
 					pnr.setTotal(mPollCount);
