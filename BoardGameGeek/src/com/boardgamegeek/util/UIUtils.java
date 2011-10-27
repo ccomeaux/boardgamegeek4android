@@ -124,6 +124,9 @@ public class UIUtils {
 			if (mProgress != null) {
 				mProgress.setVisibility(View.VISIBLE);
 			}
+			if (mThumbnail != null) {
+				mThumbnail.setVisibility(View.GONE);
+			}
 		}
 
 		@Override
