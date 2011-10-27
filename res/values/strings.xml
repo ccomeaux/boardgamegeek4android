@@ -272,9 +272,9 @@
 	<string name="add_field">Add Field</string>
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
-		menu button.\n - Log plays\n - Read comments\n - Refresh from the \'Geek\n - Access
-		links\n - Share\n\nAlso, the image thumbnail can be clicked to view a
-		larger version.</string>
+		menu button:\n - Log plays\n - Read forums and comments\n - Refresh from the \'Geek\n - Access
+		links\n - Share\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a
+		larger version</string>
 	<string name="help_collection">Got lots of games? Click the Menu button to filter
 		your collection and choose a random game from this list.\n\nYou can
 		also long-click on a game for more options.</string>
