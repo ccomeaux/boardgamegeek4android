@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content" >
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal" >
+
+		<LinearLayout
+			android:id="@+id/main_layout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:orientation="vertical"
+			android:padding="@dimen/padding_extra" >
+
+			<View style="@style/BodySeparator" />
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" >
+
+				<TextView
+					style="@style/StatsHeading"
+					android:text="Ratings" />
+
+				<TextView
+					android:id="@+id/statsRatingCount"
+					style="@style/StatsCount" />
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/average_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/bayes_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/median_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/stddev_bar"
+				style="@style/StatRow" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:orientation="vertical"
+			android:padding="@dimen/padding_extra" >
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" >
+
+				<TextView
+					style="@style/StatsHeading"
+					android:text="@string/weight" />
+
+				<TextView
+					android:id="@+id/statsWeightCount"
+					style="@style/StatsCount" />
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/weight_bar"
+				style="@style/StatRow" />
+
+			<View style="@style/BodySeparator" />
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" >
+
+				<TextView
+					style="@style/StatsHeading"
+					android:text="@string/users" />
+
+				<TextView
+					android:id="@+id/usersCount"
+					style="@style/StatsCount" />
+			</LinearLayout>
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/owning_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/rating_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/trading_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/wanting_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/wishing_bar"
+				style="@style/StatRow" />
+
+			<com.boardgamegeek.ui.widget.StatBar
+				android:id="@+id/weighting_bar"
+				style="@style/StatRow" />
+		</LinearLayout>
+	</LinearLayout>
+
+</ScrollView>
