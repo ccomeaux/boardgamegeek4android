@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,8 +59,11 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private PieChartView mPieChart;
 	private LinearLayout mLinearLayoutList;
 	private LinearLayout mLinearLayoutKey;
+	private LinearLayout mLinearLayoutKey2;
+	private View mKeyDivider;
 
 	private int mPollCount;
+	private int mKeyCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +118,8 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 		mPieChart = (PieChartView) findViewById(R.id.pie_chart);
 		mLinearLayoutList = (LinearLayout) findViewById(R.id.poll_list);
 		mLinearLayoutKey = (LinearLayout) findViewById(R.id.poll_key);
+		mLinearLayoutKey2 = (LinearLayout) findViewById(R.id.poll_key2);
+		mKeyDivider = findViewById(R.id.poll_key_divider);
 	}
 
 	private void setUris() {
@@ -159,6 +165,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				if ("X".equals(key)) {
 					int[] colors = CreateColors(cursor.getCount());
 					int colorIndex = 0;
+					mKeyCount = 0;
 					while (cursor.moveToNext()) {
 						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
 						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
@@ -245,7 +252,14 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 		if (!TextUtils.isEmpty(info)) {
 			pkr.setInfo(info);
 		}
-		mLinearLayoutKey.addView(pkr);
+		mKeyCount++;
+		if (mKeyCount > 6) {
+			mLinearLayoutKey2.addView(pkr);
+			mLinearLayoutKey2.setLayoutParams(new LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
+			mKeyDivider.setVisibility(View.VISIBLE);
+		} else {
+			mLinearLayoutKey.addView(pkr);
+		}
 	}
 
 	private void addKeyRow(int color, CharSequence text) {

@@ -14,7 +14,7 @@ public class PieChartView extends View {
 
 	private final Paint mPaint = new Paint();
 	private float mTotal = 0.0f;
-	List<Slice> mColors = new ArrayList<Slice>();
+	private List<Slice> mColors = new ArrayList<Slice>();
 
 	public PieChartView(Context context) {
 		this(context, null, 0);
@@ -34,7 +34,8 @@ public class PieChartView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
-		RectF mOvals = new RectF(0, 0, getWidth(), getHeight());
+		RectF mOvals = new RectF(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight()
+				- getPaddingBottom());
 		float startAngle = 0.0f;
 		for (int i = 0; i < mColors.size(); i++) {
 			float sweepAngle = (mColors.get(i).Value / mTotal) * 360;

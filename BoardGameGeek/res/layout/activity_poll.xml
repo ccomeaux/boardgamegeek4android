@@ -33,9 +33,10 @@
 
 			<com.boardgamegeek.ui.widget.PieChartView
 				android:id="@+id/pie_chart"
-				android:layout_width="150dp"
-				android:layout_height="150dp"
+				android:layout_width="200dp"
+				android:layout_height="200dp"
 				android:layout_gravity="center"
+				android:padding="@dimen/padding_standard"
 				android:visibility="gone" />
 
 			<LinearLayout
@@ -46,11 +47,37 @@
 				android:orientation="vertical" />
 
 			<LinearLayout
-				android:id="@+id/poll_key"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:orientation="vertical" />
+				android:orientation="horizontal" >
+
+				<LinearLayout
+					android:id="@+id/poll_key"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:layout_weight="1"
+					android:minWidth="60dp"
+					android:orientation="vertical"
+					android:paddingRight="@dimen/padding_standard" />
+
+				<View
+					android:id="@+id/poll_key_divider"
+					android:layout_width="1dp"
+					android:layout_height="fill_parent"
+					android:background="@color/background_light_transparent"
+					android:visibility="gone" />
+
+				<LinearLayout
+					android:id="@+id/poll_key2"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:layout_weight="0"
+					android:minWidth="60dp"
+					android:orientation="vertical"
+					android:paddingLeft="@dimen/padding_standard" />
+			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
 
