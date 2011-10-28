@@ -27,10 +27,14 @@ import com.boardgamegeek.provider.BggContract;
 
 public class ImageCache {
 	private static final String TAG = "ThumbnailCache";
+	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;
 
 	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
+		if (INVALID_URL.equals(url)) {
+			return null;
+		}
 
 		Drawable drawable = getDrawableFromCache(url);
 		if (drawable != null) {
