@@ -62,7 +62,6 @@
 		android:inputType="textCapCharacters"
 		android:text=""
 		android:textSize="@dimen/text_size_huge"
-		android:visibility="invisible" >
-	</TextView>
+		android:visibility="invisible" />
 
 </RelativeLayout>

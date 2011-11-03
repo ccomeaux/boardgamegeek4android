@@ -138,17 +138,17 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	@Override
 	protected void onPause() {
-		super.onPause();
 		mThumbnailQueue.clear();
 		mThumbnailTask.cancel(true);
 		mFastScrollLetter.setVisibility(View.INVISIBLE);
 		mFastScrollLetterEnabled = false;
+		super.onPause();
 	}
 
 	@Override
 	protected void onStop() {
-		super.onStop();
 		getContentResolver().unregisterContentObserver(mGameObserver);
+		super.onStop();
 	}
 
 	@Override
@@ -458,7 +458,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
-			thumbnail = (BezelImageView) view.findViewById(R.id.listThumbnail);
+			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
 		}
 	}
 
