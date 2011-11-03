@@ -55,7 +55,12 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 
 		mUri = getIntent().getData();
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, null, null, Buddies.DEFAULT_SORT);
+		startQuery();
+	}
+
+	private void startQuery() {
+		mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?", new String[] { "0" },
+				Buddies.DEFAULT_SORT);
 	}
 
 	@Override
@@ -127,7 +132,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		public void onChange(boolean selfChange) {
 			long now = System.currentTimeMillis();
 			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, null, null, Buddies.DEFAULT_SORT);
+				startQuery();
 				mLastUpdated = System.currentTimeMillis();
 			}
 		}
