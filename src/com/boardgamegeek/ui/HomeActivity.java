@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,11 +40,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 
 		UIUtils.allowTypeToSearch(this);
 		UIUtils.setTitle(this);
-
-		if (Intent.ACTION_SYNC.equals(getIntent().getAction())) {
-			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			nm.cancelAll();
-		}
 	}
 
 	@Override

@@ -147,19 +147,20 @@ public class SyncService extends IntentService {
 		createNotification(messageId, R.string.notification_status_default, false);
 	}
 
-	private void createNotification(int messageId, int statusId, boolean includeIntent) {
+	private void createNotification(int messageId, int statusId, boolean cancelNotification) {
 		final String message = getResources().getString(messageId);
 		final String status = getResources().getString(statusId);
 
 		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message,
 				System.currentTimeMillis());
 
-		Intent i = null;
-		if (includeIntent) {
-			i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
-					Intent.ACTION_SYNC);
-		}
+		Intent i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
+				Intent.ACTION_SYNC);
 		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+
+		if (cancelNotification) {
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
+		}
 
 		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
