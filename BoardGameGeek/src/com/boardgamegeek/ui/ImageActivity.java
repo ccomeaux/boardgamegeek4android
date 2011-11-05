@@ -63,7 +63,7 @@ public class ImageActivity extends Activity {
 		@Override
 		protected Drawable doInBackground(String... params) {
 			try {
-				return ImageCache.getImage(ImageActivity.this, params[0]);
+				return ImageCache.getImage(ImageActivity.this, params[0], true);
 			} catch (OutOfMemoryError e) {
 				mOomError = true;
 			}

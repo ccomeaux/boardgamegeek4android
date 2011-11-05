@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -32,11 +34,15 @@ public class ImageCache {
 	private static HttpClient sHttpClient;
 
 	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
+		return getImage(context, url, false);
+	}
+
+	public static Drawable getImage(Context context, String url, boolean useTempCache) throws OutOfMemoryError {
 		if (INVALID_URL.equals(url)) {
 			return null;
 		}
 
-		Drawable drawable = getDrawableFromCache(url);
+		Drawable drawable = getDrawableFromCache(url, useTempCache, context);
 		if (drawable != null) {
 			Log.i(TAG, url + " found in cache!");
 			return drawable;
@@ -56,7 +62,9 @@ public class ImageCache {
 
 			final byte[] imageData = EntityUtils.toByteArray(entity);
 			Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-			addImageToCache(url, bitmap);
+
+			addImageToCache(url, bitmap, useTempCache, context);
+
 			return new BitmapDrawable(bitmap);
 
 		} catch (Exception e) {
@@ -66,8 +74,12 @@ public class ImageCache {
 	}
 
 	public static Drawable getDrawableFromCache(String url) {
+		return getDrawableFromCache(url, false, null);
+	}
+
+	public static Drawable getDrawableFromCache(String url, boolean useTempCache, Context context) {
 		final String fileName = getFileNameFromUrl(url);
-		final File file = getExistingImageFile(fileName);
+		final File file = getExistingImageFile(fileName, useTempCache, context);
 		if (file != null) {
 			return Drawable.createFromPath(file.getAbsolutePath());
 		}
@@ -75,8 +87,12 @@ public class ImageCache {
 	}
 
 	public static File getExistingImageFile(String fileName) {
+		return getExistingImageFile(fileName, false, null);
+	}
+
+	public static File getExistingImageFile(String fileName, boolean useTempCache, Context context) {
 		if (!TextUtils.isEmpty(fileName)) {
-			final File file = new File(getCacheDirectory(), fileName);
+			final File file = new File(useTempCache ? context.getCacheDir() : getCacheDirectory(), fileName);
 			if (file.exists()) {
 				return file;
 			}
@@ -96,12 +112,16 @@ public class ImageCache {
 		return true;
 	}
 
-	private static boolean addImageToCache(String url, Bitmap bitmap) {
-		if (!ensureCache()) {
+	private static boolean addImageToCache(String url, Bitmap bitmap, boolean useTempCache, Context context) {
+		if (!useTempCache && !ensureCache()) {
 			return false;
 		}
 
-		File imageFile = new File(getCacheDirectory(), getFileNameFromUrl(url));
+		if (useTempCache) {
+			cleanTempCache(context);
+		}
+
+		File imageFile = new File(useTempCache ? context.getCacheDir() : getCacheDirectory(), getFileNameFromUrl(url));
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(imageFile);
@@ -171,6 +191,27 @@ public class ImageCache {
 				stream.close();
 			} catch (IOException e) {
 				Log.e(TAG, "Could not close stream", e);
+			}
+		}
+	}
+
+	private static void cleanTempCache(Context context) {
+		File dir = context.getCacheDir();
+		File[] files = dir.listFiles();
+		if (files.length > 10) {
+			Arrays.sort(files, new ComparatorImplementation());
+			files[0].delete();
+		}
+	}
+
+	private static final class ComparatorImplementation implements Comparator<File> {
+		public int compare(File f1, File f2) {
+			if (f1.lastModified() > f2.lastModified()) {
+				return -1;
+			} else if (f1.lastModified() < f2.lastModified()) {
+				return 1;
+			} else {
+				return 0;
 			}
 		}
 	}
