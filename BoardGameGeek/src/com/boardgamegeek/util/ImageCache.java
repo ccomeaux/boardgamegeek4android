@@ -26,7 +26,7 @@ import android.util.Log;
 import com.boardgamegeek.provider.BggContract;
 
 public class ImageCache {
-	private static final String TAG = "ThumbnailCache";
+	private static final String TAG = "ImageCache";
 	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;
@@ -85,9 +85,12 @@ public class ImageCache {
 	}
 
 	public static boolean clear() {
-		// TODO: this isn't working, may have to delete each file instead of the folder
 		File cacheDirectory = getCacheDirectory();
 		if (cacheDirectory.exists()) {
+			File[] files = cacheDirectory.listFiles();
+			for (File file : files) {
+				file.delete();
+			}
 			return cacheDirectory.delete();
 		}
 		return true;
@@ -124,11 +127,17 @@ public class ImageCache {
 	}
 
 	private static File getCacheDirectory() {
+		if (!isExternalStorageAvailable()) {
+			return null;
+		}
 		final File file = new File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY);
 		return new File(file, ".imagecache");
 	}
 
 	private static boolean ensureCache() {
+		if (!isExternalStorageAvailable()) {
+			return false;
+		}
 		try {
 			File cacheDirectory = getCacheDirectory();
 			if (!cacheDirectory.exists()) {
@@ -140,6 +149,13 @@ public class ImageCache {
 			return false;
 		}
 		return true;
+	}
+
+	private static boolean isExternalStorageAvailable() {
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			return true;
+		}
+		return false;
 	}
 
 	private static synchronized HttpClient getHttpClient(Context context) {
