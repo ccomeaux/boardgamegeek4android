@@ -57,6 +57,7 @@ public class HttpUtils {
 	}
 
 	public static String constructHotnessUrl() {
+		// http://www.boardgamegeek.com/xmlapi2/hot
 		return BASE_URL_2 + "hot";
 	}
 
@@ -111,21 +112,9 @@ public class HttpUtils {
 		return url;
 	}
 
-	public static String constructCollectionUrl(String username, String filter) {
-		return BASE_URL + "collection/" + URLEncoder.encode(username)
-				+ (TextUtils.isEmpty(filter) ? "" : "?" + filter + "=1");
-	}
-
-	public static String constructCollectionUrl(String username, String filterIn, List<String> filterOut) {
-		String out = "";
-		for (int i = 0; i < filterOut.size(); i++) {
-			String outValue = filterOut.get(i).trim();
-			if (!TextUtils.isEmpty(outValue)) {
-				out += ";" + outValue + "=0";
-			}
-		}
-		return BASE_URL + "collection/" + URLEncoder.encode(username)
-				+ (TextUtils.isEmpty(filterIn) ? "" : "?" + filterIn + "=1" + out);
+	public static String constructCollectionUrl(String username, String status) {
+		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
+		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1&brief=1";
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {

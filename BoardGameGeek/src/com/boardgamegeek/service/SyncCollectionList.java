@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentResolver;
 import android.content.Context;
 
@@ -28,12 +25,10 @@ public class SyncCollectionList extends SyncTask {
 		mUsername = BggApplication.getInstance().getUserName();
 		String[] statuses = BggApplication.getInstance().getSyncStatuses();
 
-		if (statuses != null) {
-			List<String> filterOff = new ArrayList<String>(statuses.length);
+		if (statuses != null && statuses.length > 0) {
 			for (int i = 0; i < statuses.length; i++) {
-				executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, statuses[i], filterOff),
+				executor.executeGet(HttpUtils.constructCollectionUrl(mUsername, statuses[i]),
 						new RemoteCollectionHandler(startTime));
-				filterOff.add(statuses[i]);
 			}
 		}
 
