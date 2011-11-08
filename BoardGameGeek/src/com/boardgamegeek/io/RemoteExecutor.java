@@ -42,7 +42,7 @@ public class RemoteExecutor {
 	}
 
 	public boolean execute(HttpUriRequest request, XmlHandler handler) throws HandlerException {
-		Log.v(TAG, request.getURI().toString());
+		Log.i(TAG, request.getURI().toString());
 		
 		HttpResponse response;
 		try {

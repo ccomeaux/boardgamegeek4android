@@ -17,9 +17,10 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesDetail extends SyncTask {
-	private final static String TAG = "SyncBuddiesDetail";
+	private static final String TAG = "SyncBuddiesDetail";
+	private static final boolean LOGV = Log.isLoggable(TAG, Log.VERBOSE);
 
-	private final static int SYNC_BUDDY_DETAIL_DAYS = 7;
+	private static final int SYNC_BUDDY_DETAIL_DAYS = 7;
 
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
@@ -37,7 +38,9 @@ public class SyncBuddiesDetail extends SyncTask {
 				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_BUDDY_DETAIL_DAYS) {
 					executor.executeGet(HttpUtils.constructUserUrl(name), handler);
 				} else {
-					Log.v(TAG, "Skipping name=" + name + ", updated on " + dateFormat.format(lastUpdated));
+					if (LOGV) {
+						Log.v(TAG, "Skipping name=" + name + ", updated on " + dateFormat.format(lastUpdated));
+					}
 				}
 			}
 		} finally {
