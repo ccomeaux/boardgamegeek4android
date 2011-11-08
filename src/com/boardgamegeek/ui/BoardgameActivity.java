@@ -315,9 +315,11 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
+		private long mStartTime;
 
 		@Override
 		protected void onPreExecute() {
+			mStartTime = System.currentTimeMillis();
 			mIsRefreshing = true;
 			showLoadingMessage();
 			mHttpClient = HttpUtils.createHttpClient(BoardgameActivity.this, true);
@@ -343,6 +345,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		protected void onPostExecute(Boolean result) {
 			mIsRefreshing = false;
 			hideLoadingMessage();
+			Log.d(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
 		}
 	}
 
