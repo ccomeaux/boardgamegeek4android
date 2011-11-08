@@ -41,13 +41,20 @@ public class SyncBuddiesList extends SyncTask {
 		ContentValues values = new ContentValues();
 		values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 		values.put(Buddies.BUDDY_NAME, username);
-		
-		Cursor cursor = resolver.query(uri, new String[] { BaseColumns._ID, }, null, null, null);
-		if (cursor.moveToFirst()) {
-			resolver.update(uri, values, null, null);
-		} else {
-			values.put(Buddies.BUDDY_ID, selfId);
-			resolver.insert(Buddies.CONTENT_URI, values);
+
+		Cursor cursor = null;
+		try {
+			cursor = resolver.query(uri, new String[] { BaseColumns._ID, }, null, null, null);
+			if (cursor.moveToFirst()) {
+				resolver.update(uri, values, null, null);
+			} else {
+				values.put(Buddies.BUDDY_ID, selfId);
+				resolver.insert(Buddies.CONTENT_URI, values);
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
 	}
 }
