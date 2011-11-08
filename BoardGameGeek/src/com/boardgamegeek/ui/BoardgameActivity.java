@@ -332,7 +332,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			Log.d(TAG, "Refreshing game ID = " + gameId);
 			final String url = HttpUtils.constructGameUrl(gameId);
 			try {
-				mExecutor.executeGet(url, new RemoteGameHandler());
+				RemoteGameHandler rgh = new RemoteGameHandler();
+				rgh.setParsePolls();
+				mExecutor.executeGet(url, rgh);
 			} catch (HandlerException e) {
 				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
 				showToastOnUiThread(R.string.msg_update_error);
