@@ -50,9 +50,14 @@ public class RemoteGameHandler extends XmlHandler {
 	private List<Integer> mCategoryIds;
 	private List<Integer> mExpansionIds;
 	private List<String> mPollNames;
+	private boolean mParsePolls;
 
 	public RemoteGameHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
+	}
+
+	public void setParsePolls() {
+		mParsePolls = true;
 	}
 
 	@Override
@@ -160,7 +165,9 @@ public class RemoteGameHandler extends XmlHandler {
 					parseCategory();
 					tag = null;
 				} else if (Tags.POLL.equals(tag)) {
-					parsePoll();
+					if (mParsePolls) {
+						parsePoll();
+					}
 					tag = null;
 				} else if (Tags.EXPANSION.equals(tag)) {
 					parseExpansion();
@@ -438,7 +445,7 @@ public class RemoteGameHandler extends XmlHandler {
 				}
 			}
 		}
-		
+
 		for (String player : players) {
 			mResolver.delete(Games.buildPollResultsUri(mGameId, pollName, player), null, null);
 		}
