@@ -14,20 +14,19 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ScrollView;
 import android.widget.SimpleExpandableListAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -51,7 +50,6 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
-import com.boardgamegeek.util.StringUtils;
 
 public class GameListsActivityTab extends ExpandableListActivity implements AsyncQueryListener {
 	private static final String TAG = "GameListsActivityTab";
@@ -200,13 +198,14 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		if (id == ID_DIALOG_RESULTS) {
 			Dialog dialog = new Dialog(this);
 			dialog.setTitle(mName);
-			TextView textView = new TextView(this);
-			textView.setTextColor(Color.WHITE);
-			textView.setAutoLinkMask(Linkify.ALL);
-			textView.setText(StringUtils.formatDescription(mDescription));
+			WebView webView = new WebView(this);
+			webView.loadDataWithBaseURL(null, mDescription, "text/html", "UTF-8", null);
+			WebSettings webSettings = webView.getSettings();
+			webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
+					.getDisplayMetrics().density));
 			ScrollView scrollView = new ScrollView(this);
 			scrollView.setPadding(mPadding, mPadding, mPadding, mPadding);
-			scrollView.addView(textView);
+			scrollView.addView(webView);
 			dialog.setContentView(scrollView);
 			dialog.setCancelable(true);
 			return dialog;
