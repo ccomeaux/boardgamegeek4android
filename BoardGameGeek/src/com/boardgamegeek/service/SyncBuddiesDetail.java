@@ -1,10 +1,9 @@
 package com.boardgamegeek.service;
 
-import java.text.DateFormat;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.boardgamegeek.R;
@@ -13,40 +12,46 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesDetail extends SyncTask {
 	private static final String TAG = "SyncBuddiesDetail";
-	private static final boolean LOGV = Log.isLoggable(TAG, Log.VERBOSE);
 
-	private static final int SYNC_BUDDY_DETAIL_DAYS = 7;
+	private static final int SYNC_BUDDY_DETAIL_DAYS = 21;
+	private static final int SYNC_BUDDY_LIMIT = 10;
 
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
-		Cursor cursor = null;
-		try {
-			RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
-			ContentResolver resolver = context.getContentResolver();
-			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
 
-			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME, SyncColumns.UPDATED },
-					null, null, null);
-			while (cursor.moveToNext()) {
-				final String name = cursor.getString(0);
-				final long lastUpdated = cursor.getLong(1);
-				if (DateTimeUtils.howManyDaysOld(lastUpdated) > SYNC_BUDDY_DETAIL_DAYS) {
-					executor.executeGet(HttpUtils.constructUserUrl(name), handler);
-				} else {
-					if (LOGV) {
-						Log.v(TAG, "Skipping name=" + name + ", updated on " + dateFormat.format(lastUpdated));
-					}
-				}
+		ContentResolver resolver = context.getContentResolver();
+		Cursor cursor = null;
+
+		try {
+			long days = System.currentTimeMillis() - (SYNC_BUDDY_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
+			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, SyncColumns.UPDATED
+					+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
+			if (cursor.moveToFirst()) {
+				Log.i(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
+				fetchBuddies(executor, cursor);
+			} else {
+				Log.i(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
+				cursor.close();
+				cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,
+						SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
+				fetchBuddies(executor, cursor);
 			}
 		} finally {
 			if (cursor != null) {
 				cursor.close();
 			}
+		}
+	}
+
+	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws HandlerException {
+		cursor.moveToPosition(-1);
+		while (cursor.moveToNext()) {
+			String name = cursor.getString(0);
+			executor.executeGet(HttpUtils.constructUserUrl(name), new RemoteBuddyUserHandler());
 		}
 	}
 
