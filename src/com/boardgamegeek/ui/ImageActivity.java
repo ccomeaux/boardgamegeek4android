@@ -16,8 +16,9 @@ import com.boardgamegeek.util.UIUtils;
 public class ImageActivity extends Activity {
 	// private final static String TAG = "ImageActivity";
 
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
 	private ImageView mImageView;
 	private String mImageUrl;
@@ -33,6 +34,13 @@ public class ImageActivity extends Activity {
 
 		final Intent intent = getIntent();
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+
+		Drawable d = ImageCache.getDrawableFromCache(intent.getStringExtra(KEY_THUMBNAIL_URL));
+		if (d != null) {
+			mImageView.setVisibility(View.VISIBLE);
+			mImageView.setImageDrawable(d);
+		}
+		
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		((TextView) findViewById(R.id.game_name)).setText(gameName);
 
