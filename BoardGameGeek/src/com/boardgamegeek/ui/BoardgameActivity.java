@@ -173,8 +173,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	public void onThumbnailClick(View v) {
 		final Intent intent = new Intent(this, ImageActivity.class);
 		intent.setAction(Intent.ACTION_VIEW);
-		intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
 		intent.putExtra(ImageActivity.KEY_GAME_NAME, mName);
+		intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+		intent.putExtra(ImageActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivity(intent);
 	}
 
