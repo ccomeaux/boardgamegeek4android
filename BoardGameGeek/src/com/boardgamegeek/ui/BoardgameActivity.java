@@ -39,12 +39,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private static final int HELP_VERSION = 3;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final long REFRESH_THROTTLE_IN_HOURS = 1;
+	private static final int TOKEN_POLL = 1;
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameUri;
 	private boolean mShouldRetry;
 	private boolean mIsLoaded;
 	private boolean mIsRefreshing;
+	private boolean mPollChecked;
 	private GameObserver mObserver;
 
 	private int mId;
@@ -111,6 +113,15 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
+			if (token == TOKEN_POLL) {
+				mPollChecked = true;
+				if (cursor == null || !cursor.moveToFirst()) {
+					// no polls, so refresh to get them
+					refresh();
+				}
+				return;
+			}
+
 			if (!cursor.moveToFirst()) {
 				if (mShouldRetry) {
 					mShouldRetry = false;
@@ -128,6 +139,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 			long lastUpdated = cursor.getLong(GameQuery.UPDATED);
 			if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > AGE_IN_DAYS_TO_REFRESH) {
 				refresh();
+			} else if (!mPollChecked) {
+				// make sure polls are available
+				mHandler.startQuery(TOKEN_POLL, Games.buildPollsUri(mId), null);
 			}
 
 			UIUtils u = new UIUtils(this);
