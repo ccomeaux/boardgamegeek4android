@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -17,11 +18,12 @@ import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncCollectionDetail extends SyncTask {
+	private static final String TAG = "SyncCollectionDetail";
 
 	private static final int GAMES_PER_FETCH = 25;
-	// TODO Perhaps move these contsants into preferences
+	// TODO Perhaps move these constants into preferences
 	private static final int SYNC_GAME_AGE_IN_DAYS = 30;
-	private static final int SYNC_GAME_LIMIT = 50;
+	private static final int SYNC_GAME_LIMIT = 25;
 
 	private RemoteExecutor mRemoteExecutor;
 
@@ -33,14 +35,15 @@ public class SyncCollectionDetail extends SyncTask {
 		ContentResolver resolver = context.getContentResolver();
 
 		try {
-			// Update games that haven't been synced or haven't been synced in a while
 			long days = System.currentTimeMillis() - (SYNC_GAME_AGE_IN_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, SyncColumns.UPDATED + "<? OR "
 					+ SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			if (cursor.moveToFirst()) {
+				Log.i(TAG, "Updating games older than " + SYNC_GAME_AGE_IN_DAYS + " days old");
 				fetchGames(cursor);
 			} else {
-				// If everything is relatively up to date, sync the oldest games
+				Log.i(TAG, "Updating " + SYNC_GAME_LIMIT + " oldest games");
+				cursor.close();
 				cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, null, null, Games.UPDATED
 						+ " LIMIT " + SYNC_GAME_LIMIT);
 				fetchGames(cursor);
