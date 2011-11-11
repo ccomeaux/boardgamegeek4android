@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -54,6 +55,8 @@ public class ClearDialogPreference extends DialogPreference {
 
 		@Override
 		protected Void doInBackground(String... params) {
+			BggApplication.getInstance().putCollectionFullSyncTimestamp(0);
+			BggApplication.getInstance().putCollectionPartSyncTimestamp(0);
 
 			int count = 0;
 			count += mResolver.delete(Games.CONTENT_URI, null, null); 

@@ -5,6 +5,7 @@ import com.boardgamegeek.pref.ListPreferenceMultiSelect;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -20,6 +21,10 @@ public class BggApplication extends Application {
 	public static String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static String HELP_LOGPLAY_KEY = "help.logplay";
 	public static String HELP_COLORS_KEY = "help.colors";
+
+	private static String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
+	private static String COLLECTION_FULL_SYNC_TICKS_KEY = "collection_full_sync_ticks";
+	private static String COLLECTION_PART_SYNC_TICKS_KEY = "collection_part_sync_ticks";
 
 	private static BggApplication singleton;
 
@@ -42,6 +47,38 @@ public class BggApplication extends Application {
 			Log.e(TAG, "NameNotFoundException in getVersion", e);
 		}
 		return "";
+	}
+
+	public void putCollectionFullSyncTimestamp(long startTime) {
+		putTimestamp(startTime, COLLECTION_FULL_SYNC_TICKS_KEY);
+	}
+
+	public void putCollectionPartSyncTimestamp(long startTime) {
+		putTimestamp(startTime, COLLECTION_PART_SYNC_TICKS_KEY);
+	}
+
+	private void putTimestamp(long startTime, String key) {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		Editor e = sp.edit();
+		e.putLong(key, startTime);
+		if (!e.commit()) {
+			Log.w(TAG, "Error saving time the collection last synced.");
+		}
+	}
+
+	public long getCollectionFullSyncTimestamp() {
+		return getTimestamp(COLLECTION_FULL_SYNC_TICKS_KEY);
+	}
+
+	public long getCollectionPartSyncTimestamp() {
+		return getTimestamp(COLLECTION_PART_SYNC_TICKS_KEY);
+	}
+
+	private long getTimestamp(String key) {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		return sp.getLong(key, 0);
 	}
 
 	public String getUserName() {

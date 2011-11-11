@@ -5,6 +5,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.Cookies;
 
@@ -31,6 +32,11 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		if ("username".equals(key) || "password".equals(key)) {
 			Cookies cookies = new Cookies(this);
 			cookies.clearCookies();
+		}
+
+		if ("username".equals(key) || "syncStatuses".equals(key)) {
+			BggApplication.getInstance().putCollectionFullSyncTimestamp(0);
+			BggApplication.getInstance().putCollectionPartSyncTimestamp(0);
 		}
 	}
 }

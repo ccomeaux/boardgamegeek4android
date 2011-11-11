@@ -51,8 +51,8 @@ public class SyncService extends IntentService {
 		mHttpClient = HttpUtils.createHttpClient(this, mUseGzip);
 
 		mTasks.add(new SyncCollectionList());
-		// TODO: make this faster
 		mTasks.add(new SyncCollectionDetail());
+
 		if (BggApplication.getInstance().getSyncBuddies()) {
 			mTasks.add(new SyncBuddiesList());
 			mTasks.add(new SyncBuddiesDetail());
