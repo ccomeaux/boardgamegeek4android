@@ -80,10 +80,11 @@ public class SyncService extends IntentService {
 		}
 
 		mIsRunning = true;
+		final long startTime = System.currentTimeMillis();
+		BggApplication.getInstance().putSyncTimestamp(startTime);
 		signalStart();
 
 		try {
-			final long startTime = System.currentTimeMillis();
 
 			mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
 
@@ -98,6 +99,7 @@ public class SyncService extends IntentService {
 			Log.e(TAG, e.toString());
 			sendError(e.toString());
 		} finally {
+			BggApplication.getInstance().putSyncTimestamp(0);
 			signalEnd();
 			mResultReceiver = null;
 			mIsRunning = false;

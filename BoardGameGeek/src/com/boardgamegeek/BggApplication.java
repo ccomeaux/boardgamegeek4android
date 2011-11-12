@@ -23,6 +23,7 @@ public class BggApplication extends Application {
 	public static String HELP_COLORS_KEY = "help.colors";
 
 	private static String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
+	private static String SYNC_TICKS_KEY = "sync_ticks";
 	private static String COLLECTION_FULL_SYNC_TICKS_KEY = "collection_full_sync_ticks";
 	private static String COLLECTION_PART_SYNC_TICKS_KEY = "collection_part_sync_ticks";
 
@@ -49,6 +50,16 @@ public class BggApplication extends Application {
 		return "";
 	}
 
+	public void clearSyncTimestamps() {
+		putSyncTimestamp(0);
+		putCollectionFullSyncTimestamp(0);
+		putCollectionPartSyncTimestamp(0);
+	}
+
+	public void putSyncTimestamp(long startTime) {
+		putTimestamp(startTime, SYNC_TICKS_KEY);
+	}
+
 	public void putCollectionFullSyncTimestamp(long startTime) {
 		putTimestamp(startTime, COLLECTION_FULL_SYNC_TICKS_KEY);
 	}
@@ -65,6 +76,10 @@ public class BggApplication extends Application {
 		if (!e.commit()) {
 			Log.w(TAG, "Error saving time the collection last synced.");
 		}
+	}
+
+	public long getSyncTimestamp() {
+		return getTimestamp(SYNC_TICKS_KEY);
 	}
 
 	public long getCollectionFullSyncTimestamp() {

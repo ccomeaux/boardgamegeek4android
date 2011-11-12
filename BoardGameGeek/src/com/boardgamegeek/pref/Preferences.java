@@ -35,8 +35,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		}
 
 		if ("username".equals(key) || "syncStatuses".equals(key)) {
-			BggApplication.getInstance().putCollectionFullSyncTimestamp(0);
-			BggApplication.getInstance().putCollectionPartSyncTimestamp(0);
+			BggApplication.getInstance().clearSyncTimestamps();
 		}
 	}
 }

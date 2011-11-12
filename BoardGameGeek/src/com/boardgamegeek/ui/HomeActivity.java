@@ -11,11 +11,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
@@ -28,18 +30,16 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-
-		Log.d(TAG, getIntent().toString());
+		UIUtils.allowTypeToSearch(this);
+		UIUtils.setTitle(this);
 
 		mState = (State) getLastNonConfigurationInstance();
 		if (mState == null) {
 			mState = new State();
 		}
 		mState.mReceiver.setReceiver(this);
-		updateUiForSync();
 
-		UIUtils.allowTypeToSearch(this);
-		UIUtils.setTitle(this);
+		updateUiForSync();
 	}
 
 	@Override
@@ -137,6 +137,12 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	}
 
 	private void updateUiForSync() {
+		if (!mState.mSyncing) {
+			long time = BggApplication.getInstance().getSyncTimestamp();
+			int d = DateTimeUtils.howManyHoursOld(time);
+			boolean b = d == 0;
+			mState.mSyncing = b;
+		}
 		findViewById(R.id.home_btn_sync).setEnabled(!mState.mSyncing);
 	}
 
