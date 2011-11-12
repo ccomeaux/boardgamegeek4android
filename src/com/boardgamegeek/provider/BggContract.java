@@ -27,7 +27,6 @@ public class BggContract {
 		String MIN_PLAYERS = "min_players";
 		String MAX_PLAYERS = "max_players";
 		String PLAYING_TIME = "playing_time";
-		String NUM_OWNED = "num_owned";
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
@@ -43,6 +42,8 @@ public class BggContract {
 		String STATS_NUMBER_COMMENTS = "number_commenting";
 		String STATS_NUMBER_WEIGHTS = "number_weighting";
 		String STATS_AVERAGE_WEIGHT = "average_weight";
+		String LAST_VIEWED = "last_viewed";
+		String STARRED = "starred";
 	}
 
 	interface GameRanksColumns {
@@ -101,6 +102,7 @@ public class BggContract {
 		String STATUS_WISHLIST_PRIORITY = "wishlist_priority";
 		String STATUS_PREORDERED = "preordered";
 		String COMMENT = "comment";
+		String LAST_MODIFIED = "last_modified";
 		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "price_paid_currency";
 		String PRIVATE_INFO_PRICE_PAID = "price_paid";
 		String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "current_value_currency";

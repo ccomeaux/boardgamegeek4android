@@ -169,7 +169,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 					gameValues.put(Games.MIN_PLAYERS, mParser.getAttributeValue(null, Tags.MIN_PLAYERS));
 					gameValues.put(Games.MAX_PLAYERS, mParser.getAttributeValue(null, Tags.MAX_PLAYERS));
 					gameValues.put(Games.PLAYING_TIME, mParser.getAttributeValue(null, Tags.PLAYING_TIME));
-					gameValues.put(Games.NUM_OWNED, mParser.getAttributeValue(null, Tags.NUM_OWNED));
+					gameValues.put(Games.STATS_NUMBER_OWNED, mParser.getAttributeValue(null, Tags.NUM_OWNED));
 				} else if (Tags.STATUS.equals(tag)) {
 					collectionValues.put(Collection.STATUS_OWN, mParser.getAttributeValue(null, Tags.STATUS_OWN));
 					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED,
@@ -187,6 +187,7 @@ public class RemoteCollectionHandler extends XmlHandler {
 							mParser.getAttributeValue(null, Tags.STATUS_WISHLIST_PRIORITY));
 					collectionValues.put(Collection.STATUS_PREORDERED,
 							mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
+					collectionValues.put(Collection.LAST_MODIFIED, mParser.getAttributeValue(null, Tags.LAST_MODIFIED));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -287,6 +288,8 @@ public class RemoteCollectionHandler extends XmlHandler {
 		String STATUS_WISHLIST = "wishlist";
 		String STATUS_WISHLIST_PRIORITY = "wishlistpriority";
 		String STATUS_PREORDERED = "preordered";
+
+		String LAST_MODIFIED = "lastmodified";
 
 		String NUM_PLAYS = "numplays";
 
