@@ -155,7 +155,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 			} else if (token == TOKEN_POLL_RESULTS) {
 				while (cursor.moveToNext()) {
 					final String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
-					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, key,
+					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, (key == null) ? "" : key,
 							Games.buildPollResultsResultUri(mGameId, mType, key),
 							GamePollResultsResultQuery.PROJECTION, null, null, GamePollResultsResult.DEFAULT_SORT);
 				}
