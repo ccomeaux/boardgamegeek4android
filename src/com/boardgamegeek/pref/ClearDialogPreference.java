@@ -55,11 +55,10 @@ public class ClearDialogPreference extends DialogPreference {
 
 		@Override
 		protected Void doInBackground(String... params) {
-			BggApplication.getInstance().putCollectionFullSyncTimestamp(0);
-			BggApplication.getInstance().putCollectionPartSyncTimestamp(0);
+			BggApplication.getInstance().clearSyncTimestamps();
 
 			int count = 0;
-			count += mResolver.delete(Games.CONTENT_URI, null, null); 
+			count += mResolver.delete(Games.CONTENT_URI, null, null);
 			count += mResolver.delete(Artists.CONTENT_URI, null, null);
 			count += mResolver.delete(Designers.CONTENT_URI, null, null);
 			count += mResolver.delete(Publishers.CONTENT_URI, null, null);
