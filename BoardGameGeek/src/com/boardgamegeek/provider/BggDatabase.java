@@ -42,7 +42,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_WISHLIST_PRIORITY = 2;
 	private static final int VER_GAME_COLORS = 3;
 	private static final int VER_EXPANSIONS = 4;
-	private static final int DATABASE_VERSION = VER_EXPANSIONS;
+	private static final int VER_VARIOUS = 5;
+	private static final int DATABASE_VERSION = VER_VARIOUS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -180,7 +181,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GamesColumns.MIN_PLAYERS + " INTEGER,"
 			+ GamesColumns.MAX_PLAYERS + " INTEGER,"
 			+ GamesColumns.PLAYING_TIME + " INTEGER,"
-			+ GamesColumns.NUM_OWNED + " INTEGER,"
 			+ GamesColumns.NUM_PLAYS + " INTEGER NOT NULL DEFAULT 0,"
 			+ GamesColumns.MINIMUM_AGE + " INTEGER,"
 			+ GamesColumns.DESCRIPTION + " TEXT,"
@@ -188,14 +188,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ GamesColumns.STATS_AVERAGE + " REAL,"
 			+ GamesColumns.STATS_BAYES_AVERAGE + " REAL,"
 			+ GamesColumns.STATS_STANDARD_DEVIATION + " REAL,"
-			+ GamesColumns.STATS_MEDIAN + " INT,"
-			+ GamesColumns.STATS_NUMBER_OWNED + " INT,"
-			+ GamesColumns.STATS_NUMBER_TRADING + " INT,"
-			+ GamesColumns.STATS_NUMBER_WANTING + " INT,"
-			+ GamesColumns.STATS_NUMBER_WISHING + " INT,"
-			+ GamesColumns.STATS_NUMBER_COMMENTS + " INT,"
-			+ GamesColumns.STATS_NUMBER_WEIGHTS + " INT,"
+			+ GamesColumns.STATS_MEDIAN + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_OWNED + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_TRADING + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_WANTING + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_WISHING + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_COMMENTS + " INTEGER,"
+			+ GamesColumns.STATS_NUMBER_WEIGHTS + " INTEGER,"
 			+ GamesColumns.STATS_AVERAGE_WEIGHT + " REAL,"
+			+ GamesColumns.LAST_VIEWED + " INTEGER,"
+			+ GamesColumns.STARRED + " INTEGER,"
 			+ "UNIQUE (" + GamesColumns.GAME_ID + ") ON CONFLICT REPLACE)");
 
 		db.execSQL("CREATE TABLE " + Tables.GAME_RANKS + " ("
@@ -259,6 +261,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ CollectionColumns.STATUS_WISHLIST + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.STATUS_PREORDERED + " INTEGER NOT NULL DEFAULT 0,"
 			+ CollectionColumns.COMMENT + " TEXT,"
+			+ CollectionColumns.LAST_MODIFIED + " INTEGER,"
 			+ CollectionColumns.PRIVATE_INFO_PRICE_PAID_CURRENCY + " TEXT,"
 			+ CollectionColumns.PRIVATE_INFO_PRICE_PAID + " REAL,"
 			+ CollectionColumns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY + " TEXT,"
@@ -327,7 +330,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		Log.d(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
 
 		// NOTE: This switch statement is designed to handle cascading database
 		// updates, starting at the current version and falling through to all
@@ -347,6 +350,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_GAME_COLORS:
 				createGameExpansionsTables(db, new CreateTableBuilder());
 				version = VER_EXPANSIONS;
+			case VER_EXPANSIONS:
+				db.execSQL("ALTER TABLE " + Tables.COLLECTION + " ADD COLUMN " + CollectionColumns.LAST_MODIFIED + " INTEGER");
+				db.execSQL("ALTER TABLE " + Tables.GAMES + " ADD COLUMN " + GamesColumns.LAST_VIEWED + " INTEGER");
+				db.execSQL("ALTER TABLE " + Tables.GAMES + " ADD COLUMN " + GamesColumns.STARRED + " INTEGER");
+				version = VER_VARIOUS;
 		}
 
 		if (version != DATABASE_VERSION) {
