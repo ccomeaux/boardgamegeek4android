@@ -133,15 +133,9 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				mRatingBar.setRating((float) cursor.getDouble(GameQuery.STATS_AVERAGE));
 				mNumberRatingView.setText(cursor.getInt(GameQuery.STATS_USERS_RATED) + " Ratings");
 				mYearPublishedView.setText(getYearPublished(cursor));
+				mPlayingTimeView.setText(getPlayingTime(cursor.getInt(GameQuery.PLAYING_TIME)));
 				mPlayersView.setText(getPlayerDescription(cursor));
-
-				int time = cursor.getInt(GameQuery.PLAYING_TIME);
-				mPlayingTimeView.setText(getPlayingTime(time));
-				mPlayingTimeView.setVisibility(time == 0 ? View.GONE : View.VISIBLE);
-
-				int age = cursor.getInt(GameQuery.MINIMUM_AGE);
-				mSuggestedAgesView.setText(getAge(age));
-				mSuggestedAgesView.setVisibility(age == 0 ? View.GONE : View.VISIBLE);
+				mSuggestedAgesView.setText(getAge(cursor.getInt(GameQuery.MINIMUM_AGE)));
 
 				mDescriptionView.loadDataWithBaseURL(null, cursor.getString(GameQuery.DESCRIPTION), "text/html",
 						"UTF-8", null);
