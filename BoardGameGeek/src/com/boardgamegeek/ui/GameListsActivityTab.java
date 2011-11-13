@@ -33,6 +33,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteArtistHandler;
 import com.boardgamegeek.io.RemoteDesignerHandler;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.RemotePublisherHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -65,6 +66,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_MECHANICS = 7;
 	private static final int TOKEN_CATEGORIES = 8;
 	private static final int TOKEN_EXPANSIONS = 9;
+	private static final int TOKEN_EXPANSIONS_UPDATE = 10;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
@@ -177,7 +179,10 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		removeDialog(ID_DIALOG_RESULTS);
 
 		Map<String, Object> childItem = (Map<String, Object>) mAdapter.getChild(groupPosition, childPosition);
-		if (groupPosition != GROUP_EXPANSIONS) {
+		if (groupPosition == GROUP_EXPANSIONS) {
+			String gameId = (String) childItem.get(KEY_DESCRIPTION);
+			showGame(Integer.valueOf(gameId).intValue());
+		} else {
 			mName = (String) childItem.get(KEY_NAME);
 			mDescription = (String) childItem.get(KEY_DESCRIPTION);
 			if (TextUtils.isEmpty(mDescription)) {
@@ -185,9 +190,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			} else {
 				showDialog(ID_DIALOG_RESULTS);
 			}
-		} else {
-			String gameId = (String) childItem.get(KEY_DESCRIPTION);
-			showGame(Integer.valueOf(gameId).intValue());
 		}
 		
 		return super.onChildClick(parent, v, groupPosition, childPosition, id);
@@ -273,25 +275,25 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new PublisherTask().execute(array);
 				}
-			} else if (token == TOKEN_EXPANSIONS) { // || token == TOKEN_EXPANSIONS_UPDATE) {
-//				List<Integer> ids = new ArrayList<Integer>();
+			} else if (token == TOKEN_EXPANSIONS || token == TOKEN_EXPANSIONS_UPDATE) {
+				List<Integer> ids = new ArrayList<Integer>();
 				List<ChildItem> expansions = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
-//					if (token == TOKEN_EXPANSIONS) {
-//						int id = cursor.getInt(ExpansionQuery.EXPANSION_ID);
-//						getContentResolver().registerContentObserver(uri, notifyForDescendents, observer)
-//						addId(cursor, ids, id, ExpansionQuery.UPDATED);
-//					}
-					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_NAME,
+					if (token == TOKEN_EXPANSIONS) {
+						// if this is not update make all expansions to be as items in games table
+						int id = cursor.getInt(ExpansionQuery.EXPANSION_ID);
+						ids.add(Integer.valueOf(id));
+					}
+					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_ID,
 							ExpansionQuery.EXPANSION_ID);
 				}
 				updateGroup(GROUP_EXPANSIONS, expansions);
-				
-//				if (ids.size() > 0) {
-//					Integer[] array = new Integer[ids.size()];
-//					ids.toArray(array);
-//					new PublisherTask().execute(array);
-//				}oci
+				if (ids.size() > 0) {
+					// if there are some expansions to be added to games table insert them in task
+					Integer[] array = new Integer[ids.size()];
+					ids.toArray(array);
+					new ExpansionTask().execute(array);
+				}
 			} else if (token == TOKEN_MECHANICS) {
 				List<ChildItem> mechanics = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
@@ -520,7 +522,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
+			mHandler.startQuery(TOKEN_EXPANSIONS_UPDATE, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
 					Expansions.DEFAULT_SORT);
 		}
 	}
@@ -617,6 +619,38 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			return null;
 		}
 	}
+	
+	class ExpansionTask extends AsyncTask<Integer, Void, Void> {
+
+		private HttpClient mHttpClient;
+		private RemoteExecutor mExecutor;
+
+		@Override
+		protected void onPreExecute() {
+			mHttpClient = HttpUtils.createHttpClient(GameListsActivityTab.this, true);
+			mExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
+		}
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+				Log.d(TAG, "Fetching expansions, size = " + params.length);
+				try {
+					List<String> gameIds = new ArrayList<String>();
+					for (int gameId : params) {
+						gameIds.add(String.valueOf(gameId));
+					}
+					mExecutor.executeGet(HttpUtils.constructGameUrl(gameIds), new RemoteGameHandler());
+				} catch (HandlerException e) {
+					Log.e(TAG, "Exception trying to fetch expansions", e);
+					runOnUiThread(new Runnable() {
+						public void run() {
+							showToast(R.string.msg_error_remote);
+						}
+					});
+				}
+			return null;
+		}
+	}
 
 	private void showToast(int messageId) {
 		Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
@@ -665,9 +699,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	}
 	
 	private interface ExpansionQuery {
-		String[] PROJECTION = { Expansions.EXPANSION_ID, Expansions.EXPANSION_NAME };
-		
-		int EXPANSION_ID = 0;
-		int EXPANSION_NAME = 1;
+		String[] PROJECTION = { Games.GAME_ID, Expansions.EXPANSION_ID };
+
+		int EXPANSION_ID = 1;
 	}
 }

@@ -85,13 +85,11 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_COLORS = 111;
 	private static final int GAMES_ID_COLORS_NAME = 1110;
 	private static final int GAMES_ID_EXPANSIONS = 112;
-	private static final int GAMES_ID_EXPANSIONS_ID = 1120;
 	private static final int GAMES_DESIGNERS_ID = 401;
 	private static final int GAMES_ARTISTS_ID = 403;
 	private static final int GAMES_PUBLISHERS_ID = 405;
 	private static final int GAMES_MECHANICS_ID = 407;
 	private static final int GAMES_CATEGORIES_ID = 409;
-	private static final int GAMES_EXPANSIONS_ID = 410;
 	private static final int DESIGNERS = 301;
 	private static final int DESIGNERS_ID = 302;
 	private static final int ARTISTS = 303;
@@ -102,8 +100,6 @@ public class BggProvider extends ContentProvider {
 	private static final int MECHANICS_ID = 308;
 	private static final int CATEGORIES = 309;
 	private static final int CATEGORIES_ID = 310;
-	private static final int EXPANSIONS = 311;
-	private static final int EXPANSIONS_ID = 312;
 	private static final int COLLECTION = 200;
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
@@ -131,7 +127,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/categories", GAMES_ID_CATEGORIES);
 		matcher.addURI(authority, "games/#/categories/#", GAMES_ID_CATEGORIES_ID);
 		matcher.addURI(authority, "games/#/expansions", GAMES_ID_EXPANSIONS);
-		matcher.addURI(authority, "games/#/expansions/#", GAMES_ID_EXPANSIONS_ID);
 		matcher.addURI(authority, "games/#/polls", GAMES_ID_POLLS);
 		matcher.addURI(authority, "games/#/polls/*", GAMES_ID_POLLS_NAME);
 		matcher.addURI(authority, "games/#/polls/*/results", GAMES_ID_POLLS_NAME_RESULTS);
@@ -143,7 +138,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/publishers/#", GAMES_PUBLISHERS_ID);
 		matcher.addURI(authority, "games/mechanics/#", GAMES_MECHANICS_ID);
 		matcher.addURI(authority, "games/categories/#", GAMES_CATEGORIES_ID);
-		matcher.addURI(authority, "games/expansions/#", GAMES_EXPANSIONS_ID);
 		matcher.addURI(authority, "games/#/colors", GAMES_ID_COLORS);
 		matcher.addURI(authority, "games/#/colors/*", GAMES_ID_COLORS_NAME);
 		matcher.addURI(authority, "designers", DESIGNERS);
@@ -156,8 +150,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "mechanics/#", MECHANICS_ID);
 		matcher.addURI(authority, "categories", CATEGORIES);
 		matcher.addURI(authority, "categories/#", CATEGORIES_ID);
-		matcher.addURI(authority, "expansions", EXPANSIONS);
-		matcher.addURI(authority, "expansions/#", EXPANSIONS_ID);
 		matcher.addURI(authority, "collection", COLLECTION);
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
@@ -252,8 +244,6 @@ public class BggProvider extends ContentProvider {
 				return Categories.CONTENT_ITEM_TYPE;
 			case GAMES_ID_EXPANSIONS:
 				return Expansions.CONTENT_TYPE;
-			case GAMES_ID_EXPANSIONS_ID:
-				return Expansions.CONTENT_ITEM_TYPE;
 			case GAMES_ID_COLORS:
 				return GameColors.CONTENT_TYPE;
 			case GAMES_ID_COLORS_NAME:
@@ -268,8 +258,6 @@ public class BggProvider extends ContentProvider {
 				return Mechanics.CONTENT_ITEM_TYPE;
 			case GAMES_CATEGORIES_ID:
 				return Categories.CONTENT_ITEM_TYPE;
-			case GAMES_EXPANSIONS_ID:
-				return Expansions.CONTENT_ITEM_TYPE;
 			case DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case DESIGNERS_ID:
@@ -288,10 +276,6 @@ public class BggProvider extends ContentProvider {
 				return Categories.CONTENT_TYPE;
 			case CATEGORIES_ID:
 				return Categories.CONTENT_ITEM_TYPE;
-			case EXPANSIONS:
-				return Expansions.CONTENT_TYPE;
-			case EXPANSIONS_ID:
-				return Expansions.CONTENT_ITEM_TYPE;
 			case PUBLISHERS_ID:
 				return Publishers.CONTENT_ITEM_TYPE;
 			case COLLECTION:
@@ -506,11 +490,6 @@ public class BggProvider extends ContentProvider {
 				newUri = Categories.buildCategoryUri(values.getAsInteger(Categories.CATEGORY_ID));
 				break;
 			}
-			case EXPANSIONS: {
-				rowId = db.insertOrThrow(Tables.EXPANSIONS, null, values);
-				newUri = Expansions.buildExpansionUri(values.getAsInteger(Expansions.EXPANSION_ID));
-				break;
-			}
 			case COLLECTION: {
 				rowId = db.insertOrThrow(Tables.COLLECTION, null, values);
 				newUri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
@@ -718,12 +697,6 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_EXPANSIONS).where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId));
 			}
-			case GAMES_ID_EXPANSIONS_ID: {
-				final int gameId = Games.getGameId(uri);
-				final long expansionId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS).where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId))
-						.where(GamesExpansions.EXPANSION_ID + "=?", String.valueOf(expansionId));
-			}
 			case GAMES_DESIGNERS_ID: {
 				final long id = ContentUris.parseId(uri);
 				return builder.table(Tables.GAMES_DESIGNERS).where(BaseColumns._ID + "=?", String.valueOf(id));
@@ -743,10 +716,6 @@ public class BggProvider extends ContentProvider {
 			case GAMES_CATEGORIES_ID: {
 				final long id = ContentUris.parseId(uri);
 				return builder.table(Tables.GAMES_CATEGORIES).where(BaseColumns._ID + "=?", String.valueOf(id));
-			}
-			case GAMES_EXPANSIONS_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case GAMES_ID_COLORS: {
 				final int gameId = Games.getGameId(uri);
@@ -782,11 +751,6 @@ public class BggProvider extends ContentProvider {
 			case CATEGORIES_ID:
 				final int categoryId = Categories.getCategoryId(uri);
 				return builder.table(Tables.CATEGORIES).where(Categories.CATEGORY_ID + "=?", String.valueOf(categoryId));
-			case EXPANSIONS:
-				return builder.table(Tables.EXPANSIONS);
-			case EXPANSIONS_ID:
-				final int expansionId = Expansions.getExpansionId(uri);
-				return builder.table(Tables.EXPANSIONS).where(Expansions.EXPANSION_ID + "=?", String.valueOf(expansionId));
 			case COLLECTION:
 				return builder.table(Tables.COLLECTION);
 			case COLLECTION_ID:
@@ -903,9 +867,9 @@ public class BggProvider extends ContentProvider {
 			}
 			case GAMES_ID_EXPANSIONS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
-					.mapToTable(Expansions._ID, Tables.EXPANSIONS)
-					.mapToTable(Expansions.EXPANSION_ID, Tables.EXPANSIONS)
+				return builder.table(Tables.GAMES_EXPANSIONS)
+					.mapToTable(Expansions._ID, Tables.GAMES_EXPANSIONS)
+					.mapToTable(Expansions.EXPANSION_ID, Tables.GAMES_EXPANSIONS)
 					.where(Qualified.GAMES_EXPANSIONS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS: {
