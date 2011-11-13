@@ -83,9 +83,9 @@ public class BggContract {
 		String CATEGORY_NAME = "category_name";
 	}
 	
-	interface ExpansionsColumns {
+	interface GamesExpansionsColumns {
+		String GAME_ID = "game_id";
 		String EXPANSION_ID = "expansion_id";
-		String EXPANSION_NAME = "expansion_name";
 	}
 
 	interface CollectionColumns {
@@ -447,13 +447,13 @@ public class BggContract {
 		}
 	}
 	
-	public static class Expansions implements ExpansionsColumns, BaseColumns {
-		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_EXPANSIONS).build();
+	public static class Expansions implements GamesExpansionsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_EXPANSIONS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.expansion";
 
-		public static final String DEFAULT_SORT = ExpansionsColumns.EXPANSION_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = GamesExpansionsColumns.GAME_ID + " COLLATE NOCASE ASC";
 
 		public static Uri buildExpansionUri(int expansionId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(expansionId)).build();

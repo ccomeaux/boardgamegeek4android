@@ -21,7 +21,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.Expansions;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
@@ -103,7 +102,7 @@ public class RemoteGameHandler extends XmlHandler {
 		mPublisherIds = getIds(Games.buildPublishersUri(mGameId), Publishers.PUBLISHER_ID);
 		mMechanicIds = getIds(Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
 		mCategoryIds = getIds(Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
-		mExpansionIds = getIds(Games.buildExpansionsUri(mGameId), Expansions.EXPANSION_ID);
+		mExpansionIds = getIds(Games.buildExpansionsUri(mGameId), GamesExpansions.EXPANSION_ID);
 		mPollNames = getPollNames();
 	}
 
@@ -512,20 +511,9 @@ public class RemoteGameHandler extends XmlHandler {
 	private void parseExpansion() throws XmlPullParserException, IOException {
 		ContentValues values = new ContentValues();
 		final int expansionId = parseIntegerAttribute(Tags.ID);
-		values.put(Expansions.EXPANSION_ID, expansionId);
-
-		final int depth = mParser.getDepth();
-		int type;
-		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
-			if (type == TEXT) {
-				values.put(Expansions.EXPANSION_NAME, mParser.getText());
-			}
-		}
 
 		if (!mExpansionIds.remove(new Integer(expansionId))) {
-			mResolver.insert(Expansions.CONTENT_URI, values);
-
-			values.clear();
+			
 			values.put(GamesExpansions.GAME_ID, mGameId);
 			values.put(GamesExpansions.EXPANSION_ID, expansionId);
 			mResolver.insert(Games.buildExpansionsUri(mGameId), values);
