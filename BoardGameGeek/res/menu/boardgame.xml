@@ -1,38 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/log_play"
-		android:title="@string/menu_log_play"
-		android:icon="@drawable/ic_menu_compose" />
-	<item android:id="@+id/log_play_quick"
-		android:title="@string/menu_log_play_quick"
-		android:icon="@drawable/ic_menu_agenda" />
-	<item android:id="@+id/comments"
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item
+		android:id="@+id/log_play"
+		android:icon="@drawable/ic_menu_compose"
+		android:title="@string/menu_log_play"/>
+
+	<item
+		android:id="@+id/log_play_quick"
+		android:icon="@drawable/ic_menu_agenda"
+		android:title="@string/menu_log_play_quick"/>
+
+	<item
+		android:id="@+id/comments"
 		android:icon="@drawable/ic_menu_comments"
-		android:title="@string/menu_comments" />
-	<item android:id="@+id/forums"
+		android:title="@string/menu_comments"/>
+
+	<item
+		android:id="@+id/forums"
 		android:icon="@drawable/ic_menu_allfriends"
-		android:title="@string/menu_forums" />
-	<item android:id="@+id/links"
-		android:title="@string/menu_links"
-		android:icon="@drawable/ic_menu_link">
-		<menu>
-			<item android:id="@+id/menu_bgg" 
-				android:title="@string/menu_link_bgg" />
-			<item android:id="@+id/menu_bg_prices" 
-				android:title="@string/menu_link_bg_prices" />
-			<item android:id="@+id/menu_amazon" 
-				android:title="@string/menu_link_amazon" />
-			<item android:id="@+id/menu_ebay"
-				android:title="@string/menu_link_ebay" />
-		</menu>
-	</item>
-	<item android:id="@+id/share"
-		android:title="@string/menu_share"
-		android:icon="@android:drawable/ic_menu_share" />
-	<item android:id="@+id/colors"
-		android:title="@string/menu_color"
-		android:icon="@drawable/ic_menu_friendslist" />
-	<item android:id="@+id/refresh"
-		android:title="@string/menu_refresh"
-		android:icon="@drawable/ic_menu_refresh" />
+		android:title="@string/menu_forums"/>
+
+	<item
+		android:id="@+id/links"
+		android:icon="@drawable/ic_menu_link"
+		android:title="@string/menu_links">
+<menu >
+
+			<item
+				android:id="@+id/menu_bgg"
+				android:title="@string/menu_link_bgg"/>
+
+			<item
+				android:id="@+id/menu_bg_prices"
+				android:title="@string/menu_link_bg_prices"/>
+
+			<item
+				android:id="@+id/menu_amazon"
+				android:title="@string/menu_link_amazon"/>
+
+			<item
+				android:id="@+id/menu_ebay"
+				android:title="@string/menu_link_ebay"/>
+		</menu></item>
+
+	<item
+		android:id="@+id/share"
+		android:icon="@android:drawable/ic_menu_share"
+		android:title="@string/menu_share"/>
+
+	<item
+		android:id="@+id/shortcut"
+		android:title="@string/menu_create_shortcut"/>
+
+	<item
+		android:id="@+id/colors"
+		android:icon="@drawable/ic_menu_friendslist"
+		android:title="@string/menu_color"/>
+
+	<item
+		android:id="@+id/refresh"
+		android:icon="@drawable/ic_menu_refresh"
+		android:title="@string/menu_refresh"/>
+
 </menu>
