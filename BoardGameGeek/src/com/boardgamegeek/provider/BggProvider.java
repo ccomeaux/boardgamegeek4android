@@ -28,7 +28,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.Expansions;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
@@ -42,7 +42,6 @@ import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
-import com.boardgamegeek.provider.BggDatabase.GamesExpansions;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.provider.BggDatabase.Tables;
@@ -51,8 +50,7 @@ import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
 	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = true; // Log.isLoggable(TAG,
-												// Log.VERBOSE);
+	private static final boolean LOGV = Log.isLoggable(TAG, Log.VERBOSE);
 
 	private BggDatabase mOpenHelper;
 
@@ -186,7 +184,7 @@ public class BggProvider extends ContentProvider {
 		String GAMES_PUBLISHERS_GAME_ID = Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID;
 		String GAMES_MECHANICS_GAME_ID = Tables.GAMES_MECHANICS + "." + GamesMechanics.GAME_ID;
 		String GAMES_CATEGORIES_GAME_ID = Tables.GAMES_CATEGORIES + "." + GamesCategories.GAME_ID;
-		String GAMES_EXPANSIONS_GAME_ID = Tables.GAMES_EXPANSIONS + "." + GamesExpansions.GAME_ID;
+		String GAMES_EXPANSIONS_GAME_ID = Tables.GAMES_EXPANSIONS + "." + Games.GAME_ID;
 	}
 
 	@Override
@@ -243,7 +241,7 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID_CATEGORIES_ID:
 				return Categories.CONTENT_ITEM_TYPE;
 			case GAMES_ID_EXPANSIONS:
-				return Expansions.CONTENT_TYPE;
+				return GamesExpansions.CONTENT_TYPE;
 			case GAMES_ID_COLORS:
 				return GameColors.CONTENT_TYPE;
 			case GAMES_ID_COLORS_NAME:
@@ -695,7 +693,7 @@ public class BggProvider extends ContentProvider {
 			}
 			case GAMES_ID_EXPANSIONS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS).where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId));
+				return builder.table(Tables.GAMES_EXPANSIONS).where(Games.GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_DESIGNERS_ID: {
 				final long id = ContentUris.parseId(uri);
@@ -867,9 +865,9 @@ public class BggProvider extends ContentProvider {
 			}
 			case GAMES_ID_EXPANSIONS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS)
-					.mapToTable(Expansions._ID, Tables.GAMES_EXPANSIONS)
-					.mapToTable(Expansions.EXPANSION_ID, Tables.GAMES_EXPANSIONS)
+				return builder.table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
+					.mapToTable(GamesExpansions._ID, Tables.GAMES_EXPANSIONS)
+					.mapToTable(GamesExpansions.GAME_ID, Tables.GAMES_EXPANSIONS)
 					.where(Qualified.GAMES_EXPANSIONS_GAME_ID + "=?", String.valueOf(gameId));
 			}
 			case GAMES_ID_POLLS_NAME_RESULTS: {
@@ -917,6 +915,7 @@ public class BggProvider extends ContentProvider {
 				db.delete(Tables.GAMES_PUBLISHERS, Games.GAME_ID + "=?", gameArg);
 				db.delete(Tables.GAMES_MECHANICS, Games.GAME_ID + "=?", gameArg);
 				db.delete(Tables.GAMES_CATEGORIES, Games.GAME_ID + "=?", gameArg);
+				db.delete(Tables.GAMES_EXPANSIONS, Games.GAME_ID + "=?", gameArg);
 				db.delete(Tables.GAME_POLL_RESULTS_RESULT,
 					"pollresults_id IN (SELECT game_poll_results._id from game_poll_results WHERE game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?))",
 					gameArg);
@@ -930,4 +929,4 @@ public class BggProvider extends ContentProvider {
 		}
 	}
 }
-// TODO: improve the magical where clauses with table and column constants - this should improve performance
+// TODO: improve the magical WHERE clauses with table and column constants - this should improve performance

@@ -33,13 +33,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteArtistHandler;
 import com.boardgamegeek.io.RemoteDesignerHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.RemotePublisherHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.Expansions;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
@@ -66,7 +65,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_MECHANICS = 7;
 	private static final int TOKEN_CATEGORIES = 8;
 	private static final int TOKEN_EXPANSIONS = 9;
-	private static final int TOKEN_EXPANSIONS_UPDATE = 10;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
@@ -169,7 +167,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
 				Categories.DEFAULT_SORT);
 		mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
-				Expansions.DEFAULT_SORT);
+				GamesExpansions.DEFAULT_SORT);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -179,19 +177,21 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		removeDialog(ID_DIALOG_RESULTS);
 
 		Map<String, Object> childItem = (Map<String, Object>) mAdapter.getChild(groupPosition, childPosition);
+		mName = (String) childItem.get(KEY_NAME);
+		mDescription = (String) childItem.get(KEY_DESCRIPTION);
 		if (groupPosition == GROUP_EXPANSIONS) {
-			String gameId = (String) childItem.get(KEY_DESCRIPTION);
-			showGame(Integer.valueOf(gameId).intValue());
+			Uri gameUri = Games.buildGameUri(Integer.valueOf(mDescription).intValue());
+			Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
+			intent.putExtra(BoardgameActivity.KEY_GAME_NAME, mName);
+			startActivity(intent);
 		} else {
-			mName = (String) childItem.get(KEY_NAME);
-			mDescription = (String) childItem.get(KEY_DESCRIPTION);
 			if (TextUtils.isEmpty(mDescription)) {
 				showToast(R.string.msg_no_description);
 			} else {
 				showDialog(ID_DIALOG_RESULTS);
 			}
 		}
-		
+
 		return super.onChildClick(parent, v, groupPosition, childPosition, id);
 	}
 
@@ -275,25 +275,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					ids.toArray(array);
 					new PublisherTask().execute(array);
 				}
-			} else if (token == TOKEN_EXPANSIONS || token == TOKEN_EXPANSIONS_UPDATE) {
-				List<Integer> ids = new ArrayList<Integer>();
+			} else if (token == TOKEN_EXPANSIONS) {
 				List<ChildItem> expansions = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
-					if (token == TOKEN_EXPANSIONS) {
-						// if this is not update make all expansions to be as items in games table
-						int id = cursor.getInt(ExpansionQuery.EXPANSION_ID);
-						ids.add(Integer.valueOf(id));
-					}
-					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_ID,
-							ExpansionQuery.EXPANSION_ID);
+					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
 				}
 				updateGroup(GROUP_EXPANSIONS, expansions);
-				if (ids.size() > 0) {
-					// if there are some expansions to be added to games table insert them in task
-					Integer[] array = new Integer[ids.size()];
-					ids.toArray(array);
-					new ExpansionTask().execute(array);
-				}
 			} else if (token == TOKEN_MECHANICS) {
 				List<ChildItem> mechanics = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
@@ -408,11 +395,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			childMap.put(KEY_DESCRIPTION, child.Description);
 		}
 	}
-	
-	private void showGame(final int gameId) {
-		final Uri gameUri = Games.buildGameUri(gameId);
-		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
-	}
 
 	class ChildItem {
 		String Name;
@@ -514,16 +496,16 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					Categories.DEFAULT_SORT);
 		}
 	}
-	
+
 	class ExpansionsObserver extends ContentObserver {
 		public ExpansionsObserver(Handler handler) {
 			super(handler);
 		}
-		
+
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_EXPANSIONS_UPDATE, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
-					Expansions.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
+					GamesExpansions.DEFAULT_SORT);
 		}
 	}
 
@@ -619,38 +601,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 			return null;
 		}
 	}
-	
-	class ExpansionTask extends AsyncTask<Integer, Void, Void> {
-
-		private HttpClient mHttpClient;
-		private RemoteExecutor mExecutor;
-
-		@Override
-		protected void onPreExecute() {
-			mHttpClient = HttpUtils.createHttpClient(GameListsActivityTab.this, true);
-			mExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
-		}
-
-		@Override
-		protected Void doInBackground(Integer... params) {
-				Log.d(TAG, "Fetching expansions, size = " + params.length);
-				try {
-					List<String> gameIds = new ArrayList<String>();
-					for (int gameId : params) {
-						gameIds.add(String.valueOf(gameId));
-					}
-					mExecutor.executeGet(HttpUtils.constructGameUrl(gameIds), new RemoteGameHandler());
-				} catch (HandlerException e) {
-					Log.e(TAG, "Exception trying to fetch expansions", e);
-					runOnUiThread(new Runnable() {
-						public void run() {
-							showToast(R.string.msg_error_remote);
-						}
-					});
-				}
-			return null;
-		}
-	}
 
 	private void showToast(int messageId) {
 		Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
@@ -697,10 +647,11 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		int CATEGORY_NAME = 0;
 	}
-	
-	private interface ExpansionQuery {
-		String[] PROJECTION = { Games.GAME_ID, Expansions.EXPANSION_ID };
 
-		int EXPANSION_ID = 1;
+	private interface ExpansionQuery {
+		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME };
+
+		int EXPANSION_ID = 0;
+		int EXPANSION_NAME = 1;
 	}
 }
