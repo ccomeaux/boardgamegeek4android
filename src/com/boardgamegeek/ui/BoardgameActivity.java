@@ -226,6 +226,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		enableMenuItem(menu, R.id.log_play_quick);
 		enableMenuItem(menu, R.id.links);
 		enableMenuItem(menu, R.id.share);
+		enableMenuItem(menu, R.id.shortcut);
 		enableMenuItem(menu, R.id.colors);
 		enableMenuItem(menu, R.id.refresh);
 
@@ -272,6 +273,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				return true;
 			case R.id.share:
 				ActivityUtils.shareGame(this, mId, mName);
+				return true;
+			case R.id.shortcut:
+				Intent shortcut = ActivityUtils.createShortcut(this, mId, mName, mThumbnailUrl);
+				sendBroadcast(shortcut);
 				return true;
 			case R.id.comments:
 				ActivityUtils.showComments(this, mId, mName, mThumbnailUrl);

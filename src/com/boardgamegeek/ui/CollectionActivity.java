@@ -58,6 +58,7 @@ import com.boardgamegeek.util.UIUtils;
 public class CollectionActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
 	private static final String TAG = "CollectionActivity";
 
+	private static final String KEY_FILTERS = "FILTERS";
 	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
@@ -66,6 +67,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
 	private ThumbnailTask mThumbnailTask;
 	private TextView mInfoView;
+	private boolean mShortcut;
 
 	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
@@ -87,7 +89,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		setContentView(R.layout.activity_collection);
 
 		UIUtils.setTitle(this);
-		UIUtils.allowTypeToSearch(this);
 		mInfoView = (TextView) findViewById(R.id.collection_info);
 		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filterLinearLayout);
 		mFastScrollLetter = (TextView) findViewById(R.id.fast_scroll_letter);
@@ -98,11 +99,17 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);
 
-		mUri = getIntent().getData();
+		if (getIntent().getAction().equals("android.intent.action.CREATE_SHORTCUT")) {
+			mShortcut = true;
+			mUri = Collection.CONTENT_URI;
+		} else {
+			mUri = getIntent().getData();
+			UIUtils.allowTypeToSearch(this);
+		}
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 
 		if (savedInstanceState != null) {
-			mFilters = savedInstanceState.getParcelableArrayList("FILTERS");
+			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
 		}
 		applyFilters();
 
@@ -133,7 +140,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putParcelableArrayList("FILTERS", (ArrayList<? extends Parcelable>) mFilters);
+		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 	}
 
 	@Override
@@ -153,6 +160,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		if (mShortcut) {
+			return false;
+		}
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.collection, menu);
 		return true;
@@ -188,6 +198,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		if (mShortcut) {
+			return;
+		}
+
 		AdapterView.AdapterContextMenuInfo info;
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
@@ -385,7 +399,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		showGame(cursor.getInt(Query.GAME_ID));
+		if (mShortcut) {
+			Intent shortcut = ActivityUtils.createShortcut(this, cursor.getInt(Query.GAME_ID),
+					cursor.getString(Query.COLLECTION_NAME), cursor.getString(Query.THUMBNAIL_URL));
+			setResult(RESULT_OK, shortcut);
+			finish();
+		} else {
+			showGame(cursor.getInt(Query.GAME_ID));
+		}
 	}
 
 	private void showGame(final int gameId) {

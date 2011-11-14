@@ -5,9 +5,13 @@ import java.net.URLEncoder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.BoardgameActivity;
 import com.boardgamegeek.ui.CommentsActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
@@ -61,5 +65,24 @@ public class ActivityUtils {
 		intent.putExtra(CommentsActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(CommentsActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
+	}
+
+	public static Intent createShortcut(Context context, int gameId, String gameName, String iconUrl) {
+		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
+		intent.putExtra(BoardgameActivity.KEY_GAME_NAME, gameName);
+
+		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, gameName);
+
+		BitmapDrawable d = (BitmapDrawable) ImageCache.getDrawableFromCache(iconUrl);
+		if (d == null) {
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+					Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
+		} else {
+			Bitmap icon = Bitmap.createScaledBitmap(d.getBitmap(), 128, 128, true);
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
+		}
+		return shortcut;
 	}
 }

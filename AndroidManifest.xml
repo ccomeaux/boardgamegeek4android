@@ -10,6 +10,7 @@
 
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
 	<application
 		android:icon="@drawable/ic_launcher"
@@ -38,6 +39,17 @@
 				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.collection" />
 			</intent-filter>
 		</activity>
+		<activity-alias
+			android:label="@string/title_boardgame"
+			android:name="CreateShortcutActivity"
+			android:targetActivity=".ui.CollectionActivity"
+			android:theme="@style/Theme.Bgg" >
+			<intent-filter >
+				<action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity-alias>
 		<activity
 			android:label="@string/title_hotness"
 			android:name=".ui.HotnessActivity"
