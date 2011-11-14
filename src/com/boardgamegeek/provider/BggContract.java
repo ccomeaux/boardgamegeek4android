@@ -84,8 +84,9 @@ public class BggContract {
 	}
 	
 	interface GamesExpansionsColumns {
-		String GAME_ID = "game_id";
 		String EXPANSION_ID = "expansion_id";
+		String EXPANSION_NAME = "expansion_name";
+		String INBOUND = "inbound";
 	}
 
 	interface CollectionColumns {
@@ -243,18 +244,18 @@ public class BggContract {
 			return getUriBuilder(gameId, PATH_CATEGORIES, categoryId).build();
 		}
 		
+		public static Uri buildCategoryUri(long rowId) {
+			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(String.valueOf(rowId)).build();
+		}
+
 		public static Uri buildExpansionsUri(int gameId) {
 			return getUriBuilder(gameId, PATH_EXPANSIONS).build();
 		}
-		
+
 		public static Uri buildExpansionsUri(int gameId, int expansionId) {
 			return getUriBuilder(gameId, PATH_EXPANSIONS, expansionId).build();
 		}
 
-		public static Uri buildCategoryUri(long rowId) {
-			return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(String.valueOf(rowId)).build();
-		}
-		
 		public static Uri buildExpansionUri(long rowId) {
 			return getUriBuilder().appendPath(PATH_EXPANSIONS).appendPath(String.valueOf(rowId)).build();
 		}
@@ -447,21 +448,13 @@ public class BggContract {
 		}
 	}
 	
-	public static class Expansions implements GamesExpansionsColumns, BaseColumns {
+	public static class GamesExpansions implements GamesExpansionsColumns, GamesColumns, BaseColumns {
 		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_EXPANSIONS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.expansion";
 
-		public static final String DEFAULT_SORT = GamesExpansionsColumns.GAME_ID + " COLLATE NOCASE ASC";
-
-		public static Uri buildExpansionUri(int expansionId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(expansionId)).build();
-		}
-
-		public static int getExpansionId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
-		}
+		public static final String DEFAULT_SORT = GamesExpansionsColumns.EXPANSION_NAME + " COLLATE NOCASE ASC";
 	}
 
 	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
