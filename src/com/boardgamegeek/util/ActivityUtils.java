@@ -6,7 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import com.boardgamegeek.R;
@@ -80,9 +87,49 @@ public class ActivityUtils {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
 					Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
 		} else {
-			Bitmap icon = Bitmap.createScaledBitmap(d.getBitmap(), 128, 128, true);
+			Bitmap croppedBitmap = cropBitmap(d);
+
+			// load and size bezel drawables
+			Rect bounds = new Rect(0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
+			Drawable maskDrawable = context.getResources().getDrawable(R.drawable.bezel_mask);
+			maskDrawable.setBounds(bounds);
+			Drawable borderDrawable = context.getResources().getDrawable(R.drawable.bezel_border);
+			borderDrawable.setBounds(bounds);
+
+			// setup paints
+			Paint copyPaint = new Paint();
+			Paint maskedPaint = new Paint();
+			maskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
+
+			// create composite bitmap
+			Bitmap compositeBitmap = Bitmap.createBitmap(croppedBitmap.getWidth(), croppedBitmap.getHeight(),
+					Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(compositeBitmap);
+
+			// assemble bitmaps
+			RectF boundsF = new RectF(bounds);
+			int sc = canvas.saveLayer(boundsF, copyPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
+					| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
+			maskDrawable.draw(canvas);
+			canvas.saveLayer(boundsF, maskedPaint, 0);
+			canvas.drawBitmap(croppedBitmap, 0, 0, copyPaint);
+			canvas.restoreToCount(sc);
+			borderDrawable.draw(canvas);
+
+			Bitmap icon = Bitmap.createScaledBitmap(compositeBitmap, 128, 128, true);
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
 		}
 		return shortcut;
+	}
+
+	private static Bitmap cropBitmap(BitmapDrawable d) {
+		Bitmap b = d.getBitmap();
+		int w = b.getWidth();
+		int h = b.getHeight();
+		int min = Math.min(w, h);
+		int x = (w - min) / 2;
+		int y = (h - min) / 2;
+		Bitmap croppedBitmap = Bitmap.createBitmap(b, x, y, min, min);
+		return croppedBitmap;
 	}
 }
