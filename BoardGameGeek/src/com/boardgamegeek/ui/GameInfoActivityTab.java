@@ -66,8 +66,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	protected void onStart() {
 		super.onStart();
 		final ContentResolver cr = getContentResolver();
-		cr.registerContentObserver(mGameUri, true, mGameObserver);
-		cr.registerContentObserver(mGameUri, true, mRankObserver);
+		cr.registerContentObserver(mGameUri, false, mGameObserver);
+		cr.registerContentObserver(mGameUri, false, mRankObserver);
 	}
 
 	@Override
