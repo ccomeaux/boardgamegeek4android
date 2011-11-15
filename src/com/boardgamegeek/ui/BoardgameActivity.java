@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import org.apache.http.client.HttpClient;
 
 import android.app.TabActivity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -67,6 +68,8 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		extractIntentInfo();
 		setUiVariables();
 		setupTabs();
+
+		updateLastViewed();
 
 		mShouldRetry = true;
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
@@ -201,6 +204,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				.inflate(R.layout.tab_indicator, getTabWidget(), false);
 		indicator.setText(textRes);
 		return indicator;
+	}
+
+	private void updateLastViewed() {
+		ContentValues values = new ContentValues();
+		values.put(Games.LAST_VIEWED, System.currentTimeMillis());
+		getContentResolver().update(mGameUri, values, null, null);
 	}
 
 	private void showLoadingMessage() {
