@@ -122,7 +122,15 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:text="ID: 4132"
+			android:textColor="@color/light_text"
+			android:textSize="@dimen/text_size_tiny" />
+
+		<TextView
+			android:id="@+id/updated"
+			style="@style/game_info"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
 			android:textColor="@color/light_text"
 			android:textSize="@dimen/text_size_tiny" />
 	</LinearLayout>

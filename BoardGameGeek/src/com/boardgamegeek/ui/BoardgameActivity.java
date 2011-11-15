@@ -37,7 +37,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	private static final String TAG = "BoardgameActivity";
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final int HELP_VERSION = 3;
+	private static final int HELP_VERSION = 4;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final long REFRESH_THROTTLE_IN_HOURS = 1;
 	private static final int TOKEN_POLL = 1;
