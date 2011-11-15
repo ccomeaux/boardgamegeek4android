@@ -172,6 +172,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem mi = menu.findItem(R.id.menu_collection_filter_clear);
 		mi.setEnabled(mFilters != null && mFilters.size() > 0);
+
+		mi = menu.findItem(R.id.menu_collection_random_game);
+		mi.setEnabled(getListAdapter().getCount() > 0);
+
 		return super.onPrepareOptionsMenu(menu);
 	}
 

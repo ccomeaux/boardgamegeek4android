@@ -41,7 +41,7 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		}
 		name(getDisplayText() + " " + r.getString(R.string.players));
 		if (mExact) {
-			name(r.getString(R.string.exactly) + getDisplayText());
+			name(r.getString(R.string.exactly) + " " + getDisplayText());
 		}
 	}
 
