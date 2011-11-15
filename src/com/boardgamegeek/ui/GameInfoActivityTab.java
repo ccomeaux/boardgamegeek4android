@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -47,6 +48,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private TextView mPlayingTimeView;
 	private TextView mSuggestedAgesView;
 	private TextView mIdView;
+	private TextView mUpdatedView;
 	private WebView mDescriptionView;
 
 	@Override
@@ -96,6 +98,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mPlayingTimeView = (TextView) findViewById(R.id.playing_time);
 		mSuggestedAgesView = (TextView) findViewById(R.id.suggested_ages);
 		mIdView = (TextView) findViewById(R.id.game_id);
+		mUpdatedView = (TextView) findViewById(R.id.updated);
 		mDescriptionView = (WebView) findViewById(R.id.description);
 		WebSettings webSettings = mDescriptionView.getSettings();
 		webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
@@ -142,6 +145,16 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 				mIdView.setText(String.format(getResources().getString(R.string.id_list_text),
 						cursor.getString(GameQuery.GAME_ID)));
+
+				long updated = cursor.getLong(GameQuery.UPDATED);
+				if (updated == 0) {
+					mUpdatedView.setVisibility(View.GONE);
+				} else {
+					mUpdatedView.setVisibility(View.VISIBLE);
+					CharSequence u = DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
+							DateUtils.MINUTE_IN_MILLIS);
+					mUpdatedView.setText(getResources().getString(R.string.updated) + " " + u);
+				}
 			} else if (token == TOKEN_RANK) {
 				setRank(cursor);
 			} else {
@@ -233,7 +246,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 	private interface GameQuery {
 		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
-				Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED, };
+				Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
+				Games.UPDATED };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -244,6 +258,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		int MINIMUM_AGE = 6;
 		int DESCRIPTION = 7;
 		int STATS_USERS_RATED = 8;
+		int UPDATED = 9;
 	}
 
 	private interface RankQuery {
