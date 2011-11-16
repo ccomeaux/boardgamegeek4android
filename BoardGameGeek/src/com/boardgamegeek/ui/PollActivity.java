@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -163,16 +165,23 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				PlayerNumberRow pnr = new PlayerNumberRow(this);
 				String key = cookie.toString();
 				if ("X".equals(key)) {
-					int[] colors = CreateColors(cursor.getCount());
-					int colorIndex = 0;
 					mKeyCount = 0;
+					ArrayList<SuggestedAgesElement> suggestedAgesList = new ArrayList<SuggestedAgesElement>();
 					while (cursor.moveToNext()) {
 						String value = cursor.getString(GamePollResultsResultQuery.POLL_RESULTS_VALUE.ordinal());
 						int votes = cursor.getInt(GamePollResultsResultQuery.POLL_RESULTS_VOTES.ordinal());
-						mPieChart.addSlice(votes, colors[colorIndex]);
-						addKeyRow(colors[colorIndex], value, String.valueOf(votes));
+						if (votes > 0) {
+							suggestedAgesList.add(new SuggestedAgesElement(value, votes));
+						}
+					}
+					int[] colors = CreateColors(suggestedAgesList.size());
+					int colorIndex = 0;
+					for (SuggestedAgesElement suggestedAgesElement : suggestedAgesList) {
+						mPieChart.addSlice(suggestedAgesElement.votes, colors[colorIndex]);
+						addKeyRow(colors[colorIndex], suggestedAgesElement.value, String.valueOf(suggestedAgesElement.votes));
 						colorIndex++;
 					}
+					
 					mPieChart.setVisibility(View.VISIBLE);
 				} else {
 					pnr.setText(key);
@@ -264,6 +273,16 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 
 	private void addKeyRow(int color, CharSequence text) {
 		addKeyRow(color, text, null);
+	}
+	
+	private class SuggestedAgesElement {
+		CharSequence value;
+		int votes;
+		
+		SuggestedAgesElement(CharSequence value, int votes) {
+			this.value = value;
+			this.votes = votes;
+		}
 	}
 
 	private ContentObserver mPollObserver = new ContentObserver(new Handler()) {
