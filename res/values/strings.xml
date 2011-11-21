@@ -73,6 +73,8 @@
 	<string name="pref_database_statuses_summary">Collection statuses to sync</string>
 	<string name="pref_database_buddies">GeekBuddies</string>
 	<string name="pref_database_buddies_summary">Enable to sync GeekBuddies</string>
+	<string name="pref_database_plays">Games Played</string>
+	<string name="pref_database_plays_summary">Enable to sync games played</string>
 	<string name="pref_database_clear">Clear</string>
 	<string name="pref_database_clear_summary">Deletes all synchronized information</string>
 	<string name="pref_database_clear_pos">Clear</string>
@@ -191,6 +193,7 @@
 	<string name="notification_text_buddies_detail">BGG buddies detail synced</string>
 	<string name="notification_text_collection_list">BGG collection list synced</string>
 	<string name="notification_text_collection_detail">BGG collection detail synced</string>
+	<string name="notification_text_plays">BGG plays synced</string>
 	<string name="notification_text_complete">BGG sync complete</string>
 	<string name="notification_text_comments">BGG comments synced</string>
 	<string name="pref_warning_username">Please set your username first.</string>

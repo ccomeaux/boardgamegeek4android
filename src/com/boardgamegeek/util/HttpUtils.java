@@ -101,6 +101,11 @@ public class HttpUtils {
 		return constructGameUrl(ids.toString());
 	}
 
+	public static String constructPlaysUrl(String username) {
+		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux
+		return BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+	}
+
 	public static String constructUserUrl(String username) {
 		return constructUserUrl(username, false);
 	}

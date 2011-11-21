@@ -1,118 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceCategory android:title="@string/pref_user">
-		<EditTextPreference android:key="username"
-			android:title="@string/pref_user_username_title"
-			android:summary="@string/pref_user_username_summary"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<PreferenceCategory android:title="@string/pref_user" >
+
+		<EditTextPreference
+			android:dialogMessage="@string/pref_user_username_message"
 			android:dialogTitle="@string/pref_user_username_title"
-			android:dialogMessage="@string/pref_user_username_message" />
-		<EditTextPreference android:key="password"
-			android:title="@string/pref_user_password_title"
-			android:summary="@string/pref_user_password_summary"
-			android:dialogTitle="@string/pref_user_password_title"
+			android:key="username"
+			android:summary="@string/pref_user_username_summary"
+			android:title="@string/pref_user_username_title" />
+
+		<EditTextPreference
 			android:dialogMessage="@string/pref_user_password_message"
-			android:password="true" />
+			android:dialogTitle="@string/pref_user_password_title"
+			android:key="password"
+			android:password="true"
+			android:summary="@string/pref_user_password_summary"
+			android:title="@string/pref_user_password_title" />
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_search">
-		<CheckBoxPreference android:key="exactSearch"
+
+	<PreferenceCategory android:title="@string/pref_search" >
+
+		<CheckBoxPreference
 			android:defaultValue="true"
-			android:title="@string/pref_exactSearch_title"
-			android:summary="@string/pref_exactSearch_summary" />
-		<CheckBoxPreference android:key="skipResults"
+			android:key="exactSearch"
+			android:summary="@string/pref_exactSearch_summary"
+			android:title="@string/pref_exactSearch_title" />
+
+		<CheckBoxPreference
 			android:defaultValue="true"
-			android:title="@string/pref_skipResults_title"
-			android:summary="@string/pref_skipResults_summary" />
+			android:key="skipResults"
+			android:summary="@string/pref_skipResults_summary"
+			android:title="@string/pref_skipResults_title" />
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_general">
-		<CheckBoxPreference android:key="imageLoad"
+
+	<PreferenceCategory android:title="@string/pref_general" >
+
+		<CheckBoxPreference
 			android:defaultValue="true"
-			android:title="@string/pref_imageLoad_title"
-			android:summary="@string/pref_imageLoad_summary" />
+			android:key="imageLoad"
+			android:summary="@string/pref_imageLoad_summary"
+			android:title="@string/pref_imageLoad_title" />
 	</PreferenceCategory>
-	<PreferenceScreen android:title="@string/pref_log" android:summary="@string/pref_log_summary">
-		<CheckBoxPreference android:key="logHideLog"
-			android:title="@string/pref_log_hide_log"
+
+	<PreferenceScreen
+		android:summary="@string/pref_log_summary"
+		android:title="@string/pref_log" >
+
+		<CheckBoxPreference
+			android:key="logHideLog"
 			android:summaryOff="@string/pref_log_hide_log_off"
-			android:summaryOn="@string/pref_log_hide_log_on" />
-		<CheckBoxPreference android:key="logHideQuickLog"
-			android:title="@string/pref_log_hide_quick_log"
+			android:summaryOn="@string/pref_log_hide_log_on"
+			android:title="@string/pref_log_hide_log" />
+
+		<CheckBoxPreference
+			android:key="logHideQuickLog"
 			android:summaryOff="@string/pref_log_hide_quick_log_off"
-			android:summaryOn="@string/pref_log_hide_quick_log_on" />
-		<PreferenceCategory android:title="@string/pref_general">
-			<CheckBoxPreference android:key="logHideLength"
-				android:title="@string/pref_log_hide_length"
+			android:summaryOn="@string/pref_log_hide_quick_log_on"
+			android:title="@string/pref_log_hide_quick_log" />
+
+		<PreferenceCategory android:title="@string/pref_general" >
+
+			<CheckBoxPreference
+				android:key="logHideLength"
 				android:summaryOff="@string/pref_log_hide_length_off"
-				android:summaryOn="@string/pref_log_hide_length_on" />
-			<CheckBoxPreference android:key="logHideLocation"
-				android:title="@string/pref_log_hide_location"
+				android:summaryOn="@string/pref_log_hide_length_on"
+				android:title="@string/pref_log_hide_length" />
+
+			<CheckBoxPreference
+				android:key="logHideLocation"
 				android:summaryOff="@string/pref_log_hide_location_off"
-				android:summaryOn="@string/pref_log_hide_location_on" />
-			<CheckBoxPreference android:key="logHideIncomplete"
-				android:title="@string/pref_log_hide_incomplete"
+				android:summaryOn="@string/pref_log_hide_location_on"
+				android:title="@string/pref_log_hide_location" />
+
+			<CheckBoxPreference
+				android:key="logHideIncomplete"
 				android:summaryOff="@string/pref_log_hide_incomplete_off"
-				android:summaryOn="@string/pref_log_hide_incomplete_on" />
-			<CheckBoxPreference android:key="logHideNoWinStats"
-				android:title="@string/pref_log_hide_no_win_stats"
+				android:summaryOn="@string/pref_log_hide_incomplete_on"
+				android:title="@string/pref_log_hide_incomplete" />
+
+			<CheckBoxPreference
+				android:key="logHideNoWinStats"
 				android:summaryOff="@string/pref_log_hide_no_win_stats_off"
-				android:summaryOn="@string/pref_log_hide_no_win_stats_on" />
-			<CheckBoxPreference android:key="logHideComments"
-				android:title="@string/pref_log_hide_comments"
+				android:summaryOn="@string/pref_log_hide_no_win_stats_on"
+				android:title="@string/pref_log_hide_no_win_stats" />
+
+			<CheckBoxPreference
+				android:key="logHideComments"
 				android:summaryOff="@string/pref_log_hide_comments_off"
-				android:summaryOn="@string/pref_log_hide_comments_on" />
-			<CheckBoxPreference android:key="logHidePlayerList"
+				android:summaryOn="@string/pref_log_hide_comments_on"
+				android:title="@string/pref_log_hide_comments" />
+
+			<CheckBoxPreference
 				android:disableDependentsState="true"
-				android:title="@string/pref_log_hide_players"
+				android:key="logHidePlayerList"
 				android:summaryOff="@string/pref_log_hide_players_off"
-				android:summaryOn="@string/pref_log_hide_players_on" />
+				android:summaryOn="@string/pref_log_hide_players_on"
+				android:title="@string/pref_log_hide_players" />
 		</PreferenceCategory>
-		<PreferenceCategory android:title="@string/pref_player_settings">
-			<CheckBoxPreference android:key="logEditPlayer"
-				android:title="@string/pref_edit_player"
+
+		<PreferenceCategory android:title="@string/pref_player_settings" >
+
+			<CheckBoxPreference
+				android:key="logEditPlayer"
 				android:summaryOff="@string/pref_edit_player_off"
-				android:summaryOn="@string/pref_edit_player_on" />
-			<CheckBoxPreference android:key="logHideTeamColor"
-				android:title="@string/pref_log_hide_player_team_color"
+				android:summaryOn="@string/pref_edit_player_on"
+				android:title="@string/pref_edit_player" />
+
+			<CheckBoxPreference
+				android:key="logHideTeamColor"
 				android:summaryOff="@string/pref_log_hide_player_team_color_off"
-				android:summaryOn="@string/pref_log_hide_player_team_color_on" />
-			<CheckBoxPreference android:key="logHidePosition"
-				android:title="@string/pref_log_hide_player_position"
+				android:summaryOn="@string/pref_log_hide_player_team_color_on"
+				android:title="@string/pref_log_hide_player_team_color" />
+
+			<CheckBoxPreference
+				android:key="logHidePosition"
 				android:summaryOff="@string/pref_log_hide_player_position_off"
-				android:summaryOn="@string/pref_log_hide_player_position_on" />
-			<CheckBoxPreference android:key="logHideScore"
-				android:title="@string/pref_log_hide_player_score"
+				android:summaryOn="@string/pref_log_hide_player_position_on"
+				android:title="@string/pref_log_hide_player_position" />
+
+			<CheckBoxPreference
+				android:key="logHideScore"
 				android:summaryOff="@string/pref_log_hide_player_score_off"
-				android:summaryOn="@string/pref_log_hide_player_score_on" />
-			<CheckBoxPreference android:key="logHideRating"
-				android:title="@string/pref_log_hide_player_rating"
+				android:summaryOn="@string/pref_log_hide_player_score_on"
+				android:title="@string/pref_log_hide_player_score" />
+
+			<CheckBoxPreference
+				android:key="logHideRating"
 				android:summaryOff="@string/pref_log_hide_player_rating_off"
-				android:summaryOn="@string/don_t_display_the_player_rating_on" />
-			<CheckBoxPreference android:key="logHideNew"
-				android:title="@string/pref_log_hide_player_new"
+				android:summaryOn="@string/don_t_display_the_player_rating_on"
+				android:title="@string/pref_log_hide_player_rating" />
+
+			<CheckBoxPreference
+				android:key="logHideNew"
 				android:summaryOff="@string/pref_log_hide_player_new_off"
-				android:summaryOn="@string/pref_log_hide_player_new_on" />
-			<CheckBoxPreference android:key="logHideWin"
-				android:title="@string/pref_log_hide_player_win"
+				android:summaryOn="@string/pref_log_hide_player_new_on"
+				android:title="@string/pref_log_hide_player_new" />
+
+			<CheckBoxPreference
+				android:key="logHideWin"
 				android:summaryOff="@string/pref_log_hide_player_new_off"
-				android:summaryOn="@string/pref_log_hide_player_new_on" />
+				android:summaryOn="@string/pref_log_hide_player_new_on"
+				android:title="@string/pref_log_hide_player_win" />
 		</PreferenceCategory>
 	</PreferenceScreen>
-	<PreferenceCategory android:title="@string/pref_database">
+
+	<PreferenceCategory android:title="@string/pref_database" >
+
 		<com.boardgamegeek.pref.ListPreferenceMultiSelect
 			android:defaultValue="own"
-			android:key="syncStatuses"
-			android:title="@string/pref_database_statuses"
 			android:dialogTitle="@string/pref_database_statuses"
 			android:entries="@array/pref_sync_status_entries"
-			android:entryValues="@array/pref_sync_status_values"/>
-		<CheckBoxPreference android:key="syncBuddies"
-			android:defaultValue="true"
-			android:title="@string/pref_database_buddies"
-			android:summary="@string/pref_database_buddies_summary" />
+			android:entryValues="@array/pref_sync_status_values"
+			android:key="syncStatuses"
+			android:title="@string/pref_database_statuses" />
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="syncPlays"
+			android:summary="@string/pref_database_plays_summary"
+			android:title="@string/pref_database_plays" />
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="syncBuddies"
+			android:summary="@string/pref_database_buddies_summary"
+			android:title="@string/pref_database_buddies" />
+
 		<com.boardgamegeek.pref.ClearDialogPreference
 			android:key="clearDatabase"
-			android:title="@string/pref_database_clear"
-			android:summary="@string/pref_database_clear_summary"
+			android:negativeButtonText="@string/pref_database_clear_neg"
 			android:positiveButtonText="@string/pref_database_clear_pos"
-			android:negativeButtonText="@string/pref_database_clear_neg" />
+			android:summary="@string/pref_database_clear_summary"
+			android:title="@string/pref_database_clear" />
 	</PreferenceCategory>
+
 </PreferenceScreen>

@@ -127,9 +127,14 @@ public class BggApplication extends Application {
 		return ListPreferenceMultiSelect.parseStoredValue(statuses);
 	}
 
+	public boolean getSyncPlays(){
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getBoolean("syncPlays", false);
+	}
+
 	public boolean getSyncBuddies() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("syncBuddies", true);
+		return preferences.getBoolean("syncBuddies", false);
 	}
 
 	public boolean getPlayLoggingHideMenu() {
