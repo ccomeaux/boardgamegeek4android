@@ -12,7 +12,6 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.GameColorsColumns;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsColumns;
@@ -24,8 +23,13 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.GameRanksColumns;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesColumns;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.GamesExpansionsColumns;
 import com.boardgamegeek.provider.BggContract.Mechanics;
+import com.boardgamegeek.provider.BggContract.PlayItemsColumns;
+import com.boardgamegeek.provider.BggContract.PlayPlayersColumns;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.provider.BggContract.PlaysColumns;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
@@ -44,7 +48,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_COLORS = 3;
 	private static final int VER_EXPANSIONS = 4;
 	private static final int VER_VARIOUS = 5;
-	private static final int DATABASE_VERSION = VER_VARIOUS;
+	private static final int VER_PLAYS = 6;
+	private static final int DATABASE_VERSION = VER_PLAYS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -91,6 +96,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_POLL_RESULTS = "game_poll_results";
 		String GAME_POLL_RESULTS_RESULT = "game_poll_results_result";
 		String GAME_COLORS = "game_colors";
+		String PLAYS = "plays";
+		String PLAY_ITEMS = "play_items";
+		String PLAY_PLAYERS = "play_players";
 
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
@@ -100,7 +108,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAMES_EXPANSIONS_JOIN_EXPANSIONS = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.EXPANSION_ID, Games.GAME_ID);
 		String POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, GamePolls._ID, GamePollResults.POLL_ID);
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
-		String COLLECTION_JOIN_GAMES =createJoin(COLLECTION, GAMES, Collection.GAME_ID);
+		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
+		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
 	}
 
 	private static String createJoin(String table1, String table2, String column) {
@@ -292,8 +301,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.create(db);
 		
 		createGameColorsTable(db, builder);
-		
 		createGameExpansionsTable(db, builder);
+		createPlaysTable(db, builder);
+		createPlayItemsTable(db, builder);
+		createPlayPlayersTable(db, builder);
 	}
 
 	private void createGameColorsTable(SQLiteDatabase db, CreateTableBuilder builder) {
@@ -309,6 +320,42 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(GamesExpansionsColumns.EXPANSION_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID)
 			.column(GamesExpansionsColumns.EXPANSION_NAME, COLUMN_TYPE.TEXT, true)
 			.column(GamesExpansionsColumns.INBOUND, COLUMN_TYPE.INTEGER)
+			.create(db);
+	}
+
+	private void createPlaysTable(SQLiteDatabase db, CreateTableBuilder builder) {
+		builder.reset().table(Tables.PLAYS).defaultPrimaryKey()
+			.column(SyncListColumns.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
+			.column(PlaysColumns.PLAY_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(PlaysColumns.DATE, COLUMN_TYPE.TEXT, true)
+			.column(PlaysColumns.QUANTITY, COLUMN_TYPE.INTEGER, true)
+			.column(PlaysColumns.LENGTH, COLUMN_TYPE.INTEGER, true)
+			.column(PlaysColumns.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
+			.column(PlaysColumns.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true)
+			.column(PlaysColumns.LOCATION, COLUMN_TYPE.TEXT)
+			.create(db);
+	}
+
+	private void createPlayItemsTable(SQLiteDatabase db, CreateTableBuilder builder) {
+		builder.reset().table(Tables.PLAY_ITEMS).defaultPrimaryKey()
+			.column(PlaysColumns.PLAY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PLAYS, Plays.PLAY_ID)
+			.column(PlayItemsColumns.OBJECT_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(PlayItemsColumns.NAME, COLUMN_TYPE.TEXT, true)
+			.create(db);
+	}
+
+	private void createPlayPlayersTable(SQLiteDatabase db, CreateTableBuilder builder) {
+		builder.reset().table(Tables.PLAY_PLAYERS).defaultPrimaryKey()
+			.column(PlaysColumns.PLAY_ID, COLUMN_TYPE.INTEGER, true, false, Tables.PLAYS, Plays.PLAY_ID)
+			.column(PlayPlayersColumns.USER_NAME, COLUMN_TYPE.TEXT)
+			.column(PlayPlayersColumns.USER_ID, COLUMN_TYPE.INTEGER)
+			.column(PlayPlayersColumns.NAME, COLUMN_TYPE.TEXT)
+			.column(PlayPlayersColumns.START_POSITION, COLUMN_TYPE.TEXT)
+			.column(PlayPlayersColumns.COLOR, COLUMN_TYPE.TEXT)
+			.column(PlayPlayersColumns.SCORE, COLUMN_TYPE.TEXT)
+			.column(PlayPlayersColumns.NEW, COLUMN_TYPE.INTEGER)
+			.column(PlayPlayersColumns.RATING, COLUMN_TYPE.REAL)
+			.column(PlayPlayersColumns.WIN, COLUMN_TYPE.INTEGER)
 			.create(db);
 	}
 
@@ -339,6 +386,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL("ALTER TABLE " + Tables.GAMES + " ADD COLUMN " + GamesColumns.LAST_VIEWED + " INTEGER");
 				db.execSQL("ALTER TABLE " + Tables.GAMES + " ADD COLUMN " + GamesColumns.STARRED + " INTEGER");
 				version = VER_VARIOUS;
+			case VER_VARIOUS:
+				createPlaysTable(db, new CreateTableBuilder());
+				createPlayItemsTable(db, new CreateTableBuilder());
+				createPlayPlayersTable(db, new CreateTableBuilder());
+				version = VER_PLAYS;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -363,6 +415,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS_RESULT);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_COLORS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAYS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_ITEMS);
+			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_PLAYERS);
 
 			onCreate(db);
 		}
