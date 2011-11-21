@@ -106,6 +106,7 @@
 	<string name="categories">Categories</string>
 	<string name="mechanics">Mechanics</string>
 	<string name="expansions">Expansions</string>
+	<string name="base_games">Base Games</string>
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
