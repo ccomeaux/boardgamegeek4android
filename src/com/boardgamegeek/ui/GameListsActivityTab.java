@@ -65,6 +65,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int TOKEN_MECHANICS = 7;
 	private static final int TOKEN_CATEGORIES = 8;
 	private static final int TOKEN_EXPANSIONS = 9;
+	private static final int TOKEN_BASE_GAMES = 10;
 
 	private static final int GROUP_DESIGNERS = 0;
 	private static final int GROUP_ARTISTS = 1;
@@ -72,7 +73,8 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 	private static final int GROUP_MECHANICS = 3;
 	private static final int GROUP_CATEGORIES = 4;
 	private static final int GROUP_EXPANSIONS = 5;
-	private static final int GROUP_TOTAL_COUNT = 6;
+	private static final int GROUP_BASE_GAMES = 6;
+	private static final int GROUP_TOTAL_COUNT = 7;
 
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_COUNT = "COUNT";
@@ -166,8 +168,10 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 				Mechanics.DEFAULT_SORT);
 		mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
 				Categories.DEFAULT_SORT);
-		mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
-				GamesExpansions.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, GamesExpansions.INBOUND
+				+ "=?", new String[] { "0" }, GamesExpansions.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_BASE_GAMES, null, mExpansionsUri, ExpansionQuery.PROJECTION, GamesExpansions.INBOUND
+				+ "=?", new String[] { "1" }, GamesExpansions.DEFAULT_SORT);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -179,7 +183,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		Map<String, Object> childItem = (Map<String, Object>) mAdapter.getChild(groupPosition, childPosition);
 		mName = (String) childItem.get(KEY_NAME);
 		mDescription = (String) childItem.get(KEY_DESCRIPTION);
-		if (groupPosition == GROUP_EXPANSIONS) {
+		if (groupPosition == GROUP_EXPANSIONS || groupPosition == GROUP_BASE_GAMES) {
 			Uri gameUri = Games.buildGameUri(Integer.valueOf(mDescription).intValue());
 			Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 			intent.putExtra(BoardgameActivity.KEY_GAME_NAME, mName);
@@ -281,6 +285,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					addChildItem(cursor, expansions, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
 				}
 				updateGroup(GROUP_EXPANSIONS, expansions);
+			} else if (token == TOKEN_BASE_GAMES) {
+				List<ChildItem> baseGames = new ArrayList<ChildItem>();
+				while (cursor.moveToNext()) {
+					addChildItem(cursor, baseGames, ExpansionQuery.EXPANSION_NAME, ExpansionQuery.EXPANSION_ID);
+				}
+				updateGroup(GROUP_BASE_GAMES, baseGames);
 			} else if (token == TOKEN_MECHANICS) {
 				List<ChildItem> mechanics = new ArrayList<ChildItem>();
 				while (cursor.moveToNext()) {
@@ -373,6 +383,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		createGroup(R.string.mechanics);
 		createGroup(R.string.categories);
 		createGroup(R.string.expansions);
+		createGroup(R.string.base_games);
 	}
 
 	private void createGroup(int nameResourceId) {
@@ -504,8 +515,10 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
-			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, null, null,
-					GamesExpansions.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION,
+					GamesExpansions.INBOUND + "=?", new String[] { "0" }, GamesExpansions.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_BASE_GAMES, null, mExpansionsUri, ExpansionQuery.PROJECTION,
+					GamesExpansions.INBOUND + "=?", new String[] { "1" }, GamesExpansions.DEFAULT_SORT);
 		}
 	}
 
