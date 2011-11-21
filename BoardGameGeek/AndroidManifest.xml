@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:versionCode="21"
 	android:versionName="3.4"
-	android:installLocation="preferExternal" >
+	android:installLocation="auto" >
 
 	<uses-sdk
 		android:minSdkVersion="4"
