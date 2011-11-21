@@ -18,6 +18,7 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.ImageCache;
 
@@ -65,6 +66,7 @@ public class ClearDialogPreference extends DialogPreference {
 			count += mResolver.delete(Categories.CONTENT_URI, null, null);
 			count += mResolver.delete(Mechanics.CONTENT_URI, null, null);
 			count += mResolver.delete(Buddies.CONTENT_URI, null, null);
+			count += mResolver.delete(Plays.CONTENT_URI, null, null);
 			Log.d(TAG, "Removed " + count + " records");
 
 			if (ImageCache.clear()) {
