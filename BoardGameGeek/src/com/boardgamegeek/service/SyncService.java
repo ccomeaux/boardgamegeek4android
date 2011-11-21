@@ -53,6 +53,10 @@ public class SyncService extends IntentService {
 		mTasks.add(new SyncCollectionList());
 		mTasks.add(new SyncCollectionDetail());
 
+		if (BggApplication.getInstance().getSyncPlays()) {
+			mTasks.add(new SyncPlays());
+		}
+
 		if (BggApplication.getInstance().getSyncBuddies()) {
 			mTasks.add(new SyncBuddiesList());
 			mTasks.add(new SyncBuddiesDetail());
