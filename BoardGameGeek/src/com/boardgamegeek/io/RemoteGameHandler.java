@@ -330,12 +330,14 @@ public class RemoteGameHandler extends XmlHandler {
 	private void parseExpansion() throws XmlPullParserException, IOException {
 		ContentValues values = new ContentValues();
 		final int expansionId = parseIntegerAttribute(Tags.ID);
+		boolean inbound = Tags.TRUE.equals(parseStringAttribute(Tags.INBOUND));
 
 		final int depth = mParser.getDepth();
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == TEXT) {
 				values.put(GamesExpansions.EXPANSION_NAME, mParser.getText());
+				values.put(GamesExpansions.INBOUND, inbound);
 			}
 		}
 
@@ -604,6 +606,7 @@ public class RemoteGameHandler extends XmlHandler {
 		String MECHANIC = "boardgamemechanic";
 		String CATEGORY = "boardgamecategory";
 		String EXPANSION = "boardgameexpansion";
+		String INBOUND = "inbound";
 		// family
 		// podcastepisode
 		// version
