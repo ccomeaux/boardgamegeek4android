@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/home_btn_about" android:title="@string/home_btn_about" android:icon="@android:drawable/ic_menu_info_details"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item
+		android:id="@+id/home_btn_sync"
+		android:icon="@drawable/ic_menu_refresh"
+		android:title="@string/home_btn_sync"/>
+
+	<item
+		android:id="@+id/home_btn_about"
+		android:icon="@android:drawable/ic_menu_info_details"
+		android:title="@string/home_btn_about"/>
+
 </menu>

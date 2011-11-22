@@ -132,6 +132,18 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:label="@string/title_plays"
+			android:name=".ui.PlaysActivity"
+			android:theme="@style/Theme.Bgg" >
+			<intent-filter >
+				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+
+				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.play" />
+			</intent-filter>
+		</activity>
+		<activity
 			android:configChanges="keyboardHidden|orientation"
 			android:label="@string/search_label"
 			android:launchMode="singleTop"
