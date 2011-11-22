@@ -16,6 +16,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
@@ -38,8 +39,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 			mState = new State();
 		}
 		mState.mReceiver.setReceiver(this);
-
-		updateUiForSync();
 	}
 
 	@Override
@@ -62,8 +61,28 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.home_btn_sync);
+		if (mi != null) {
+			if (!mState.mSyncing) {
+				long time = BggApplication.getInstance().getSyncTimestamp();
+				int d = DateTimeUtils.howManyHoursOld(time);
+				boolean b = d == 0;
+				mState.mSyncing = b;
+			}
+			mi.setEnabled(!mState.mSyncing);
+		}
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.home_btn_sync:
+				Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
+				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
+				startService(intent);
+				return true;
 			case R.id.home_btn_about:
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
@@ -102,10 +121,9 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		startActivity(intent);
 	}
 
-	public void onSyncClick(View v) {
-		final Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
-		intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
-		startService(intent);
+	public void onPlaysClick(View v) {
+		final Intent intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
+		startActivity(intent);
 	}
 
 	public void onSettingsClick(View v) {
@@ -116,15 +134,12 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		switch (resultCode) {
 			case SyncService.STATUS_RUNNING:
 				mState.mSyncing = true;
-				updateUiForSync();
 				break;
 			case SyncService.STATUS_COMPLETE:
 				mState.mSyncing = false;
-				updateUiForSync();
 				break;
 			case SyncService.STATUS_ERROR:
 				mState.mSyncing = false;
-				updateUiForSync();
 				final String error = resultData.getString(Intent.EXTRA_TEXT);
 				if (error != null) {
 					Toast.makeText(this, error, Toast.LENGTH_LONG).show();
@@ -134,16 +149,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 				Log.w(TAG, "Received unexpected result: " + resultCode);
 				break;
 		}
-	}
-
-	private void updateUiForSync() {
-		if (!mState.mSyncing) {
-			long time = BggApplication.getInstance().getSyncTimestamp();
-			int d = DateTimeUtils.howManyHoursOld(time);
-			boolean b = d == 0;
-			mState.mSyncing = b;
-		}
-		findViewById(R.id.home_btn_sync).setEnabled(!mState.mSyncing);
 	}
 
 	private static class State {
