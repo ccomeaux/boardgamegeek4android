@@ -333,6 +333,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.column(PlaysColumns.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
 			.column(PlaysColumns.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true)
 			.column(PlaysColumns.LOCATION, COLUMN_TYPE.TEXT)
+			.column(PlaysColumns.COMMENTS, COLUMN_TYPE.TEXT)
 			.create(db);
 	}
 
