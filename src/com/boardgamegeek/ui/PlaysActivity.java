@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -78,11 +79,13 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener {
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		// TODO
-		// final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		// final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
-		// final Uri buddyUri = Buddies.buildBuddyUri(buddyId);
-		// startActivity(new Intent(Intent.ACTION_VIEW, buddyUri));
+		Cursor cursor = (Cursor) mAdapter.getItem(position);
+		int playId = cursor.getInt(Query.PLAY_ID);
+		Uri buddyUri = Plays.buildPlayUri(playId);
+		Intent i = new Intent(Intent.ACTION_VIEW, buddyUri);
+		i.putExtra(PlayActivity.KEY_GAME_ID, cursor.getInt(Query.GAME_ID));
+		i.putExtra(PlayActivity.KEY_GAME_NAME, cursor.getString(Query.GAME_NAME));
+		startActivity(i);
 	}
 
 	private void startQuery() {
@@ -132,7 +135,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener {
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 			holder.date.setText(cursor.getString(Query.DATE));
-			holder.name.setText(cursor.getString(Query.NAME));
+			holder.name.setText(cursor.getString(Query.GAME_NAME));
 			holder.location.setText(cursor.getString(Query.LOCATION));
 		}
 	}
@@ -150,15 +153,16 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener {
 	}
 
 	private interface Query {
-		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, Plays.LOCATION,
-				Plays.QUANTITY, Plays.LENGTH };
+		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
+				Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH };
 
 		// int _ID = 0;
-		// int PLAY_ID = 1;
+		int PLAY_ID = 1;
 		int DATE = 2;
-		int NAME = 3;
-		int LOCATION = 4;
-		//int QUANTITY = 5;
-		//int LENGTH = 6;
+		int GAME_NAME = 3;
+		int GAME_ID = 4;
+		int LOCATION = 5;
+		// int QUANTITY = 6;
+		// int LENGTH = 7;
 	}
 }

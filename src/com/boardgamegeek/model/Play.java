@@ -1,6 +1,8 @@
 package com.boardgamegeek.model;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -9,9 +11,14 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
 	private static final String TAG = "Play";
@@ -52,6 +59,26 @@ public class Play {
 		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
 		Comments = bundle.getString(KEY_COMMENTS);
 		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
+	}
+
+	public Play(Cursor c) {
+		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID);
+		String date = CursorUtils.getString(c, Plays.DATE);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			Date d = sdf.parse(date);
+			Year = d.getYear() + 1900;
+			Month = d.getMonth();
+			Day = d.getDay();
+		} catch (ParseException e) {
+			Log.w(TAG, "Couldn't parse " + date);
+		}
+		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, 1);
+		Length = CursorUtils.getInt(c, Plays.LENGTH);
+		Location = CursorUtils.getString(c, Plays.LOCATION);
+		Incomplete = CursorUtils.getBoolean(c, Plays.INCOMPLETE);
+		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);
+		Comments = CursorUtils.getString(c, Plays.COMMENTS);
 	}
 
 	public int GameId;
