@@ -156,6 +156,7 @@ public class BggContract {
 		String INCOMPLETE = "incomplete";
 		String NO_WIN_STATS = "no_win_stats";
 		String LOCATION = "location";
+		String COMMENTS = "comments";
 	}
 
 	interface PlayItemsColumns {

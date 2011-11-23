@@ -3,8 +3,10 @@ package com.boardgamegeek.io;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
-
+import static org.xmlpull.v1.XmlPullParser.TEXT;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -28,6 +30,7 @@ public class RemotePlaysHandler extends XmlHandler {
 	private static final int PAGE_SIZE = 100;
 
 	private XmlPullParser mParser;
+	private ContentResolver mResolver;
 
 	public RemotePlaysHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -38,6 +41,7 @@ public class RemotePlaysHandler extends XmlHandler {
 			throws XmlPullParserException, IOException {
 
 		mParser = parser;
+		mResolver = resolver;
 
 		int playCount = 0;
 		int page = 0;
@@ -48,14 +52,14 @@ public class RemotePlaysHandler extends XmlHandler {
 				playCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL));
 				page = StringUtils.parseInt(parser.getAttributeValue(null, Tags.PAGE));
 
-				parsePlays(resolver);
+				parsePlays();
 			}
 		}
 
 		return playCount > (page * PAGE_SIZE);
 	}
 
-	private void parsePlays(ContentResolver resolver) throws XmlPullParserException, IOException {
+	private void parsePlays() throws XmlPullParserException, IOException {
 
 		String[] projection = { BaseColumns._ID, };
 		final int depth = mParser.getDepth();
@@ -66,16 +70,20 @@ public class RemotePlaysHandler extends XmlHandler {
 
 		Cursor cursor = null;
 		try {
-			int id = 0;
+			int playId = 0;
+			boolean isComments = false;
+			List<Integer> itemObjectIds = new ArrayList<Integer>();
+			List<Integer> playerUserIds = new ArrayList<Integer>();
+
 			int type;
 			while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 				if (type == START_TAG) {
 					String tag = mParser.getName();
 
 					if (Tags.PLAY.equals(tag)) {
-						id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
+						playId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
 
-						if (id > 0) {
+						if (playId > 0) {
 							values.clear();
 							values.put(Plays.DATE, mParser.getAttributeValue(null, Tags.DATE));
 							values.put(Plays.QUANTITY, Integer.valueOf(mParser.getAttributeValue(null, Tags.QUANTITY)));
@@ -86,34 +94,42 @@ public class RemotePlaysHandler extends XmlHandler {
 							values.put(Plays.LOCATION, mParser.getAttributeValue(null, Tags.LOCATION));
 							values.put(Plays.UPDATED_LIST, System.currentTimeMillis());
 
-							Uri uri = Plays.buildPlayUri(id);
-							cursor = resolver.query(uri, projection, null, null, null);
+							Uri uri = Plays.buildPlayUri(playId);
+							cursor = mResolver.query(uri, projection, null, null, null);
 							if (cursor.moveToFirst()) {
-								resolver.delete(Plays.buildItemUri(id), null, null);
-								resolver.delete(Plays.buildPlayerUri(id), null, null);
-								resolver.update(uri, values, null, null);
+								itemObjectIds = getIds(Plays.buildItemUri(playId), PlayItems.OBJECT_ID);
+
+								mResolver.delete(Plays.buildPlayerUri(playId), PlayPlayers.USER_ID + " IS NULL", null);
+								playerUserIds = getIds(Plays.buildPlayerUri(playId), PlayPlayers.USER_ID);
+								playerUserIds = removeDuplicateIds(playId, playerUserIds);
+
+								mResolver.update(uri, values, null, null);
 								updateCount++;
 							} else {
-								values.put(Plays.PLAY_ID, id);
-								resolver.insert(Plays.CONTENT_URI, values);
+								values.put(Plays.PLAY_ID, playId);
+								mResolver.insert(Plays.CONTENT_URI, values);
 								insertCount++;
 							}
 							cursor.deactivate();
 						}
 					} else if (Tags.ITEM.equals(tag)) {
+						int objectId = Integer.valueOf(mParser.getAttributeValue(null, Tags.OBJECT_ID));
 						values.clear();
-						values.put(PlayItems.OBJECT_ID,
-								Integer.valueOf(mParser.getAttributeValue(null, Tags.OBJECT_ID)));
 						values.put(PlayItems.NAME, mParser.getAttributeValue(null, Tags.NAME));
-						resolver.insert(Plays.buildItemUri(id), values);
-					} else if (Tags.PLAYER.equals(tag)) {
-						// TODO: delete all users with ID=0 or null, update
-						// users with matching IDs, insert others, delete
-						// missing
 
+						if (itemObjectIds != null && itemObjectIds.remove(new Integer(objectId))) {
+							mResolver.update(Plays.buildItemUri(playId, objectId), values, null, null);
+						} else {
+							values.put(PlayItems.OBJECT_ID, objectId);
+							mResolver.insert(Plays.buildItemUri(playId), values);
+						}
+					} else if (Tags.COMMENTS.equals(tag)) {
+						isComments = true;
+					} else if (Tags.PLAYER.equals(tag)) {
+						int userId = Integer.valueOf(mParser.getAttributeValue(null, Tags.USERID));
 						values.clear();
 						values.put(PlayPlayers.USER_NAME, mParser.getAttributeValue(null, Tags.USERNAME));
-						values.put(PlayPlayers.USER_ID, Integer.valueOf(mParser.getAttributeValue(null, Tags.USERID)));
+						values.put(PlayPlayers.USER_ID, userId);
 						values.put(PlayPlayers.NAME, mParser.getAttributeValue(null, Tags.NAME));
 						values.put(PlayPlayers.START_POSITION, mParser.getAttributeValue(null, Tags.STARTPOSITION));
 						values.put(PlayPlayers.COLOR, mParser.getAttributeValue(null, Tags.COLOR));
@@ -121,7 +137,41 @@ public class RemotePlaysHandler extends XmlHandler {
 						values.put(PlayPlayers.NEW, Integer.valueOf(mParser.getAttributeValue(null, Tags.NEW)));
 						values.put(PlayPlayers.RATING, Double.valueOf(mParser.getAttributeValue(null, Tags.RATING)));
 						values.put(PlayPlayers.WIN, Integer.valueOf(mParser.getAttributeValue(null, Tags.WIN)));
-						resolver.insert(Plays.buildPlayerUri(id), values);
+
+						if (playerUserIds != null && playerUserIds.remove(new Integer(userId))) {
+							mResolver.update(Plays.buildPlayerUri(playId), values, PlayPlayers.USER_ID + "=?",
+									new String[] { String.valueOf(userId) });
+						} else {
+							values.put(PlayPlayers.USER_ID, userId);
+							mResolver.insert(Plays.buildPlayerUri(playId), values);
+						}
+					}
+				} else if (type == TEXT) {
+					if (isComments) {
+						values.clear();
+						values.put(Plays.COMMENTS, mParser.getText());
+						Uri uri = Plays.buildPlayUri(playId);
+						mResolver.update(uri, values, null, null);
+					}
+				} else if (type == END_TAG) {
+					String tag = mParser.getName();
+					if (Tags.PLAY.equals(tag)) {
+						if (itemObjectIds != null) {
+							for (Integer itemObjectId : itemObjectIds) {
+								mResolver.delete(Plays.buildItemUri(playId, itemObjectId), null, null);
+							}
+							itemObjectIds.clear();
+						}
+
+						if (playerUserIds != null) {
+							for (Integer playerUserId : playerUserIds) {
+								mResolver.delete(Plays.buildPlayerUri(playId), PlayPlayers.USER_ID + "=?",
+										new String[] { String.valueOf(playerUserId) });
+							}
+							playerUserIds.clear();
+						}
+					} else if (Tags.COMMENTS.equals(tag)) {
+						isComments = false;
 					}
 				}
 			}
@@ -131,6 +181,47 @@ public class RemotePlaysHandler extends XmlHandler {
 			}
 			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " plays");
 		}
+	}
+
+	private List<Integer> getIds(Uri uri, String columnName) {
+		List<Integer> list = new ArrayList<Integer>();
+		Cursor c = mResolver.query(uri, new String[] { columnName }, null, null, null);
+		try {
+			while (c.moveToNext()) {
+				list.add(c.getInt(0));
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return list;
+	}
+
+	private List<Integer> removeDuplicateIds(int playId, List<Integer> ids) {
+		if (ids == null || ids.size() == 0) {
+			return new ArrayList<Integer>();
+		}
+
+		List<Integer> uniqueIds = new ArrayList<Integer>();
+		List<Integer> idsToDelete = new ArrayList<Integer>();
+
+		for (int i = 0; i < ids.size(); i++) {
+			Integer id = ids.get(i);
+			if (uniqueIds.contains(id)) {
+				idsToDelete.add(id);
+			} else {
+				uniqueIds.add(id);
+			}
+		}
+
+		for (Integer id : idsToDelete) {
+			mResolver.delete(Plays.buildPlayerUri(playId), PlayPlayers.USER_ID + "=?",
+					new String[] { String.valueOf(id) });
+			uniqueIds.remove(id);
+		}
+
+		return uniqueIds;
 	}
 
 	private interface Tags {
@@ -149,6 +240,8 @@ public class RemotePlaysHandler extends XmlHandler {
 		String ITEM = "item";
 		String NAME = "name";
 		String OBJECT_ID = "objectid";
+
+		String COMMENTS = "comments";
 
 		String PLAYER = "player";
 		String USERNAME = "username";
