@@ -180,6 +180,7 @@
 	<string name="title_generalforumlist">General Forums</string>
 	<string name="title_poll">Poll Information</string>
 	<string name="title_plays">Games Played</string>
+	<string name="title_play">Played Game</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>

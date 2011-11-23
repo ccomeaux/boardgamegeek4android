@@ -6,7 +6,11 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.util.CursorUtils;
+
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -40,6 +44,17 @@ public class Player implements Parcelable {
 			New = bundle.getBoolean(KEY_NEW);
 			Win = bundle.getBoolean(KEY_WIN);
 		}
+	}
+
+	public Player(Cursor cursor) {
+		Username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
+		Name = CursorUtils.getString(cursor, PlayPlayers.NAME);
+		TeamColor = CursorUtils.getString(cursor, PlayPlayers.COLOR);
+		StartingPosition = CursorUtils.getString(cursor, PlayPlayers.START_POSITION);
+		Score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
+		Rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING);
+		New = CursorUtils.getBoolean(cursor, PlayPlayers.NEW);
+		Win = CursorUtils.getBoolean(cursor, PlayPlayers.WIN);
 	}
 
 	public String Name;

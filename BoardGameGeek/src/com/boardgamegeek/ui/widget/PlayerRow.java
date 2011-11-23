@@ -85,6 +85,11 @@ public class PlayerRow extends LinearLayout {
 		});
 	}
 
+	public void hideButtons() {
+		findViewById(R.id.log_player_edit).setVisibility(View.GONE);
+		findViewById(R.id.log_player_delete).setVisibility(View.GONE);
+	}
+
 	public void setOnEditListener(OnClickListener l) {
 		mEditClickListener = l;
 	}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical" >
+
+	<include layout="@layout/titlebar" />
+
+	<include layout="@layout/game_header" />
+
+	<include layout="@layout/header_divider" />
+
+	<ScrollView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" >
+
+		<LinearLayout
+			android:id="@+id/play_player_list"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="top"
+			android:orientation="vertical"
+			android:padding="@dimen/padding_standard" >
+
+			<TableLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:stretchColumns="1" >
+
+				<TableRow >
+
+					<TextView
+						style="@style/FormLabel"
+						android:text="@string/date" />
+
+					<TextView
+						android:id="@+id/play_date"
+						style="@style/FormLabel" />
+				</TableRow>
+
+				<TableRow >
+
+					<TextView
+						style="@style/FormLabel"
+						android:text="@string/quantity" />
+
+					<TextView
+						android:id="@+id/play_quantity"
+						style="@style/FormLabel" />
+				</TableRow>
+
+				<TableRow android:id="@+id/play_length_row" >
+
+					<TextView
+						style="@style/FormLabel"
+						android:text="@string/length" />
+
+					<TextView
+						android:id="@+id/play_length"
+						style="@style/FormLabel" />
+				</TableRow>
+
+				<TableRow android:id="@+id/play_location_row" >
+
+					<TextView
+						style="@style/FormLabel"
+						android:text="@string/location" />
+
+					<TextView
+						android:id="@+id/play_location"
+						style="@style/FormLabel" />
+				</TableRow>
+
+				<CheckBox
+					android:id="@+id/play_incomplete"
+					android:clickable="false"
+					android:text="@string/incomplete" />
+
+				<CheckBox
+					android:id="@+id/play_no_win_stats"
+					android:clickable="false"
+					android:text="@string/noWinStats" />
+
+				<TextView
+					android:id="@+id/play_comments_label"
+					style="@style/FormLabel"
+					android:text="@string/comments" />
+
+				<TextView android:id="@+id/play_comments" />
+			</TableLayout>
+
+			<include
+				android:id="@+id/play_player_list_divider"
+				layout="@layout/header_divider" />
+
+			<TextView
+				android:id="@+id/player_header"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/padding_standard"
+				android:text="@string/players"
+				android:textSize="@dimen/text_size_large" />
+		</LinearLayout>
+	</ScrollView>
+
+</LinearLayout>
