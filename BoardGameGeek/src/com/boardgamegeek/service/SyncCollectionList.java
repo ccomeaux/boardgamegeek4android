@@ -31,7 +31,7 @@ public class SyncCollectionList extends SyncTask {
 		if (statuses != null && statuses.length > 0) {
 			long modifiedSince = BggApplication.getInstance().getCollectionPartSyncTimestamp();
 			for (int i = 0; i < statuses.length; i++) {
-				String url = HttpUtils.constructCollectionUrl(mUsername, statuses[i]);
+				String url = HttpUtils.constructBriefCollectionUrl(mUsername, statuses[i]);
 				if (modifiedSince > 0) {
 					url = HttpUtils.constructCollectionUrl(mUsername, statuses[i], modifiedSince);
 				}
@@ -42,7 +42,7 @@ public class SyncCollectionList extends SyncTask {
 			needsFullSync = DateTimeUtils.howManyDaysOld(lastFullSync) > DAYS_BETWEEN_FULL_SYNCS;
 			if (needsFullSync) {
 				for (int i = 0; i < statuses.length; i++) {
-					String url = HttpUtils.constructCollectionUrl(mUsername, statuses[i]);
+					String url = HttpUtils.constructBriefCollectionUrl(mUsername, statuses[i]);
 					executor.executeGet(url, new RemoteCollectionDeleteHandler(startTime));
 				}
 			}

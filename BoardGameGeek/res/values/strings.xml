@@ -168,8 +168,8 @@
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_boardgame">Board Game</string>
 	<string name="title_image">Image</string>
-	<string name="title_buddies">GeekBuddies</string>
-	<string name="title_buddy">GeekBuddy</string>
+	<string name="title_buddies">Geek Buddies</string>
+	<string name="title_buddy">Geek Buddy</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
 	<string name="title_comments">Comments</string>
@@ -184,7 +184,7 @@
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
-	<string name="home_btn_buddies">GeekBuddies</string>
+	<string name="home_btn_buddies">Geek Buddies</string>
 	<string name="home_btn_sync">Sync</string>
 	<string name="home_btn_plays">Games Played</string>
 	<string name="home_btn_settings">Settings</string>
@@ -204,6 +204,7 @@
 	<string name="loading">Loading...</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
+	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
 	<string name="empty_plays">No plays. Check your sync settings and synchronize again.</string>
 	<string name="tab_title_info">Info</string>
