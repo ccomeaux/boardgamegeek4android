@@ -6,11 +6,13 @@
 
 	<include layout="@layout/titlebar" />
 
-	<LinearLayout android:orientation="vertical"
+	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:gravity="center">
-		
+		android:layout_above="@+id/filter_linear_layout"
+		android:orientation="vertical"
+		android:gravity="center" >
+
 		<TextView android:id="@+id/buddy_full_name"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
@@ -35,6 +37,19 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:textSize="@dimen/text_size_small"
-			android:gravity="center" /> 
+			android:gravity="center" />
+
+		<TextView
+			android:id="@+id/collection_info"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/background_light"
+			android:gravity="center"
+			android:padding="@dimen/padding_standard"
+			android:textSize="@dimen/text_size_small" />
+
+		<include layout="@layout/header_divider" />
+
+		<include layout="@layout/list" />
 	</LinearLayout>
 </LinearLayout>

@@ -118,11 +118,16 @@ public class HttpUtils {
 		return url;
 	}
 
-	public static String constructCollectionUrl(String username, String status) {
+	public static String constructBriefCollectionUrl(String username, String status) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
 		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1&brief=1";
 	}
 
+	public static String constructCollectionUrl(String username, String status) {
+		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
+		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1";
+	}
+	
 	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
 		Date date = new Date(modifiedSince);
