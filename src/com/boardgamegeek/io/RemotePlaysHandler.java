@@ -16,8 +16,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -71,6 +73,7 @@ public class RemotePlaysHandler extends XmlHandler {
 		Cursor cursor = null;
 		try {
 			int playId = 0;
+			String date = "";
 			boolean isComments = false;
 			List<Integer> itemObjectIds = new ArrayList<Integer>();
 			List<Integer> playerUserIds = new ArrayList<Integer>();
@@ -84,8 +87,9 @@ public class RemotePlaysHandler extends XmlHandler {
 						playId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
 
 						if (playId > 0) {
+							date = mParser.getAttributeValue(null, Tags.DATE);
 							values.clear();
-							values.put(Plays.DATE, mParser.getAttributeValue(null, Tags.DATE));
+							values.put(Plays.DATE, date);
 							values.put(Plays.QUANTITY, Integer.valueOf(mParser.getAttributeValue(null, Tags.QUANTITY)));
 							values.put(Plays.LENGTH, Integer.valueOf(mParser.getAttributeValue(null, Tags.LENGTH)));
 							values.put(Plays.INCOMPLETE, !"0".equals(mParser.getAttributeValue(null, Tags.INCOMPLETE)));
@@ -169,6 +173,17 @@ public class RemotePlaysHandler extends XmlHandler {
 										new String[] { String.valueOf(playerUserId) });
 							}
 							playerUserIds.clear();
+						}
+
+						if (!TextUtils.isEmpty(date)) {
+							String maxDate = BggApplication.getInstance().getMaxPlayDate();
+							if ((date.compareTo(maxDate)) < 0) {
+								BggApplication.getInstance().putMaxPlayDate(date);
+							}
+							String minDate = BggApplication.getInstance().getMinPlayDate();
+							if ((date.compareTo(minDate)) > 0) {
+								BggApplication.getInstance().putMinPlayDate(date);
+							}
 						}
 					} else if (Tags.COMMENTS.equals(tag)) {
 						isComments = false;

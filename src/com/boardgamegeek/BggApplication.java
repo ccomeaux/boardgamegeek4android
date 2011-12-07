@@ -16,16 +16,21 @@ public class BggApplication extends Application {
 	private final static String TAG = "BggApplication";
 
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
-	public static String HELP_BOARDGAME_KEY = "help.boardgame";
-	public static String HELP_COLLECTION_KEY = "help.collection";
-	public static String HELP_SEARCHRESULTS_KEY = "help.searchresults";
-	public static String HELP_LOGPLAY_KEY = "help.logplay";
-	public static String HELP_COLORS_KEY = "help.colors";
+	public static final String HELP_BOARDGAME_KEY = "help.boardgame";
+	public static final String HELP_COLLECTION_KEY = "help.collection";
+	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
+	public static final String HELP_LOGPLAY_KEY = "help.logplay";
+	public static final String HELP_COLORS_KEY = "help.colors";
 
-	private static String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
-	private static String SYNC_TICKS_KEY = "sync_ticks";
-	private static String COLLECTION_FULL_SYNC_TICKS_KEY = "collection_full_sync_ticks";
-	private static String COLLECTION_PART_SYNC_TICKS_KEY = "collection_part_sync_ticks";
+	private static final String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
+	private static final String SYNC_TICKS_KEY = "sync_ticks";
+	private static final String COLLECTION_FULL_SYNC_TICKS_KEY = "collection_full_sync_ticks";
+	private static final String COLLECTION_PART_SYNC_TICKS_KEY = "collection_part_sync_ticks";
+
+	private static final String MAX_PLAY_DATE_KEY = "max_play_date";
+	private static final String MIN_PLAY_DATE_KEY = "min_play_date";
+	private static final String DEFAULT_MAX_PLAY_DATE = "9999-99-99";
+	private static final String DEFAULT_MIN_PLAY_DATE = "0000-00-00";
 
 	private static BggApplication singleton;
 
@@ -54,6 +59,8 @@ public class BggApplication extends Application {
 		putSyncTimestamp(0);
 		putCollectionFullSyncTimestamp(0);
 		putCollectionPartSyncTimestamp(0);
+		putMaxPlayDate(DEFAULT_MAX_PLAY_DATE);
+		putMinPlayDate(DEFAULT_MIN_PLAY_DATE);
 	}
 
 	public void putSyncTimestamp(long startTime) {
@@ -96,6 +103,38 @@ public class BggApplication extends Application {
 		return sp.getLong(key, 0);
 	}
 
+	public String getMaxPlayDate() {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		return sp.getString(MAX_PLAY_DATE_KEY, DEFAULT_MAX_PLAY_DATE);
+	}
+
+	public void putMaxPlayDate(String maxPlayDate) {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		Editor e = sp.edit();
+		e.putString(MAX_PLAY_DATE_KEY, maxPlayDate);
+		if (!e.commit()) {
+			Log.w(TAG, "Error saving max play date.");
+		}
+	}
+
+	public String getMinPlayDate() {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		return sp.getString(MIN_PLAY_DATE_KEY, DEFAULT_MIN_PLAY_DATE);
+	}
+
+	public void putMinPlayDate(String minPlayDate) {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		Editor e = sp.edit();
+		e.putString(MIN_PLAY_DATE_KEY, minPlayDate);
+		if (!e.commit()) {
+			Log.w(TAG, "Error saving min play date.");
+		}
+	}
+
 	public String getUserName() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getString("username", "");
@@ -127,7 +166,7 @@ public class BggApplication extends Application {
 		return ListPreferenceMultiSelect.parseStoredValue(statuses);
 	}
 
-	public boolean getSyncPlays(){
+	public boolean getSyncPlays() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getBoolean("syncPlays", false);
 	}

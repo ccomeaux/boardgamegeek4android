@@ -28,10 +28,13 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 
+import com.boardgamegeek.BggApplication;
+
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -101,9 +104,24 @@ public class HttpUtils {
 		return constructGameUrl(ids.toString());
 	}
 
-	public static String constructPlaysUrl(String username) {
-		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux
-		return BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+	public static String constructPlaysUrlOld(String username) {
+		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&maxdate=2011-12-03
+		String maxDate = BggApplication.getInstance().getMaxPlayDate();
+		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		if (!TextUtils.isEmpty(maxDate)) {
+			url += "&maxdate=" + maxDate;
+		}
+		return url;
+	}
+
+	public static String constructPlaysUrlNew(String username) {
+		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&mindate=2011-12-03
+		String minDate = BggApplication.getInstance().getMinPlayDate();
+		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		if (!TextUtils.isEmpty(minDate)) {
+			url += "&mindate=" + minDate;
+		}
+		return url;
 	}
 
 	public static String constructUserUrl(String username) {
