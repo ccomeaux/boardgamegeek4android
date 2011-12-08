@@ -1,55 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:orientation="vertical" >
 
 	<include layout="@layout/titlebar" />
 
 	<LinearLayout
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_above="@+id/filter_linear_layout"
-		android:orientation="vertical"
-		android:gravity="center" >
+		android:layout_height="wrap_content"
+		android:background="@color/background_light"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:padding="@dimen/padding_standard" >
 
-		<TextView android:id="@+id/buddy_full_name"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_large"
-			android:gravity="center" />
-		<ProgressBar android:id="@+id/buddy_progress" 
+		<ProgressBar
+			android:id="@+id/buddy_progress"
 			android:layout_width="@dimen/image_size"
 			android:layout_height="@dimen/image_size"
 			android:padding="@dimen/padding_standard"
 			android:visibility="gone" />
-		<ImageView android:id="@+id/buddy_avatar" 
+
+		<ImageView
+			android:id="@+id/buddy_avatar"
 			android:layout_width="@dimen/image_size"
 			android:layout_height="@dimen/image_size"
 			android:padding="@dimen/padding_standard"
 			android:visibility="gone" />
-		<TextView android:id="@+id/buddy_name"
+
+		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_medium"
-			android:gravity="center" />
-		<TextView android:id="@+id/buddy_id"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_small"
-			android:gravity="center" />
+			android:orientation="vertical" >
 
-		<TextView
-			android:id="@+id/collection_info"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:background="@color/background_light"
-			android:gravity="center"
-			android:padding="@dimen/padding_standard"
-			android:textSize="@dimen/text_size_small" />
+			<TextView
+				android:id="@+id/buddy_full_name"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="Chris Comeaux"
+				android:textSize="@dimen/text_size_large" />
 
-		<include layout="@layout/header_divider" />
+			<TextView
+				android:id="@+id/buddy_name"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="ccomeaux"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_small" />
 
-		<include layout="@layout/list" />
+			<TextView
+				android:id="@+id/buddy_id"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_tiny"
+				android:visibility="gone" />
+		</LinearLayout>
 	</LinearLayout>
+
+	<TextView
+		android:id="@+id/collection_info"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/background_light"
+		android:gravity="center"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/padding_standard"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingTop="0dp"
+		android:text="@string/home_btn_collection"
+		android:textSize="@dimen/text_size_small" />
+
+	<include layout="@layout/header_divider" />
+
+	<include layout="@layout/list" />
+
 </LinearLayout>

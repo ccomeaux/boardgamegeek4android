@@ -142,7 +142,7 @@ public class HttpUtils {
 	}
 
 	public static String constructCollectionUrl(String username, String status) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
+		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
 		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1";
 	}
 	

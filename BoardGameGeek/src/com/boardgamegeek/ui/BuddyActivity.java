@@ -37,17 +37,18 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends ListActivity implements AsyncQueryListener {
-	 private final static String TAG = "BuddyActivity";
+	private final static String TAG = "BuddyActivity";
 
 	private Uri mBuddyUri;
 	private NotifyingAsyncQueryHandler mHandler;
 
 	private TextView mFullName;
-	private ImageView mAvatarImage;
 	private TextView mName;
 	private TextView mId;
+	private View mProgress;
+	private ImageView mAvatarImage;
 	private TextView mInfoView;
-	
+
 	private List<BuddyGame> mBuddyGames = new ArrayList<BuddyGame>();
 
 	@Override
@@ -58,9 +59,10 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 		UIUtils.allowTypeToSearch(this);
 
 		mFullName = (TextView) findViewById(R.id.buddy_full_name);
-		mAvatarImage = (ImageView) findViewById(R.id.buddy_avatar);
 		mName = (TextView) findViewById(R.id.buddy_name);
 		mId = (TextView) findViewById(R.id.buddy_id);
+		mAvatarImage = (ImageView) findViewById(R.id.buddy_avatar);
+		mProgress = findViewById(R.id.buddy_progress);
 		mInfoView = (TextView) findViewById(R.id.collection_info);
 
 		final Intent intent = getIntent();
@@ -76,8 +78,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 				return;
 			}
 
-			mFullName.setText(cursor.getString(BuddiesQuery.FIRSTNAME) + " "
-					+ cursor.getString(BuddiesQuery.LASTNAME));
+			mFullName.setText(cursor.getString(BuddiesQuery.FIRSTNAME) + " " + cursor.getString(BuddiesQuery.LASTNAME));
 			mName.setText(cursor.getString(BuddiesQuery.NAME));
 			mId.setText(cursor.getString(BuddiesQuery.BUDDY_ID));
 
@@ -85,7 +86,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 				final String url = cursor.getString(BuddiesQuery.AVATAR_URL);
 				new AvatarTask().execute(url);
 			}
-			
+
 			BuddyCollectionTask buddyCollectionTask = new BuddyCollectionTask(this, (String) mName.getText());
 			buddyCollectionTask.execute();
 		} finally {
@@ -107,10 +108,9 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 	}
 
 	private class AvatarTask extends AsyncTask<String, Void, Drawable> {
-
 		@Override
 		protected void onPreExecute() {
-			findViewById(R.id.buddy_progress).setVisibility(View.VISIBLE);
+			mProgress.setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -120,7 +120,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 
 		@Override
 		protected void onPostExecute(Drawable result) {
-			findViewById(R.id.buddy_progress).setVisibility(View.GONE);
+			mProgress.setVisibility(View.GONE);
 			if (result == null) {
 				mAvatarImage.setVisibility(View.GONE);
 			} else {
@@ -129,7 +129,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
 		super.onListItemClick(listView, convertView, position, id);
@@ -141,7 +141,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			startActivity(intent);
 		}
 	}
-	
+
 	private class BuddyCollectionTask extends AsyncTask<Void, Void, RemoteBuddyCollectionHandler> {
 
 		private Activity mActivity;
@@ -149,18 +149,18 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 		private RemoteExecutor mExecutor;
 		private RemoteBuddyCollectionHandler mHandler = new RemoteBuddyCollectionHandler();
 		private String mUrl;
-		
+
 		public BuddyCollectionTask(Activity activity, String userName) {
 			this.mActivity = activity;
 			this.mUrl = HttpUtils.constructCollectionUrl(userName, "own");
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			mHttpClient = HttpUtils.createHttpClient(mActivity, true);
 			mExecutor = new RemoteExecutor(mHttpClient, null);
 		}
-		
+
 		@Override
 		protected RemoteBuddyCollectionHandler doInBackground(Void... params) {
 			try {
@@ -170,7 +170,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			}
 			return mHandler;
 		}
-		
+
 		@Override
 		protected void onPostExecute(RemoteBuddyCollectionHandler result) {
 			Log.i(TAG, "Buddy collection size: " + result.getCount());
@@ -185,7 +185,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 				((ListActivity) mActivity).setListAdapter(new BuddyActivityAdapter(mActivity, mBuddyGames));
 			}
 		}
-		
+
 	}
 
 	private static class BuddyActivityAdapter extends ArrayAdapter<BuddyGame> {
@@ -193,14 +193,14 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 		private List<BuddyGame> mBuddyGames;
 
 		private LayoutInflater mInflater;
-		
+
 		public BuddyActivityAdapter(Activity activity, List<BuddyGame> games) {
 			super(activity, R.layout.row_buddygame, games);
 			mActivity = activity;
 			mInflater = mActivity.getLayoutInflater();
 			mBuddyGames = games;
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			BuddyGamesViewHolder holder;
@@ -226,7 +226,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			return convertView;
 		}
 	}
-	
+
 	public static class BuddyGamesViewHolder {
 		public TextView id;
 		public TextView name;
@@ -240,8 +240,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME,
-				Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
+		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
 				Buddies.AVATAR_URL, };
 
 		int BUDDY_ID = 0;

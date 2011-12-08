@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:padding="@dimen/padding_standard"
-		android:background="@color/background_light"
-		android:orientation="horizontal">
-	<ProgressBar android:id="@+id/thumbnail_progress"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:background="@color/background_light"
+	android:orientation="horizontal"
+	android:padding="@dimen/padding_standard" >
+
+	<ProgressBar
+		android:id="@+id/thumbnail_progress"
 		android:layout_width="@dimen/thumbnail_size"
 		android:layout_height="@dimen/thumbnail_size"
 		android:padding="@dimen/padding_standard"
 		android:visibility="gone" />
+
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/game_thumbnail"
 		android:layout_width="@dimen/thumbnail_size"
 		android:layout_height="@dimen/thumbnail_size"
+		android:onClick="onThumbnailClick"
 		android:scaleType="centerCrop"
 		android:src="@drawable/noimage"
-		android:visibility="gone"
-		android:onClick="onThumbnailClick" />
-	<TextView 
+		android:visibility="gone" />
+
+	<TextView
 		android:id="@id/game_name"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
+		android:ellipsize="end"
 		android:gravity="center_vertical"
-		android:textSize="@dimen/text_size_medium"
-		android:textStyle="bold"
 		android:padding="@dimen/padding_standard"
-		android:ellipsize="end" />
+		android:textSize="@dimen/text_size_medium"
+		android:textStyle="bold" />
+
 </LinearLayout>
