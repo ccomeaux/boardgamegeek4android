@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -14,10 +18,12 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
@@ -31,11 +37,13 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYER = 2;
+	private static final int TOKEN_GAME = 3;
 
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mPlayUri;
 	private Uri mPlayerUri;
 
+	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
 	private Play mPlay;
@@ -60,21 +68,44 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		mHandler.startQuery(TOKEN_PLAY, mPlayUri, Query.PROJECTION);
 		mHandler.startQuery(TOKEN_PLAYER, mPlayerUri, PlayerQuery.PROJECTION);
+		if (TextUtils.isEmpty(mThumbnailUrl)) {
+			Uri uri = Games.buildGameUri(mGameId);
+			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
+		}
 	}
 
 	private void parseIntent() {
 		Intent intent = getIntent();
-		int gameId = intent.getExtras().getInt(KEY_GAME_ID);
+		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
-		// TODO: get thumbnail
-		if (gameId == -1) {
+
+		if (mGameId == -1) {
 			Log.w(TAG, "Didn't get a game ID");
 			finish();
 		}
+
 		mPlayUri = intent.getData();
 		int playId = Plays.getPlayId(mPlayUri);
 		mPlayerUri = Plays.buildPlayerUri(playId);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		final MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.play, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_edit:
+				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -101,14 +132,23 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 				mGameName = cursor.getString(Query.NAME);
 				UIUtils.setGameName(this, mGameName);
 
-				mPlay = new Play(cursor);
+				mPlay = new Play();
+				mPlay.populate(cursor);
+				bindUi();
 			} else if (token == TOKEN_PLAYER) {
 				while (cursor.moveToNext()) {
 					Player player = new Player(cursor);
 					mPlay.addPlayer(player);
 				}
+				bindUi();
+			} else if (token == TOKEN_GAME) {
+				if (!cursor.moveToFirst()) {
+					return;
+				}
+
+				mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
+				new UIUtils(this).setThumbnail(mThumbnailUrl);
 			}
-			bindUi();
 		} finally {
 			cursor.close();
 		}
@@ -142,14 +182,20 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 	}
 
 	private interface Query {
-		String[] PROJECTION = { PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION, Plays.LENGTH,
-				Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
+		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
+				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
 
-		int NAME = 0;
+		int NAME = 1;
 	}
 
 	private interface PlayerQuery {
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
 				PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
+	}
+
+	private interface GameQuery {
+		String[] PROJECTION = { Games.THUMBNAIL_URL };
+
+		int THUMBNAIL_URL = 0;
 	}
 }

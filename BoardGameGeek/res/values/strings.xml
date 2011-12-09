@@ -251,6 +251,7 @@
 	<string name="menu_color">Teams/Colors</string>
 	<string name="menu_forums">Forums</string>
 	<string name="menu_create_shortcut">Create Shortcut</string>
+	<string name="menu_edit">Edit</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.
 	</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
@@ -260,6 +261,7 @@
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
 	<string name="msg_player_deleted">Player deleted.</string>
+	<string name="msg_play_updated">Play updated successfully!</string>
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android
