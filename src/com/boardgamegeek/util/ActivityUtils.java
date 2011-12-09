@@ -36,11 +36,21 @@ public class ActivityUtils {
 		context.startActivity(Intent.createChooser(shareIntent, r.getString(R.string.share_title)));
 	}
 
-	public static void logPlay(Context context, boolean quick, int id, String name, String thumbnailUrl) {
+	public static void logPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+		Intent intent = new Intent(context, LogPlayActivity.class);
+		intent.setAction(Intent.ACTION_EDIT);
+		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
+		context.startActivity(intent);
+	}
+
+	public static void logPlay(Context context, boolean quick, int gameId, String gameName, String thumbnailUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, id);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, name);
+		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
 	}

@@ -22,6 +22,7 @@ import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
 	private static final String TAG = "Play";
+	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_YEAR = "YEAR";
 	private static final String KEY_MONTH = "MONTH";
@@ -37,7 +38,15 @@ public class Play {
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
 
+	public Play() {
+		init(-1);
+	}
+
 	public Play(int gameId) {
+		init(gameId);
+	}
+
+	private void init(int gameId) {
 		GameId = gameId;
 		Quantity = 1;
 		// set current date
@@ -48,6 +57,7 @@ public class Play {
 	}
 
 	public Play(Bundle bundle) {
+		PlayId = bundle.getInt(KEY_PLAY_ID);
 		GameId = bundle.getInt(KEY_GAME_ID);
 		Year = bundle.getInt(KEY_YEAR);
 		Month = bundle.getInt(KEY_MONTH);
@@ -61,7 +71,20 @@ public class Play {
 		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
 	}
 
-	public Play(Cursor c) {
+	public int PlayId;
+	public int GameId;
+	public int Year;
+	public int Month;
+	public int Day;
+	public int Quantity;
+	public int Length;
+	public String Location;
+	public boolean Incomplete;
+	public boolean NoWinStats;
+	public String Comments;
+
+	public void populate(Cursor c) {
+		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
 		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID);
 		String date = CursorUtils.getString(c, Plays.DATE);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -80,17 +103,6 @@ public class Play {
 		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);
 		Comments = CursorUtils.getString(c, Plays.COMMENTS);
 	}
-
-	public int GameId;
-	public int Year;
-	public int Month;
-	public int Day;
-	public int Quantity;
-	public int Length;
-	public String Location;
-	public boolean Incomplete;
-	public boolean NoWinStats;
-	public String Comments;
 
 	public List<Player> getPlayers() {
 		return mPlayers;
@@ -119,6 +131,7 @@ public class Play {
 	}
 
 	public void saveState(Bundle bundle) {
+		bundle.putInt(KEY_PLAY_ID, PlayId);
 		bundle.putInt(KEY_GAME_ID, GameId);
 		bundle.putInt(KEY_YEAR, Year);
 		bundle.putInt(KEY_MONTH, Month);
@@ -138,6 +151,9 @@ public class Play {
 		nvps.add(new BasicNameValuePair("action", "save"));
 		nvps.add(new BasicNameValuePair("version", "2"));
 		nvps.add(new BasicNameValuePair("objecttype", "thing"));
+		if (PlayId > 0) {
+			nvps.add(new BasicNameValuePair("playid", String.valueOf(PlayId)));
+		}
 		nvps.add(new BasicNameValuePair("objectid", String.valueOf(GameId)));
 		nvps.add(new BasicNameValuePair("playdate", getFormattedDate()));
 		// TODO: ask Aldie what this is

@@ -23,6 +23,8 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -47,14 +49,19 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
+import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
+import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayActivity extends Activity implements LogInListener {
+public class LogPlayActivity extends Activity implements LogInListener, AsyncQueryListener {
 	private static final String TAG = "LogPlayActivity";
 
 	private static final int HELP_VERSION = 1;
@@ -62,6 +69,11 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private static final int LOGGING_DIALOG_ID = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
 
+	private static final int TOKEN_PLAY = 1;
+	private static final int TOKEN_PLAYER = 2;
+	private static final int TOKEN_GAME = 3;
+
+	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
@@ -71,6 +83,10 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private static final String KEY_NO_WIN_STATS_SHOWN = "NO_WIN_STATS_SHOWN";
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
+
+	private NotifyingAsyncQueryHandler mHandler;
+	private Uri mPlayUri;
+	private Uri mPlayerUri;
 
 	private String mGameName;
 	private String mThumbnailUrl;
@@ -102,23 +118,40 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
-		findViewById(R.id.game_thumbnail).setClickable(false);
-		UIUtils.setTitle(this);
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
 		mCancelDialog = UIUtils.createCancelDialog(this);
 
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
-			final int gameId = intent.getExtras().getInt(KEY_GAME_ID);
+
+			int playId = intent.getExtras().getInt(KEY_PLAY_ID);
+			int gameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
-			if (gameId == -1) {
-				Log.w(TAG, "Didn't get a game ID");
+
+			Toast.makeText(this, "Play ID: " + playId, Toast.LENGTH_LONG).show();
+			if (gameId == -1 && playId <= 0) {
+				Log.w(TAG, "Didn't get a game ID or play ID");
 				finish();
 			}
 
-			mPlay = new Play(gameId);
+			if (playId > 0) {
+				mPlay = new Play();
+
+				mPlayUri = Plays.buildPlayUri(playId);
+				mPlayerUri = Plays.buildPlayerUri(playId);
+
+				mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+				mHandler.startQuery(TOKEN_PLAY, mPlayUri, Query.PROJECTION);
+				mHandler.startQuery(TOKEN_PLAYER, mPlayerUri, PlayerQuery.PROJECTION);
+				if (TextUtils.isEmpty(mThumbnailUrl) && gameId > 0) {
+					Uri uri = Games.buildGameUri(gameId);
+					mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
+				}
+			} else {
+				mPlay = new Play(gameId);
+			}
 
 			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 				quickLogPlay();
@@ -142,9 +175,7 @@ public class LogPlayActivity extends Activity implements LogInListener {
 
 		hideFields();
 
-		UIUtils u = new UIUtils(this);
-		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
+		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 		setDateButtonText();
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
@@ -320,6 +351,37 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	@Override
+	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
+		try {
+			if (token == TOKEN_PLAY) {
+				if (!cursor.moveToFirst()) {
+					return;
+				}
+
+				mGameName = cursor.getString(Query.NAME);
+				UIUtils.setGameName(this, mGameName);
+				mPlay.populate(cursor);
+				bindUi();
+			} else if (token == TOKEN_PLAYER) {
+				while (cursor.moveToNext()) {
+					Player player = new Player(cursor);
+					mPlay.addPlayer(player);
+				}
+				bindUi();
+			} else if (token == TOKEN_GAME) {
+				if (!cursor.moveToFirst()) {
+					return;
+				}
+
+				mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
+				new UIUtils(this).setThumbnail(mThumbnailUrl);
+			}
+		} finally {
+			cursor.close();
+		}
+	}
+
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
@@ -335,14 +397,16 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	private void bindUi() {
-		mQuantityView.setText(String.valueOf(mPlay.Quantity));
-		mLengthView.setText(String.valueOf(mPlay.Length));
-		mLocationView.setText(mPlay.Location);
-		mIncompleteView.setChecked(mPlay.Incomplete);
-		mNoWinStatsView.setChecked(mPlay.NoWinStats);
-		mCommentsView.setText(mPlay.Comments);
-		for (Player player : mPlay.getPlayers()) {
-			addPlayer(player);
+		if (mPlay != null) {
+			mQuantityView.setText(String.valueOf(mPlay.Quantity));
+			mLengthView.setText(String.valueOf(mPlay.Length));
+			mLocationView.setText(mPlay.Location);
+			mIncompleteView.setChecked(mPlay.Incomplete);
+			mNoWinStatsView.setChecked(mPlay.NoWinStats);
+			mCommentsView.setText(mPlay.Comments);
+			for (Player player : mPlay.getPlayers()) {
+				addPlayer(player);
+			}
 		}
 	}
 
@@ -389,6 +453,10 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	private void addPlayer(Intent intent, int requestCode) {
+		if (mPlay == null) {
+			Toast.makeText(this, "Can't add player, error initializing.", Toast.LENGTH_LONG).show();
+			return;
+		}
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
@@ -465,6 +533,10 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	private void logPlay() {
+		if (mPlay == null) {
+			Toast.makeText(this, "Can't log play, error initializing.", Toast.LENGTH_LONG).show();
+			return;
+		}
 		captureForm();
 		LogPlayTask task = new LogPlayTask();
 		task.execute(mPlay);
@@ -549,9 +621,13 @@ public class LogPlayActivity extends Activity implements LogInListener {
 			Log.d(TAG, "play result: " + result);
 			removeDialog(LOGGING_DIALOG_ID);
 			if (isValidResponse(result)) {
-				final int playCount = parsePlayCount(result);
-				final String countDescription = getPlayCountDescription(playCount);
-				showToast(String.format(r.getString(R.string.logPlaySuccess), countDescription, mGameName));
+				String message = r.getString(R.string.msg_play_updated);
+				if (mPlay.PlayId <= 0) {
+					int playCount = parsePlayCount(result);
+					String countDescription = getPlayCountDescription(playCount);
+					message = String.format(r.getString(R.string.logPlaySuccess), countDescription, mGameName);
+				}
+				showToast(message);
 				finish();
 			} else {
 				showToast(result);
@@ -601,13 +677,17 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
 		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-			mPlay.setDate(year, monthOfYear, dayOfMonth);
-			setDateButtonText();
+			if (mPlay != null) {
+				mPlay.setDate(year, monthOfYear, dayOfMonth);
+				setDateButtonText();
+			}
 		}
 	};
 
 	private void setDateButtonText() {
-		mDateButton.setText(mPlay.getDateText());
+		if (mPlay != null) {
+			mDateButton.setText(mPlay.getDateText());
+		}
 	}
 
 	private void enableSave() {
@@ -632,6 +712,10 @@ public class LogPlayActivity extends Activity implements LogInListener {
 	}
 
 	private void captureForm() {
+		if (mPlay == null) {
+			Toast.makeText(this, "Can't save, error initializing form.", Toast.LENGTH_LONG).show();
+			return;
+		}
 		// date info already captured
 		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString(), 1);
 		mPlay.Length = StringUtils.parseInt(mLengthView.getText().toString(), 0);
@@ -648,5 +732,23 @@ public class LogPlayActivity extends Activity implements LogInListener {
 				mPlay.addPlayer(p);
 			}
 		}
+	}
+
+	private interface Query {
+		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
+				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
+
+		int NAME = 1;
+	}
+
+	private interface PlayerQuery {
+		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
+				PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
+	}
+
+	private interface GameQuery {
+		String[] PROJECTION = { Games.THUMBNAIL_URL };
+
+		int THUMBNAIL_URL = 0;
 	}
 }
