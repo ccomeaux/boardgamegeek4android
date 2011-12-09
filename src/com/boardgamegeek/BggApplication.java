@@ -59,6 +59,9 @@ public class BggApplication extends Application {
 		putSyncTimestamp(0);
 		putCollectionFullSyncTimestamp(0);
 		putCollectionPartSyncTimestamp(0);
+	}
+
+	public void clearSyncPlaysSettings() {
 		putMaxPlayDate(DEFAULT_MAX_PLAY_DATE);
 		putMinPlayDate(DEFAULT_MIN_PLAY_DATE);
 	}
