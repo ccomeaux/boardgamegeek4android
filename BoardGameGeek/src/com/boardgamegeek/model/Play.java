@@ -34,6 +34,7 @@ public class Play {
 	private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
 	private static final String KEY_COMMENTS = "COMMENTS";
 	private static final String KEY_PLAYERS = "PLAYERS";
+	private static final String KEY_UPDATED = "UPDATED";
 
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
@@ -68,6 +69,7 @@ public class Play {
 		Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
 		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
 		Comments = bundle.getString(KEY_COMMENTS);
+		Updated = bundle.getLong(KEY_UPDATED);
 		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
 	}
 
@@ -82,6 +84,7 @@ public class Play {
 	public boolean Incomplete;
 	public boolean NoWinStats;
 	public String Comments;
+	public long Updated;
 
 	public void populate(Cursor c) {
 		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
@@ -92,7 +95,7 @@ public class Play {
 			Date d = sdf.parse(date);
 			Year = d.getYear() + 1900;
 			Month = d.getMonth();
-			Day = d.getDay();
+			Day = d.getDate();
 		} catch (ParseException e) {
 			Log.w(TAG, "Couldn't parse " + date);
 		}
@@ -102,6 +105,7 @@ public class Play {
 		Incomplete = CursorUtils.getBoolean(c, Plays.INCOMPLETE);
 		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);
 		Comments = CursorUtils.getString(c, Plays.COMMENTS);
+		Updated = CursorUtils.getLong(c, Plays.UPDATED_LIST);
 	}
 
 	public List<Player> getPlayers() {
@@ -142,6 +146,7 @@ public class Play {
 		bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
 		bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
 		bundle.putString(KEY_COMMENTS, Comments);
+		bundle.putLong(KEY_UPDATED, Updated);
 		bundle.putParcelableArrayList(KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
 	}
 

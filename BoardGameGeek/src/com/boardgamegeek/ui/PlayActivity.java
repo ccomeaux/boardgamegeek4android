@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +49,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 	private String mThumbnailUrl;
 	private Play mPlay;
 
+	private TextView mUpdated;
 	private TextView mDate;
 	private TextView mQuantity;
 	private TextView mLength;
@@ -155,6 +157,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 	}
 
 	private void setUiVariables() {
+		mUpdated = (TextView) findViewById(R.id.updated);
 		mDate = (TextView) findViewById(R.id.play_date);
 		mQuantity = (TextView) findViewById(R.id.play_quantity);
 		mLength = (TextView) findViewById(R.id.play_length);
@@ -179,11 +182,21 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 			pr.setPlayer(player);
 			mPlayerList.addView(pr);
 		}
+
+		long updated = mPlay.Updated;
+		if (updated == 0) {
+			mUpdated.setVisibility(View.GONE);
+		} else {
+			mUpdated.setVisibility(View.VISIBLE);
+			CharSequence u = DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
+					DateUtils.MINUTE_IN_MILLIS);
+			mUpdated.setText(getResources().getString(R.string.updated) + " " + u);
+		}
 	}
 
 	private interface Query {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
+				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST };
 
 		int NAME = 1;
 	}
