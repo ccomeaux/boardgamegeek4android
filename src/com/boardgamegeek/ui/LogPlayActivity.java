@@ -130,7 +130,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
-			Toast.makeText(this, "Play ID: " + playId, Toast.LENGTH_LONG).show();
 			if (gameId == -1 && playId <= 0) {
 				Log.w(TAG, "Didn't get a game ID or play ID");
 				finish();
@@ -398,6 +397,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private void bindUi() {
 		if (mPlay != null) {
+			setDateButtonText();
 			mQuantityView.setText(String.valueOf(mPlay.Quantity));
 			mLengthView.setText(String.valueOf(mPlay.Length));
 			mLocationView.setText(mPlay.Location);

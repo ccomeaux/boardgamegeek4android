@@ -30,6 +30,19 @@ public class CursorUtils {
 		}
 	}
 
+	public static long getLong(Cursor cursor, String columnName) {
+		return getLong(cursor, columnName, 0);
+	}
+
+	public static long getLong(Cursor cursor, String columnName, long defaultValue) {
+		int idx = cursor.getColumnIndex(columnName);
+		if (idx == -1) {
+			return defaultValue;
+		} else {
+			return cursor.getLong(idx);
+		}
+	}
+
 	public static double getDouble(Cursor cursor, String columnName) {
 		return getDouble(cursor, columnName, 0.0);
 	}
