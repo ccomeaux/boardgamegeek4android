@@ -44,6 +44,8 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
@@ -594,6 +596,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
 
+			String message = "";
 			HttpResponse response = null;
 			try {
 				response = client.execute(post);
@@ -604,16 +607,23 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 					return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
 							+ " " + response.toString() + ".";
 				}
-				return HttpUtils.parseResponse(response);
+				message = HttpUtils.parseResponse(response);
+
+				// Sync the new game back locally
+				RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
+				re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
+						new RemotePlaysHandler());
 			} catch (ClientProtocolException e) {
-				return e.toString();
+				message = e.toString();
 			} catch (IOException e) {
-				return e.toString();
+				message = e.toString();
 			} finally {
 				if (client != null && client.getConnectionManager() != null) {
 					client.getConnectionManager().shutdown();
 				}
 			}
+
+			return message;
 		}
 
 		@Override
