@@ -124,6 +124,18 @@ public class HttpUtils {
 		return url;
 	}
 
+	public static String constructPlayUrlSpecific(int gameId, String date) {
+		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&id=13&mindate=2011-12-03&maxdate=2011-12-03
+		String username = BggApplication.getInstance().getUserName();
+		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		url += "&id=" + String.valueOf(gameId);
+		if (!TextUtils.isEmpty(date)) {
+			url += "&mindate=" + date;
+			url += "&maxdate=" + date;
+		}
+		return url;
+	}
+
 	public static String constructUserUrl(String username) {
 		return constructUserUrl(username, false);
 	}
