@@ -26,6 +26,8 @@ import com.boardgamegeek.util.UIUtils;
 
 public class PlaysActivity extends ListActivity implements AsyncQueryListener {
 	// private static final String TAG = "PlaysActivity";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
 	private PlaysAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -43,6 +45,14 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener {
 		setListAdapter(mAdapter);
 
 		mUri = getIntent().getData();
+
+		if (mUri.getPathSegments().contains("games")) {
+			Bundle extras = getIntent().getExtras();
+			UIUtils.setGameHeader(this, extras.getString(KEY_GAME_NAME), extras.getString(KEY_THUMBNAIL_URL));
+		} else {
+			findViewById(R.id.game_header).setVisibility(View.GONE);
+			findViewById(R.id.header_divider).setVisibility(View.GONE);
+		}
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		startQuery();
 	}
