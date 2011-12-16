@@ -26,6 +26,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -233,6 +234,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		// only enable options when the game is loaded
 		enableMenuItem(menu, R.id.log_play);
 		enableMenuItem(menu, R.id.log_play_quick);
+		enableMenuItem(menu, R.id.plays);
 		enableMenuItem(menu, R.id.links);
 		enableMenuItem(menu, R.id.share);
 		enableMenuItem(menu, R.id.shortcut);
@@ -303,6 +305,13 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, mName);
 				this.startActivity(forumsIntent);
+				return true;
+			case R.id.plays:
+				Intent playsIntent = new Intent(Intent.ACTION_VIEW, Plays.buildGameUri(mId));
+				playsIntent.putExtra(PlaysActivity.KEY_GAME_NAME, mName);
+				playsIntent.putExtra(PlaysActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+				startActivity(playsIntent);
+				return true;
 		}
 		return false;
 	}

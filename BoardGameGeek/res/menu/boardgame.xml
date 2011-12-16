@@ -22,10 +22,16 @@
 		android:title="@string/menu_forums"/>
 
 	<item
+		android:id="@+id/plays"
+		android:icon="@android:drawable/ic_menu_month"
+		android:title="@string/menu_plays"/>
+
+	<item
 		android:id="@+id/links"
 		android:icon="@drawable/ic_menu_link"
 		android:title="@string/menu_links">
-<menu >
+
+		<menu >
 
 			<item
 				android:id="@+id/menu_bgg"
@@ -42,7 +48,8 @@
 			<item
 				android:id="@+id/menu_ebay"
 				android:title="@string/menu_link_ebay"/>
-		</menu></item>
+		</menu>
+	</item>
 
 	<item
 		android:id="@+id/share"

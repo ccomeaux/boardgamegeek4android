@@ -106,6 +106,7 @@ public class BggProvider extends ContentProvider {
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 	private static final int PLAYS = 2000;
+	private static final int PLAYS_GAMES_ID = 2002;
 	private static final int PLAYS_ID = 2001;
 	private static final int PLAYS_ID_ITEMS = 2010;
 	private static final int PLAYS_ID_ITEMS_ID = 2011;
@@ -162,6 +163,7 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 		matcher.addURI(authority, "plays", PLAYS);
+		matcher.addURI(authority, "plays/games/#", PLAYS_GAMES_ID);
 		matcher.addURI(authority, "plays/#", PLAYS_ID);
 		matcher.addURI(authority, "plays/#/items", PLAYS_ID_ITEMS);
 		matcher.addURI(authority, "plays/#/items/#", PLAYS_ID_ITEMS_ID);
@@ -300,6 +302,8 @@ public class BggProvider extends ContentProvider {
 			case BUDDIES_ID:
 				return Buddies.CONTENT_ITEM_TYPE;
 			case PLAYS:
+				return Plays.CONTENT_TYPE;
+			case PLAYS_GAMES_ID:
 				return Plays.CONTENT_TYPE;
 			case PLAYS_ID:
 				return Plays.CONTENT_ITEM_TYPE;
@@ -837,7 +841,10 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.PLAY_PLAYERS).where(PlayPlayers.PLAY_ID + "=?", String.valueOf(playId))
 						.where(PlayPlayers._ID + "=?", String.valueOf(rowId));
 			}
-
+			case PLAYS_GAMES_ID: {
+				String gameId = uri.getLastPathSegment();
+				return builder.table(Tables.PLAY_ITEMS).where(PlayItems.OBJECT_ID + "=?", gameId);
+			}
 			case GAMES_ID_POLLS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_POLLS).where(GamePolls.GAME_ID + "=?", String.valueOf(gameId));
@@ -985,6 +992,12 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
 						.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 						.where(Tables.PLAYS + "." + Plays.PLAY_ID + "=?", String.valueOf(playId));
+			}
+			case PLAYS_GAMES_ID: {
+				String gameId = uri.getLastPathSegment();
+				return builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
+						.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
+						.where(PlayItems.OBJECT_ID + "=?", gameId);
 			}
 			default:
 				return buildSimpleSelection(uri, match);

@@ -574,6 +574,10 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
 		}
 
+		public static Uri buildGameUri(int gameId) {
+			return CONTENT_URI.buildUpon().appendPath(PATH_GAMES).appendPath(String.valueOf(gameId)).build();
+		}
+
 		public static Uri buildItemUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS).build();
 		}
