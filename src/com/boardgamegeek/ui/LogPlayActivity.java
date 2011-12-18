@@ -171,10 +171,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
-			bindUi();
 		}
 
-		hideFields();
+		bindUi();
 
 		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 		setDateButtonText();
@@ -409,6 +408,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			for (Player player : mPlay.getPlayers()) {
 				addPlayer(player);
 			}
+			hideFields();
 		}
 	}
 
@@ -480,50 +480,41 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	private void hideFields() {
-		if (hideLength()) {
-			findViewById(R.id.log_length_row).setVisibility(View.GONE);
-		}
-		if (hideLocation()) {
-			findViewById(R.id.log_location_row).setVisibility(View.GONE);
-		}
-		if (hideIncomplete()) {
-			findViewById(R.id.log_incomplete).setVisibility(View.GONE);
-		}
-		if (hideNoWinStats()) {
-			findViewById(R.id.log_no_win_stats).setVisibility(View.GONE);
-		}
-		if (hideComments()) {
-			findViewById(R.id.log_comments_label).setVisibility(View.GONE);
-			findViewById(R.id.log_comments).setVisibility(View.GONE);
-		}
-		if (hidePlayers()) {
-			findViewById(R.id.log_player_list_divider).setVisibility(View.GONE);
-			findViewById(R.id.log_player_list).setVisibility(View.GONE);
-		}
+		findViewById(R.id.log_length_row).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_location_row).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_incomplete).setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_no_win_stats).setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_comments).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_list_divider).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_list).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
 	}
 
 	private boolean hideLength() {
-		return BggApplication.getInstance().getPlayLoggingHideLength() && !mLengthShown;
+		return BggApplication.getInstance().getPlayLoggingHideLength() && !mLengthShown && !(mPlay.Length > 0);
 	}
 
 	private boolean hideLocation() {
-		return BggApplication.getInstance().getPlayLoggingHideLocation() && !mLocationShown;
+		return BggApplication.getInstance().getPlayLoggingHideLocation() && !mLocationShown
+				&& TextUtils.isEmpty(mPlay.Location);
 	}
 
 	private boolean hideIncomplete() {
-		return BggApplication.getInstance().getPlayLoggingHideIncomplete() && !mIncompleteShown;
+		return BggApplication.getInstance().getPlayLoggingHideIncomplete() && !mIncompleteShown && !mPlay.Incomplete;
 	}
 
 	private boolean hideNoWinStats() {
-		return BggApplication.getInstance().getPlayLoggingHideNoWinStats() && !mNoWinStatsShown;
+		return BggApplication.getInstance().getPlayLoggingHideNoWinStats() && !mNoWinStatsShown && !mPlay.NoWinStats;
 	}
 
 	private boolean hideComments() {
-		return BggApplication.getInstance().getPlayLoggingHideComments() && !mCommentsShown;
+		return BggApplication.getInstance().getPlayLoggingHideComments() && !mCommentsShown
+				&& TextUtils.isEmpty(mPlay.Comments);
 	}
 
 	private boolean hidePlayers() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown
+				&& (mPlay.getPlayers().size() == 0);
 	}
 
 	private void quickLogPlay() {
