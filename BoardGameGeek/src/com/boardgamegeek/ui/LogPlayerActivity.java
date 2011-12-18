@@ -99,10 +99,10 @@ public class LogPlayerActivity extends Activity {
 			mRatingShown = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
 			mNewShown = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
 			mWinShown = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
-			bindUi();
 		}
 
-		hideFields();
+		bindUi();
+
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
 		u.setThumbnail(mThumbnailUrl);
@@ -170,48 +170,39 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private void hideFields() {
-		if (hideTeamColor()) {
-			findViewById(R.id.log_player_team_color_row).setVisibility(View.GONE);
-		}
-		if (hidePosition()) {
-			findViewById(R.id.log_player_position_row).setVisibility(View.GONE);
-		}
-		if (hideScore()) {
-			findViewById(R.id.log_player_score_row).setVisibility(View.GONE);
-		}
-		if (hideRating()) {
-			findViewById(R.id.log_player_rating_row).setVisibility(View.GONE);
-		}
-		if (hideNew()) {
-			mNew.setVisibility(View.GONE);
-		}
-		if (hideWin()) {
-			mWin.setVisibility(View.GONE);
-		}
+		findViewById(R.id.log_player_team_color_row).setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_position_row).setVisibility(hidePosition() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_score_row).setVisibility(hideScore() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_rating_row).setVisibility(hideRating() ? View.GONE : View.VISIBLE);
+		mNew.setVisibility(hideNew() ? View.GONE : View.VISIBLE);
+		mWin.setVisibility(hideWin() ? View.GONE : View.VISIBLE);
 	}
 
 	private boolean hideTeamColor() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerTeamColor() && !mTeamColorShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerTeamColor() && !mTeamColorShown
+				&& TextUtils.isEmpty(mPlayer.TeamColor);
 	}
 
 	private boolean hidePosition() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerPosition() && !mPositionShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerPosition() && !mPositionShown
+				&& TextUtils.isEmpty(mPlayer.StartingPosition);
 	}
 
 	private boolean hideScore() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerScore() && !mScoreShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerScore() && !mScoreShown
+				&& TextUtils.isEmpty(mPlayer.Score);
 	}
 
 	private boolean hideRating() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerRating() && !mRatingShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerRating() && !mRatingShown && !(mPlayer.Rating > 0);
 	}
 
 	private boolean hideNew() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerNew() && !mNewShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerNew() && !mNewShown && !mPlayer.New;
 	}
 
 	private boolean hideWin() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerWin() && !mWinShown;
+		return BggApplication.getInstance().getPlayLoggingHidePlayerWin() && !mWinShown && !mPlayer.Win;
 	}
 
 	private void bindUi() {
@@ -223,6 +214,7 @@ public class LogPlayerActivity extends Activity {
 		mRating.setText(String.valueOf(mPlayer.Rating));
 		mNew.setChecked(mPlayer.New);
 		mWin.setChecked(mPlayer.Win);
+		hideFields();
 	}
 
 	@Override
