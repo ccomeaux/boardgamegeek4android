@@ -592,18 +592,20 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			try {
 				response = client.execute(post);
 				if (response == null) {
-					return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
+					message = r.getString(R.string.logInError) + " : "
+							+ r.getString(R.string.logInErrorSuffixNoResponse);
+				} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+					message = r.getString(R.string.logInError) + " : "
+							+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".";
+				} else {
+					message = HttpUtils.parseResponse(response);
+					if (isValidResponse(message)) {
+						// Sync the new game back locally
+						RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
+						re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
+								new RemotePlaysHandler());
+					}
 				}
-				if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-					return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
-							+ " " + response.toString() + ".";
-				}
-				message = HttpUtils.parseResponse(response);
-
-				// Sync the new game back locally
-				RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
-				re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
-						new RemotePlaysHandler());
 			} catch (ClientProtocolException e) {
 				message = e.toString();
 			} catch (IOException e) {
