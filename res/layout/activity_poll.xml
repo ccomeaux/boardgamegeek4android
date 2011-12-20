@@ -47,6 +47,7 @@
 				android:orientation="vertical" />
 
 			<LinearLayout
+				android:id="@+id/poll_key_container"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal" >
