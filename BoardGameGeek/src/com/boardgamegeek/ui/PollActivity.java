@@ -152,8 +152,16 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 					mPollCount = cursor.getInt(PollQuery.POLL_TOTAL_VOTES);
 				}
 				mVoteTotalView.setText(String.format(getResources().getString(R.string.votes_suffix), mPollCount));
-				mHandler.startQuery(TOKEN_POLL_RESULTS, null, mPollResultsUri, GamePollResultsQuery.PROJECTION, null,
-						null, GamePollResults.DEFAULT_SORT);
+				if (mPollCount == 0) {
+					findViewById(R.id.progress).setVisibility(View.GONE);
+					mPieChart.setVisibility(View.GONE);
+					mLinearLayoutList.setVisibility(View.GONE);
+					findViewById(R.id.poll_key_container).setVisibility(View.GONE);
+					mScrollView.setVisibility(View.VISIBLE);
+				} else {
+					mHandler.startQuery(TOKEN_POLL_RESULTS, null, mPollResultsUri, GamePollResultsQuery.PROJECTION,
+							null, null, GamePollResults.DEFAULT_SORT);
+				}
 			} else if (token == TOKEN_POLL_RESULTS) {
 				while (cursor.moveToNext()) {
 					final String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
@@ -178,10 +186,11 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 					int colorIndex = 0;
 					for (SuggestedAgesElement suggestedAgesElement : suggestedAgesList) {
 						mPieChart.addSlice(suggestedAgesElement.votes, colors[colorIndex]);
-						addKeyRow(colors[colorIndex], suggestedAgesElement.value, String.valueOf(suggestedAgesElement.votes));
+						addKeyRow(colors[colorIndex], suggestedAgesElement.value,
+								String.valueOf(suggestedAgesElement.votes));
 						colorIndex++;
 					}
-					
+
 					mPieChart.setVisibility(View.VISIBLE);
 				} else {
 					pnr.setText(key);
@@ -274,11 +283,11 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private void addKeyRow(int color, CharSequence text) {
 		addKeyRow(color, text, null);
 	}
-	
+
 	private class SuggestedAgesElement {
 		CharSequence value;
 		int votes;
-		
+
 		SuggestedAgesElement(CharSequence value, int votes) {
 			this.value = value;
 			this.votes = votes;
