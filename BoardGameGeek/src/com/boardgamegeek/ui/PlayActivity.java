@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -25,11 +28,13 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.LogInHelper;
+import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayActivity extends Activity implements AsyncQueryListener {
+public class PlayActivity extends Activity implements AsyncQueryListener, LogInListener {
 	private final static String TAG = "PlayActivity";
 
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -40,6 +45,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 	private static final int TOKEN_PLAYER = 2;
 	private static final int TOKEN_GAME = 3;
 
+	private LogInHelper mLogInHelper;
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mPlayUri;
 	private Uri mPlayerUri;
@@ -64,6 +70,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_play);
 		setUiVariables();
+		mLogInHelper = new LogInHelper(this, this);
 		parseIntent();
 		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 
@@ -74,6 +81,12 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 			Uri uri = Games.buildGameUri(mGameId);
 			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mLogInHelper.logIn();
 	}
 
 	private void parseIntent() {
@@ -101,10 +114,34 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.menu_delete);
+		mi.setEnabled(mLogInHelper.checkCookies());
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
+				return true;
+			case R.id.menu_delete:
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle(R.string.are_you_sure_title)
+						.setMessage(R.string.are_you_sure_delete_play)
+						.setCancelable(false)
+						.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								boolean deleted = ActivityUtils.deletePlay(PlayActivity.this, mLogInHelper.getCookieStore(),
+										mPlay.PlayId);
+								if (deleted) {
+									finish();
+								}
+							}
+						})
+						.setNegativeButton(R.string.no, null);
+				builder.create().show();
 				return true;
 		}
 		return false;
@@ -210,5 +247,20 @@ public class PlayActivity extends Activity implements AsyncQueryListener {
 		String[] PROJECTION = { Games.THUMBNAIL_URL };
 
 		int THUMBNAIL_URL = 0;
+	}
+
+	@Override
+	public void onLogInSuccess() {
+		// do nothing
+	}
+
+	@Override
+	public void onLogInError(String errorMessage) {
+		Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onNeedCredentials() {
+		Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 	}
 }

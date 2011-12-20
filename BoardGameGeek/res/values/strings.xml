@@ -62,15 +62,13 @@
 	<string name="pref_log_hide_player_score_on">"Don't display the player Score"</string>
 	<string name="pref_log_hide_player_rating">Hide Rating</string>
 	<string name="pref_log_hide_player_rating_off">Display the player Rating</string>
-	<string name="pref_log_hide_player_rating_ON">"Don't display the player Rating"</string>
-	<string name="don_t_display_the_player_rating_on">"Don't display the player Rating"</string>
+	<string name="pref_log_hide_player_rating_on">"Don't display the player Rating"</string>
 	<string name="pref_log_hide_player_new">Hide New</string>
 	<string name="pref_log_hide_player_new_off">Display the player Win option</string>
 	<string name="pref_log_hide_player_new_on">"Don't display the player Win option"</string>
 	<string name="pref_log_hide_player_win">Hide Win</string>
 	<string name="pref_database">Sync settings</string>
 	<string name="pref_database_statuses">Collection statuses</string>
-	<string name="pref_database_statuses_summary">Collection statuses to sync</string>
 	<string name="pref_database_buddies">GeekBuddies</string>
 	<string name="pref_database_buddies_summary">Enable to sync GeekBuddies</string>
 	<string name="pref_database_plays">Games Played</string>
@@ -110,7 +108,7 @@
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
-	<string name="logPlayDialogMessage">Logging play...</string>
+	<string name="logPlayDialogMessage">Logging play…</string>
 	<string name="logInError">Unable to log in, please verify your username and
 		password are correct.</string>
 	<string name="setUsernamePassword">Please set your username and password.</string>
@@ -118,7 +116,6 @@
 	<string name="logInErrorSuffixBadResponse">received a bad response</string>
 	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
-	<string name="logInErrorSuffixEntityNull">entity null</string>
 	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
@@ -141,7 +138,6 @@
 	<string name="players">Players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
-	<string name="edit">Edit</string>
 	<string name="delete">Delete</string>
 	<string name="name">Name</string>
 	<string name="player_name">Player Name</string>
@@ -158,8 +154,8 @@
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all
 		of your changes.</string>
-	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?
-	</string>
+	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
+	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
@@ -190,7 +186,7 @@
 	<string name="home_btn_settings">Settings</string>
 	<string name="home_btn_about">About</string>
 	<string name="notification_title">BoardGameGeek</string>
-	<string name="notification_status_default">Syncing...</string>
+	<string name="notification_status_default">Syncing…</string>
 	<string name="notification_status_complete">Sync complete</string>
 	<string name="notification_text_start">BGG sync started</string>
 	<string name="notification_text_buddies_list">BGG buddies list synced</string>
@@ -199,9 +195,8 @@
 	<string name="notification_text_collection_detail">BGG collection detail synced</string>
 	<string name="notification_text_plays">BGG plays synced</string>
 	<string name="notification_text_complete">BGG sync complete</string>
-	<string name="notification_text_comments">BGG comments synced</string>
 	<string name="pref_warning_username">Please set your username first.</string>
-	<string name="loading">Loading...</string>
+	<string name="loading">Loading…</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
@@ -215,14 +210,13 @@
 	<string name="search_settings_description">Names of board games</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
-	<string name="search_message">Searching...</string>
+	<string name="search_message">Searching…</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
 	<string name="search_no_results">No results for \"%s\"</string>
 	<string name="search_no_results_details">No results.\n\nThe search function doesn\'t like
 		some common words. Try again, dropping \"the\", \"a\", and \"of\",
-		etc.
-	</string>
+		etc.</string>
 	<string name="hotness_no_results_details">The hotness has gone cold.</string>
 	<string name="comments_no_results">No comments for \"%s\"".</string>
 	<string name="forumlist_no_results">No forums for \"%s\"".</string>
@@ -238,7 +232,7 @@
 	<string name="menu_link_amazon">Amazon</string>
 	<string name="menu_link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
-	<string name="menu_collection_filter_add">Add Filter...</string>
+	<string name="menu_collection_filter_add">Add Filter…</string>
 	<string name="menu_collection_filter_clear">Clear Filters</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
@@ -253,34 +247,29 @@
 	<string name="menu_create_shortcut">Create Shortcut</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_plays">Plays</string>
-	<string name="image_too_large">Sorry, but this image is too large to load.
-	</string>
+	<string name="menu_delete">Delete</string>
+	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
-	<string name="msg_updating">Updating...</string>
+	<string name="msg_updating">Updating…</string>
 	<string name="msg_update_error">Error updating.</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_play_updated">Play updated successfully!</string>
+	<string name="msg_play_deleted">Play deleted successfully</string>
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android
 		that I thought you might like:\n\n%1$s (%2$s)</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
-	<string name="user_rating">User Rating</string>
-	<string name="rank">Rank</string>
-	<string name="yearPublished">Year Published</string>
-	<string name="numberOfPlayers"># of Players</string>
-	<string name="playing_time">Playing Time</string>
 	<string name="time_suffix">mins</string>
 	<string name="language_dependence">Language Dependence</string>
 	<string name="suggested_playerage">Suggested Ages</string>
 	<string name="suggested_numplayers">Suggested Number of Players</string>
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
-	<string name="gameId">Game ID</string>
 	<string name="updated">Updated</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add Field</string>
