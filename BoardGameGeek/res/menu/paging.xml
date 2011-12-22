@@ -5,7 +5,6 @@
 		android:id="@+id/menu_back"
 		android:icon="@drawable/ic_menu_back"
 		android:title="@string/menu_back"/>
-
 	<item
 		android:id="@+id/menu_forward"
 		android:icon="@drawable/ic_menu_forward"
