@@ -2,8 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<item android:id="@+id/notRecommended">
-<shape >
-
+		<shape>
 			<corners android:radius="4dp" />
 
 			<gradient
@@ -12,13 +11,11 @@
 				android:centerY="0.4"
 				android:endColor="#ffdd0000"
 				android:startColor="#ffdd0000" />
-		</shape></item>
-
+		</shape>
+	</item>
 	<item android:id="@+id/background">
-<clip >
-
-			<shape >
-
+		<clip>
+			<shape>
 				<corners android:radius="4dp" />
 
 				<gradient
@@ -28,13 +25,11 @@
 					android:endColor="#ff727272"
 					android:startColor="#ff727272" />
 			</shape>
-		</clip></item>
-
+		</clip>
+	</item>
 	<item android:id="@+id/recommended">
-<clip >
-
-			<shape >
-
+		<clip>
+			<shape>
 				<corners android:radius="4dp" />
 
 				<gradient
@@ -44,13 +39,11 @@
 					android:endColor="#ffdddd00"
 					android:startColor="#ffdddd00" />
 			</shape>
-		</clip></item>
-
+		</clip>
+	</item>
 	<item android:id="@+id/best">
-<clip >
-
-			<shape >
-
+		<clip>
+			<shape>
 				<corners android:radius="4dp" />
 
 				<gradient
@@ -60,6 +53,7 @@
 					android:endColor="#ff00dd00"
 					android:startColor="#ff00dd00" />
 			</shape>
-		</clip></item>
+		</clip>
+	</item>
 
 </layer-list>
