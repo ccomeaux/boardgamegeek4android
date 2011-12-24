@@ -2,39 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
+	android:gravity="center"
 	android:orientation="vertical"
-	android:padding="@dimen/padding_standard"
-	android:gravity="center">
+	android:padding="@dimen/padding_standard" >
 
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView 
+		android:orientation="horizontal" >
+
+		<TextView
 			android:id="@+id/article_username"
-			android:text="ccomeaux"
 			android:layout_width="0px"
-			android:layout_weight="1"
 			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:ellipsize="end"
 			android:gravity="center_vertical"
-			android:textSize="@dimen/text_size_small"
 			android:paddingBottom="@dimen/padding_small"
-			android:ellipsize="end" />
-		<TextView android:id="@+id/article_editdate"
-			android:text="March 5"
+			android:textSize="@dimen/text_size_small" />
+
+		<TextView
+			android:id="@+id/article_editdate"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="@dimen/text_size_tiny"
-			android:textColor="@color/light_text"
 			android:layout_gravity="left|center_vertical"
-			android:paddingLeft="@dimen/padding_small" />
+			android:paddingLeft="@dimen/padding_small"
+			android:textColor="@color/light_text"
+			android:textSize="@dimen/text_size_tiny" />
 	</LinearLayout>
-	<View android:id="@+id/article_divider"
+
+	<View
+		android:id="@+id/article_divider"
 		android:layout_width="fill_parent"
-		android:layout_height="1px"
-		android:paddingBottom="@dimen/padding_small"
-		android:background="@color/background_light" />/
-	<WebView android:id="@+id/article_webkit"
+		android:layout_height="1dp"
+		android:background="@color/background_light"
+		android:paddingBottom="@dimen/padding_small" />
+
+	<WebView
+		android:id="@+id/article_webkit"
 		android:layout_width="fill_parent"
 		android:layout_height="0px"
 		android:layout_weight="1" />

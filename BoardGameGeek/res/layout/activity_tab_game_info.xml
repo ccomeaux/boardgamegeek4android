@@ -40,7 +40,7 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" >
 
-			<TableRow >
+			<TableRow>
 
 				<TextView
 					android:id="@+id/rank"
@@ -54,7 +54,7 @@
 					android:drawableLeft="@drawable/info_calendar" />
 			</TableRow>
 
-			<TableRow >
+			<TableRow>
 
 				<TextView
 					android:id="@+id/playing_time"
@@ -68,6 +68,7 @@
 					<ImageButton
 						android:id="@+id/num_of_players_button"
 						style="@style/game_info_button"
+						android:contentDescription="@string/num_of_players"
 						android:onClick="onClick"
 						android:src="@drawable/info_users" />
 
@@ -77,7 +78,7 @@
 				</LinearLayout>
 			</TableRow>
 
-			<TableRow >
+			<TableRow>
 
 				<LinearLayout
 					android:layout_weight="1"
@@ -86,6 +87,7 @@
 					<ImageButton
 						android:id="@+id/suggested_ages_button"
 						style="@style/game_info_button"
+						android:contentDescription="@string/suggested_playerage"
 						android:onClick="onClick"
 						android:src="@drawable/info_user" />
 
@@ -101,6 +103,7 @@
 					<ImageButton
 						android:id="@+id/languges_button"
 						style="@style/game_info_button"
+						android:contentDescription="@string/language_dependence"
 						android:onClick="onClick"
 						android:src="@drawable/info_mouth" />
 

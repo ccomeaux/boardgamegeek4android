@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- title bar -->
-    <item type="id" name="title_container" />
-    <item type="id" name="title_logo" />
-    <item type="id" name="title_text" />
-    <!-- home screen -->
-    <item type="id" name="version" />
-    <!-- game header -->
-    <item type="id" name="game_name" />
+
+	<!-- title bar -->
+	<item name="title_container" type="id"/>
+	<item name="title_logo" type="id"/>
+	<item name="title_text" type="id"/>
+	<!-- home screen -->
+	<item name="version" type="id"/>
+	<!-- game header -->
+	<item name="game_name" type="id"/>
+
 </resources>

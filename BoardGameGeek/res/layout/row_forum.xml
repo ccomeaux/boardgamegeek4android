@@ -2,37 +2,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
+	android:gravity="center"
 	android:orientation="vertical"
-	android:padding="@dimen/padding_standard"
-	android:gravity="center">
+	android:padding="@dimen/padding_standard" >
 
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView android:id="@+id/forum_title"
-		android:text="Reviews"
+		android:orientation="horizontal" >
+
+		<TextView
+			android:id="@+id/forum_title"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
 			android:layout_gravity="left|center_vertical"
+			android:layout_weight="1"
+			android:padding="@dimen/padding_small"
 			android:textSize="@dimen/text_size_medium"
-			android:textStyle="bold"
-			android:padding="@dimen/padding_small" />
-		<TextView android:id="@+id/numthreads"
-		android:text="10 threads"
+			android:textStyle="bold" />
+
+		<TextView
+			android:id="@+id/numthreads"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="right|center_vertical"
-			android:textSize="@dimen/text_size_small"
-			android:padding="@dimen/padding_small" />
+			android:padding="@dimen/padding_small"
+			android:textSize="@dimen/text_size_small" />
 	</LinearLayout>
-	<TextView android:id="@+id/lastpost"
-		android:text="@string/forum_last_post"
+
+	<TextView
+		android:id="@+id/lastpost"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:textSize="@dimen/text_size_tiny"
-		android:textColor="@color/light_text"
 		android:layout_gravity="left|center_vertical"
-		android:paddingLeft="@dimen/padding_small" />
+		android:paddingLeft="@dimen/padding_small"
+		android:text="@string/forum_last_post"
+		android:textColor="@color/light_text"
+		android:textSize="@dimen/text_size_tiny" />
+
 </LinearLayout>
