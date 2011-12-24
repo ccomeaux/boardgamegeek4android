@@ -19,7 +19,7 @@
 
 			<TextView
 				style="@style/StatsHeading"
-				android:text="Ratings" />
+				android:text="@string/ratings" />
 
 			<TextView
 				android:id="@+id/statsRatingCount"

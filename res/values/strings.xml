@@ -136,9 +136,12 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="players">Players</string>
+	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
+	<string name="add">Add</string>
 	<string name="delete">Delete</string>
+	<string name="edit">Edit</string>
 	<string name="name">Name</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
@@ -147,10 +150,13 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
+	<string name="image">Image</string>
+	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all
 		of your changes.</string>
