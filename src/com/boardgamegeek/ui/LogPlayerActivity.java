@@ -146,8 +146,8 @@ public class LogPlayerActivity extends Activity {
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_ENTER) {
+			// sends focus to the next field (user pressed "Next")
 			if (mUsername.hasFocus()) {
-				// sends focus to the next field (user pressed "Next")
 				mTeamColor.requestFocus();
 				return true;
 			} else if (mTeamColor.hasFocus()) {
@@ -170,10 +170,14 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_player_team_color_row).setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_position_row).setVisibility(hidePosition() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_score_row).setVisibility(hideScore() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_rating_row).setVisibility(hideRating() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_team_color_label).setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
+		mTeamColor.setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_position_label).setVisibility(hidePosition() ? View.GONE : View.VISIBLE);
+		mStartingPosition.setVisibility(hidePosition() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_score_label).setVisibility(hideScore() ? View.GONE : View.VISIBLE);
+		mScore.setVisibility(hideScore() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_rating_label).setVisibility(hideRating() ? View.GONE : View.VISIBLE);
+		mRating.setVisibility(hideRating() ? View.GONE : View.VISIBLE);
 		mNew.setVisibility(hideNew() ? View.GONE : View.VISIBLE);
 		mWin.setVisibility(hideWin() ? View.GONE : View.VISIBLE);
 	}
@@ -242,16 +246,20 @@ public class LogPlayerActivity extends Activity {
 						String selection = array[which].toString();
 						if (selection == r.getString(R.string.team_color)) {
 							mTeamColorShown = true;
-							findViewById(R.id.log_player_team_color_row).setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.position)) {
+							findViewById(R.id.log_player_team_color_label).setVisibility(View.VISIBLE);
+							mTeamColor.setVisibility(View.VISIBLE);
+						} else if (selection == r.getString(R.string.starting_position)) {
 							mPositionShown = true;
-							findViewById(R.id.log_player_position_row).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_player_position_label).setVisibility(View.VISIBLE);
+							mStartingPosition.setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.score)) {
 							mScoreShown = true;
-							findViewById(R.id.log_player_score_row).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_player_score_label).setVisibility(View.VISIBLE);
+							mScore.setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.rating)) {
 							mRatingShown = true;
-							findViewById(R.id.log_player_rating_row).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_player_rating_label).setVisibility(View.VISIBLE);
+							mRating.setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.new_label)) {
 							mNewShown = true;
 							mNew.setVisibility(View.VISIBLE);
@@ -275,7 +283,7 @@ public class LogPlayerActivity extends Activity {
 			list.add(r.getString(R.string.team_color));
 		}
 		if (hidePosition()) {
-			list.add(r.getString(R.string.position));
+			list.add(r.getString(R.string.starting_position));
 		}
 		if (hideScore()) {
 			list.add(r.getString(R.string.score));

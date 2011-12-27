@@ -137,6 +137,15 @@
 		<item name="android:layout_height">wrap_content</item>
 	</style>
 
+	<style name="log_play_label" parent="android:Widget.TextView">
+		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingRight">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/padding_small</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textSize">@dimen/text_size_small</item>
+	</style>
+
 	<style name="FormLabel" parent="android:Widget.TextView">
 		<item name="android:padding">@dimen/padding_standard</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
