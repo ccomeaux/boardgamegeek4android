@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -29,7 +30,7 @@ public class PlayerRow extends LinearLayout {
 	private TextView mStartingPosition;
 	private TextView mRating;
 	private ImageView mDeleteButton;
-	private ImageView mEditButton;
+	private RelativeLayout mEditButton;
 
 	private OnClickListener mEditClickListener;
 	private OnClickListener mDeleteClickListener;
@@ -47,7 +48,7 @@ public class PlayerRow extends LinearLayout {
 
 	private void initializeUi() {
 		mName = (TextView) findViewById(R.id.name);
-		mUsername = (TextView) findViewById(R.id.usernname);
+		mUsername = (TextView) findViewById(R.id.username);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
 		mScore = (TextView) findViewById(R.id.score);
 		mRating = (TextView) findViewById(R.id.rating);
@@ -74,7 +75,7 @@ public class PlayerRow extends LinearLayout {
 			}
 		});
 
-		mEditButton = (ImageView) findViewById(R.id.log_player_edit);
+		mEditButton = (RelativeLayout) findViewById(R.id.log_player_edit);
 		mEditButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -86,8 +87,8 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void hideButtons() {
-		findViewById(R.id.log_player_edit).setVisibility(View.GONE);
-		findViewById(R.id.log_player_delete).setVisibility(View.GONE);
+		mDeleteButton.setVisibility(View.GONE);
+		mEditButton.setEnabled(false);
 	}
 
 	public void setOnEditListener(OnClickListener l) {

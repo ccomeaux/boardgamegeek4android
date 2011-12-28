@@ -104,7 +104,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
 	private EditText mCommentsView;
-	private TextView mPlayerHeader;
+	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
 	private Button mSaveButton;
 	private AlertDialog mCancelDialog;
@@ -280,8 +280,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 							findViewById(R.id.log_play_comments).setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.players)) {
 							mPlayersShown = true;
-							findViewById(R.id.log_player_list_divider).setVisibility(View.VISIBLE);
-							findViewById(R.id.log_play_player_header).setVisibility(View.VISIBLE);
+							mPlayerLabel.setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_players_add).setVisibility(View.VISIBLE);
 						}
 					}
 				});
@@ -420,7 +420,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		pr.setTag(mNextPlayerTag++);
 		pr.setOnEditListener(onPlayerEdit());
 		pr.setOnDeleteListener(onPlayerDelete());
-		mPlayerList.addView(pr, mPlayerList.getChildCount() - 1);
+		mPlayerList.addView(pr, mPlayerList.getChildCount() - 2);
 		displayPlayerCount();
 	}
 
@@ -428,9 +428,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		Resources r = getResources();
 		int playerCount = mPlayerList.getChildCount() - 14;
 		if (playerCount <= 0) {
-			mPlayerHeader.setText(r.getString(R.string.players));
+			mPlayerLabel.setText(r.getString(R.string.players));
 		} else {
-			mPlayerHeader.setText(String.valueOf(playerCount) + " " + r.getString(R.string.players));
+			mPlayerLabel.setText(r.getString(R.string.players) + " - " + String.valueOf(playerCount));
 		}
 	}
 
@@ -476,7 +476,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mIncompleteView = (CheckBox) findViewById(R.id.log_play_incomplete);
 		mNoWinStatsView = (CheckBox) findViewById(R.id.log_play_no_win_stats);
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
-		mPlayerHeader = (TextView) findViewById(R.id.player_header);
+		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
 		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
 		mSaveButton = (Button) findViewById(R.id.log_play_save);
 	}
@@ -490,8 +490,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		findViewById(R.id.log_play_no_win_stats).setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_comments).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_list_divider).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_player_header).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
+		mPlayerLabel.setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_players_add).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
 	}
 
 	private boolean hideLength() {

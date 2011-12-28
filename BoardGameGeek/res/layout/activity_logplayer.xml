@@ -138,7 +138,8 @@
 			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal" >
+				android:orientation="horizontal"
+				android:paddingTop="@dimen/padding_extra" >
 
 				<Button
 					android:id="@+id/logPlayerSaveButton"

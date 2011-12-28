@@ -80,8 +80,8 @@
 			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:gravity="center_vertical" >
+				android:gravity="center_vertical"
+				android:orientation="horizontal" >
 
 				<CheckBox
 					android:id="@+id/log_play_incomplete"
@@ -114,39 +114,30 @@
 				android:hint="@string/comments_hint"
 				android:inputType="textMultiLine|textAutoCorrect" />
 
-			<include
-				android:id="@+id/log_player_list_divider"
-				layout="@layout/header_divider" />
-
-			<LinearLayout
-				android:id="@+id/log_play_player_header"
+			<TextView
+				android:id="@+id/log_play_players_label"
+				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:text="@string/players" />
+
+			<TextView
+				android:id="@+id/log_play_players_add"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:clickable="true"
+				android:contentDescription="@string/add"
+				android:drawableRight="@drawable/add"
 				android:gravity="center_vertical"
-				android:orientation="horizontal"
-				android:padding="@dimen/padding_standard" >
-
-				<ImageView
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:contentDescription="@string/add"
-					android:onClick="onAddPlayerClick"
-					android:paddingRight="@dimen/padding_standard"
-					android:src="@drawable/add" />
-
-				<TextView
-					android:id="@+id/player_header"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/players"
-					android:textSize="@dimen/text_size_large" />
-			</LinearLayout>
+				android:onClick="onAddPlayerClick"
+				android:text="@string/add_player" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal" >
+				android:orientation="horizontal"
+				android:paddingTop="@dimen/padding_extra" >
 
 				<Button
 					android:id="@+id/log_play_save"
