@@ -25,20 +25,6 @@
 				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/player_name" />
-
-			<EditText
-				android:id="@+id/log_player_name"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/player_name"
-				android:inputType="textCapWords"
-				android:maxLength="255" />
-
-			<TextView
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
 				android:text="@string/username" />
 
 			<AutoCompleteTextView
@@ -51,6 +37,20 @@
 				android:inputType="text"
 				android:maxLength="63"
 				android:textColor="#000" />
+
+			<TextView
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/player_name" />
+
+			<EditText
+				android:id="@+id/log_player_name"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/player_name"
+				android:inputType="textCapWords"
+				android:maxLength="255" />
 
 			<TextView
 				android:id="@+id/log_player_team_color_label"
