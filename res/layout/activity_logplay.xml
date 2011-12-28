@@ -15,98 +15,111 @@
 		android:layout_height="wrap_content" >
 
 		<LinearLayout
-			android:id="@+id/player_list"
+			android:id="@+id/log_play_player_list"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:gravity="top"
 			android:orientation="vertical"
 			android:padding="@dimen/padding_standard" >
 
-			<TableLayout
+			<TextView
+				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:stretchColumns="1" >
+				android:text="@string/date" />
 
-				<TableRow>
+			<Button
+				android:id="@+id/log_play_date"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="left|center_vertical"
+				android:onClick="onDateClick" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/date" />
+			<TextView
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/quantity" />
 
-					<Button
-						android:id="@+id/logDateButton"
-						android:gravity="left|center_vertical"
-						android:onClick="onDateClick"
-						android:text="" />
-				</TableRow>
+			<EditText
+				android:id="@+id/log_play_quantity"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/quantity_hint"
+				android:inputType="number"
+				android:text="1" />
 
-				<TableRow>
+			<TextView
+				android:id="@+id/log_play_length_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/length" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/quantity" />
+			<EditText
+				android:id="@+id/log_play_length"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/length_hint"
+				android:inputType="number" />
 
-					<EditText
-						android:id="@+id/logQuantity"
-						android:hint="@string/quantityHint"
-						android:inputType="number"
-						android:text="1" />
-				</TableRow>
+			<TextView
+				android:id="@+id/log_play_location_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/location" />
 
-				<TableRow android:id="@+id/log_length_row" >
+			<EditText
+				android:id="@+id/log_play_location"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/location_hint"
+				android:inputType="text" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/length" />
-
-					<EditText
-						android:id="@+id/logLength"
-						android:hint="@string/lengthHint"
-						android:inputType="number"
-						android:text="" />
-				</TableRow>
-
-				<TableRow android:id="@+id/log_location_row" >
-
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/location" />
-
-					<EditText
-						android:id="@+id/logLocation"
-						android:hint="@string/locationHint"
-						android:inputType="text"
-						android:text="" />
-				</TableRow>
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:gravity="center_vertical" >
 
 				<CheckBox
-					android:id="@+id/log_incomplete"
+					android:id="@+id/log_play_incomplete"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:checked="false"
 					android:text="@string/incomplete" />
 
 				<CheckBox
-					android:id="@+id/log_no_win_stats"
+					android:id="@+id/log_play_no_win_stats"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:checked="false"
 					android:text="@string/noWinStats" />
+			</LinearLayout>
 
-				<TextView
-					android:id="@+id/log_comments_label"
-					style="@style/FormLabel"
-					android:text="@string/comments" />
+			<TextView
+				android:id="@+id/log_play_comments_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/comments" />
 
-				<EditText
-					android:id="@+id/log_comments"
-					android:hint="@string/commentsHint"
-					android:inputType="textMultiLine|textAutoCorrect"
-					android:text="" />
-			</TableLayout>
+			<EditText
+				android:id="@+id/log_play_comments"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/comments_hint"
+				android:inputType="textMultiLine|textAutoCorrect" />
 
 			<include
 				android:id="@+id/log_player_list_divider"
 				layout="@layout/header_divider" />
 
 			<LinearLayout
-				android:id="@+id/log_player_list"
+				android:id="@+id/log_play_player_header"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
@@ -136,8 +149,8 @@
 				android:orientation="horizontal" >
 
 				<Button
-					android:id="@+id/logPlaySaveButton"
-					android:layout_width="fill_parent"
+					android:id="@+id/log_play_save"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:enabled="false"
@@ -145,8 +158,7 @@
 					android:text="@string/save" />
 
 				<Button
-					android:id="@+id/logPlayCancelButton"
-					android:layout_width="fill_parent"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:onClick="onCancelClick"
