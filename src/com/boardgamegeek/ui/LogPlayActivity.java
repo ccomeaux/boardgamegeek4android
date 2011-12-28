@@ -724,12 +724,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			return;
 		}
 		// date info already captured
-		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString(), 1);
-		mPlay.Length = StringUtils.parseInt(mLengthView.getText().toString(), 0);
-		mPlay.Location = mLocationView.getText().toString();
+		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
+		mPlay.Length = StringUtils.parseInt(mLengthView.getText().toString().trim());
+		mPlay.Location = mLocationView.getText().toString().trim();
 		mPlay.Incomplete = mIncompleteView.isChecked();
 		mPlay.NoWinStats = mNoWinStatsView.isChecked();
-		mPlay.Comments = mCommentsView.getText().toString();
+		mPlay.Comments = mCommentsView.getText().toString().trim();
 		mPlay.clearPlayers();
 		for (int i = 0; i < mPlayerList.getChildCount(); i++) {
 			View view = mPlayerList.getChildAt(i);

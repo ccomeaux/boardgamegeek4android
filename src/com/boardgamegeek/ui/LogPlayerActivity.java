@@ -148,7 +148,7 @@ public class LogPlayerActivity extends Activity {
 		if (keyCode == KeyEvent.KEYCODE_ENTER) {
 			// sends focus to the next field (user pressed "Next")
 			if (mUsername.hasFocus()) {
-				mTeamColor.requestFocus();
+				mName.requestFocus();
 				return true;
 			} else if (mTeamColor.hasFocus()) {
 				mStartingPosition.requestFocus();
@@ -159,8 +159,8 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private void setUiVariables() {
-		mName = (EditText) findViewById(R.id.log_player_name);
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
+		mName = (EditText) findViewById(R.id.log_player_name);
 		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
 		mStartingPosition = (EditText) findViewById(R.id.log_player_position);
 		mScore = (EditText) findViewById(R.id.log_player_score);
@@ -335,12 +335,12 @@ public class LogPlayerActivity extends Activity {
 	}
 
 	private void captureForm() {
-		mPlayer.Name = mName.getText().toString();
-		mPlayer.Username = mUsername.getText().toString();
-		mPlayer.TeamColor = mTeamColor.getText().toString();
-		mPlayer.StartingPosition = mStartingPosition.getText().toString();
-		mPlayer.Score = mScore.getText().toString();
-		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString());
+		mPlayer.Name = mName.getText().toString().trim();
+		mPlayer.Username = mUsername.getText().toString().trim();
+		mPlayer.TeamColor = mTeamColor.getText().toString().trim();
+		mPlayer.StartingPosition = mStartingPosition.getText().toString().trim();
+		mPlayer.Score = mScore.getText().toString().trim();
+		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString().trim());
 		mPlayer.New = mNew.isChecked();
 		mPlayer.Win = mWin.isChecked();
 	}
