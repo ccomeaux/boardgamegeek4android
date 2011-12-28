@@ -262,24 +262,26 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 						String selection = array[which].toString();
 						if (selection == r.getString(R.string.length)) {
 							mLengthShown = true;
-							findViewById(R.id.log_length_row).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_length_label).setVisibility(View.VISIBLE);
+							mLengthView.setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.location)) {
 							mLocationShown = true;
-							findViewById(R.id.log_location_row).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_location_label).setVisibility(View.VISIBLE);
+							mLocationView.setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.incomplete)) {
 							mIncompleteShown = true;
-							findViewById(R.id.log_incomplete).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_incomplete).setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.noWinStats)) {
 							mNoWinStatsShown = true;
-							findViewById(R.id.log_no_win_stats).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_no_win_stats).setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.comments)) {
 							mCommentsShown = true;
-							findViewById(R.id.log_comments_label).setVisibility(View.VISIBLE);
-							findViewById(R.id.log_comments).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_comments_label).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_comments).setVisibility(View.VISIBLE);
 						} else if (selection == r.getString(R.string.players)) {
 							mPlayersShown = true;
 							findViewById(R.id.log_player_list_divider).setVisibility(View.VISIBLE);
-							findViewById(R.id.log_player_list).setVisibility(View.VISIBLE);
+							findViewById(R.id.log_play_player_header).setVisibility(View.VISIBLE);
 						}
 					}
 				});
@@ -424,7 +426,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private void displayPlayerCount() {
 		Resources r = getResources();
-		int playerCount = mPlayerList.getChildCount() - 4;
+		int playerCount = mPlayerList.getChildCount() - 14;
 		if (playerCount <= 0) {
 			mPlayerHeader.setText(r.getString(R.string.players));
 		} else {
@@ -467,27 +469,29 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	private void setUiVariables() {
-		mDateButton = (Button) findViewById(R.id.logDateButton);
-		mQuantityView = (EditText) findViewById(R.id.logQuantity);
-		mLengthView = (EditText) findViewById(R.id.logLength);
-		mLocationView = (EditText) findViewById(R.id.logLocation);
-		mIncompleteView = (CheckBox) findViewById(R.id.log_incomplete);
-		mNoWinStatsView = (CheckBox) findViewById(R.id.log_no_win_stats);
-		mCommentsView = (EditText) findViewById(R.id.log_comments);
+		mDateButton = (Button) findViewById(R.id.log_play_date);
+		mQuantityView = (EditText) findViewById(R.id.log_play_quantity);
+		mLengthView = (EditText) findViewById(R.id.log_play_length);
+		mLocationView = (EditText) findViewById(R.id.log_play_location);
+		mIncompleteView = (CheckBox) findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (CheckBox) findViewById(R.id.log_play_no_win_stats);
+		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
 		mPlayerHeader = (TextView) findViewById(R.id.player_header);
-		mPlayerList = (LinearLayout) findViewById(R.id.player_list);
-		mSaveButton = (Button) findViewById(R.id.logPlaySaveButton);
+		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
+		mSaveButton = (Button) findViewById(R.id.log_play_save);
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_length_row).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_location_row).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_incomplete).setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_no_win_stats).setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_comments).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_length_label).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
+		mLengthView.setVisibility(hideLength() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_location_label).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
+		mLocationView.setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_incomplete).setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_no_win_stats).setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_comments).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_player_list_divider).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_list).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_player_header).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
 	}
 
 	private boolean hideLength() {
