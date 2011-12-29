@@ -13,10 +13,17 @@
 		android:layout_weight="1"
 		android:background="@drawable/button_player" >
 
+		<View
+			android:id="@+id/color_swatch"
+			android:layout_width="6dp"
+			android:layout_height="36dp"
+			android:layout_marginRight="@dimen/padding_small" />
+
 		<TextView
 			android:id="@+id/name"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/color_swatch"
 			android:textSize="@dimen/text_size_medium" />
 
 		<TextView
@@ -24,6 +31,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/name"
+			android:layout_toRightOf="@id/color_swatch"
 			android:textSize="@dimen/text_size_tiny" />
 
 		<TextView
@@ -31,6 +39,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/username"
+			android:layout_toRightOf="@id/color_swatch"
 			android:textSize="@dimen/text_size_tiny" />
 
 		<TextView

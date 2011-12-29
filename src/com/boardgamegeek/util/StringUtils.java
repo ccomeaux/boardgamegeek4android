@@ -38,6 +38,15 @@ public class StringUtils {
 		}
 	}
 
+	public static boolean isInteger(String input) {
+		try {
+			Integer.parseInt(input);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Gets the ordinal (1st) for the given cardinal (1)
 	 * 
