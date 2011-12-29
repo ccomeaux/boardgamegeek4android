@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
@@ -25,6 +27,7 @@ public class PlayerRow extends LinearLayout {
 
 	private TextView mName;
 	private TextView mUsername;
+	private View mColorSwatch;
 	private TextView mTeamColor;
 	private TextView mScore;
 	private TextView mStartingPosition;
@@ -49,6 +52,7 @@ public class PlayerRow extends LinearLayout {
 	private void initializeUi() {
 		mName = (TextView) findViewById(R.id.name);
 		mUsername = (TextView) findViewById(R.id.username);
+		mColorSwatch = findViewById(R.id.color_swatch);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
 		mScore = (TextView) findViewById(R.id.score);
 		mRating = (TextView) findViewById(R.id.rating);
@@ -61,16 +65,14 @@ public class PlayerRow extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerRow.this.getContext());
-				builder.setTitle(R.string.are_you_sure_title)
-					.setMessage(R.string.are_you_sure_delete_player)
-					.setCancelable(false)
-					.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (mDeleteClickListener != null) {
-								mDeleteClickListener.onClick(PlayerRow.this);
+				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
+						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								if (mDeleteClickListener != null) {
+									mDeleteClickListener.onClick(PlayerRow.this);
+								}
 							}
-						}
-					}).setNegativeButton(R.string.no, null);
+						}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 			}
 		});
@@ -110,13 +112,14 @@ public class PlayerRow extends LinearLayout {
 
 	private void bindUi() {
 		if (mPlayer == null) {
-			mName.setText("");
-			mUsername.setText("");
-			mTeamColor.setText("");
-			mScore.setText("");
-			mRating.setText("");
-			mStartingPosition.setText("");
+			setText(mName, "");
+			setText(mUsername, "");
+			setText(mTeamColor, "");
+			setText(mScore, "");
+			setText(mRating, "");
+			setText(mStartingPosition, "");
 		} else {
+			setText(mUsername, mPlayer.Username);
 			mName.setText(mPlayer.Name);
 			if (mPlayer.New && mPlayer.Win) {
 				mName.setTypeface(mTypeface, Typeface.BOLD_ITALIC);
@@ -128,11 +131,20 @@ public class PlayerRow extends LinearLayout {
 				mName.setTypeface(mTypeface, Typeface.NORMAL);
 			}
 
-			setText(mUsername, mPlayer.Username);
 			setText(mTeamColor, mPlayer.TeamColor);
+			int color = ColorUtils.parseColor(mPlayer.TeamColor);
+			if (color != ColorUtils.TRANSPARENT) {
+				mColorSwatch.setBackgroundColor(color);
+				mColorSwatch.setVisibility(View.VISIBLE);
+				mTeamColor.setVisibility(View.GONE);
+			} else {
+				mColorSwatch.setVisibility(View.GONE);
+			}
+
 			setText(mScore, mPlayer.Score);
-			setText(mStartingPosition, mPlayer.StartingPosition, "#");
-			setText(mRating, mFormat.format(mPlayer.Rating));
+			setText(mStartingPosition, (StringUtils.isInteger(mPlayer.StartingPosition)) ? "#"
+					+ mPlayer.StartingPosition : mPlayer.StartingPosition);
+			setText(mRating, (mPlayer.Rating > 0) ? mFormat.format(mPlayer.Rating) : "");
 		}
 	}
 
@@ -142,7 +154,7 @@ public class PlayerRow extends LinearLayout {
 
 	private void setText(TextView textView, String text, String prefix) {
 		if (TextUtils.isEmpty(text)) {
-			textView.setVisibility(View.INVISIBLE);
+			textView.setVisibility(View.GONE);
 		} else {
 			textView.setVisibility(View.VISIBLE);
 			textView.setText(prefix + text);
