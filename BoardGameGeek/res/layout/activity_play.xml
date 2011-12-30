@@ -24,91 +24,104 @@
 
 			<TextView
 				android:id="@+id/updated"
-				style="@style/game_info"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center"
 				android:textColor="@color/light_text"
 				android:textSize="@dimen/text_size_tiny" />
 
-			<TableLayout
+			<TextView
+				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:stretchColumns="1" >
+				android:text="@string/date" />
 
-				<TableRow >
+			<TextView
+				android:id="@+id/play_date"
+				style="@style/log_play_value"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/date" />
+			<TextView
+				android:id="@+id/play_quantity_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/quantity" />
 
-					<TextView
-						android:id="@+id/play_date"
-						style="@style/FormLabel" />
-				</TableRow>
+			<TextView
+				android:id="@+id/play_quantity"
+				style="@style/log_play_value"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
 
-				<TableRow >
+			<TextView
+				android:id="@+id/play_length_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/length" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/quantity" />
+			<TextView
+				android:id="@+id/play_length"
+				style="@style/log_play_value"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
 
-					<TextView
-						android:id="@+id/play_quantity"
-						style="@style/FormLabel" />
-				</TableRow>
+			<TextView
+				android:id="@+id/play_location_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/location" />
 
-				<TableRow android:id="@+id/play_length_row" >
+			<TextView
+				android:id="@+id/play_location"
+				style="@style/log_play_value"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
 
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/length" />
+			<TextView
+				android:id="@+id/play_comments_label"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/comments" />
 
-					<TextView
-						android:id="@+id/play_length"
-						style="@style/FormLabel" />
-				</TableRow>
+			<TextView
+				android:id="@+id/play_comments"
+				style="@style/log_play_value"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
 
-				<TableRow android:id="@+id/play_location_row" >
-
-					<TextView
-						style="@style/FormLabel"
-						android:text="@string/location" />
-
-					<TextView
-						android:id="@+id/play_location"
-						style="@style/FormLabel" />
-				</TableRow>
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" >
 
 				<CheckBox
 					android:id="@+id/play_incomplete"
-					android:clickable="false"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:checked="true"
 					android:text="@string/incomplete" />
 
 				<CheckBox
 					android:id="@+id/play_no_win_stats"
-					android:clickable="false"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:checked="true"
 					android:text="@string/noWinStats" />
-
-				<TextView
-					android:id="@+id/play_comments_label"
-					style="@style/FormLabel"
-					android:text="@string/comments" />
-
-				<TextView android:id="@+id/play_comments" />
-			</TableLayout>
-
-			<include
-				android:id="@+id/play_player_list_divider"
-				layout="@layout/header_divider" />
+			</LinearLayout>
 
 			<TextView
-				android:id="@+id/player_header"
+				android:id="@+id/play_player_label"
+				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:padding="@dimen/padding_standard"
-				android:text="@string/players"
-				android:textSize="@dimen/text_size_large" />
+				android:text="@string/players" />
 		</LinearLayout>
 	</ScrollView>
 

@@ -146,7 +146,7 @@
 		<item name="android:textSize">@dimen/text_size_small</item>
 	</style>
 
-	<style name="FormLabel" parent="android:Widget.TextView">
+	<style name="log_play_value" parent="android:Widget.TextView">
 		<item name="android:padding">@dimen/padding_standard</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
