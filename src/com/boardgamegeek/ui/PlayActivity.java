@@ -128,19 +128,16 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				return true;
 			case R.id.menu_delete:
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.are_you_sure_title)
-						.setMessage(R.string.are_you_sure_delete_play)
-						.setCancelable(false)
-						.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
+						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								boolean deleted = ActivityUtils.deletePlay(PlayActivity.this, mLogInHelper.getCookieStore(),
-										mPlay.PlayId);
+								boolean deleted = ActivityUtils.deletePlay(PlayActivity.this,
+										mLogInHelper.getCookieStore(), mPlay.PlayId);
 								if (deleted) {
 									finish();
 								}
 							}
-						})
-						.setNegativeButton(R.string.no, null);
+						}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 				return true;
 		}
@@ -207,12 +204,29 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	private void bindUi() {
 		mDate.setText(mPlay.getFormattedDate());
+
 		mQuantity.setText(String.valueOf(mPlay.Quantity));
+		mQuantity.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.play_quantity_label).setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
+
 		mLength.setText(String.valueOf(mPlay.Length));
+		mLength.setVisibility((mPlay.Length == 0) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.play_length_label).setVisibility((mPlay.Length == 0) ? View.GONE : View.VISIBLE);
+
 		mLocation.setText(mPlay.Location);
-		mIncomplete.setChecked(mPlay.Incomplete);
-		mNoWinStats.setChecked(mPlay.NoWinStats);
+		mLocation.setVisibility(TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.play_location_label).setVisibility(
+				TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
+
+		mIncomplete.setVisibility(mPlay.Incomplete ? View.VISIBLE : View.GONE);
+		mNoWinStats.setVisibility(mPlay.NoWinStats ? View.VISIBLE : View.GONE);
+
 		mComments.setText(mPlay.Comments);
+		mComments.setVisibility(TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.play_comments_label).setVisibility(
+				TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
+
+		findViewById(R.id.play_player_label).setVisibility((mPlay.getPlayers().size() == 0) ? View.GONE : View.VISIBLE);
 		for (Player player : mPlay.getPlayers()) {
 			PlayerRow pr = new PlayerRow(this);
 			pr.hideButtons();
