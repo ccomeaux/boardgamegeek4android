@@ -30,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -297,6 +298,15 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			cancel();
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 
 	private CharSequence[] createAddFieldArray() {
