@@ -70,12 +70,14 @@
 				android:layout_height="wrap_content"
 				android:text="@string/location" />
 
-			<EditText
+			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:completionThreshold="1"
 				android:hint="@string/location_hint"
-				android:inputType="text" />
+				android:inputType="textCapWords"
+				android:textColor="#000" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"

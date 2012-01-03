@@ -106,6 +106,7 @@ public class BggProvider extends ContentProvider {
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 	private static final int PLAYS = 2000;
+	private static final int PLAYS_LOCATIONS = 2003;
 	private static final int PLAYS_GAMES_ID = 2002;
 	private static final int PLAYS_ID = 2001;
 	private static final int PLAYS_ID_ITEMS = 2010;
@@ -163,6 +164,7 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 		matcher.addURI(authority, "plays", PLAYS);
+		matcher.addURI(authority, "plays/locations", PLAYS_LOCATIONS);
 		matcher.addURI(authority, "plays/games/#", PLAYS_GAMES_ID);
 		matcher.addURI(authority, "plays/#", PLAYS_ID);
 		matcher.addURI(authority, "plays/#/items", PLAYS_ID_ITEMS);
@@ -844,6 +846,9 @@ public class BggProvider extends ContentProvider {
 			case PLAYS_GAMES_ID: {
 				String gameId = uri.getLastPathSegment();
 				return builder.table(Tables.PLAY_ITEMS).where(PlayItems.OBJECT_ID + "=?", gameId);
+			}
+			case PLAYS_LOCATIONS: {
+				return builder.table(Tables.PLAYS).groupBy(Plays.LOCATION);
 			}
 			case GAMES_ID_POLLS: {
 				final int gameId = Games.getGameId(uri);
