@@ -419,6 +419,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				addPlayer(player);
 			}
 			hideFields();
+		} else {
+			mQuantityView.setText("1");
 		}
 	}
 
@@ -776,7 +778,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			if (!TextUtils.isEmpty(constraint)) {
 				selection = Plays.LOCATION + " LIKE '" + constraint + "%'";
 			}
-			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection, null, null);
+			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection, null,
+					null);
 		}
 	}
 
