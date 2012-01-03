@@ -76,6 +76,7 @@
 				android:completionThreshold="1"
 				android:hint="@string/location_hint"
 				android:inputType="textCapWords"
+				android:imeOptions="actionNext"
 				android:textColor="#000" />
 
 			<LinearLayout

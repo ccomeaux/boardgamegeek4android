@@ -34,6 +34,7 @@
 				android:completionThreshold="1"
 				android:dropDownHeight="fill_parent"
 				android:hint="@string/username"
+				android:imeOptions="actionNext"
 				android:inputType="text"
 				android:maxLength="63"
 				android:textColor="#000" />
@@ -66,6 +67,7 @@
 				android:completionThreshold="1"
 				android:dropDownHeight="fill_parent"
 				android:hint="@string/team_color"
+				android:imeOptions="actionNext"
 				android:inputType="textCapSentences"
 				android:maxLength="32"
 				android:textColor="#000" />

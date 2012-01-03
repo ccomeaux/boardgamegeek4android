@@ -145,15 +145,9 @@ public class LogPlayerActivity extends Activity {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_ENTER) {
-			// sends focus to the next field (user pressed "Next")
-			if (mUsername.hasFocus()) {
-				mName.requestFocus();
-				return true;
-			} else if (mTeamColor.hasFocus()) {
-				mStartingPosition.requestFocus();
-				return true;
-			}
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			cancel();
+			return true;
 		}
 		return super.onKeyUp(keyCode, event);
 	}
