@@ -198,6 +198,7 @@ public class BggContract {
 	private static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
+	private static final String PATH_LOCATIONS = "locations";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -594,6 +595,10 @@ public class BggContract {
 		public static Uri buildPlayerUri(int playId, long rowId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS)
 					.appendPath(String.valueOf(rowId)).build();
+		}
+
+		public static Uri buildLocationsUri(){
+			return CONTENT_URI.buildUpon().appendPath(PATH_LOCATIONS).build();
 		}
 
 		public static int getPlayId(Uri uri) {

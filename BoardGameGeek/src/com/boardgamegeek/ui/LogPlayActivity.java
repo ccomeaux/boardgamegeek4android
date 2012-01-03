@@ -20,6 +20,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -34,8 +35,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CursorAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -89,6 +93,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mPlayUri;
 	private Uri mPlayerUri;
+	private LocationAdapter mLocationAdapter;
 
 	private String mGameName;
 	private String mThumbnailUrl;
@@ -100,7 +105,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private Button mDateButton;
 	private EditText mQuantityView;
 	private EditText mLengthView;
-	private EditText mLocationView;
+	private AutoCompleteTextView mLocationView;
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
 	private EditText mCommentsView;
@@ -179,6 +184,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		setDateButtonText();
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+
+		mLocationAdapter = new LocationAdapter(this);
+		mLocationView.setAdapter(mLocationAdapter);
 	}
 
 	@Override
@@ -472,7 +480,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mDateButton = (Button) findViewById(R.id.log_play_date);
 		mQuantityView = (EditText) findViewById(R.id.log_play_quantity);
 		mLengthView = (EditText) findViewById(R.id.log_play_length);
-		mLocationView = (EditText) findViewById(R.id.log_play_location);
+		mLocationView = (AutoCompleteTextView) findViewById(R.id.log_play_location);
 		mIncompleteView = (CheckBox) findViewById(R.id.log_play_incomplete);
 		mNoWinStatsView = (CheckBox) findViewById(R.id.log_play_no_win_stats);
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
@@ -741,6 +749,37 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 	}
 
+	private class LocationAdapter extends CursorAdapter {
+		public LocationAdapter(Context context) {
+			super(context, null);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return getLayoutInflater().inflate(R.layout.autocomplete_color, parent, false);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_color);
+			textView.setText(cursor.getString(LocationQuery.LOCATION));
+		}
+
+		@Override
+		public CharSequence convertToString(Cursor cursor) {
+			return cursor.getString(LocationQuery.LOCATION);
+		}
+
+		@Override
+		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+			String selection = null;
+			if (!TextUtils.isEmpty(constraint)) {
+				selection = Plays.LOCATION + " LIKE '" + constraint + "%'";
+			}
+			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection, null, null);
+		}
+	}
+
 	private interface Query {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
 				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
@@ -757,5 +796,11 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		String[] PROJECTION = { Games.THUMBNAIL_URL };
 
 		int THUMBNAIL_URL = 0;
+	}
+
+	private interface LocationQuery {
+		String[] PROJECTION = { Plays._ID, Plays.LOCATION };
+
+		int LOCATION = 1;
 	}
 }

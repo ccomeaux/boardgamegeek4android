@@ -42,6 +42,7 @@ public class SelectionBuilder {
 	private Map<String, String> mProjectionMap = new HashMap<String, String>();
 	private StringBuilder mSelection = new StringBuilder();
 	private ArrayList<String> mSelectionArgs = new ArrayList<String>();
+	private String mGroupBy = null;
 
 	/**
 	 * Reset any internal state, allowing this builder to be recycled.
@@ -50,6 +51,7 @@ public class SelectionBuilder {
 		mTable = null;
 		mSelection.setLength(0);
 		mSelectionArgs.clear();
+		mGroupBy = null;
 		return this;
 	}
 
@@ -70,8 +72,8 @@ public class SelectionBuilder {
 		if (mSelection.length() > 0) {
 			mSelection.append(" AND ");
 		}
-
 		mSelection.append("(").append(selection).append(")");
+
 		if (selectionArgs != null) {
 			for (String arg : selectionArgs) {
 				mSelectionArgs.add(arg);
@@ -99,6 +101,20 @@ public class SelectionBuilder {
 
 	public SelectionBuilder map(String fromColumn, String toClause) {
 		mProjectionMap.put(fromColumn, toClause + " AS " + fromColumn);
+		return this;
+	}
+
+	public SelectionBuilder groupBy(String... groupArgs) {
+		if (groupArgs != null) {
+			mGroupBy = new String();
+			for (String arg : groupArgs) {
+				if (mGroupBy.length() > 0) {
+					mGroupBy += ", ";
+				}
+				mGroupBy += arg;
+			}
+		}
+
 		return this;
 	}
 
@@ -139,7 +155,7 @@ public class SelectionBuilder {
 	 * Execute query using the current internal state as {@code WHERE} clause.
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
-		return query(db, columns, null, null, orderBy, null);
+		return query(db, columns, mGroupBy, null, orderBy, null);
 	}
 
 	/**
@@ -147,10 +163,12 @@ public class SelectionBuilder {
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String groupBy, String having, String orderBy, String limit) {
 		assertTable();
-		if (columns != null)
+		if (columns != null) {
 			mapColumns(columns);
-		if (LOGV)
+		}
+		if (LOGV) {
 			Log.v(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
+		}
 		return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
 	}
 
@@ -159,8 +177,9 @@ public class SelectionBuilder {
 	 */
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
-		if (LOGV)
+		if (LOGV) {
 			Log.v(TAG, "update() " + this);
+		}
 		return db.update(mTable, values, getSelection(), getSelectionArgs());
 	}
 
@@ -169,8 +188,9 @@ public class SelectionBuilder {
 	 */
 	public int delete(SQLiteDatabase db) {
 		assertTable();
-		if (LOGV)
+		if (LOGV) {
 			Log.v(TAG, "delete() " + this);
+		}
 		String selection = getSelection();
 		if (TextUtils.isEmpty(selection)) {
 			// this forces delete to return the count
