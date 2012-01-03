@@ -46,8 +46,7 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/quantity_hint"
-				android:inputType="number"
-				android:text="1" />
+				android:inputType="number" />
 
 			<TextView
 				android:id="@+id/log_play_length_label"
