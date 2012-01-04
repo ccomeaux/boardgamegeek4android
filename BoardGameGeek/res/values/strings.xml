@@ -77,7 +77,7 @@
 	<string name="pref_sync_clear_summary">Deletes all synchronized information</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_neg">Cancel</string>
-	<string name="pref_sync_clear_message">Are you sure you want to clear all synchronized
+	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized
 		information? NOTE: This operation can\'t be reversed.</string>
 	<string name="pref_sync_clear_confirm_message">Clear complete!</string>
 	<string name="pref_sync_reset_collection">Reset Collection</string>

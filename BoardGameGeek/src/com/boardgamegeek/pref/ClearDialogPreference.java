@@ -2,13 +2,8 @@ package com.boardgamegeek.pref;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.os.AsyncTask;
-import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -22,30 +17,35 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.ImageCache;
 
-public class ClearDialogPreference extends DialogPreference {
+public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = "ClearDialogPreference";
 
 	private Context context;
 
+	public ClearDialogPreference(Context context) {
+		super(context);
+	}
+
 	public ClearDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.context = context;
-		setDialogIcon(android.R.drawable.ic_dialog_alert);
 	}
-
-	public ClearDialogPreference(Context context) {
-		super(context, null);
-	}
-
+	
 	@Override
-	protected void onDialogClosed(boolean positiveResult) {
-		if (positiveResult) {
-			new ClearTask().execute();
-		}
-		notifyChanged();
+	protected int getInfoMessageResource() {
+		return R.string.pref_sync_clear_info_message;
+	}
+	
+	@Override
+	protected int getConfirmMessageResource() {
+		return R.string.pref_sync_clear_confirm_message;
+	}
+	
+	@Override
+	protected Task getTask() {
+		return new ClearTask();
 	}
 
-	private class ClearTask extends AsyncTask<Void, Void, Void> {
+	private class ClearTask extends AsyncDialogPreference.Task {
 
 		private ContentResolver mResolver;
 
@@ -78,19 +78,5 @@ public class ClearDialogPreference extends DialogPreference {
 
 			return null;
 		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			Toast.makeText(getContext(), R.string.pref_sync_clear_confirm_message, Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	@Override
-	protected View onCreateDialogView() {
-		TextView tw = new TextView(context);
-		tw.setText(R.string.pref_sync_clear_message);
-		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
-		tw.setPadding(padding, padding, padding, padding);
-		return tw;
 	}
 }
