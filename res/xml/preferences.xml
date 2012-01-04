@@ -122,32 +122,43 @@
 		</PreferenceCategory>
 	</PreferenceScreen>
 
-	<PreferenceCategory android:title="@string/pref_database" >
+	<PreferenceCategory android:title="@string/pref_sync" >
 		<com.boardgamegeek.pref.ListPreferenceMultiSelect
 			android:defaultValue="own"
-			android:dialogTitle="@string/pref_database_statuses"
+			android:dialogTitle="@string/pref_sync_statuses"
 			android:entries="@array/pref_sync_status_entries"
 			android:entryValues="@array/pref_sync_status_values"
 			android:key="syncStatuses"
-			android:title="@string/pref_database_statuses" />
+			android:title="@string/pref_sync_statuses" />
 
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncPlays"
-			android:summary="@string/pref_database_plays_summary"
-			android:title="@string/pref_database_plays" />
+			android:summary="@string/pref_sync_plays_summary"
+			android:title="@string/pref_sync_plays" />
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncBuddies"
-			android:summary="@string/pref_database_buddies_summary"
-			android:title="@string/pref_database_buddies" />
+			android:summary="@string/pref_sync_buddies_summary"
+			android:title="@string/pref_sync_buddies" />
 
 		<com.boardgamegeek.pref.ClearDialogPreference
-			android:key="clearDatabase"
-			android:negativeButtonText="@string/pref_database_clear_neg"
-			android:positiveButtonText="@string/pref_database_clear_pos"
-			android:summary="@string/pref_database_clear_summary"
-			android:title="@string/pref_database_clear" />
+			android:negativeButtonText="@string/pref_sync_neg"
+			android:positiveButtonText="@string/pref_sync_clear_pos"
+			android:summary="@string/pref_sync_clear_summary"
+			android:title="@string/pref_sync_clear" />
+
+		<com.boardgamegeek.pref.ResetCollectionDialogPreference
+			android:negativeButtonText="@string/pref_sync_neg"
+			android:positiveButtonText="@string/pref_sync_reset_pos"
+			android:summary="@string/pref_sync_reset_collection_summary"
+			android:title="@string/pref_sync_reset_collection" />
+
+		<com.boardgamegeek.pref.ResetPlaysDialogPreference
+			android:negativeButtonText="@string/pref_sync_neg"
+			android:positiveButtonText="@string/pref_sync_reset_pos"
+			android:summary="@string/pref_sync_reset_plays_summary"
+			android:title="@string/pref_sync_reset_plays" />
 	</PreferenceCategory>
 
 </PreferenceScreen>

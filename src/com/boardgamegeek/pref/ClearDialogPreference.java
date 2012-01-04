@@ -40,12 +40,12 @@ public class ClearDialogPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-			new ClearTask().execute("");
+			new ClearTask().execute();
 		}
 		notifyChanged();
 	}
 
-	private class ClearTask extends AsyncTask<String, Void, Void> {
+	private class ClearTask extends AsyncTask<Void, Void, Void> {
 
 		private ContentResolver mResolver;
 
@@ -55,7 +55,7 @@ public class ClearDialogPreference extends DialogPreference {
 		}
 
 		@Override
-		protected Void doInBackground(String... params) {
+		protected Void doInBackground(Void... params) {
 			BggApplication.getInstance().clearSyncTimestamps();
 			BggApplication.getInstance().clearSyncPlaysSettings();
 
@@ -81,14 +81,14 @@ public class ClearDialogPreference extends DialogPreference {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			Toast.makeText(getContext(), "Clear complete.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getContext(), R.string.pref_sync_clear_confirm_message, Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	@Override
 	protected View onCreateDialogView() {
 		TextView tw = new TextView(context);
-		tw.setText(R.string.pref_database_clear_message);
+		tw.setText(R.string.pref_sync_clear_message);
 		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
 		tw.setPadding(padding, padding, padding, padding);
 		return tw;

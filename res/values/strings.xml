@@ -67,18 +67,27 @@
 	<string name="pref_log_hide_player_new_off">Display the player Win option</string>
 	<string name="pref_log_hide_player_new_on">"Don't display the player Win option"</string>
 	<string name="pref_log_hide_player_win">Hide Win</string>
-	<string name="pref_database">Sync settings</string>
-	<string name="pref_database_statuses">Collection statuses</string>
-	<string name="pref_database_buddies">GeekBuddies</string>
-	<string name="pref_database_buddies_summary">Enable to sync GeekBuddies</string>
-	<string name="pref_database_plays">Games Played</string>
-	<string name="pref_database_plays_summary">Enable to sync games played</string>
-	<string name="pref_database_clear">Clear</string>
-	<string name="pref_database_clear_summary">Deletes all synchronized information</string>
-	<string name="pref_database_clear_pos">Clear</string>
-	<string name="pref_database_clear_neg">Cancel</string>
-	<string name="pref_database_clear_message">Are you sure you want to clear all synchronized
+	<string name="pref_sync">Sync settings</string>
+	<string name="pref_sync_statuses">Collection statuses</string>
+	<string name="pref_sync_buddies">GeekBuddies</string>
+	<string name="pref_sync_buddies_summary">Enable to sync GeekBuddies</string>
+	<string name="pref_sync_plays">Games Played</string>
+	<string name="pref_sync_plays_summary">Enable to sync games played</string>
+	<string name="pref_sync_clear">Clear</string>
+	<string name="pref_sync_clear_summary">Deletes all synchronized information</string>
+	<string name="pref_sync_clear_pos">Clear</string>
+	<string name="pref_sync_neg">Cancel</string>
+	<string name="pref_sync_clear_message">Are you sure you want to clear all synchronized
 		information? NOTE: This operation can\'t be reversed.</string>
+	<string name="pref_sync_clear_confirm_message">Clear complete!</string>
+	<string name="pref_sync_reset_collection">Reset Collection</string>
+	<string name="pref_sync_reset_collection_summary">Resets collection so the next sync will be complete</string>
+	<string name="pref_sync_reset_plays">Reset Plays</string>
+	<string name="pref_sync_reset_plays_summary">Resets plays so the next sync will be complete</string>
+		<string name="pref_sync_reset_pos">Reset</string>
+	<string name="pref_sync_reset_collection_info_message">Are you sure you want to reset your collection so that the next sync is complete?</string>
+	<string name="pref_sync_reset_plays_info_message">Are you sure you want to reset your plays so that the next sync is complete?</string>
+	<string name="pref_sync_reset_confirm_message">Reset complete!</string>
 	<string name="average_meter_text">Average = %s</string>
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
