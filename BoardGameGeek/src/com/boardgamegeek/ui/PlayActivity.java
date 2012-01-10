@@ -96,7 +96,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mPlayUri, true, mObserver);
+		getContentResolver().registerContentObserver(mPlayUri, false, mObserver);
 	}
 
 	@Override
@@ -200,6 +200,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				}
 
 			} else if (token == TOKEN_PLAYER) {
+				mPlay.clearPlayers();
 				while (cursor.moveToNext()) {
 					Player player = new Player(cursor);
 					mPlay.addPlayer(player);
@@ -256,6 +257,13 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		findViewById(R.id.play_comments_label).setVisibility(
 				TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
 
+		while (true) {
+			View v = mPlayerList.getChildAt(mPlayerList.getChildCount() - 1);
+			if (v.getId() == R.id.play_player_label) {
+				break;
+			}
+			mPlayerList.removeView(v);
+		}
 		findViewById(R.id.play_player_label).setVisibility((mPlay.getPlayers().size() == 0) ? View.GONE : View.VISIBLE);
 		for (Player player : mPlay.getPlayers()) {
 			PlayerRow pr = new PlayerRow(this);
