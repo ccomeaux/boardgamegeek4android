@@ -15,5 +15,6 @@
 	<dimen name="thumbnail_list_size">45dp</dimen>
 	<dimen name="thumbnail_size">60dp</dimen>
 	<dimen name="row_dimension">20dp</dimen>
+	<dimen name="progress_bar_small">30dp</dimen>
 
 </resources>
