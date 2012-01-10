@@ -95,14 +95,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
-	@Override
 	protected void onStop() {
-		super.onStop();
 		getContentResolver().unregisterContentObserver(mObserver);
+		super.onStop();
 	}
 
 	private void setUiVariables() {
