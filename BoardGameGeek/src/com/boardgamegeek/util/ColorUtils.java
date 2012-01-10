@@ -22,6 +22,8 @@ public class ColorUtils {
 	public static final int ORANGE = 0xFFFFA500;
 	public static final int BROWN = 0xFFA52A2A;
 	public static final int NATURAL = 0xFFDB9370;
+	public static final int ROSE = 0xFFFF007F;
+	public static final int BRONZE = 0xFF8C7853;
 
 	public static int parseColor(String colorString) {
 		if (TextUtils.isEmpty(colorString)) {
@@ -66,5 +68,7 @@ public class ColorUtils {
 		sColorNameMap.put("orange", ORANGE);
 		sColorNameMap.put("brown", BROWN);
 		sColorNameMap.put("natural", NATURAL);
+		sColorNameMap.put("rose", ROSE);
+		sColorNameMap.put("bronze", BRONZE);
 	}
 }
