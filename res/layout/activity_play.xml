@@ -6,6 +6,27 @@
 
 	<include layout="@layout/titlebar" />
 
+	<LinearLayout
+		android:id="@+id/update_panel"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/background_light"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:visibility="gone" >
+
+		<ProgressBar
+			android:layout_width="@dimen/progress_bar_small"
+			android:layout_height="@dimen/progress_bar_small"
+			android:padding="@dimen/padding_standard" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/msg_updating"
+			android:textSize="@dimen/text_size_xsmall" />
+	</LinearLayout>
+
 	<include layout="@layout/game_header" />
 
 	<include layout="@layout/header_divider" />
