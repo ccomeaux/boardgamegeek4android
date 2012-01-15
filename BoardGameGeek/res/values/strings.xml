@@ -84,7 +84,7 @@
 	<string name="pref_sync_reset_collection_summary">Resets collection so the next sync will be complete</string>
 	<string name="pref_sync_reset_plays">Reset Plays</string>
 	<string name="pref_sync_reset_plays_summary">Resets plays so the next sync will be complete</string>
-		<string name="pref_sync_reset_pos">Reset</string>
+	<string name="pref_sync_reset_pos">Reset</string>
 	<string name="pref_sync_reset_collection_info_message">Are you sure you want to reset your collection so that the next sync is complete?</string>
 	<string name="pref_sync_reset_plays_info_message">Are you sure you want to reset your plays so that the next sync is complete?</string>
 	<string name="pref_sync_reset_confirm_message">Reset complete!</string>
@@ -276,6 +276,12 @@
 	<string name="share_text">I found this game using BoardGameGeek on Android
 		that I thought you might like:\n\n%1$s (%2$s)</string>
 	<string name="share_play_title">Share Play</string>
+	<string name="share_play_played">Played</string>
+	<string name="share_play_times">times</string>
+	<string name="share_play_on">on</string>
+	<string name="share_play_with">with</string>
+	<string name="share_play_players">players</string>
+	<string name="share_play_at">at</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="time_suffix">mins</string>

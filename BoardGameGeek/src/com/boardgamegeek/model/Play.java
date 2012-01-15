@@ -11,12 +11,15 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
@@ -179,22 +182,28 @@ public class Play {
 		return nvps;
 	}
 
-	public String toShortDescription(String gameName) {
-		return "Played " + gameName + " on " + getFormattedDate();
+	public String toShortDescription(Context context, String gameName) {
+		Resources r = context.getResources();
+		StringBuilder sb = new StringBuilder();
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
+		sb.append(" ").append(r.getString(R.string.share_play_on)).append(" ").append(getFormattedDate());
+		return sb.toString();
 	}
 
-	public String toLongDescription(String gameName) {
+	public String toLongDescription(Context context, String gameName) {
+		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append("Played ").append(gameName);
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
 		if (Quantity > 1) {
-			sb.append(" ").append(Quantity).append(" times");
+			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.share_play_times));
 		}
-		sb.append(" on ").append(getFormattedDate());
+		sb.append(" ").append(r.getString(R.string.share_play_on)).append(" ").append(getFormattedDate());
 		if (!TextUtils.isEmpty(Location)) {
-			sb.append(" at ").append(Location);
+			sb.append(" ").append(r.getString(R.string.share_play_at)).append(" ").append(Location);
 		}
 		if (mPlayers.size() > 0) {
-			sb.append(" with ").append(mPlayers.size()).append(" players");
+			sb.append(" ").append(r.getString(R.string.share_play_with)).append(" ").append(mPlayers.size())
+					.append(" ").append(r.getString(R.string.share_play_players));
 		}
 		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
 		return sb.toString();
