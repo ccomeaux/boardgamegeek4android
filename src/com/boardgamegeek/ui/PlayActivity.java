@@ -57,6 +57,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private static final int TOKEN_GAME = 3;
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 
 	private LogInHelper mLogInHelper;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -162,8 +163,26 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 						}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 				return true;
+			case R.id.menu_refresh:
+				if (DateTimeUtils.howManyHoursOld(mPlay.Updated) > REFRESH_THROTTLE_IN_HOURS) {
+					refresh();
+				} else {
+					showToast(R.string.msg_refresh_exceeds_throttle);
+				}
+				return true;
+			case R.id.menu_share:
+				sharePlay();
+				return true;
 		}
 		return false;
+	}
+
+	private void sharePlay() {
+		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, mPlay.toShortDescription(mGameName));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, mPlay.toLongDescription(mGameName));
+		startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_play_title)));
 	}
 
 	@Override

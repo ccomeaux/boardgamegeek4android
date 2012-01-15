@@ -275,6 +275,7 @@
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android
 		that I thought you might like:\n\n%1$s (%2$s)</string>
+	<string name="share_play_title">Share Play</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="time_suffix">mins</string>
