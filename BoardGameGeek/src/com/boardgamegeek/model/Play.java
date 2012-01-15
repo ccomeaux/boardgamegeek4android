@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -176,5 +177,26 @@ public class Play {
 
 		Log.d(TAG, nvps.toString());
 		return nvps;
+	}
+
+	public String toShortDescription(String gameName) {
+		return "Played " + gameName + " on " + getFormattedDate();
+	}
+
+	public String toLongDescription(String gameName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Played ").append(gameName);
+		if (Quantity > 1) {
+			sb.append(" ").append(Quantity).append(" times");
+		}
+		sb.append(" on ").append(getFormattedDate());
+		if (!TextUtils.isEmpty(Location)) {
+			sb.append(" at ").append(Location);
+		}
+		if (mPlayers.size() > 0) {
+			sb.append(" with ").append(mPlayers.size()).append(" players");
+		}
+		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
+		return sb.toString();
 	}
 }
