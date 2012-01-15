@@ -18,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
@@ -33,7 +35,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayerActivity extends Activity {
+public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	// private static final String TAG = "LogPlayerActivity";
 
 	private static final String KEY_PLAYER = "PLAYER";
@@ -161,6 +163,8 @@ public class LogPlayerActivity extends Activity {
 		mRating = (EditText) findViewById(R.id.log_player_rating);
 		mNew = (CheckBox) findViewById(R.id.log_player_new);
 		mWin = (CheckBox) findViewById(R.id.log_player_win);
+
+		mUsername.setOnItemClickListener(this);
 	}
 
 	private void hideFields() {
@@ -356,6 +360,7 @@ public class LogPlayerActivity extends Activity {
 			final TextView descriptionTextView = (TextView) view.findViewById(R.id.buddy_description);
 			descriptionTextView.setText((cursor.getString(BuddiesQuery.FIRST_NAME) + " " + cursor
 					.getString(BuddiesQuery.LAST_NAME)).trim());
+			view.setTag(cursor.getString(BuddiesQuery.FIRST_NAME));
 		}
 
 		@Override
@@ -367,7 +372,9 @@ public class LogPlayerActivity extends Activity {
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 			String selection = null;
 			if (!TextUtils.isEmpty(constraint)) {
-				selection = Buddies.BUDDY_NAME + " LIKE '" + constraint + "%'";
+				String like = " LIKE '" + constraint + "%'";
+				selection = Buddies.BUDDY_NAME + like + " OR " + Buddies.BUDDY_FIRSTNAME + like + " OR "
+						+ Buddies.BUDDY_LASTNAME + like;
 			}
 			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, null,
 					Buddies.NAME_SORT);
@@ -408,7 +415,6 @@ public class LogPlayerActivity extends Activity {
 
 	private interface BuddiesQuery {
 		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME };
-		// int _ID = 0;
 		int NAME = 1;
 		int FIRST_NAME = 2;
 		int LAST_NAME = 3;
@@ -416,7 +422,11 @@ public class LogPlayerActivity extends Activity {
 
 	private interface ColorsQuery {
 		String[] PROJECTION = { GameColors._ID, GameColors.COLOR };
-		// int _ID = 0;
 		int COLOR = 1;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		mName.setText(view.getTag().toString());
 	}
 }
