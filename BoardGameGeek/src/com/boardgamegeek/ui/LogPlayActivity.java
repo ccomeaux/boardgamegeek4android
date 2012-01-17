@@ -54,6 +54,7 @@ import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -580,22 +581,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		protected String doInBackground(Play... params) {
 			mPlay = params[0];
 
-			// update colors
-			if (mPlay.getPlayers().size() > 0) {
-				List<ContentValues> values = new ArrayList<ContentValues>();
-				for (Player player : mPlay.getPlayers()) {
-					String color = player.TeamColor;
-					if (!TextUtils.isEmpty(color)) {
-						ContentValues cv = new ContentValues();
-						cv.put(GameColors.COLOR, player.TeamColor);
-						values.add(cv);
-					}
-				}
-				if (values.size() > 0) {
-					ContentValues[] array = {};
-					getContentResolver().bulkInsert(Games.buildColorsUri(mPlay.GameId), values.toArray(array));
-				}
-			}
+			updateColors();
+			updateBuddyNicknames();
 
 			// create form entity
 			UrlEncodedFormEntity entity;
@@ -641,6 +628,37 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			}
 
 			return message;
+		}
+
+		private void updateColors() {
+			if (mPlay.getPlayers().size() > 0) {
+				List<ContentValues> values = new ArrayList<ContentValues>();
+				for (Player player : mPlay.getPlayers()) {
+					String color = player.TeamColor;
+					if (!TextUtils.isEmpty(color)) {
+						ContentValues cv = new ContentValues();
+						cv.put(GameColors.COLOR, player.TeamColor);
+						values.add(cv);
+					}
+				}
+				if (values.size() > 0) {
+					ContentValues[] array = {};
+					getContentResolver().bulkInsert(Games.buildColorsUri(mPlay.GameId), values.toArray(array));
+				}
+			}
+		}
+
+		private void updateBuddyNicknames() {
+			if (mPlay.getPlayers().size() > 0) {
+				for (Player player : mPlay.getPlayers()) {
+					if (!TextUtils.isEmpty(player.Username) && !TextUtils.isEmpty(player.Name)) {
+						ContentValues values = new ContentValues();
+						values.put(Buddies.PLAY_NICKNAME, player.Name);
+						getContentResolver().update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
+								new String[] { player.Username });
+					}
+				}
+			}
 		}
 
 		@Override

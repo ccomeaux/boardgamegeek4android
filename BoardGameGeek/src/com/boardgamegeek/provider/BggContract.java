@@ -120,6 +120,7 @@ public class BggContract {
 		String BUDDY_FIRSTNAME = "buddy_firtname";
 		String BUDDY_LASTNAME = "buddy_lastname";
 		String AVATAR_URL = "avatar_url";
+		String PLAY_NICKNAME = "play_nickname";
 	}
 
 	interface GamePollsColumns {
