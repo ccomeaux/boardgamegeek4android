@@ -2,7 +2,6 @@ package com.boardgamegeek.provider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -343,8 +342,7 @@ public class BggProvider extends ContentProvider {
 				if (query == null) {
 					return null;
 				} else {
-					query = URLEncoder.encode(query);
-					final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+					SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 					qb.setTables(Tables.GAMES);
 					qb.setProjectionMap(sSuggestionProjectionMap);
 					qb.appendWhere("(" + Tables.GAMES + "." + Games.GAME_NAME + " like '" + query + "%' OR "
