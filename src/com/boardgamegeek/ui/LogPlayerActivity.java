@@ -360,7 +360,12 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 			final TextView descriptionTextView = (TextView) view.findViewById(R.id.buddy_description);
 			descriptionTextView.setText((cursor.getString(BuddiesQuery.FIRST_NAME) + " " + cursor
 					.getString(BuddiesQuery.LAST_NAME)).trim());
-			view.setTag(cursor.getString(BuddiesQuery.FIRST_NAME));
+
+			String name = cursor.getString(BuddiesQuery.PLAY_NICKNAME);
+			if (TextUtils.isEmpty(name)) {
+				name = cursor.getString(BuddiesQuery.FIRST_NAME);
+			}
+			view.setTag(name);
 		}
 
 		@Override
@@ -374,7 +379,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 			if (!TextUtils.isEmpty(constraint)) {
 				String like = " LIKE '" + constraint + "%'";
 				selection = Buddies.BUDDY_NAME + like + " OR " + Buddies.BUDDY_FIRSTNAME + like + " OR "
-						+ Buddies.BUDDY_LASTNAME + like;
+						+ Buddies.BUDDY_LASTNAME + like + " OR " + Buddies.PLAY_NICKNAME + like;
 			}
 			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, null,
 					Buddies.NAME_SORT);
@@ -414,10 +419,12 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME };
+		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
+				Buddies.PLAY_NICKNAME };
 		int NAME = 1;
 		int FIRST_NAME = 2;
 		int LAST_NAME = 3;
+		int PLAY_NICKNAME = 4;
 	}
 
 	private interface ColorsQuery {
