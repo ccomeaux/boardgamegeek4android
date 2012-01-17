@@ -49,7 +49,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_EXPANSIONS = 4;
 	private static final int VER_VARIOUS = 5;
 	private static final int VER_PLAYS = 6;
-	private static final int DATABASE_VERSION = VER_PLAYS;
+	private static final int VER_PLAY_NICKNAME = 7;
+	private static final int DATABASE_VERSION = VER_PLAY_NICKNAME;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -266,16 +267,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ CollectionColumns.PRIVATE_INFO_COMMENT + " TEXT,"
 			+ "UNIQUE (" + CollectionColumns.COLLECTION_ID + ") ON CONFLICT REPLACE)");
 
-		db.execSQL("CREATE TABLE " + Tables.BUDDIES + " ("
-			+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-			+ SyncColumns.UPDATED + " INTEGER,"
-			+ SyncListColumns.UPDATED_LIST + " INTEGER NOT NULL,"
-			+ BuddiesColumns.BUDDY_ID + " INTEGER NOT NULL,"
-			+ BuddiesColumns.BUDDY_NAME + " TEXT NOT NULL,"
-			+ BuddiesColumns.BUDDY_FIRSTNAME + " TEXT,"
-			+ BuddiesColumns.BUDDY_LASTNAME + " TEXT,"
-			+ BuddiesColumns.AVATAR_URL + " TEXT,"
-			+ "UNIQUE (" + BuddiesColumns.BUDDY_ID + ") ON CONFLICT REPLACE)");
+		builder.reset().table(Tables.BUDDIES).defaultPrimaryKey()
+			.column(SyncColumns.UPDATED, COLUMN_TYPE.INTEGER)
+			.column(SyncListColumns.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
+			.column(BuddiesColumns.BUDDY_ID, COLUMN_TYPE.INTEGER, true, true)
+			.column(BuddiesColumns.BUDDY_NAME, COLUMN_TYPE.TEXT, true)
+			.column(BuddiesColumns.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
+			.column(BuddiesColumns.BUDDY_LASTNAME, COLUMN_TYPE.TEXT)
+			.column(BuddiesColumns.AVATAR_URL, COLUMN_TYPE.TEXT)
+			.column(BuddiesColumns.PLAY_NICKNAME, COLUMN_TYPE.TEXT)
+			.create(db);
 
 		builder.reset().table(Tables.GAME_POLLS).defaultPrimaryKey()
 			.column(GamesColumns.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, GamesColumns.GAME_ID)
@@ -392,6 +393,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 				createPlayItemsTable(db, new CreateTableBuilder());
 				createPlayPlayersTable(db, new CreateTableBuilder());
 				version = VER_PLAYS;
+			case VER_PLAYS:
+				db.execSQL("ALTER TABLE " + Tables.BUDDIES + " ADD COLUMN " + BuddiesColumns.PLAY_NICKNAME + " TEXT");
+				version = VER_PLAY_NICKNAME;
 		}
 
 		if (version != DATABASE_VERSION) {
