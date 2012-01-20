@@ -350,22 +350,21 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.list_item, parent, false);
+			return getLayoutInflater().inflate(R.layout.dropdown_logplayer_buddy, parent, false);
 		}
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView nameTextView = (TextView) view.findViewById(R.id.buddy_name);
-			nameTextView.setText(cursor.getString(BuddiesQuery.NAME));
-			final TextView descriptionTextView = (TextView) view.findViewById(R.id.buddy_description);
-			descriptionTextView.setText((cursor.getString(BuddiesQuery.FIRST_NAME) + " " + cursor
-					.getString(BuddiesQuery.LAST_NAME)).trim());
+			String userName = cursor.getString(BuddiesQuery.NAME);
+			String firstName = cursor.getString(BuddiesQuery.FIRST_NAME);
+			String lastName = cursor.getString(BuddiesQuery.LAST_NAME);
+			String nickname = cursor.getString(BuddiesQuery.PLAY_NICKNAME);
+			String fullName = (firstName + " " + lastName).trim();
 
-			String name = cursor.getString(BuddiesQuery.PLAY_NICKNAME);
-			if (TextUtils.isEmpty(name)) {
-				name = cursor.getString(BuddiesQuery.FIRST_NAME);
-			}
-			view.setTag(name);
+			((TextView) view.findViewById(R.id.buddy_username)).setText(userName);
+			((TextView) view.findViewById(R.id.buddy_description)).setText(fullName);
+			((TextView) view.findViewById(R.id.buddy_nickname)).setText(nickname);
+			view.setTag(TextUtils.isEmpty(nickname) ? firstName : nickname);
 		}
 
 		@Override
