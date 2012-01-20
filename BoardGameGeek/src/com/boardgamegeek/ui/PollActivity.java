@@ -138,7 +138,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 			setTitle(R.string.suggested_playerage);
 		} else if (SUGGESTED_NUMPLAYERS.equals(mType)) {
 			setTitle(R.string.suggested_numplayers);
-			addKeyRow(Color.GREEN, BEST);
+			addKeyRow(0xff4cc417, BEST);
 			addKeyRow(Color.YELLOW, RECOMMENDED);
 			addKeyRow(Color.RED, NOT_RECOMMENDED);
 		}
