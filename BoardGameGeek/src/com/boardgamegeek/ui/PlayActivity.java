@@ -71,6 +71,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private Play mPlay;
 
 	private TextView mUpdated;
+	private TextView mPlayId;
 	private TextView mDate;
 	private TextView mQuantity;
 	private TextView mLength;
@@ -240,6 +241,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	private void setUiVariables() {
 		mUpdated = (TextView) findViewById(R.id.updated);
+		mPlayId = (TextView) findViewById(R.id.play_id);
 		mDate = (TextView) findViewById(R.id.play_date);
 		mQuantity = (TextView) findViewById(R.id.play_quantity);
 		mLength = (TextView) findViewById(R.id.play_length);
@@ -252,7 +254,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mObserver = new PlayObserver(null);
 	}
 
-	private void bindUi() {
+	private synchronized void bindUi() {
 		mDate.setText(mPlay.getFormattedDate());
 
 		mQuantity.setText(String.valueOf(mPlay.Quantity));
@@ -276,13 +278,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		findViewById(R.id.play_comments_label).setVisibility(
 				TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
 
-		while (true) {
-			View v = mPlayerList.getChildAt(mPlayerList.getChildCount() - 1);
-			if (v.getId() == R.id.play_player_label) {
-				break;
-			}
-			mPlayerList.removeView(v);
-		}
+		mPlayerList.removeAllViews();
 		findViewById(R.id.play_player_label).setVisibility((mPlay.getPlayers().size() == 0) ? View.GONE : View.VISIBLE);
 		for (Player player : mPlay.getPlayers()) {
 			PlayerRow pr = new PlayerRow(this);
@@ -300,6 +296,8 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 					DateUtils.MINUTE_IN_MILLIS);
 			mUpdated.setText(getResources().getString(R.string.updated) + " " + u);
 		}
+
+		mPlayId.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.PlayId));
 	}
 
 	private interface Query {
