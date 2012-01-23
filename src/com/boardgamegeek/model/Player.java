@@ -21,6 +21,7 @@ public class Player implements Parcelable {
 
 	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
+	private static final String KEY_USER_ID = "USER_ID";
 	private static final String KEY_USERNAME = "USERNAME";
 	private static final String KEY_TEAM_COLOR = "TEAM_COLOR";
 	private static final String KEY_STARTING_POSITION = "STARTING_POSITION";
@@ -36,6 +37,7 @@ public class Player implements Parcelable {
 		final Bundle bundle = intent.getExtras();
 		if (bundle.getBoolean(KEY_EXISTS)) {
 			Name = bundle.getString(KEY_NAME);
+			UserId = bundle.getInt(KEY_USER_ID);
 			Username = bundle.getString(KEY_USERNAME);
 			TeamColor = bundle.getString(KEY_TEAM_COLOR);
 			StartingPosition = bundle.getString(KEY_STARTING_POSITION);
@@ -47,6 +49,7 @@ public class Player implements Parcelable {
 	}
 
 	public Player(Cursor cursor) {
+		UserId = CursorUtils.getInt(cursor, PlayPlayers.USER_ID);
 		Username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
 		Name = CursorUtils.getString(cursor, PlayPlayers.NAME);
 		TeamColor = CursorUtils.getString(cursor, PlayPlayers.COLOR);
@@ -58,6 +61,7 @@ public class Player implements Parcelable {
 	}
 
 	public String Name;
+	public int UserId;
 	public String Username;
 	public String TeamColor;
 	public String StartingPosition;
@@ -70,6 +74,7 @@ public class Player implements Parcelable {
 		Intent intent = new Intent();
 		intent.putExtra(KEY_EXISTS, true);
 		intent.putExtra(KEY_NAME, Name);
+		intent.putExtra(KEY_USER_ID, UserId);
 		intent.putExtra(KEY_USERNAME, Username);
 		intent.putExtra(KEY_TEAM_COLOR, TeamColor);
 		intent.putExtra(KEY_STARTING_POSITION, StartingPosition);
@@ -112,6 +117,7 @@ public class Player implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeString(Name);
+		out.writeInt(UserId);
 		out.writeString(Username);
 		out.writeString(TeamColor);
 		out.writeString(StartingPosition);
@@ -133,6 +139,7 @@ public class Player implements Parcelable {
 
 	private Player(Parcel in) {
 		Name = in.readString();
+		UserId = in.readInt();
 		Username = in.readString();
 		TeamColor = in.readString();
 		StartingPosition = in.readString();
