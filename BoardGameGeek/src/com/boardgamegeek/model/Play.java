@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -28,6 +29,7 @@ public class Play {
 	private static final String TAG = "Play";
 	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
+	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_YEAR = "YEAR";
 	private static final String KEY_MONTH = "MONTH";
 	private static final String KEY_DATY = "DAY";
@@ -44,15 +46,16 @@ public class Play {
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
-		init(-1);
+		init(-1, "");
 	}
 
-	public Play(int gameId) {
-		init(gameId);
+	public Play(int gameId, String gameName) {
+		init(gameId, gameName);
 	}
 
-	private void init(int gameId) {
+	private void init(int gameId, String gameName) {
 		GameId = gameId;
+		GameName = gameName;
 		Quantity = 1;
 		// set current date
 		final Calendar c = Calendar.getInstance();
@@ -64,6 +67,7 @@ public class Play {
 	public Play(Bundle bundle) {
 		PlayId = bundle.getInt(KEY_PLAY_ID);
 		GameId = bundle.getInt(KEY_GAME_ID);
+		GameName = bundle.getString(KEY_GAME_NAME);
 		Year = bundle.getInt(KEY_YEAR);
 		Month = bundle.getInt(KEY_MONTH);
 		Day = bundle.getInt(KEY_DATY);
@@ -79,6 +83,7 @@ public class Play {
 
 	public int PlayId;
 	public int GameId;
+	public String GameName;
 	public int Year;
 	public int Month;
 	public int Day;
@@ -93,16 +98,8 @@ public class Play {
 	public void populate(Cursor c) {
 		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
 		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID);
-		String date = CursorUtils.getString(c, Plays.DATE);
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		try {
-			Date d = sdf.parse(date);
-			Year = d.getYear() + 1900;
-			Month = d.getMonth();
-			Day = d.getDate();
-		} catch (ParseException e) {
-			Log.w(TAG, "Couldn't parse " + date);
-		}
+		GameName = CursorUtils.getString(c, PlayItems.NAME);
+		setDate(CursorUtils.getString(c, Plays.DATE));
 		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, 1);
 		Length = CursorUtils.getInt(c, Plays.LENGTH);
 		Location = CursorUtils.getString(c, Plays.LOCATION);
@@ -130,6 +127,18 @@ public class Play {
 		Day = day;
 	}
 
+	public void setDate(String date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			Date d = sdf.parse(date);
+			Year = d.getYear() + 1900;
+			Month = d.getMonth();
+			Day = d.getDate();
+		} catch (ParseException e) {
+			Log.w(TAG, "Couldn't parse " + date);
+		}
+	}
+
 	public void clearPlayers() {
 		mPlayers.clear();
 	}
@@ -141,6 +150,7 @@ public class Play {
 	public void saveState(Bundle bundle) {
 		bundle.putInt(KEY_PLAY_ID, PlayId);
 		bundle.putInt(KEY_GAME_ID, GameId);
+		bundle.putString(KEY_GAME_NAME, GameName);
 		bundle.putInt(KEY_YEAR, Year);
 		bundle.putInt(KEY_MONTH, Month);
 		bundle.putInt(KEY_DATY, Day);
@@ -182,18 +192,18 @@ public class Play {
 		return nvps;
 	}
 
-	public String toShortDescription(Context context, String gameName) {
+	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
 		sb.append(" ").append(r.getString(R.string.share_play_on)).append(" ").append(getFormattedDate());
 		return sb.toString();
 	}
 
-	public String toLongDescription(Context context, String gameName) {
+	public String toLongDescription(Context context) {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
 		if (Quantity > 1) {
 			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.share_play_times));
 		}
@@ -207,5 +217,9 @@ public class Play {
 		}
 		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
 		return sb.toString();
+	}
+
+	public Uri getUri() {
+		return Plays.buildPlayUri(PlayId);
 	}
 }

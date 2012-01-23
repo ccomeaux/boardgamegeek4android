@@ -158,7 +158,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 					mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
 				}
 			} else {
-				mPlay = new Play(gameId);
+				mPlay = new Play(gameId, mGameName);
 			}
 
 			if (Intent.ACTION_VIEW.equals(intent.getAction())) {

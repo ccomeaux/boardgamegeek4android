@@ -181,8 +181,8 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private void sharePlay() {
 		Intent shareIntent = new Intent(Intent.ACTION_SEND);
 		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, mPlay.toShortDescription(this, mGameName));
-		shareIntent.putExtra(Intent.EXTRA_TEXT, mPlay.toLongDescription(this, mGameName));
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, mPlay.toShortDescription(this));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, mPlay.toLongDescription(this));
 		startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_play_title)));
 	}
 
