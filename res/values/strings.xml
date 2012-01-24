@@ -137,6 +137,7 @@
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
 	<string name="comments_hint">Game play comments</string>
+	<string name="send">Send</string>
 	<string name="save">Save</string>
 	<string name="cancel">Cancel</string>
 	<string name="exact">Exact</string>

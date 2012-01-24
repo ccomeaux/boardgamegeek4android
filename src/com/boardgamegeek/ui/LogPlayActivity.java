@@ -113,7 +113,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
-	private Button mSaveButton;
+	private Button mSendButton;
 	private AlertDialog mCancelDialog;
 
 	private boolean mLengthShown;
@@ -237,10 +237,10 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.save);
-		mi.setEnabled(mSaveButton.isEnabled());
+		MenuItem mi = menu.findItem(R.id.menu_send);
+		mi.setEnabled(mSendButton.isEnabled());
 
-		mi = menu.findItem(R.id.add_field);
+		mi = menu.findItem(R.id.menu_add_field);
 		mi.setEnabled(hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments()
 				|| hidePlayers());
 
@@ -250,13 +250,16 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.save:
+			case R.id.menu_send:
 				logPlay();
 				return true;
-			case R.id.cancel:
+			case R.id.menu_save:
+				// TODO
+				return true;
+			case R.id.menu_cancel:
 				cancel();
 				return true;
-			case R.id.add_field:
+			case R.id.menu_add_field:
 				final CharSequence[] array = createAddFieldArray();
 				if (array == null || array.length == 0) {
 					return false;
@@ -363,7 +366,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 	}
 
-	public void onSaveClick(View v) {
+	public void onSendClick(View v) {
 		logPlay();
 	}
 
@@ -499,7 +502,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
 		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
-		mSaveButton = (Button) findViewById(R.id.log_play_save);
+		mSendButton = (Button) findViewById(R.id.log_play_send);
 	}
 
 	private void hideFields() {
@@ -735,13 +738,13 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 	}
 
-	private void enableSave() {
-		mSaveButton.setEnabled(true);
+	private void enableSend() {
+		mSendButton.setEnabled(true);
 	}
 
 	@Override
 	public void onLogInSuccess() {
-		enableSave();
+		enableSend();
 	}
 
 	@Override

@@ -134,13 +134,13 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.logplay, menu);
+		menuInflater.inflate(R.menu.logplayer, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.add_field);
+		MenuItem mi = menu.findItem(R.id.menu_add_field);
 		mi.setEnabled(hideTeamColor() || hidePosition() || hideScore() || hideRating() || hideNew() || hideWin());
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -222,13 +222,13 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.save:
+			case R.id.menu_save:
 				save();
 				return true;
-			case R.id.cancel:
+			case R.id.menu_cancel:
 				cancel();
 				return true;
-			case R.id.add_field:
+			case R.id.menu_add_field:
 				final CharSequence[] array = createAddFieldArray();
 				if (array == null || array.length == 0) {
 					return false;
