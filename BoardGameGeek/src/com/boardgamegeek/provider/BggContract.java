@@ -158,6 +158,7 @@ public class BggContract {
 		String NO_WIN_STATS = "no_win_stats";
 		String LOCATION = "location";
 		String COMMENTS = "comments";
+		String SYNC_STATUS = "sync_status";
 	}
 
 	interface PlayItemsColumns {
@@ -564,7 +565,7 @@ public class BggContract {
 		public static final String DEFAULT_SORT = COLOR + " ASC";
 	}
 
-	public static final class Plays implements PlaysColumns, SyncListColumns, BaseColumns {
+	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play";
@@ -598,7 +599,7 @@ public class BggContract {
 					.appendPath(String.valueOf(rowId)).build();
 		}
 
-		public static Uri buildLocationsUri(){
+		public static Uri buildLocationsUri() {
 			return CONTENT_URI.buildUpon().appendPath(PATH_LOCATIONS).build();
 		}
 

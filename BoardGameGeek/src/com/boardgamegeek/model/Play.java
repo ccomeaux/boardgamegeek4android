@@ -26,6 +26,10 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
+	public static final int SYNC_STATUS_SYNCED = 0;
+	public static final int SYNC_STATUS_PENDING = 1;
+	public static final int SYNC_STATUS_IN_PROGRESS = 2;
+
 	private static final String TAG = "Play";
 	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -41,6 +45,8 @@ public class Play {
 	private static final String KEY_COMMENTS = "COMMENTS";
 	private static final String KEY_PLAYERS = "PLAYERS";
 	private static final String KEY_UPDATED = "UPDATED";
+	private static final String KEY_SYNC_STATUS = "SYNC_STATUS";
+	private static final String KEY_SAVED = "SAVED";
 
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
@@ -78,6 +84,8 @@ public class Play {
 		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
 		Comments = bundle.getString(KEY_COMMENTS);
 		Updated = bundle.getLong(KEY_UPDATED);
+		SyncStatus = bundle.getInt(KEY_SYNC_STATUS);
+		Saved = bundle.getLong(KEY_SAVED);
 		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
 	}
 
@@ -94,6 +102,8 @@ public class Play {
 	public boolean NoWinStats;
 	public String Comments;
 	public long Updated;
+	public int SyncStatus;
+	public long Saved;
 
 	public void populate(Cursor c) {
 		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
@@ -107,6 +117,8 @@ public class Play {
 		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);
 		Comments = CursorUtils.getString(c, Plays.COMMENTS);
 		Updated = CursorUtils.getLong(c, Plays.UPDATED_LIST);
+		SyncStatus = CursorUtils.getInt(c, Plays.SYNC_STATUS);
+		Saved = CursorUtils.getLong(c, Plays.UPDATED);
 	}
 
 	public List<Player> getPlayers() {
@@ -161,6 +173,8 @@ public class Play {
 		bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
 		bundle.putString(KEY_COMMENTS, Comments);
 		bundle.putLong(KEY_UPDATED, Updated);
+		bundle.putInt(KEY_SYNC_STATUS, SyncStatus);
+		bundle.putLong(KEY_SAVED, Saved);
 		bundle.putParcelableArrayList(KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
 	}
 
