@@ -85,6 +85,8 @@ public class RemotePlaysHandler extends XmlHandler {
 						mPlay.Incomplete = !"0".equals(mParser.getAttributeValue(null, Tags.INCOMPLETE));
 						mPlay.NoWinStats = !"0".equals(mParser.getAttributeValue(null, Tags.NO_WIN_STATS));
 						mPlay.Location = mParser.getAttributeValue(null, Tags.LOCATION);
+						mPlay.Updated = System.currentTimeMillis();
+						mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
 					} else if (Tags.ITEM.equals(tag)) {
 						mPlay.GameId = Integer.valueOf(mParser.getAttributeValue(null, Tags.OBJECT_ID));
 						mPlay.GameName = mParser.getAttributeValue(null, Tags.NAME);

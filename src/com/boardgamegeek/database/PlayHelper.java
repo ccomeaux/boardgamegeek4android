@@ -76,7 +76,9 @@ public class PlayHelper {
 		values.put(Plays.NO_WIN_STATS, mPlay.NoWinStats);
 		values.put(Plays.LOCATION, mPlay.Location);
 		values.put(Plays.COMMENTS, mPlay.Comments);
-		values.put(Plays.UPDATED_LIST, System.currentTimeMillis());
+		values.put(Plays.UPDATED_LIST, mPlay.Updated);
+		values.put(Plays.SYNC_STATUS, mPlay.SyncStatus);
+		values.put(Plays.UPDATED, System.currentTimeMillis());
 		return values;
 	}
 

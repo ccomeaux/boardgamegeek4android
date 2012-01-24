@@ -50,7 +50,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_VARIOUS = 5;
 	private static final int VER_PLAYS = 6;
 	private static final int VER_PLAY_NICKNAME = 7;
-	private static final int DATABASE_VERSION = VER_PLAY_NICKNAME;
+	private static final int VER_PLAY_SYNC_STATUS = 8;
+	private static final int DATABASE_VERSION = VER_PLAY_SYNC_STATUS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -396,6 +397,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_PLAYS:
 				db.execSQL("ALTER TABLE " + Tables.BUDDIES + " ADD COLUMN " + BuddiesColumns.PLAY_NICKNAME + " TEXT");
 				version = VER_PLAY_NICKNAME;
+			case VER_PLAY_NICKNAME:
+				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + PlaysColumns.SYNC_STATUS + " INTEGER");
+				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + SyncColumns.UPDATED + " INTEGER");
+				version = VER_PLAY_SYNC_STATUS;
 		}
 
 		if (version != DATABASE_VERSION) {
