@@ -148,7 +148,6 @@
 
 				<TextView
 					android:id="@+id/updated"
-					style="@style/game_info"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -157,7 +156,30 @@
 
 				<TextView
 					android:id="@+id/play_id"
-					style="@style/game_info"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					android:textColor="@color/light_text"
+					android:textSize="@dimen/text_size_tiny" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/play_unsynced"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:visibility="gone" >
+
+				<TextView
+					android:id="@+id/play_saved"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:textColor="@color/light_text"
+					android:textSize="@dimen/text_size_tiny" />
+
+				<TextView
+					android:id="@+id/play_unsynced_message"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="right"
