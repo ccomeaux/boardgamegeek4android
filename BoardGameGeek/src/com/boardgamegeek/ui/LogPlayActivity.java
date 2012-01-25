@@ -316,7 +316,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		//TODO replace with onBackPressed in API 5
+		// TODO replace with onBackPressed in API 5
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			cancel();
 			return true;
@@ -833,11 +833,13 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		@Override
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 			String selection = null;
+			String[] selectionArgs = null;
 			if (!TextUtils.isEmpty(constraint)) {
-				selection = Plays.LOCATION + " LIKE '" + constraint + "%'";
+				selection = Plays.LOCATION + " LIKE ?";
+				selectionArgs = new String[] { constraint + "%" };
 			}
-			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection, null,
-					null);
+			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection,
+					selectionArgs, null);
 		}
 	}
 
