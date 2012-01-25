@@ -375,12 +375,14 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		@Override
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 			String selection = null;
+			String[] selectionArgs = null;
 			if (!TextUtils.isEmpty(constraint)) {
-				String like = " LIKE '" + constraint + "%'";
-				selection = Buddies.BUDDY_NAME + like + " OR " + Buddies.BUDDY_FIRSTNAME + like + " OR "
-						+ Buddies.BUDDY_LASTNAME + like + " OR " + Buddies.PLAY_NICKNAME + like;
+				selection = Buddies.BUDDY_NAME + " LIKE ? OR " + Buddies.BUDDY_FIRSTNAME + " LIKE ? OR "
+						+ Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
+				String selectionArg = constraint + "%";
+				selectionArgs = new String[] { selectionArg, selectionArg, selectionArg, selectionArg };
 			}
-			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, null,
+			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, selectionArgs,
 					Buddies.NAME_SORT);
 		}
 	}
@@ -409,11 +411,13 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		@Override
 		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
 			String selection = null;
+			String[] selectionArgs = null;
 			if (!TextUtils.isEmpty(constraint)) {
-				selection = GameColors.COLOR + " LIKE '" + constraint + "%'";
+				selection = GameColors.COLOR + " LIKE ?";
+				selectionArgs = new String[] { constraint + "%" };
 			}
-			return getContentResolver().query(Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, selection, null,
-					null);
+			return getContentResolver().query(Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, selection,
+					selectionArgs, null);
 		}
 	}
 
