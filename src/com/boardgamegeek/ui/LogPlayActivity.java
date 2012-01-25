@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.database.PlayHelper;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
@@ -213,6 +214,14 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	@Override
+	protected void onPause() {
+		if (!isFinishing()) {
+			save(false);
+		}
+		super.onPause();
+	}
+
+	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 			case DATE_DIALOG_ID:
@@ -254,7 +263,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				logPlay();
 				return true;
 			case R.id.menu_save:
-				// TODO
+				save(false);
+				finish();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -306,11 +316,28 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		//TODO replace with onBackPressed in API 5
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			cancel();
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+	private void save(boolean isPending) {
+		if (mPlay == null) {
+			Toast.makeText(this, "Can't save play, error initializing.", Toast.LENGTH_LONG).show();
+			return;
+		}
+		captureForm();
+
+		if (isPending) {
+			mPlay.SyncStatus = Play.SYNC_STATUS_PENDING;
+		} else {
+			mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+		}
+		PlayHelper helper = new PlayHelper(getContentResolver(), mPlay);
+		helper.save();
 	}
 
 	private CharSequence[] createAddFieldArray() {

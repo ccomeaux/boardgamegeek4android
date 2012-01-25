@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -44,7 +45,15 @@ public class PlayHelper {
 			mResolver.update(mPlay.getUri(), getContentValues(), null, null);
 		} else {
 			ContentValues values = getContentValues();
+
+			if (mPlay.PlayId == 0) {
+				mPlay.PlayId = getTemporaryId();
+				if (mPlay.SyncStatus != Play.SYNC_STATUS_PENDING) {
+					mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+				}
+			}
 			values.put(Plays.PLAY_ID, mPlay.PlayId);
+
 			mResolver.insert(Plays.CONTENT_URI, values);
 		}
 
@@ -67,6 +76,26 @@ public class PlayHelper {
 		}
 	}
 
+	private int getTemporaryId() {
+		Cursor cursor = null;
+		int id = BggApplication.UNSYNCED_PLAY_ID;
+		try {
+			cursor = mResolver.query(Plays.CONTENT_URI, new String[] { "MAX(plays." + Plays.PLAY_ID + ")" }, null,
+					null, null);
+			if (cursor.moveToFirst()) {
+				int lastId = cursor.getInt(0);
+				if (lastId >= id) {
+					id = lastId + 1;
+				}
+			}
+			return id;
+		} finally {
+			if (cursor != null) {
+				cursor.deactivate();
+			}
+		}
+	}
+
 	private ContentValues getContentValues() {
 		ContentValues values = new ContentValues();
 		values.put(Plays.DATE, mPlay.getFormattedDate());
@@ -76,7 +105,9 @@ public class PlayHelper {
 		values.put(Plays.NO_WIN_STATS, mPlay.NoWinStats);
 		values.put(Plays.LOCATION, mPlay.Location);
 		values.put(Plays.COMMENTS, mPlay.Comments);
-		values.put(Plays.UPDATED_LIST, mPlay.Updated);
+		if (mPlay.Updated > 0) {
+			values.put(Plays.UPDATED_LIST, mPlay.Updated);
+		}
 		values.put(Plays.SYNC_STATUS, mPlay.SyncStatus);
 		values.put(Plays.UPDATED, System.currentTimeMillis());
 		return values;
