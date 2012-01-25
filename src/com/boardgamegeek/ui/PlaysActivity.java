@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ActivityUtils;
@@ -175,13 +176,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
 						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								boolean deleted = ActivityUtils.deletePlay(PlaysActivity.this,
-										mLogInHelper.getCookieStore(), playId);
-								if (deleted) {
-									startQuery();
-								}
-								// TODO: set up observer so no refresh is
-								// required
+								ActivityUtils.deletePlay(PlaysActivity.this, mLogInHelper.getCookieStore(), playId);
 							}
 						}).setNegativeButton(R.string.no, null);
 				builder.create().show();
@@ -240,6 +235,11 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 			holder.date.setText(cursor.getString(Query.DATE));
 			holder.name.setText(cursor.getString(Query.GAME_NAME));
 			holder.location.setText(cursor.getString(Query.LOCATION));
+			if (cursor.getInt(Query.SYNC_STATUS) != Play.SYNC_STATUS_SYNCED) {
+				view.setBackgroundResource(R.color.background_light);
+			} else {
+				view.setBackgroundResource(R.color.background);
+			}
 		}
 	}
 
@@ -257,16 +257,14 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-				Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH };
+				Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
 
-		// int _ID = 0;
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
 		int GAME_ID = 4;
 		int LOCATION = 5;
-		// int QUANTITY = 6;
-		// int LENGTH = 7;
+		int SYNC_STATUS = 8;
 	}
 
 	@Override

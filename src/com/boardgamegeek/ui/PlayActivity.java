@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -81,6 +82,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private TextView mComments;
 	private LinearLayout mPlayerList;
 	private View mUpdatePanel;
+	private View mUnsyncedView;
+	private TextView mSavedTimeStamp;
+	private TextView mUnsyncedMessage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,13 +96,13 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		startQuery();
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
 		getContentResolver().registerContentObserver(mPlayUri, false, mObserver);
+		startQuery();
 	}
 
 	@Override
@@ -251,6 +255,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mComments = (TextView) findViewById(R.id.play_comments);
 		mPlayerList = (LinearLayout) findViewById(R.id.play_player_list);
 		mUpdatePanel = findViewById(R.id.update_panel);
+		mUnsyncedView = findViewById(R.id.play_unsynced);
+		mSavedTimeStamp = (TextView) findViewById(R.id.play_saved);
+		mUnsyncedMessage = (TextView) findViewById(R.id.play_unsynced_message);
 		mObserver = new PlayObserver(null);
 	}
 
@@ -292,17 +299,36 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			mUpdated.setVisibility(View.GONE);
 		} else {
 			mUpdated.setVisibility(View.VISIBLE);
-			CharSequence u = DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
-					DateUtils.MINUTE_IN_MILLIS);
-			mUpdated.setText(getResources().getString(R.string.updated) + " " + u);
+			mUpdated.setText(getResources().getString(R.string.updated)
+					+ " "
+					+ DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
+							DateUtils.MINUTE_IN_MILLIS));
 		}
 
-		mPlayId.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.PlayId));
+		if (mPlay.PlayId < BggApplication.UNSYNCED_PLAY_ID) {
+			mPlayId.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.PlayId));
+		}
+
+		if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
+			mUnsyncedView.setVisibility(View.VISIBLE);
+			mSavedTimeStamp.setText(getResources().getString(R.string.saved)
+					+ " "
+					+ DateUtils.getRelativeTimeSpanString(mPlay.Saved, System.currentTimeMillis(),
+							DateUtils.MINUTE_IN_MILLIS));
+			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+				mUnsyncedMessage.setText(R.string.sync_in_process);
+			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING) {
+				mUnsyncedMessage.setText(R.string.sync_pending);
+			}
+		} else {
+			mUnsyncedView.setVisibility(View.GONE);
+		}
 	}
 
 	private interface Query {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST };
+				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
+				Plays.SYNC_STATUS, Plays.UPDATED };
 
 		int NAME = 1;
 		int UPDATED_LIST = 10;
