@@ -102,6 +102,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private String mThumbnailUrl;
 	private Play mPlay;
 	private int mNextPlayerTag = 1;
+	private boolean mLaunchingActivity;
 
 	private LogInHelper mLogInHelper;
 
@@ -195,6 +196,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	protected void onResume() {
 		super.onResume();
+		mLaunchingActivity = false;
 		mLogInHelper.logIn();
 	}
 
@@ -215,7 +217,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	@Override
 	protected void onPause() {
-		if (!isFinishing()) {
+		if (!isFinishing() && !mLaunchingActivity) {
 			save(false);
 		}
 		super.onPause();
@@ -512,6 +514,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			Toast.makeText(this, "Can't add player, error initializing.", Toast.LENGTH_LONG).show();
 			return;
 		}
+		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mGameName);
@@ -782,6 +785,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	public void onNeedCredentials() {
 		Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
+		mLaunchingActivity = true;
 		startActivity(new Intent(this, Preferences.class));
 		finish();
 	}
