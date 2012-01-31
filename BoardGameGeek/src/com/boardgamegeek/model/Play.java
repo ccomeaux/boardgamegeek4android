@@ -29,6 +29,7 @@ public class Play {
 	public static final int SYNC_STATUS_SYNCED = 0;
 	public static final int SYNC_STATUS_PENDING = 1;
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
+	public static final int UNSYNCED_PLAY_ID = 100000000;
 
 	private static final String TAG = "Play";
 	private static final String KEY_PLAY_ID = "PLAY_ID";
@@ -184,7 +185,7 @@ public class Play {
 		nvps.add(new BasicNameValuePair("action", "save"));
 		nvps.add(new BasicNameValuePair("version", "2"));
 		nvps.add(new BasicNameValuePair("objecttype", "thing"));
-		if (PlayId > 0) {
+		if (hasBeenSynced()) {
 			nvps.add(new BasicNameValuePair("playid", String.valueOf(PlayId)));
 		}
 		nvps.add(new BasicNameValuePair("objectid", String.valueOf(GameId)));
@@ -235,5 +236,9 @@ public class Play {
 
 	public Uri getUri() {
 		return Plays.buildPlayUri(PlayId);
+	}
+
+	public boolean hasBeenSynced(){
+		return (PlayId > 0 && PlayId < UNSYNCED_PLAY_ID);
 	}
 }
