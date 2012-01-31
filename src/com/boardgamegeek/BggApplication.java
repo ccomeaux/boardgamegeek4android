@@ -21,7 +21,6 @@ public class BggApplication extends Application {
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";
 	public static final String HELP_COLORS_KEY = "help.colors";
-	public static final int UNSYNCED_PLAY_ID = 100000000;
 
 	private static final String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
 	private static final String SYNC_TICKS_KEY = "sync_ticks";

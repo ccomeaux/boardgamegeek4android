@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -305,7 +304,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 							DateUtils.MINUTE_IN_MILLIS));
 		}
 
-		if (mPlay.PlayId < BggApplication.UNSYNCED_PLAY_ID) {
+		if (mPlay.hasBeenSynced()) {
 			mPlayId.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.PlayId));
 		}
 

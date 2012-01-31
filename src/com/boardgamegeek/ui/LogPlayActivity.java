@@ -52,6 +52,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayHelper;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
+import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
@@ -626,15 +627,14 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				return e.toString();
 			}
 
-			final HttpClient client = HttpUtils.createHttpClient(LogPlayActivity.this, mLogInHelper.getCookieStore());
+			HttpClient client = HttpUtils.createHttpClient(LogPlayActivity.this, mLogInHelper.getCookieStore());
 
-			final HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
+			HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
 			post.setEntity(entity);
 
 			String message = "";
-			HttpResponse response = null;
 			try {
-				response = client.execute(post);
+				HttpResponse response = client.execute(post);
 				if (response == null) {
 					message = r.getString(R.string.logInError) + " : "
 							+ r.getString(R.string.logInErrorSuffixNoResponse);
@@ -644,10 +644,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				} else {
 					message = HttpUtils.parseResponse(response);
 					if (isValidResponse(message)) {
-						// Sync the new game back locally
-						RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
-						re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
-								new RemotePlaysHandler());
+						updateSyncStatus();
+						syncGame(client);
 					}
 				}
 			} catch (ClientProtocolException e) {
@@ -661,6 +659,22 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			}
 
 			return message;
+		}
+
+		private void updateSyncStatus() {
+			PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
+			if (mPlay.hasBeenSynced()) {
+				mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
+				ph.save();
+			} else {
+				ph.delete();
+			}
+		}
+
+		private void syncGame(HttpClient client) throws HandlerException {
+			RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
+			re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
+					new RemotePlaysHandler());
 		}
 
 		private void updateColors() {
@@ -700,7 +714,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			removeDialog(LOGGING_DIALOG_ID);
 			if (isValidResponse(result)) {
 				String message = r.getString(R.string.msg_play_updated);
-				if (mPlay.PlayId <= 0) {
+				if (!mPlay.hasBeenSynced()) {
 					int playCount = parsePlayCount(result);
 					String countDescription = getPlayCountDescription(playCount);
 					message = String.format(r.getString(R.string.logPlaySuccess), countDescription, mGameName);

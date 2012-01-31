@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -39,6 +38,10 @@ public class PlayHelper {
 
 	public int getStatus() {
 		return mStatus;
+	}
+
+	public void delete() {
+		mResolver.delete(mPlay.getUri(), null, null);
 	}
 
 	public void save() {
@@ -83,6 +86,10 @@ public class PlayHelper {
 			}
 			values.put(Plays.PLAY_ID, mPlay.PlayId);
 
+			if (!values.containsKey(Plays.UPDATED_LIST)) {
+				values.put(Plays.UPDATED_LIST, mPlay.Updated);
+			}
+
 			mResolver.insert(Plays.CONTENT_URI, values);
 		}
 
@@ -120,7 +127,7 @@ public class PlayHelper {
 
 	private int getTemporaryId() {
 		Cursor cursor = null;
-		int id = BggApplication.UNSYNCED_PLAY_ID;
+		int id = Play.UNSYNCED_PLAY_ID;
 		try {
 			cursor = mResolver.query(Plays.CONTENT_URI, new String[] { "MAX(plays." + Plays.PLAY_ID + ")" }, null,
 					null, null);
