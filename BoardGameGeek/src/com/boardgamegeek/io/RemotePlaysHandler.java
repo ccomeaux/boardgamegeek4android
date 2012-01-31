@@ -63,6 +63,9 @@ public class RemotePlaysHandler extends XmlHandler {
 
 		int updateCount = 0;
 		int insertCount = 0;
+		int pendingCount = 0;
+		int inProgressCount = 0;
+		int errorCount = 0;
 
 		Cursor cursor = null;
 		try {
@@ -86,7 +89,6 @@ public class RemotePlaysHandler extends XmlHandler {
 						mPlay.NoWinStats = !"0".equals(mParser.getAttributeValue(null, Tags.NO_WIN_STATS));
 						mPlay.Location = mParser.getAttributeValue(null, Tags.LOCATION);
 						mPlay.Updated = System.currentTimeMillis();
-						mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
 					} else if (Tags.ITEM.equals(tag)) {
 						mPlay.GameId = Integer.valueOf(mParser.getAttributeValue(null, Tags.OBJECT_ID));
 						mPlay.GameName = mParser.getAttributeValue(null, Tags.NAME);
@@ -113,11 +115,25 @@ public class RemotePlaysHandler extends XmlHandler {
 					String tag = mParser.getName();
 					if (Tags.PLAY.equals(tag)) {
 						PlayHelper helper = new PlayHelper(mResolver, mPlay);
-						helper.save();
-						if (helper.getIsUpdate()) {
-							updateCount++;
-						} else {
-							insertCount++;
+						helper.save(true);
+						switch (helper.getStatus()) {
+							case PlayHelper.STATUS_IN_PROGRESS:
+								inProgressCount++;
+								break;
+							case PlayHelper.STATUS_INSERT:
+								insertCount++;
+								break;
+							case PlayHelper.STATUS_PENDING:
+								pendingCount++;
+								break;
+							case PlayHelper.STATUS_UPDATE:
+								updateCount++;
+								break;
+							case PlayHelper.STATUS_ERROR:
+								errorCount++;
+								break;
+							default:
+								break;
 						}
 
 						if (!TextUtils.isEmpty(date)) {
@@ -139,7 +155,11 @@ public class RemotePlaysHandler extends XmlHandler {
 			if (cursor != null) {
 				cursor.close();
 			}
-			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " plays");
+			String msg = String.format(
+					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending, %5$s in progress, %6$s errors)",
+					updateCount, insertCount, (pendingCount + inProgressCount), pendingCount, inProgressCount,
+					errorCount);
+			Log.i(TAG, msg);
 		}
 	}
 

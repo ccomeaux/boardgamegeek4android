@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.model.Play;
@@ -17,25 +18,52 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlayHelper {
+	private static final String TAG = "PlayHelper";
+
+	public static final int STATUS_INSERT = 1;
+	public static final int STATUS_UPDATE = 2;
+	public static final int STATUS_IN_PROGRESS = 3;
+	public static final int STATUS_PENDING = 4;
+	public static final int STATUS_ERROR = -1;
 
 	private ContentResolver mResolver;
 	private Play mPlay;
 	private List<Integer> mPlayerUserIds;
 	private List<Integer> mItemObjectIds;
-	private boolean mIsUpdate;
+	private int mStatus;
 
 	public PlayHelper(ContentResolver resolver, Play play) {
 		mResolver = resolver;
 		mPlay = play;
 	}
 
-	public boolean getIsUpdate() {
-		return mIsUpdate;
+	public int getStatus() {
+		return mStatus;
 	}
 
 	public void save() {
-		mIsUpdate = isUpdate();
-		if (mIsUpdate) {
+		save(false);
+	}
+
+	public void save(boolean sync) {
+		if (isUpdate()) {
+			if (sync) {
+				int currentStatus = getCurrentStatus();
+
+				if (currentStatus != Play.SYNC_STATUS_SYNCED) {
+					if (currentStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+						mStatus = STATUS_IN_PROGRESS;
+					} else if (currentStatus == Play.SYNC_STATUS_PENDING) {
+						mStatus = STATUS_PENDING;
+					} else {
+						mStatus = STATUS_ERROR;
+						Log.e(TAG, "Unknown sync status");
+					}
+					return;
+				}
+			}
+			mStatus = STATUS_UPDATE;
+
 			mItemObjectIds = getIds(Plays.buildItemUri(mPlay.PlayId), PlayItems.OBJECT_ID);
 
 			mResolver.delete(Plays.buildPlayerUri(mPlay.PlayId), PlayPlayers.USER_ID + " IS NULL", null);
@@ -44,6 +72,7 @@ public class PlayHelper {
 
 			mResolver.update(mPlay.getUri(), getContentValues(), null, null);
 		} else {
+			mStatus = STATUS_INSERT;
 			ContentValues values = getContentValues();
 
 			if (mPlay.PlayId == 0) {
@@ -71,6 +100,19 @@ public class PlayHelper {
 				return true;
 			}
 			return false;
+		} finally {
+			cursor.deactivate();
+		}
+	}
+
+	private int getCurrentStatus() {
+		Cursor cursor = null;
+		try {
+			cursor = mResolver.query(mPlay.getUri(), new String[] { Plays.SYNC_STATUS }, null, null, null);
+			if (cursor.moveToFirst()) {
+				return cursor.getInt(0);
+			}
+			return -1;
 		} finally {
 			cursor.deactivate();
 		}
