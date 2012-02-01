@@ -106,27 +106,19 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
 
-			<LinearLayout
+			<TextView
+				android:id="@+id/play_incomplete"
+				style="@style/log_play_label"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal" >
+				android:text="@string/incomplete" />
 
-				<CheckBox
-					android:id="@+id/play_incomplete"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:checked="true"
-					android:text="@string/incomplete" />
-
-				<CheckBox
-					android:id="@+id/play_no_win_stats"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:checked="true"
-					android:text="@string/noWinStats" />
-			</LinearLayout>
+			<TextView
+				android:id="@+id/play_no_win_stats"
+				style="@style/log_play_label"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/noWinStats" />
 
 			<TextView
 				android:id="@+id/play_player_label"
