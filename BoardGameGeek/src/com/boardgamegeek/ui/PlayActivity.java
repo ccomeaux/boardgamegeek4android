@@ -184,7 +184,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			case R.id.menu_refresh: {
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setTitle(R.string.are_you_sure_title).setMessage("Do you want to discard your changes?")
+					builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_refresh_message)
 							.setCancelable(false)
 							.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int id) {
