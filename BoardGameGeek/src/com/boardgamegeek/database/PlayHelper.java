@@ -40,8 +40,8 @@ public class PlayHelper {
 		return mStatus;
 	}
 
-	public void delete() {
-		mResolver.delete(mPlay.getUri(), null, null);
+	public boolean delete() {
+		return mResolver.delete(mPlay.getUri(), null, null) > 0;
 	}
 
 	public void save() {

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.database.PlayHelper;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
@@ -56,7 +57,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private static final int TOKEN_GAME = 3;
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 
 	private LogInHelper mLogInHelper;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -141,8 +141,14 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		// TODO: always enable this?
 		MenuItem mi = menu.findItem(R.id.menu_delete);
 		mi.setEnabled(mLogInHelper.checkCookies());
+
+		menu.findItem(R.id.menu_refresh).setVisible(mPlay.hasBeenSynced());
+		menu.findItem(R.id.menu_share).setVisible(mPlay.hasBeenSynced());
+		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
+
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -152,13 +158,21 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
 				return true;
-			case R.id.menu_delete:
+			case R.id.menu_delete: {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
 						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								boolean deleted = ActivityUtils.deletePlay(PlayActivity.this,
-										mLogInHelper.getCookieStore(), mPlay.PlayId);
+								boolean deleted = false;
+								if (mPlay.hasBeenSynced()) {
+									// TODO: if unsuccessful, mark for deletion
+									// in DB?
+									deleted = ActivityUtils.deletePlay(PlayActivity.this,
+											mLogInHelper.getCookieStore(), mPlay.PlayId);
+								} else {
+									PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
+									deleted = ph.delete();
+								}
 								if (deleted) {
 									finish();
 								}
@@ -166,13 +180,31 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 						}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 				return true;
-			case R.id.menu_refresh:
-				if (DateTimeUtils.howManyHoursOld(mPlay.Updated) > REFRESH_THROTTLE_IN_HOURS) {
-					refresh();
+			}
+			case R.id.menu_refresh: {
+				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setTitle(R.string.are_you_sure_title).setMessage("Do you want to discard your changes?")
+							.setCancelable(false)
+							.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
+									PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
+									ph.save();
+									refresh();
+								}
+							}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									setResult(Activity.RESULT_CANCELED);
+									dialog.cancel();
+								}
+							});
+					builder.create().show();
 				} else {
-					showToast(R.string.msg_refresh_exceeds_throttle);
+					refresh();
 				}
 				return true;
+			}
 			case R.id.menu_share:
 				sharePlay();
 				return true;
@@ -409,6 +441,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			Log.d(TAG, "Refreshing game ID [" + gameId + "] on [" + date + "]");
 			final String url = HttpUtils.constructPlayUrlSpecific(gameId, null);
 			try {
+				// TODO track the play IDs for this game ID, removing any plays
+				// not returned (hopefully can get an API change for this)
+				// TODO probably shouldn't include the date - that can change
 				RemotePlaysHandler handler = new RemotePlaysHandler();
 				mExecutor.executeGet(url, handler);
 			} catch (HandlerException e) {
