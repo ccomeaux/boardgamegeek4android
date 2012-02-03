@@ -1,18 +1,7 @@
 package com.boardgamegeek.ui;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.protocol.HTTP;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,9 +39,7 @@ import android.widget.Toast;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayHelper;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.io.PlaySender;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
@@ -63,7 +50,6 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -219,7 +205,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	protected void onPause() {
 		if (!isFinishing() && !mLaunchingActivity) {
-			save(false);
+			save();
 		}
 		super.onPause();
 	}
@@ -266,7 +252,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				logPlay();
 				return true;
 			case R.id.menu_save:
-				save(false);
+				save();
 				finish();
 				return true;
 			case R.id.menu_cancel:
@@ -327,18 +313,13 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		return super.onKeyUp(keyCode, event);
 	}
 
-	private void save(boolean isPending) {
+	private void save() {
 		if (mPlay == null) {
 			Toast.makeText(this, "Can't save play, error initializing.", Toast.LENGTH_LONG).show();
 			return;
 		}
 		captureForm();
-
-		if (isPending) {
-			mPlay.SyncStatus = Play.SYNC_STATUS_PENDING;
-		} else {
-			mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
-		}
+		mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 		PlayHelper helper = new PlayHelper(getContentResolver(), mPlay);
 		helper.save();
 	}
@@ -598,13 +579,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mCancelDialog.show();
 	}
 
-	class LogPlayTask extends AsyncTask<Play, Void, String> {
+	class LogPlayTask extends AsyncTask<Play, Void, PlaySender.Result> {
 		Play mPlay;
-		Resources r;
-
-		LogPlayTask() {
-			r = getResources();
-		}
 
 		@Override
 		protected void onPreExecute() {
@@ -612,69 +588,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 
 		@Override
-		protected String doInBackground(Play... params) {
+		protected PlaySender.Result doInBackground(Play... params) {
 			mPlay = params[0];
 
 			updateColors();
 			updateBuddyNicknames();
-
-			// create form entity
-			UrlEncodedFormEntity entity;
-			List<NameValuePair> nvps = mPlay.toNameValuePairs();
-			try {
-				entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-			} catch (UnsupportedEncodingException e) {
-				return e.toString();
-			}
-
-			HttpClient client = HttpUtils.createHttpClient(LogPlayActivity.this, mLogInHelper.getCookieStore());
-
-			HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
-			post.setEntity(entity);
-
-			String message = "";
-			try {
-				HttpResponse response = client.execute(post);
-				if (response == null) {
-					message = r.getString(R.string.logInError) + " : "
-							+ r.getString(R.string.logInErrorSuffixNoResponse);
-				} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-					message = r.getString(R.string.logInError) + " : "
-							+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".";
-				} else {
-					message = HttpUtils.parseResponse(response);
-					if (isValidResponse(message)) {
-						updateSyncStatus();
-						syncGame(client);
-					}
-				}
-			} catch (ClientProtocolException e) {
-				message = e.toString();
-			} catch (IOException e) {
-				message = e.toString();
-			} finally {
-				if (client != null && client.getConnectionManager() != null) {
-					client.getConnectionManager().shutdown();
-				}
-			}
-
-			return message;
-		}
-
-		private void updateSyncStatus() {
-			PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
-			if (mPlay.hasBeenSynced()) {
-				mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
-				ph.save();
-			} else {
-				ph.delete();
-			}
-		}
-
-		private void syncGame(HttpClient client) throws HandlerException {
-			RemoteExecutor re = new RemoteExecutor(client, getContentResolver());
-			re.executeGet(HttpUtils.constructPlayUrlSpecific(mPlay.GameId, mPlay.getFormattedDate()),
-					new RemotePlaysHandler());
+			return new PlaySender(LogPlayActivity.this, mLogInHelper.getCookieStore()).sendPlay(mPlay);
 		}
 
 		private void updateColors() {
@@ -709,54 +628,21 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(PlaySender.Result result) {
 			Log.d(TAG, "play result: " + result);
 			removeDialog(LOGGING_DIALOG_ID);
-			if (isValidResponse(result)) {
-				String message = r.getString(R.string.msg_play_updated);
+			if (result.isValidResponse()) {
+				String message = getResources().getString(R.string.msg_play_updated);
 				if (!mPlay.hasBeenSynced()) {
-					int playCount = parsePlayCount(result);
-					String countDescription = getPlayCountDescription(playCount);
-					message = String.format(r.getString(R.string.logPlaySuccess), countDescription, mGameName);
+					String countDescription = result.getPlayCountDescription();
+					message = String.format(getResources().getString(R.string.logPlaySuccess), countDescription,
+							mGameName);
 				}
 				showToast(message);
-				finish();
 			} else {
-				showToast(result);
+				showToast(result.ErrorMessage);
 			}
-		}
-
-		private boolean isValidResponse(String result) {
-			if (TextUtils.isEmpty(result)) {
-				return false;
-			}
-			return result.startsWith("Plays: <a") || result.startsWith("{\"html\":\"Plays:");
-		}
-
-		private int parsePlayCount(String result) {
-			int start = result.indexOf(">");
-			int end = result.indexOf("<", start);
-			int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
-			return playCount;
-		}
-
-		private String getPlayCountDescription(int playCount) {
-			String countDescription = "";
-			int quantity = mPlay.Quantity;
-			switch (quantity) {
-				case 1:
-					countDescription = StringUtils.getOrdinal(playCount);
-					break;
-				case 2:
-					countDescription = StringUtils.getOrdinal(playCount - 1) + " & "
-							+ StringUtils.getOrdinal(playCount);
-					break;
-				default:
-					countDescription = StringUtils.getOrdinal(playCount - quantity + 1) + " - "
-							+ StringUtils.getOrdinal(playCount);
-					break;
-			}
-			return countDescription;
+			finish();
 		}
 
 		private void showToast(String result) {
