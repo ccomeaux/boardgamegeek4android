@@ -116,10 +116,10 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
-		editPlay(cursor);
+		viewPlay(cursor);
 	}
 
-	private void editPlay(Cursor cursor) {
+	private void viewPlay(Cursor cursor) {
 		int playId = cursor.getInt(Query.PLAY_ID);
 		Uri buddyUri = Plays.buildPlayUri(playId);
 		Intent i = new Intent(Intent.ACTION_VIEW, buddyUri);
@@ -148,6 +148,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		menu.add(0, MENU_PLAY_EDIT, 0, R.string.menu_edit);
 		MenuItem mi = menu.add(0, MENU_PLAY_DELETE, 0, R.string.menu_delete);
 		mi.setEnabled(mLogInHelper.checkCookies());
+		// TODO: add Send and Share menu items
 	}
 
 	@Override
@@ -167,7 +168,8 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 		switch (item.getItemId()) {
 			case MENU_PLAY_EDIT: {
-				editPlay(cursor);
+				ActivityUtils.logPlay(this, cursor.getInt(Query.PLAY_ID), cursor.getInt(Query.GAME_ID),
+						cursor.getString(Query.GAME_NAME), null);
 				return true;
 			}
 			case MENU_PLAY_DELETE: {
