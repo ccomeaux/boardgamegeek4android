@@ -1,51 +1,81 @@
 package com.boardgamegeek.service;
 
-import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.PlaySender;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.io.XmlHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.LogInHelper;
 
 public class SyncPlays extends SyncTask {
 	private final static String TAG = "SyncPlays";
 
+	private RemoteExecutor mExecutor;
+	private Context mContext;
+	private long mStartTime;
+
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+		mExecutor = executor;
+		mContext = context;
 
-		ContentResolver resolver = context.getContentResolver();
-		XmlHandler handler = new RemotePlaysHandler();
-		String username = BggApplication.getInstance().getUserName();
-		String minDate = BggApplication.getInstance().getMinPlayDate();
-		String maxDate = BggApplication.getInstance().getMaxPlayDate();
-		long startTime = System.currentTimeMillis();
+		updatePendingPlays();
 
-		String url = HttpUtils.constructPlaysUrlNew(username);
-		int page = 1;
-		while (executor.executeGet(url + "&page=" + page, handler)) {
-			page++;
-		}
-		String[] selectionArgs = new String[] { String.valueOf(startTime), minDate };
-		int count = resolver.delete(Plays.CONTENT_URI, Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=?",
-				selectionArgs);
-		Log.i(TAG, "Deleted " + count + " plays");
+		mStartTime = System.currentTimeMillis();
 
-		url = HttpUtils.constructPlaysUrlOld(username);
-		page = 1;
-		while (executor.executeGet(url + "&page=" + page, handler)) {
-			page++;
-		}
-		selectionArgs = new String[] { String.valueOf(startTime), maxDate };
-		count = resolver.delete(Plays.CONTENT_URI, Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=?", selectionArgs);
-		Log.i(TAG, "Deleted " + count + " plays");
+		executePagedGet(HttpUtils.constructPlaysUrlNew(BggApplication.getInstance().getUserName()));
+		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true);
+
+		executePagedGet(HttpUtils.constructPlaysUrlOld(BggApplication.getInstance().getUserName()));
+		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false);
 
 		BggApplication.getInstance().putMaxPlayDate("0000-00-00");
+	}
+
+	private void updatePendingPlays() {
+		LogInHelper helper = new LogInHelper(mContext, null);
+		if (helper.checkCookies()) {
+			PlaySender playSender = new PlaySender(mContext, helper.getCookieStore());
+			Cursor cursor = null;
+			try {
+				cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
+						new String[] { String.valueOf(Play.SYNC_STATUS_PENDING) }, null);
+				while (cursor.moveToNext()) {
+					Play play = new Play();
+					play.populate(cursor);
+					playSender.sendPlay(play);
+				}
+			} finally {
+				if (cursor != null && !cursor.isClosed()) {
+					cursor.close();
+				}
+			}
+		}
+	}
+
+	private void executePagedGet(String url) throws HandlerException {
+		XmlHandler handler = new RemotePlaysHandler();
+		int page = 1;
+		while (mExecutor.executeGet(url + "&page=" + page, handler)) {
+			page++;
+		}
+	}
+
+	private void deleteMissingPlays(String date, boolean isMinDate) {
+		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (isMinDate ? ">" : "<") + "=? AND "
+				+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
+		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
+		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
+		Log.i(TAG, "Deleted " + count + " plays");
 	}
 
 	@Override
