@@ -42,6 +42,19 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+
+		findViewById(R.id.home_btn_collection).setVisibility(
+				(BggApplication.getInstance().getSyncStatuses() != null && BggApplication.getInstance()
+						.getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
+		findViewById(R.id.home_btn_buddies).setVisibility(
+				BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE : View.GONE);
+		findViewById(R.id.home_btn_plays).setVisibility(
+				BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
+	}
+
+	@Override
 	public Object onRetainNonConfigurationInstance() {
 		mState.mReceiver.clearReceiver();
 		return mState;
