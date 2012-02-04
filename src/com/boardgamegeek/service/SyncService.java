@@ -93,8 +93,8 @@ public class SyncService extends IntentService {
 			mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
 
 			for (SyncTask task : mTasks) {
-				task.execute(mRemoteExecutor, this);
 				createNotification(task.getNotification());
+				task.execute(mRemoteExecutor, this);
 			}
 
 			Log.d(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
@@ -131,7 +131,7 @@ public class SyncService extends IntentService {
 
 	private void signalEnd() {
 		sendResultToReceiver(STATUS_COMPLETE);
-		createNotification(R.string.notification_text_complete, R.string.notification_status_complete, true);
+		createNotification(R.string.notification_text_complete, true);
 	}
 
 	private void sendResultToReceiver(int resultCode) {
@@ -150,14 +150,14 @@ public class SyncService extends IntentService {
 	}
 
 	private void createNotification(int messageId) {
-		createNotification(messageId, R.string.notification_status_default, false);
+		createNotification(messageId, false);
 	}
 
-	private void createNotification(int messageId, int statusId, boolean cancelNotification) {
-		final String message = getResources().getString(messageId);
-		final String status = getResources().getString(statusId);
+	private void createNotification(int messageId, boolean cancelNotification) {
+		String message = getResources().getString(messageId);
+		String title = getResources().getString(R.string.notification_title);
 
-		Notification notification = new Notification(android.R.drawable.stat_notify_sync, message,
+		Notification notification = new Notification(android.R.drawable.stat_notify_sync, title + " - " + message,
 				System.currentTimeMillis());
 
 		Intent i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
@@ -168,7 +168,7 @@ public class SyncService extends IntentService {
 			notification.flags |= Notification.FLAG_AUTO_CANCEL;
 		}
 
-		notification.setLatestEventInfo(this, getResources().getString(R.string.notification_title), status, pi);
+		notification.setLatestEventInfo(this, title, message, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
 }
