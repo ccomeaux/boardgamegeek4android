@@ -24,8 +24,11 @@ public class BggApplication extends Application {
 
 	private static final String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
 	private static final String SYNC_TICKS_KEY = "sync_ticks";
-	private static final String COLLECTION_FULL_SYNC_TICKS_KEY = "collection_full_sync_ticks";
-	private static final String COLLECTION_PART_SYNC_TICKS_KEY = "collection_part_sync_ticks";
+	private static final String KEY_SYNC_COLLECTION_FULL_TICKS = "collection_full_sync_ticks";
+	private static final String KEY_SYNC_COLLECTION_PART_TICKS = "collection_part_sync_ticks";
+	private static final String KEY_LAST_COLLECTION_SYNC = "LAST_COLLECTION_SYNC";
+	private static final String KEY_LAST_PLAYS_SYNC = "LAST_PLAYS_SYNC";
+	private static final String KEY_LAST_BUDDIES_SYNC = "LAST_BUDDIES_SYNC";
 
 	private static final String MAX_PLAY_DATE_KEY = "max_play_date";
 	private static final String MIN_PLAY_DATE_KEY = "min_play_date";
@@ -71,11 +74,11 @@ public class BggApplication extends Application {
 	}
 
 	public void putCollectionFullSyncTimestamp(long startTime) {
-		putTimestamp(startTime, COLLECTION_FULL_SYNC_TICKS_KEY);
+		putTimestamp(startTime, KEY_SYNC_COLLECTION_FULL_TICKS);
 	}
 
 	public void putCollectionPartSyncTimestamp(long startTime) {
-		putTimestamp(startTime, COLLECTION_PART_SYNC_TICKS_KEY);
+		putTimestamp(startTime, KEY_SYNC_COLLECTION_PART_TICKS);
 	}
 
 	private void putTimestamp(long startTime, String key) {
@@ -93,11 +96,11 @@ public class BggApplication extends Application {
 	}
 
 	public long getCollectionFullSyncTimestamp() {
-		return getTimestamp(COLLECTION_FULL_SYNC_TICKS_KEY);
+		return getTimestamp(KEY_SYNC_COLLECTION_FULL_TICKS);
 	}
 
 	public long getCollectionPartSyncTimestamp() {
-		return getTimestamp(COLLECTION_PART_SYNC_TICKS_KEY);
+		return getTimestamp(KEY_SYNC_COLLECTION_PART_TICKS);
 	}
 
 	private long getTimestamp(String key) {
@@ -135,6 +138,40 @@ public class BggApplication extends Application {
 		e.putString(MIN_PLAY_DATE_KEY, minPlayDate);
 		if (!e.commit()) {
 			Log.w(TAG, "Error saving min play date.");
+		}
+	}
+
+	public long getLastCollectionSync() {
+		return getTimestamp(KEY_LAST_COLLECTION_SYNC);
+	}
+
+	public void putLastCollectionSync() {
+		putTimestamp(KEY_LAST_COLLECTION_SYNC);
+	}
+
+	public long getLastPlaysSync() {
+		return getTimestamp(KEY_LAST_PLAYS_SYNC);
+	}
+
+	public void putLastPlaysSync() {
+		putTimestamp(KEY_LAST_PLAYS_SYNC);
+	}
+
+	public long getLastBuddiesSync() {
+		return getTimestamp(KEY_LAST_BUDDIES_SYNC);
+	}
+
+	public void putLastBuddiesSync() {
+		putTimestamp(KEY_LAST_BUDDIES_SYNC);
+	}
+
+	private void putTimestamp(String key) {
+		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
+				Context.MODE_PRIVATE);
+		Editor e = sp.edit();
+		e.putLong(key, System.currentTimeMillis());
+		if (!e.commit()) {
+			Log.w(TAG, "Error saving current time.");
 		}
 	}
 

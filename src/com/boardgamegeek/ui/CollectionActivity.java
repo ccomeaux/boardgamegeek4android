@@ -44,11 +44,13 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.NumberOfPlayersFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -95,6 +97,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		getListView().setOnScrollListener(this);
 		getListView().setOnCreateContextMenuListener(this);
+
+		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastCollectionSync()) > 2) {
+			BggApplication.getInstance().putLastCollectionSync();
+			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
+					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_COLLECTION));
+		}
 
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);

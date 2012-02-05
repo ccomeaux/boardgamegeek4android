@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
@@ -29,13 +30,19 @@ public class SyncService extends IntentService {
 	public static final int STATUS_ERROR = 3;
 	public static final String EXTRA_STATUS_RECEIVER = "com.boardgamegeek.extra.STATUS_RECEIVER";
 
+	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
+	public static final int SYNC_TYPE_ALL = 0;
+	public static final int SYNC_TYPE_COLLECTION = 1;
+	public static final int SYNC_TYPE_PLAYS = 2;
+	public static final int SYNC_TYPE_BUDDIES = 3;
+
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;
 
 	private boolean mIsRunning = false;
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
-	private List<SyncTask> mTasks = new ArrayList<SyncTask>();
+	private HashMap<Integer, List<SyncTask>> mTaskList = new HashMap<Integer, List<SyncTask>>();
 	private ResultReceiver mResultReceiver;
 	private RemoteExecutor mRemoteExecutor;
 
@@ -50,17 +57,33 @@ public class SyncService extends IntentService {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		mHttpClient = HttpUtils.createHttpClient(this, mUseGzip);
 
-		mTasks.add(new SyncCollectionList());
-		mTasks.add(new SyncCollectionDetail());
+		List<SyncTask> tasks = new ArrayList<SyncTask>();
+
+		if (BggApplication.getInstance().getSyncStatuses() != null
+				&& BggApplication.getInstance().getSyncStatuses().length > 0) {
+			List<SyncTask> list = new ArrayList<SyncTask>(2);
+			list.add(new SyncCollectionList());
+			list.add(new SyncCollectionDetail());
+			tasks.addAll(list);
+			mTaskList.put(SYNC_TYPE_COLLECTION, list);
+		}
 
 		if (BggApplication.getInstance().getSyncPlays()) {
-			mTasks.add(new SyncPlays());
+			List<SyncTask> list = new ArrayList<SyncTask>(1);
+			list.add(new SyncPlays());
+			tasks.addAll(list);
+			mTaskList.put(SYNC_TYPE_PLAYS, list);
 		}
 
 		if (BggApplication.getInstance().getSyncBuddies()) {
-			mTasks.add(new SyncBuddiesList());
-			mTasks.add(new SyncBuddiesDetail());
+			List<SyncTask> list = new ArrayList<SyncTask>(2);
+			list.add(new SyncBuddiesList());
+			list.add(new SyncBuddiesDetail());
+			tasks.addAll(list);
+			mTaskList.put(SYNC_TYPE_BUDDIES, list);
 		}
+
+		mTaskList.put(SYNC_TYPE_ALL, tasks);
 	}
 
 	@Override
@@ -73,6 +96,11 @@ public class SyncService extends IntentService {
 		}
 
 		mResultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
+
+		List<SyncTask> tasks = mTaskList.get(intent.getIntExtra(KEY_SYNC_TYPE, 0));
+		if (tasks == null) {
+			tasks = mTaskList.get(SYNC_TYPE_ALL);
+		}
 
 		if (mIsRunning) {
 			sendResultToReceiver(STATUS_RUNNING);
@@ -92,7 +120,7 @@ public class SyncService extends IntentService {
 
 			mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
 
-			for (SyncTask task : mTasks) {
+			for (SyncTask task : tasks) {
 				createNotification(task.getNotification());
 				task.execute(mRemoteExecutor, this);
 			}
