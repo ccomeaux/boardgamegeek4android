@@ -24,9 +24,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -49,6 +52,12 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		UIUtils.setTitle(this);
 		UIUtils.allowTypeToSearch(this);
 		getListView().setOnScrollListener(this);
+
+		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastBuddiesSync()) > 2) {
+			BggApplication.getInstance().putLastBuddiesSync();
+			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
+					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_BUDDIES));
+		}
 
 		mAdapter = new BuddiesAdapter(this);
 		setListAdapter(mAdapter);

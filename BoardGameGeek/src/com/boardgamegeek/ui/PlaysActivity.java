@@ -26,11 +26,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -60,6 +63,12 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		UIUtils.allowTypeToSearch(this);
 		getListView().setOnCreateContextMenuListener(this);
 		mLogInHelper = new LogInHelper(this, this);
+
+		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
+			BggApplication.getInstance().putLastPlaysSync();
+			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
+					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_PLAYS));
+		}
 
 		mAdapter = new PlaysAdapter(this);
 		setListAdapter(mAdapter);
