@@ -393,7 +393,7 @@ public class BggContract {
 		}
 
 		public static int getRankId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+			return StringUtils.parseInt(uri.getLastPathSegment());
 		}
 	}
 
