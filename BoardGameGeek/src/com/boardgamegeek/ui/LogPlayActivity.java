@@ -7,6 +7,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -50,6 +53,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -64,6 +68,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private static final int DATE_DIALOG_ID = 0;
 	private static final int LOGGING_DIALOG_ID = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
+	private static final int NOTIFICATION_ID = 2;
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYER = 2;
@@ -73,6 +78,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	private static final String KEY_START_TIME = "START_TIME";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
 	private static final String KEY_INCOMPLETE_SHOWN = "INCOMPLETE_SHOWN";
@@ -90,6 +96,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private Play mPlay;
 	private int mNextPlayerTag = 1;
 	private boolean mLaunchingActivity;
+	private long mStartTime;
 
 	private LogInHelper mLogInHelper;
 
@@ -127,8 +134,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			int gameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+			mStartTime = intent.getExtras().getLong(KEY_START_TIME);
 
-			if (gameId == -1 && playId <= 0) {
+			if (gameId <= 0 && playId <= 0) {
 				Log.w(TAG, "Didn't get a game ID or play ID");
 				finish();
 			}
@@ -235,13 +243,11 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.menu_send);
-		mi.setEnabled(mSendButton.isEnabled());
-
-		mi = menu.findItem(R.id.menu_add_field);
-		mi.setEnabled(hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments()
-				|| hidePlayers());
-
+		menu.findItem(R.id.menu_send).setEnabled(mSendButton.isEnabled());
+		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
+		menu.findItem(R.id.menu_add_field).setEnabled(
+				hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments()
+						|| hidePlayers());
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -254,6 +260,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			case R.id.menu_save:
 				save();
 				finish();
+				return true;
+			case R.id.menu_start:
+				startPlay();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -322,6 +331,34 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 		PlayHelper helper = new PlayHelper(getContentResolver(), mPlay);
 		helper.save();
+	}
+
+	private void startPlay() {
+		save();
+		Intent intent = createIntent();
+		launchStartNotification(intent);
+		finish();
+	}
+
+	private Intent createIntent() {
+		Intent intent = new Intent(this, LogPlayActivity.class);
+		intent.setAction(Intent.ACTION_EDIT);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(KEY_PLAY_ID, mPlay.PlayId);
+		intent.putExtra(KEY_GAME_ID, mPlay.GameId);
+		intent.putExtra(KEY_GAME_NAME, mGameName);
+		intent.putExtra(KEY_THUMBNAIL_URL, mThumbnailUrl);
+		intent.putExtra(KEY_START_TIME, System.currentTimeMillis());
+		return intent;
+	}
+
+	private void launchStartNotification(Intent intent) {
+		String title = getResources().getString(R.string.notification_title);
+		String message = String.format(getResources().getString(R.string.notification_text_playing), mGameName);
+		Notification notification = new Notification(R.drawable.ic_stat_play, message, System.currentTimeMillis());
+		notification.setLatestEventInfo(this, title, message,
+				PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notification);
 	}
 
 	private CharSequence[] createAddFieldArray() {
@@ -396,6 +433,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				mGameName = cursor.getString(Query.NAME);
 				UIUtils.setGameName(this, mGameName);
 				mPlay.populate(cursor);
+				if (mStartTime > 0) {
+					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
+				}
 				bindUi();
 			} else if (token == TOKEN_PLAYER) {
 				while (cursor.moveToNext()) {
@@ -642,6 +682,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			} else {
 				showToast(result.ErrorMessage);
 			}
+			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
 			finish();
 		}
 

@@ -24,6 +24,10 @@ public class DateTimeUtils {
 		return (int) ((System.currentTimeMillis() - time) / DateUtils.HOUR_IN_MILLIS);
 	}
 
+	public static int howManyMinutesOld(long time) {
+		return (int) ((System.currentTimeMillis() - time) / DateUtils.MINUTE_IN_MILLIS);
+	}
+
 	public static long parseDate(String inDate) {
 		inDate = fixupTimeZone(inDate);
 		try {

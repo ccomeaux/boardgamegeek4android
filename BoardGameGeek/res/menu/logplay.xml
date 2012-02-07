@@ -10,6 +10,10 @@
 		android:icon="@android:drawable/ic_menu_save"
 		android:title="@string/save"/>
 	<item
+		android:id="@+id/menu_start"
+		android:icon="@drawable/ic_menu_play_clip"
+		android:title="@string/start"/>
+		<item
 		android:id="@+id/menu_cancel"
 		android:icon="@android:drawable/ic_menu_close_clear_cancel"
 		android:title="@string/cancel"/>

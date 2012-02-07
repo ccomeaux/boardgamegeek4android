@@ -238,7 +238,21 @@ public class Play {
 		return Plays.buildPlayUri(PlayId);
 	}
 
-	public boolean hasBeenSynced(){
+	public boolean hasBeenSynced() {
 		return (PlayId > 0 && PlayId < UNSYNCED_PLAY_ID);
+	}
+
+	public boolean hasEnded() {
+		if (Length > 0) {
+			return true;
+		}
+		if (mPlayers != null && mPlayers.size() > 0) {
+			for (Player player : mPlayers) {
+				if (player.Win) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
