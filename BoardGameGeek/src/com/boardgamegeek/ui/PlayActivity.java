@@ -99,7 +99,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mPlayUri, false, mObserver);
+		getContentResolver().registerContentObserver(mPlayUri, true, mObserver);
 		startQuery();
 	}
 
@@ -155,6 +155,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		// TODO add menu_send if modified
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
 				return true;
