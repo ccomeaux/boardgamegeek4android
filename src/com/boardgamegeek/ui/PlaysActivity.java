@@ -82,14 +82,13 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 			findViewById(R.id.game_header).setVisibility(View.GONE);
 			findViewById(R.id.header_divider).setVisibility(View.GONE);
 		}
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		startQuery();
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mUri, true, mPlaysObserver);
+		getContentResolver().registerContentObserver(Plays.CONTENT_URI, true, mPlaysObserver);
 	}
 
 	@Override
@@ -198,6 +197,9 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	}
 
 	private void startQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(mUri, Query.PROJECTION, null, null, Plays.DEFAULT_SORT);
 	}
 
