@@ -14,25 +14,25 @@
 	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
 	<application
+		android:name="BggApplication"
 		android:icon="@drawable/ic_launcher"
-		android:label="@string/app_name"
-		android:name="BggApplication" >
+		android:label="@string/app_name" >
 		<activity
+			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
 			android:launchMode="singleTask"
-			android:name=".ui.HomeActivity"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
 		<activity
-			android:label="@string/title_collection"
 			android:name=".ui.CollectionActivity"
+			android:label="@string/title_collection"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -42,11 +42,11 @@
 		</activity>
 
 		<activity-alias
-			android:label="@string/title_boardgame"
 			android:name="CreateShortcutActivity"
+			android:label="@string/title_boardgame"
 			android:targetActivity=".ui.CollectionActivity"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -54,14 +54,14 @@
 		</activity-alias>
 
 		<activity
-			android:label="@string/title_hotness"
 			android:name=".ui.HotnessActivity"
+			android:label="@string/title_hotness"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_boardgame"
 			android:name=".ui.BoardgameActivity"
+			android:label="@string/title_boardgame"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -72,7 +72,7 @@
 		<activity
 			android:name=".ui.GameInfoActivityTab"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.TAB" />
@@ -81,7 +81,7 @@
 		<activity
 			android:name=".ui.GameStatsActivityTab"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.TAB" />
@@ -90,7 +90,7 @@
 		<activity
 			android:name=".ui.GameListsActivityTab"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.TAB" />
@@ -99,21 +99,21 @@
 		<activity
 			android:name=".ui.GamePollsActivityTab"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.TAB" />
 			</intent-filter>
 		</activity>
 		<activity
-			android:label="@string/title_image"
 			android:name=".ui.ImageActivity"
+			android:label="@string/title_image"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_buddies"
 			android:name=".ui.BuddiesActivity"
+			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -122,10 +122,10 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:label="@string/title_buddy"
 			android:name=".ui.BuddyActivity"
+			android:label="@string/title_buddy"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -134,10 +134,10 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:label="@string/title_plays"
 			android:name=".ui.PlaysActivity"
+			android:label="@string/title_plays"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -146,10 +146,10 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:label="@string/title_play"
 			android:name=".ui.PlayActivity"
+			android:label="@string/title_play"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -158,12 +158,12 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:label="@string/search_label"
 			android:launchMode="singleTop"
-			android:name=".ui.SearchResultsActivity"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -174,34 +174,34 @@
 				android:resource="@xml/searchable" />
 		</activity>
 		<activity
-			android:label="@string/title_log_play"
 			android:name=".ui.LogPlayActivity"
+			android:label="@string/title_log_play"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_log_player"
 			android:name=".ui.LogPlayerActivity"
+			android:label="@string/title_log_player"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_comments"
 			android:name=".ui.CommentsActivity"
+			android:label="@string/title_comments"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_forumlist"
 			android:name=".ui.ForumlistActivity"
+			android:label="@string/title_forumlist"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_forum"
 			android:name=".ui.ForumActivity"
+			android:label="@string/title_forum"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_thread"
 			android:name=".ui.ThreadActivity"
+			android:label="@string/title_thread"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_colors"
 			android:name=".ui.ColorsActivity"
+			android:label="@string/title_colors"
 			android:theme="@style/Theme.Bgg" >
-			<intent-filter >
+			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
 				<category android:name="android.intent.category.DEFAULT" />
@@ -214,21 +214,21 @@
 		<activity android:name=".view.BoardGameLinksTab" />
 		<activity android:name=".view.BoardGamePollsTab" />
 		<activity
-			android:label="@string/app_name"
-			android:name=".pref.Preferences" />
+			android:name=".pref.Preferences"
+			android:label="@string/app_name" />
 		<activity
 			android:name=".ui.AboutActivity"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:label="@string/title_poll"
 			android:name=".ui.PollActivity"
+			android:label="@string/title_poll"
 			android:theme="@android:style/Theme.Dialog" />
 
 		<service android:name=".service.SyncService" />
 
 		<provider
-			android:authorities="com.boardgamegeek"
-			android:name=".provider.BggProvider" />
+			android:name=".provider.BggProvider"
+			android:authorities="com.boardgamegeek" />
 
 		<meta-data
 			android:name="android.app.default_searchable"
