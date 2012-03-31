@@ -585,7 +585,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	public void addFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
-		mFilters.add(filter);
+		if (filter.isValid()) {
+			mFilters.add(filter);
+		}
 		applyFilters();
 	}
 }

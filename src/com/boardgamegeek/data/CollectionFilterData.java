@@ -2,6 +2,7 @@ package com.boardgamegeek.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 public class CollectionFilterData implements Parcelable {
 
@@ -47,6 +48,10 @@ public class CollectionFilterData implements Parcelable {
 	public CollectionFilterData id(int id) {
 		this.id = id;
 		return this;
+	}
+
+	public boolean isValid() {
+		return !TextUtils.isEmpty(displayText) && !TextUtils.isEmpty(selection);
 	}
 
 	@Override
