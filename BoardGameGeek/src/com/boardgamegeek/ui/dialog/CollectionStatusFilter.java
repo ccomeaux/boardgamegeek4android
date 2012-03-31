@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
@@ -44,7 +45,6 @@ public class CollectionStatusFilter {
 				activity.addFilter(filter);
 			}
 		}).setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
-
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_collection_status);
@@ -71,8 +71,12 @@ public class CollectionStatusFilter {
 		}
 
 		// Remove the last trailing combiners
-		name = name.substring(0, name.length() - (2 + nameDelimiter.length()));
-		selection = selection.substring(0, selection.length() - (2 + selectionConjunction.length()));
+		if (!TextUtils.isEmpty(name)) {
+			name = name.substring(0, name.length() - (2 + nameDelimiter.length()));
+		}
+		if (!TextUtils.isEmpty(selection)) {
+			selection = selection.substring(0, selection.length() - (2 + selectionConjunction.length()));
+		}
 
 		filter.name(name).selection(selection).selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]))
 				.id(R.id.menu_collection_status);
