@@ -115,8 +115,7 @@ public class CommentsActivity extends ListActivity {
 		setListAdapter(mAdapter);
 
 		if (mAllComments == null || mAllComments.size() == 0) {
-			CommentsTask task = new CommentsTask();
-			task.execute();
+			new CommentsTask().execute();
 		} else {
 			updateDisplay();
 		}
@@ -164,23 +163,19 @@ public class CommentsActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		mCurrentComments.clear();
 		switch (item.getItemId()) {
 			case R.id.menu_back:
 				mCurrentPage--;
-				setInfoText();
-				setCurrentCommentsPage();
+				updateDisplay();
 				return true;
 			case R.id.menu_forward:
-				mAdapter.notifyDataSetChanged();
 				mCurrentPage++;
-				setInfoText();
 				if (mCurrentPage > mLastDisplayedPage) {
+					updateInfoText();
 					mLastDisplayedPage++;
-					CommentsTask task = new CommentsTask();
-					task.execute();
+					new CommentsTask().execute();
 				} else {
-					setCurrentCommentsPage();
+					updateDisplay();
 				}
 				return true;
 		}
@@ -197,6 +192,10 @@ public class CommentsActivity extends ListActivity {
 		protected void onPreExecute() {
 			mHttpClient = HttpUtils.createHttpClient(CommentsActivity.this, true);
 			mExecutor = new RemoteExecutor(mHttpClient, null);
+			mCurrentComments.clear();
+			if (mAdapter != null) {
+				mAdapter.notifyDataSetChanged();
+			}
 		}
 
 		@Override
@@ -230,19 +229,19 @@ public class CommentsActivity extends ListActivity {
 	}
 
 	private void updateDisplay() {
-		setInfoText();
-		setCurrentCommentsPage();
+		updateInfoText();
+		updateCurrentCommentsPage();
 	}
 
-	private void setInfoText() {
+	private void updateInfoText() {
 		mInfoView.setVisibility(View.VISIBLE);
-		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mCommentCount + " comments");
+		mInfoView.setText(getPageStartNumber() + " - " + getPageEndNumber() + " of " + mCommentCount + " comments");
 	}
 
-	private void setCurrentCommentsPage() {
-		for (int i = getPageStart(); i <= getPageEnd(); i++) {
-			mCurrentComments.add(mAllComments.get(i - 1));
-		}
+	private void updateCurrentCommentsPage() {
+		mCurrentComments.clear();
+		mCurrentComments.addAll(mAllComments.subList(getPageStartNumber() - 1,
+				Math.min(getPageEndNumber(), mAllComments.size())));
 		if (mAdapter == null) {
 			mAdapter = new CommentsAdapter();
 			setListAdapter(mAdapter);
@@ -252,12 +251,12 @@ public class CommentsActivity extends ListActivity {
 		}
 	}
 
-	private int getPageEnd() {
-		return Math.min(mCurrentPage * PAGE_SIZE, mCommentCount);
+	private int getPageStartNumber() {
+		return (mCurrentPage - 1) * PAGE_SIZE + 1;
 	}
 
-	private int getPageStart() {
-		return (mCurrentPage - 1) * PAGE_SIZE + 1;
+	private int getPageEndNumber() {
+		return Math.min(mCurrentPage * PAGE_SIZE, mCommentCount);
 	}
 
 	private class CommentsAdapter extends ArrayAdapter<Comment> {
