@@ -85,6 +85,7 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_COLORS = 111;
 	private static final int GAMES_ID_COLORS_NAME = 1110;
 	private static final int GAMES_ID_EXPANSIONS = 112;
+	private static final int GAMES_ID_EXPANSIONS_ID = 1121;
 	private static final int GAMES_DESIGNERS_ID = 401;
 	private static final int GAMES_ARTISTS_ID = 403;
 	private static final int GAMES_PUBLISHERS_ID = 405;
@@ -135,6 +136,7 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/categories", GAMES_ID_CATEGORIES);
 		matcher.addURI(authority, "games/#/categories/#", GAMES_ID_CATEGORIES_ID);
 		matcher.addURI(authority, "games/#/expansions", GAMES_ID_EXPANSIONS);
+		matcher.addURI(authority, "games/#/expansions/#", GAMES_ID_EXPANSIONS_ID);
 		matcher.addURI(authority, "games/#/polls", GAMES_ID_POLLS);
 		matcher.addURI(authority, "games/#/polls/*", GAMES_ID_POLLS_NAME);
 		matcher.addURI(authority, "games/#/polls/*/results", GAMES_ID_POLLS_NAME_RESULTS);
@@ -260,6 +262,8 @@ public class BggProvider extends ContentProvider {
 				return Categories.CONTENT_ITEM_TYPE;
 			case GAMES_ID_EXPANSIONS:
 				return GamesExpansions.CONTENT_TYPE;
+			case GAMES_ID_EXPANSIONS_ID:
+				return GamesExpansions.CONTENT_ITEM_TYPE;
 			case GAMES_ID_COLORS:
 				return GameColors.CONTENT_TYPE;
 			case GAMES_ID_COLORS_NAME:
@@ -748,7 +752,14 @@ public class BggProvider extends ContentProvider {
 			}
 			case GAMES_ID_EXPANSIONS: {
 				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS).where(Games.GAME_ID + "=?", String.valueOf(gameId));
+				return builder.table(Tables.GAMES_EXPANSIONS).where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId));
+			}
+			case GAMES_ID_EXPANSIONS_ID: {
+				final int gameId = Games.getGameId(uri);
+				final long expansionId = ContentUris.parseId(uri);
+				return builder.table(Tables.GAMES_EXPANSIONS)
+						.where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GamesExpansions.EXPANSION_ID + "=?", String.valueOf(expansionId));
 			}
 			case GAMES_DESIGNERS_ID: {
 				final long id = ContentUris.parseId(uri);
