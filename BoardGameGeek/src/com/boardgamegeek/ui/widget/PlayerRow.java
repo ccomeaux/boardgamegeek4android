@@ -44,8 +44,7 @@ public class PlayerRow extends LinearLayout {
 
 	public PlayerRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.row_player, this);
+		((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.row_player, this);
 		initializeUi();
 	}
 
