@@ -222,6 +222,10 @@ public class BggContract {
 			return getUriBuilder(gameId, PATH_RANKS).build();
 		}
 
+		public static Uri buildRanksUri(int gameId, int rankId) {
+			return getUriBuilder(gameId, PATH_RANKS, rankId).build();
+		}
+
 		public static Uri buildDesignersUri(int gameId) {
 			return getUriBuilder(gameId, PATH_DESIGNERS).build();
 		}

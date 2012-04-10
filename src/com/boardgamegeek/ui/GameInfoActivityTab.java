@@ -67,17 +67,17 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		final ContentResolver cr = getContentResolver();
+		ContentResolver cr = getContentResolver();
 		cr.registerContentObserver(mGameUri, false, mGameObserver);
-		cr.registerContentObserver(mGameUri, false, mRankObserver);
+		cr.registerContentObserver(mRankUri, false, mRankObserver);
 	}
 
 	@Override
 	protected void onStop() {
-		super.onStop();
-		final ContentResolver cr = getContentResolver();
+		ContentResolver cr = getContentResolver();
 		cr.unregisterContentObserver(mGameObserver);
 		cr.unregisterContentObserver(mRankObserver);
+		super.onStop();
 	}
 
 	private void setUrisAndObservers() {
@@ -161,7 +161,9 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
 			}
 		} finally {
-			cursor.close();
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
 	}
 
@@ -176,7 +178,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				if (rank == 0) {
 					mRankView.setText(R.string.text_not_available);
 				} else {
-					mRankView.setText("" + rank);
+					mRankView.setText(String.valueOf(rank));
 				}
 				break;
 			}
@@ -188,7 +190,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		if (year == 0) {
 			return getResources().getString(R.string.text_unknown);
 		}
-		return "" + year;
+		return String.valueOf(year);
 	}
 
 	private String getPlayerDescription(Cursor cursor) {
@@ -198,9 +200,9 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		if (minPlayers == 0 && maxPlayers == 0) {
 			return getResources().getString(R.string.text_unknown);
 		} else if (minPlayers >= maxPlayers) {
-			return "" + minPlayers;
+			return String.valueOf(minPlayers);
 		} else {
-			return "" + minPlayers + " - " + maxPlayers;
+			return String.valueOf(minPlayers) + " - " + String.valueOf(maxPlayers);
 		}
 	}
 
