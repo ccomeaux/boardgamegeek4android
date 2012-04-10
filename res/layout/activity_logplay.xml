@@ -75,8 +75,8 @@
 				android:layout_height="wrap_content"
 				android:completionThreshold="1"
 				android:hint="@string/location_hint"
-				android:inputType="textCapWords"
 				android:imeOptions="actionNext"
+				android:inputType="textCapWords"
 				android:textColor="#000" />
 
 			<LinearLayout
@@ -114,7 +114,7 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/comments_hint"
-				android:inputType="textMultiLine|textAutoCorrect" />
+				android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
 
 			<TextView
 				android:id="@+id/log_play_players_label"

@@ -50,7 +50,7 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/player_name"
-				android:inputType="textCapWords"
+				android:inputType="textPersonName"
 				android:maxLength="255" />
 
 			<TextView
@@ -83,7 +83,7 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/starting_position"
-				android:inputType="text"
+				android:inputType="textCapWords"
 				android:maxLength="32" />
 
 			<TextView
@@ -98,7 +98,7 @@
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/score"
-				android:inputType="text"
+				android:inputType="textCapWords"
 				android:maxLength="32" />
 
 			<TextView
@@ -147,7 +147,6 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:enabled="true"
 					android:onClick="onSaveClick"
 					android:text="@string/save" />
 
