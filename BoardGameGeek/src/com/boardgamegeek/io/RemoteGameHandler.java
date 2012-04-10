@@ -424,7 +424,7 @@ public class RemoteGameHandler extends XmlHandler {
 		for (ContentValues values : valuesList) {
 			Integer id = values.getAsInteger(GameRanks.GAME_RANK_ID);
 			if (ids.contains(id)) {
-				mResolver.update(GameRanks.buildGameRankUri(id.intValue()), values, null, null);
+				mResolver.update(Games.buildRanksUri(mGameId, id.intValue()), values, null, null);
 				ids.remove(id);
 			} else {
 				mResolver.insert(Games.buildRanksUri(mGameId), values);

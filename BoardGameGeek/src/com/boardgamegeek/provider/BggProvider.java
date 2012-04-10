@@ -66,6 +66,7 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_RANKS = 102;
 	private static final int GAMES_RANKS_ID = 103;
 	private static final int GAMES_ID_RANKS = 104;
+	private static final int GAMES_ID_RANKS_ID = 1041;
 	private static final int GAMES_ID_DESIGNERS = 105;
 	private static final int GAMES_ID_DESIGNERS_ID = 1051;
 	private static final int GAMES_ID_ARTISTS = 106;
@@ -125,6 +126,7 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/ranks", GAMES_RANKS);
 		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
+		matcher.addURI(authority, "games/#/ranks/#", GAMES_ID_RANKS_ID);
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
 		matcher.addURI(authority, "games/#/designers/#", GAMES_ID_DESIGNERS_ID);
 		matcher.addURI(authority, "games/#/artists", GAMES_ID_ARTISTS);
@@ -228,6 +230,8 @@ public class BggProvider extends ContentProvider {
 				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_RANKS:
 				return GameRanks.CONTENT_TYPE;
+			case GAMES_ID_RANKS_ID:
+				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_POLLS:
 				return GamePolls.CONTENT_TYPE;
 			case GAMES_ID_POLLS_NAME:
@@ -698,6 +702,13 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID_RANKS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", String.valueOf(gameId));
+			}
+			case GAMES_ID_RANKS_ID: {
+				int gameId = Games.getGameId(uri);
+				int rankId = GameRanks.getRankId(uri);
+				return builder.table(Tables.GAME_RANKS)
+						.where(GameRanks.GAME_ID + "=?", String.valueOf(gameId))
+						.where(GameRanks.GAME_RANK_ID + "=?", String.valueOf(rankId));
 			}
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
