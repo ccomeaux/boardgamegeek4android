@@ -3,15 +3,15 @@
 
 	<item
 		android:id="@+id/log_play"
-		android:icon="@drawable/ic_menu_compose"
+		android:icon="@android:drawable/ic_menu_edit"
 		android:title="@string/menu_log_play"/>
 	<item
 		android:id="@+id/log_play_quick"
-		android:icon="@drawable/ic_menu_agenda"
+		android:icon="@drawable/ic_menu_mark"
 		android:title="@string/menu_log_play_quick"/>
 	<item
 		android:id="@+id/comments"
-		android:icon="@drawable/ic_menu_comments"
+		android:icon="@drawable/ic_menu_start_conversation"
 		android:title="@string/menu_comments"/>
 	<item
 		android:id="@+id/forums"
@@ -19,7 +19,7 @@
 		android:title="@string/menu_forums"/>
 	<item
 		android:id="@+id/plays"
-		android:icon="@android:drawable/ic_menu_month"
+		android:icon="@android:drawable/ic_menu_my_calendar"
 		android:title="@string/menu_plays"/>
 	<item
 		android:id="@+id/links"
