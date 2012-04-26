@@ -40,14 +40,15 @@ import android.widget.TextView;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
-import com.boardgamegeek.ui.dialog.NumberOfPlayersFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
+import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -74,7 +75,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 
-	private NumberOfPlayersFilter mNumberOfPlayersFilter = new NumberOfPlayersFilter();
+	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
 
@@ -134,7 +135,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mUri, true, mGameObserver);
+		getContentResolver().registerContentObserver(mUri, false, mGameObserver);
 	}
 
 	@Override
@@ -309,7 +310,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
 				return true;
 			case R.id.menu_collection_status:
-				mCollectionStatusFilter.createDialog(this);
+				mCollectionStatusFilter.createDialog(this, (CollectionStatusFilterData) findFilter(id));
 				return true;
 			case R.id.menu_play_time:
 				mPlayTimeFilter.createDialog(this, (PlayTimeFilterData) findFilter(id));
