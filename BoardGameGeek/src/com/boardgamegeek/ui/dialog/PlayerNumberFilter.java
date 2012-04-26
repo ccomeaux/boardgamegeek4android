@@ -19,7 +19,7 @@ import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
-public class NumberOfPlayersFilter {
+public class PlayerNumberFilter {
 
 	private int mMinPlayers;
 	private int mMaxPlayers;
