@@ -18,30 +18,36 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		mMin = min;
 		mMax = max;
 		mExact = exact;
-		final Resources r = context.getResources();
 
+		id(R.id.menu_number_of_players);
+		setDisplayText(context.getResources());
+		setSelection();
+	}
+
+	private void setDisplayText(Resources r) {
+		String range = "";
+		if (mExact) {
+			range = r.getString(R.string.exactly) + " ";
+		}
+		if (mExact || mMin == mMax) {
+			range += String.valueOf(mMax);
+		} else {
+			range += String.valueOf(mMin) + "-" + String.valueOf(mMax);
+		}
+		displayText(range + " " + r.getString(R.string.players));
+	}
+
+	private void setSelection() {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		id(R.id.menu_number_of_players);
-		if (!mExact) {
+		if (mExact) {
+			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
+			selectionArgs(maxValue, maxValue);
+		} else {
 			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
 					+ " IS NULL)");
 			selectionArgs(minValue, maxValue);
-
-			if (mMin == mMax) {
-				name(maxValue);
-			} else {
-				name(minValue + "-" + maxValue);
-			}
-		} else {
-			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionArgs(maxValue, maxValue);
-			name(maxValue);
-		}
-		name(getDisplayText() + " " + r.getString(R.string.players));
-		if (mExact) {
-			name(r.getString(R.string.exactly) + " " + getDisplayText());
 		}
 	}
 

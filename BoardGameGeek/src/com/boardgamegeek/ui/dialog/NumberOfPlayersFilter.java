@@ -29,7 +29,6 @@ public class NumberOfPlayersFilter {
 		initValues(filter);
 
 		AlertDialog.Builder builder;
-		AlertDialog alertDialog;
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater
@@ -102,7 +101,7 @@ public class NumberOfPlayersFilter {
 		});
 
 		builder.setView(layout);
-		alertDialog = builder.create();
+		AlertDialog alertDialog = builder.create();
 
 		// we use the sizes for the slider
 		LayoutParams params = sliderView.getLayoutParams();
@@ -118,7 +117,6 @@ public class NumberOfPlayersFilter {
 			mMinPlayers = PlayerNumberFilterData.MIN_RANGE;
 			mMaxPlayers = PlayerNumberFilterData.MAX_RANGE;
 			mExact = false;
-
 		} else {
 			mMinPlayers = filter.getMin();
 			mMaxPlayers = filter.getMax();
@@ -127,7 +125,7 @@ public class NumberOfPlayersFilter {
 	}
 
 	private String intervalText(int number) {
-		return "" + number;
+		return String.valueOf(number);
 	}
 
 	private String intervalText(int min, int max) {
