@@ -1,6 +1,7 @@
 package com.boardgamegeek.data;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -18,11 +19,30 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		mMax = max;
 		mUndefined = undefined;
 
+		id(R.id.menu_play_time);
+		setDisplayText(context.getResources());
+		setSelection();
+	}
+
+	private void setDisplayText(Resources r) {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		id(R.id.menu_play_time);
-		if (max == MAX_RANGE) {
+		if (mMax == MAX_RANGE) {
+			displayText(minValue + "+");
+		} else if (mMin == mMax) {
+			displayText(maxValue);
+		} else {
+			displayText(minValue + "-" + maxValue);
+		}
+		displayText(getDisplayText() + " " + r.getString(R.string.time_suffix));
+	}
+
+	private void setSelection() {
+		String minValue = String.valueOf(mMin);
+		String maxValue = String.valueOf(mMax);
+
+		if (mMax == MAX_RANGE) {
 			selection("(" + Games.PLAYING_TIME + ">=?)");
 			selectionArgs(minValue);
 		} else {
@@ -33,15 +53,6 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		if (mUndefined) {
 			selection(getSelection() + " OR " + Games.PLAYING_TIME + " IS NULL");
 		}
-
-		if (mMax == MAX_RANGE) {
-			name(mMin + "+");
-		} else if (mMin == mMax) {
-			name(maxValue);
-		} else {
-			name(minValue + "-" + maxValue);
-		}
-		name(getDisplayText() + " " + context.getResources().getString(R.string.time_suffix));
 	}
 
 	public int getMin() {
