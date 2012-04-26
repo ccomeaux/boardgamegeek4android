@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class CollectionFilterData implements Parcelable {
-
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
@@ -30,8 +29,8 @@ public class CollectionFilterData implements Parcelable {
 		return id;
 	}
 
-	public CollectionFilterData name(String name) {
-		this.displayText = name;
+	public CollectionFilterData displayText(String displayText) {
+		this.displayText = displayText;
 		return this;
 	}
 
