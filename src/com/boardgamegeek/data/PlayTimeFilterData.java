@@ -14,12 +14,16 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	private int mMax;
 	private boolean mUndefined;
 
+	public PlayTimeFilterData() {
+		id(CollectionFilterDataFactory.ID_PLAY_TIME);
+	}
+
 	public PlayTimeFilterData(Context context, int min, int max, boolean undefined) {
 		mMin = min;
 		mMax = max;
 		mUndefined = undefined;
 
-		id(R.id.menu_play_time);
+		id(CollectionFilterDataFactory.ID_PLAY_TIME);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

@@ -13,11 +13,15 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	private boolean[] mSelected;
 	private boolean mOr;
 
+	public CollectionStatusFilterData() {
+		id(CollectionFilterDataFactory.ID_COLLECTION_STATUS);
+	}
+
 	public CollectionStatusFilterData(Context context, boolean[] selected, boolean or) {
 		mSelected = selected;
 		mOr = or;
 
-		id(R.id.menu_collection_status);
+		id(CollectionFilterDataFactory.ID_COLLECTION_STATUS);
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
 	}

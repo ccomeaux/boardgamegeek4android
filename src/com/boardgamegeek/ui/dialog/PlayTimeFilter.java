@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
@@ -22,16 +21,13 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 public class PlayTimeFilter {
 
 	private static final int LINE_SPACING = 25;
-	
+
 	private int mMinTime;
 	private int mMaxTime;
 	private boolean mUndefined;
 
 	public void createDialog(final CollectionActivity activity, PlayTimeFilterData filter) {
 		initValues(filter);
-
-		AlertDialog.Builder builder;
-		AlertDialog alertDialog;
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_play_time, (ViewGroup) activity.findViewById(R.id.layout_root));
@@ -44,10 +40,6 @@ public class PlayTimeFilter {
 		sliderView.setStartKnobValue(mMinTime);
 		sliderView.setEndKnobValue(mMaxTime);
 		sliderView.setLineSpacing(LINE_SPACING);
-		checkbox.setChecked(mUndefined);
-
-		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
-
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
@@ -65,39 +57,36 @@ public class PlayTimeFilter {
 			}
 		});
 
-		builder = new AlertDialog.Builder(activity);
-		builder.setTitle(R.string.menu_play_time);
-		builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+		checkbox.setChecked(mUndefined);
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_play_time);
-				activity.removeFilter(filter);
-			}
-		}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_play_time)
+				.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						activity.removeFilter(new PlayTimeFilterData());
+					}
+				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						// Sliders can be on either side so need to check which
+						// one is smaller
+						if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
+							mMinTime = sliderView.getFirstKnobValue();
+							mMaxTime = sliderView.getSecondKnobValue();
+						} else {
+							mMinTime = sliderView.getSecondKnobValue();
+							mMaxTime = sliderView.getFirstKnobValue();
+						}
+						mUndefined = checkbox.isChecked();
 
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				// Sliders can be on either side so need to check which one is
-				// smaller
-				if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-					mMinTime = sliderView.getFirstKnobValue();
-					mMaxTime = sliderView.getSecondKnobValue();
-				} else {
-					mMinTime = sliderView.getSecondKnobValue();
-					mMaxTime = sliderView.getFirstKnobValue();
-				}
-				mUndefined = checkbox.isChecked();
+						activity.addFilter(new PlayTimeFilterData(activity, mMinTime, mMaxTime, mUndefined));
+					}
+				}).setView(layout);
 
-				PlayTimeFilterData filter = new PlayTimeFilterData(activity, mMinTime, mMaxTime, mUndefined);
-				activity.addFilter(filter);
-			}
-		});
-
-		builder.setView(layout);
-		alertDialog = builder.create();
+		AlertDialog alertDialog = builder.create();
 
 		// we use the sizes for the slider
+		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
 		LayoutParams params = sliderView.getLayoutParams();
 		params.width = alertDialog.getWindow().getAttributes().width;
 		params.height = 2 * knobImage.getHeight();
