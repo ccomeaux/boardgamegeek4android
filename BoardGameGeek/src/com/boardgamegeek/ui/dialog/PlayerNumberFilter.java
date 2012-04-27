@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
@@ -28,8 +27,6 @@ public class PlayerNumberFilter {
 	public void createDialog(final CollectionActivity activity, PlayerNumberFilterData filter) {
 		initValues(filter);
 
-		AlertDialog.Builder builder;
-
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater
 				.inflate(R.layout.dialog_num_players, (ViewGroup) activity.findViewById(R.id.layout_root));
@@ -42,10 +39,6 @@ public class PlayerNumberFilter {
 		sliderView.setStartKnobValue(mMinPlayers);
 		sliderView.setEndKnobValue(mMaxPlayers);
 		sliderView.setSecondThumbEnabled(!mExact);
-		checkbox.setChecked(mExact);
-
-		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
-
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
@@ -63,35 +56,7 @@ public class PlayerNumberFilter {
 			}
 		});
 
-		builder = new AlertDialog.Builder(activity);
-		builder.setTitle(R.string.menu_number_of_players);
-		builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				CollectionFilterData filter = new CollectionFilterData().id(R.id.menu_number_of_players);
-				activity.removeFilter(filter);
-			}
-		}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				// Sliders can be on either side so need to check which one is
-				// smaller
-				if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-					mMinPlayers = sliderView.getFirstKnobValue();
-					mMaxPlayers = sliderView.getSecondKnobValue();
-				} else {
-					mMinPlayers = sliderView.getSecondKnobValue();
-					mMaxPlayers = sliderView.getFirstKnobValue();
-				}
-				mExact = checkbox.isChecked();
-
-				PlayerNumberFilterData filter = new PlayerNumberFilterData(activity, mMinPlayers, mMaxPlayers, mExact);
-				activity.addFilter(filter);
-			}
-		});
-
+		checkbox.setChecked(mExact);
 		checkbox.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -100,14 +65,40 @@ public class PlayerNumberFilter {
 			}
 		});
 
-		builder.setView(layout);
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_number_of_players)
+				.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						activity.removeFilter(new PlayerNumberFilterData());
+					}
+				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						// Sliders can be on either side so need to check which
+						// one is smaller
+						if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
+							mMinPlayers = sliderView.getFirstKnobValue();
+							mMaxPlayers = sliderView.getSecondKnobValue();
+						} else {
+							mMinPlayers = sliderView.getSecondKnobValue();
+							mMaxPlayers = sliderView.getFirstKnobValue();
+						}
+						mExact = checkbox.isChecked();
+
+						activity.addFilter(new PlayerNumberFilterData(activity, mMinPlayers, mMaxPlayers, mExact));
+					}
+				}).setView(layout);
+		
 		AlertDialog alertDialog = builder.create();
 
 		// we use the sizes for the slider
+		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
 		LayoutParams params = sliderView.getLayoutParams();
 		params.width = alertDialog.getWindow().getAttributes().width;
 		params.height = 2 * knobImage.getHeight();
 		sliderView.setLayoutParams(params);
+		knobImage.recycle();
 
 		alertDialog.show();
 	}

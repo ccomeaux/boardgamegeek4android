@@ -40,6 +40,7 @@ import android.widget.TextView;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
@@ -307,12 +308,15 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_number_of_players:
+			case CollectionFilterDataFactory.ID_PLAYER_NUMBER:
 				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
 				return true;
 			case R.id.menu_collection_status:
+			case CollectionFilterDataFactory.ID_COLLECTION_STATUS:
 				mCollectionStatusFilter.createDialog(this, (CollectionStatusFilterData) findFilter(id));
 				return true;
 			case R.id.menu_play_time:
+			case CollectionFilterDataFactory.ID_PLAY_TIME:
 				mPlayTimeFilter.createDialog(this, (PlayTimeFilterData) findFilter(id));
 		}
 		return false;
@@ -370,8 +374,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			}
 		}
 
-		// Could be when button is clicked, but this keeps filters synced with
-		// collection
+		// Could be when button is clicked, but this keeps filters synced with collection
 		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
 			Button button = (Button) mFilterLinearLayout.getChildAt(i);
 			if (!mFilters.contains(new CollectionFilterData().id(button.getId()))) {

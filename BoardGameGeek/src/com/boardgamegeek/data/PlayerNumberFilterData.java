@@ -14,12 +14,16 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	private int mMax;
 	private boolean mExact;
 
+	public PlayerNumberFilterData() {
+		id(CollectionFilterDataFactory.ID_PLAYER_NUMBER);
+	}
+
 	public PlayerNumberFilterData(Context context, int min, int max, boolean exact) {
 		mMin = min;
 		mMax = max;
 		mExact = exact;
 
-		id(R.id.menu_number_of_players);
+		id(CollectionFilterDataFactory.ID_PLAYER_NUMBER);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

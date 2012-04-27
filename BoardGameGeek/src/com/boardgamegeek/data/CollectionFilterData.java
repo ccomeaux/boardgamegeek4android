@@ -13,6 +13,14 @@ public class CollectionFilterData implements Parcelable {
 	public CollectionFilterData() {
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	public String getDisplayText() {
+		return displayText;
+	}
+
 	public String getSelection() {
 		return selection;
 	}
@@ -21,12 +29,9 @@ public class CollectionFilterData implements Parcelable {
 		return selectionArgs;
 	}
 
-	public String getDisplayText() {
-		return displayText;
-	}
-
-	public int getId() {
-		return id;
+	public CollectionFilterData id(int id) {
+		this.id = id;
+		return this;
 	}
 
 	public CollectionFilterData displayText(String displayText) {
@@ -41,11 +46,6 @@ public class CollectionFilterData implements Parcelable {
 
 	public CollectionFilterData selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
-		return this;
-	}
-
-	public CollectionFilterData id(int id) {
-		this.id = id;
 		return this;
 	}
 
