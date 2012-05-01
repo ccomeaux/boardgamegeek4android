@@ -15,7 +15,6 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	private boolean mUndefined;
 
 	public PlayTimeFilterData() {
-		id(CollectionFilterDataFactory.ID_PLAY_TIME);
 	}
 
 	public PlayTimeFilterData(Context context, int min, int max, boolean undefined) {
@@ -23,9 +22,13 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		mMax = max;
 		mUndefined = undefined;
 
-		id(CollectionFilterDataFactory.ID_PLAY_TIME);
 		setDisplayText(context.getResources());
 		setSelection();
+	}
+
+	@Override
+	public int getId() {
+		return CollectionFilterDataFactory.ID_PLAY_TIME;
 	}
 
 	private void setDisplayText(Resources r) {

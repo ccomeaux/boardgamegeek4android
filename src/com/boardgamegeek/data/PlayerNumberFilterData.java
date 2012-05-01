@@ -15,7 +15,6 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	private boolean mExact;
 
 	public PlayerNumberFilterData() {
-		id(CollectionFilterDataFactory.ID_PLAYER_NUMBER);
 	}
 
 	public PlayerNumberFilterData(Context context, int min, int max, boolean exact) {
@@ -23,9 +22,13 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		mMax = max;
 		mExact = exact;
 
-		id(CollectionFilterDataFactory.ID_PLAYER_NUMBER);
 		setDisplayText(context.getResources());
 		setSelection();
+	}
+
+	@Override
+	public int getId() {
+		return CollectionFilterDataFactory.ID_PLAYER_NUMBER;
 	}
 
 	private void setDisplayText(Resources r) {

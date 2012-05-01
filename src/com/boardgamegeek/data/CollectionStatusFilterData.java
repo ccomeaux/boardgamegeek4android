@@ -14,16 +14,19 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	private boolean mOr;
 
 	public CollectionStatusFilterData() {
-		id(CollectionFilterDataFactory.ID_COLLECTION_STATUS);
 	}
 
 	public CollectionStatusFilterData(Context context, boolean[] selected, boolean or) {
 		mSelected = selected;
 		mOr = or;
 
-		id(CollectionFilterDataFactory.ID_COLLECTION_STATUS);
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
+	}
+
+	@Override
+	public int getId() {
+		return CollectionFilterDataFactory.ID_COLLECTION_STATUS;
 	}
 
 	private void createDisplayText(Resources r) {

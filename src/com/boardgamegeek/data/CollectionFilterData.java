@@ -5,12 +5,16 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class CollectionFilterData implements Parcelable {
+	protected int id;
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
-	private int id;
 
 	public CollectionFilterData() {
+	}
+
+	public CollectionFilterData(int id) {
+		this.id = id;
 	}
 
 	public int getId() {
@@ -27,11 +31,6 @@ public class CollectionFilterData implements Parcelable {
 
 	public String[] getSelectionArgs() {
 		return selectionArgs;
-	}
-
-	public CollectionFilterData id(int id) {
-		this.id = id;
-		return this;
 	}
 
 	public CollectionFilterData displayText(String displayText) {
@@ -97,5 +96,9 @@ public class CollectionFilterData implements Parcelable {
 		selection = in.readString();
 		in.readStringArray(selectionArgs);
 		id = in.readInt();
+	}
+
+	public String flatten() {
+		return "";
 	}
 }
