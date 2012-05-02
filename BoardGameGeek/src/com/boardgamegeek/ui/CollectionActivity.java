@@ -36,6 +36,7 @@ import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -201,6 +202,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mFilters.clear();
 				applyFilters();
 				return true;
+			case R.id.menu_collection_filter_save:
+				String s = "FILTERS:\n";
+				for (CollectionFilterData filterData : mFilters) {
+					s += filterData.getType() + ": " + filterData.flatten() + "\n";
+				}
+				Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+				return true;
 		}
 
 		if (launchFilterDialog(item.getItemId())) {
@@ -307,16 +315,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
-			case R.id.menu_number_of_players:
-			case CollectionFilterDataFactory.ID_PLAYER_NUMBER:
-				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
-				return true;
 			case R.id.menu_collection_status:
-			case CollectionFilterDataFactory.ID_COLLECTION_STATUS:
+			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
 				mCollectionStatusFilter.createDialog(this, (CollectionStatusFilterData) findFilter(id));
 				return true;
+			case R.id.menu_number_of_players:
+			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
+				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
+				return true;
 			case R.id.menu_play_time:
-			case CollectionFilterDataFactory.ID_PLAY_TIME:
+			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
 				mPlayTimeFilter.createDialog(this, (PlayTimeFilterData) findFilter(id));
 		}
 		return false;
@@ -366,9 +374,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private void syncFilterButtons() {
 		for (CollectionFilterData filter : mFilters) {
-			Button button = (Button) mFilterLinearLayout.findViewById(filter.getId());
+			Button button = (Button) mFilterLinearLayout.findViewById(filter.getType());
 			if (button == null) {
-				mFilterLinearLayout.addView(createFilterButton(filter.getId(), filter.getDisplayText()));
+				mFilterLinearLayout.addView(createFilterButton(filter.getType(), filter.getDisplayText()));
 			} else {
 				button.setText(filter.getDisplayText());
 			}
@@ -377,16 +385,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		// Could be when button is clicked, but this keeps filters synced with collection
 		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
 			Button button = (Button) mFilterLinearLayout.getChildAt(i);
-			if (!mFilters.contains(new CollectionFilterData().id(button.getId()))) {
+			if (!mFilters.contains(new CollectionFilterData(button.getId()))) {
 				mFilterLinearLayout.removeView(button);
 				i--;
 			}
 		}
 	}
 
-	private Button createFilterButton(final int id, String text) {
+	private Button createFilterButton(final int type, String text) {
 		final Button button = new Button(this);
-		button.setId(id);
+		button.setId(type);
 		button.setText(text);
 		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_medium));
 		button.setLongClickable(true);
@@ -405,7 +413,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				mFilters.remove(new CollectionFilterData().id(id));
+				mFilters.remove(new CollectionFilterData(type));
 				applyFilters();
 				return true;
 			}
@@ -573,9 +581,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 	}
 
-	private CollectionFilterData findFilter(int id) {
+	private CollectionFilterData findFilter(int type) {
 		for (CollectionFilterData filter : mFilters) {
-			if (filter.getId() == id) {
+			if (filter.getType() == type) {
 				return filter;
 			}
 		}

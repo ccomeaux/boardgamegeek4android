@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 
 public class CollectionStatusFilterData extends CollectionFilterData {
+	private static final String delimiter = "|";
 
 	private boolean[] mSelected;
 	private boolean mOr;
@@ -16,17 +17,30 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	public CollectionStatusFilterData() {
 	}
 
+	public CollectionStatusFilterData(Context context, String data) {
+		String[] d = data.split(delimiter);
+		mOr = (d[0].equals("1"));
+		mSelected = new boolean[d.length - 1];
+		for (int i = 0; i < d.length - 1; i++) {
+			mSelected[i] = (d[i + 1].equals("1"));
+		}
+		init(context);
+	}
+
 	public CollectionStatusFilterData(Context context, boolean[] selected, boolean or) {
 		mSelected = selected;
 		mOr = or;
+		init(context);
+	}
 
+	private void init(Context context) {
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
 	}
 
 	@Override
-	public int getId() {
-		return CollectionFilterDataFactory.ID_COLLECTION_STATUS;
+	public int getType() {
+		return CollectionFilterDataFactory.TYPE_COLLECTION_STATUS;
 	}
 
 	private void createDisplayText(Resources r) {
@@ -69,5 +83,17 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 
 	public boolean getOr() {
 		return mOr;
+	}
+
+	@Override
+	public String flatten() {
+		String s = (mOr ? "1" : "0");
+		for (boolean selected : mSelected) {
+			if (s.length() > 0) {
+				s += delimiter;
+			}
+			s += (selected ? "1" : "0");
+		}
+		return s;
 	}
 }

@@ -10,6 +10,8 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 300;
 
+	private static final String delimiter = "|";
+
 	private int mMin;
 	private int mMax;
 	private boolean mUndefined;
@@ -17,18 +19,29 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	public PlayTimeFilterData() {
 	}
 
+	public PlayTimeFilterData(Context context, String data) {
+		String[] d = data.split(delimiter);
+		mMin = Integer.valueOf(d[0]);
+		mMax = Integer.valueOf(d[1]);
+		mUndefined = (d[2].equals("1"));
+		init(context);
+	}
+
 	public PlayTimeFilterData(Context context, int min, int max, boolean undefined) {
 		mMin = min;
 		mMax = max;
 		mUndefined = undefined;
-
-		setDisplayText(context.getResources());
-		setSelection();
+		init(context);
 	}
 
 	@Override
-	public int getId() {
-		return CollectionFilterDataFactory.ID_PLAY_TIME;
+	public int getType() {
+		return CollectionFilterDataFactory.TYPE_PLAY_TIME;
+	}
+
+	private void init(Context context) {
+		setDisplayText(context.getResources());
+		setSelection();
 	}
 
 	private void setDisplayText(Resources r) {
@@ -72,5 +85,10 @@ public class PlayTimeFilterData extends CollectionFilterData {
 
 	public boolean isUndefined() {
 		return mUndefined;
+	}
+
+	@Override
+	public String flatten() {
+		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mUndefined ? "1" : "0");
 	}
 }

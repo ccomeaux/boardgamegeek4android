@@ -10,6 +10,8 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
 
+	private static final String delimiter = "|";
+
 	private int mMin;
 	private int mMax;
 	private boolean mExact;
@@ -17,18 +19,29 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	public PlayerNumberFilterData() {
 	}
 
+	public PlayerNumberFilterData(Context context, String data) {
+		String[] d = data.split(delimiter);
+		mMin = Integer.valueOf(d[0]);
+		mMax = Integer.valueOf(d[1]);
+		mExact = (d[2].equals("1"));
+		init(context);
+	}
+
 	public PlayerNumberFilterData(Context context, int min, int max, boolean exact) {
 		mMin = min;
 		mMax = max;
 		mExact = exact;
+		init(context);
+	}
 
+	private void init(Context context) {
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
 	@Override
-	public int getId() {
-		return CollectionFilterDataFactory.ID_PLAYER_NUMBER;
+	public int getType() {
+		return CollectionFilterDataFactory.TYPE_PLAYER_NUMBER;
 	}
 
 	private void setDisplayText(Resources r) {
@@ -68,5 +81,10 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 
 	public boolean isExact() {
 		return mExact;
+	}
+
+	@Override
+	public String flatten() {
+		return String.valueOf(mMin) + delimiter + String.valueOf(mMax) + delimiter + (mExact ? "1" : "0");
 	}
 }

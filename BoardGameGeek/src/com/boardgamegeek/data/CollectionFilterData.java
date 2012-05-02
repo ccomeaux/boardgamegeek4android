@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class CollectionFilterData implements Parcelable {
-	protected int id;
+	private int type;
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
@@ -13,12 +13,12 @@ public class CollectionFilterData implements Parcelable {
 	public CollectionFilterData() {
 	}
 
-	public CollectionFilterData(int id) {
-		this.id = id;
+	public CollectionFilterData(int type) {
+		this.type = type;
 	}
 
-	public int getId() {
-		return id;
+	public int getType() {
+		return type;
 	}
 
 	public String getDisplayText() {
@@ -60,12 +60,12 @@ public class CollectionFilterData implements Parcelable {
 
 		CollectionFilterData other = (CollectionFilterData) o;
 
-		return other.getId() == this.getId();
+		return other.getType() == this.getType();
 	}
 
 	@Override
 	public int hashCode() {
-		return this.getId();
+		return this.getType();
 	}
 
 	@Override
@@ -75,10 +75,10 @@ public class CollectionFilterData implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
+		out.writeInt(type);
 		out.writeString(displayText);
 		out.writeString(selection);
 		out.writeStringArray(selectionArgs);
-		out.writeInt(id);
 	}
 
 	public static final Parcelable.Creator<CollectionFilterData> CREATOR = new Parcelable.Creator<CollectionFilterData>() {
@@ -92,10 +92,10 @@ public class CollectionFilterData implements Parcelable {
 	};
 
 	private CollectionFilterData(Parcel in) {
+		type = in.readInt();
 		displayText = in.readString();
 		selection = in.readString();
 		in.readStringArray(selectionArgs);
-		id = in.readInt();
 	}
 
 	public String flatten() {
