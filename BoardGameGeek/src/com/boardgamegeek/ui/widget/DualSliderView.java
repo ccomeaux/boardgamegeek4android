@@ -15,11 +15,12 @@ import android.view.View;
 import com.boardgamegeek.R;
 
 public class DualSliderView extends View {
+	private static final int MARGIN = 12;
 	protected KnobValuesChangedListener mKnobValuesChangedListener;
 	private Knob[] mKnobs = new Knob[2]; // array that holds the knobs
 	private int mBalID = 0; // variable to know what knob is being dragged
 	private Point mPointKnobStart, mPointKnobEnd;
-	private boolean mInitialisedSlider;
+	private boolean mInitializedSlider;
 	private int mStartKnobValue, mEndKnobValue;// value to know the knob
 												// position e.g: 0,40,..,100
 	private int mSliderWidth, mSliderHeight;// real size of the view that holds
@@ -37,7 +38,7 @@ public class DualSliderView extends View {
 	private int mRightBound;
 	private int mDeltaBound;
 	private double mRatio;
-	private int mknobRadius;
+	private int mKnobRadius;
 
 	public DualSliderView(Context context) {
 		super(context);
@@ -49,74 +50,13 @@ public class DualSliderView extends View {
 		setFocusable(true);
 		mPointKnobStart = new Point();
 		mPointKnobEnd = new Point();
-		mInitialisedSlider = false;
+		mInitializedSlider = false;
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		// initialise data for knobs, slider
-		if (!mInitialisedSlider) {
-			mInitialisedSlider = true;
-			mSliderWidth = getMeasuredWidth();
-			mSliderHeight = getMeasuredHeight();
-
-			mRangeDelta = mMaxRange - mMinRange;
-			mMargin = mSliderWidth - mSliderWidth / 12;
-
-			// left and right bound of slider and the difference
-			mLeftBound = (int) mSliderWidth / 12;
-			mRightBound = (int) mMargin;
-			mDeltaBound = mRightBound - mLeftBound;
-
-			Bitmap knobImage = BitmapFactory.decodeResource(getResources(), R.drawable.knob);
-			mknobRadius = knobImage.getWidth() / 2;
-
-			/*
-			 * The relative ratio which is later used to calculate the value of
-			 * the knob using it's position on the X axis
-			 */
-			mRatio = (double) mDeltaBound / mRangeDelta;
-
-			mPointKnobStart.x = (int) ((mStartKnobValue - mMinRange) * mRatio) + mLeftBound - mknobRadius;
-			mPointKnobStart.y = (int) (mSliderHeight / 2.0);
-			mPointKnobEnd.x = (int) ((mEndKnobValue - mMinRange) * mRatio) + mLeftBound - mknobRadius;
-			mPointKnobEnd.y = (int) (mSliderHeight / 2.0);
-
-			mKnobs[0] = new Knob(getContext(), R.drawable.knob, mPointKnobStart);
-			mKnobs[1] = new Knob(getContext(), R.drawable.knob, mPointKnobEnd);
-			mKnobs[0].setID(1);
-			mKnobs[1].setID(2);
-			setStartKnobValue(mStartKnobValue);
-			setEndKnobValue(mEndKnobValue);
-			knobValuesChanged(true, true, getFirstKnobValue(), getSecondKnobValue());
-
-			mPaintSelected = new Paint();// the paint between knobs
-			mPaintSelected.setColor(Color.YELLOW);
-			mPaintNotSelected = new Paint();// the paint outside knobs
-			mPaintNotSelected.setColor(Color.GRAY);
-			mPaintText = new Paint();// the paint for the slider data(the
-										// values)
-			mPaintText.setColor(Color.WHITE);
-
-			// rectangles that define the line between and outside of knob
-			mRectangleSelected = new Rect();
-			mRectangleNotSelected1 = new Rect();
-			mRectangleNotSelected2 = new Rect();
-		}
-		
-		for (int i = 0; i <= mRangeDelta; i += mLineSpacing) {
-			canvas.drawLine((float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 3.0),
-					(float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 2.3), mPaintText);
-		}
-		
-		/*
-		canvas.drawLine((float) mLeftBound, (float) (mSliderHeight / 3.0),
-				(float) mLeftBound, (float) (mSliderHeight / 2.3), mPaintText);
-		canvas.drawLine((float) mSliderWidth / 2, (float) (mSliderHeight / 3.0),
-				(float) mSliderWidth / 2, (float) (mSliderHeight / 2.3), mPaintText);
-		canvas.drawLine((float) mRightBound, (float) (mSliderHeight / 3.0),
-				(float) mRightBound, (float) (mSliderHeight / 2.3), mPaintText);
-		*/
+		init();
+		drawTicks(canvas);
 
 		int startX, endX, startY, endY;
 		// rectangle between knobs
@@ -155,6 +95,64 @@ public class DualSliderView extends View {
 			canvas.drawRect(mRectangleSelected, mPaintNotSelected);
 		}
 		canvas.drawBitmap(mKnobs[1].getBitmap(), mKnobs[1].getX(), mKnobs[1].getY(), null);
+	}
+
+	private void init() {
+		if (!mInitializedSlider) {
+			mInitializedSlider = true;
+			mSliderWidth = getMeasuredWidth();
+			mSliderHeight = getMeasuredHeight();
+
+			mRangeDelta = mMaxRange - mMinRange;
+			mMargin = mSliderWidth - mSliderWidth / MARGIN;
+
+			// left and right bound of slider and the difference
+			mLeftBound = (int) mSliderWidth / MARGIN;
+			mRightBound = (int) mMargin;
+			mDeltaBound = mRightBound - mLeftBound;
+
+			Bitmap knobImage = BitmapFactory.decodeResource(getResources(), R.drawable.knob);
+			mKnobRadius = knobImage.getWidth() / 2;
+
+			/*
+			 * The relative ratio which is later used to calculate the value of
+			 * the knob using it's position on the X axis
+			 */
+			mRatio = (double) mDeltaBound / mRangeDelta;
+
+			mPointKnobStart.x = (int) ((mStartKnobValue - mMinRange) * mRatio) + mLeftBound - mKnobRadius;
+			mPointKnobStart.y = (int) (mSliderHeight / 2.0);
+			mPointKnobEnd.x = (int) ((mEndKnobValue - mMinRange) * mRatio) + mLeftBound - mKnobRadius;
+			mPointKnobEnd.y = (int) (mSliderHeight / 2.0);
+
+			mKnobs[0] = new Knob(getContext(), R.drawable.knob, mPointKnobStart);
+			mKnobs[1] = new Knob(getContext(), R.drawable.knob, mPointKnobEnd);
+			mKnobs[0].setID(1);
+			mKnobs[1].setID(2);
+			setStartKnobValue(mStartKnobValue);
+			setEndKnobValue(mEndKnobValue);
+			knobValuesChanged(true, true, getFirstKnobValue(), getSecondKnobValue());
+
+			mPaintSelected = new Paint();// the paint between knobs
+			mPaintSelected.setColor(Color.YELLOW);
+			mPaintNotSelected = new Paint();// the paint outside knobs
+			mPaintNotSelected.setColor(Color.GRAY);
+			mPaintText = new Paint();// the paint for the slider data(the
+										// values)
+			mPaintText.setColor(Color.WHITE);
+
+			// rectangles that define the line between and outside of knob
+			mRectangleSelected = new Rect();
+			mRectangleNotSelected1 = new Rect();
+			mRectangleNotSelected2 = new Rect();
+		}
+	}
+
+	private void drawTicks(Canvas canvas) {
+		for (int i = 0; i <= mRangeDelta; i += mLineSpacing) {
+			canvas.drawLine((float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 3.0),
+					(float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 2.3), mPaintText);
+		}
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {
@@ -280,7 +278,7 @@ public class DualSliderView extends View {
 	public void setEndKnobValue(int endKnobValue) {
 		this.mEndKnobValue = endKnobValue;
 	}
-	
+
 	public void setLineSpacing(int lineSpacing) {
 		mLineSpacing = lineSpacing;
 	}
@@ -316,10 +314,8 @@ public class DualSliderView extends View {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 		int chosenWidth = chooseDimension(widthMode, widthSize);
-		int chosenHeight = chooseDimension(heightMode, heightSize);
+		int chosenHeight = (int) (57 * getResources().getDisplayMetrics().density);
 		setMeasuredDimension(chosenWidth, chosenHeight);
 	}
 
@@ -327,12 +323,7 @@ public class DualSliderView extends View {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
-			return getPreferredSize();
+			return 0;
 		}
-	}
-
-	// in case there is no size specified
-	private int getPreferredSize() {
-		return 44;
 	}
 }
