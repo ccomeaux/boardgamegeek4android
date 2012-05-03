@@ -3,12 +3,9 @@ package com.boardgamegeek.ui.dialog;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -83,16 +80,7 @@ public class PlayTimeFilter {
 					}
 				}).setView(layout);
 
-		AlertDialog alertDialog = builder.create();
-
-		// we use the sizes for the slider
-		Bitmap knobImage = BitmapFactory.decodeResource(activity.getResources(), R.drawable.knob);
-		LayoutParams params = sliderView.getLayoutParams();
-		params.width = alertDialog.getWindow().getAttributes().width;
-		params.height = 2 * knobImage.getHeight();
-		sliderView.setLayoutParams(params);
-
-		alertDialog.show();
+		builder.create().show();
 	}
 
 	private void initValues(PlayTimeFilterData filter) {
