@@ -17,7 +17,7 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class PlayTimeFilter {
 
-	private static final int LINE_SPACING = 25;
+	private static final int LINE_SPACING = 30;
 
 	private int mMinTime;
 	private int mMaxTime;
@@ -37,6 +37,7 @@ public class PlayTimeFilter {
 		sliderView.setStartKnobValue(mMinTime);
 		sliderView.setEndKnobValue(mMaxTime);
 		sliderView.setLineSpacing(LINE_SPACING);
+		// TODO: increments of 5
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
