@@ -26,14 +26,16 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.CollectionFilterDetails;
+import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -114,6 +116,10 @@ public class BggProvider extends ContentProvider {
 	private static final int PLAYS_ID_ITEMS_ID = 2011;
 	private static final int PLAYS_ID_PLAYERS = 2020;
 	private static final int PLAYS_ID_PLAYERS_ID = 2021;
+	private static final int COLLECTION_FILTERS = 3000;
+	private static final int COLLECTION_FILTERS_ID = 3001;
+	private static final int COLLECTION_FILTERS_ID_DETAILS = 3010;
+	private static final int COLLECTION_FILTERS_ID_DETAILS_ID = 3011;
 	private static final int SEARCH_SUGGEST = 9998;
 	private static final int SHORTCUT_REFRESH = 9999;
 
@@ -174,6 +180,10 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "plays/#/items/#", PLAYS_ID_ITEMS_ID);
 		matcher.addURI(authority, "plays/#/players", PLAYS_ID_PLAYERS);
 		matcher.addURI(authority, "plays/#/players/#", PLAYS_ID_PLAYERS_ID);
+		matcher.addURI(authority, "collectionfilters", COLLECTION_FILTERS);
+		matcher.addURI(authority, "collectionfilters/#", COLLECTION_FILTERS_ID);
+		matcher.addURI(authority, "collectionfilters/#/details", COLLECTION_FILTERS_ID_DETAILS);
+		matcher.addURI(authority, "collectionfilters/#/deatils/#", COLLECTION_FILTERS_ID_DETAILS_ID);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH_SUGGEST);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_SHORTCUT, SHORTCUT_REFRESH);
@@ -324,6 +334,14 @@ public class BggProvider extends ContentProvider {
 				return PlayPlayers.CONTENT_TYPE;
 			case PLAYS_ID_PLAYERS_ID:
 				return PlayPlayers.CONTENT_ITEM_TYPE;
+			case COLLECTION_FILTERS:
+				return CollectionFilters.CONTENT_TYPE;
+			case COLLECTION_FILTERS_ID:
+				return CollectionFilters.CONTENT_ITEM_TYPE;
+			case COLLECTION_FILTERS_ID_DETAILS:
+				return CollectionFilterDetails.CONTENT_TYPE;
+			case COLLECTION_FILTERS_ID_DETAILS_ID:
+				return CollectionFilterDetails.CONTENT_ITEM_TYPE;
 			case SEARCH_SUGGEST:
 				return SearchManager.SUGGEST_MIME_TYPE;
 			case SHORTCUT_REFRESH:
@@ -556,6 +574,18 @@ public class BggProvider extends ContentProvider {
 				newUri = Plays.buildPlayerUri(playId, rowId);
 				break;
 			}
+			case COLLECTION_FILTERS: {
+				rowId = db.insertOrThrow(Tables.COLLECTION_FILTERS, null, values);
+				newUri = CollectionFilters.buildFilterUri(rowId);
+				break;
+			}
+			case COLLECTION_FILTERS_ID_DETAILS: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				values.put(CollectionFilterDetails.FILTER_ID, filterId);
+				rowId = db.insertOrThrow(Tables.COLLECTION_FILTERS_DETAILS, null, values);
+				newUri = CollectionFilters.buildFilterDetailUri(filterId, rowId);
+				break;
+			}
 			default: {
 				throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 			}
@@ -656,6 +686,10 @@ public class BggProvider extends ContentProvider {
 			case PLAYS:
 			case PLAYS_ID: {
 				deletePlayChildren(db, builder);
+			}
+			case COLLECTION_FILTERS:
+			case COLLECTION_FILTERS_ID: {
+				deleteCollectionFilterChildren(db, builder);
 			}
 			default:
 				break;
@@ -916,6 +950,24 @@ public class BggProvider extends ContentProvider {
 					.where("pollresults_id = (SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.pollresults_key=? AND game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)))", key, String.valueOf(gameId), pollName)
 					.where(GamePollResultsResult.POLL_RESULTS_RESULT_KEY + "=?", key2);
 			}
+			case COLLECTION_FILTERS: {
+				return builder.table(Tables.COLLECTION_FILTERS);
+			}
+			case COLLECTION_FILTERS_ID: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				return builder.table(Tables.COLLECTION_FILTERS).where(CollectionFilters._ID + "=?", String.valueOf(filterId));
+			}
+			case COLLECTION_FILTERS_ID_DETAILS: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				return builder.table(Tables.COLLECTION_FILTERS_DETAILS).where(CollectionFilterDetails.FILTER_ID + "=?", String.valueOf(filterId));
+			}
+			case COLLECTION_FILTERS_ID_DETAILS_ID: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				int type = CollectionFilterDetails.getFilterType(uri);
+				return builder.table(Tables.COLLECTION_FILTERS_DETAILS)
+						.where(CollectionFilterDetails.FILTER_ID + "=?", String.valueOf(filterId))
+						.where(CollectionFilterDetails.TYPE + "=?", String.valueOf(type));
+			}
 			default:
 				throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -1024,6 +1076,18 @@ public class BggProvider extends ContentProvider {
 						.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 						.where(PlayItems.OBJECT_ID + "=?", gameId);
 			}
+			case COLLECTION_FILTERS_ID_DETAILS: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				return builder.table(Tables.COLLECTION_FILTERS_DETAILS_JOIN_COLLECTION_FILTERS)
+						.where(CollectionFilterDetails.FILTER_ID + "=?", String.valueOf(filterId));
+			}
+			case COLLECTION_FILTERS_ID_DETAILS_ID: {
+				long filterId = CollectionFilters.getFilterId(uri);
+				int type = CollectionFilterDetails.getFilterType(uri);
+				return builder.table(Tables.COLLECTION_FILTERS_DETAILS_JOIN_COLLECTION_FILTERS)
+						.where(CollectionFilterDetails.FILTER_ID + "=?", String.valueOf(filterId))
+						.where(CollectionFilterDetails.TYPE + "=?", String.valueOf(type));
+			}
 			default:
 				return buildSimpleSelection(uri, match);
 		}
@@ -1066,6 +1130,20 @@ public class BggProvider extends ContentProvider {
 				String[] playArg = new String[] { String.valueOf(playId) };
 				db.delete(Tables.PLAY_ITEMS, PlayItems.PLAY_ID + "=?", playArg);
 				db.delete(Tables.PLAY_PLAYERS, PlayItems.PLAY_ID + "=?", playArg);
+			}
+		} finally {
+			c.close();
+		}
+	}
+
+	private void deleteCollectionFilterChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
+		// TODO after upgrading to API 8, use cascading deletes (http://stackoverflow.com/questions/2545558)
+		Cursor c = builder.query(db, new String[] { CollectionFilters._ID }, null);
+		try {
+			while (c.moveToNext()) {
+				int filterId = c.getInt(0);
+				String[] filterArg = new String[] { String.valueOf(filterId) };
+				db.delete(Tables.COLLECTION_FILTERS_DETAILS, CollectionFilterDetails.FILTER_ID + "=?", filterArg);
 			}
 		} finally {
 			c.close();

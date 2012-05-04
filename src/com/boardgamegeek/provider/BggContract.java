@@ -178,6 +178,17 @@ public class BggContract {
 		String WIN = "win";
 	}
 
+	interface CollectionFiltersColumns {
+		String NAME = "name";
+		String STARRED = "starred";
+	}
+
+	interface CollectionFilterDetailsColumns {
+		String FILTER_ID = "filter_id";
+		String TYPE = "type";
+		String DATA = "data";
+	}
+
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
 
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
@@ -201,6 +212,8 @@ public class BggContract {
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
+	private static final String PATH_COLLECTION_FILTER = "collectionfilters";
+	private static final String PATH_DETAILS = "details";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -631,6 +644,42 @@ public class BggContract {
 
 		public static long getPlayPlayerId(Uri uri) {
 			return Long.valueOf(uri.getLastPathSegment());
+		}
+	}
+
+	public static final class CollectionFilters implements CollectionFiltersColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION_FILTER).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilterdetail";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilterdetail";
+		
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC";
+
+		public static Uri buildFilterUri(long filterId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(filterId)).build();
+		}
+
+		public static Uri buildFilterDetailUri(long filterId) {
+			return buildFilterUri(filterId).buildUpon().appendPath(PATH_DETAILS).build();
+		}
+
+		public static Uri buildFilterDetailUri(long filterId, long detailId) {
+			return buildFilterUri(filterId).buildUpon().appendPath(PATH_DETAILS).appendPath(String.valueOf(detailId)).build();
+		}
+
+		public static int getFilterId(Uri uri) {
+			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+	}
+
+	public static final class CollectionFilterDetails implements CollectionFilterDetailsColumns, CollectionFiltersColumns, BaseColumns {
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilter";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilter";
+		
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC " + TYPE + "ASC";
+
+		public static int getFilterType(Uri uri) {
+			return Integer.valueOf(uri.getLastPathSegment());
 		}
 	}
 
