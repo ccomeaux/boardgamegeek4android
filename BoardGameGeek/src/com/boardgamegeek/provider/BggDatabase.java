@@ -11,6 +11,10 @@ import com.boardgamegeek.provider.BggContract.BuddiesColumns;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
+import com.boardgamegeek.provider.BggContract.CollectionFilterDetails;
+import com.boardgamegeek.provider.BggContract.CollectionFilterDetailsColumns;
+import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.provider.BggContract.CollectionFiltersColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameColorsColumns;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
@@ -51,7 +55,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYS = 6;
 	private static final int VER_PLAY_NICKNAME = 7;
 	private static final int VER_PLAY_SYNC_STATUS = 8;
-	private static final int DATABASE_VERSION = VER_PLAY_SYNC_STATUS;
+	private static final int VER_COLLECTION_FILTERS = 9;
+	private static final int DATABASE_VERSION = VER_COLLECTION_FILTERS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -101,6 +106,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String PLAYS = "plays";
 		String PLAY_ITEMS = "play_items";
 		String PLAY_PLAYERS = "play_players";
+		String COLLECTION_FILTERS = "collection_filters";
+		String COLLECTION_FILTERS_DETAILS = "collection_filters_details";
 
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
@@ -112,6 +119,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
 		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
+		String COLLECTION_FILTERS_DETAILS_JOIN_COLLECTION_FILTERS =
+				createJoin(COLLECTION_FILTERS_DETAILS, COLLECTION_FILTERS, CollectionFilterDetails.FILTER_ID, CollectionFilters._ID);
 	}
 
 	private static String createJoin(String table1, String table2, String column) {
@@ -307,6 +316,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		createPlaysTable(db, builder);
 		createPlayItemsTable(db, builder);
 		createPlayPlayersTable(db, builder);
+		createCollectionFiltersTable(db, builder);
 	}
 
 	private void createGameColorsTable(SQLiteDatabase db, CreateTableBuilder builder) {
@@ -364,6 +374,18 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.create(db);
 	}
 
+	private void createCollectionFiltersTable(SQLiteDatabase db, CreateTableBuilder builder){
+		builder.reset().table(Tables.COLLECTION_FILTERS).defaultPrimaryKey()
+			.column(CollectionFiltersColumns.NAME, COLUMN_TYPE.TEXT)
+			.column(CollectionFiltersColumns.STARRED, COLUMN_TYPE.INTEGER)
+			.create(db);
+		builder.reset().table(Tables.COLLECTION_FILTERS_DETAILS).defaultPrimaryKey()
+			.column(CollectionFilterDetailsColumns.FILTER_ID, COLUMN_TYPE.INTEGER)
+			.column(CollectionFilterDetailsColumns.TYPE, COLUMN_TYPE.INTEGER)
+			.column(CollectionFilterDetailsColumns.DATA, COLUMN_TYPE.TEXT)
+			.create(db);
+	}
+
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.d(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
@@ -403,6 +425,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + PlaysColumns.SYNC_STATUS + " INTEGER");
 				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + SyncColumns.UPDATED + " INTEGER");
 				version = VER_PLAY_SYNC_STATUS;
+			case VER_PLAY_SYNC_STATUS:
+				createCollectionFiltersTable(db, new CreateTableBuilder());
+				version = VER_COLLECTION_FILTERS;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -430,8 +455,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAYS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_ITEMS);
 			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_PLAYERS);
+			dropTable(db, Tables.COLLECTION_FILTERS);
+			dropTable(db, Tables.COLLECTION_FILTERS_DETAILS);
 
 			onCreate(db);
 		}
+	}
+
+	private void dropTable(SQLiteDatabase db, String tableName){
+		db.execSQL("DROP TABLE IF EXISTS " + tableName);
 	}
 }
