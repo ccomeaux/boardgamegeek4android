@@ -141,6 +141,7 @@
 	<string name="comments_hint">Game play comments</string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
+	<string name="save_filters">Save Filters</string>
 	<string name="cancel">Cancel</string>
 	<string name="start">Start</string>
 	<string name="exact">Exact</string>
@@ -252,6 +253,7 @@
 	<string name="menu_share">Share</string>
 	<string name="menu_collection_filter_add">Add Filter…</string>
 	<string name="menu_collection_filter_clear">Clear Filters</string>
+	<string name="menu_collection_filter_save">Save Filters…</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_play_time">Playing Time</string>
@@ -276,6 +278,7 @@
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_play_updated">Play updated successfully!</string>
 	<string name="msg_play_deleted">Play deleted successfully</string>
+	<string name="msg_saved">Saved!</string>
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
 	<string name="share_text">I found this game using BoardGameGeek on Android
@@ -295,6 +298,7 @@
 	<string name="suggested_numplayers">Suggested Number of Players</string>
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
+	<string name="name">Name</string>
 	<string name="updated">Updated</string>
 	<string name="saved">Saved</string>
 	<string name="votes_suffix">"%s votes"</string>

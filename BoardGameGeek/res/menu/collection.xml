@@ -24,7 +24,7 @@
 	<item
 		android:id="@+id/menu_collection_filter_save"
 		android:icon="@android:drawable/ic_menu_save"
-		android:title="Save"/>
+		android:title="@string/menu_collection_filter_save"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_menu_emoticons"
