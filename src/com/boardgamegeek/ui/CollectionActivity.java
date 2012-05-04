@@ -36,7 +36,6 @@ import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -49,6 +48,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
+import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
@@ -203,11 +203,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				applyFilters();
 				return true;
 			case R.id.menu_collection_filter_save:
-				String s = "FILTERS:\n";
-				for (CollectionFilterData filterData : mFilters) {
-					s += filterData.getType() + ": " + filterData.flatten() + "\n";
-				}
-				Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+				SaveFilters.createDialog(this, mFilters);
 				return true;
 		}
 
