@@ -104,6 +104,16 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	}
 
 	@Override
+	protected void onDestroy() {
+		if (mAdapter != null) {
+			if (mAdapter.getCursor() != null) {
+				mAdapter.getCursor().close();
+			}
+		}
+		super.onDestroy();
+	}
+
+	@Override
 	public void setTitle(CharSequence title) {
 		UIUtils.setTitle(this, title);
 	}
@@ -118,7 +128,6 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		changeEmptyMessage();
-		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
 	}
 

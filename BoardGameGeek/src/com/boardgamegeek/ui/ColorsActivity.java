@@ -60,6 +60,16 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 		UIUtils.showHelpDialog(this, BggApplication.HELP_COLORS_KEY, HELP_VERSION, R.string.help_colors);
 	}
 
+	@Override
+	protected void onDestroy() {
+		if (mAdapter != null) {
+			if (mAdapter.getCursor() != null) {
+				mAdapter.getCursor().close();
+			}
+		}
+		super.onDestroy();
+	}
+
 	private void processIntent() {
 		final Intent intent = getIntent();
 		mGameColorUri = intent.getData();
@@ -128,7 +138,6 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 	@Override
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		UIUtils.showListMessage(this, R.string.empty_colors);
-		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
 	}
 

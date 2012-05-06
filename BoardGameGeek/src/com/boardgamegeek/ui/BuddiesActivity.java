@@ -99,6 +99,16 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 	}
 
 	@Override
+	protected void onDestroy() {
+		if (mAdapter != null) {
+			if (mAdapter.getCursor() != null) {
+				mAdapter.getCursor().close();
+			}
+		}
+		super.onDestroy();
+	}
+
+	@Override
 	public void setTitle(CharSequence title) {
 		UIUtils.setTitle(this, title);
 	}
@@ -113,7 +123,6 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		changeEmptyMessage();
-		startManagingCursor(cursor);
 		mAdapter.changeCursor(cursor);
 	}
 
