@@ -20,26 +20,28 @@ import com.boardgamegeek.util.ImageCache;
 public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = "ClearDialogPreference";
 
-	private Context context;
+	private Context mContext;
 
 	public ClearDialogPreference(Context context) {
 		super(context);
+		mContext = context;
 	}
 
 	public ClearDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		mContext = context;
 	}
-	
+
 	@Override
 	protected int getInfoMessageResource() {
 		return R.string.pref_sync_clear_info_message;
 	}
-	
+
 	@Override
 	protected int getConfirmMessageResource() {
 		return R.string.pref_sync_clear_confirm_message;
 	}
-	
+
 	@Override
 	protected Task getTask() {
 		return new ClearTask();
@@ -51,7 +53,7 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 
 		@Override
 		protected void onPreExecute() {
-			mResolver = context.getContentResolver();
+			mResolver = mContext.getContentResolver();
 		}
 
 		@Override
