@@ -93,8 +93,8 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 	@Override
 	protected void onResume() {
-		mLogInHelper.logIn();
 		super.onResume();
+		mLogInHelper.logIn();
 	}
 
 	@Override
