@@ -67,7 +67,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
-	private Play mPlay;
+	private Play mPlay = new Play();
 
 	private TextView mUpdated;
 	private TextView mPlayId;
@@ -245,7 +245,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				mGameName = cursor.getString(Query.NAME);
 				UIUtils.setGameName(this, mGameName);
 
-				mPlay = new Play();
 				mPlay.populate(cursor);
 				bindUi();
 
