@@ -62,6 +62,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private LinearLayout mLinearLayoutList;
 	private LinearLayout mLinearLayoutKey;
 	private LinearLayout mLinearLayoutKey2;
+	private View mKeyContainer;
 	private View mKeyDivider;
 
 	private int mPollCount;
@@ -121,6 +122,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 		mLinearLayoutList = (LinearLayout) findViewById(R.id.poll_list);
 		mLinearLayoutKey = (LinearLayout) findViewById(R.id.poll_key);
 		mLinearLayoutKey2 = (LinearLayout) findViewById(R.id.poll_key2);
+		mKeyContainer = findViewById(R.id.poll_key_container);
 		mKeyDivider = findViewById(R.id.poll_key_divider);
 	}
 
@@ -156,7 +158,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 					findViewById(R.id.progress).setVisibility(View.GONE);
 					mPieChart.setVisibility(View.GONE);
 					mLinearLayoutList.setVisibility(View.GONE);
-					findViewById(R.id.poll_key_container).setVisibility(View.GONE);
+					mKeyContainer.setVisibility(View.GONE);
 					mScrollView.setVisibility(View.VISIBLE);
 				} else {
 					mHandler.startQuery(TOKEN_POLL_RESULTS, null, mPollResultsUri, GamePollResultsQuery.PROJECTION,
