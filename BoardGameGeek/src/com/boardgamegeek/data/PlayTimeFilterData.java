@@ -10,7 +10,7 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 300;
 
-	private static final String delimiter = "|";
+	private static final String delimiter = ":";
 
 	private int mMin;
 	private int mMax;
