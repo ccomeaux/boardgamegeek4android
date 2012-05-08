@@ -48,6 +48,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
+import com.boardgamegeek.ui.dialog.LoadFilters;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
@@ -214,6 +215,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_save:
 				SaveFilters.createDialog(this, mFilters);
+				return true;
+			case R.id.menu_collection_filter_load:
+				LoadFilters.createDialog(this);
 				return true;
 		}
 
@@ -605,6 +609,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		if (filter.isValid()) {
 			mFilters.add(filter);
 		}
+		applyFilters();
+	}
+
+	public void setFilters(List<CollectionFilterData> filters) {
+		mFilters = filters;
 		applyFilters();
 	}
 }

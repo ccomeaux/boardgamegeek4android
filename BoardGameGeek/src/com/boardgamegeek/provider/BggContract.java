@@ -676,7 +676,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilter";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilter";
 		
-		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC " + TYPE + "ASC";
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
 			return Integer.valueOf(uri.getLastPathSegment());
