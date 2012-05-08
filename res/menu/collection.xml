@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<item
+		android:id="@+id/menu_collection_filter_save"
+		android:icon="@android:drawable/ic_menu_save"
+		android:title="@string/menu_collection_filter_save"/>
+	<item
+		android:id="@+id/menu_collection_filter_load"
+		android:title="@string/menu_collection_filter_load"/>
+	<item
 		android:id="@+id/collection_filter_add"
 		android:icon="@drawable/ic_menu_filter_on"
 		android:title="@string/menu_collection_filter_add">
@@ -21,10 +28,6 @@
 		android:id="@+id/menu_collection_filter_clear"
 		android:icon="@drawable/ic_menu_filter_off"
 		android:title="@string/menu_collection_filter_clear"/>
-	<item
-		android:id="@+id/menu_collection_filter_save"
-		android:icon="@android:drawable/ic_menu_save"
-		android:title="@string/menu_collection_filter_save"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_menu_emoticons"
