@@ -7,6 +7,7 @@
 		android:title="@string/menu_collection_filter_save"/>
 	<item
 		android:id="@+id/menu_collection_filter_load"
+		android:icon="@drawable/ic_menu_archive"
 		android:title="@string/menu_collection_filter_load"/>
 	<item
 		android:id="@+id/menu_collection_filter_delete"
