@@ -48,6 +48,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
+import com.boardgamegeek.ui.dialog.DeleteFilters;
 import com.boardgamegeek.ui.dialog.LoadFilters;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
@@ -218,6 +219,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_load:
 				LoadFilters.createDialog(this);
+				return true;
+			case R.id.menu_collection_filter_delete:
+				DeleteFilters.createDialog(this);
 				return true;
 		}
 
