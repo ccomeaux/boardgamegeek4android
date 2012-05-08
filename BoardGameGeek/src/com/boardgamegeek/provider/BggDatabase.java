@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
@@ -82,7 +83,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String GAME_ID = Games.GAME_ID;
 		String CATEGORY_ID = Categories.CATEGORY_ID;
 	}
-	
+
 	interface Tables {
 		String DESIGNERS = "designers";
 		String ARTISTS = "artists";
@@ -422,8 +423,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 				db.execSQL("ALTER TABLE " + Tables.BUDDIES + " ADD COLUMN " + BuddiesColumns.PLAY_NICKNAME + " TEXT");
 				version = VER_PLAY_NICKNAME;
 			case VER_PLAY_NICKNAME:
-				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + PlaysColumns.SYNC_STATUS + " INTEGER");
-				db.execSQL("ALTER TABLE " + Tables.PLAYS + " ADD COLUMN " + SyncColumns.UPDATED + " INTEGER");
+				addColumn(db, Tables.PLAYS, PlaysColumns.SYNC_STATUS, COLUMN_TYPE.INTEGER);
+				addColumn(db, Tables.PLAYS, SyncColumns.UPDATED, COLUMN_TYPE.INTEGER);
 				version = VER_PLAY_SYNC_STATUS;
 			case VER_PLAY_SYNC_STATUS:
 				createCollectionFiltersTable(db, new CreateTableBuilder());
@@ -433,28 +434,28 @@ public class BggDatabase extends SQLiteOpenHelper {
 		if (version != DATABASE_VERSION) {
 			Log.w(TAG, "Destroying old data during upgrade");
 
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.DESIGNERS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.ARTISTS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.PUBLISHERS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.MECHANICS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.CATEGORIES);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_RANKS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_DESIGNERS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_ARTISTS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_PUBLISHERS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_MECHANICS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_CATEGORIES);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAMES_EXPANSIONS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.COLLECTION);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.BUDDIES);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLLS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_POLL_RESULTS_RESULT);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.GAME_COLORS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAYS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_ITEMS);
-			db.execSQL("DROP TABLE IF EXISTS " + Tables.PLAY_PLAYERS);
+			dropTable(db, Tables.DESIGNERS);
+			dropTable(db, Tables.ARTISTS);
+			dropTable(db, Tables.PUBLISHERS);
+			dropTable(db, Tables.MECHANICS);
+			dropTable(db, Tables.CATEGORIES);
+			dropTable(db, Tables.GAMES);
+			dropTable(db, Tables.GAME_RANKS);
+			dropTable(db, Tables.GAMES_DESIGNERS);
+			dropTable(db, Tables.GAMES_ARTISTS);
+			dropTable(db, Tables.GAMES_PUBLISHERS);
+			dropTable(db, Tables.GAMES_MECHANICS);
+			dropTable(db, Tables.GAMES_CATEGORIES);
+			dropTable(db, Tables.GAMES_EXPANSIONS);
+			dropTable(db, Tables.COLLECTION);
+			dropTable(db, Tables.BUDDIES);
+			dropTable(db, Tables.GAME_POLLS);
+			dropTable(db, Tables.GAME_POLL_RESULTS);
+			dropTable(db, Tables.GAME_POLL_RESULTS_RESULT);
+			dropTable(db, Tables.GAME_COLORS);
+			dropTable(db, Tables.PLAYS);
+			dropTable(db, Tables.PLAY_ITEMS);
+			dropTable(db, Tables.PLAY_PLAYERS);
 			dropTable(db, Tables.COLLECTION_FILTERS);
 			dropTable(db, Tables.COLLECTION_FILTERS_DETAILS);
 
@@ -462,7 +463,15 @@ public class BggDatabase extends SQLiteOpenHelper {
 		}
 	}
 
-	private void dropTable(SQLiteDatabase db, String tableName){
+	private void dropTable(SQLiteDatabase db, String tableName) {
 		db.execSQL("DROP TABLE IF EXISTS " + tableName);
+	}
+
+	private void addColumn(SQLiteDatabase db, String table, String column, COLUMN_TYPE type) {
+		try {
+			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+		} catch(SQLException e) {
+			Log.w(TAG, "Probably just trying to add an existing column.\n" + e.toString());
+		}
 	}
 }
