@@ -10,7 +10,7 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
 
-	private static final String delimiter = "|";
+	private static final String delimiter = ":";
 
 	private int mMin;
 	private int mMax;

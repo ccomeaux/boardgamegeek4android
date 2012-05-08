@@ -37,12 +37,16 @@ public class LoadFilters {
 								CollectionFilterDetails.TYPE, CollectionFilterDetails.DATA }, null, null,
 								CollectionFilterDetails.DEFAULT_SORT);
 						if (c != null) {
-							List<CollectionFilterData> filters = new ArrayList<CollectionFilterData>();
-							while (c.moveToNext()) {
-								filters.add(CollectionFilterDataFactory.create(activity, c.getInt(0), c.getString(1)));
+							try {
+								List<CollectionFilterData> filters = new ArrayList<CollectionFilterData>();
+								while (c.moveToNext()) {
+									filters.add(CollectionFilterDataFactory.create(activity, c.getInt(0),
+											c.getString(1)));
+								}
+								activity.setFilters(filters);
+							} finally {
+								c.close();
 							}
-							activity.setFilters(filters);
-							c.close();
 						}
 					}
 				}, CollectionFilters.NAME);

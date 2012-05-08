@@ -9,7 +9,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 
 public class CollectionStatusFilterData extends CollectionFilterData {
-	private static final String delimiter = "|";
+	private static final String delimiter = ":";
 
 	private boolean[] mSelected;
 	private boolean mOr;
