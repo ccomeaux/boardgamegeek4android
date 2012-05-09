@@ -66,6 +66,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private static final String TAG = "CollectionActivity";
 
 	private static final String KEY_FILTERS = "FILTERS";
+	private static final String KEY_FILTER_NAME = "FILTER_NAME";
 	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
@@ -78,7 +79,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
-
+	private String mFilterName = "";
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
@@ -123,6 +124,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		if (savedInstanceState != null) {
 			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
+			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
 		}
 		applyFilters();
 
@@ -154,6 +156,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
+		outState.putString(KEY_FILTER_NAME, mFilterName);
 	}
 
 	@Override
@@ -212,6 +215,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
+				mFilterName = "";
 				applyFilters();
 				return true;
 			case R.id.menu_collection_filter_save:
@@ -377,12 +381,23 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		UIUtils.showListMessage(this, R.string.empty_collection);
 		mAdapter.changeCursor(cursor);
-
-		if (cursor != null) {
-			mInfoView.setText(String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount()));
-		}
-
+		setInfoText(cursor);
 		syncFilterButtons();
+	}
+
+	private void setInfoText(Cursor cursor) {
+		final String delimiter = "   -   ";
+		String info = mFilterName;
+		if (!TextUtils.isEmpty(info)) {
+			info += delimiter;
+		}
+		if (cursor != null) {
+			info += String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
+		} else {
+			String[] s = mInfoView.getText().toString().split(delimiter);
+			info += (s.length == 1) ? s[0] : s[1];
+		}
+		mInfoView.setText(info);
 	}
 
 	private void syncFilterButtons() {
@@ -409,7 +424,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final Button button = new Button(this);
 		button.setId(type);
 		button.setText(text);
-		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_medium));
+		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -604,11 +619,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	public void removeFilter(CollectionFilterData filter) {
+		mFilterName = "";
 		mFilters.remove(filter);
 		applyFilters();
 	}
 
 	public void addFilter(CollectionFilterData filter) {
+		mFilterName = "";
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -619,5 +636,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void setFilters(List<CollectionFilterData> filters) {
 		mFilters = filters;
 		applyFilters();
+	}
+
+	public void setFilterName(String name) {
+		mFilterName = name;
+		setInfoText(null);
 	}
 }
