@@ -28,8 +28,8 @@ public class LoadFilters {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						cursor.moveToPosition(which);
-						Long filterId = cursor.getLong(0);
-						createFilterList(cr, filterId);
+						activity.setFilterName(cursor.getString(1));
+						createFilterList(cr, cursor.getLong(0));
 					}
 
 					private void createFilterList(final ContentResolver cr, Long filterId) {

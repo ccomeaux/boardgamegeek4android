@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -23,10 +22,11 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.provider.BggContract.CollectionFilterDetails;
 import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.ui.CollectionActivity;
 
 public class SaveFilters {
 
-	public static void createDialog(final Activity activity, final List<CollectionFilterData> filters) {
+	public static void createDialog(final CollectionActivity activity, final List<CollectionFilterData> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_save_filters,
@@ -42,9 +42,10 @@ public class SaveFilters {
 					public void onClick(DialogInterface dialog, int which) {
 						String name = nameView.getText().toString().trim();
 						ContentResolver resolver = activity.getContentResolver();
-						// TODO: check name for uniqueness
+						// TODO: check name for uniqueness?
 						insert(name, filters, resolver);
 						Toast.makeText(activity, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+						activity.setFilterName(name);
 					}
 
 					private void insert(String name, final List<CollectionFilterData> filters, ContentResolver resolver) {
@@ -69,7 +70,6 @@ public class SaveFilters {
 		final AlertDialog dialog = builder.create();
 		enableSaveButton(dialog, nameView);
 		dialog.show();
-
 	}
 
 	private static void enableSaveButton(final AlertDialog dialog, final EditText nameView) {
