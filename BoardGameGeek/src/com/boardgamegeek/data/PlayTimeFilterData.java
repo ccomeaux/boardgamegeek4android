@@ -55,6 +55,9 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		} else {
 			displayText(minValue + "-" + maxValue);
 		}
+		if (mUndefined) {
+			displayText(getDisplayText() + " (+?)");
+		}
 		displayText(getDisplayText() + " " + r.getString(R.string.time_suffix));
 	}
 
