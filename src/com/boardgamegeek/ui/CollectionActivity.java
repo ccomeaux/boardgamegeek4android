@@ -45,6 +45,7 @@ import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
@@ -196,11 +197,27 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.menu_collection_filter_clear);
-		mi.setEnabled(mFilters != null && mFilters.size() > 0);
 
-		mi = menu.findItem(R.id.menu_collection_random_game);
-		mi.setEnabled(getListAdapter().getCount() > 0);
+		boolean enabled = false;
+		Cursor c = getContentResolver().query(CollectionFilters.CONTENT_URI, new String[] { BaseColumns._ID }, null,
+				null, null);
+		if (c != null) {
+			try {
+				if (c.getCount() > 0) {
+					enabled = true;
+				}
+			} finally {
+				c.close();
+			}
+		}
+		menu.findItem(R.id.menu_collection_filter_load).setEnabled(enabled);
+		menu.findItem(R.id.menu_collection_filter_delete).setEnabled(enabled);
+
+		enabled = mFilters != null && mFilters.size() > 0;
+		menu.findItem(R.id.menu_collection_filter_save).setEnabled(enabled);
+		menu.findItem(R.id.menu_collection_filter_clear).setEnabled(enabled);
+
+		menu.findItem(R.id.menu_collection_random_game).setEnabled(getListAdapter().getCount() > 0);
 
 		return super.onPrepareOptionsMenu(menu);
 	}
