@@ -17,7 +17,8 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class PlayTimeFilter {
 
-	private static final int LINE_SPACING = 30;
+	private static final int INCREMENT = 5;
+	private static final int LINE_SPACING = 30 / INCREMENT;
 
 	private int mMinTime;
 	private int mMaxTime;
@@ -33,25 +34,28 @@ public class PlayTimeFilter {
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.undefined_checkbox);
 
-		sliderView.setRange(PlayTimeFilterData.MIN_RANGE, PlayTimeFilterData.MAX_RANGE);
-		sliderView.setStartKnobValue(mMinTime);
-		sliderView.setEndKnobValue(mMaxTime);
+		sliderView.setRange(PlayTimeFilterData.MIN_RANGE / INCREMENT, PlayTimeFilterData.MAX_RANGE / INCREMENT);
+		sliderView.setStartKnobValue(mMinTime / INCREMENT);
+		sliderView.setEndKnobValue(mMaxTime / INCREMENT);
 		sliderView.setLineSpacing(LINE_SPACING);
-		// TODO: increments of 5
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
+				int start = knobStart * INCREMENT;
+				int end = knobEnd * INCREMENT;
+				String s = "";
 				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					textInterval.setText(intervalText(knobEnd));
+					s = intervalText(end);
 				} else if (knobStartChanged || knobEndChanged) {
-					if (knobStart == knobEnd) {
-						textInterval.setText(intervalText(knobEnd));
-					} else if (knobStart < knobEnd) {
-						textInterval.setText(intervalText(knobStart, knobEnd));
+					if (start == end) {
+						s = intervalText(end);
+					} else if (start < end) {
+						s = intervalText(start, end);
 					} else {
-						textInterval.setText(intervalText(knobEnd, knobStart));
+						s = intervalText(end, start);
 					}
 				}
+				textInterval.setText(s + " " + activity.getResources().getString(R.string.time_suffix));
 			}
 		});
 
@@ -66,14 +70,15 @@ public class PlayTimeFilter {
 				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
-						// Sliders can be on either side so need to check which
-						// one is smaller
+						int first = sliderView.getFirstKnobValue() * INCREMENT;
+						int second = sliderView.getSecondKnobValue() * INCREMENT;
+						// Sliders can be on either side so need to check which one is smaller
 						if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-							mMinTime = sliderView.getFirstKnobValue();
-							mMaxTime = sliderView.getSecondKnobValue();
+							mMinTime = first;
+							mMaxTime = second;
 						} else {
-							mMinTime = sliderView.getSecondKnobValue();
-							mMaxTime = sliderView.getFirstKnobValue();
+							mMinTime = first;
+							mMaxTime = first;
 						}
 						mUndefined = checkbox.isChecked();
 

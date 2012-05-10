@@ -21,13 +21,12 @@ public class DualSliderView extends View {
 	private int mBalID = 0; // variable to know what knob is being dragged
 	private Point mPointKnobStart, mPointKnobEnd;
 	private boolean mInitializedSlider;
-	private int mStartKnobValue, mEndKnobValue;// value to know the knob
-												// position e.g: 0,40,..,100
-	private int mSliderWidth, mSliderHeight;// real size of the view that holds
-											// the slider
+	private int mStartKnobValue, mEndKnobValue; // value to know the knob position e.g: 0,40,..,100
+	private int mSliderWidth, mSliderHeight; // real size of the view that holds the slider
 	private Paint mPaintSelected, mPaintNotSelected, mPaintText;
 	private Rect mRectangleSelected, mRectangleNotSelected1, mRectangleNotSelected2;
-	private int mMinRange = 0, mMaxRange = 100;
+	private int mMinRange = 0;
+	private int mMaxRange = 100;
 	private boolean mSecondThumbEnabled = true;
 
 	private double mMargin;
@@ -114,10 +113,7 @@ public class DualSliderView extends View {
 			Bitmap knobImage = BitmapFactory.decodeResource(getResources(), R.drawable.knob);
 			mKnobRadius = knobImage.getWidth() / 2;
 
-			/*
-			 * The relative ratio which is later used to calculate the value of
-			 * the knob using it's position on the X axis
-			 */
+			// The relative ratio which is later used to calculate the value of the knob using it's position on the X axis
 			mRatio = (double) mDeltaBound / mRangeDelta;
 
 			mPointKnobStart.x = (int) ((mStartKnobValue - mMinRange) * mRatio) + mLeftBound - mKnobRadius;
@@ -133,12 +129,11 @@ public class DualSliderView extends View {
 			setEndKnobValue(mEndKnobValue);
 			knobValuesChanged(true, true, getFirstKnobValue(), getSecondKnobValue());
 
-			mPaintSelected = new Paint();// the paint between knobs
+			mPaintSelected = new Paint(); // the paint between knobs
 			mPaintSelected.setColor(Color.YELLOW);
-			mPaintNotSelected = new Paint();// the paint outside knobs
+			mPaintNotSelected = new Paint(); // the paint outside knobs
 			mPaintNotSelected.setColor(Color.GRAY);
-			mPaintText = new Paint();// the paint for the slider data(the
-										// values)
+			mPaintText = new Paint(); // the paint for the slider data(the values)
 			mPaintText.setColor(Color.WHITE);
 
 			// rectangles that define the line between and outside of knob
