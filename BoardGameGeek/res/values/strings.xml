@@ -199,6 +199,8 @@
 	<string name="title_poll">Poll Information</string>
 	<string name="title_plays">Games Played</string>
 	<string name="title_play">Played Game</string>
+	<string name="title_collection_filter_name_in_use">Name in Use!</string>
+	<string name="msg_collection_filter_name_in_use">There\'s already a collection filter with this name. Do you want to update the existing filter, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
@@ -307,6 +309,8 @@
 	<string name="name">Name</string>
 	<string name="updated">Updated</string>
 	<string name="saved">Saved</string>
+	<string name="update">Update</string>
+	<string name="create">Create</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add Field</string>
 	<string name="help_title">Help</string>

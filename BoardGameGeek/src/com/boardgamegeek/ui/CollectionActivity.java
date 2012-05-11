@@ -68,6 +68,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private static final String KEY_FILTERS = "FILTERS";
 	private static final String KEY_FILTER_NAME = "FILTER_NAME";
+	private static final String KEY_FILTER_NAME_PRIOR = "FILTER_NAME_PRIOR";
 	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
@@ -81,6 +82,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private String mFilterName = "";
+	private String mFilterNamePrior = "";
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
@@ -126,6 +128,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		if (savedInstanceState != null) {
 			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
 			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
+			mFilterNamePrior = savedInstanceState.getString(KEY_FILTER_NAME_PRIOR);
 		}
 		applyFilters();
 
@@ -158,6 +161,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		super.onSaveInstanceState(outState);
 		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 		outState.putString(KEY_FILTER_NAME, mFilterName);
+		outState.putString(KEY_FILTER_NAME_PRIOR, mFilterNamePrior);
 	}
 
 	@Override
@@ -232,11 +236,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
-				mFilterName = "";
+				setFilterName("");
 				applyFilters();
 				return true;
 			case R.id.menu_collection_filter_save:
-				SaveFilters.createDialog(this, mFilters);
+				SaveFilters.createDialog(this, mFilterNamePrior, mFilters);
 				return true;
 			case R.id.menu_collection_filter_load:
 				LoadFilters.createDialog(this);
@@ -352,15 +356,18 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				mCollectionStatusFilter.createDialog(this, (CollectionStatusFilterData) findFilter(id));
+				mCollectionStatusFilter.createDialog(this,
+						(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
-				mNumberOfPlayersFilter.createDialog(this, (PlayerNumberFilterData) findFilter(id));
+				mNumberOfPlayersFilter.createDialog(this,
+						(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
-				mPlayTimeFilter.createDialog(this, (PlayTimeFilterData) findFilter(id));
+				mPlayTimeFilter.createDialog(this,
+						(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
 		}
 		return false;
 	}
@@ -636,13 +643,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	public void removeFilter(CollectionFilterData filter) {
-		mFilterName = "";
+		setFilterName("");
 		mFilters.remove(filter);
 		applyFilters();
 	}
 
 	public void addFilter(CollectionFilterData filter) {
-		mFilterName = "";
+		setFilterName("");
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -656,6 +663,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	public void setFilterName(String name) {
+		mFilterNamePrior = mFilterName;
 		mFilterName = name;
 		setInfoText(null);
 	}
