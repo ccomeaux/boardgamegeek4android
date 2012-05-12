@@ -36,7 +36,8 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		return mTotalCount;
 	}
 
-	protected abstract void clearResults();
+	protected void clearResults() {
+	}
 
 	protected abstract String getRootNodeName();
 
