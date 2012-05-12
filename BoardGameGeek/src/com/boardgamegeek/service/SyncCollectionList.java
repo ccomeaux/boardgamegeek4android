@@ -1,10 +1,10 @@
 package com.boardgamegeek.service;
 
-import android.content.ContentResolver;
 import android.content.Context;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteCollectionDeleteHandler;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -17,45 +17,55 @@ public class SyncCollectionList extends SyncTask {
 
 	private final static int DAYS_BETWEEN_FULL_SYNCS = 7;
 
-	private String mUsername;
-
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
 
 		final long startTime = System.currentTimeMillis();
 
-		mUsername = BggApplication.getInstance().getUserName();
 		String[] statuses = BggApplication.getInstance().getSyncStatuses();
-		boolean needsFullSync = false;
 
 		if (statuses != null && statuses.length > 0) {
+			String username = BggApplication.getInstance().getUserName();
 			long modifiedSince = BggApplication.getInstance().getCollectionPartSyncTimestamp();
+
 			for (int i = 0; i < statuses.length; i++) {
-				String url = HttpUtils.constructBriefCollectionUrl(mUsername, statuses[i]);
-				if (modifiedSince > 0) {
-					url = HttpUtils.constructCollectionUrl(mUsername, statuses[i], modifiedSince);
+				get(executor,
+						((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(username, statuses[i], modifiedSince)
+								: HttpUtils.constructBriefCollectionUrl(username, statuses[i])),
+						new RemoteCollectionHandler(startTime));
+				if (isBggDown()) {
+					return;
 				}
-				executor.executeGet(url, new RemoteCollectionHandler(startTime));
 			}
 
-			long lastFullSync = BggApplication.getInstance().getCollectionFullSyncTimestamp();
-			needsFullSync = DateTimeUtils.howManyDaysOld(lastFullSync) > DAYS_BETWEEN_FULL_SYNCS;
-			if (needsFullSync) {
+			if (needsFullSync()) {
 				for (int i = 0; i < statuses.length; i++) {
-					String url = HttpUtils.constructBriefCollectionUrl(mUsername, statuses[i]);
-					executor.executeGet(url, new RemoteCollectionDeleteHandler(startTime));
+					get(executor, HttpUtils.constructBriefCollectionUrl(username, statuses[i]),
+							new RemoteCollectionDeleteHandler(startTime));
+					if (isBggDown()) {
+						return;
+					}
 				}
 			}
 		}
 
-		if (needsFullSync) {
+		if (needsFullSync()) {
 			// This next delete removes old collection entries for current games
-			ContentResolver resolver = context.getContentResolver();
-			String[] selectionArgs = new String[] { String.valueOf(startTime) };
-			resolver.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?", selectionArgs);
+			context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
+					new String[] { String.valueOf(startTime) });
 			BggApplication.getInstance().putCollectionFullSyncTimestamp(startTime);
 		}
 		BggApplication.getInstance().putCollectionPartSyncTimestamp(startTime);
+	}
+
+	private boolean needsFullSync() {
+		long lastFullSync = BggApplication.getInstance().getCollectionFullSyncTimestamp();
+		return DateTimeUtils.howManyDaysOld(lastFullSync) > DAYS_BETWEEN_FULL_SYNCS;
+	}
+
+	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws HandlerException {
+		executor.executeGet(url, handler);
+		setIsBggDown(handler.isBggDown());
 	}
 
 	@Override

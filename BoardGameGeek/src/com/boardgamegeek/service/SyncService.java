@@ -123,6 +123,12 @@ public class SyncService extends IntentService {
 			for (SyncTask task : tasks) {
 				createNotification(task.getNotification());
 				task.execute(mRemoteExecutor, this);
+				if (task.isBggDown()) {
+					String message = getResources().getString(R.string.notification_bgg_down);
+					Log.d(TAG, message);
+					sendError(message);
+					break;
+				}
 			}
 
 			Log.d(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "

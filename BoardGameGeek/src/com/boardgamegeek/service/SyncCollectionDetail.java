@@ -38,7 +38,7 @@ public class SyncCollectionDetail extends SyncTask {
 			long days = System.currentTimeMillis() - (SYNC_GAME_AGE_IN_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, SyncColumns.UPDATED + "<? OR "
 					+ SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
-			if (cursor.moveToFirst()) {
+			if (cursor.getCount() > 0) {
 				Log.i(TAG, "Updating games older than " + SYNC_GAME_AGE_IN_DAYS + " days old");
 				fetchGames(cursor);
 			} else {
@@ -48,7 +48,6 @@ public class SyncCollectionDetail extends SyncTask {
 						+ " LIMIT " + SYNC_GAME_LIMIT);
 				fetchGames(cursor);
 			}
-
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -60,15 +59,17 @@ public class SyncCollectionDetail extends SyncTask {
 		List<String> ids = new ArrayList<String>();
 		cursor.moveToPosition(-1);
 		while (cursor.moveToNext()) {
-			final String id = cursor.getString(0);
-			ids.add(id);
+			ids.add(cursor.getString(0));
 			if (ids.size() >= GAMES_PER_FETCH) {
-				mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), new RemoteGameHandler());
+				fetchGames(ids);
 				ids.clear();
 			}
 		}
+		fetchGames(ids);
+	}
 
-		if (ids.size() > 0) {
+	private void fetchGames(List<String> ids) throws HandlerException {
+		if (ids != null && ids.size() > 0) {
 			mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), new RemoteGameHandler());
 		}
 	}

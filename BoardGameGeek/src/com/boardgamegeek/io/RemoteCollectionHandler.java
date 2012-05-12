@@ -7,31 +7,25 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteCollectionHandler extends XmlHandler {
+public class RemoteCollectionHandler extends RemoteBggHandler {
 	private static final String TAG = "RemoteCollectionHandler";
 
 	// TODO: Parse Version Info
 	// TODO: Parse Private Info
 
 	private long mStartTime;
-	private XmlPullParser mParser;
-	private ContentResolver mResolver;
-
 	private int mUpdateGameCount = 0;
 	private int mInsertGameCount = 0;
 	private int mSkipGameCount = 0;
@@ -43,32 +37,22 @@ public class RemoteCollectionHandler extends XmlHandler {
 	private String[] mCollectionProjection = new String[] { SyncListColumns.UPDATED_LIST };
 
 	public RemoteCollectionHandler(long startTime) {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 		mStartTime = startTime;
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
-		mResolver = resolver;
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.ITEMS.equals(mParser.getName())) {
-
-				int itemCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL_ITEMS));
-				Log.i(TAG, "Expecting " + itemCount + " items");
-
-				parseItems();
-			}
-		}
-
-		return false;
+	public int getCount() {
+		return mUpdateGameCount + mInsertGameCount + mSkipGameCount;
 	}
 
-	private void parseItems() throws XmlPullParserException, IOException {
+	@Override
+	protected String getRootNodeName() {
+		return Tags.ITEMS;
+	}
+
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 
 		ContentValues gameValues = new ContentValues();
 		ContentValues collectionValues = new ContentValues();
@@ -261,7 +245,6 @@ public class RemoteCollectionHandler extends XmlHandler {
 
 	private interface Tags {
 		String ITEMS = "items";
-		String TOTAL_ITEMS = "totalitems";
 		String ITEM = "item";
 		String GAME_ID = "objectid";
 		String COLLECTION_ID = "collid";
