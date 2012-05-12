@@ -35,7 +35,7 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 
 	@Override
 	protected String getRootNodeName() {
-		return "thread";
+		return Tags.THREAD;
 	}
 
 	@Override
@@ -87,6 +87,7 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 	}
 
 	private interface Tags {
+		String THREAD = "thread";
 		String ARTICLE = "article";
 		String USERNAME = "username";
 		String POST_DATE = "postdate";

@@ -8,19 +8,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.util.Log;
 
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCommentsHandler extends RemoteBggHandler {
-
 	private static final String TAG = "RemoteCommentsHandler";
-	private XmlPullParser mParser;
+
 	private List<Comment> mComments = new ArrayList<Comment>();
 	private int mCommentsCount;
 
@@ -40,24 +37,10 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 
 	@Override
 	protected String getRootNodeName() {
-		return "items";
+		return Tags.ITEMS;
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.ITEMS.equals(mParser.getName())) {
-				parseItems();
-			}
-		}
-		return false;
-	}
-
 	protected void parseItems() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
 		int type;

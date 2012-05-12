@@ -10,10 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.util.Log;
 
 import com.boardgamegeek.model.Forum;
@@ -21,7 +19,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public class RemoteForumlistHandler extends RemoteBggHandler {
 	private static final String TAG = "RemoteForumlistHandler";
-	private XmlPullParser mParser;
+
 	private List<Forum> mForums = new ArrayList<Forum>();
 	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
 
@@ -41,22 +39,7 @@ public class RemoteForumlistHandler extends RemoteBggHandler {
 
 	@Override
 	protected String getRootNodeName() {
-		return "forums";
-	}
-
-	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.FORUMS.equals(mParser.getName())) {
-				parseItems();
-			}
-		}
-		return false;
+		return Tags.FORUMS;
 	}
 
 	@Override

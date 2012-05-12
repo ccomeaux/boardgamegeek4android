@@ -34,7 +34,7 @@ public class RemoteHotnessHandler extends RemoteBggHandler {
 
 	@Override
 	protected String getRootNodeName() {
-		return "items";
+		return Tags.ITEMS;
 	}
 
 	@Override
@@ -82,6 +82,7 @@ public class RemoteHotnessHandler extends RemoteBggHandler {
 	}
 
 	private interface Tags {
+		String ITEMS = "items";
 		String ITEM = "item";
 		String ID = "id";
 		String NAME = "name";
