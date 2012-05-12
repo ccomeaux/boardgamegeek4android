@@ -9,13 +9,18 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
+import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggHandler extends XmlHandler {
+	private static final String TAG = "RemoteBggHandler";
 
 	protected XmlPullParser mParser;
+	protected ContentResolver mResolver;
 	private boolean mIsBggDown;
+	private int mTotalCount;
 
 	public RemoteBggHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -27,15 +32,25 @@ public abstract class RemoteBggHandler extends XmlHandler {
 
 	public abstract int getCount();
 
+	public int getTotalCount() {
+		return mTotalCount;
+	}
+
 	protected abstract void clearResults();
 
 	protected abstract String getRootNodeName();
+
+	protected String getTotalCountAttributeName() {
+		return Tags.TOTAL_ITEMS;
+	}
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 			throws XmlPullParserException, IOException {
 
 		mParser = parser;
+		mResolver = resolver;
+
 		clearResults();
 
 		int type;
@@ -43,10 +58,10 @@ public abstract class RemoteBggHandler extends XmlHandler {
 			if (type == START_TAG) {
 				String name = mParser.getName();
 				if (getRootNodeName().equals(name)) {
+					mTotalCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
+					Log.i(TAG, "Expecting " + mTotalCount + " items");
 					parseItems();
 				} else if (Tags.ANCHOR.equals(name)) {
-					// This method is currently broken since the meta element is
-					// unclosed
 					String href = mParser.getAttributeValue(null, Tags.HREF);
 					if (Tags.DOWN_LINK.equals(href)) {
 						clearResults();
@@ -71,5 +86,6 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		String HREF = "href";
 		String DOWN_LINK = "http://groups.google.com/group/bgg_down";
 		String HTML = "html";
+		String TOTAL_ITEMS = "totalitems";
 	}
 }
