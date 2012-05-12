@@ -35,7 +35,7 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 	
 	@Override
 	protected String getRootNodeName() {
-		return "boardgames";
+		return Tags.BOARDGAMES;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 	private SearchResult parseItem() throws XmlPullParserException, IOException {
 
 		String tag = null;
-		SearchResult sr = new SearchResult();
+		SearchResult searchResult = new SearchResult();
 
 		final int depth = mParser.getDepth();
 		int type;
@@ -67,21 +67,21 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 			if (type == START_TAG) {
 				tag = mParser.getName();
 				if (Tags.NAME.equals(tag)) {
-					sr.IsNamePrimary = Tags.TRUE.equals(mParser.getAttributeValue(null, Tags.PRIMARY));
+					searchResult.IsNamePrimary = Tags.TRUE.equals(mParser.getAttributeValue(null, Tags.PRIMARY));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
 			} else if (type == TEXT) {
 				String text = mParser.getText();
 				if (Tags.NAME.equals(tag)) {
-					sr.Name = text;
+					searchResult.Name = text;
 				} else if (Tags.YEAR_PUBLISHED.equals(tag)) {
-					sr.YearPublished = StringUtils.parseInt(text);
+					searchResult.YearPublished = StringUtils.parseInt(text);
 				}
 			}
 		}
 
-		return sr;
+		return searchResult;
 	}
 
 	interface Tags {

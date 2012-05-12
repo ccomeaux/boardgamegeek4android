@@ -187,8 +187,8 @@ public class ForumsUtils {
 
 		@Override
 		protected void onPostExecute(RemoteForumHandler result) {
-			Log.i(mTag, "Threads count " + result.getCount());
-			mActivity.setThreadCount(result.getCount());
+			Log.i(mTag, "Threads count " + result.getTotalCount());
+			mActivity.setThreadCount(result.getTotalCount());
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (mActivity.getThreadCount() == 0) {

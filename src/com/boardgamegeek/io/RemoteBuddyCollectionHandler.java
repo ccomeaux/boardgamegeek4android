@@ -9,16 +9,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentResolver;
 
 import com.boardgamegeek.model.BuddyGame;
 
 public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 
-	private XmlPullParser mParser;
 	private List<BuddyGame> mBuddyGames = new ArrayList<BuddyGame>();
 
 	public List<BuddyGame> getResults() {
@@ -37,23 +33,9 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 
 	@Override
 	protected String getRootNodeName() {
-		return "items";
+		return Tags.ITEMS;
 	}
 
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-		mParser = parser;
-
-		int type;
-		while ((type = mParser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.ITEMS.equals(mParser.getName())) {
-				parseItems();
-			}
-		}
-		
-		return false;
-	}
-	
 	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
