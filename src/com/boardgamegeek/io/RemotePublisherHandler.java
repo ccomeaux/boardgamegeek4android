@@ -7,77 +7,81 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
-public class RemotePublisherHandler extends XmlHandler {
+public class RemotePublisherHandler extends RemoteBggHandler {
 	private static final String TAG = "RemotePublisherHandler";
 
 	private int mPublisherId;
+	private int mCount;
 
 	public RemotePublisherHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 	}
 
 	public RemotePublisherHandler(int publisherId) {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 		mPublisherId = publisherId;
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		if (mPublisherId == 0) {
-			return false;
-		}
-
-		String[] projection = { Publishers.PUBLISHER_ID};
-
-		int type;
-		while ((type = parser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.COMPANY.equals(parser.getName())) {
-
-				Uri uri = Publishers.buildPublisherUri(mPublisherId);
-				Cursor cursor = resolver.query(uri, projection, null, null, null);
-
-				if (!cursor.moveToFirst()) {
-					Log.w(TAG, "Tried to parse publisher, but ID not in database: " + mPublisherId);
-				} else {
-					parsePublisher(parser, resolver, uri);
-				}
-
-				cursor.close();
-			}
-		}
-
-		return false;
+	public int getCount() {
+		return mCount;
 	}
 
-	private void parsePublisher(XmlPullParser parser, ContentResolver resolver, Uri uri) throws XmlPullParserException,
-			IOException {
+	@Override
+	protected String getRootNodeName() {
+		return Tags.COMPANIES;
+	}
 
-		final int depth = parser.getDepth();
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
+		if (mPublisherId == 0) {
+			return;
+		}
+		Uri uri = Publishers.buildPublisherUri(mPublisherId);
+
+		int type;
+		while ((type = mParser.next()) != END_DOCUMENT) {
+			if (type == START_TAG && Tags.COMPANY.equals(mParser.getName())) {
+
+				Cursor cursor = mResolver.query(uri, new String[] { Publishers.PUBLISHER_ID }, null, null, null);
+				try {
+					if (cursor.getCount() > 0) {
+						ContentValues values = parsePublisher(uri);
+						mCount = mResolver.update(uri, values, null, null);
+					} else {
+						Log.w(TAG, "Tried to parse publisher, but ID not in database: " + mPublisherId);
+					}
+				} finally {
+					if (cursor != null) {
+						cursor.close();
+					}
+				}
+			}
+		}
+	}
+
+	private ContentValues parsePublisher(Uri uri) throws XmlPullParserException, IOException {
+		final int depth = mParser.getDepth();
 		ContentValues values = new ContentValues();
 		String tag = null;
 
 		int type;
-		while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
-				tag = parser.getName();
+				tag = mParser.getName();
 			} else if (type == END_TAG) {
 				tag = null;
 			} else if (type == TEXT) {
-				String text = parser.getText();
+				String text = mParser.getText();
 
 				if (Tags.NAME.equals(tag)) {
 					values.put(Publishers.PUBLISHER_NAME, text);
@@ -86,13 +90,12 @@ public class RemotePublisherHandler extends XmlHandler {
 				}
 			}
 		}
-
 		values.put(Publishers.UPDATED, System.currentTimeMillis());
-		resolver.update(uri, values, null, null);
+		return values;
 	}
 
 	private interface Tags {
-		// String COMPANIES = "companies";
+		String COMPANIES = "companies";
 		String COMPANY = "company";
 		String NAME = "name";
 		String DESCRIPTION = "description";
