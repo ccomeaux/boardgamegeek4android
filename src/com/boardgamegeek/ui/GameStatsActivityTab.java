@@ -181,7 +181,9 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 				}
 			}
 		} finally {
-			cursor.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 

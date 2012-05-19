@@ -269,7 +269,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				new UIUtils(this).setThumbnail(mThumbnailUrl);
 			}
 		} finally {
-			cursor.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 

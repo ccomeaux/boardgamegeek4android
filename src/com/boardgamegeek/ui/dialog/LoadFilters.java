@@ -45,7 +45,9 @@ public class LoadFilters {
 								}
 								activity.setFilters(filters);
 							} finally {
-								c.close();
+								if (c != null && !c.isClosed()) {
+									c.close();
+								}
 							}
 						}
 					}

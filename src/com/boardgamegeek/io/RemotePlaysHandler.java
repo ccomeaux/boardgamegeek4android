@@ -135,7 +135,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 				}
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 			String msg = String.format(

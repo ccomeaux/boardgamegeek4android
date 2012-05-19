@@ -127,8 +127,14 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-		changeEmptyMessage();
-		mAdapter.changeCursor(cursor);
+		try {
+			changeEmptyMessage();
+			mAdapter.changeCursor(cursor);
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		}
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {

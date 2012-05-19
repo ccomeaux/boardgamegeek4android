@@ -457,7 +457,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				new UIUtils(this).setThumbnail(mThumbnailUrl);
 			}
 		} finally {
-			cursor.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 

@@ -152,7 +152,9 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				hideLoadingMessage();
 			}
 		} finally {
-			cursor.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 

@@ -108,7 +108,9 @@ public class PlayHelper {
 			}
 			return false;
 		} finally {
-			cursor.deactivate();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 
@@ -121,7 +123,9 @@ public class PlayHelper {
 			}
 			return -1;
 		} finally {
-			cursor.deactivate();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 
@@ -139,8 +143,8 @@ public class PlayHelper {
 			}
 			return id;
 		} finally {
-			if (cursor != null) {
-				cursor.deactivate();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
 			}
 		}
 	}
@@ -164,14 +168,14 @@ public class PlayHelper {
 
 	private List<Integer> getIds(Uri uri, String columnName) {
 		List<Integer> list = new ArrayList<Integer>();
-		Cursor c = mResolver.query(uri, new String[] { columnName }, null, null, null);
+		Cursor cursor = mResolver.query(uri, new String[] { columnName }, null, null, null);
 		try {
-			while (c.moveToNext()) {
-				list.add(c.getInt(0));
+			while (cursor.moveToNext()) {
+				list.add(cursor.getInt(0));
 			}
 		} finally {
-			if (c != null) {
-				c.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
 			}
 		}
 		return list;

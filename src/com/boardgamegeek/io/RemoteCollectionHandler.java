@@ -100,7 +100,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				mInsertGameCount++;
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
@@ -128,7 +128,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				mInsertCollectionCount++;
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
