@@ -137,14 +137,8 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 
 	@Override
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-		try {
-			UIUtils.showListMessage(this, R.string.empty_colors);
-			mAdapter.changeCursor(cursor);
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
+		UIUtils.showListMessage(this, R.string.empty_colors);
+		mAdapter.changeCursor(cursor);
 	}
 
 	private class ColorAdapter extends CursorAdapter {

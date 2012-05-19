@@ -127,14 +127,8 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-		try {
-			changeEmptyMessage();
-			mAdapter.changeCursor(cursor);
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
+		changeEmptyMessage();
+		mAdapter.changeCursor(cursor);
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -227,17 +221,10 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	}
 
 	private ContentObserver mPlaysObserver = new ContentObserver(new Handler()) {
-		private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10s
-
-		private long mLastUpdated;
-
 		@Override
 		public void onChange(boolean selfChange) {
-			long now = System.currentTimeMillis();
-			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				startQuery();
-				mLastUpdated = System.currentTimeMillis();
-			}
+			super.onChange(selfChange);
+			startQuery();
 		}
 	};
 
