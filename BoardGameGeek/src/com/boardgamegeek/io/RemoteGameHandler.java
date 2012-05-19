@@ -9,24 +9,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
@@ -36,11 +33,9 @@ import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteGameHandler extends XmlHandler {
+public class RemoteGameHandler extends RemoteBggHandler {
 	// private static final String TAG = "RemoteGameHandler";
 
-	private XmlPullParser mParser;
-	private ContentResolver mResolver;
 	private int mGameId;
 	private List<Integer> mDesignerIds;
 	private List<Integer> mArtistIds;
@@ -50,9 +45,10 @@ public class RemoteGameHandler extends XmlHandler {
 	private List<Integer> mExpansionIds;
 	private List<String> mPollNames;
 	private boolean mParsePolls;
+	private int mCount;
 
 	public RemoteGameHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 	}
 
 	public void setParsePolls() {
@@ -60,40 +56,42 @@ public class RemoteGameHandler extends XmlHandler {
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
+	public int getCount() {
+		return mCount;
+	}
 
-		mParser = parser;
-		mResolver = resolver;
+	@Override
+	protected String getRootNodeName() {
+		return Tags.BOARDGAMES;
+	}
 
-		String[] projection = { Games.GAME_ID };
-
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 		int type;
-		while ((type = parser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.BOARDGAME.equals(parser.getName())) {
+		while ((type = mParser.next()) != END_DOCUMENT) {
+			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
 				mGameId = parseIntegerAttribute(Tags.ID);
-
 				saveChildRecords();
-
 				ContentValues values = parseGame();
-
 				Uri uri = Games.buildGameUri(mGameId);
-				Cursor cursor = resolver.query(uri, projection, null, null, null);
-				if (!cursor.moveToFirst()) {
-					values.put(Games.GAME_ID, mGameId);
-					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
-					mResolver.insert(Games.CONTENT_URI, values);
-				} else {
-					mResolver.update(uri, values, null, null);
+				Cursor cursor = mResolver.query(uri, new String[] { Games.GAME_ID }, null, null, null);
+				try {
+					if (cursor.getCount() == 0) {
+						values.put(Games.GAME_ID, mGameId);
+						values.put(Games.UPDATED_LIST, System.currentTimeMillis());
+						mResolver.insert(Games.CONTENT_URI, values);
+					} else {
+						mResolver.update(uri, values, null, null);
+					}
+					mCount++;
+				} finally {
+					if (cursor != null && !cursor.isClosed()) {
+						cursor.close();
+					}
 				}
-
-				deleteChildRecords();
-
-				cursor.close();
+				deleteOldChildRecords();
 			}
 		}
-
-		return false;
 	}
 
 	private void saveChildRecords() {
@@ -106,7 +104,7 @@ public class RemoteGameHandler extends XmlHandler {
 		mPollNames = getPollNames();
 	}
 
-	private void deleteChildRecords() {
+	private void deleteOldChildRecords() {
 		for (Integer designerId : mDesignerIds) {
 			mResolver.delete(Games.buildDesignersUri(mGameId, designerId), null, null);
 		}
@@ -587,6 +585,7 @@ public class RemoteGameHandler extends XmlHandler {
 	}
 
 	private interface Tags {
+		String BOARDGAMES = "boardgames";
 		String BOARDGAME = "boardgame";
 		String ID = "objectid";
 		String YEAR_PUBLISHED = "yearpublished";

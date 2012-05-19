@@ -21,6 +21,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 	protected ContentResolver mResolver;
 	private boolean mIsBggDown;
 	private int mTotalCount;
+	private int mPageNumber;
 
 	public RemoteBggHandler() {
 		super(BggContract.CONTENT_AUTHORITY);
@@ -45,6 +46,14 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		return Tags.TOTAL_ITEMS;
 	}
 
+	protected String getPageNumberAttributeName() {
+		return Tags.PAGE;
+	}
+
+	protected int getPageSize(){
+		return 100;
+	}
+
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 			throws XmlPullParserException, IOException {
@@ -60,7 +69,8 @@ public abstract class RemoteBggHandler extends XmlHandler {
 				String name = mParser.getName();
 				if (getRootNodeName().equals(name)) {
 					mTotalCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
-					Log.i(TAG, "Expecting " + mTotalCount + " items");
+					mPageNumber = StringUtils.parseInt(parser.getAttributeValue(null, getPageNumberAttributeName()));
+					Log.i(TAG, "Expecting " + mTotalCount + " items on " + mPageNumber + " pages");
 					parseItems();
 				} else if (Tags.ANCHOR.equals(name)) {
 					String href = mParser.getAttributeValue(null, Tags.HREF);
@@ -77,7 +87,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 			}
 		}
 
-		return false;
+		return getCount() > (mPageNumber * getPageSize());
 	}
 
 	protected abstract void parseItems() throws XmlPullParserException, IOException;
@@ -88,5 +98,6 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		String DOWN_LINK = "http://groups.google.com/group/bgg_down";
 		String HTML = "html";
 		String TOTAL_ITEMS = "totalitems";
+		String PAGE = "page";
 	}
 }
