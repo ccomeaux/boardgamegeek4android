@@ -7,9 +7,9 @@ import android.util.Log;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.PlaySender;
+import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -63,9 +63,13 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private void executePagedGet(String url) throws HandlerException {
-		XmlHandler handler = new RemotePlaysHandler();
+		RemoteBggHandler handler = new RemotePlaysHandler();
 		int page = 1;
 		while (mExecutor.executeGet(url + "&page=" + page, handler)) {
+			if (handler.isBggDown()) {
+				setIsBggDown(true);
+				break;
+			}
 			page++;
 		}
 	}

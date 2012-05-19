@@ -10,6 +10,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
@@ -70,7 +71,9 @@ public class SyncCollectionDetail extends SyncTask {
 
 	private void fetchGames(List<String> ids) throws HandlerException {
 		if (ids != null && ids.size() > 0) {
-			mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), new RemoteGameHandler());
+			RemoteBggHandler handler = new RemoteGameHandler();
+			mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), handler);
+			setIsBggDown(handler.isBggDown());
 		}
 	}
 
