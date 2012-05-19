@@ -36,6 +36,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	private Uri mRankUri;
 	private NotifyingAsyncQueryHandler mHandler;
 	private GameObserver mGameObserver;
+	private RankObserver mRankObserver;
 
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
@@ -70,23 +71,29 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 		mBoardgameUri = getIntent().getData();
 		mRankUri = Games.buildRanksUri(Games.getGameId(mBoardgameUri));
-		mGameObserver = new GameObserver(null);
-
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		mHandler.startQuery(TOKEN_GAME, mBoardgameUri, GameQuery.PROJECTION);
-		mHandler.startQuery(TOKEN_RANK, null, mRankUri, RankQuery.PROJECTION, null, null, GameRanks.DEFAULT_SORT);
+		mGameObserver = new GameObserver(new Handler());
+		mRankObserver = new RankObserver(new Handler());
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mBoardgameUri, true, mGameObserver);
+		getContentResolver().registerContentObserver(mBoardgameUri, false, mGameObserver);
+		getContentResolver().registerContentObserver(mRankUri, false, mRankObserver);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		startGameQuery();
+		startRankQuery();
 	}
 
 	@Override
 	protected void onStop() {
-		super.onStop();
 		getContentResolver().unregisterContentObserver(mGameObserver);
+		getContentResolver().unregisterContentObserver(mRankObserver);
+		super.onStop();
 	}
 
 	private void setUiVariables() {
@@ -110,6 +117,20 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		mNumWantingBar = (StatBar) findViewById(R.id.wanting_bar);
 		mNumWishingBar = (StatBar) findViewById(R.id.wishing_bar);
 		mNumWeightingBar = (StatBar) findViewById(R.id.weighting_bar);
+	}
+
+	private void startGameQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
+		mHandler.startQuery(TOKEN_GAME, mBoardgameUri, GameQuery.PROJECTION);
+	}
+
+	private void startRankQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
+		mHandler.startQuery(TOKEN_RANK, null, mRankUri, RankQuery.PROJECTION, null, null, GameRanks.DEFAULT_SORT);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
@@ -231,15 +252,28 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	}
 
 	class GameObserver extends ContentObserver {
-
 		public GameObserver(Handler handler) {
 			super(handler);
 		}
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
-			mHandler.startQuery(mBoardgameUri, GameQuery.PROJECTION);
+			startGameQuery();
+		}
+	}
+
+	class RankObserver extends ContentObserver {
+		public RankObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
+			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
+			startRankQuery();
 		}
 	}
 

@@ -58,9 +58,19 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 		setUiVariables();
 		setUrisAndObservers();
+	}
 
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+	private void startGameQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(TOKEN_GAME, mGameUri, GameQuery.PROJECTION);
+	}
+
+	private void startRankQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
 	}
 
@@ -70,6 +80,13 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		ContentResolver cr = getContentResolver();
 		cr.registerContentObserver(mGameUri, false, mGameObserver);
 		cr.registerContentObserver(mRankUri, false, mRankObserver);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		startGameQuery();
+		startRankQuery();
 	}
 
 	@Override
@@ -84,8 +101,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mGameUri = getIntent().getData();
 		mGameId = Games.getGameId(mGameUri);
 		mRankUri = Games.buildRanksUri(mGameId);
-		mGameObserver = new GameObserver(null);
-		mRankObserver = new RankObserver(null);
+		mGameObserver = new GameObserver(new Handler());
+		mRankObserver = new RankObserver(new Handler());
 	}
 
 	private void setUiVariables() {
@@ -221,28 +238,28 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	}
 
 	private class GameObserver extends ContentObserver {
-
 		public GameObserver(Handler handler) {
 			super(handler);
 		}
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			Log.d(TAG, "Caught changed URI = " + mGameUri);
-			mHandler.startQuery(TOKEN_GAME, mGameUri, GameQuery.PROJECTION);
+			startGameQuery();
 		}
 	}
 
 	private class RankObserver extends ContentObserver {
-
 		public RankObserver(Handler handler) {
 			super(handler);
 		}
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			Log.d(TAG, "Caught changed URI = " + mRankUri);
-			mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
+			startRankQuery();
 		}
 	}
 

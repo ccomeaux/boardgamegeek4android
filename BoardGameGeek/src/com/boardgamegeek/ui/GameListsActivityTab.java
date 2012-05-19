@@ -112,7 +112,6 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mPadding = (int) getResources().getDimension(R.dimen.padding_standard);
 		initializeGroupData();
 		setAndObserveUris();
-		startQueries();
 	}
 
 	@Override
@@ -126,10 +125,15 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		cr.registerContentObserver(mCategoriesUri, true, mCategoriesObserver);
 		cr.registerContentObserver(mExpansionsUri, true, mExpansionsObserver);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		startQueries();
+	}
 
 	@Override
 	protected void onStop() {
-		super.onStop();
 		final ContentResolver cr = getContentResolver();
 		cr.unregisterContentObserver(mDesignersObserver);
 		cr.unregisterContentObserver(mArtistsObserver);
@@ -137,6 +141,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		cr.unregisterContentObserver(mMechanicsObserver);
 		cr.unregisterContentObserver(mCategoriesObserver);
 		cr.unregisterContentObserver(mExpansionsObserver);
+		super.onStop();
 	}
 
 	private void setAndObserveUris() {
@@ -149,16 +154,18 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mCategoriesUri = Games.buildCategoriesUri(gameId);
 		mExpansionsUri = Games.buildExpansionsUri(gameId);
 
-		mDesignersObserver = new DesignersObserver(null);
-		mArtistsObserver = new ArtistsObserver(null);
-		mPublishersObserver = new PublishersObserver(null);
-		mMechanicsObserver = new MechanicsObserver(null);
-		mCategoriesObserver = new CategoriesObserver(null);
-		mExpansionsObserver = new ExpansionsObserver(null);
+		mDesignersObserver = new DesignersObserver(new Handler());
+		mArtistsObserver = new ArtistsObserver(new Handler());
+		mPublishersObserver = new PublishersObserver(new Handler());
+		mMechanicsObserver = new MechanicsObserver(new Handler());
+		mCategoriesObserver = new CategoriesObserver(new Handler());
+		mExpansionsObserver = new ExpansionsObserver(new Handler());
 	}
 
 	private void startQueries() {
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
 				Designers.DEFAULT_SORT);
 		mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null, Artists.DEFAULT_SORT);
@@ -228,7 +235,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					if (token == TOKEN_DESIGNERS) {
 						int id = cursor.getInt(DesignerQuery.DESIGNER_ID);
 						getContentResolver().registerContentObserver(Designers.buildDesignerUri(id), true,
-								new DesignerObserver(null));
+								new DesignerObserver(new Handler()));
 						addId(cursor, ids, id, DesignerQuery.UPDATED);
 					}
 					addChildItem(cursor, designers, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_DESCRIPTION);
@@ -247,7 +254,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					if (token == TOKEN_ARTISTS) {
 						int id = cursor.getInt(ArtistQuery.ARTIST_ID);
 						getContentResolver().registerContentObserver(Artists.buildArtistUri(id), true,
-								new ArtistObserver(null));
+								new ArtistObserver(new Handler()));
 						addId(cursor, ids, id, ArtistQuery.UPDATED);
 					}
 					addChildItem(cursor, artists, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_DESCRIPTION);
@@ -266,7 +273,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 					if (token == TOKEN_PUBLISHERS) {
 						int id = cursor.getInt(PublisherQuery.PUBLISHER_ID);
 						getContentResolver().registerContentObserver(Publishers.buildPublisherUri(id), true,
-								new PublisherObserver(null));
+								new PublisherObserver(new Handler()));
 						addId(cursor, ids, id, PublisherQuery.UPDATED);
 					}
 					addChildItem(cursor, publishers, PublisherQuery.PUBLISHER_NAME,
@@ -421,6 +428,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
 					Designers.DEFAULT_SORT);
 		}
@@ -433,6 +441,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
 					Designers.DEFAULT_SORT);
 		}
@@ -445,6 +454,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
 					Artists.DEFAULT_SORT);
 		}
@@ -457,6 +467,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
 					Artists.DEFAULT_SORT);
 		}
@@ -469,6 +480,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_PUBLISHERS, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
 					Publishers.DEFAULT_SORT);
 		}
@@ -481,6 +493,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
 					Publishers.DEFAULT_SORT);
 		}
@@ -493,6 +506,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_MECHANICS, null, mMechanicsUri, MechanicQuery.PROJECTION, null, null,
 					Mechanics.DEFAULT_SORT);
 		}
@@ -505,6 +519,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
 					Categories.DEFAULT_SORT);
 		}
@@ -517,6 +532,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 		@Override
 		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION,
 					GamesExpansions.INBOUND + "=?", new String[] { "0" }, GamesExpansions.DEFAULT_SORT);
 			mHandler.startQuery(TOKEN_BASE_GAMES, null, mExpansionsUri, ExpansionQuery.PROJECTION,
