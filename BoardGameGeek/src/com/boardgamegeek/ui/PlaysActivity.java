@@ -82,7 +82,6 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 			findViewById(R.id.game_header).setVisibility(View.GONE);
 			findViewById(R.id.header_divider).setVisibility(View.GONE);
 		}
-		startQuery();
 	}
 
 	@Override
@@ -94,6 +93,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 	@Override
 	protected void onResume() {
 		super.onResume();
+		startQuery();
 		mLogInHelper.logIn();
 	}
 
