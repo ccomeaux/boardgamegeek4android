@@ -103,10 +103,7 @@ public class PlayHelper {
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(mPlay.getUri(), new String[] { BaseColumns._ID }, null, null, null);
-			if (cursor.moveToFirst()) {
-				return true;
-			}
-			return false;
+			return cursor.getCount() > 0;
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
@@ -208,9 +205,8 @@ public class PlayHelper {
 	}
 
 	private void saveItem() {
-		ContentValues values = new ContentValues();
 		int objectId = mPlay.GameId;
-		values.clear();
+		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, mPlay.GameName);
 
 		if (mItemObjectIds != null && mItemObjectIds.remove(new Integer(objectId))) {

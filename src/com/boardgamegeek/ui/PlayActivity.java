@@ -100,12 +100,12 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	protected void onStart() {
 		super.onStart();
 		getContentResolver().registerContentObserver(mPlayUri, true, mObserver);
-		startQuery();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		startQuery();
 		mLogInHelper.logIn();
 	}
 
@@ -155,7 +155,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// TODO add menu_send if modified
+			// TODO add menu_send if modified
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
 				return true;
@@ -290,7 +290,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mUnsyncedView = findViewById(R.id.play_unsynced);
 		mSavedTimeStamp = (TextView) findViewById(R.id.play_saved);
 		mUnsyncedMessage = (TextView) findViewById(R.id.play_unsynced_message);
-		mObserver = new PlayObserver(null);
+		mObserver = new PlayObserver(new Handler());
 	}
 
 	private synchronized void bindUi() {
@@ -393,19 +393,14 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	}
 
 	class PlayObserver extends ContentObserver {
-
 		public PlayObserver(Handler handler) {
 			super(handler);
 		}
 
 		@Override
 		public void onChange(boolean selfChange) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					startQuery();
-				}
-			});
+			super.onChange(selfChange);
+			startQuery();
 		}
 	}
 
@@ -482,5 +477,4 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			}
 		});
 	}
-
 }

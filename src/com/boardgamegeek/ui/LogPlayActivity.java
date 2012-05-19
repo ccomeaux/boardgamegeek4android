@@ -189,7 +189,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		captureForm();
+		save();
 		mPlay.saveState(outState);
 		outState.putString(KEY_GAME_NAME, mGameName);
 		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
@@ -340,7 +340,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		save();
 		Intent intent = createIntent(true);
 		launchStartNotification(intent);
-		finish();
 	}
 
 	private Intent createIntent(boolean includeStartTime) {
