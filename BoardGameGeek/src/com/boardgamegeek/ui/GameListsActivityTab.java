@@ -312,7 +312,9 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 
 			restoreListView();
 		} finally {
-			cursor.close();
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
 		}
 	}
 

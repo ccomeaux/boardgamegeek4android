@@ -239,7 +239,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
 			}
 		} finally {
-			if (cursor != null && cursor != mCursor) {
+			if (cursor != null && cursor != mCursor && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}

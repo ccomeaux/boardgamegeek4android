@@ -161,7 +161,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				Toast.makeText(this, "Unexpected onQueryComplete token: " + token, Toast.LENGTH_LONG).show();
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}

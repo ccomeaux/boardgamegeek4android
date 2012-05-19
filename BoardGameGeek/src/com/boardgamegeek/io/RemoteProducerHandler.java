@@ -48,7 +48,7 @@ public abstract class RemoteProducerHandler extends RemoteBggHandler {
 						Log.w(TAG, "Tried to parse " + type() + ", but ID not in database: " + mProducerId);
 					}
 				} finally {
-					if (cursor != null) {
+					if (cursor != null && !cursor.isClosed()) {
 						cursor.close();
 					}
 				}

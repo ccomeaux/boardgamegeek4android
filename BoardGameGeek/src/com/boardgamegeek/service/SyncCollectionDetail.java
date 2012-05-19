@@ -50,7 +50,7 @@ public class SyncCollectionDetail extends SyncTask {
 				fetchGames(cursor);
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
