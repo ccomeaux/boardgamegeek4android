@@ -7,10 +7,8 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,46 +17,30 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.database.PlayHelper;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemotePlaysHandler extends XmlHandler {
+public class RemotePlaysHandler extends RemoteBggHandler {
 	private static final String TAG = "RemotePlaysHandler";
+	private int mTotalCount = 0;
 
-	private static final int PAGE_SIZE = 100;
-
-	private XmlPullParser mParser;
-	private ContentResolver mResolver;
 	private Play mPlay;
 
 	public RemotePlaysHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
-
-		mParser = parser;
-		mResolver = resolver;
-
-		int playCount = 0;
-		int page = 0;
-
-		int type;
-		while ((type = parser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.PLAYS.equals(parser.getName())) {
-				playCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL));
-				page = StringUtils.parseInt(parser.getAttributeValue(null, Tags.PAGE));
-
-				parsePlays();
-			}
-		}
-
-		return playCount > (page * PAGE_SIZE);
+	public int getCount() {
+		return mTotalCount;
 	}
 
-	private void parsePlays() throws XmlPullParserException, IOException {
+	@Override
+	protected String getRootNodeName() {
+		return Tags.PLAYS;
+	}
+
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
 
 		int updateCount = 0;
@@ -116,6 +98,7 @@ public class RemotePlaysHandler extends XmlHandler {
 					if (Tags.PLAY.equals(tag)) {
 						PlayHelper helper = new PlayHelper(mResolver, mPlay);
 						helper.save(true);
+						mTotalCount++;
 						switch (helper.getStatus()) {
 							case PlayHelper.STATUS_IN_PROGRESS:
 								inProgressCount++;
@@ -165,8 +148,6 @@ public class RemotePlaysHandler extends XmlHandler {
 
 	private interface Tags {
 		String PLAYS = "plays";
-		String TOTAL = "total";
-		String PAGE = "page";
 		String PLAY = "play";
 		String ID = "id";
 		String DATE = "date";
