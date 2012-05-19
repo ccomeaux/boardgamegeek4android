@@ -73,8 +73,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		updateLastViewed();
 
 		mShouldRetry = true;
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		startQuery();
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_BOARDGAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
@@ -95,17 +93,26 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		startQuery();
+	}
+
+	@Override
 	protected void onStop() {
 		getContentResolver().unregisterContentObserver(mObserver);
 		super.onStop();
 	}
 
 	private void setUiVariables() {
-		mObserver = new GameObserver(null);
+		mObserver = new GameObserver(new Handler());
 		mUpdatePanel = findViewById(R.id.update_panel);
 	}
 
 	private void startQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(mGameUri, GameQuery.PROJECTION);
 		showLoadingMessage();
 	}
@@ -330,19 +337,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	}
 
 	class GameObserver extends ContentObserver {
-
 		public GameObserver(Handler handler) {
 			super(handler);
 		}
 
 		@Override
 		public void onChange(boolean selfChange) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					startQuery();
-				}
-			});
+			super.onChange(selfChange);
+			startQuery();
 		}
 	}
 
