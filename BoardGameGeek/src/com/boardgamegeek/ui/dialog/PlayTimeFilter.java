@@ -17,7 +17,7 @@ import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class PlayTimeFilter {
 	private static final int LINE_SPACING = 30;
-	private static final int STEP = 5;
+	private static final double STEP = 5;
 
 	private int mMinTime;
 	private int mMaxTime;
