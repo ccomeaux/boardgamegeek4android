@@ -18,7 +18,7 @@ public class DualSliderView extends View {
 	private static final int MARGIN = 12;
 	protected KnobValuesChangedListener mKnobValuesChangedListener;
 	private Knob[] mKnobs = new Knob[2]; // array that holds the knobs
-	private int mBalID = 0; // variable to know what knob is being dragged
+	private int mKnobId = 0; // variable to know what knob is being dragged
 	private Point mPointKnobStart, mPointKnobEnd;
 	private boolean mInitializedSlider;
 	private int mStartKnobValue, mEndKnobValue; // value to know the knob position e.g: 0,40,..,100
@@ -27,6 +27,7 @@ public class DualSliderView extends View {
 	private Rect mRectangleSelected, mRectangleNotSelected1, mRectangleNotSelected2;
 	private int mMinRange = 0;
 	private int mMaxRange = 100;
+	private double mStep = 1.0;
 	private boolean mSecondThumbEnabled = true;
 
 	private double mMargin;
@@ -123,11 +124,9 @@ public class DualSliderView extends View {
 
 			mKnobs[0] = new Knob(getContext(), R.drawable.knob, mPointKnobStart);
 			mKnobs[1] = new Knob(getContext(), R.drawable.knob, mPointKnobEnd);
-			mKnobs[0].setID(1);
-			mKnobs[1].setID(2);
-			setStartKnobValue(mStartKnobValue);
-			setEndKnobValue(mEndKnobValue);
-			knobValuesChanged(true, true, getFirstKnobValue(), getSecondKnobValue());
+			mKnobs[0].setId(1);
+			mKnobs[1].setId(2);
+			knobValuesChanged(true, true, getStartKnobValue(), getEndKnobValue());
 
 			mPaintSelected = new Paint(); // the paint between knobs
 			mPaintSelected.setColor(Color.YELLOW);
@@ -145,95 +144,59 @@ public class DualSliderView extends View {
 
 	private void drawTicks(Canvas canvas) {
 		for (int i = 0; i <= mRangeDelta; i += mLineSpacing) {
-			canvas.drawLine((float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 3.0),
-					(float) (i * mRatio + mLeftBound), (float) (mSliderHeight / 2.3), mPaintText);
+			canvas.drawLine(
+					(float) (i * mRatio + mLeftBound),
+					(float) (mSliderHeight / 3.0),
+					(float) (i * mRatio + mLeftBound),
+					(float) (mSliderHeight / 2.3), mPaintText);
 		}
 	}
 
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		int eventaction = event.getAction();
-		int X = (int) event.getX();
-		int Y = (int) event.getY();
+		int x = (int) event.getX();
+		int y = (int) event.getY();
 
-		switch (eventaction) {
-			// Touch down to check if the finger is on a knob
+		switch (event.getAction()) {
+
 			case MotionEvent.ACTION_DOWN:
-				mBalID = 0;
+				// Touch the knob
+				mKnobId = 0;
 				for (Knob knob : mKnobs) {
-					// check if inside the bounds of the knob(circle)
-					// get the centre of the knob
+					// check if inside the bounds of the knob(circle) get the center of the knob
 					int centerX = knob.getX() + knob.getBitmap().getWidth() / 2;
 					int centerY = knob.getY() + knob.getBitmap().getHeight() / 2;
-					// calculate the radius from the touch to the centre of the
-					// knob
-					double distance = Math.sqrt((double) (((centerX - X) * (centerX - X)) + (centerY - Y)
-							* (centerY - Y)));
+					// calculate the radius from the touch to the center of the knob
+					double distance = Math.sqrt((double) (((centerX - x) * (centerX - x)) + (centerY - y)
+							* (centerY - y)));
 					if (distance < knob.getBitmap().getWidth() / 2) {
-						mBalID = knob.getID();
+						mKnobId = knob.getId();
 					}
 				}
 				break;
 
-			// Touch drag with the knob
 			case MotionEvent.ACTION_MOVE:
-				int firstKnobValueTmp = 0;
-				int secondKnobValueTmp = 0;
-
-				int radiusKnob = mKnobs[0].getBitmap().getWidth() / 2;
-
-				// the first knob should be between the left bound and the
-				// second knob
-				if (mBalID == 1 && mSecondThumbEnabled) {
-					if (X < mLeftBound)
-						X = mLeftBound;
-					if (X > mRightBound)
-						X = mRightBound;
-					// if(X >= mKnobs[1].getX()+radiusKnob)
-					// X = mKnobs[1].getX()+radiusKnob;
-					mKnobs[0].setX(X - radiusKnob);
-
-					int left_knob = mKnobs[0].getX() + radiusKnob;
-					secondKnobValueTmp = (int) Math.round((mMaxRange * mRatio - mRightBound + left_knob) / mRatio);
-
-					// if the start value has changed then we pass it to the
-					// listener
-					if (secondKnobValueTmp != getFirstKnobValue()) {
-						setStartKnobValue(secondKnobValueTmp);
-						knobValuesChanged(true, false, getFirstKnobValue(), getSecondKnobValue());
+				// Drag the knob
+				if (mKnobId != 0) {
+					x = clamp(x, mLeftBound, mRightBound);
+					int newKnobValue = (int) Math.round((mMaxRange * mRatio - mRightBound + x) / mRatio);
+					if (mKnobId == 1 && mSecondThumbEnabled) {
+						mKnobs[0].setX(x - mKnobRadius);
+						if (newKnobValue != getStartKnobValue()) {
+							mStartKnobValue = newKnobValue;
+							knobValuesChanged(true, false, getStartKnobValue(), getEndKnobValue());
+						}
+					} else if (mKnobId == 2) {
+						mKnobs[1].setX(x - mKnobRadius);
+						if (newKnobValue != getEndKnobValue()) {
+							mEndKnobValue = newKnobValue;
+							knobValuesChanged(false, true, getStartKnobValue(), getEndKnobValue());
+						}
 					}
 				}
-				// the second knob should between the first knob and the right
-				// bound
-				if (mBalID == 2) {
-					if (X < mLeftBound)
-						X = mLeftBound;
-					if (X > mRightBound)
-						X = mRightBound;
-					// if(mSecondThumbEnabled && X <= mKnobs[0].getX() +
-					// radiusKnob)
-					// X = mKnobs[0].getX() + radiusKnob;
-					// else if(!mSecondThumbEnabled && X < mLeftBound)
-					// X = mLeftBound;
-					mKnobs[1].setX(X - radiusKnob);
-
-					int right_knob = mKnobs[1].getX() + radiusKnob;
-					firstKnobValueTmp = (int) Math.round(((mMaxRange * mRatio - mRightBound + right_knob) / mRatio));
-
-					// if the end value has changed then we pass it to the
-					// listener
-					if (firstKnobValueTmp != getSecondKnobValue()) {
-						setEndKnobValue(firstKnobValueTmp);
-						knobValuesChanged(false, true, getFirstKnobValue(), getSecondKnobValue());
-					}
-				}
-				break;
-
-			// Touch drop - actions after knob is released are performed
-			case MotionEvent.ACTION_UP:
 				break;
 		}
 
-		// Redraw the canvas
 		invalidate();
 		return true;
 	}
@@ -248,34 +211,39 @@ public class DualSliderView extends View {
 		setEndKnobValue(max);
 	}
 
+	public void setRange(int min, int max, double step) {
+		setRange((int) (min / step), (int) (max / step));
+		mStep = step;
+	}
+
 	public boolean isSecondThumbEnabled() {
 		return mSecondThumbEnabled;
 	}
 
 	public void setSecondThumbEnabled(boolean enable) {
 		mSecondThumbEnabled = enable;
-		knobValuesChanged(true, true, getFirstKnobValue(), getSecondKnobValue());
+		knobValuesChanged(true, true, getStartKnobValue(), getEndKnobValue());
 		invalidate();
 	}
 
-	public int getFirstKnobValue() {
-		return mStartKnobValue;
+	public int getStartKnobValue() {
+		return (int) (mStartKnobValue * mStep);
 	}
 
 	public void setStartKnobValue(int startKnobValue) {
-		this.mStartKnobValue = startKnobValue;
+		mStartKnobValue = (int) (startKnobValue / mStep);
 	}
 
-	public int getSecondKnobValue() {
-		return mEndKnobValue;
+	public int getEndKnobValue() {
+		return (int) (mEndKnobValue * mStep);
 	}
 
 	public void setEndKnobValue(int endKnobValue) {
-		this.mEndKnobValue = endKnobValue;
+		mEndKnobValue = (int) (endKnobValue / mStep);
 	}
 
 	public void setLineSpacing(int lineSpacing) {
-		mLineSpacing = lineSpacing;
+		mLineSpacing = (int) (lineSpacing / mStep);
 	}
 
 	public int getLineSpacing() {
@@ -320,5 +288,9 @@ public class DualSliderView extends View {
 		} else { // (mode == MeasureSpec.UNSPECIFIED)
 			return 0;
 		}
+	}
+
+	private static int clamp(int i, int low, int high) {
+		return Math.max(Math.min(i, high), low);
 	}
 }

@@ -72,12 +72,12 @@ public class PlayerNumberFilter {
 					public void onClick(DialogInterface dialog, int id) {
 						// Sliders can be on either side so need to check which
 						// one is smaller
-						if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-							mMinPlayers = sliderView.getFirstKnobValue();
-							mMaxPlayers = sliderView.getSecondKnobValue();
+						if (sliderView.getStartKnobValue() < sliderView.getEndKnobValue()) {
+							mMinPlayers = sliderView.getStartKnobValue();
+							mMaxPlayers = sliderView.getEndKnobValue();
 						} else {
-							mMinPlayers = sliderView.getSecondKnobValue();
-							mMaxPlayers = sliderView.getFirstKnobValue();
+							mMinPlayers = sliderView.getEndKnobValue();
+							mMaxPlayers = sliderView.getStartKnobValue();
 						}
 						mExact = checkbox.isChecked();
 

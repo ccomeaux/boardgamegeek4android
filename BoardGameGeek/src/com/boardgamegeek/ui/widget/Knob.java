@@ -41,11 +41,11 @@ public class Knob  {
 		return mCoordY;
 	}
 	
-	public void setID(int id) {
+	public void setId(int id) {
 		this.mId = id;
 	}
 	
-	public int getID() {
+	public int getId() {
 		return mId;
 	}
 		
