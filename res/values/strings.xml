@@ -148,7 +148,7 @@
 	<string name="start">Start</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
-	<string name="undefined">Undefined</string>
+	<string name="include_missing_values">Include games with missing values</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="players">Players</string>

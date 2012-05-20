@@ -22,7 +22,7 @@
 		android:id="@+id/undefined_checkbox"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/undefined"
+		android:text="@string/include_missing_values"
 		android:textColor="@color/dialog_text" />
 
 </LinearLayout>
