@@ -44,6 +44,7 @@ import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
+import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -54,6 +55,7 @@ import com.boardgamegeek.ui.dialog.LoadFilters;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
+import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -83,9 +85,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private String mFilterName = "";
 	private String mFilterNamePrior = "";
+	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
-	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
+	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -368,6 +371,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
 				mPlayTimeFilter.createDialog(this,
 						(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
+				return true;
+			case R.id.menu_suggested_age:
+			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
+				mSuggestedAgeFilter.createDialog(this,
+						(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+				return true;
 		}
 		return false;
 	}
@@ -491,17 +500,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	private ContentObserver mGameObserver = new ContentObserver(new Handler()) {
-		private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10s
-
-		private long mLastUpdated;
-
 		@Override
 		public void onChange(boolean selfChange) {
-			long now = System.currentTimeMillis();
-			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				applyFilters();
-				mLastUpdated = System.currentTimeMillis();
-			}
+			super.onChange(selfChange);
+			applyFilters();
 		}
 	};
 

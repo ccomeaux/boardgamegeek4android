@@ -27,6 +27,9 @@
 			<item
 				android:id="@+id/menu_play_time"
 				android:title="@string/menu_play_time"/>
+			<item
+				android:id="@+id/menu_suggested_age"
+				android:title="@string/menu_suggested_age"/>
 		</menu>
 	</item>
 	<item
