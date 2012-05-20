@@ -16,9 +16,8 @@ import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public class PlayTimeFilter {
-
-	private static final int INCREMENT = 5;
-	private static final int LINE_SPACING = 30 / INCREMENT;
+	private static final int LINE_SPACING = 30;
+	private static final int STEP = 5;
 
 	private int mMinTime;
 	private int mMaxTime;
@@ -34,25 +33,23 @@ public class PlayTimeFilter {
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.num_players_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.undefined_checkbox);
 
-		sliderView.setRange(PlayTimeFilterData.MIN_RANGE / INCREMENT, PlayTimeFilterData.MAX_RANGE / INCREMENT);
-		sliderView.setStartKnobValue(mMinTime / INCREMENT);
-		sliderView.setEndKnobValue(mMaxTime / INCREMENT);
+		sliderView.setRange(PlayTimeFilterData.MIN_RANGE, PlayTimeFilterData.MAX_RANGE, STEP);
+		sliderView.setStartKnobValue(mMinTime);
+		sliderView.setEndKnobValue(mMaxTime);
 		sliderView.setLineSpacing(LINE_SPACING);
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
-				int start = knobStart * INCREMENT;
-				int end = knobEnd * INCREMENT;
 				String s = "";
 				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					s = intervalText(end);
+					s = intervalText(knobEnd);
 				} else if (knobStartChanged || knobEndChanged) {
-					if (start == end) {
-						s = intervalText(end);
-					} else if (start < end) {
-						s = intervalText(start, end);
+					if (knobStart == knobEnd) {
+						s = intervalText(knobEnd);
+					} else if (knobStart < knobEnd) {
+						s = intervalText(knobStart, knobEnd);
 					} else {
-						s = intervalText(end, start);
+						s = intervalText(knobEnd, knobStart);
 					}
 				}
 				textInterval.setText(s + " " + activity.getResources().getString(R.string.time_suffix));
@@ -70,15 +67,15 @@ public class PlayTimeFilter {
 				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
-						int first = sliderView.getFirstKnobValue() * INCREMENT;
-						int second = sliderView.getSecondKnobValue() * INCREMENT;
+						int start = sliderView.getStartKnobValue();
+						int end = sliderView.getEndKnobValue();
 						// Sliders can be on either side so need to check which one is smaller
-						if (sliderView.getFirstKnobValue() < sliderView.getSecondKnobValue()) {
-							mMinTime = first;
-							mMaxTime = second;
+						if (start < end) {
+							mMinTime = start;
+							mMaxTime = end;
 						} else {
-							mMinTime = first;
-							mMaxTime = first;
+							mMinTime = end;
+							mMaxTime = start;
 						}
 						mUndefined = checkbox.isChecked();
 
