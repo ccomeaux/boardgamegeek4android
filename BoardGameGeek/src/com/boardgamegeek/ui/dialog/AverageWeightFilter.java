@@ -12,13 +12,10 @@ public class AverageWeightFilter extends SliderFilter {
 	private boolean mUndefined;
 
 	@Override
-	protected int getStart() {
-		return (int) (mMinWeight * FACTOR);
-	}
-
-	@Override
-	protected int getEnd() {
-		return (int) (mMaxWeight * FACTOR);
+	protected void captureForm(int min, int max, boolean checkbox) {
+		mMinWeight = (double) (min) / FACTOR;
+		mMaxWeight = (double) (max) / FACTOR;
+		mUndefined = checkbox;
 	}
 
 	@Override
@@ -27,8 +24,18 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected double getStep() {
-		return 2.0;
+	protected int getEnd() {
+		return (int) (mMaxWeight * FACTOR);
+	}
+	
+	@Override
+	protected int getLineSpacing() {
+		return FACTOR;
+	}
+
+	@Override
+	protected int getMax() {
+		return (int) (AverageWeightFilterData.MAX_RANGE * FACTOR);
 	}
 
 	@Override
@@ -37,8 +44,28 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getMax() {
-		return (int) (AverageWeightFilterData.MAX_RANGE * FACTOR);
+	protected CollectionFilterData getNegativeData() {
+		return new AverageWeightFilterData();
+	}
+
+	@Override
+	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
+		return new AverageWeightFilterData(activity, mMinWeight, mMaxWeight, mUndefined);
+	}
+
+	@Override
+	protected int getStart() {
+		return (int) (mMinWeight * FACTOR);
+	}
+
+	@Override
+	protected double getStep() {
+		return 2.0;
+	}
+
+	@Override
+	protected int getTitleId() {
+		return R.string.menu_average_weight;
 	}
 
 	@Override
@@ -63,27 +90,5 @@ public class AverageWeightFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int min, int max) {
 		return String.valueOf((double) min / FACTOR) + " - " + String.valueOf((double) max / FACTOR);
-	}
-
-	@Override
-	protected int getTitleId() {
-		return R.string.menu_average_weight;
-	}
-
-	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new AverageWeightFilterData();
-	}
-
-	@Override
-	protected CollectionFilterData getPositiveData(final CollectionActivity activity) {
-		return new AverageWeightFilterData(activity, mMinWeight, mMaxWeight, mUndefined);
-	}
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinWeight = (double) (min) / FACTOR;
-		mMaxWeight = (double) (max) / FACTOR;
-		mUndefined = checkbox;
 	}
 }

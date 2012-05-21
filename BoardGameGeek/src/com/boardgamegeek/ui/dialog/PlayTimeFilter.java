@@ -11,33 +11,35 @@ public class PlayTimeFilter extends SliderFilter {
 	private boolean mUndefined;
 
 	@Override
+	protected void captureForm(int min, int max, boolean checkbox) {
+		mMinTime = min;
+		mMaxTime = max;
+		mUndefined = checkbox;
+	}
+
+	@Override
+	protected boolean getCheckbox() {
+		return mUndefined;
+	}
+
+	@Override
+	protected int getEnd() {
+		return mMaxTime;
+	}
+
+	@Override
 	protected int getLineSpacing() {
 		return 30;
 	}
 
 	@Override
-	protected double getStep() {
-		return 5.0;
+	protected int getMax() {
+		return PlayTimeFilterData.MAX_RANGE;
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
-		if (filter == null) {
-			mMinTime = PlayTimeFilterData.MIN_RANGE;
-			mMaxTime = PlayTimeFilterData.MAX_RANGE;
-			mUndefined = false;
-		} else {
-			PlayTimeFilterData data = (PlayTimeFilterData) filter;
-			mMinTime = data.getMin();
-			mMaxTime = data.getMax();
-			mUndefined = data.isUndefined();
-		}
-
-	}
-
-	@Override
-	protected int getTitleId() {
-		return R.string.menu_play_time;
+	protected int getMin() {
+		return PlayTimeFilterData.MIN_RANGE;
 	}
 
 	@Override
@@ -56,30 +58,27 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getEnd() {
-		return mMaxTime;
+	protected double getStep() {
+		return 5.0;
 	}
 
 	@Override
-	protected boolean getCheckbox() {
-		return mUndefined;
+	protected int getTitleId() {
+		return R.string.menu_play_time;
 	}
 
 	@Override
-	protected int getMin() {
-		return PlayTimeFilterData.MIN_RANGE;
-	}
-
-	@Override
-	protected int getMax() {
-		return PlayTimeFilterData.MAX_RANGE;
-	}
-
-	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
-		mMinTime = min;
-		mMaxTime = max;
-		mUndefined = checkbox;
+	protected void initValues(CollectionFilterData filter) {
+		if (filter == null) {
+			mMinTime = PlayTimeFilterData.MIN_RANGE;
+			mMaxTime = PlayTimeFilterData.MAX_RANGE;
+			mUndefined = false;
+		} else {
+			PlayTimeFilterData data = (PlayTimeFilterData) filter;
+			mMinTime = data.getMin();
+			mMaxTime = data.getMax();
+			mUndefined = data.isUndefined();
+		}
 	}
 
 	@Override
