@@ -226,6 +226,14 @@ public class DualSliderView extends View {
 		invalidate();
 	}
 
+	public int getMinKnobValue(){
+		return Math.min(getStartKnobValue(), getEndKnobValue());
+	}
+
+	public int getMaxKnobValue(){
+		return Math.max(getStartKnobValue(), getEndKnobValue());
+	}
+
 	public int getStartKnobValue() {
 		return (int) (mStartKnobValue * mStep);
 	}
