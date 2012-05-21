@@ -212,8 +212,8 @@ public class DualSliderView extends View {
 	}
 
 	public void setRange(int min, int max, double step) {
-		setRange((int) (min / step), (int) (max / step));
 		mStep = step;
+		setRange((int) (min / step), (int) (max / step));
 	}
 
 	public boolean isSecondThumbEnabled() {

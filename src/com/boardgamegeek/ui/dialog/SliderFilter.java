@@ -20,7 +20,8 @@ public abstract class SliderFilter {
 		initValues(filter);
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_slider_filter, (ViewGroup) activity.findViewById(R.id.layout_root));
+		View layout = inflater.inflate(R.layout.dialog_slider_filter,
+				(ViewGroup) activity.findViewById(R.id.layout_root));
 
 		final TextView textInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.slider_filter_slider);
@@ -91,7 +92,7 @@ public abstract class SliderFilter {
 	protected abstract boolean getCheckbox();
 
 	protected double getStep() {
-		return 1;
+		return 1.0;
 	}
 
 	protected int getLineSpacing() {
