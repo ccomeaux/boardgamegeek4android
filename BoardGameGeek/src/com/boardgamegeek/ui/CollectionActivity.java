@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
@@ -49,12 +50,13 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteFilters;
 import com.boardgamegeek.ui.dialog.LoadFilters;
-import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
+import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
@@ -89,6 +91,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
+	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -376,6 +379,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
 				mSuggestedAgeFilter.createDialog(this,
 						(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+				return true;
+			case R.id.menu_average_weight:
+			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
+				mAverageWeightFilter.createDialog(this,
+						(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 		}
 		return false;

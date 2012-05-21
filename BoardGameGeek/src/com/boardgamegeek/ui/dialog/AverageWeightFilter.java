@@ -10,17 +10,19 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.SuggestedAgeFilterData;
+import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.ui.CollectionActivity;
 import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
-public class SuggestedAgeFilter {
-	private int mMinAge;
-	private int mMaxAge;
+public class AverageWeightFilter {
+	private double mMinWeight;
+	private double mMaxWeight;
 	private boolean mUndefined;
+	private static final int FACTOR = 10;
+	private static final double STEP = 2;
 
-	public void createDialog(final CollectionActivity activity, SuggestedAgeFilterData filter) {
+	public void createDialog(final CollectionActivity activity, AverageWeightFilterData filter) {
 		initValues(filter);
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -34,28 +36,28 @@ public class SuggestedAgeFilter {
 		initSlider(activity, textInterval, sliderView);
 		checkbox.setChecked(mUndefined);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_suggested_age)
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_average_weight)
 				.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						activity.removeFilter(new SuggestedAgeFilterData());
+						activity.removeFilter(new AverageWeightFilterData());
 					}
 				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
 						captureForm(sliderView, checkbox);
-						activity.addFilter(new SuggestedAgeFilterData(activity, mMinAge, mMaxAge, mUndefined));
+						activity.addFilter(new AverageWeightFilterData(activity, mMinWeight, mMaxWeight, mUndefined));
 					}
 
 					private void captureForm(final DualSliderView sliderView, final CheckBox checkbox) {
-						int start = sliderView.getStartKnobValue();
-						int end = sliderView.getEndKnobValue();
+						double start = (double) (sliderView.getStartKnobValue()) / FACTOR;
+						double end = (double) (sliderView.getEndKnobValue()) / FACTOR;
 						if (start < end) {
-							mMinAge = start;
-							mMaxAge = end;
+							mMinWeight = start;
+							mMaxWeight = end;
 						} else {
-							mMinAge = end;
-							mMaxAge = start;
+							mMinWeight = end;
+							mMaxWeight = start;
 						}
 						mUndefined = checkbox.isChecked();
 					}
@@ -66,23 +68,26 @@ public class SuggestedAgeFilter {
 
 	private void initSlider(final CollectionActivity activity, final TextView textInterval,
 			final DualSliderView sliderView) {
-		sliderView.setRange(SuggestedAgeFilterData.MIN_RANGE, SuggestedAgeFilterData.MAX_RANGE);
-		sliderView.setStartKnobValue(mMinAge);
-		sliderView.setEndKnobValue(mMaxAge);
+		sliderView.setRange((int) (AverageWeightFilterData.MIN_RANGE * FACTOR),
+				(int) (AverageWeightFilterData.MAX_RANGE * FACTOR), STEP);
+		sliderView.setStartKnobValue((int) (mMinWeight * FACTOR));
+		sliderView.setEndKnobValue((int) (mMaxWeight * FACTOR));
 
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
 			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
+				double start = (double) knobStart / FACTOR;
+				double end = (double) knobEnd / FACTOR;
 				String text = "";
 				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					text = intervalText(knobEnd);
+					text = intervalText(end);
 				} else if (knobStartChanged || knobEndChanged) {
-					if (knobStart == knobEnd) {
-						text = intervalText(knobEnd);
-					} else if (knobStart < knobEnd) {
-						text = intervalText(knobStart, knobEnd);
+					if (start == end) {
+						text = intervalText(end);
+					} else if (start < end) {
+						text = intervalText(start, end);
 					} else {
-						text = intervalText(knobEnd, knobStart);
+						text = intervalText(end, start);
 					}
 				}
 				textInterval.setText(text);
@@ -90,31 +95,23 @@ public class SuggestedAgeFilter {
 		});
 	}
 
-	private void initValues(SuggestedAgeFilterData filter) {
+	private void initValues(AverageWeightFilterData filter) {
 		if (filter == null) {
-			mMinAge = SuggestedAgeFilterData.MIN_RANGE;
-			mMaxAge = SuggestedAgeFilterData.MAX_RANGE;
+			mMinWeight = AverageWeightFilterData.MIN_RANGE;
+			mMaxWeight = AverageWeightFilterData.MAX_RANGE;
 			mUndefined = false;
 		} else {
-			mMinAge = filter.getMin();
-			mMaxAge = filter.getMax();
+			mMinWeight = filter.getMin();
+			mMaxWeight = filter.getMax();
 			mUndefined = filter.isUndefined();
 		}
 	}
 
-	private String intervalText(int number) {
-		if (number == SuggestedAgeFilterData.MAX_RANGE) {
-			return number + "+";
-		} else {
-			return String.valueOf(number);
-		}
+	private String intervalText(double number) {
+		return String.valueOf(number);
 	}
 
-	private String intervalText(int min, int max) {
-		if (max == SuggestedAgeFilterData.MAX_RANGE) {
-			return min + " - " + max + "+";
-		} else {
-			return min + " - " + max;
-		}
+	private String intervalText(double min, double max) {
+		return min + " - " + max;
 	}
 }
