@@ -30,6 +30,9 @@
 			<item
 				android:id="@+id/menu_suggested_age"
 				android:title="@string/menu_suggested_age"/>
+			<item
+				android:id="@+id/menu_average_weight"
+				android:title="@string/menu_average_weight"/>
 		</menu>
 	</item>
 	<item
