@@ -6,7 +6,7 @@
 	android:orientation="vertical" >
 
 	<TextView
-		android:id="@+id/text_interval"
+		android:id="@+id/slider_filter_text"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
@@ -14,12 +14,12 @@
 		android:textSize="@dimen/text_size_large" />
 
 	<com.boardgamegeek.ui.widget.DualSliderView
-		android:id="@+id/num_players_slider"
+		android:id="@+id/slider_filter_slider"
 		android:layout_width="fill_parent"
 		android:layout_height="0dp" />
 
 	<CheckBox
-		android:id="@+id/undefined_checkbox"
+		android:id="@+id/slider_filter_checkbox"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/include_missing_values"
