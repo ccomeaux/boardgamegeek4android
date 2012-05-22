@@ -28,8 +28,7 @@ public abstract class SliderFilter {
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
 
 		initSlider(activity, textInterval, sliderView);
-		checkbox.setText(getCheckboxTextId());
-		checkbox.setChecked(getCheckbox());
+		initCheckbox(checkbox, sliderView);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(getTitleId())
 				.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
@@ -48,16 +47,15 @@ public abstract class SliderFilter {
 		builder.create().show();
 	}
 
-	protected int getCheckboxTextId() {
-		return R.string.include_missing_values;
-	}
-
 	private void initSlider(final CollectionActivity activity, final TextView textInterval,
 			final DualSliderView sliderView) {
 		sliderView.setRange(getMin(), getMax(), getStep());
 		sliderView.setStartKnobValue(getStart());
 		sliderView.setEndKnobValue(getEnd());
 		sliderView.setLineSpacing(getLineSpacing());
+		if (getCheckboxDisablesSecondThumb()) {
+			sliderView.setSecondThumbEnabled(!getCheckbox());
+		}
 
 		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
 			@Override
@@ -77,6 +75,19 @@ public abstract class SliderFilter {
 		});
 	}
 
+	private void initCheckbox(final CheckBox checkbox, final DualSliderView sliderView) {
+		checkbox.setText(getCheckboxTextId());
+		checkbox.setChecked(getCheckbox());
+		if (getCheckboxDisablesSecondThumb()) {
+			checkbox.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					sliderView.setSecondThumbEnabled(!checkbox.isChecked());
+				}
+			});
+		}
+	}
+
 	protected abstract void initValues(CollectionFilterData filter);
 
 	protected abstract int getTitleId();
@@ -90,6 +101,14 @@ public abstract class SliderFilter {
 	protected abstract int getEnd();
 
 	protected abstract boolean getCheckbox();
+
+	protected int getCheckboxTextId() {
+		return R.string.include_missing_values;
+	}
+
+	protected boolean getCheckboxDisablesSecondThumb() {
+		return false;
+	}
 
 	protected double getStep() {
 		return 1.0;
