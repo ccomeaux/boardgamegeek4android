@@ -30,9 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Helper for building selection clauses for {@link SQLiteDatabase}. Each
- * appended clause is combined using {@code AND}. This class is <em>not</em>
- * thread safe.
+ * Helper for building selection clauses for {@link SQLiteDatabase}. Each appended clause is combined using {@code AND}.
+ * This class is <em>not</em> thread safe.
  */
 public class SelectionBuilder {
 	private static final String TAG = "SelectionBuilder";
@@ -55,9 +54,21 @@ public class SelectionBuilder {
 		return this;
 	}
 
+	public SelectionBuilder whereEquals(String selection, String selectionArg) {
+		return where(selection + "=?", selectionArg);
+	}
+
+	public SelectionBuilder whereEquals(String selection, int selectionArg) {
+		return where(selection + "=?", String.valueOf(selectionArg));
+	}
+
+	public SelectionBuilder whereEquals(String selection, long selectionArg) {
+		return where(selection + "=?", String.valueOf(selectionArg));
+	}
+
 	/**
-	 * Append the given selection clause to the internal state. Each clause is
-	 * surrounded with parenthesis and combined using {@code AND}.
+	 * Append the given selection clause to the internal state. Each clause is surrounded with parenthesis and combined
+	 * using {@code AND}.
 	 */
 	public SelectionBuilder where(String selection, String... selectionArgs) {
 		if (TextUtils.isEmpty(selection)) {
