@@ -36,9 +36,6 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
-import com.boardgamegeek.provider.BggContract.PlayItems;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
@@ -108,14 +105,6 @@ public class BggProvider extends ContentProvider {
 	private static final int COLLECTION_ID = 201;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
-	private static final int PLAYS = 2000;
-	private static final int PLAYS_LOCATIONS = 2003;
-	private static final int PLAYS_GAMES_ID = 2002;
-	private static final int PLAYS_ID = 2001;
-	private static final int PLAYS_ID_ITEMS = 2010;
-	private static final int PLAYS_ID_ITEMS_ID = 2011;
-	private static final int PLAYS_ID_PLAYERS = 2020;
-	private static final int PLAYS_ID_PLAYERS_ID = 2021;
 
 	private static final int SEARCH_SUGGEST = 9998;
 	private static final int SHORTCUT_REFRESH = 9999;
@@ -169,14 +158,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "collection/#", COLLECTION_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
-		matcher.addURI(authority, "plays", PLAYS);
-		matcher.addURI(authority, "plays/locations", PLAYS_LOCATIONS);
-		matcher.addURI(authority, "plays/games/#", PLAYS_GAMES_ID);
-		matcher.addURI(authority, "plays/#", PLAYS_ID);
-		matcher.addURI(authority, "plays/#/items", PLAYS_ID_ITEMS);
-		matcher.addURI(authority, "plays/#/items/#", PLAYS_ID_ITEMS_ID);
-		matcher.addURI(authority, "plays/#/players", PLAYS_ID_PLAYERS);
-		matcher.addURI(authority, "plays/#/players/#", PLAYS_ID_PLAYERS_ID);
 
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH_SUGGEST);
@@ -197,10 +178,21 @@ public class BggProvider extends ContentProvider {
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
 		HashMap<Integer, BaseProvider> map = new HashMap<Integer, BaseProvider>();
+
+		addProvider(map, sUriMatcher, new PlaysProvider());
+		addProvider(map, sUriMatcher, new PlaysIdProvider());
+		addProvider(map, sUriMatcher, new PlaysIdItemsProvider());
+		addProvider(map, sUriMatcher, new PlaysIdItemsIdProvider());
+		addProvider(map, sUriMatcher, new PlaysIdPlayersProvider());
+		addProvider(map, sUriMatcher, new PlaysIdPlayersIdProvider());
+		addProvider(map, sUriMatcher, new PlaysGamesId());
+		addProvider(map, sUriMatcher, new PlaysLocationsProvider());
+
 		addProvider(map, sUriMatcher, new CollectionFiltersProvider());
 		addProvider(map, sUriMatcher, new CollectionFiltersIdProvider());
 		addProvider(map, sUriMatcher, new CollectionFiltersIdDetailsProvider());
 		addProvider(map, sUriMatcher, new CollectionFiltersIdDetailsIdProvider());
+
 		return map;
 	}
 
@@ -337,20 +329,6 @@ public class BggProvider extends ContentProvider {
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
 				return Buddies.CONTENT_ITEM_TYPE;
-			case PLAYS:
-				return Plays.CONTENT_TYPE;
-			case PLAYS_GAMES_ID:
-				return Plays.CONTENT_TYPE;
-			case PLAYS_ID:
-				return Plays.CONTENT_ITEM_TYPE;
-			case PLAYS_ID_ITEMS:
-				return PlayItems.CONTENT_TYPE;
-			case PLAYS_ID_ITEMS_ID:
-				return PlayItems.CONTENT_ITEM_TYPE;
-			case PLAYS_ID_PLAYERS:
-				return PlayPlayers.CONTENT_TYPE;
-			case PLAYS_ID_PLAYERS_ID:
-				return PlayPlayers.CONTENT_ITEM_TYPE;
 
 			case SEARCH_SUGGEST:
 				return SearchManager.SUGGEST_MIME_TYPE;
@@ -432,6 +410,10 @@ public class BggProvider extends ContentProvider {
 
 		if (providers.containsKey(match)) {
 			newUri = providers.get(match).insert(db, uri, values);
+			if (newUri != null) {
+				getContext().getContentResolver().notifyChange(newUri, null);
+			}
+			return newUri;
 		}
 		long rowId = -1;
 
@@ -569,25 +551,6 @@ public class BggProvider extends ContentProvider {
 				newUri = Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
 				break;
 			}
-			case PLAYS: {
-				rowId = db.insertOrThrow(Tables.PLAYS, null, values);
-				newUri = Plays.buildPlayUri(values.getAsInteger(Plays.PLAY_ID));
-				break;
-			}
-			case PLAYS_ID_ITEMS: {
-				final int playId = Plays.getPlayId(uri);
-				values.put(PlayItems.PLAY_ID, playId);
-				rowId = db.insertOrThrow(Tables.PLAY_ITEMS, null, values);
-				newUri = Plays.buildItemUri(playId, values.getAsInteger(PlayItems.OBJECT_ID));
-				break;
-			}
-			case PLAYS_ID_PLAYERS: {
-				final int playId = Plays.getPlayId(uri);
-				values.put(PlayPlayers.PLAY_ID, playId);
-				rowId = db.insertOrThrow(Tables.PLAY_PLAYERS, null, values);
-				newUri = Plays.buildPlayerUri(playId, rowId);
-				break;
-			}
 			default: {
 				throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 			}
@@ -689,10 +652,6 @@ public class BggProvider extends ContentProvider {
 							new String[] { pollResultId });
 				}
 				break;
-			}
-			case PLAYS:
-			case PLAYS_ID: {
-				deletePlayChildren(db, builder);
 			}
 			default:
 				break;
@@ -886,39 +845,6 @@ public class BggProvider extends ContentProvider {
 			case BUDDIES_ID:
 				final int buddyId = Buddies.getBuddyId(uri);
 				return builder.table(Tables.BUDDIES).where(Buddies.BUDDY_ID + "=?", String.valueOf(buddyId));
-			case PLAYS:
-				return builder.table(Tables.PLAYS);
-			case PLAYS_ID: {
-				int playId = Plays.getPlayId(uri);
-				return builder.table(Tables.PLAYS).where(Plays.PLAY_ID + "=?", String.valueOf(playId));
-			}
-			case PLAYS_ID_ITEMS: {
-				int playId = Plays.getPlayId(uri);
-				return builder.table(Tables.PLAY_ITEMS).where(PlayItems.PLAY_ID + "=?", String.valueOf(playId));
-			}
-			case PLAYS_ID_ITEMS_ID: {
-				int playId = Plays.getPlayId(uri);
-				int objectId = PlayItems.getPlayItemId(uri);
-				return builder.table(Tables.PLAY_ITEMS).where(PlayItems.PLAY_ID + "=?", String.valueOf(playId))
-						.where(PlayItems.OBJECT_ID + "=?", String.valueOf(objectId));
-			}
-			case PLAYS_ID_PLAYERS: {
-				int playId = Plays.getPlayId(uri);
-				return builder.table(Tables.PLAY_PLAYERS).where(PlayPlayers.PLAY_ID + "=?", String.valueOf(playId));
-			}
-			case PLAYS_ID_PLAYERS_ID: {
-				int playId = Plays.getPlayId(uri);
-				long rowId = PlayPlayers.getPlayPlayerId(uri);
-				return builder.table(Tables.PLAY_PLAYERS).where(PlayPlayers.PLAY_ID + "=?", String.valueOf(playId))
-						.where(PlayPlayers._ID + "=?", String.valueOf(rowId));
-			}
-			case PLAYS_GAMES_ID: {
-				String gameId = uri.getLastPathSegment();
-				return builder.table(Tables.PLAY_ITEMS).where(PlayItems.OBJECT_ID + "=?", gameId);
-			}
-			case PLAYS_LOCATIONS: {
-				return builder.table(Tables.PLAYS).groupBy(Plays.LOCATION);
-			}
 			case GAMES_ID_POLLS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_POLLS).where(GamePolls.GAME_ID + "=?", String.valueOf(gameId));
@@ -1064,21 +990,6 @@ public class BggProvider extends ContentProvider {
 								String.valueOf(gameId), pollName)
 						.where(GamePollResults.POLL_RESULTS_PLAYERS + "=?", players);
 			}
-			case PLAYS: {
-				return builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
-						.mapToTable(Plays.PLAY_ID, Tables.PLAYS);
-			}
-			case PLAYS_ID: {
-				int playId = Plays.getPlayId(uri);
-				return builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
-						.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-						.where(Tables.PLAYS + "." + Plays.PLAY_ID + "=?", String.valueOf(playId));
-			}
-			case PLAYS_GAMES_ID: {
-				String gameId = uri.getLastPathSegment();
-				return builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
-						.mapToTable(Plays.PLAY_ID, Tables.PLAYS).where(PlayItems.OBJECT_ID + "=?", gameId);
-			}
 			default:
 				return buildSimpleSelection(uri, match);
 		}
@@ -1106,21 +1017,6 @@ public class BggProvider extends ContentProvider {
 				db.delete(Tables.GAME_POLL_RESULTS,
 						"game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?)", gameArg);
 				db.delete(Tables.GAME_POLLS, GamePolls.GAME_ID + "=?", gameArg);
-			}
-		} finally {
-			c.close();
-		}
-	}
-
-	private void deletePlayChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
-		// TODO after upgrading to API 8, use cascading deletes (http://stackoverflow.com/questions/2545558)
-		Cursor c = builder.query(db, new String[] { Plays.PLAY_ID }, null);
-		try {
-			while (c.moveToNext()) {
-				int playId = c.getInt(0);
-				String[] playArg = new String[] { String.valueOf(playId) };
-				db.delete(Tables.PLAY_ITEMS, PlayItems.PLAY_ID + "=?", playArg);
-				db.delete(Tables.PLAY_PLAYERS, PlayItems.PLAY_ID + "=?", playArg);
 			}
 		} finally {
 			c.close();
