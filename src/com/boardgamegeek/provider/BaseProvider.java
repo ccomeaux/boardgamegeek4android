@@ -14,6 +14,10 @@ public abstract class BaseProvider {
 
 	protected abstract String getPath();
 
+	protected String addIdToPath(String path) {
+		return path + "/#";
+	}
+
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		return buildSimpleSelection(uri);
 	}
@@ -32,6 +36,14 @@ public abstract class BaseProvider {
 
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
+	}
+
+	protected long insert(SQLiteDatabase db, Uri uri, ContentValues values, String mTable) {
+		long rowId = db.insertOrThrow(mTable, null, values);
+		if (rowId == -1) {
+			throw new UnsupportedOperationException("Error inserting: " + uri);
+		}
+		return rowId;
 	}
 
 	protected int queryInt(SQLiteDatabase db, SelectionBuilder builder, String columnName) {
