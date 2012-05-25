@@ -23,12 +23,8 @@ import android.util.Log;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
-import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
@@ -52,10 +48,6 @@ public class BggProvider extends ContentProvider {
 	private static HashMap<Integer, BaseProvider> providers = buildProviderMap();
 	private static final HashMap<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
 
-	private static final int GAMES = 100;
-	private static final int GAMES_ID = 101;
-	private static final int GAMES_ID_RANKS = 104;
-	private static final int GAMES_ID_RANKS_ID = 1041;
 	private static final int GAMES_ID_DESIGNERS = 105;
 	private static final int GAMES_ID_DESIGNERS_ID = 1051;
 	private static final int GAMES_ID_ARTISTS = 106;
@@ -66,8 +58,6 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_MECHANICS_ID = 1081;
 	private static final int GAMES_ID_CATEGORIES = 109;
 	private static final int GAMES_ID_CATEGORIES_ID = 1091;
-	private static final int GAMES_ID_EXPANSIONS = 112;
-	private static final int GAMES_ID_EXPANSIONS_ID = 1121;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 	private static final int SEARCH_SUGGEST = 9998;
@@ -77,10 +67,6 @@ public class BggProvider extends ContentProvider {
 		final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 		final String authority = BggContract.CONTENT_AUTHORITY;
 
-		matcher.addURI(authority, "games", GAMES);
-		matcher.addURI(authority, "games/#", GAMES_ID);
-		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
-		matcher.addURI(authority, "games/#/ranks/#", GAMES_ID_RANKS_ID);
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
 		matcher.addURI(authority, "games/#/designers/#", GAMES_ID_DESIGNERS_ID);
 		matcher.addURI(authority, "games/#/artists", GAMES_ID_ARTISTS);
@@ -91,8 +77,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/mechanics/#", GAMES_ID_MECHANICS_ID);
 		matcher.addURI(authority, "games/#/categories", GAMES_ID_CATEGORIES);
 		matcher.addURI(authority, "games/#/categories/#", GAMES_ID_CATEGORIES_ID);
-		matcher.addURI(authority, "games/#/expansions", GAMES_ID_EXPANSIONS);
-		matcher.addURI(authority, "games/#/expansions/#", GAMES_ID_EXPANSIONS_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
@@ -114,7 +98,14 @@ public class BggProvider extends ContentProvider {
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
 		HashMap<Integer, BaseProvider> map = new HashMap<Integer, BaseProvider>();
-		
+
+		addProvider(map, sUriMatcher, new GamesProvider());
+		addProvider(map, sUriMatcher, new GamesIdProvider());
+		addProvider(map, sUriMatcher, new GamesIdRankProvider());
+		addProvider(map, sUriMatcher, new GamesIdRankIdProvider());
+		addProvider(map, sUriMatcher, new GamesIdExpansionsProvider());
+		addProvider(map, sUriMatcher, new GamesIdExpansionsIdProvider());
+
 		addProvider(map, sUriMatcher, new GamesRanksProvider());
 		addProvider(map, sUriMatcher, new GamesRanksIdProvider());
 
@@ -189,7 +180,6 @@ public class BggProvider extends ContentProvider {
 		String GAMES_PUBLISHERS_GAME_ID = Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID;
 		String GAMES_MECHANICS_GAME_ID = Tables.GAMES_MECHANICS + "." + GamesMechanics.GAME_ID;
 		String GAMES_CATEGORIES_GAME_ID = Tables.GAMES_CATEGORIES + "." + GamesCategories.GAME_ID;
-		String GAMES_EXPANSIONS_GAME_ID = Tables.GAMES_EXPANSIONS + "." + Games.GAME_ID;
 	}
 
 	@Override
@@ -208,14 +198,6 @@ public class BggProvider extends ContentProvider {
 		}
 
 		switch (match) {
-			case GAMES:
-				return Games.CONTENT_TYPE;
-			case GAMES_ID:
-				return Games.CONTENT_ITEM_TYPE;
-			case GAMES_ID_RANKS:
-				return GameRanks.CONTENT_TYPE;
-			case GAMES_ID_RANKS_ID:
-				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_DESIGNERS:
 				return Designers.CONTENT_TYPE;
 			case GAMES_ID_DESIGNERS_ID:
@@ -236,10 +218,6 @@ public class BggProvider extends ContentProvider {
 				return Categories.CONTENT_TYPE;
 			case GAMES_ID_CATEGORIES_ID:
 				return Categories.CONTENT_ITEM_TYPE;
-			case GAMES_ID_EXPANSIONS:
-				return GamesExpansions.CONTENT_TYPE;
-			case GAMES_ID_EXPANSIONS_ID:
-				return GamesExpansions.CONTENT_ITEM_TYPE;
 			case BUDDIES:
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
@@ -332,18 +310,6 @@ public class BggProvider extends ContentProvider {
 		long rowId = -1;
 
 		switch (match) {
-			case GAMES: {
-				rowId = db.insertOrThrow(Tables.GAMES, null, values);
-				newUri = Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
-				break;
-			}
-			case GAMES_ID_RANKS: {
-				final int gameId = Games.getGameId(uri);
-				values.put(GameRanks.GAME_ID, gameId);
-				rowId = db.insertOrThrow(Tables.GAME_RANKS, null, values);
-				newUri = GameRanks.buildGameRankUri((int) rowId);
-				break;
-			}
 			case GAMES_ID_DESIGNERS: {
 				rowId = db.insertOrThrow(Tables.GAMES_DESIGNERS, null, values);
 				newUri = Games.buildDesignersUri(rowId);
@@ -367,11 +333,6 @@ public class BggProvider extends ContentProvider {
 			case GAMES_ID_CATEGORIES: {
 				rowId = db.insertOrThrow(Tables.GAMES_CATEGORIES, null, values);
 				newUri = Games.buildCategoryUri(rowId);
-				break;
-			}
-			case GAMES_ID_EXPANSIONS: {
-				rowId = db.insertOrThrow(Tables.GAMES_EXPANSIONS, null, values);
-				newUri = Games.buildExpansionUri(rowId);
 				break;
 			}
 			case BUDDIES: {
@@ -422,24 +383,14 @@ public class BggProvider extends ContentProvider {
 			Log.v(TAG, "delete(uri=" + uri + ")");
 		}
 
-		int rowCount = 0;
-		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		final int match = sUriMatcher.match(uri);
-		final SelectionBuilder builder = buildSimpleSelection(uri, match).where(selection, selectionArgs);
+		int match = sUriMatcher.match(uri);
+		SelectionBuilder builder = buildSimpleSelection(uri, match).where(selection, selectionArgs);
 
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		if (providers.containsKey(match)) {
 			providers.get(match).deleteChildren(db, builder);
 		}
-
-		switch (match) {
-			case GAMES:
-			case GAMES_ID:
-				deleteGameChildren(db, builder);
-				break;
-			default:
-				break;
-		}
-		rowCount = builder.delete(db);
+		int rowCount = builder.delete(db);
 
 		if (LOGV) {
 			Log.v(TAG, "deleted " + rowCount + " rows");
@@ -469,22 +420,6 @@ public class BggProvider extends ContentProvider {
 
 		final SelectionBuilder builder = new SelectionBuilder();
 		switch (match) {
-			case GAMES:
-				return builder.table(Tables.GAMES);
-			case GAMES_ID: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", String.valueOf(gameId));
-			}
-			case GAMES_ID_RANKS: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", String.valueOf(gameId));
-			}
-			case GAMES_ID_RANKS_ID: {
-				int gameId = Games.getGameId(uri);
-				int rankId = GameRanks.getRankId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", String.valueOf(gameId))
-						.where(GameRanks.GAME_RANK_ID + "=?", String.valueOf(rankId));
-			}
 			case GAMES_ID_DESIGNERS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES_DESIGNERS).where(GamesDesigners.GAME_ID + "=?",
@@ -543,18 +478,6 @@ public class BggProvider extends ContentProvider {
 						.where(GamesCategories.GAME_ID + "=?", String.valueOf(gameId))
 						.where(GamesCategories.CATEGORY_ID + "=?", String.valueOf(categoryId));
 			}
-			case GAMES_ID_EXPANSIONS: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS).where(GamesExpansions.GAME_ID + "=?",
-						String.valueOf(gameId));
-			}
-			case GAMES_ID_EXPANSIONS_ID: {
-				final int gameId = Games.getGameId(uri);
-				final long expansionId = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS)
-						.where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId))
-						.where(GamesExpansions.EXPANSION_ID + "=?", String.valueOf(expansionId));
-			}
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
 			case BUDDIES_ID:
@@ -606,44 +529,8 @@ public class BggProvider extends ContentProvider {
 						.mapToTable(Categories.CATEGORY_ID, Tables.CATEGORIES)
 						.where(Qualified.GAMES_CATEGORIES_GAME_ID + "=?", String.valueOf(gameId));
 			}
-			case GAMES_ID_EXPANSIONS: {
-				final int gameId = Games.getGameId(uri);
-				return builder.table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
-						.mapToTable(GamesExpansions._ID, Tables.GAMES_EXPANSIONS)
-						.mapToTable(GamesExpansions.GAME_ID, Tables.GAMES_EXPANSIONS)
-						.where(Qualified.GAMES_EXPANSIONS_GAME_ID + "=?", String.valueOf(gameId));
-			}
-
 			default:
 				return buildSimpleSelection(uri, match);
-		}
-	}
-
-	private void deleteGameChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
-		// TODO after upgrading to API 8, use cascading deletes (http://stackoverflow.com/questions/2545558)
-		Cursor c = builder.query(db, new String[] { Games.GAME_ID }, null);
-		try {
-			while (c.moveToNext()) {
-				int gameId = c.getInt(0);
-				String[] gameArg = new String[] { String.valueOf(gameId) };
-				db.delete(Tables.GAME_RANKS, GameRanks.GAME_ID + "=?", gameArg);
-				db.delete(Tables.COLLECTION, Collection.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_DESIGNERS, Games.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_ARTISTS, Games.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_PUBLISHERS, Games.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_MECHANICS, Games.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_CATEGORIES, Games.GAME_ID + "=?", gameArg);
-				db.delete(Tables.GAMES_EXPANSIONS, Games.GAME_ID + "=?", gameArg);
-				db.delete(
-						Tables.GAME_POLL_RESULTS_RESULT,
-						"pollresults_id IN (SELECT game_poll_results._id from game_poll_results WHERE game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?))",
-						gameArg);
-				db.delete(Tables.GAME_POLL_RESULTS,
-						"game_poll_results.poll_id IN (SELECT game_polls._id FROM game_polls WHERE game_id=?)", gameArg);
-				db.delete(Tables.GAME_POLLS, GamePolls.GAME_ID + "=?", gameArg);
-			}
-		} finally {
-			c.close();
 		}
 	}
 }
