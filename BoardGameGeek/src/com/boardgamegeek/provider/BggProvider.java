@@ -17,7 +17,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -55,8 +54,6 @@ public class BggProvider extends ContentProvider {
 
 	private static final int GAMES = 100;
 	private static final int GAMES_ID = 101;
-	private static final int GAMES_RANKS = 102;
-	private static final int GAMES_RANKS_ID = 103;
 	private static final int GAMES_ID_RANKS = 104;
 	private static final int GAMES_ID_RANKS_ID = 1041;
 	private static final int GAMES_ID_DESIGNERS = 105;
@@ -71,11 +68,6 @@ public class BggProvider extends ContentProvider {
 	private static final int GAMES_ID_CATEGORIES_ID = 1091;
 	private static final int GAMES_ID_EXPANSIONS = 112;
 	private static final int GAMES_ID_EXPANSIONS_ID = 1121;
-	private static final int GAMES_DESIGNERS_ID = 401;
-	private static final int GAMES_ARTISTS_ID = 403;
-	private static final int GAMES_PUBLISHERS_ID = 405;
-	private static final int GAMES_MECHANICS_ID = 407;
-	private static final int GAMES_CATEGORIES_ID = 409;
 	private static final int BUDDIES = 1000;
 	private static final int BUDDIES_ID = 1001;
 	private static final int SEARCH_SUGGEST = 9998;
@@ -87,8 +79,6 @@ public class BggProvider extends ContentProvider {
 
 		matcher.addURI(authority, "games", GAMES);
 		matcher.addURI(authority, "games/#", GAMES_ID);
-		matcher.addURI(authority, "games/ranks", GAMES_RANKS);
-		matcher.addURI(authority, "games/ranks/#", GAMES_RANKS_ID);
 		matcher.addURI(authority, "games/#/ranks", GAMES_ID_RANKS);
 		matcher.addURI(authority, "games/#/ranks/#", GAMES_ID_RANKS_ID);
 		matcher.addURI(authority, "games/#/designers", GAMES_ID_DESIGNERS);
@@ -103,11 +93,6 @@ public class BggProvider extends ContentProvider {
 		matcher.addURI(authority, "games/#/categories/#", GAMES_ID_CATEGORIES_ID);
 		matcher.addURI(authority, "games/#/expansions", GAMES_ID_EXPANSIONS);
 		matcher.addURI(authority, "games/#/expansions/#", GAMES_ID_EXPANSIONS_ID);
-		matcher.addURI(authority, "games/designers/#", GAMES_DESIGNERS_ID);
-		matcher.addURI(authority, "games/artists/#", GAMES_ARTISTS_ID);
-		matcher.addURI(authority, "games/publishers/#", GAMES_PUBLISHERS_ID);
-		matcher.addURI(authority, "games/mechanics/#", GAMES_MECHANICS_ID);
-		matcher.addURI(authority, "games/categories/#", GAMES_CATEGORIES_ID);
 		matcher.addURI(authority, "buddies", BUDDIES);
 		matcher.addURI(authority, "buddies/#", BUDDIES_ID);
 		matcher.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
@@ -129,6 +114,15 @@ public class BggProvider extends ContentProvider {
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
 		HashMap<Integer, BaseProvider> map = new HashMap<Integer, BaseProvider>();
+		
+		addProvider(map, sUriMatcher, new GamesRanksProvider());
+		addProvider(map, sUriMatcher, new GamesRanksIdProvider());
+
+		addProvider(map, sUriMatcher, new GamesDesignersIdProvider());
+		addProvider(map, sUriMatcher, new GamesArtistsIdProvider());
+		addProvider(map, sUriMatcher, new GamesPublishersIdProvider());
+		addProvider(map, sUriMatcher, new GamesMechanicsIdProvider());
+		addProvider(map, sUriMatcher, new GamesCategoriesIdProvider());
 
 		addProvider(map, sUriMatcher, new GamesIdPollsProvider());
 		addProvider(map, sUriMatcher, new GamesIdPollsNameProvider());
@@ -218,10 +212,6 @@ public class BggProvider extends ContentProvider {
 				return Games.CONTENT_TYPE;
 			case GAMES_ID:
 				return Games.CONTENT_ITEM_TYPE;
-			case GAMES_RANKS:
-				return GameRanks.CONTENT_TYPE;
-			case GAMES_RANKS_ID:
-				return GameRanks.CONTENT_ITEM_TYPE;
 			case GAMES_ID_RANKS:
 				return GameRanks.CONTENT_TYPE;
 			case GAMES_ID_RANKS_ID:
@@ -250,16 +240,6 @@ public class BggProvider extends ContentProvider {
 				return GamesExpansions.CONTENT_TYPE;
 			case GAMES_ID_EXPANSIONS_ID:
 				return GamesExpansions.CONTENT_ITEM_TYPE;
-			case GAMES_DESIGNERS_ID:
-				return Designers.CONTENT_ITEM_TYPE;
-			case GAMES_ARTISTS_ID:
-				return Artists.CONTENT_ITEM_TYPE;
-			case GAMES_PUBLISHERS_ID:
-				return Publishers.CONTENT_ITEM_TYPE;
-			case GAMES_MECHANICS_ID:
-				return Mechanics.CONTENT_ITEM_TYPE;
-			case GAMES_CATEGORIES_ID:
-				return Categories.CONTENT_ITEM_TYPE;
 			case BUDDIES:
 				return Buddies.CONTENT_TYPE;
 			case BUDDIES_ID:
@@ -495,12 +475,6 @@ public class BggProvider extends ContentProvider {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAMES).where(Games.GAME_ID + "=?", String.valueOf(gameId));
 			}
-			case GAMES_RANKS:
-				return builder.table(Tables.GAME_RANKS);
-			case GAMES_RANKS_ID: {
-				final int rankId = GameRanks.getRankId(uri);
-				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_RANK_ID + "=?", String.valueOf(rankId));
-			}
 			case GAMES_ID_RANKS: {
 				final int gameId = Games.getGameId(uri);
 				return builder.table(Tables.GAME_RANKS).where(GameRanks.GAME_ID + "=?", String.valueOf(gameId));
@@ -580,26 +554,6 @@ public class BggProvider extends ContentProvider {
 				return builder.table(Tables.GAMES_EXPANSIONS)
 						.where(GamesExpansions.GAME_ID + "=?", String.valueOf(gameId))
 						.where(GamesExpansions.EXPANSION_ID + "=?", String.valueOf(expansionId));
-			}
-			case GAMES_DESIGNERS_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_DESIGNERS).where(BaseColumns._ID + "=?", String.valueOf(id));
-			}
-			case GAMES_ARTISTS_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_ARTISTS).where(BaseColumns._ID + "=?", String.valueOf(id));
-			}
-			case GAMES_PUBLISHERS_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_PUBLISHERS).where(BaseColumns._ID + "=?", String.valueOf(id));
-			}
-			case GAMES_MECHANICS_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_MECHANICS).where(BaseColumns._ID + "=?", String.valueOf(id));
-			}
-			case GAMES_CATEGORIES_ID: {
-				final long id = ContentUris.parseId(uri);
-				return builder.table(Tables.GAMES_CATEGORIES).where(BaseColumns._ID + "=?", String.valueOf(id));
 			}
 			case BUDDIES:
 				return builder.table(Tables.BUDDIES);
