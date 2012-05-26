@@ -97,7 +97,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	}
 
 	private void setUiVariables() {
-		mRankLayout = (LinearLayout) findViewById(R.id.main_layout);
+		mRankLayout = (LinearLayout) findViewById(R.id.rank_layout);
 		mRankTextSize = getResources().getDimension(R.dimen.text_size_small);
 		mRankPadding = (int) (getResources().getDimension(R.dimen.padding_small) / getResources().getDisplayMetrics().density);
 
@@ -127,6 +127,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	}
 
 	private void startRankQuery() {
+		removeRankRows();
 		if (mHandler == null) {
 			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		}
@@ -239,6 +240,11 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 		mRankLayout.addView(layout, mRankIndex++);
 		mRankLayout.addView(sb, mRankIndex++);
+	}
+
+	private void removeRankRows() {
+		mRankLayout.removeAllViews();
+		mRankIndex = 0;
 	}
 
 	private void setText(TextView tv, String text, boolean bold) {
