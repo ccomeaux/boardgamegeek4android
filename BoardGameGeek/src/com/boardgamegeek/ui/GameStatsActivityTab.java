@@ -41,7 +41,6 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
 	private LinearLayout mRankLayout;
-	private int mRankIndex = 0;
 	private float mRankTextSize;
 	private int mRankPadding;
 
@@ -238,13 +237,12 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		sb.setPadding(mRankPadding, mRankPadding, mRankPadding, mRankPadding);
 		sb.setBar(R.string.average_meter_text, rating);
 
-		mRankLayout.addView(layout, mRankIndex++);
-		mRankLayout.addView(sb, mRankIndex++);
+		mRankLayout.addView(layout);
+		mRankLayout.addView(sb);
 	}
 
 	private void removeRankRows() {
 		mRankLayout.removeAllViews();
-		mRankIndex = 0;
 	}
 
 	private void setText(TextView tv, String text, boolean bold) {
