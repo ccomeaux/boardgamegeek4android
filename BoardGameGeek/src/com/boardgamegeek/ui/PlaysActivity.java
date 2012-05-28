@@ -209,7 +209,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		if (mHandler == null) {
 			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		}
-		mHandler.startQuery(mUri, Query.PROJECTION, null, null, Plays.DEFAULT_SORT);
+		mHandler.startQuery(mUri, Query.PROJECTION);
 	}
 
 	private void changeEmptyMessage() {

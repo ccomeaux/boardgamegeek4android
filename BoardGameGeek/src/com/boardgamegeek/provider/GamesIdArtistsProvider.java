@@ -29,6 +29,11 @@ public class GamesIdArtistsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Artists.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/artists";
 	}

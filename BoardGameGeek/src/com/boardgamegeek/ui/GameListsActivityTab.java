@@ -38,8 +38,8 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
-import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
@@ -125,7 +125,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		cr.registerContentObserver(mCategoriesUri, true, mCategoriesObserver);
 		cr.registerContentObserver(mExpansionsUri, true, mExpansionsObserver);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -166,19 +166,15 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		if (mHandler == null) {
 			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		}
-		mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
-				Designers.DEFAULT_SORT);
-		mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null, Artists.DEFAULT_SORT);
-		mHandler.startQuery(TOKEN_PUBLISHERS, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
-				Publishers.DEFAULT_SORT);
-		mHandler.startQuery(TOKEN_MECHANICS, null, mMechanicsUri, MechanicQuery.PROJECTION, null, null,
-				Mechanics.DEFAULT_SORT);
-		mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
-				Categories.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
+		mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
 		mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION, GamesExpansions.INBOUND
-				+ "=?", new String[] { "0" }, GamesExpansions.DEFAULT_SORT);
+				+ "=?", new String[] { "0" }, null);
 		mHandler.startQuery(TOKEN_BASE_GAMES, null, mExpansionsUri, ExpansionQuery.PROJECTION, GamesExpansions.INBOUND
-				+ "=?", new String[] { "1" }, GamesExpansions.DEFAULT_SORT);
+				+ "=?", new String[] { "1" }, null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -429,8 +425,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_DESIGNERS, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
-					Designers.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_DESIGNERS, mDesignersUri, DesignerQuery.PROJECTION);
 		}
 	}
 
@@ -442,8 +437,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, null, mDesignersUri, DesignerQuery.PROJECTION, null, null,
-					Designers.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_DESIGNERS_UPDATE, mDesignersUri, DesignerQuery.PROJECTION);
 		}
 	}
 
@@ -455,8 +449,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_ARTISTS, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
-					Artists.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_ARTISTS, mArtistsUri, ArtistQuery.PROJECTION);
 		}
 	}
 
@@ -468,8 +461,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, null, mArtistsUri, ArtistQuery.PROJECTION, null, null,
-					Artists.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_ARTISTS_UPDATE, mArtistsUri, ArtistQuery.PROJECTION);
 		}
 	}
 
@@ -481,8 +473,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_PUBLISHERS, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
-					Publishers.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_PUBLISHERS, mPublishersUri, PublisherQuery.PROJECTION);
 		}
 	}
 
@@ -494,8 +485,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, null, mPublishersUri, PublisherQuery.PROJECTION, null, null,
-					Publishers.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_PUBLISHERS_UPDATE, mPublishersUri, PublisherQuery.PROJECTION);
 		}
 	}
 
@@ -507,8 +497,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_MECHANICS, null, mMechanicsUri, MechanicQuery.PROJECTION, null, null,
-					Mechanics.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_MECHANICS, mMechanicsUri, MechanicQuery.PROJECTION);
 		}
 	}
 
@@ -520,8 +509,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			mHandler.startQuery(TOKEN_CATEGORIES, null, mCategoriesUri, CategoryQuery.PROJECTION, null, null,
-					Categories.DEFAULT_SORT);
+			mHandler.startQuery(TOKEN_CATEGORIES, mCategoriesUri, CategoryQuery.PROJECTION);
 		}
 	}
 
@@ -534,9 +522,9 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 			mHandler.startQuery(TOKEN_EXPANSIONS, null, mExpansionsUri, ExpansionQuery.PROJECTION,
-					GamesExpansions.INBOUND + "=?", new String[] { "0" }, GamesExpansions.DEFAULT_SORT);
+					GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 			mHandler.startQuery(TOKEN_BASE_GAMES, null, mExpansionsUri, ExpansionQuery.PROJECTION,
-					GamesExpansions.INBOUND + "=?", new String[] { "1" }, GamesExpansions.DEFAULT_SORT);
+					GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 		}
 	}
 

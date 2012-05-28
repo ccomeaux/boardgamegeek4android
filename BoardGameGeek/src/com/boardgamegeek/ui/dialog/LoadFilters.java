@@ -21,7 +21,7 @@ public class LoadFilters {
 
 		final ContentResolver cr = activity.getContentResolver();
 		final Cursor cursor = cr.query(CollectionFilters.CONTENT_URI, new String[] { CollectionFilters._ID,
-				CollectionFilters.NAME }, null, null, CollectionFilters.DEFAULT_SORT);
+				CollectionFilters.NAME }, null, null, null);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.load_filters).setCursor(
 				cursor, new DialogInterface.OnClickListener() {
@@ -34,8 +34,7 @@ public class LoadFilters {
 
 					private void createFilterList(final ContentResolver cr, Long filterId) {
 						Cursor c = cr.query(CollectionFilters.buildFilterDetailUri(filterId), new String[] {
-								CollectionFilterDetails.TYPE, CollectionFilterDetails.DATA }, null, null,
-								CollectionFilterDetails.DEFAULT_SORT);
+								CollectionFilterDetails.TYPE, CollectionFilterDetails.DATA }, null, null, null);
 						if (c != null) {
 							try {
 								List<CollectionFilterData> filters = new ArrayList<CollectionFilterData>();

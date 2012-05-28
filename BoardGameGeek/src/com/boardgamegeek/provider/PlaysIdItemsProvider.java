@@ -18,6 +18,11 @@ public class PlaysIdItemsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return PlayItems.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "plays/#/items";
 	}

@@ -16,6 +16,11 @@ public class MechanicsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Mechanics.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "mechanics";
 	}

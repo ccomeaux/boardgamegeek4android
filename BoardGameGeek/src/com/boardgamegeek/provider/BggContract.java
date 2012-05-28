@@ -647,12 +647,16 @@ public class BggContract {
 		}
 	}
 
+	public static final class PlayLocations {
+		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + " ASC";
+	}
+
 	public static final class CollectionFilters implements CollectionFiltersColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION_FILTER).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilterdetail";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilterdetail";
-		
+
 		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC";
 
 		public static Uri buildFilterUri(long filterId) {
@@ -664,7 +668,8 @@ public class BggContract {
 		}
 
 		public static Uri buildFilterDetailUri(long filterId, long detailId) {
-			return buildFilterUri(filterId).buildUpon().appendPath(PATH_DETAILS).appendPath(String.valueOf(detailId)).build();
+			return buildFilterUri(filterId).buildUpon().appendPath(PATH_DETAILS).appendPath(String.valueOf(detailId))
+					.build();
 		}
 
 		public static int getFilterId(Uri uri) {
@@ -672,10 +677,11 @@ public class BggContract {
 		}
 	}
 
-	public static final class CollectionFilterDetails implements CollectionFilterDetailsColumns, CollectionFiltersColumns, BaseColumns {
+	public static final class CollectionFilterDetails implements CollectionFilterDetailsColumns,
+			CollectionFiltersColumns, BaseColumns {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilter";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilter";
-		
+
 		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {

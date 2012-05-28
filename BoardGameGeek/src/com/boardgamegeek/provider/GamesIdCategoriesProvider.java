@@ -28,6 +28,11 @@ public class GamesIdCategoriesProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Categories.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/categories";
 	}

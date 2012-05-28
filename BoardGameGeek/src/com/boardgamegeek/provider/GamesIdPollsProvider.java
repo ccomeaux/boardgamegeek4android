@@ -21,6 +21,11 @@ public class GamesIdPollsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return GamePolls.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/polls";
 	}

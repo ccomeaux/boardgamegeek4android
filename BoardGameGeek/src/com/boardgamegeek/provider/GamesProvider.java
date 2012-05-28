@@ -13,10 +13,15 @@ import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesProvider extends BaseProvider {
-	
+
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		return new SelectionBuilder().table(Tables.GAMES);
+	}
+
+	@Override
+	protected String getDefaultSortOrder() {
+		return Games.DEFAULT_SORT;
 	}
 
 	@Override

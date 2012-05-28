@@ -30,6 +30,11 @@ public class GamesIdPublishersProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Publishers.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/publishers";
 	}

@@ -16,10 +16,15 @@ public class ArtistsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Artists.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "artists";
 	}
-	
+
 	@Override
 	protected String getType(Uri uri) {
 		return Artists.CONTENT_TYPE;

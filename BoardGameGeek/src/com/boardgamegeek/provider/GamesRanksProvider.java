@@ -14,6 +14,11 @@ public class GamesRanksProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return GameRanks.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/ranks";
 	}
