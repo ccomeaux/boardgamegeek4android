@@ -69,10 +69,11 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 		}
 		values.put(GamePollResults.POLL_RESULTS_KEY, key);
 
-		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
+		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values) != -1) {
+			return Games
+					.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 		}
-		return Games.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+		return null;
 	}
 
 	@Override

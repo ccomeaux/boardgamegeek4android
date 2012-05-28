@@ -1,13 +1,13 @@
 package com.boardgamegeek.provider;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
-
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 
 public class GamesIdRankProvider extends BaseProvider {
 	private static final String TABLE = Tables.GAME_RANKS;
@@ -37,7 +37,7 @@ public class GamesIdRankProvider extends BaseProvider {
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
 		int gameId = Games.getGameId(uri);
 		values.put(GameRanks.GAME_ID, gameId);
-		long rowId = insert(db, uri, values, TABLE);
+		long rowId = db.insertOrThrow(TABLE, null, values);
 		return GameRanks.buildGameRankUri((int) rowId);
 	}
 }

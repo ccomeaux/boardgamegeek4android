@@ -76,10 +76,10 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		}
 		values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key);
 
-		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
+		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values) != -1) {
+			return Games.buildPollResultsResultUri(gameId, pollName, players,
+					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 		}
-		return Games.buildPollResultsResultUri(gameId, pollName, players,
-				values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+		return null;
 	}
 }

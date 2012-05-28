@@ -58,14 +58,6 @@ public abstract class BaseProvider {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 	}
 
-	protected long insert(SQLiteDatabase db, Uri uri, ContentValues values, String mTable) {
-		long rowId = db.insertOrThrow(mTable, null, values);
-		if (rowId == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
-		}
-		return rowId;
-	}
-
 	protected int queryInt(SQLiteDatabase db, SelectionBuilder builder, String columnName) {
 		int id = 0;
 		Cursor cursor = builder.query(db, new String[] { columnName }, null);

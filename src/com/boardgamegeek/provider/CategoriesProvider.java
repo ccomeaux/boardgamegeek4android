@@ -1,40 +1,35 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggDatabase.Tables;
-import com.boardgamegeek.util.SelectionBuilder;
 
-public class CategoriesProvider extends BaseProvider {
-
-	@Override
-	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.CATEGORIES);
-	}
-
+public class CategoriesProvider extends BasicProvider {
+	
 	@Override
 	protected String getDefaultSortOrder() {
 		return Categories.DEFAULT_SORT;
 	}
 
 	@Override
+	protected Integer getInsertedId(ContentValues values) {
+		return values.getAsInteger(Categories.CATEGORY_ID);
+	}
+
+	@Override
 	protected String getPath() {
-		return "categories";
+		return BggContract.PATH_CATEGORIES;
+	}
+
+	@Override
+	protected String getTable() {
+		return Tables.CATEGORIES;
 	}
 
 	@Override
 	protected String getType(Uri uri) {
 		return Categories.CONTENT_TYPE;
-	}
-
-	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
-		if (db.insertOrThrow(Tables.CATEGORIES, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
-		}
-		return Categories.buildCategoryUri(values.getAsInteger(Categories.CATEGORY_ID));
 	}
 }

@@ -45,7 +45,7 @@ public class GamesIdArtistsProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
-		long rowId = insert(db, uri, values, TABLE);
+		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildArtistUri(rowId);
 	}
 }
