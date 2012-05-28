@@ -11,40 +11,12 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
-public class PlaysProvider extends BaseProvider {
+public class PlaysProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAYS);
-	}
-
-	@Override
-	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.PLAYS);
-	}
-
-	@Override
-	protected String getDefaultSortOrder() {
-		return Plays.DEFAULT_SORT;
-	}
-
-	@Override
-	protected String getPath() {
-		return "plays";
-	}
-
-	@Override
-	protected String getType(Uri uri) {
-		return Plays.CONTENT_TYPE;
-	}
-
-	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
-		if (db.insertOrThrow(Tables.PLAYS, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
-		}
-		return Plays.buildPlayUri(values.getAsInteger(Plays.PLAY_ID));
+		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, getTable())
+				.mapToTable(Plays.PLAY_ID, getTable());
 	}
 
 	@Override
@@ -63,5 +35,30 @@ public class PlaysProvider extends BaseProvider {
 				cursor.close();
 			}
 		}
+	}
+
+	@Override
+	protected String getDefaultSortOrder() {
+		return Plays.DEFAULT_SORT;
+	}
+
+	@Override
+	protected Integer getInsertedId(ContentValues values) {
+		return values.getAsInteger(Plays.PLAY_ID);
+	}
+
+	@Override
+	protected String getPath() {
+		return BggContract.PATH_PLAYS;
+	}
+
+	@Override
+	protected String getTable() {
+		return Tables.PLAYS;
+	}
+
+	@Override
+	protected String getType(Uri uri) {
+		return Plays.CONTENT_TYPE;
 	}
 }

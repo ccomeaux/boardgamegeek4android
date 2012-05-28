@@ -36,9 +36,9 @@ public class PlaysIdItemsProvider extends BaseProvider {
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
 		int playId = Plays.getPlayId(uri);
 		values.put(PlayItems.PLAY_ID, playId);
-		if (db.insertOrThrow(Tables.PLAY_ITEMS, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
+		if (db.insertOrThrow(Tables.PLAY_ITEMS, null, values) != -1) {
+			return Plays.buildItemUri(playId, values.getAsInteger(PlayItems.OBJECT_ID));
 		}
-		return Plays.buildItemUri(playId, values.getAsInteger(PlayItems.OBJECT_ID));
+		return null;
 	}
 }

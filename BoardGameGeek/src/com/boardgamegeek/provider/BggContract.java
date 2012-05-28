@@ -193,26 +193,26 @@ public class BggContract {
 
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-	private static final String PATH_GAMES = "games";
+	public static final String PATH_GAMES = "games";
 	private static final String PATH_RANKS = "ranks";
-	private static final String PATH_DESIGNERS = "designers";
-	private static final String PATH_ARTISTS = "artists";
-	private static final String PATH_PUBLISHERS = "publishers";
-	private static final String PATH_MECHANICS = "mechanics";
-	private static final String PATH_CATEGORIES = "categories";
+	public static final String PATH_DESIGNERS = "designers";
+	public static final String PATH_ARTISTS = "artists";
+	public static final String PATH_PUBLISHERS = "publishers";
+	public static final String PATH_MECHANICS = "mechanics";
+	public static final String PATH_CATEGORIES = "categories";
 	private static final String PATH_EXPANSIONS = "expansions";
 	private static final String PATH_COLLECTION = "collection";
-	private static final String PATH_BUDDIES = "buddies";
+	public static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
 	private static final String PATH_THUMBNAILS = "thumbnails";
 	private static final String PATH_COLORS = "colors";
-	private static final String PATH_PLAYS = "plays";
+	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
 	private static final String PATH_LOCATIONS = "locations";
-	private static final String PATH_COLLECTION_FILTER = "collectionfilters";
+	public static final String PATH_COLLECTION_FILTERS = "collectionfilters";
 	private static final String PATH_DETAILS = "details";
 
 	public static class Thumbnails {
@@ -429,6 +429,10 @@ public class BggContract {
 		public static int getDesignerId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
+	}
+
+	public static Uri buildBasicUri(String path, int id) {
+		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
 	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
@@ -652,7 +656,7 @@ public class BggContract {
 	}
 
 	public static final class CollectionFilters implements CollectionFiltersColumns, BaseColumns {
-		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION_FILTER).build();
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION_FILTERS).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionfilterdetail";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionfilterdetail";

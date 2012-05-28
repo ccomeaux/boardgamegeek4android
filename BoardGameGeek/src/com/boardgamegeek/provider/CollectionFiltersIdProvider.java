@@ -18,7 +18,7 @@ public class CollectionFiltersIdProvider extends BaseProvider {
 
 	@Override
 	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		CollectionFiltersProvider.deleteCollectionFilterChildren(db, builder);
+		new CollectionFiltersProvider().deleteChildren(db, builder);
 	}
 
 	@Override

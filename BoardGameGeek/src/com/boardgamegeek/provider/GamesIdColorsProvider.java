@@ -6,16 +6,16 @@ import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdColorsProvider extends BaseProvider {
+	private static final String TABLE = Tables.GAME_COLORS;
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		int gameId = Games.getGameId(uri);
-		return new SelectionBuilder().table(Tables.GAME_COLORS).whereEquals(GamesCategories.GAME_ID, gameId);
+		return new SelectionBuilder().table(TABLE).whereEquals(GameColors.GAME_ID, gameId);
 	}
 
 	@Override
@@ -37,9 +37,9 @@ public class GamesIdColorsProvider extends BaseProvider {
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
 		int gameId = Games.getGameId(uri);
 		values.put(GameColors.GAME_ID, gameId);
-		if (db.insertOrThrow(Tables.GAME_COLORS, null, values) == -1) {
-			throw new UnsupportedOperationException("Error inserting: " + uri);
+		if (db.insertOrThrow(TABLE, null, values) != -1) {
+			return Games.buildColorsUri(gameId, values.getAsString(GameColors.COLOR));
 		}
-		return Games.buildColorsUri(gameId, values.getAsString(GameColors.COLOR));
+		return null;
 	}
 }
