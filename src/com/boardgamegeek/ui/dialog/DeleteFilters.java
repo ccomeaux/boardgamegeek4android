@@ -15,7 +15,7 @@ public class DeleteFilters {
 
 		final ContentResolver cr = activity.getContentResolver();
 		final Cursor cursor = cr.query(CollectionFilters.CONTENT_URI, new String[] { CollectionFilters._ID,
-				CollectionFilters.NAME }, null, null, CollectionFilters.DEFAULT_SORT);
+				CollectionFilters.NAME }, null, null, null);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.delete_filters).setCursor(
 				cursor, new DialogInterface.OnClickListener() {

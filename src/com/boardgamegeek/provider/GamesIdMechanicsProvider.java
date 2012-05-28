@@ -28,6 +28,11 @@ public class GamesIdMechanicsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Mechanics.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/mechanics";
 	}

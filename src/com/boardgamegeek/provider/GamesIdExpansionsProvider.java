@@ -29,6 +29,11 @@ public class GamesIdExpansionsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return GamesExpansions.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/expansions";
 	}

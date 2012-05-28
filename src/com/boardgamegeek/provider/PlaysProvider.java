@@ -25,6 +25,11 @@ public class PlaysProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Plays.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "plays";
 	}

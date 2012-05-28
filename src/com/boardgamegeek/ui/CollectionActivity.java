@@ -403,7 +403,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			}
 		}
 
-		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, Collection.DEFAULT_SORT);
+		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, null);
 	}
 
 	@Override

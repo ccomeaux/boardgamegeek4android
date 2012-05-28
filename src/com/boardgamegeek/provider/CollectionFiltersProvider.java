@@ -11,7 +11,7 @@ import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class CollectionFiltersProvider extends BaseProvider {
-	
+
 	private String table = Tables.COLLECTION_FILTERS;
 
 	@Override
@@ -22,6 +22,11 @@ public class CollectionFiltersProvider extends BaseProvider {
 	@Override
 	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
 		deleteCollectionFilterChildren(db, builder);
+	}
+
+	@Override
+	protected String getDefaultSortOrder() {
+		return CollectionFilters.DEFAULT_SORT;
 	}
 
 	@Override

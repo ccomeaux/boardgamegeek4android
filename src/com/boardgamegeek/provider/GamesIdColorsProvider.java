@@ -19,6 +19,11 @@ public class GamesIdColorsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return GameColors.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "games/#/colors";
 	}

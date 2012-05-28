@@ -68,8 +68,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 	}
 
 	private void startQuery() {
-		mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?", new String[] { "0" },
-				Buddies.DEFAULT_SORT);
+		mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?", new String[] { "0" }, null);
 	}
 
 	@Override

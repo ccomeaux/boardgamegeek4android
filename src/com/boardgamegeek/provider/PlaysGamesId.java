@@ -24,6 +24,11 @@ public class PlaysGamesId extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Plays.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "plays/games/#";
 	}

@@ -22,6 +22,11 @@ public class CollectionFiltersIdDetailsProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return CollectionFilterDetails.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "collectionfilters/#/details";
 	}

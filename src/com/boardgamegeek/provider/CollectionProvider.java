@@ -22,6 +22,11 @@ public class CollectionProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Collection.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "collection";
 	}

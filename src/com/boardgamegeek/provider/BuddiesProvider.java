@@ -17,6 +17,11 @@ public class BuddiesProvider extends BaseProvider {
 	}
 
 	@Override
+	protected String getDefaultSortOrder() {
+		return Buddies.DEFAULT_SORT;
+	}
+
+	@Override
 	protected String getPath() {
 		return "buddies";
 	}
@@ -31,5 +36,4 @@ public class BuddiesProvider extends BaseProvider {
 		insert(db, uri, values, TABLE);
 		return Buddies.buildBuddyUri(values.getAsInteger(Buddies.BUDDY_ID));
 	}
-
 }

@@ -130,7 +130,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		if (mHandler == null) {
 			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 		}
-		mHandler.startQuery(TOKEN_RANK, null, mRankUri, RankQuery.PROJECTION, null, null, GameRanks.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_RANK, mRankUri, RankQuery.PROJECTION);
 	}
 
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {

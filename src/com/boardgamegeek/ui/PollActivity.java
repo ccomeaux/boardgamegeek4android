@@ -80,7 +80,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 		setUiVariables();
 		setUris();
 		initUi();
-		mHandler.startQuery(TOKEN_POLL, null, mPollUri, PollQuery.PROJECTION, null, null, GamePolls.DEFAULT_SORT);
+		mHandler.startQuery(TOKEN_POLL, mPollUri, PollQuery.PROJECTION);
 	}
 
 	@Override
@@ -161,15 +161,14 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 					mKeyContainer.setVisibility(View.GONE);
 					mScrollView.setVisibility(View.VISIBLE);
 				} else {
-					mHandler.startQuery(TOKEN_POLL_RESULTS, null, mPollResultsUri, GamePollResultsQuery.PROJECTION,
-							null, null, GamePollResults.DEFAULT_SORT);
+					mHandler.startQuery(TOKEN_POLL_RESULTS, mPollResultsUri, GamePollResultsQuery.PROJECTION);
 				}
 			} else if (token == TOKEN_POLL_RESULTS) {
 				while (cursor.moveToNext()) {
 					final String key = cursor.getString(GamePollResultsQuery.POLL_RESULTS_KEY.ordinal());
 					mHandler.startQuery(TOKEN_POLL_RESULTS_RESULT, (key == null) ? "" : key,
 							Games.buildPollResultsResultUri(mGameId, mType, key),
-							GamePollResultsResultQuery.PROJECTION, null, null, GamePollResultsResult.DEFAULT_SORT);
+							GamePollResultsResultQuery.PROJECTION, null, null, null);
 				}
 			} else if (token == TOKEN_POLL_RESULTS_RESULT) {
 				PlayerNumberRow pnr = new PlayerNumberRow(this);
