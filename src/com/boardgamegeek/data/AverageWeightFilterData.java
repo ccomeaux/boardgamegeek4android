@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class AverageWeightFilterData extends CollectionStatusFilterData {
+public class AverageWeightFilterData extends CollectionFilterData {
 	public static final double MIN_RANGE = 1.0;
 	public static final double MAX_RANGE = 5.0;
 
