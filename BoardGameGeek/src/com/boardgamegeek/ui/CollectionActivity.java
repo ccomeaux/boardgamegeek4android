@@ -443,7 +443,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private void syncFilterButtons() {
 		for (CollectionFilterData filter : mFilters) {
-			Button button = (Button) mFilterLinearLayout.findViewById(filter.getType());
+			Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
 			if (button == null) {
 				mFilterLinearLayout.addView(createFilterButton(filter.getType(), filter.getDisplayText()));
 			} else {
@@ -454,7 +454,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		// Could be when button is clicked, but this keeps filters synced with collection
 		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
 			Button button = (Button) mFilterLinearLayout.getChildAt(i);
-			if (!mFilters.contains(new CollectionFilterData(button.getId()))) {
+			if (!mFilters.contains(new CollectionFilterData((Integer) button.getTag()))) {
 				mFilterLinearLayout.removeView(button);
 				i--;
 			}
@@ -463,8 +463,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private Button createFilterButton(final int type, String text) {
 		final Button button = new Button(this);
-		button.setId(type);
 		button.setText(text);
+		button.setTag(type);
 		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
@@ -476,14 +476,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				launchFilterDialog(v.getId());
+				launchFilterDialog((Integer) v.getTag());
 			}
 		});
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				mFilters.remove(new CollectionFilterData(type));
-				applyFilters();
+				removeFilter(new CollectionFilterData(type));
 				return true;
 			}
 		});
