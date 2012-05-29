@@ -17,6 +17,10 @@ public class CollectionFilterData implements Parcelable {
 		this.type = type;
 	}
 
+	public void setType(int type) {
+		this.type = type;
+	}
+
 	public int getType() {
 		return type;
 	}
@@ -57,9 +61,7 @@ public class CollectionFilterData implements Parcelable {
 		if (o == null || !(o instanceof CollectionFilterData)) {
 			return false;
 		}
-
 		CollectionFilterData other = (CollectionFilterData) o;
-
 		return other.getType() == this.getType();
 	}
 
@@ -95,7 +97,7 @@ public class CollectionFilterData implements Parcelable {
 		type = in.readInt();
 		displayText = in.readString();
 		selection = in.readString();
-		in.readStringArray(selectionArgs);
+		selectionArgs = in.createStringArray();
 	}
 
 	public String flatten() {

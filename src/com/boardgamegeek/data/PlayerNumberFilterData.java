@@ -35,13 +35,9 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	}
 
 	private void init(Context context) {
+		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 		setDisplayText(context.getResources());
 		setSelection();
-	}
-
-	@Override
-	public int getType() {
-		return CollectionFilterDataFactory.TYPE_PLAYER_NUMBER;
 	}
 
 	private void setDisplayText(Resources r) {

@@ -34,12 +34,8 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	@Override
-	public int getType() {
-		return CollectionFilterDataFactory.TYPE_PLAY_TIME;
-	}
-
 	private void init(Context context) {
+		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

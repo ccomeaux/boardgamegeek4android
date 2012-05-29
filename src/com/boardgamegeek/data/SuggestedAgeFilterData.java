@@ -34,12 +34,8 @@ public class SuggestedAgeFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	@Override
-	public int getType() {
-		return CollectionFilterDataFactory.TYPE_SUGGESTED_AGE;
-	}
-
 	private void init(Context context) {
+		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

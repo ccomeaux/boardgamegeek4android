@@ -34,12 +34,8 @@ public class AverageWeightFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	@Override
-	public int getType() {
-		return CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT;
-	}
-
 	private void init(Context context) {
+		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 		setDisplayText(context.getResources());
 		setSelection();
 	}

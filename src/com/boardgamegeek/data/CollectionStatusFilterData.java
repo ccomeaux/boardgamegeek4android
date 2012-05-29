@@ -34,13 +34,9 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	}
 
 	private void init(Context context) {
+		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 		createDisplayText(context.getResources());
 		createSelection(context.getResources());
-	}
-
-	@Override
-	public int getType() {
-		return CollectionFilterDataFactory.TYPE_COLLECTION_STATUS;
 	}
 
 	private void createDisplayText(Resources r) {
