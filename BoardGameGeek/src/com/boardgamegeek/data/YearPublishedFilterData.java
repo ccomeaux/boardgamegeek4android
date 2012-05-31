@@ -26,7 +26,7 @@ public class YearPublishedFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	public YearPublishedFilterData(Context context, int min, int max, boolean undefined) {
+	public YearPublishedFilterData(Context context, int min, int max) {
 		mMin = min;
 		mMax = max;
 		init(context);

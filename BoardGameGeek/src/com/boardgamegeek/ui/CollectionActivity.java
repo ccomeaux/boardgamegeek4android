@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
@@ -51,6 +52,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteFilters;
@@ -93,8 +95,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
-	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
 	private YearPublishedFilter mYearPublishedFilter = new YearPublishedFilter();
+	private AverageRatingFilter mAverageRatingFilter = new AverageRatingFilter();
+	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -390,8 +393,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_year_published:
 			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
-				CollectionFilterData filter = findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
-				mYearPublishedFilter.createDialog(this, (YearPublishedFilterData) filter);
+				mYearPublishedFilter.createDialog(this,
+						(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
+				return true;
+			case R.id.menu_average_rating:
+			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
+				mAverageRatingFilter.createDialog(this,
+						(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
 				return true;
 		}
 		return false;
