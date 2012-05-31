@@ -35,7 +35,7 @@ public class YearPublishedFilter extends SliderFilter {
 
 	@Override
 	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new YearPublishedFilterData(activity, mMinYear, mMaxYear, false);
+		return new YearPublishedFilterData(activity, mMinYear, mMaxYear);
 	}
 
 	@Override

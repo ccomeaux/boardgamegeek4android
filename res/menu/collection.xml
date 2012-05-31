@@ -34,6 +34,9 @@
 				android:id="@+id/menu_year_published"
 				android:title="@string/menu_year_published"/>
 			<item
+				android:id="@+id/menu_average_rating"
+				android:title="@string/menu_average_rating"/>
+			<item
 				android:id="@+id/menu_average_weight"
 				android:title="@string/menu_average_weight"/>
 		</menu>
