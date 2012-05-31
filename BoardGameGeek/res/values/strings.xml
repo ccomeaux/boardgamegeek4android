@@ -267,6 +267,7 @@
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_average_weight">Average Weight</string>
+	<string name="menu_year_published">Year Published</string>
 	<string name="menu_collection_random_game">Random Game</string>
 	<string name="menu_display_game">Display</string>
 	<string name="menu_comments">Comments</string>

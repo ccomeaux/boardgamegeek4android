@@ -46,6 +46,7 @@ import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
+import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionFilters;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -58,6 +59,7 @@ import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
+import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -92,6 +94,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
 	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
+	private YearPublishedFilter mYearPublishedFilter = new YearPublishedFilter();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -384,6 +387,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
 				mAverageWeightFilter.createDialog(this,
 						(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
+				return true;
+			case R.id.menu_year_published:
+			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
+				CollectionFilterData filter = findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
+				mYearPublishedFilter.createDialog(this, (YearPublishedFilterData) filter);
 				return true;
 		}
 		return false;
