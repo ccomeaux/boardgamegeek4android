@@ -437,6 +437,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		mName.setText(view.getTag().toString());
+		mName.setText((String) view.getTag());
 	}
 }
