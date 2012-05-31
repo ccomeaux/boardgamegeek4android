@@ -8,6 +8,7 @@ public class CollectionFilterDataFactory {
 	public static final int TYPE_PLAY_TIME = 3;
 	public static final int TYPE_SUGGESTED_AGE = 4;
 	public static final int TYPE_AVERAGE_WEIGHT = 5;
+	public static final int TYPE_YEAR_PUBLISHED = 6;
 
 	public static CollectionFilterData create(Context context, int type, String data) {
 		switch (type) {
@@ -21,6 +22,8 @@ public class CollectionFilterDataFactory {
 				return new SuggestedAgeFilterData(context, data);
 			case TYPE_AVERAGE_WEIGHT:
 				return new AverageWeightFilterData(context, data);
+			case TYPE_YEAR_PUBLISHED:
+				return new YearPublishedFilterData(context, data);
 			default:
 				return null;
 		}

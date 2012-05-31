@@ -76,6 +76,7 @@ public abstract class SliderFilter {
 	}
 
 	private void initCheckbox(final CheckBox checkbox, final DualSliderView sliderView) {
+		checkbox.setVisibility(getCheckboxVisibility());
 		checkbox.setText(getCheckboxTextId());
 		checkbox.setChecked(getCheckbox());
 		if (getCheckboxDisablesSecondThumb()) {
@@ -101,6 +102,10 @@ public abstract class SliderFilter {
 	protected abstract int getEnd();
 
 	protected abstract boolean getCheckbox();
+
+	protected int getCheckboxVisibility() {
+		return View.VISIBLE;
+	}
 
 	protected int getCheckboxTextId() {
 		return R.string.include_missing_values;
