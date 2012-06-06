@@ -59,7 +59,6 @@
 		android:layout_centerVertical="true"
 		android:background="@drawable/text_view_border"
 		android:gravity="center_vertical|center_horizontal"
-		android:inputType="textCapCharacters"
 		android:text=""
 		android:textSize="@dimen/text_size_huge"
 		android:visibility="invisible" />

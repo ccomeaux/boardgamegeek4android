@@ -1,7 +1,6 @@
 package com.boardgamegeek.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
@@ -15,6 +14,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -42,7 +42,7 @@ public class SyncService extends IntentService {
 	private boolean mIsRunning = false;
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
-	private HashMap<Integer, List<SyncTask>> mTaskList = new HashMap<Integer, List<SyncTask>>();
+	private SparseArray<List<SyncTask>> mTaskList = new SparseArray<List<SyncTask>>();
 	private ResultReceiver mResultReceiver;
 	private RemoteExecutor mRemoteExecutor;
 

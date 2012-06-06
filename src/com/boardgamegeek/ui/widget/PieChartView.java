@@ -12,6 +12,7 @@ import android.view.View;
 
 public class PieChartView extends View {
 
+	private RectF mOvals;
 	private final Paint mPaint = new Paint();
 	private float mTotal = 0.0f;
 	private List<Slice> mColors = new ArrayList<Slice>();
@@ -26,16 +27,20 @@ public class PieChartView extends View {
 
 	public PieChartView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-
 		mPaint.setAntiAlias(true);
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		mOvals = new RectF(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight()
+				- getPaddingBottom());
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
-		RectF mOvals = new RectF(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight()
-				- getPaddingBottom());
 		float startAngle = 0.0f;
 		for (int i = 0; i < mColors.size(); i++) {
 			float sweepAngle = (mColors.get(i).Value / mTotal) * 360;

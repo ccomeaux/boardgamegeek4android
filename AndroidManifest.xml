@@ -227,7 +227,8 @@
 
 		<provider
 			android:name=".provider.BggProvider"
-			android:authorities="com.boardgamegeek" />
+			android:authorities="com.boardgamegeek"
+			android:exported="false" />
 
 		<meta-data
 			android:name="android.app.default_searchable"

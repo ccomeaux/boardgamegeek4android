@@ -219,7 +219,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mDesignerIds.remove(new Integer(designerId))) {
+		if (!mDesignerIds.remove(Integer.valueOf(designerId))) {
 			mResolver.insert(Designers.CONTENT_URI, values);
 
 			values.clear();
@@ -243,7 +243,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mArtistIds.remove(new Integer(artistId))) {
+		if (!mArtistIds.remove(Integer.valueOf(artistId))) {
 			mResolver.insert(Artists.CONTENT_URI, values);
 
 			values.clear();
@@ -267,7 +267,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mPublisherIds.remove(new Integer(publisherId))) {
+		if (!mPublisherIds.remove(Integer.valueOf(publisherId))) {
 			mResolver.insert(Publishers.CONTENT_URI, values);
 
 			values.clear();
@@ -291,7 +291,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mMechanicIds.remove(new Integer(mechanicId))) {
+		if (!mMechanicIds.remove(Integer.valueOf(mechanicId))) {
 			mResolver.insert(Mechanics.CONTENT_URI, values);
 
 			values.clear();
@@ -315,7 +315,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mCategoryIds.remove(new Integer(categoryId))) {
+		if (!mCategoryIds.remove(Integer.valueOf(categoryId))) {
 			mResolver.insert(Categories.CONTENT_URI, values);
 
 			values.clear();
@@ -339,7 +339,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mExpansionIds.remove(new Integer(expansionId))) {
+		if (!mExpansionIds.remove(Integer.valueOf(expansionId))) {
 			values.put(Games.GAME_ID, mGameId);
 			values.put(GamesExpansions.EXPANSION_ID, expansionId);
 			mResolver.insert(Games.buildExpansionsUri(mGameId), values);
