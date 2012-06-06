@@ -30,15 +30,11 @@ public class SyncBuddiesDetail extends SyncTask {
 			long days = System.currentTimeMillis() - (SYNC_BUDDY_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, SyncColumns.UPDATED
 					+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
-			if (cursor.moveToFirst()) {
+			if (cursor.getCount() > 0) {
 				Log.i(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
 				fetchBuddies(executor, cursor);
 			} else {
-				Log.i(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
-				cursor.close();
-				cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,
-						SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
-				fetchBuddies(executor, cursor);
+				fetchOldestBuddies(executor, resolver);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -47,16 +43,32 @@ public class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws HandlerException {
-		cursor.moveToPosition(-1);
-		while (cursor.moveToNext()) {
-			String name = cursor.getString(0);
-			RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
-			executor.executeGet(HttpUtils.constructUserUrl(name), handler);
-			if (handler.isBggDown()) {
-				setIsBggDown(true);
-				break;
+	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver) throws HandlerException {
+		Log.i(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
+		Cursor cursor = null;
+		try {
+			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,
+					SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
+			fetchBuddies(executor, cursor);
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
 			}
+		}
+	}
+
+	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws HandlerException {
+		if (cursor.moveToFirst()) {
+			do {
+				String name = cursor.getString(0);
+				RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
+				executor.executeGet(HttpUtils.constructUserUrl(name), handler);
+				if (handler.isBggDown()) {
+					setIsBggDown(true);
+					break;
+				}
+
+			} while (cursor.moveToNext());
 		}
 	}
 
