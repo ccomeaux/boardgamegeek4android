@@ -6,71 +6,70 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteBuddyUserHandler extends XmlHandler {
+public class RemoteBuddyUserHandler extends RemoteBggHandler {
 	private static final String TAG = "RemoteBuddyUserHandler";
+	private int mCount;
 
 	public RemoteBuddyUserHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
+	public int getCount() {
+		return mCount;
+	}
 
-		String[] projection = { Buddies.BUDDY_ID };
+	@Override
+	protected String getRootNodeName() {
+		return Tags.USER;
+	}
 
-		int type;
-		while ((type = parser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.USER.equals(parser.getName())) {
-				int id = StringUtils.parseInt(parser.getAttributeValue(null, Tags.ID));
-				String name = parser.getAttributeValue(null, Tags.NAME);
-				ContentValues values = parseUser(parser, resolver);
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
+		int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
+		String name = mParser.getAttributeValue(null, Tags.NAME);
+		ContentValues values = parseUser();
 
-				Uri uri = Buddies.buildBuddyUri(id);
-				Cursor cursor = resolver.query(uri, projection, null, null, null);
-				if (!cursor.moveToFirst()) {
-					cursor.close();
-					if (name.equals(BggApplication.getInstance().getUserName())) {
-						resolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?", new String[] { name });
-					} else {
-						Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
-					}
+		Uri uri = Buddies.buildBuddyUri(id);
+		Cursor cursor = mResolver.query(uri, new String[] { Buddies.BUDDY_ID }, null, null, null);
+		try {
+			if (cursor.getCount() == 0) {
+				if (name.equals(BggApplication.getInstance().getUserName())) {
+					mCount += mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
+							new String[] { name });
 				} else {
-					resolver.update(uri, values, null, null);
+					Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
 				}
-
+			} else {
+				mCount += mResolver.update(uri, values, null, null);
+			}
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
-
-		return false;
 	}
 
-	private ContentValues parseUser(XmlPullParser parser, ContentResolver resolver) throws XmlPullParserException,
-			IOException {
-
-		final int depth = parser.getDepth();
+	private ContentValues parseUser() throws XmlPullParserException, IOException {
+		final int depth = mParser.getDepth();
 		ContentValues values = new ContentValues();
 
 		int type;
-		while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
-				final String tag = parser.getName();
-				final String attribute = parser.getAttributeValue(null, Tags.VALUE);
+				final String tag = mParser.getName();
+				final String attribute = mParser.getAttributeValue(null, Tags.VALUE);
 				if (Tags.FIRSTNAME.equals(tag)) {
 					values.put(Buddies.BUDDY_FIRSTNAME, attribute);
 				} else if (Tags.LASTNAME.equals(tag)) {

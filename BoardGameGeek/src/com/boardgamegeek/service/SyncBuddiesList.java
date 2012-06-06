@@ -25,8 +25,14 @@ public class SyncBuddiesList extends SyncTask {
 
 		final long startTime = System.currentTimeMillis();
 		insertSelf(resolver, username);
-		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), new RemoteBuddiesHandler());
-		resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?", new String[] { String.valueOf(startTime) });
+		RemoteBuddiesHandler handler = new RemoteBuddiesHandler();
+		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), handler);
+		if (handler.isBggDown()) {
+			setIsBggDown(true);
+		} else {
+			resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
+					new String[] { String.valueOf(startTime) });
+		}
 	}
 
 	@Override
@@ -52,7 +58,7 @@ public class SyncBuddiesList extends SyncTask {
 				resolver.insert(Buddies.CONTENT_URI, values);
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}

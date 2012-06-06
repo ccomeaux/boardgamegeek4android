@@ -6,100 +6,76 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
 
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteBuddiesHandler extends XmlHandler {
+public class RemoteBuddiesHandler extends RemoteBggHandler {
 	private static final String TAG = "RemoteBuddiesHandler";
-
-	private static final int PAGE_SIZE = 100;
+	private int mUpdateCount = 0;
+	private int mInsertCount = 0;
 
 	public RemoteBuddiesHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		super();
 	}
 
 	@Override
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-		throws XmlPullParserException, IOException {
-
-		int buddyCount = 0;
-		int page = 0;
-
-		int type;
-		while ((type = parser.next()) != END_DOCUMENT) {
-			if (type == START_TAG && Tags.BUDDIES.equals(parser.getName())) {
-				buddyCount = StringUtils.parseInt(parser.getAttributeValue(null, Tags.TOTAL));
-				page = StringUtils.parseInt(parser.getAttributeValue(null, Tags.PAGE));
-
-				parseBuddies(parser, resolver);
-			}
-		}
-
-		return buddyCount > (page * PAGE_SIZE);
+	public int getCount() {
+		return mUpdateCount + mInsertCount;
 	}
 
-	private void parseBuddies(XmlPullParser parser, ContentResolver resolver) throws XmlPullParserException,
-		IOException {
+	@Override
+	protected String getRootNodeName() {
+		return Tags.BUDDIES;
+	}
 
+	@Override
+	protected void parseItems() throws XmlPullParserException, IOException {
 		String[] projection = { BaseColumns._ID, };
-		final int depth = parser.getDepth();
-		ContentValues values = new ContentValues();
-
-		int updateCount = 0;
-		int insertCount = 0;
+		final int depth = mParser.getDepth();
 
 		Uri uri;
 		Cursor cursor = null;
 		try {
 			int type;
-			while (((type = parser.next()) != END_TAG || parser.getDepth() > depth) && type != END_DOCUMENT) {
-				if (type == START_TAG && Tags.BUDDY.equals(parser.getName())) {
+			while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+				if (type == START_TAG && Tags.BUDDY.equals(mParser.getName())) {
 
-					int id = StringUtils.parseInt(parser.getAttributeValue(null, Tags.ID));
-
+					int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
 					if (id > 0) {
-
-						values.clear();
+						ContentValues values = new ContentValues();
 						values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 
 						uri = Buddies.buildBuddyUri(id);
-						cursor = resolver.query(uri, projection, null, null, null);
+						cursor = mResolver.query(uri, projection, null, null, null);
 						if (cursor.moveToFirst()) {
-							resolver.update(uri, values, null, null);
-							updateCount++;
+							mUpdateCount += mResolver.update(uri, values, null, null);
 						} else {
 							values.put(Buddies.BUDDY_ID, id);
-							values.put(Buddies.BUDDY_NAME, parser.getAttributeValue(null, Tags.NAME));
-							resolver.insert(Buddies.CONTENT_URI, values);
-							insertCount++;
+							values.put(Buddies.BUDDY_NAME, mParser.getAttributeValue(null, Tags.NAME));
+							mResolver.insert(Buddies.CONTENT_URI, values);
+							mInsertCount++;
 						}
-						cursor.deactivate();
 					}
 				}
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
-			Log.i(TAG, "Updated " + updateCount + ", inserted " + insertCount + " buddies");
+			Log.i(TAG, "Updated " + mUpdateCount + ", inserted " + mInsertCount + " buddies");
 		}
 	}
 
 	private interface Tags {
 		String BUDDIES = "buddies";
-		String TOTAL = "total";
-		String PAGE = "page";
 		String BUDDY = "buddy";
 		String ID = "id";
 		String NAME = "name";

@@ -41,7 +41,7 @@ public class SyncBuddiesDetail extends SyncTask {
 				fetchBuddies(executor, cursor);
 			}
 		} finally {
-			if (cursor != null) {
+			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
 		}
@@ -51,7 +51,12 @@ public class SyncBuddiesDetail extends SyncTask {
 		cursor.moveToPosition(-1);
 		while (cursor.moveToNext()) {
 			String name = cursor.getString(0);
-			executor.executeGet(HttpUtils.constructUserUrl(name), new RemoteBuddyUserHandler());
+			RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
+			executor.executeGet(HttpUtils.constructUserUrl(name), handler);
+			if (handler.isBggDown()) {
+				setIsBggDown(true);
+				break;
+			}
 		}
 	}
 
