@@ -209,7 +209,7 @@ public class PlayHelper {
 		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, mPlay.GameName);
 
-		if (mItemObjectIds != null && mItemObjectIds.remove(new Integer(objectId))) {
+		if (mItemObjectIds != null && mItemObjectIds.remove(Integer.valueOf(objectId))) {
 			mResolver.update(Plays.buildItemUri(mPlay.PlayId, objectId), values, null, null);
 		} else {
 			values.put(PlayItems.OBJECT_ID, objectId);
@@ -233,7 +233,7 @@ public class PlayHelper {
 			values.put(PlayPlayers.RATING, player.Rating);
 			values.put(PlayPlayers.WIN, player.Win);
 
-			if (mPlayerUserIds != null && mPlayerUserIds.remove(new Integer(userId))) {
+			if (mPlayerUserIds != null && mPlayerUserIds.remove(Integer.valueOf(userId))) {
 				mResolver.update(Plays.buildPlayerUri(mPlay.PlayId), values, PlayPlayers.USER_ID + "=?",
 						new String[] { String.valueOf(userId) });
 			} else {
