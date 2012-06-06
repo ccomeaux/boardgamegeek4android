@@ -15,7 +15,6 @@
 		android:layout_height="wrap_content" >
 
 		<LinearLayout
-			android:id="@+id/log_play_player_list"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:gravity="top"
@@ -36,33 +35,6 @@
 				android:onClick="onDateClick" />
 
 			<TextView
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/quantity" />
-
-			<EditText
-				android:id="@+id/log_play_quantity"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/quantity_hint"
-				android:inputType="number" />
-
-			<TextView
-				android:id="@+id/log_play_length_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/length" />
-
-			<EditText
-				android:id="@+id/log_play_length"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/length_hint"
-				android:inputType="number" />
-
-			<TextView
 				android:id="@+id/log_play_location_label"
 				style="@style/log_play_label"
 				android:layout_width="fill_parent"
@@ -78,6 +50,54 @@
 				android:imeOptions="actionNext"
 				android:inputType="textCapWords"
 				android:textColor="#000" />
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:baselineAligned="false"
+				android:orientation="horizontal" >
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:orientation="vertical" >
+
+					<TextView
+						style="@style/log_play_label"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/quantity" />
+
+					<EditText
+						android:id="@+id/log_play_quantity"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/quantity_hint"
+						android:inputType="number" />
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:orientation="vertical" >
+
+					<TextView
+						android:id="@+id/log_play_length_label"
+						style="@style/log_play_label"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/length" />
+
+					<EditText
+						android:id="@+id/log_play_length"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/length_hint"
+						android:inputType="number" />
+				</LinearLayout>
+			</LinearLayout>
 
 			<LinearLayout
 				android:layout_width="fill_parent"
@@ -116,24 +136,38 @@
 				android:hint="@string/comments_hint"
 				android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
 
-			<TextView
-				android:id="@+id/log_play_players_label"
-				style="@style/log_play_label"
+			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/players" />
-
-			<TextView
-				android:id="@+id/log_play_players_add"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				android:clickable="true"
-				android:contentDescription="@string/add"
-				android:drawableRight="@drawable/add"
 				android:gravity="center_vertical"
-				android:onClick="onAddPlayerClick"
-				android:text="@string/add_player" />
+				android:orientation="horizontal" >
+
+				<TextView
+					android:id="@+id/log_play_players_label"
+					style="@style/log_play_label"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/players" />
+
+				<TextView
+					android:id="@+id/log_play_players_add"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="right"
+					android:clickable="true"
+					android:contentDescription="@string/add"
+					android:drawableRight="@drawable/add"
+					android:gravity="center_vertical"
+					android:onClick="onAddPlayerClick" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/log_play_player_list"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="top"
+				android:orientation="vertical" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"
@@ -146,8 +180,8 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:enabled="false"
 					android:onClick="onSendClick"
+					android:state_enabled="false"
 					android:text="@string/send" />
 
 				<Button
