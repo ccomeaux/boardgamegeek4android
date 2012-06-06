@@ -496,13 +496,13 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		row.setTag(mNextPlayerTag++);
 		row.setOnEditListener(onPlayerEdit());
 		row.setOnDeleteListener(onPlayerDelete());
-		mPlayerList.addView(row, mPlayerList.getChildCount() - 2);
+		mPlayerList.addView(row);
 		calculatePlayerCount();
 	}
 
 	private void calculatePlayerCount() {
 		Resources r = getResources();
-		int playerCount = mPlay.getPlayers().size();
+		int playerCount = mPlayerList.getChildCount();
 		if (playerCount <= 0) {
 			mPlayerLabel.setText(r.getString(R.string.players));
 		} else {
