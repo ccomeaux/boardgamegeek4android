@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,13 +62,13 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 
 		mAdapter = new BuddiesAdapter(this);
 		setListAdapter(mAdapter);
-
 		mUri = getIntent().getData();
-		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		startQuery();
 	}
 
 	private void startQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
 		mHandler.startQuery(mUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?", new String[] { "0" }, null);
 	}
 
@@ -80,6 +81,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
+		startQuery();
 		mThumbnailTask = new ThumbnailTask();
 		mThumbnailTask.execute();
 	}
@@ -141,17 +143,10 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 	}
 
 	private ContentObserver mBuddyObserver = new ContentObserver(new Handler()) {
-		private static final long OBSERVER_THROTTLE_IN_MILLIS = 10000; // 10s
-
-		private long mLastUpdated;
-
 		@Override
 		public void onChange(boolean selfChange) {
-			long now = System.currentTimeMillis();
-			if (now - mLastUpdated > OBSERVER_THROTTLE_IN_MILLIS) {
-				startQuery();
-				mLastUpdated = System.currentTimeMillis();
-			}
+			super.onChange(selfChange);
+			startQuery();
 		}
 	};
 
@@ -174,8 +169,9 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
-			holder.fullname.setText(cursor.getString(BuddiesQuery.FIRSTNAME) + " "
-					+ cursor.getString(BuddiesQuery.LASTNAME));
+			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
+			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
+			holder.fullname.setText(buildFullName(firstName, lastName));
 			holder.name.setText(cursor.getString(BuddiesQuery.NAME));
 			holder.avatarUrl = cursor.getString(BuddiesQuery.AVATAR_URL);
 
@@ -186,6 +182,18 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 				holder.avatarUrl = null;
 				holder.avatar.setImageDrawable(thumbnail);
 				holder.avatar.setVisibility(View.VISIBLE);
+			}
+		}
+
+		protected String buildFullName(String firstName, String lastName) {
+			if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
+				return "?";
+			} else if (TextUtils.isEmpty(firstName)) {
+				return lastName;
+			} else if (TextUtils.isEmpty(firstName)) {
+				return lastName;
+			} else {
+				return firstName + " " + lastName;
 			}
 		}
 	}
