@@ -23,7 +23,7 @@ public class SyncBuddiesList extends SyncTask {
 		ContentResolver resolver = context.getContentResolver();
 		String username = BggApplication.getInstance().getUserName();
 
-		final long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		insertSelf(resolver, username);
 		RemoteBuddiesHandler handler = new RemoteBuddiesHandler();
 		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), handler);

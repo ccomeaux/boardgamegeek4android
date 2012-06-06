@@ -42,20 +42,20 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 		final int depth = mParser.getDepth();
 
 		Uri uri;
-		Cursor cursor = null;
-		try {
-			int type;
-			while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
-				if (type == START_TAG && Tags.BUDDY.equals(mParser.getName())) {
+		int type;
+		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
+			if (type == START_TAG && Tags.BUDDY.equals(mParser.getName())) {
 
-					int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
-					if (id > 0) {
-						ContentValues values = new ContentValues();
-						values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
+				int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
+				if (id > 0) {
+					ContentValues values = new ContentValues();
+					values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 
-						uri = Buddies.buildBuddyUri(id);
+					uri = Buddies.buildBuddyUri(id);
+					Cursor cursor = null;
+					try {
 						cursor = mResolver.query(uri, projection, null, null, null);
-						if (cursor.moveToFirst()) {
+						if (cursor.getCount() > 0) {
 							mUpdateCount += mResolver.update(uri, values, null, null);
 						} else {
 							values.put(Buddies.BUDDY_ID, id);
@@ -63,15 +63,15 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 							mResolver.insert(Buddies.CONTENT_URI, values);
 							mInsertCount++;
 						}
+					} finally {
+						if (cursor != null && !cursor.isClosed()) {
+							cursor.close();
+						}
 					}
 				}
 			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-			Log.i(TAG, "Updated " + mUpdateCount + ", inserted " + mInsertCount + " buddies");
 		}
+		Log.i(TAG, "Updated " + mUpdateCount + ", inserted " + mInsertCount + " buddies");
 	}
 
 	private interface Tags {
