@@ -163,9 +163,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(Collection.CONTENT_URI, false, mGameObserver);
-		// getContentResolver().registerContentObserver(Games.CONTENT_URI, false, mGameObserver);
-		// getContentResolver().registerContentObserver(GameRanks.CONTENT_URI, false, mGameObserver);
+		getContentResolver().registerContentObserver(Games.CONTENT_URI, true, mGameObserver);
 	}
 
 	@Override
