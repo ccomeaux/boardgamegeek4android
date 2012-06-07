@@ -44,6 +44,8 @@ import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
+import com.boardgamegeek.data.GeekRankingFilterData;
+import com.boardgamegeek.data.GeekRatingFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
@@ -56,6 +58,8 @@ import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteFilters;
+import com.boardgamegeek.ui.dialog.GeekRankingFilter;
+import com.boardgamegeek.ui.dialog.GeekRatingFilter;
 import com.boardgamegeek.ui.dialog.LoadFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
@@ -96,6 +100,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
 	private YearPublishedFilter mYearPublishedFilter = new YearPublishedFilter();
+	private GeekRankingFilter mGeekRankingFilter = new GeekRankingFilter();
+	private GeekRatingFilter mGeekRatingFilter = new GeekRatingFilter();
 	private AverageRatingFilter mAverageRatingFilter = new AverageRatingFilter();
 	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
 
@@ -157,7 +163,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getContentResolver().registerContentObserver(mUri, false, mGameObserver);
+		getContentResolver().registerContentObserver(Collection.CONTENT_URI, false, mGameObserver);
+		// getContentResolver().registerContentObserver(Games.CONTENT_URI, false, mGameObserver);
+		// getContentResolver().registerContentObserver(GameRanks.CONTENT_URI, false, mGameObserver);
 	}
 
 	@Override
@@ -400,6 +408,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
 				mAverageRatingFilter.createDialog(this,
 						(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
+				return true;
+			case R.id.menu_geek_rating:
+			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
+				mGeekRatingFilter.createDialog(this,
+						(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
+				return true;
+			case R.id.menu_geek_ranking:
+			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
+				mGeekRankingFilter.createDialog(this,
+						(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
 		}
 		return false;

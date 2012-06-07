@@ -29,6 +29,7 @@ public class DualSliderView extends View {
 	private int mMaxRange = 100;
 	private double mStep = 1.0;
 	private boolean mSecondThumbEnabled = true;
+	private int mStartOffset = 0;
 
 	private double mMargin;
 	private int mRangeDelta;
@@ -126,7 +127,7 @@ public class DualSliderView extends View {
 			mKnobs[1] = new Knob(getContext(), R.drawable.knob, mPointKnobEnd);
 			mKnobs[0].setId(1);
 			mKnobs[1].setId(2);
-			knobValuesChanged(true, true, getStartKnobValue(), getEndKnobValue());
+			knobValuesChanged(true, true, getMinKnobValue(), getMaxKnobValue());
 
 			mPaintSelected = new Paint(); // the paint between knobs
 			mPaintSelected.setColor(Color.YELLOW);
@@ -184,13 +185,13 @@ public class DualSliderView extends View {
 						mKnobs[0].setX(x - mKnobRadius);
 						if (newKnobValue != getStartKnobValue()) {
 							mStartKnobValue = newKnobValue;
-							knobValuesChanged(true, false, getStartKnobValue(), getEndKnobValue());
+							knobValuesChanged(true, false, getMinKnobValue(), getMaxKnobValue());
 						}
 					} else if (mKnobId == 2) {
 						mKnobs[1].setX(x - mKnobRadius);
 						if (newKnobValue != getEndKnobValue()) {
 							mEndKnobValue = newKnobValue;
-							knobValuesChanged(false, true, getStartKnobValue(), getEndKnobValue());
+							knobValuesChanged(false, true, getMinKnobValue(), getMaxKnobValue());
 						}
 					}
 				}
@@ -216,6 +217,10 @@ public class DualSliderView extends View {
 		setRange((int) (min / step), (int) (max / step));
 	}
 
+	public void setStartOffset(int startOffset) {
+		mStartOffset = startOffset;
+	}
+
 	public boolean isSecondThumbEnabled() {
 		return mSecondThumbEnabled;
 	}
@@ -226,15 +231,15 @@ public class DualSliderView extends View {
 		invalidate();
 	}
 
-	public int getMinKnobValue(){
-		return Math.min(getStartKnobValue(), getEndKnobValue());
+	public int getMinKnobValue() {
+		return Math.min(getStartKnobValue(), getEndKnobValue()) + mStartOffset;
 	}
 
-	public int getMaxKnobValue(){
+	public int getMaxKnobValue() {
 		return Math.max(getStartKnobValue(), getEndKnobValue());
 	}
 
-	public int getStartKnobValue() {
+	private int getStartKnobValue() {
 		return (int) (mStartKnobValue * mStep);
 	}
 
@@ -242,7 +247,7 @@ public class DualSliderView extends View {
 		mStartKnobValue = (int) (startKnobValue / mStep);
 	}
 
-	public int getEndKnobValue() {
+	private int getEndKnobValue() {
 		return (int) (mEndKnobValue * mStep);
 	}
 
@@ -293,7 +298,7 @@ public class DualSliderView extends View {
 	private int chooseDimension(int mode, int size) {
 		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
 			return size;
-		} else { // (mode == MeasureSpec.UNSPECIFIED)
+		} else {
 			return 0;
 		}
 	}

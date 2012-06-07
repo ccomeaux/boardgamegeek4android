@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -11,8 +13,14 @@ public class CollectionProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, getTable())
-				.mapToTable(Collection.GAME_ID, getTable());
+		String table = Tables.COLLECTION + createJoin(Tables.GAMES, Games.GAME_ID)
+				+ createJoin(Tables.GAME_RANKS, GameRanks.GAME_ID);
+		return new SelectionBuilder().table(table).mapToTable(Collection._ID, Tables.COLLECTION)
+				.mapToTable(Collection.GAME_ID, Tables.COLLECTION).whereEquals(GameRanks.GAME_RANK_ID, 1);
+	}
+
+	private static String createJoin(String table2, String column) {
+		return " LEFT OUTER JOIN " + table2 + " ON " + Tables.COLLECTION + "." + column + "=" + table2 + "." + column;
 	}
 
 	@Override
@@ -27,7 +35,7 @@ public class CollectionProvider extends BasicProvider {
 
 	@Override
 	protected String getPath() {
-		return "collection";
+		return BggContract.PATH_COLLECTION;
 	}
 
 	@Override
