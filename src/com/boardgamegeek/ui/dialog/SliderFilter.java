@@ -49,6 +49,7 @@ public abstract class SliderFilter {
 
 	private void initSlider(final CollectionActivity activity, final TextView textInterval,
 			final DualSliderView sliderView) {
+		sliderView.setStartOffset(getStartOffset());
 		sliderView.setRange(getMin(), getMax(), getStep());
 		sliderView.setStartKnobValue(getStart());
 		sliderView.setEndKnobValue(getEnd());
@@ -73,6 +74,10 @@ public abstract class SliderFilter {
 				textInterval.setText(text);
 			}
 		});
+	}
+
+	protected int getStartOffset() {
+		return 0;
 	}
 
 	private void initCheckbox(final CheckBox checkbox, final DualSliderView sliderView) {

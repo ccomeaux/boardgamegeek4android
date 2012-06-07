@@ -163,10 +163,10 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="average">Average</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
-	<string name="add_player">Add Player</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="image">Image</string>
@@ -211,7 +211,6 @@
 	<string name="home_btn_about">About</string>
 	<string name="notification_title">BoardGameGeek</string>
 	<string name="notification_bgg_down">BGG is down</string>
-	<string name="notification_status_complete">Sync complete</string>
 	<string name="notification_text_start">Sync started</string>
 	<string name="notification_text_buddies_list">Syncing buddies list</string>
 	<string name="notification_text_buddies_detail">Syncing buddies detail</string>
@@ -266,6 +265,8 @@
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>
+	<string name="menu_geek_ranking">Geek Ranking</string>
+	<string name="menu_geek_rating">Geek Rating</string>
 	<string name="menu_average_rating">Average Rating</string>
 	<string name="menu_average_weight">Average Weight</string>
 	<string name="menu_year_published">Year Published</string>
