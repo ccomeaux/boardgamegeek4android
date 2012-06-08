@@ -9,6 +9,7 @@ public class CollectionFilterData implements Parcelable {
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
+	private String path;
 
 	public CollectionFilterData() {
 	}
@@ -37,6 +38,10 @@ public class CollectionFilterData implements Parcelable {
 		return selectionArgs;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	public CollectionFilterData displayText(String displayText) {
 		this.displayText = displayText;
 		return this;
@@ -52,8 +57,13 @@ public class CollectionFilterData implements Parcelable {
 		return this;
 	}
 
+	public CollectionFilterData path(String path) {
+		this.path = path;
+		return this;
+	}
+
 	public boolean isValid() {
-		return !TextUtils.isEmpty(displayText) && !TextUtils.isEmpty(selection);
+		return !TextUtils.isEmpty(displayText) && (!TextUtils.isEmpty(selection) || !TextUtils.isEmpty(path));
 	}
 
 	@Override

@@ -21,6 +21,7 @@ package com.boardgamegeek.util;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -42,6 +43,7 @@ public class SelectionBuilder {
 	private StringBuilder mSelection = new StringBuilder();
 	private ArrayList<String> mSelectionArgs = new ArrayList<String>();
 	private String mGroupBy = null;
+	private String mHaving = null;
 
 	/**
 	 * Reset any internal state, allowing this builder to be recycled.
@@ -105,8 +107,23 @@ public class SelectionBuilder {
 		}
 	}
 
+	private void assertHaving() {
+		if (!TextUtils.isEmpty(mHaving) && TextUtils.isEmpty(mGroupBy)) {
+			throw new IllegalStateException("Group by must be specified for Having clause");
+		}
+	}
+
 	public SelectionBuilder mapToTable(String column, String table) {
-		mProjectionMap.put(column, table + "." + column);
+		if (column.equals(BaseColumns._ID)) {
+			mapToTable(column, table, column);
+		} else {
+			mProjectionMap.put(column, table + "." + column);
+		}
+		return this;
+	}
+
+	public SelectionBuilder mapToTable(String column, String table, String fromColumn) {
+		mProjectionMap.put(column, table + "." + column + " AS " + fromColumn);
 		return this;
 	}
 
@@ -117,6 +134,7 @@ public class SelectionBuilder {
 
 	public SelectionBuilder groupBy(String... groupArgs) {
 		if (groupArgs != null) {
+			// mapColumns(groupArgs);
 			mGroupBy = new String();
 			for (String arg : groupArgs) {
 				if (mGroupBy.length() > 0) {
@@ -126,6 +144,11 @@ public class SelectionBuilder {
 			}
 		}
 
+		return this;
+	}
+
+	public SelectionBuilder having(String having) {
+		mHaving = having;
 		return this;
 	}
 
@@ -159,14 +182,15 @@ public class SelectionBuilder {
 	@Override
 	public String toString() {
 		return "SelectionBuilder[table=" + mTable + ", selection=" + getSelection() + ", selectionArgs="
-				+ Arrays.toString(getSelectionArgs()) + "]";
+				+ Arrays.toString(getSelectionArgs()) + ", groupBy=" + mGroupBy + ", having=" + mHaving + "]";
 	}
 
 	/**
 	 * Execute query using the current internal state as {@code WHERE} clause.
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
-		return query(db, columns, mGroupBy, null, orderBy, null);
+		assertHaving();
+		return query(db, columns, mGroupBy, mHaving, orderBy, null);
 	}
 
 	/**

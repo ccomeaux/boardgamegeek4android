@@ -12,6 +12,7 @@ public class CollectionFilterDataFactory {
 	public static final int TYPE_AVERAGE_RATING = 7;
 	public static final int TYPE_GEEK_RATING = 8;
 	public static final int TYPE_GEEK_RANKING = 9;
+	public static final int TYPE_EXPANSION_STATUS = 10;
 
 	public static CollectionFilterData create(Context context, int type, String data) {
 		switch (type) {
@@ -33,6 +34,8 @@ public class CollectionFilterDataFactory {
 				return new GeekRatingFilterData(context, data);
 			case TYPE_GEEK_RANKING:
 				return new GeekRankingFilterData(context, data);
+			case TYPE_EXPANSION_STATUS:
+				return new ExpansionStatusFilterData(context, data);
 			default:
 				return null;
 		}
