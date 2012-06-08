@@ -12,6 +12,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.net.Uri.Builder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
+import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
@@ -58,6 +60,7 @@ import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
 import com.boardgamegeek.ui.dialog.DeleteFilters;
+import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
 import com.boardgamegeek.ui.dialog.LoadFilters;
@@ -96,6 +99,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private String mFilterName = "";
 	private String mFilterNamePrior = "";
 	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
+	private ExpansionStatusFilter mExpansionStatusFilter = new ExpansionStatusFilter();
 	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
 	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
 	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
@@ -377,6 +381,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mCollectionStatusFilter.createDialog(this,
 						(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
 				return true;
+			case R.id.menu_expansion_status:
+			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
+				mExpansionStatusFilter.createDialog(this,
+						(ExpansionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
 				mNumberOfPlayersFilter.createDialog(this,
@@ -424,7 +433,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private void applyFilters() {
 		StringBuilder where = new StringBuilder();
 		String[] args = {};
-
+		Builder builder = Collection.CONTENT_URI.buildUpon();
 		for (CollectionFilterData filter : mFilters) {
 			if (!TextUtils.isEmpty(filter.getSelection())) {
 				if (where.length() > 0) {
@@ -433,8 +442,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				where.append("(").append(filter.getSelection()).append(")");
 				args = StringUtils.concat(args, filter.getSelectionArgs());
 			}
+			if (!TextUtils.isEmpty(filter.getPath())) {
+				builder.appendPath(filter.getPath());
+			}
 		}
-
+		mUri = builder.build();
 		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, null);
 	}
 

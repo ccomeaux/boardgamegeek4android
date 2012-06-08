@@ -88,6 +88,8 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new CollectionProvider());
 		addProvider(map, new CollectionIdProvider());
+		addProvider(map, new CollectionExpansionsProvider());
+		addProvider(map, new CollectionNoExpansionsProvider());
 
 		addProvider(map, new PlaysProvider());
 		addProvider(map, new PlaysIdProvider());

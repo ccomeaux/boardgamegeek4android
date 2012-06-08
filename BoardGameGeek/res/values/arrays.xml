@@ -51,5 +51,10 @@
 		<item>want_to_play</item>
 		<item>preordered</item>
 	</string-array>
+	<string-array name="expansion_status_filter">
+		<item>All</item>
+		<item>Exclude Expansions</item>
+		<item>Expansions</item>
+	</string-array>
 
 </resources>

@@ -22,6 +22,9 @@
 				android:id="@+id/menu_collection_status"
 				android:title="@string/menu_collection_status"/>
 			<item
+				android:id="@+id/menu_expansion_status"
+				android:title="@string/menu_expansion_status"/>
+			<item
 				android:id="@+id/menu_number_of_players"
 				android:title="@string/menu_number_of_players"/>
 			<item

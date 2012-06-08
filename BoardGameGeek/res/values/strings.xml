@@ -144,6 +144,7 @@
 	<string name="save_filters">Save Filters</string>
 	<string name="load_filters">Load Filters</string>
 	<string name="delete_filters">Delete Filters</string>
+	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="start">Start</string>
 	<string name="exact">Exact</string>
@@ -262,6 +263,7 @@
 	<string name="menu_collection_filter_load">Load Filters…</string>
 	<string name="menu_collection_filter_delete">Delete Filters…</string>
 	<string name="menu_collection_status">Collection Status</string>
+	<string name="menu_expansion_status">Expansion Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>

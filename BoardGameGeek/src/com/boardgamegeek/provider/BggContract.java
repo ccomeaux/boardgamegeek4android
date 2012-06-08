@@ -200,8 +200,9 @@ public class BggContract {
 	public static final String PATH_PUBLISHERS = "publishers";
 	public static final String PATH_MECHANICS = "mechanics";
 	public static final String PATH_CATEGORIES = "categories";
-	private static final String PATH_EXPANSIONS = "expansions";
+	public static final String PATH_EXPANSIONS = "expansions";
 	public static final String PATH_COLLECTION = "collection";
+	public static final String PATH_NOEXPANSIONS = "noexpansions";
 	public static final String PATH_BUDDIES = "buddies";
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
