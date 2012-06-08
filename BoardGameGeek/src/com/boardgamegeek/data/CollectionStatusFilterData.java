@@ -15,6 +15,7 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	private boolean mOr;
 
 	public CollectionStatusFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 	}
 
 	public CollectionStatusFilterData(Context context, String data) {

@@ -17,6 +17,7 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	private boolean mUndefined;
 
 	public PlayTimeFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 	}
 
 	public PlayTimeFilterData(Context context, String data) {

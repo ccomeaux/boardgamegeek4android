@@ -16,6 +16,7 @@ public class GeekRankingFilterData extends CollectionFilterData {
 	private boolean mUnranked;
 
 	public GeekRankingFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
 	}
 
 	public GeekRankingFilterData(Context context, int min, int max, boolean unranked) {

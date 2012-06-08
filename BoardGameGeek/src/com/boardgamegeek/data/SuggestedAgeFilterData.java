@@ -17,6 +17,7 @@ public class SuggestedAgeFilterData extends CollectionFilterData {
 	private boolean mUndefined;
 
 	public SuggestedAgeFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 	}
 
 	public SuggestedAgeFilterData(Context context, String data) {

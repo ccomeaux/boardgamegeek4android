@@ -10,6 +10,7 @@ public class ExpansionStatusFilterData extends CollectionFilterData {
 	private int mSelected;
 
 	public ExpansionStatusFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 	}
 
 	public ExpansionStatusFilterData(Context context, String data) {

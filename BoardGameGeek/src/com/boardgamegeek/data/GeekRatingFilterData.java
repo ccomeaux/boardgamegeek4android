@@ -16,6 +16,7 @@ public class GeekRatingFilterData extends CollectionFilterData {
 	private double mMax;
 
 	public GeekRatingFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 	}
 
 	public GeekRatingFilterData(Context context, double min, double max) {

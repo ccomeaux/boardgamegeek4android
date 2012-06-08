@@ -17,6 +17,7 @@ public class AverageWeightFilterData extends CollectionFilterData {
 	private boolean mUndefined;
 
 	public AverageWeightFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
 	}
 
 	public AverageWeightFilterData(Context context, String data) {

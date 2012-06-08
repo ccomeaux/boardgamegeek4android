@@ -17,6 +17,7 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	private boolean mExact;
 
 	public PlayerNumberFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 
 	public PlayerNumberFilterData(Context context, String data) {
