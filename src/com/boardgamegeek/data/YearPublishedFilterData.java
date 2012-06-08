@@ -17,6 +17,7 @@ public class YearPublishedFilterData extends CollectionFilterData {
 	private int mMax;
 
 	public YearPublishedFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
 	}
 
 	public YearPublishedFilterData(Context context, String data) {

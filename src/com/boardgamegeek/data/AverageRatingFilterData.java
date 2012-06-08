@@ -16,6 +16,7 @@ public class AverageRatingFilterData extends CollectionFilterData {
 	private double mMax;
 
 	public AverageRatingFilterData() {
+		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
 	}
 
 	public AverageRatingFilterData(Context context, String data) {
