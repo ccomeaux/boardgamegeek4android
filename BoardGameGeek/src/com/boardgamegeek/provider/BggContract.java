@@ -521,6 +521,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
 
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
+		public static final String SORT_BY_RATING = GamesColumns.STATS_BAYES_AVERAGE + " DESC";
 
 		public static Uri buildItemUri(int itemId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).build();

@@ -26,13 +26,22 @@
 	</LinearLayout>
 
 	<LinearLayout
-		android:id="@+id/filter_linear_layout"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:orientation="vertical" >
 
 		<include layout="@layout/header_divider" />
+
+		<TextView
+			android:id="@+id/filter_name"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/background_light"
+			android:gravity="center"
+			android:padding="@dimen/padding_small"
+			android:textSize="@dimen/text_size_small"
+			android:visibility="gone" />
 
 		<HorizontalScrollView
 			android:id="@+id/filter_scroll_view"
@@ -42,7 +51,7 @@
 			android:scrollbars="none" >
 
 			<LinearLayout
-				android:id="@+id/filterLinearLayout"
+				android:id="@+id/filter_linear_layout"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal" />
@@ -50,10 +59,11 @@
 	</LinearLayout>
 
 	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->
+
 	<TextView
 		android:id="@+id/fast_scroll_letter"
-		android:layout_width="50dp"
-		android:layout_height="50dp"
+		android:layout_width="60dp"
+		android:layout_height="60dp"
 		android:layout_alignTop="@id/filter_scroll_view"
 		android:layout_centerHorizontal="true"
 		android:layout_centerVertical="true"

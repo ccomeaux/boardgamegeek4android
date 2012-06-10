@@ -55,6 +55,18 @@
 		android:icon="@drawable/ic_menu_filter_off"
 		android:title="@string/menu_collection_filter_clear"/>
 	<item
+		android:id="@+id/menu_collection_sort"
+		android:title="Sort">
+		<menu>
+			<item
+				android:id="@+id/menu_collection_sort_name"
+				android:title="@string/menu_collection_sort_name"/>
+			<item
+				android:id="@+id/menu_collection_sort_rating"
+				android:title="@string/menu_collection_sort_rating"/>
+		</menu>
+	</item>
+	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_menu_emoticons"
 		android:title="@string/menu_collection_random_game"/>
