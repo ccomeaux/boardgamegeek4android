@@ -259,12 +259,14 @@
 	<string name="menu_share">Share</string>
 	<string name="menu_collection_filter_add">Add Filter…</string>
 	<string name="menu_collection_filter_clear">Clear Filters</string>
-	<string name="menu_collection_filter_save">Save Filters…</string>
-	<string name="menu_collection_filter_load">Load Filters…</string>
-	<string name="menu_collection_filter_delete">Delete Filters…</string>
+	<string name="menu_collection_filter_save">Save Filter Set</string>
+	<string name="menu_collection_filter_load">Load Filter Set</string>
+	<string name="menu_collection_filter_delete">Delete Filter Set</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_expansion_status">Expansion Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
+	<string name="menu_collection_sort_name">Name</string>
+	<string name="menu_collection_sort_rating">Rating</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_geek_ranking">Geek Ranking</string>

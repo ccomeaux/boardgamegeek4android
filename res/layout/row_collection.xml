@@ -7,11 +7,11 @@
 	android:orientation="horizontal"
 	android:padding="@dimen/padding_standard" >
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:orientation="vertical" >
+		android:paddingRight="@dimen/padding_extra" >
 
 		<TextView
 			android:id="@+id/name"
@@ -23,9 +23,20 @@
 			android:id="@+id/year"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_alignLeft="@id/name"
+			android:layout_below="@id/name"
 			android:textColor="@color/light_text"
 			android:textSize="@dimen/text_size_tiny" />
-	</LinearLayout>
+
+		<TextView
+			android:id="@+id/rating"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/name"
+			android:textColor="@color/light_text"
+			android:textSize="@dimen/text_size_tiny" />
+	</RelativeLayout>
 
 	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/list_thumbnail"

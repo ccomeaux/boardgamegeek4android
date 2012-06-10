@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -84,30 +85,23 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private static final String KEY_FILTERS = "FILTERS";
 	private static final String KEY_FILTER_NAME = "FILTER_NAME";
 	private static final String KEY_FILTER_NAME_PRIOR = "FILTER_NAME_PRIOR";
+	private static final String KEY_SORT = "SORT";
 	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mUri;
+	private String mOrderBy = Collection.DEFAULT_SORT;
 	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
 	private ThumbnailTask mThumbnailTask;
 	private TextView mInfoView;
+	private TextView mFilterNameView;
 	private boolean mShortcut;
 
 	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private String mFilterName = "";
 	private String mFilterNamePrior = "";
-	private CollectionStatusFilter mCollectionStatusFilter = new CollectionStatusFilter();
-	private ExpansionStatusFilter mExpansionStatusFilter = new ExpansionStatusFilter();
-	private PlayerNumberFilter mNumberOfPlayersFilter = new PlayerNumberFilter();
-	private PlayTimeFilter mPlayTimeFilter = new PlayTimeFilter();
-	private SuggestedAgeFilter mSuggestedAgeFilter = new SuggestedAgeFilter();
-	private YearPublishedFilter mYearPublishedFilter = new YearPublishedFilter();
-	private GeekRankingFilter mGeekRankingFilter = new GeekRankingFilter();
-	private GeekRatingFilter mGeekRatingFilter = new GeekRatingFilter();
-	private AverageRatingFilter mAverageRatingFilter = new AverageRatingFilter();
-	private AverageWeightFilter mAverageWeightFilter = new AverageWeightFilter();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -115,6 +109,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	// Variables used to manage the appearance of the fast scroll letter.
 	private TextView mFastScrollLetter;
 	private boolean mFastScrollLetterEnabled = false;
+	private DecimalFormat mScrollDf = new DecimalFormat("#.0");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +118,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		UIUtils.setTitle(this);
 		mInfoView = (TextView) findViewById(R.id.collection_info);
-		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filterLinearLayout);
+		mFilterNameView = (TextView) findViewById(R.id.filter_name);
+		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filter_Linear_Layout);
 		mFastScrollLetter = (TextView) findViewById(R.id.fast_scroll_letter);
 
 		getListView().setOnScrollListener(this);
@@ -151,8 +147,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
 			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
 			mFilterNamePrior = savedInstanceState.getString(KEY_FILTER_NAME_PRIOR);
+			mOrderBy = savedInstanceState.getString(KEY_SORT);
 		}
-		applyFilters();
 
 		mHandler.post(new Runnable() {
 			@Override
@@ -176,6 +172,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mThumbnailTask = new ThumbnailTask();
 		mThumbnailTask.execute();
 		mFastScrollLetterEnabled = true;
+		getThumbnails(this.getListView());
+		setFilterName();
+		requery();
 	}
 
 	@Override
@@ -184,6 +183,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 		outState.putString(KEY_FILTER_NAME, mFilterName);
 		outState.putString(KEY_FILTER_NAME_PRIOR, mFilterNamePrior);
+		outState.putString(KEY_SORT, mOrderBy);
 	}
 
 	@Override
@@ -259,7 +259,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
 				setFilterName("");
-				applyFilters();
+				requery();
 				return true;
 			case R.id.menu_collection_filter_save:
 				SaveFilters.createDialog(this, mFilterNamePrior, mFilters);
@@ -269,6 +269,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_delete:
 				DeleteFilters.createDialog(this);
+				return true;
+			case R.id.menu_collection_sort_name:
+				mOrderBy = Collection.DEFAULT_SORT;
+				requery();
+				return true;
+			case R.id.menu_collection_sort_rating:
+				mOrderBy = Collection.SORT_BY_RATING;
+				requery();
 				return true;
 		}
 
@@ -319,10 +327,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			return false;
 		}
 
-		final int gameId = cursor.getInt(Query.GAME_ID);
-		final String gameName = cursor.getString(Query.COLLECTION_NAME);
-		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
-		Log.d(TAG, gameName);
+		int gameId = cursor.getInt(Query.GAME_ID);
+		String gameName = cursor.getString(Query.COLLECTION_NAME);
+		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 		switch (item.getItemId()) {
 			case UIUtils.MENU_ITEM_VIEW: {
@@ -378,59 +385,59 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				mCollectionStatusFilter.createDialog(this,
+				new CollectionStatusFilter().createDialog(this,
 						(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
-				mExpansionStatusFilter.createDialog(this,
+				new ExpansionStatusFilter().createDialog(this,
 						(ExpansionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
-				mNumberOfPlayersFilter.createDialog(this,
+				new PlayerNumberFilter().createDialog(this,
 						(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
-				mPlayTimeFilter.createDialog(this,
+				new PlayTimeFilter().createDialog(this,
 						(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
 				return true;
 			case R.id.menu_suggested_age:
 			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
-				mSuggestedAgeFilter.createDialog(this,
+				new SuggestedAgeFilter().createDialog(this,
 						(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
 				return true;
 			case R.id.menu_average_weight:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
-				mAverageWeightFilter.createDialog(this,
+				new AverageWeightFilter().createDialog(this,
 						(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 			case R.id.menu_year_published:
 			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
-				mYearPublishedFilter.createDialog(this,
+				new YearPublishedFilter().createDialog(this,
 						(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
 				return true;
 			case R.id.menu_average_rating:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
-				mAverageRatingFilter.createDialog(this,
+				new AverageRatingFilter().createDialog(this,
 						(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
 				return true;
 			case R.id.menu_geek_rating:
 			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
-				mGeekRatingFilter.createDialog(this,
+				new GeekRatingFilter().createDialog(this,
 						(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
 				return true;
 			case R.id.menu_geek_ranking:
 			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
-				mGeekRankingFilter.createDialog(this,
+				new GeekRankingFilter().createDialog(this,
 						(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
 		}
 		return false;
 	}
 
-	private void applyFilters() {
+	private void requery() {
 		StringBuilder where = new StringBuilder();
 		String[] args = {};
 		Builder builder = Collection.CONTENT_URI.buildUpon();
@@ -447,7 +454,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			}
 		}
 		mUri = builder.build();
-		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, null);
+		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, mOrderBy);
 	}
 
 	@Override
@@ -471,18 +478,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	private void setInfoText(Cursor cursor) {
-		final String delimiter = "   -   ";
-		String info = mFilterName;
-		if (!TextUtils.isEmpty(info)) {
-			info += delimiter;
-		}
-		if (cursor != null) {
-			info += String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
-		} else {
-			String[] s = mInfoView.getText().toString().split(delimiter);
-			info += (s.length == 1) ? s[0] : s[1];
-		}
+		String info = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
 		mInfoView.setText(info);
+	}
+
+	private void setFilterName() {
+		mFilterNameView.setText(mFilterName);
+		mFilterNameView.setVisibility(TextUtils.isEmpty(mFilterName) ? View.GONE : View.VISIBLE);
 	}
 
 	private void syncFilterButtons() {
@@ -509,7 +511,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final Button button = new Button(this);
 		button.setText(text);
 		button.setTag(type);
-		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
+		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_tiny));
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -554,12 +556,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			applyFilters();
+			requery();
 		}
 	};
 
 	private class CollectionAdapter extends CursorAdapter {
 		private LayoutInflater mInflater;
+		private DecimalFormat df = new DecimalFormat("#.###");
+		String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
 			super(context, null);
@@ -579,12 +583,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			ViewHolder holder = (ViewHolder) view.getTag();
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 
-			String yearPublished = getResources().getString(R.string.text_unknown);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
-			if (year > 0) {
-				yearPublished = "" + year;
-			}
-			holder.year.setText(yearPublished);
+			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
+
+			double rating = cursor.getDouble(Query.STATS_BAYES_AVERAGE);
+			holder.rating.setText((rating > 0) ? df.format(rating) : "");
+
 			holder.thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			Drawable thumbnail = ImageCache.getDrawableFromCache(holder.thumbnailUrl);
@@ -602,12 +606,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	static class ViewHolder {
 		TextView name;
 		TextView year;
+		TextView rating;
 		BezelImageView thumbnail;
 		String thumbnailUrl;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
+			rating = (TextView) view.findViewById(R.id.rating);
 			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
 		}
 	}
@@ -644,7 +650,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL,
-				Collection.COLLECTION_SORT_NAME };
+				Collection.COLLECTION_SORT_NAME, Collection.STATS_BAYES_AVERAGE };
 
 		// int _ID = 0;
 		// int COLLECTION_ID = 1;
@@ -654,14 +660,22 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		int GAME_ID = 5;
 		int THUMBNAIL_URL = 6;
 		int COLLECTION_SORT_NAME = 7;
+		int STATS_BAYES_AVERAGE = 8;
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (mFastScrollLetterEnabled && mAdapter != null) {
 			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
 			if (cursor != null && cursor.getCount() > 0) {
-				char firstLetter = cursor.getString(Query.COLLECTION_SORT_NAME).toUpperCase().charAt(0);
-				mFastScrollLetter.setText(((Character) firstLetter).toString());
+				String text = "";
+				if (mOrderBy.equals(Collection.DEFAULT_SORT)) {
+					char firstLetter = cursor.getString(Query.COLLECTION_SORT_NAME).toUpperCase().charAt(0);
+					text = (String.valueOf(firstLetter));
+				} else if (mOrderBy.equals(Collection.SORT_BY_RATING)) {
+					double rating = cursor.getDouble(Query.STATS_BAYES_AVERAGE);
+					text = mScrollDf.format(rating);
+				}
+				mFastScrollLetter.setText(text);
 			}
 		}
 	}
@@ -698,7 +712,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void removeFilter(CollectionFilterData filter) {
 		setFilterName("");
 		mFilters.remove(filter);
-		applyFilters();
+		requery();
 	}
 
 	public void addFilter(CollectionFilterData filter) {
@@ -707,17 +721,17 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		if (filter.isValid()) {
 			mFilters.add(filter);
 		}
-		applyFilters();
+		requery();
 	}
 
 	public void setFilters(List<CollectionFilterData> filters) {
 		mFilters = filters;
-		applyFilters();
+		requery();
 	}
 
 	public void setFilterName(String name) {
 		mFilterNamePrior = mFilterName;
 		mFilterName = name;
-		setInfoText(null);
+		setFilterName();
 	}
 }
