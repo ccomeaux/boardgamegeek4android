@@ -141,9 +141,6 @@
 	<string name="comments_hint">Game play comments</string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
-	<string name="save_filters">Save Filters</string>
-	<string name="load_filters">Load Filters</string>
-	<string name="delete_filters">Delete Filters</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="start">Start</string>

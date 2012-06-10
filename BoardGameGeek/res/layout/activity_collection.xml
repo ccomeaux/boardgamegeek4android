@@ -11,17 +11,6 @@
 
 		<include layout="@layout/titlebar" />
 
-		<TextView
-			android:id="@+id/collection_info"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:background="@color/background_light"
-			android:gravity="center"
-			android:padding="@dimen/padding_standard"
-			android:textSize="@dimen/text_size_small" />
-
-		<include layout="@layout/header_divider" />
-
 		<include layout="@layout/list" />
 	</LinearLayout>
 
@@ -33,15 +22,28 @@
 
 		<include layout="@layout/header_divider" />
 
-		<TextView
-			android:id="@+id/filter_name"
+		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:background="@color/background_light"
-			android:gravity="center"
-			android:padding="@dimen/padding_small"
-			android:textSize="@dimen/text_size_small"
-			android:visibility="gone" />
+			android:padding="@dimen/padding_standard" >
+
+			<TextView
+				android:id="@+id/filter_name"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="Top 100"
+				android:textSize="@dimen/text_size_small" />
+
+			<TextView
+				android:id="@+id/collection_info"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:text="10 games"
+				android:textSize="@dimen/text_size_small" />
+		</LinearLayout>
 
 		<HorizontalScrollView
 			android:id="@+id/filter_scroll_view"

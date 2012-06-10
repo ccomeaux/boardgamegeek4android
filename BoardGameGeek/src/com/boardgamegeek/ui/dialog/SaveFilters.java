@@ -39,8 +39,8 @@ public class SaveFilters {
 		nameView.setText(name);
 		setDescription(filters, layout);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.save_filters).setView(layout)
-				.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_filter_save)
+				.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
