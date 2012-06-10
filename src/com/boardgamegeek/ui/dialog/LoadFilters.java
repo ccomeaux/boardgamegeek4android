@@ -23,8 +23,8 @@ public class LoadFilters {
 		final Cursor cursor = cr.query(CollectionFilters.CONTENT_URI, new String[] { CollectionFilters._ID,
 				CollectionFilters.NAME }, null, null, null);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.load_filters).setCursor(
-				cursor, new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_filter_load)
+				.setCursor(cursor, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						cursor.moveToPosition(which);

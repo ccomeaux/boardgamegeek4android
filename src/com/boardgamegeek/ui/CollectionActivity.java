@@ -119,7 +119,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		UIUtils.setTitle(this);
 		mInfoView = (TextView) findViewById(R.id.collection_info);
 		mFilterNameView = (TextView) findViewById(R.id.filter_name);
-		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filter_Linear_Layout);
+		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) findViewById(R.id.fast_scroll_letter);
 
 		getListView().setOnScrollListener(this);
@@ -173,7 +173,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mThumbnailTask.execute();
 		mFastScrollLetterEnabled = true;
 		getThumbnails(this.getListView());
-		setFilterName();
+		bindFilterName();
 		requery();
 	}
 
@@ -473,21 +473,20 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		UIUtils.showListMessage(this, R.string.empty_collection);
 		mAdapter.changeCursor(cursor);
-		setInfoText(cursor);
-		syncFilterButtons();
+		bindInfoText(cursor);
+		bindFilterButtons();
 	}
 
-	private void setInfoText(Cursor cursor) {
+	private void bindInfoText(Cursor cursor) {
 		String info = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
 		mInfoView.setText(info);
 	}
 
-	private void setFilterName() {
+	private void bindFilterName() {
 		mFilterNameView.setText(mFilterName);
-		mFilterNameView.setVisibility(TextUtils.isEmpty(mFilterName) ? View.GONE : View.VISIBLE);
 	}
 
-	private void syncFilterButtons() {
+	private void bindFilterButtons() {
 		for (CollectionFilterData filter : mFilters) {
 			Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
 			if (button == null) {
@@ -732,6 +731,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void setFilterName(String name) {
 		mFilterNamePrior = mFilterName;
 		mFilterName = name;
-		setFilterName();
+		bindFilterName();
 	}
 }
