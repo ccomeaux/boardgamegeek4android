@@ -28,7 +28,7 @@ public class LoadFilters {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						cursor.moveToPosition(which);
-						activity.setFilterName(cursor.getString(1));
+						activity.setFilterName(cursor.getString(1), false);
 						createFilterList(cr, cursor.getLong(0));
 					}
 

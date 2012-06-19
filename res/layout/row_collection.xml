@@ -29,7 +29,7 @@
 			android:textSize="@dimen/text_size_tiny" />
 
 		<TextView
-			android:id="@+id/rating"
+			android:id="@+id/info"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
