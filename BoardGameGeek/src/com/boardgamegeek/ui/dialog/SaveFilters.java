@@ -22,8 +22,8 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.provider.BggContract.CollectionFilterDetails;
-import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.ui.CollectionActivity;
 
 public class SaveFilters {
@@ -39,7 +39,7 @@ public class SaveFilters {
 		nameView.setText(name);
 		setDescription(filters, layout);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_filter_save)
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_view_save)
 				.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 
 					@Override
@@ -49,8 +49,8 @@ public class SaveFilters {
 
 						final int filterId = findFilterId(resolver, name);
 						if (filterId > 0) {
-							new AlertDialog.Builder(activity).setTitle(R.string.title_collection_filter_name_in_use)
-									.setMessage(R.string.msg_collection_filter_name_in_use)
+							new AlertDialog.Builder(activity).setTitle(R.string.title_collection_view_name_in_use)
+									.setMessage(R.string.msg_collection_view_name_in_use)
 									.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
@@ -72,8 +72,8 @@ public class SaveFilters {
 					}
 
 					private int findFilterId(ContentResolver resolver, String name) {
-						Cursor c = resolver.query(CollectionFilters.CONTENT_URI, new String[] { BaseColumns._ID },
-								CollectionFilters.NAME + "=?", new String[] { name }, null);
+						Cursor c = resolver.query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID },
+								CollectionViews.NAME + "=?", new String[] { name }, null);
 						if (c != null) {
 							try {
 								if (c.moveToFirst()) {
@@ -88,16 +88,16 @@ public class SaveFilters {
 
 					private void insert(ContentResolver resolver, String name, final List<CollectionFilterData> filters) {
 						ContentValues values = new ContentValues();
-						values.put(CollectionFilters.NAME, name);
-						values.put(CollectionFilters.STARRED, false);
-						Uri filterUri = resolver.insert(CollectionFilters.CONTENT_URI, values);
-						int filterId = CollectionFilters.getFilterId(filterUri);
-						Uri uri = CollectionFilters.buildFilterDetailUri(filterId);
+						values.put(CollectionViews.NAME, name);
+						values.put(CollectionViews.STARRED, false);
+						Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+						int filterId = CollectionViews.getViewId(filterUri);
+						Uri uri = CollectionViews.buildViewFilterUri(filterId);
 						insertDetails(resolver, uri, filters);
 					}
 
 					private void update(ContentResolver resolver, int filterId, final List<CollectionFilterData> filters) {
-						Uri uri = CollectionFilters.buildFilterDetailUri(filterId);
+						Uri uri = CollectionViews.buildViewFilterUri(filterId);
 						resolver.delete(uri, null, null);
 						insertDetails(resolver, uri, filters);
 					}
@@ -107,8 +107,8 @@ public class SaveFilters {
 						List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
 						for (CollectionFilterData filter : filters) {
 							ContentValues cv = new ContentValues();
-							cv.put(CollectionFilterDetails.TYPE, filter.getType());
-							cv.put(CollectionFilterDetails.DATA, filter.flatten());
+							cv.put(CollectionViewFilters.TYPE, filter.getType());
+							cv.put(CollectionViewFilters.DATA, filter.flatten());
 							cvs.add(cv);
 						}
 						resolver.bulkInsert(filterUri, cvs.toArray(new ContentValues[cvs.size()]));

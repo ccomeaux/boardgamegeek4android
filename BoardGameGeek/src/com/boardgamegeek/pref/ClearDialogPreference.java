@@ -10,7 +10,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
-import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -71,7 +71,7 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += mResolver.delete(Mechanics.CONTENT_URI, null, null);
 			count += mResolver.delete(Buddies.CONTENT_URI, null, null);
 			count += mResolver.delete(Plays.CONTENT_URI, null, null);
-			count += mResolver.delete(CollectionFilters.CONTENT_URI, null, null);
+			count += mResolver.delete(CollectionViews.CONTENT_URI, null, null);
 			Log.d(TAG, "Removed " + count + " records");
 
 			if (ImageCache.clear()) {
