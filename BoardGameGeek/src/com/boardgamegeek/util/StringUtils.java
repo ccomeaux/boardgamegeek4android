@@ -1,5 +1,9 @@
 package com.boardgamegeek.util;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Provides utility methods for dealing with strings.
  */
@@ -82,5 +86,18 @@ public class StringUtils {
 		System.arraycopy(first, 0, result, 0, first.length);
 		System.arraycopy(second, 0, result, first.length, second.length);
 		return result;
+	}
+
+	public static String[] unionArrays(String[] array1, String[] array2) {
+		if (array1 == null) {
+			return array2;
+		}
+		if (array2 == null) {
+			return array1;
+		}
+		Set<String> set = new LinkedHashSet<String>();
+		set.addAll(Arrays.asList(array1));
+		set.addAll(Arrays.asList(array2));
+		return set.toArray(new String[set.size()]);
 	}
 }

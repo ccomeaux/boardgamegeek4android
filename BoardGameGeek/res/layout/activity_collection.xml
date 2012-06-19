@@ -14,42 +14,52 @@
 		<include layout="@layout/list" />
 	</LinearLayout>
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
-		android:orientation="vertical" >
+		android:background="@color/background_light_transparent_2" >
 
-		<include layout="@layout/header_divider" />
+		<include
+			android:id="@+id/collection_info_header"
+			layout="@layout/header_divider" />
 
-		<LinearLayout
-			android:layout_width="fill_parent"
+		<TextView
+			android:id="@+id/collection_count"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:background="@color/background_light"
-			android:padding="@dimen/padding_standard" >
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/collection_info_header"
+			android:paddingRight="@dimen/padding_standard"
+			android:textSize="@dimen/text_size_tiny"
+			android:textStyle="bold" />
 
-			<TextView
-				android:id="@+id/filter_name"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="Top 100"
-				android:textSize="@dimen/text_size_small" />
+		<TextView
+			android:id="@+id/collection_sort"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/collection_count"
+			android:paddingRight="@dimen/padding_standard"
+			android:textSize="@dimen/text_size_tiny"
+			android:textStyle="bold" />
 
-			<TextView
-				android:id="@+id/collection_info"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right"
-				android:text="10 games"
-				android:textSize="@dimen/text_size_small" />
-		</LinearLayout>
+		<TextView
+			android:id="@+id/filter_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@id/collection_sort"
+			android:layout_alignTop="@id/collection_count"
+			android:gravity="center_vertical"
+			android:paddingLeft="@dimen/padding_standard"
+			android:textSize="@dimen/text_size_small"
+			android:textStyle="bold" />
 
 		<HorizontalScrollView
 			android:id="@+id/filter_scroll_view"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/background_light"
+			android:layout_below="@id/filter_name"
 			android:scrollbars="none" >
 
 			<LinearLayout
@@ -58,7 +68,7 @@
 				android:layout_height="wrap_content"
 				android:orientation="horizontal" />
 		</HorizontalScrollView>
-	</LinearLayout>
+	</RelativeLayout>
 
 	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->
 

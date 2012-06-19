@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,10 +44,14 @@ import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
+import com.boardgamegeek.data.CollectionNameSortData;
+import com.boardgamegeek.data.CollectionSortData;
+import com.boardgamegeek.data.CollectionSortDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
+import com.boardgamegeek.data.GeekRatingSortData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
@@ -85,31 +88,31 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private static final String KEY_FILTERS = "FILTERS";
 	private static final String KEY_FILTER_NAME = "FILTER_NAME";
 	private static final String KEY_FILTER_NAME_PRIOR = "FILTER_NAME_PRIOR";
-	private static final String KEY_SORT = "SORT";
+	private static final String KEY_SORT_TYPE = "SORT";
 	private static final int HELP_VERSION = 1;
 
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mUri;
-	private String mOrderBy = Collection.DEFAULT_SORT;
 	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
 	private ThumbnailTask mThumbnailTask;
-	private TextView mInfoView;
-	private TextView mFilterNameView;
 	private boolean mShortcut;
 
-	private LinearLayout mFilterLinearLayout;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private String mFilterName = "";
 	private String mFilterNamePrior = "";
+	private CollectionSortData mSort = new CollectionNameSortData();
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
 
+	private TextView mCollectionCountView;
+	private TextView mCollectionSortView;
+	private TextView mFilterNameView;
+	private LinearLayout mFilterLinearLayout;
 	// Variables used to manage the appearance of the fast scroll letter.
 	private TextView mFastScrollLetter;
 	private boolean mFastScrollLetterEnabled = false;
-	private DecimalFormat mScrollDf = new DecimalFormat("#.0");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +120,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		setContentView(R.layout.activity_collection);
 
 		UIUtils.setTitle(this);
-		mInfoView = (TextView) findViewById(R.id.collection_info);
+		mCollectionCountView = (TextView) findViewById(R.id.collection_count);
+		mCollectionSortView = (TextView) findViewById(R.id.collection_sort);
 		mFilterNameView = (TextView) findViewById(R.id.filter_name);
 		mFilterLinearLayout = (LinearLayout) findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) findViewById(R.id.fast_scroll_letter);
@@ -147,7 +151,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
 			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
 			mFilterNamePrior = savedInstanceState.getString(KEY_FILTER_NAME_PRIOR);
-			mOrderBy = savedInstanceState.getString(KEY_SORT);
+			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(KEY_SORT_TYPE));
 		}
 
 		mHandler.post(new Runnable() {
@@ -183,7 +187,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 		outState.putString(KEY_FILTER_NAME, mFilterName);
 		outState.putString(KEY_FILTER_NAME_PRIOR, mFilterNamePrior);
-		outState.putString(KEY_SORT, mOrderBy);
+		outState.putInt(KEY_SORT_TYPE, mSort.getType());
 	}
 
 	@Override
@@ -258,7 +262,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
-				setFilterName("");
+				setFilterName("", false);
 				requery();
 				return true;
 			case R.id.menu_collection_filter_save:
@@ -271,11 +275,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				DeleteFilters.createDialog(this);
 				return true;
 			case R.id.menu_collection_sort_name:
-				mOrderBy = Collection.DEFAULT_SORT;
+				mSort = new CollectionNameSortData();
 				requery();
 				return true;
 			case R.id.menu_collection_sort_rating:
-				mOrderBy = Collection.SORT_BY_RATING;
+				mSort = new GeekRatingSortData();
 				requery();
 				return true;
 		}
@@ -454,7 +458,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			}
 		}
 		mUri = builder.build();
-		mHandler.startQuery(mUri, Query.PROJECTION, where.toString(), args, mOrderBy);
+		mHandler.startQuery(mUri,
+				mSort == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, mSort.getColumns()),
+				where.toString(), args, mSort == null ? null : mSort.getOrderByClause());
 	}
 
 	@Override
@@ -473,17 +479,28 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		UIUtils.showListMessage(this, R.string.empty_collection);
 		mAdapter.changeCursor(cursor);
-		bindInfoText(cursor);
+		bindCountAndSortText(cursor);
 		bindFilterButtons();
 	}
 
-	private void bindInfoText(Cursor cursor) {
+	private void bindCountAndSortText(Cursor cursor) {
 		String info = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
-		mInfoView.setText(info);
+		mCollectionCountView.setText(info);
+		if (mSort != null) {
+			mCollectionSortView.setText("by " + getResources().getString(mSort.getDescriptionId()));
+		}
 	}
 
 	private void bindFilterName() {
-		mFilterNameView.setText(mFilterName);
+		if (TextUtils.isEmpty(mFilterName)) {
+			if (TextUtils.isEmpty(mFilterNamePrior)) {
+				mFilterNameView.setText("");
+			} else {
+				mFilterNameView.setText(mFilterNamePrior + "*");
+			}
+		} else {
+			mFilterNameView.setText(mFilterName);
+		}
 	}
 
 	private void bindFilterButtons() {
@@ -561,7 +578,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private class CollectionAdapter extends CursorAdapter {
 		private LayoutInflater mInflater;
-		private DecimalFormat df = new DecimalFormat("#.###");
 		String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
@@ -584,10 +600,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
-
-			double rating = cursor.getDouble(Query.STATS_BAYES_AVERAGE);
-			holder.rating.setText((rating > 0) ? df.format(rating) : "");
-
+			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			holder.thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			Drawable thumbnail = ImageCache.getDrawableFromCache(holder.thumbnailUrl);
@@ -605,14 +618,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	static class ViewHolder {
 		TextView name;
 		TextView year;
-		TextView rating;
+		TextView info;
 		BezelImageView thumbnail;
 		String thumbnailUrl;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
-			rating = (TextView) view.findViewById(R.id.rating);
+			info = (TextView) view.findViewById(R.id.info);
 			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
 		}
 	}
@@ -648,8 +661,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL,
-				Collection.COLLECTION_SORT_NAME, Collection.STATS_BAYES_AVERAGE };
+				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL };
 
 		// int _ID = 0;
 		// int COLLECTION_ID = 1;
@@ -658,23 +670,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		// int GAME_NAME = 4;
 		int GAME_ID = 5;
 		int THUMBNAIL_URL = 6;
-		int COLLECTION_SORT_NAME = 7;
-		int STATS_BAYES_AVERAGE = 8;
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (mFastScrollLetterEnabled && mAdapter != null) {
 			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
 			if (cursor != null && cursor.getCount() > 0) {
-				String text = "";
-				if (mOrderBy.equals(Collection.DEFAULT_SORT)) {
-					char firstLetter = cursor.getString(Query.COLLECTION_SORT_NAME).toUpperCase().charAt(0);
-					text = (String.valueOf(firstLetter));
-				} else if (mOrderBy.equals(Collection.SORT_BY_RATING)) {
-					double rating = cursor.getDouble(Query.STATS_BAYES_AVERAGE);
-					text = mScrollDf.format(rating);
-				}
-				mFastScrollLetter.setText(text);
+				mFastScrollLetter.setText(mSort == null ? "" : mSort.getScrollText(cursor));
 			}
 		}
 	}
@@ -709,13 +711,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	}
 
 	public void removeFilter(CollectionFilterData filter) {
-		setFilterName("");
+		setFilterName("", true);
 		mFilters.remove(filter);
 		requery();
 	}
 
 	public void addFilter(CollectionFilterData filter) {
-		setFilterName("");
+		setFilterName("", true);
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -728,8 +730,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		requery();
 	}
 
-	public void setFilterName(String name) {
-		mFilterNamePrior = mFilterName;
+	public void setFilterName(String name, boolean saveName) {
+		if (saveName && TextUtils.isEmpty(name) && !TextUtils.isEmpty(mFilterName)) {
+			mFilterNamePrior = mFilterName;
+		} else if (!saveName) {
+			mFilterNamePrior = "";
+		}
 		mFilterName = name;
 		bindFilterName();
 	}
