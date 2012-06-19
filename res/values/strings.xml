@@ -175,7 +175,7 @@
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
-	<string name="are_you_sure_delete_collection_filter">Are you sure you want to delete this collection filter?</string>
+	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
@@ -197,8 +197,8 @@
 	<string name="title_poll">Poll Information</string>
 	<string name="title_plays">Games Played</string>
 	<string name="title_play">Played Game</string>
-	<string name="title_collection_filter_name_in_use">Name in Use!</string>
-	<string name="msg_collection_filter_name_in_use">There\'s already a collection filter with this name. Do you want to update the existing filter, or create a new one?</string>
+	<string name="title_collection_view_name_in_use">Name in Use!</string>
+	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
@@ -256,9 +256,9 @@
 	<string name="menu_share">Share</string>
 	<string name="menu_collection_filter_add">Add Filter…</string>
 	<string name="menu_collection_filter_clear">Clear Filters</string>
-	<string name="menu_collection_filter_save">Save Filter Set</string>
-	<string name="menu_collection_filter_load">Load Filter Set</string>
-	<string name="menu_collection_filter_delete">Delete Filter Set</string>
+	<string name="menu_collection_view_save">Save View</string>
+	<string name="menu_collection_view_load">Load View</string>
+	<string name="menu_collection_view_delete">Delete View</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_expansion_status">Expansion Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
@@ -292,7 +292,7 @@
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_play_updated">Play updated successfully!</string>
 	<string name="msg_play_deleted">Play deleted successfully</string>
-	<string name="msg_collection_filter_deleted">Collection filter deleted successfully</string>
+	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>

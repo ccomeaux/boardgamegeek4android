@@ -57,7 +57,7 @@ import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
@@ -229,7 +229,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	public boolean onPrepareOptionsMenu(Menu menu) {
 
 		boolean enabled = false;
-		Cursor c = getContentResolver().query(CollectionFilters.CONTENT_URI, new String[] { BaseColumns._ID }, null,
+		Cursor c = getContentResolver().query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID }, null,
 				null, null);
 		if (c != null) {
 			try {
@@ -240,11 +240,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				c.close();
 			}
 		}
-		menu.findItem(R.id.menu_collection_filter_load).setEnabled(enabled);
-		menu.findItem(R.id.menu_collection_filter_delete).setEnabled(enabled);
+		menu.findItem(R.id.menu_collection_view_load).setEnabled(enabled);
+		menu.findItem(R.id.menu_collection_view_delete).setEnabled(enabled);
 
 		enabled = mFilters != null && mFilters.size() > 0;
-		menu.findItem(R.id.menu_collection_filter_save).setEnabled(enabled);
+		menu.findItem(R.id.menu_collection_view_save).setEnabled(enabled);
 		menu.findItem(R.id.menu_collection_filter_clear).setEnabled(enabled);
 
 		menu.findItem(R.id.menu_collection_random_game).setEnabled(getListAdapter().getCount() > 0);
@@ -265,13 +265,13 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				setFilterName("", false);
 				requery();
 				return true;
-			case R.id.menu_collection_filter_save:
+			case R.id.menu_collection_view_save:
 				SaveFilters.createDialog(this, mFilterNamePrior, mFilters);
 				return true;
-			case R.id.menu_collection_filter_load:
+			case R.id.menu_collection_view_load:
 				LoadFilters.createDialog(this);
 				return true;
-			case R.id.menu_collection_filter_delete:
+			case R.id.menu_collection_view_delete:
 				DeleteFilters.createDialog(this);
 				return true;
 			case R.id.menu_collection_sort_name:

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import com.boardgamegeek.provider.BggContract.CollectionFilterDetails;
-import com.boardgamegeek.provider.BggContract.CollectionFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -13,41 +13,41 @@ public class CollectionFiltersIdDetailsProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return buildSelection(uri, Tables.COLLECTION_FILTERS_DETAILS_JOIN_COLLECTION_FILTERS);
+		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS);
 	}
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return buildSelection(uri, Tables.COLLECTION_FILTERS_DETAILS);
+		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS);
 	}
 
 	@Override
 	protected String getDefaultSortOrder() {
-		return CollectionFilterDetails.DEFAULT_SORT;
+		return CollectionViewFilters.DEFAULT_SORT;
 	}
 
 	@Override
 	protected String getPath() {
-		return "collectionfilters/#/details";
+		return "collectionviews/#/filters";
 	}
 
 	@Override
 	protected String getType(Uri uri) {
-		return CollectionFilterDetails.CONTENT_TYPE;
+		return CollectionViewFilters.CONTENT_TYPE;
 	}
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
-		long filterId = CollectionFilters.getFilterId(uri);
-		values.put(CollectionFilterDetails.FILTER_ID, filterId);
-		long rowId = db.insertOrThrow(Tables.COLLECTION_FILTERS_DETAILS, null, values);
-		Uri newUri = CollectionFilters.buildFilterDetailUri(filterId, rowId);
+		long filterId = CollectionViews.getViewId(uri);
+		values.put(CollectionViewFilters.VIEW_ID, filterId);
+		long rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values);
+		Uri newUri = CollectionViews.buildViewFilterUri(filterId, rowId);
 		return newUri;
 	}
 
 	private SelectionBuilder buildSelection(Uri uri, String table) {
-		long filterId = CollectionFilters.getFilterId(uri);
-		return new SelectionBuilder().table(table).where(CollectionFilterDetails.FILTER_ID + "=?",
+		long filterId = CollectionViews.getViewId(uri);
+		return new SelectionBuilder().table(table).where(CollectionViewFilters.VIEW_ID + "=?",
 				String.valueOf(filterId));
 	}
 }
