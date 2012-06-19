@@ -7,7 +7,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
-public class CollectionFiltersIdProvider extends BaseProvider {
+public class CollectionViewIdProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
@@ -18,7 +18,7 @@ public class CollectionFiltersIdProvider extends BaseProvider {
 
 	@Override
 	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		new CollectionFiltersProvider().deleteChildren(db, builder);
+		new CollectionViewProvider().deleteChildren(db, builder);
 	}
 
 	@Override
