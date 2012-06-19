@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
-public class CollectionFiltersProvider extends BasicProvider {
+public class CollectionViewProvider extends BasicProvider {
 
 	@Override
 	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
