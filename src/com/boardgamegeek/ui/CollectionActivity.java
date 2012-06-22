@@ -37,6 +37,7 @@ import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -280,6 +281,20 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			case R.id.menu_collection_sort_rating:
 				mSort = new GeekRatingSortData();
+				requery();
+				return true;
+			case R.id.menu_collection_sort_played_most:
+			case R.id.menu_collection_sort_played_least:
+			case R.id.menu_collection_sort_published_newest:
+			case R.id.menu_collection_sort_published_oldest:
+			case R.id.menu_collection_sort_playtime_shortest:
+			case R.id.menu_collection_sort_playtime_longest:
+			case R.id.menu_collection_sort_age_youngest:
+			case R.id.menu_collection_sort_age_oldest:
+			case R.id.menu_collection_sort_weight_lighest:
+			case R.id.menu_collection_sort_weight_heaviest:
+				Toast.makeText(this, "Coming soon...", Toast.LENGTH_SHORT).show();
+				mSort = null;
 				requery();
 				return true;
 		}
