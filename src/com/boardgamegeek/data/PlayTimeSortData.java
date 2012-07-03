@@ -1,10 +1,16 @@
 package com.boardgamegeek.data;
 
+import android.content.Context;
 import android.database.Cursor;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class PlayTimeSortData extends CollectionSortData {
+	public PlayTimeSortData(Context context) {
+		super(context);
+	}
+
 	@Override
 	public String[] getColumns() {
 		return new String[] { Collection.PLAYING_TIME };
@@ -12,7 +18,7 @@ public class PlayTimeSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getScrollText(cursor) + " mins";
+		return getScrollText(cursor) + " " + mContext.getString(R.string.time_suffix);
 	}
 
 	@Override

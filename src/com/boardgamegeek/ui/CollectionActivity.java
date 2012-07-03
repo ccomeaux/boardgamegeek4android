@@ -106,7 +106,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private String mFilterName = "";
 	private String mFilterNamePrior = "";
-	private CollectionSortData mSort = new CollectionNameSortData();
+	private CollectionSortData mSort = new CollectionNameSortData(this);
 
 	// Workaround for bug http://code.google.com/p/android/issues/detail?id=7139
 	private AdapterContextMenuInfo mLinksMenuInfo = null;
@@ -156,7 +156,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
 			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
 			mFilterNamePrior = savedInstanceState.getString(KEY_FILTER_NAME_PRIOR);
-			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(KEY_SORT_TYPE));
+			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(KEY_SORT_TYPE), this);
 		}
 
 		mHandler.post(new Runnable() {
@@ -280,27 +280,27 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				DeleteFilters.createDialog(this);
 				return true;
 			case R.id.menu_collection_sort_name:
-				mSort = new CollectionNameSortData();
+				mSort = new CollectionNameSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_rating:
-				mSort = new GeekRatingSortData();
+				mSort = new GeekRatingSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_published_newest:
-				mSort = new YearPublishedDescendingSortData();
+				mSort = new YearPublishedDescendingSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_published_oldest:
-				mSort = new YearPublishedAscendingSortData();
+				mSort = new YearPublishedAscendingSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_playtime_shortest:
-				mSort = new PlayTimeAscendingSortData();
+				mSort = new PlayTimeAscendingSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_playtime_longest:
-				mSort = new PlayTimeDescendingSortData();
+				mSort = new PlayTimeDescendingSortData(this);
 				requery();
 				return true;
 			case R.id.menu_collection_sort_played_most:

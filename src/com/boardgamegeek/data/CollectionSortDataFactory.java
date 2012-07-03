@@ -1,5 +1,7 @@
 package com.boardgamegeek.data;
 
+import android.content.Context;
+
 public class CollectionSortDataFactory {
 	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_COLLECTION_NAME = 1;
@@ -15,20 +17,20 @@ public class CollectionSortDataFactory {
 	public static final int TYPE_AVERAGE_WEIGHT_ASC = 11;
 	public static final int TYPE_AVERAGE_WEIGHT_DESC = 12;
 
-	public static CollectionSortData create(int type) {
+	public static CollectionSortData create(int type, Context context) {
 		switch (type) {
 			case TYPE_COLLECTION_NAME:
-				return new CollectionNameSortData();
+				return new CollectionNameSortData(context);
 			case TYPE_GEEK_RATING:
-				return new GeekRatingSortData();
+				return new GeekRatingSortData(context);
 			case TYPE_YEAR_PUBLISHED_ASC:
-				return new YearPublishedAscendingSortData();
+				return new YearPublishedAscendingSortData(context);
 			case TYPE_YEAR_PUBLISHED_DESC:
-				return new YearPublishedDescendingSortData();
+				return new YearPublishedDescendingSortData(context);
 			case TYPE_PLAY_TIME_ASC:
-				return new PlayTimeAscendingSortData();
+				return new PlayTimeAscendingSortData(context);
 			case TYPE_PLAY_TIME_DESC:
-				return new PlayTimeDescendingSortData();
+				return new PlayTimeDescendingSortData(context);
 			case TYPE_PLAY_COUNT_ASC:
 			case TYPE_PLAY_COUNT_DESC:
 			case TYPE_AGE_ASC:
