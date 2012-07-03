@@ -31,7 +31,7 @@ public class SyncCollectionList extends SyncTask {
 			for (int i = 0; i < statuses.length; i++) {
 				get(executor,
 						((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(username, statuses[i], modifiedSince)
-								: HttpUtils.constructBriefCollectionUrl(username, statuses[i])),
+								: HttpUtils.constructCollectionUrl(username, statuses[i])),
 						new RemoteCollectionHandler(startTime));
 				if (isBggDown()) {
 					return;
@@ -40,7 +40,7 @@ public class SyncCollectionList extends SyncTask {
 
 			if (needsFullSync()) {
 				for (int i = 0; i < statuses.length; i++) {
-					get(executor, HttpUtils.constructBriefCollectionUrl(username, statuses[i]),
+					get(executor, HttpUtils.constructCollectionUrl(username, statuses[i]),
 							new RemoteCollectionDeleteHandler(startTime));
 					if (isBggDown()) {
 						return;

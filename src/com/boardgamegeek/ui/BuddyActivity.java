@@ -150,9 +150,9 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 		private RemoteBuddyCollectionHandler mHandler = new RemoteBuddyCollectionHandler();
 		private String mUrl;
 
-		public BuddyCollectionTask(Activity activity, String userName) {
+		public BuddyCollectionTask(Activity activity, String username) {
 			this.mActivity = activity;
-			this.mUrl = HttpUtils.constructCollectionUrl(userName, "own");
+			this.mUrl = HttpUtils.constructBriefCollectionUrl(username, "own");
 		}
 
 		@Override

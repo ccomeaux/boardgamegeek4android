@@ -37,6 +37,11 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 	}
 
 	@Override
+	protected String getTotalCountAttributeName() {
+		return Tags.TOTAL;
+	}
+
+	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
 		String[] projection = { BaseColumns._ID, };
 		final int depth = mParser.getDepth();
@@ -76,6 +81,7 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 
 	private interface Tags {
 		String BUDDIES = "buddies";
+		String TOTAL = "total";
 		String BUDDY = "buddy";
 		String ID = "id";
 		String NAME = "name";
