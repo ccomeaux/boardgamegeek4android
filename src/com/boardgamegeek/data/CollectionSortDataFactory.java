@@ -25,10 +25,12 @@ public class CollectionSortDataFactory {
 				return new YearPublishedAscendingSortData();
 			case TYPE_YEAR_PUBLISHED_DESC:
 				return new YearPublishedDescendingSortData();
+			case TYPE_PLAY_TIME_ASC:
+				return new PlayTimeAscendingSortData();
+			case TYPE_PLAY_TIME_DESC:
+				return new PlayTimeDescendingSortData();
 			case TYPE_PLAY_COUNT_ASC:
 			case TYPE_PLAY_COUNT_DESC:
-			case TYPE_PLAY_TIME_ASC:
-			case TYPE_PLAY_TIME_DESC:
 			case TYPE_AGE_ASC:
 			case TYPE_AGE_DESC:
 			case TYPE_AVERAGE_WEIGHT_ASC:

@@ -36,7 +36,7 @@ public abstract class CollectionSortData {
 	}
 
 	protected String getClause(String columnName, boolean isDescending) {
-		return columnName + (isDescending ? " ASC, " : " DESC, ") + Collection.DEFAULT_SORT;
+		return columnName + (isDescending ? " DESC, " : " ASC, ") + Collection.DEFAULT_SORT;
 	}
 
 	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue) {
