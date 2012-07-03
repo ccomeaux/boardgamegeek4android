@@ -53,6 +53,8 @@ import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
 import com.boardgamegeek.data.GeekRatingSortData;
+import com.boardgamegeek.data.PlayTimeAscendingSortData;
+import com.boardgamegeek.data.PlayTimeDescendingSortData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
@@ -286,17 +288,23 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				requery();
 				return true;
 			case R.id.menu_collection_sort_published_newest:
-				mSort = new YearPublishedAscendingSortData();
+				mSort = new YearPublishedDescendingSortData();
 				requery();
 				return true;
 			case R.id.menu_collection_sort_published_oldest:
-				mSort = new YearPublishedDescendingSortData();
+				mSort = new YearPublishedAscendingSortData();
+				requery();
+				return true;
+			case R.id.menu_collection_sort_playtime_shortest:
+				mSort = new PlayTimeAscendingSortData();
+				requery();
+				return true;
+			case R.id.menu_collection_sort_playtime_longest:
+				mSort = new PlayTimeDescendingSortData();
 				requery();
 				return true;
 			case R.id.menu_collection_sort_played_most:
 			case R.id.menu_collection_sort_played_least:
-			case R.id.menu_collection_sort_playtime_shortest:
-			case R.id.menu_collection_sort_playtime_longest:
 			case R.id.menu_collection_sort_age_youngest:
 			case R.id.menu_collection_sort_age_oldest:
 			case R.id.menu_collection_sort_weight_lighest:
