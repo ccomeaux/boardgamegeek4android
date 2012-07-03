@@ -2,6 +2,7 @@ package com.boardgamegeek.data;
 
 import java.text.DecimalFormat;
 
+import android.content.Context;
 import android.database.Cursor;
 
 import com.boardgamegeek.R;
@@ -11,9 +12,10 @@ public class GeekRatingSortData extends CollectionSortData {
 	private DecimalFormat mScrollDf = new DecimalFormat("#.0");
 	private DecimalFormat mDisplayDf = new DecimalFormat("#.###");
 
-	public GeekRatingSortData() {
+	public GeekRatingSortData(Context context) {
+		super(context);
 		mOrderByClause = Collection.SORT_BY_RATING;
-		mDescription = R.string.rating;
+		mDescriptionId = R.string.rating;
 	}
 
 	@Override

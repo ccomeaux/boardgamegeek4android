@@ -1,12 +1,15 @@
 package com.boardgamegeek.data;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class PlayTimeAscendingSortData extends PlayTimeSortData {
-	public PlayTimeAscendingSortData() {
+	public PlayTimeAscendingSortData(Context context) {
+		super(context);
 		mOrderByClause = getClause(Collection.PLAYING_TIME, false);
-		mDescription = R.string.menu_collection_sort_playtime_shortest;
+		mDescriptionId = R.string.menu_collection_sort_playtime_shortest;
 	}
 
 	@Override

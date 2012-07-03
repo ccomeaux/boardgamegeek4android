@@ -2,6 +2,7 @@ package com.boardgamegeek.data;
 
 import java.text.DecimalFormat;
 
+import android.content.Context;
 import android.database.Cursor;
 
 import com.boardgamegeek.R;
@@ -10,9 +11,10 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class CollectionNameSortData extends CollectionSortData {
 	private DecimalFormat mDisplayDf = new DecimalFormat("#.###");
 
-	public CollectionNameSortData() {
+	public CollectionNameSortData(Context context) {
+		super(context);
 		mOrderByClause = Collection.DEFAULT_SORT;
-		mDescription = R.string.name;
+		mDescriptionId = R.string.name;
 	}
 
 	@Override

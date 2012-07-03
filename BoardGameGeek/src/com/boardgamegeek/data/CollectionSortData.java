@@ -1,18 +1,21 @@
 package com.boardgamegeek.data;
 
+import android.content.Context;
 import android.database.Cursor;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public abstract class CollectionSortData {
+	protected Context mContext;
 	protected String mOrderByClause;
-	protected int mDescription;
+	protected int mDescriptionId;
 
-	public CollectionSortData() {
+	public CollectionSortData(Context context) {
+		mContext = context;
 	}
 
 	public int getDescriptionId() {
-		return mDescription;
+		return mDescriptionId;
 	}
 
 	public String[] getColumns() {
