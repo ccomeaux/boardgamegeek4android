@@ -17,6 +17,12 @@ import com.boardgamegeek.util.StringUtils;
 public class RemoteSearchHandler extends RemoteBggHandler {
 	// private static final String TAG = "RemoteSearchHandler";
 
+	// <boardgames termsofuse="http://boardgamegeek.com/xmlapi/termsofuse">
+	// <boardgame objectid="30928">
+	// <name primary="true">Age of Steam Expansion: Jamaica / Puerto Rico</name>
+	// </boardgame>
+	// </boardgames>
+
 	List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
 
 	public List<SearchResult> getResults() {
@@ -32,7 +38,7 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 	protected void clearResults() {
 		mSearchResults.clear();
 	}
-	
+
 	@Override
 	protected String getRootNodeName() {
 		return Tags.BOARDGAMES;

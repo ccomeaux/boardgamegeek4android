@@ -51,7 +51,7 @@ public class HttpUtils {
 
 	public static String constructSearchUrl(String searchTerm, boolean useExact) {
 		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
-		// http://boardgamegeek.com/xmlapi2/search?query=puerto+rico
+		// http://boardgamegeek.com/xmlapi2/search?type=boardgame&query=puerto+rico
 		String queryUrl = BASE_URL + "search?search=" + URLEncoder.encode(searchTerm);
 		if (useExact) {
 			queryUrl += "&exact=1";
@@ -67,6 +67,7 @@ public class HttpUtils {
 
 	public static String constructGameUrl(String gameId) {
 		// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
+		// http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1
 		return BASE_URL + "boardgame/" + gameId + "?stats=1";
 	}
 
@@ -144,27 +145,27 @@ public class HttpUtils {
 		// http://www.boardgamegeek.com/xmlapi2/user?name=ccomeaux&buddies=1
 		String url = BASE_URL_2 + "user?name=" + URLEncoder.encode(username);
 		if (includeBuddies) {
-			url = url + "&buddies=1";
+			url += "&buddies=1";
 		}
 		return url;
 	}
 
-	public static String constructBriefCollectionUrl(String username, String status) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
-		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1&brief=1";
-	}
-
 	public static String constructCollectionUrl(String username, String status) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
-		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim() + "=1";
+		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim()
+				+ "=1&showprivate=1&stats=1";
+	}
+
+	public static String constructBriefCollectionUrl(String username, String status) {
+		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
+		return constructCollectionUrl(username, status) + "&brief=1";
 	}
 
 	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
 		Date date = new Date(modifiedSince);
 		String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
-		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim()
-				+ "=1&brief=1&modifiedsince=" + dateString;
+		return constructCollectionUrl(username, status) + "modifiedsince=" + dateString;
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {
@@ -183,20 +184,24 @@ public class HttpUtils {
 		return BASE_URL_2 + "thread?id=" + mThreadId;
 	}
 
-	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
-		final HttpParams params = createHttpParams(context, false);
-		final DefaultHttpClient client = new DefaultHttpClient(params);
-		client.setCookieStore(cookieStore);
-		return client;
-	}
-
-	public static HttpClient createHttpClient(Context context, boolean useGzip) {
+	public static HttpClient createHttpClient(Context context, CookieStore cookieStore, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);
 		final DefaultHttpClient client = new DefaultHttpClient(params);
+		if (cookieStore != null) {
+			client.setCookieStore(cookieStore);
+		}
 		if (useGzip) {
 			addGzipInterceptors(client);
 		}
 		return client;
+	}
+
+	public static HttpClient createHttpClient(Context context, boolean useGzip) {
+		return createHttpClient(context, null, useGzip);
+	}
+
+	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
+		return createHttpClient(context, cookieStore, false);
 	}
 
 	private static HttpParams createHttpParams(Context context, boolean useGzip) {

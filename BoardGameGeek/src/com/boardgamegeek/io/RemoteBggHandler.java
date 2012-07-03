@@ -50,7 +50,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		return Tags.PAGE;
 	}
 
-	protected int getPageSize(){
+	protected int getPageSize() {
 		return 100;
 	}
 
@@ -87,7 +87,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 			}
 		}
 
-		return getCount() > (mPageNumber * getPageSize());
+		return mTotalCount > (mPageNumber * getPageSize());
 	}
 
 	protected abstract void parseItems() throws XmlPullParserException, IOException;
