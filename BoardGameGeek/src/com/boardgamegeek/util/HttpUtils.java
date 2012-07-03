@@ -165,7 +165,7 @@ public class HttpUtils {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
 		Date date = new Date(modifiedSince);
 		String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
-		return constructCollectionUrl(username, status) + "modifiedsince=" + dateString;
+		return constructCollectionUrl(username, status) + "&modifiedsince=" + dateString;
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {
