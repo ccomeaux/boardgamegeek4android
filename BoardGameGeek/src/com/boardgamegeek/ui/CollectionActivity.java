@@ -56,6 +56,8 @@ import com.boardgamegeek.data.GeekRatingSortData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
+import com.boardgamegeek.data.YearPublishedAscendingSortData;
+import com.boardgamegeek.data.YearPublishedDescendingSortData;
 import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -188,7 +190,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 		outState.putString(KEY_FILTER_NAME, mFilterName);
 		outState.putString(KEY_FILTER_NAME_PRIOR, mFilterNamePrior);
-		outState.putInt(KEY_SORT_TYPE, mSort.getType());
+		outState.putInt(KEY_SORT_TYPE, mSort == null ? CollectionSortDataFactory.TYPE_UNKNOWN : mSort.getType());
 	}
 
 	@Override
@@ -283,10 +285,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mSort = new GeekRatingSortData();
 				requery();
 				return true;
+			case R.id.menu_collection_sort_published_newest:
+				mSort = new YearPublishedAscendingSortData();
+				requery();
+				return true;
+			case R.id.menu_collection_sort_published_oldest:
+				mSort = new YearPublishedDescendingSortData();
+				requery();
+				return true;
 			case R.id.menu_collection_sort_played_most:
 			case R.id.menu_collection_sort_played_least:
-			case R.id.menu_collection_sort_published_newest:
-			case R.id.menu_collection_sort_published_oldest:
 			case R.id.menu_collection_sort_playtime_shortest:
 			case R.id.menu_collection_sort_playtime_longest:
 			case R.id.menu_collection_sort_age_youngest:
