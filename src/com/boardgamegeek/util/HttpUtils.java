@@ -150,22 +150,26 @@ public class HttpUtils {
 		return url;
 	}
 
-	public static String constructCollectionUrl(String username, String status) {
+	private static String constructCollectionUrl(String username, String status, boolean includeStats) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
 		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim()
-				+ "=1&showprivate=1&stats=1";
+				+ "=1&showprivate=1" + (includeStats ? "&stats=1" : "");
+	}
+
+	public static String constructCollectionUrl(String username, String status) {
+		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
+		return constructCollectionUrl(username, status, true);
 	}
 
 	public static String constructBriefCollectionUrl(String username, String status) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
-		return constructCollectionUrl(username, status) + "&brief=1";
+		return constructCollectionUrl(username, status, false) + "&brief=1";
 	}
 
 	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
-		Date date = new Date(modifiedSince);
-		String dateString = new SimpleDateFormat("yyyy-MM-dd").format(date);
-		return constructCollectionUrl(username, status) + "&modifiedsince=" + dateString;
+		return constructCollectionUrl(username, status) + "&modifiedsince="
+				+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(modifiedSince));
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {

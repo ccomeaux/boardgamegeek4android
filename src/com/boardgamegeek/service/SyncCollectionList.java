@@ -40,7 +40,7 @@ public class SyncCollectionList extends SyncTask {
 
 			if (needsFullSync()) {
 				for (int i = 0; i < statuses.length; i++) {
-					get(executor, HttpUtils.constructCollectionUrl(username, statuses[i]),
+					get(executor, HttpUtils.constructBriefCollectionUrl(username, statuses[i]),
 							new RemoteCollectionDeleteHandler(startTime));
 					if (isBggDown()) {
 						return;
