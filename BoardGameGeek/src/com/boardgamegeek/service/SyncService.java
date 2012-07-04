@@ -21,8 +21,10 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.LogInHelper;
+import com.boardgamegeek.util.LogInHelper.LogInListener;
 
-public class SyncService extends IntentService {
+public class SyncService extends IntentService implements LogInListener {
 	private final static String TAG = "SyncService";
 
 	public static final int STATUS_RUNNING = 1;
@@ -45,6 +47,7 @@ public class SyncService extends IntentService {
 	private SparseArray<List<SyncTask>> mTaskList = new SparseArray<List<SyncTask>>();
 	private ResultReceiver mResultReceiver;
 	private RemoteExecutor mRemoteExecutor;
+	private LogInHelper mLogInHelper;
 
 	public SyncService() {
 		super(TAG);
@@ -54,8 +57,9 @@ public class SyncService extends IntentService {
 	public void onCreate() {
 		super.onCreate();
 
+		mLogInHelper = new LogInHelper(this.getApplicationContext(), this);
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		mHttpClient = HttpUtils.createHttpClient(this, mUseGzip);
+		mHttpClient = HttpUtils.createHttpClient(this, mLogInHelper.logIn(), mUseGzip);
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 
@@ -204,5 +208,20 @@ public class SyncService extends IntentService {
 
 		notification.setLatestEventInfo(this, title, message, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
+	}
+
+	@Override
+	public void onLogInSuccess() {
+		mHttpClient = HttpUtils.createHttpClient(getApplicationContext(), mLogInHelper.getCookieStore(), mUseGzip);
+	}
+
+	@Override
+	public void onLogInError(String errorMessage) {
+		Log.d(TAG, "Couldn't log in: " + errorMessage);
+	}
+
+	@Override
+	public void onNeedCredentials() {
+		Log.d(TAG, "Missing credentials.");
 	}
 }

@@ -12,6 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -23,7 +24,6 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	private static final String TAG = "RemoteCollectionHandler";
 
 	// TODO: Parse Version Info
-	// TODO: Parse Private Info
 
 	private long mStartTime;
 	private int mUpdateGameCount = 0;
@@ -172,6 +172,21 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					collectionValues.put(Collection.STATUS_PREORDERED,
 							mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
 					collectionValues.put(Collection.LAST_MODIFIED, mParser.getAttributeValue(null, Tags.LAST_MODIFIED));
+				} else if (Tags.PRIVATE_INFO.equals(tag)) {
+					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
+							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
+					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID,
+							getAttributeAsDouble(Tags.PRIVATE_INFO_PRICE_PAID));
+					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY));
+					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE,
+							getAttributeAsDouble(Tags.PRIVATE_INFO_CURRENT_VALUE));
+					collectionValues.put(Collection.PRIVATE_INFO_QUANTITY,
+							Integer.valueOf(mParser.getAttributeValue(null, Tags.PRIVATE_INFO_QUANTITY)));
+					collectionValues.put(Collection.PRIVATE_INFO_ACQUISITION_DATE,
+							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUISITION_DATE));
+					collectionValues.put(Collection.PRIVATE_INFO_ACQUIRED_FROM,
+							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUIRED_FROM));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -195,52 +210,21 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
 					gameValues.put(Games.NUM_PLAYS,
 							StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_PLAYS)));
-				} else if (Tags.PRIVATE_INFO.equals(tag)) {
-					parsePrivateInfo(collectionValues);
-					tag = null;
 				} else if (Tags.COMMENT.equals(tag)) {
 					collectionValues.put(Collection.COMMENT, text);
+				} else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
+					collectionValues.put(Collection.PRIVATE_INFO_COMMENT, text);
 				}
 			}
 		}
 	}
 
-	private ContentValues parsePrivateInfo(ContentValues values) throws XmlPullParserException, IOException {
-		// String tag = null;
-		// final int depth = mParser.getDepth();
-		// int type;
-		// while (((type = mParser.next()) != END_TAG || mParser.getDepth() >
-		// depth)
-		// && type != END_DOCUMENT) {
-		//
-		// if (type == START_TAG) {
-		// tag = mParser.getName();
-		// } else if (type == END_TAG) {
-		// tag = null;
-		// } else if (type == TEXT) {
-		// String text = mParser.getText();
-		// if (Tags.PRIVATE_INFO_ACQUIRED_FROM.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_ACQUIRED_FROM, text);
-		// } else if (Tags.PRIVATE_INFO_ACQUISITION_DATE.equals(tag)) {
-		// // TODO: how to handle date in YYYY-MM-DD?
-		// values.put(Games.PRIVATE_INFO_ACQUISITION_DATE, text);
-		// } else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_COMMENT, text);
-		// } else if (Tags.PRIVATE_INFO_CURRENT_VALUE.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_CURRENT_VALUE,
-		// Utility.parseDouble(text));
-		// } else if (Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, text);
-		// } else if (Tags.PRIVATE_INFO_PRICE_PAID.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_PRICE_PAID, Utility.parseDouble(text));
-		// } else if (Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_PRICE_PAID_CURRENCY, text);
-		// } else if (Tags.PRIVATE_INFO_QUANTITY.equals(tag)) {
-		// values.put(Games.PRIVATE_INFO_QUANTITY, Utility.parseInt(text));
-		// }
-		// }
-		// }
-		return values;
+	private Double getAttributeAsDouble(String tag) {
+		String av = mParser.getAttributeValue(null, tag);
+		if (TextUtils.isEmpty(av)) {
+			return null;
+		}
+		return Double.valueOf(av);
 	}
 
 	private interface Tags {
@@ -277,14 +261,14 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		String NUM_PLAYS = "numplays";
 
 		String PRIVATE_INFO = "privateinfo";
-		// String PRIVATE_INFO_PRICE_PAID_CURRENCY = "pp_currency";
-		// String PRIVATE_INFO_PRICE_PAID = "pricepaid";
-		// String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "cv_currency";
-		// String PRIVATE_INFO_CURRENT_VALUE = "currvalue";
-		// String PRIVATE_INFO_QUANTITY = "quantity";
-		// String PRIVATE_INFO_ACQUISITION_DATE = "acquisitiondate";
-		// String PRIVATE_INFO_ACQUIRED_FROM = "acquiredfrom";
-		// String PRIVATE_INFO_COMMENT = "privatecomment";
+		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "pp_currency";
+		String PRIVATE_INFO_PRICE_PAID = "pricepaid";
+		String PRIVATE_INFO_CURRENT_VALUE_CURRENCY = "cv_currency";
+		String PRIVATE_INFO_CURRENT_VALUE = "currvalue";
+		String PRIVATE_INFO_QUANTITY = "quantity";
+		String PRIVATE_INFO_ACQUISITION_DATE = "acquisitiondate";
+		String PRIVATE_INFO_ACQUIRED_FROM = "acquiredfrom";
+		String PRIVATE_INFO_COMMENT = "privatecomment";
 
 		String COMMENT = "comment";
 	}

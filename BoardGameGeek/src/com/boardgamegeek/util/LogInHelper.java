@@ -45,21 +45,23 @@ public class LogInHelper {
 		return mCookies.getCookieStore();
 	}
 
-	public void logIn() {
+	public CookieStore logIn() {
 		if (checkCookies()) {
 			if (mListener != null) {
 				mListener.onLogInSuccess();
 			}
+			return getCookieStore();
 		}
 
 		if (!canLogIn()) {
 			if (mListener != null) {
 				mListener.onNeedCredentials();
 			}
-			return;
+			return null;
 		}
 
 		 new LogInTask().execute();
+		 return null;
 	}
 
 	public boolean checkCookies() {
