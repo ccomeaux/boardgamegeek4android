@@ -31,10 +31,12 @@ public class CollectionSortDataFactory {
 				return new PlayTimeAscendingSortData(context);
 			case TYPE_PLAY_TIME_DESC:
 				return new PlayTimeDescendingSortData(context);
+			case TYPE_AGE_ASC:
+				return new SuggestedAgeAscendingSortData(context);
+			case TYPE_AGE_DESC:
+				return new SuggestedAgeDescendingSortData(context);
 			case TYPE_PLAY_COUNT_ASC:
 			case TYPE_PLAY_COUNT_DESC:
-			case TYPE_AGE_ASC:
-			case TYPE_AGE_DESC:
 			case TYPE_AVERAGE_WEIGHT_ASC:
 			case TYPE_AVERAGE_WEIGHT_DESC:
 				// TODO

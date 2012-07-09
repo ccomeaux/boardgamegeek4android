@@ -57,6 +57,8 @@ import com.boardgamegeek.data.PlayTimeAscendingSortData;
 import com.boardgamegeek.data.PlayTimeDescendingSortData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
+import com.boardgamegeek.data.SuggestedAgeAscendingSortData;
+import com.boardgamegeek.data.SuggestedAgeDescendingSortData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedAscendingSortData;
 import com.boardgamegeek.data.YearPublishedDescendingSortData;
@@ -303,10 +305,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mSort = new PlayTimeDescendingSortData(this);
 				requery();
 				return true;
+			case R.id.menu_collection_sort_age_youngest:
+				mSort = new SuggestedAgeAscendingSortData(this);
+				requery();
+				return true;
+			case R.id.menu_collection_sort_age_oldest:
+				mSort = new SuggestedAgeDescendingSortData(this);
+				requery();
+				return true;
 			case R.id.menu_collection_sort_played_most:
 			case R.id.menu_collection_sort_played_least:
-			case R.id.menu_collection_sort_age_youngest:
-			case R.id.menu_collection_sort_age_oldest:
 			case R.id.menu_collection_sort_weight_lighest:
 			case R.id.menu_collection_sort_weight_heaviest:
 				Toast.makeText(this, "Coming soon...", Toast.LENGTH_SHORT).show();
