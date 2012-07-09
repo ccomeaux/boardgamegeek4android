@@ -43,11 +43,21 @@ public abstract class CollectionSortData {
 	}
 
 	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue) {
+		return getIntAsString(cursor, columnName, defaultValue, false);
+	}
+
+	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index != -1) {
-			return String.valueOf(cursor.getInt(index));
+		if (index == -1) {
+			return defaultValue;
 		}
-		return defaultValue;
+
+		int value = cursor.getInt(index);
+		if (treatZeroAsNull && value == 0){
+			return defaultValue;
+		}
+		
+		return String.valueOf(value);
 	}
 
 	protected Double getDouble(Cursor cursor, String columnName) {
