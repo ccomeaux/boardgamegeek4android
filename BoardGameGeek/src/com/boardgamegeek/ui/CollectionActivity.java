@@ -42,6 +42,8 @@ import android.widget.Toast;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.AverageRatingFilterData;
+import com.boardgamegeek.data.AverageWeightAscendingSortData;
+import com.boardgamegeek.data.AverageWeightDescendingSortData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
@@ -313,10 +315,16 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				mSort = new SuggestedAgeDescendingSortData(this);
 				requery();
 				return true;
+			case R.id.menu_collection_sort_weight_lighest:
+				mSort = new AverageWeightAscendingSortData(this);
+				requery();
+				return true;
+			case R.id.menu_collection_sort_weight_heaviest:
+				mSort = new AverageWeightDescendingSortData(this);
+				requery();
+				return true;
 			case R.id.menu_collection_sort_played_most:
 			case R.id.menu_collection_sort_played_least:
-			case R.id.menu_collection_sort_weight_lighest:
-			case R.id.menu_collection_sort_weight_heaviest:
 				Toast.makeText(this, "Coming soon...", Toast.LENGTH_SHORT).show();
 				mSort = null;
 				requery();

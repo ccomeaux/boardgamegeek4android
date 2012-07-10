@@ -1,5 +1,7 @@
 package com.boardgamegeek.data;
 
+import java.text.DecimalFormat;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -9,6 +11,7 @@ public abstract class CollectionSortData {
 	protected Context mContext;
 	protected String mOrderByClause;
 	protected int mDescriptionId;
+	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
 
 	public CollectionSortData(Context context) {
 		mContext = context;
@@ -53,11 +56,34 @@ public abstract class CollectionSortData {
 		}
 
 		int value = cursor.getInt(index);
-		if (treatZeroAsNull && value == 0){
+		if (treatZeroAsNull && value == 0) {
 			return defaultValue;
 		}
-		
+
 		return String.valueOf(value);
+	}
+
+	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue) {
+		return getIntAsString(cursor, columnName, defaultValue, false);
+	}
+
+	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
+			DecimalFormat format) {
+		int index = cursor.getColumnIndex(columnName);
+		if (index == -1) {
+			return defaultValue;
+		}
+
+		double value = cursor.getDouble(index);
+		if (treatZeroAsNull && value == 0.0) {
+			return defaultValue;
+		}
+
+		if (format == null) {
+			return mDoubleFormat.format(value);
+		} else {
+			return format.format(value);
+		}
 	}
 
 	protected Double getDouble(Cursor cursor, String columnName) {
