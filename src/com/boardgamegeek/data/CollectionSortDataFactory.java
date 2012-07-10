@@ -35,10 +35,12 @@ public class CollectionSortDataFactory {
 				return new SuggestedAgeAscendingSortData(context);
 			case TYPE_AGE_DESC:
 				return new SuggestedAgeDescendingSortData(context);
+			case TYPE_AVERAGE_WEIGHT_ASC:
+				return new AverageWeightAscendingSortData(context);
+			case TYPE_AVERAGE_WEIGHT_DESC:
+				return new AverageWeightDescendingSortData(context);
 			case TYPE_PLAY_COUNT_ASC:
 			case TYPE_PLAY_COUNT_DESC:
-			case TYPE_AVERAGE_WEIGHT_ASC:
-			case TYPE_AVERAGE_WEIGHT_DESC:
 				// TODO
 			case TYPE_UNKNOWN:
 			default:
