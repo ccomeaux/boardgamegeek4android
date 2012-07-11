@@ -182,7 +182,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE,
 							getAttributeAsDouble(Tags.PRIVATE_INFO_CURRENT_VALUE));
 					collectionValues.put(Collection.PRIVATE_INFO_QUANTITY,
-							Integer.valueOf(mParser.getAttributeValue(null, Tags.PRIVATE_INFO_QUANTITY)));
+							getAttributeAsInteger(Tags.PRIVATE_INFO_QUANTITY));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUISITION_DATE,
 							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUISITION_DATE));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUIRED_FROM,
@@ -217,6 +217,14 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				}
 			}
 		}
+	}
+
+	private Integer getAttributeAsInteger(String tag) {
+		String av = mParser.getAttributeValue(null, tag);
+		if (TextUtils.isEmpty(av)) {
+			return null;
+		}
+		return Integer.valueOf(av);
 	}
 
 	private Double getAttributeAsDouble(String tag) {
