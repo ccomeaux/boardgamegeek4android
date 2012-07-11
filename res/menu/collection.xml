@@ -2,18 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<item
-		android:id="@+id/menu_collection_view_save"
-		android:icon="@android:drawable/ic_menu_save"
-		android:title="@string/menu_collection_view_save"/>
-	<item
-		android:id="@+id/menu_collection_view_load"
-		android:icon="@drawable/ic_menu_archive"
-		android:title="@string/menu_collection_view_load"/>
-	<item
-		android:id="@+id/menu_collection_view_delete"
-		android:icon="@android:drawable/ic_menu_delete"
-		android:title="@string/menu_collection_view_delete"/>
-	<item
 		android:id="@+id/collection_filter_add"
 		android:icon="@drawable/ic_menu_filter_on"
 		android:title="@string/menu_collection_filter_add">
@@ -56,6 +44,7 @@
 		android:title="@string/menu_collection_filter_clear"/>
 	<item
 		android:id="@+id/menu_collection_sort"
+		android:icon="@android:drawable/ic_menu_sort_by_size"
 		android:title="Sort">
 		<menu>
 			<item
@@ -96,6 +85,18 @@
 				android:title="@string/menu_collection_sort_weight_heaviest"/>
 		</menu>
 	</item>
+	<item
+		android:id="@+id/menu_collection_view_save"
+		android:icon="@android:drawable/ic_menu_save"
+		android:title="@string/menu_collection_view_save"/>
+	<item
+		android:id="@+id/menu_collection_view_load"
+		android:icon="@drawable/ic_menu_archive"
+		android:title="@string/menu_collection_view_load"/>
+	<item
+		android:id="@+id/menu_collection_view_delete"
+		android:icon="@android:drawable/ic_menu_delete"
+		android:title="@string/menu_collection_view_delete"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="@drawable/ic_menu_emoticons"

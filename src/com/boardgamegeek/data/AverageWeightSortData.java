@@ -10,6 +10,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 
 public class AverageWeightSortData extends CollectionSortData {
 	private static final String DEFAULT_VALUE = "?";
+	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 
 	public AverageWeightSortData(Context context) {
 		super(context);
@@ -22,7 +23,7 @@ public class AverageWeightSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return mContext.getString(R.string.weight) + " "+ getInfo(cursor, new DecimalFormat("0.000"));
+		return mContext.getString(R.string.weight) + " "+ getInfo(cursor, mDisplayFormat);
 	}
 
 	@Override

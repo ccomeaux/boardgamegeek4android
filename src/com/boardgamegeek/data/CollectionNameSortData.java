@@ -9,7 +9,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionNameSortData extends CollectionSortData {
-	private DecimalFormat mDisplayDf = new DecimalFormat("#.###");
+	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 
 	public CollectionNameSortData(Context context) {
 		super(context);
@@ -24,8 +24,7 @@ public class CollectionNameSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		Double rating = getDouble(cursor, Collection.STATS_BAYES_AVERAGE);
-		return (rating == null || rating == 0) ? null : mDisplayDf.format(rating);
+		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, "?", true, mDisplayFormat);
 	}
 
 	@Override
