@@ -16,6 +16,7 @@ public class CollectionSortDataFactory {
 	public static final int TYPE_AGE_DESC = 10;
 	public static final int TYPE_AVERAGE_WEIGHT_ASC = 11;
 	public static final int TYPE_AVERAGE_WEIGHT_DESC = 12;
+	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
 	public static CollectionSortData create(int type, Context context) {
 		switch (type) {
@@ -40,8 +41,9 @@ public class CollectionSortDataFactory {
 			case TYPE_AVERAGE_WEIGHT_DESC:
 				return new AverageWeightDescendingSortData(context);
 			case TYPE_PLAY_COUNT_ASC:
+				return new PlayCountAscendingSortData(context);
 			case TYPE_PLAY_COUNT_DESC:
-				// TODO
+				return new PlayCountDescendingSortData(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

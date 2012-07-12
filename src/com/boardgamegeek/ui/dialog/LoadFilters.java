@@ -21,13 +21,14 @@ public class LoadFilters {
 
 		final ContentResolver cr = activity.getContentResolver();
 		final Cursor cursor = cr.query(CollectionViews.CONTENT_URI, new String[] { CollectionViews._ID,
-				CollectionViews.NAME }, null, null, null);
+				CollectionViews.NAME, CollectionViews.SORT_TYPE }, null, null, null);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_view_load)
 				.setCursor(cursor, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						cursor.moveToPosition(which);
+						activity.setSort(cursor.getInt(2));
 						activity.setFilterName(cursor.getString(1), false);
 						createFilterList(cr, cursor.getLong(0));
 					}

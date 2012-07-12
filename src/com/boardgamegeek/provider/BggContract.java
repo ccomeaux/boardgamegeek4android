@@ -181,6 +181,7 @@ public class BggContract {
 	interface CollectionViewsColumns {
 		String NAME = "name";
 		String STARRED = "starred";
+		String SORT_TYPE = "sort_type";
 	}
 
 	interface CollectionViewFiltersColumns {
