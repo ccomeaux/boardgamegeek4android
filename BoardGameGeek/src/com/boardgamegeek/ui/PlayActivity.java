@@ -92,6 +92,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mLogInHelper = new LogInHelper(this, this);
 		parseIntent();
 		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		findViewById(R.id.game_thumbnail).setClickable(true);
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
 	}
@@ -232,6 +233,10 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	public void onSearchClick(View v) {
 		onSearchRequested();
+	}
+
+	public void onThumbnailClick(View v) {
+		startActivity(new Intent(Intent.ACTION_VIEW, Games.buildGameUri(mGameId)));
 	}
 
 	@Override
