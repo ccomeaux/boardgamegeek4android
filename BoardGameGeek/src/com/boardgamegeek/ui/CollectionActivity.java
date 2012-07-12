@@ -279,12 +279,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_sort_rating:
 				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
-				// case R.id.menu_collection_sort_published_newest:
-				// setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
-				// return true;
-				// case R.id.menu_collection_sort_published_oldest:
-				// setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
-				//	return true;
+			case R.id.menu_collection_sort_published_newest:
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
+				return true;
+			case R.id.menu_collection_sort_published_oldest:
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+				return true;
 			case R.id.menu_collection_sort_playtime_shortest:
 				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC);
 				return true;
@@ -303,12 +303,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_sort_weight_heaviest:
 				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
-			case R.id.menu_collection_sort_played_most:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC);
-				return true;
-			case R.id.menu_collection_sort_played_least:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
-				return true;
+				// case R.id.menu_collection_sort_played_most:
+				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC);
+				// return true;
+				// case R.id.menu_collection_sort_played_least:
+				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				// return true;
 		}
 
 		if (launchFilterDialog(item.getItemId())) {
