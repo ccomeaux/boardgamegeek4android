@@ -57,7 +57,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAY_NICKNAME = 7;
 	private static final int VER_PLAY_SYNC_STATUS = 8;
 	private static final int VER_COLLECTION_VIEWS = 9;
-	private static final int DATABASE_VERSION = VER_COLLECTION_VIEWS;
+	private static final int VER_COLLECTION_VIEWS_SORT = 10;
+	private static final int DATABASE_VERSION = VER_COLLECTION_VIEWS_SORT;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -375,10 +376,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.create(db);
 	}
 
-	private void createCollectionViewsTable(SQLiteDatabase db, CreateTableBuilder builder){
+	private void createCollectionViewsTable(SQLiteDatabase db, CreateTableBuilder builder) {
 		builder.reset().table(Tables.COLLECTION_VIEWS).defaultPrimaryKey()
 			.column(CollectionViewsColumns.NAME, COLUMN_TYPE.TEXT)
 			.column(CollectionViewsColumns.STARRED, COLUMN_TYPE.INTEGER)
+			.column(CollectionViewsColumns.SORT_TYPE, COLUMN_TYPE.INTEGER)
 			.create(db);
 		builder.reset().table(Tables.COLLECTION_VIEW_FILTERS).defaultPrimaryKey()
 			.column(CollectionViewFiltersColumns.VIEW_ID, COLUMN_TYPE.INTEGER)
@@ -429,6 +431,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_PLAY_SYNC_STATUS:
 				createCollectionViewsTable(db, new CreateTableBuilder());
 				version = VER_COLLECTION_VIEWS;
+			case VER_COLLECTION_VIEWS:
+				addColumn(db, Tables.COLLECTION_VIEWS, CollectionViewsColumns.SORT_TYPE, COLUMN_TYPE.INTEGER);
+				version = VER_COLLECTION_VIEWS_SORT;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -470,7 +475,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private void addColumn(SQLiteDatabase db, String table, String column, COLUMN_TYPE type) {
 		try {
 			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			Log.w(TAG, "Probably just trying to add an existing column.\n" + e.toString());
 		}
 	}

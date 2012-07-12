@@ -28,7 +28,7 @@ import com.boardgamegeek.ui.CollectionActivity;
 
 public class SaveFilters {
 
-	public static void createDialog(final CollectionActivity activity, String name,
+	public static void createDialog(final CollectionActivity activity, String name, final int sortType,
 			final List<CollectionFilterData> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -54,19 +54,19 @@ public class SaveFilters {
 									.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											update(resolver, filterId, filters);
+											update(resolver, filterId, sortType, filters);
 											updateDisplay(activity, name);
 										}
 									}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
-											insert(resolver, name, filters);
+											insert(resolver, name, sortType, filters);
 											updateDisplay(activity, name);
 										}
 									}).create().show();
 
 						} else {
-							insert(resolver, name, filters);
+							insert(resolver, name, sortType, filters);
 							updateDisplay(activity, name);
 						}
 					}
@@ -86,23 +86,26 @@ public class SaveFilters {
 						return -1;
 					}
 
-					private void insert(ContentResolver resolver, String name, final List<CollectionFilterData> filters) {
+					private void insert(ContentResolver resolver, String name, int sortType,
+							final List<CollectionFilterData> filters) {
 						ContentValues values = new ContentValues();
 						values.put(CollectionViews.NAME, name);
 						values.put(CollectionViews.STARRED, false);
+						values.put(CollectionViews.SORT_TYPE, sortType);
 						Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
 						int filterId = CollectionViews.getViewId(filterUri);
 						Uri uri = CollectionViews.buildViewFilterUri(filterId);
 						insertDetails(resolver, uri, filters);
 					}
 
-					private void update(ContentResolver resolver, int filterId, final List<CollectionFilterData> filters) {
-						Uri uri = CollectionViews.buildViewFilterUri(filterId);
+					private void update(ContentResolver resolver, int viewId, int sortType,
+							final List<CollectionFilterData> filters) {
+						Uri uri = CollectionViews.buildViewFilterUri(viewId);
 						resolver.delete(uri, null, null);
 						insertDetails(resolver, uri, filters);
 					}
 
-					private void insertDetails(ContentResolver resolver, Uri filterUri,
+					private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
 							final List<CollectionFilterData> filters) {
 						List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
 						for (CollectionFilterData filter : filters) {
@@ -111,7 +114,7 @@ public class SaveFilters {
 							cv.put(CollectionViewFilters.DATA, filter.flatten());
 							cvs.add(cv);
 						}
-						resolver.bulkInsert(filterUri, cvs.toArray(new ContentValues[cvs.size()]));
+						resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
 					}
 
 					private void updateDisplay(final CollectionActivity activity, String name) {

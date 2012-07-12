@@ -37,13 +37,10 @@ import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.AverageRatingFilterData;
-import com.boardgamegeek.data.AverageWeightAscendingSortData;
-import com.boardgamegeek.data.AverageWeightDescendingSortData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
@@ -54,16 +51,9 @@ import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
-import com.boardgamegeek.data.GeekRatingSortData;
-import com.boardgamegeek.data.PlayTimeAscendingSortData;
-import com.boardgamegeek.data.PlayTimeDescendingSortData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
-import com.boardgamegeek.data.SuggestedAgeAscendingSortData;
-import com.boardgamegeek.data.SuggestedAgeDescendingSortData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
-import com.boardgamegeek.data.YearPublishedAscendingSortData;
-import com.boardgamegeek.data.YearPublishedDescendingSortData;
 import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -275,7 +265,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				requery();
 				return true;
 			case R.id.menu_collection_view_save:
-				SaveFilters.createDialog(this, mFilterNamePrior, mFilters);
+				SaveFilters.createDialog(this, mFilterNamePrior, mSort.getType(), mFilters);
 				return true;
 			case R.id.menu_collection_view_load:
 				LoadFilters.createDialog(this);
@@ -284,50 +274,40 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				DeleteFilters.createDialog(this);
 				return true;
 			case R.id.menu_collection_sort_name:
-				mSort = new CollectionNameSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_COLLECTION_NAME);
 				return true;
 			case R.id.menu_collection_sort_rating:
-				mSort = new GeekRatingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
 			case R.id.menu_collection_sort_published_newest:
-				mSort = new YearPublishedDescendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
 				return true;
 			case R.id.menu_collection_sort_published_oldest:
-				mSort = new YearPublishedAscendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime_shortest:
-				mSort = new PlayTimeAscendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime_longest:
-				mSort = new PlayTimeDescendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
 				return true;
 			case R.id.menu_collection_sort_age_youngest:
-				mSort = new SuggestedAgeAscendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_AGE_ASC);
 				return true;
 			case R.id.menu_collection_sort_age_oldest:
-				mSort = new SuggestedAgeDescendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_AGE_DESC);
 				return true;
 			case R.id.menu_collection_sort_weight_lighest:
-				mSort = new AverageWeightAscendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC);
 				return true;
 			case R.id.menu_collection_sort_weight_heaviest:
-				mSort = new AverageWeightDescendingSortData(this);
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_played_most:
+				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC);
+				return true;
 			case R.id.menu_collection_sort_played_least:
-				Toast.makeText(this, "Coming soon...", Toast.LENGTH_SHORT).show();
-				mSort = null;
-				requery();
+				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
 				return true;
 		}
 
@@ -785,5 +765,14 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 		mFilterName = name;
 		bindFilterName();
+	}
+
+	public void setSort(int sortType) {
+		setFilterName("", true);
+		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
+			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		}
+		mSort = CollectionSortDataFactory.create(sortType, this);
+		requery();
 	}
 }
