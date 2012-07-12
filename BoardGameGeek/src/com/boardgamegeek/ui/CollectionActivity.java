@@ -279,12 +279,12 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_sort_rating:
 				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
-			case R.id.menu_collection_sort_published_newest:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
-				return true;
-			case R.id.menu_collection_sort_published_oldest:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
-				return true;
+				// case R.id.menu_collection_sort_published_newest:
+				// setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
+				// return true;
+				// case R.id.menu_collection_sort_published_oldest:
+				// setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+				//	return true;
 			case R.id.menu_collection_sort_playtime_shortest:
 				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC);
 				return true;
