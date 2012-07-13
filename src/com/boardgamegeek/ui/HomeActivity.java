@@ -96,6 +96,13 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
 				startService(intent);
 				return true;
+			case R.id.home_btn_contact_us:
+				Intent emailIntent = new Intent(Intent.ACTION_SEND);
+				emailIntent.setType("text/plain");
+				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "bgg4android@gmail.com" });
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
+				startActivity(emailIntent);
+				return true;
 			case R.id.home_btn_about:
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
