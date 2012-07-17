@@ -26,8 +26,17 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
+	/**
+	 * The play has been synced with the 'Geek
+	 */
 	public static final int SYNC_STATUS_SYNCED = 0;
+	/**
+	 * The play is ready to be synced, but doesn't exist on the 'Geek
+	 */
 	public static final int SYNC_STATUS_PENDING = 1;
+	/**
+	 * The play is currently being edited and will not sync until the user manually tries to sync it
+	 */
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 
@@ -106,7 +115,7 @@ public class Play {
 	public int SyncStatus;
 	public long Saved;
 
-	public void populate(Cursor c) {
+	public Play populate(Cursor c) {
 		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
 		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID);
 		GameName = CursorUtils.getString(c, PlayItems.NAME);
@@ -120,6 +129,7 @@ public class Play {
 		Updated = CursorUtils.getLong(c, Plays.UPDATED_LIST);
 		SyncStatus = CursorUtils.getInt(c, Plays.SYNC_STATUS);
 		Saved = CursorUtils.getLong(c, Plays.UPDATED);
+		return this;
 	}
 
 	public List<Player> getPlayers() {

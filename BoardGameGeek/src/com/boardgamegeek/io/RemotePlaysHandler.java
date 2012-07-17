@@ -140,8 +140,8 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 			}
 			String msg = String.format(
 					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending, %5$s in progress, %6$s errors)",
-					updateCount, insertCount, (pendingCount + inProgressCount), pendingCount, inProgressCount,
-					errorCount);
+					updateCount, insertCount, (pendingCount + inProgressCount + errorCount), pendingCount,
+					inProgressCount, errorCount);
 			Log.i(TAG, msg);
 		}
 	}

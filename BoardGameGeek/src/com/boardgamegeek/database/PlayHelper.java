@@ -19,10 +19,29 @@ import com.boardgamegeek.provider.BggContract.Plays;
 public class PlayHelper {
 	private static final String TAG = "PlayHelper";
 
+	/**
+	 * A new play was inserted into the database
+	 */
 	public static final int STATUS_INSERT = 1;
+	/**
+	 * An existing play was updated in the database
+	 */
 	public static final int STATUS_UPDATE = 2;
+	/**
+	 * The play is being edited, therefore wasn't saved
+	 */
 	public static final int STATUS_IN_PROGRESS = 3;
+	/**
+	 * The play is pending a sync, therefore wasn't saved
+	 */
 	public static final int STATUS_PENDING = 4;
+	/**
+	 * The save status is unknown, most likely because it hasn't finished executing yet.
+	 */
+	public static final int STATUS_UNKNOWN = 0;
+	/**
+	 * An unexpected error occurred while trying to sync
+	 */
 	public static final int STATUS_ERROR = -1;
 
 	private ContentResolver mResolver;
@@ -36,6 +55,11 @@ public class PlayHelper {
 		mPlay = play;
 	}
 
+	/**
+	 * Get the status.
+	 * 
+	 * @return A STATUS indicating the results of the save operation.
+	 */
 	public int getStatus() {
 		return mStatus;
 	}
@@ -48,20 +72,22 @@ public class PlayHelper {
 		save(false);
 	}
 
-	public void save(boolean sync) {
-		if (isUpdate()) {
-			if (sync) {
-				int currentStatus = getCurrentStatus();
-
-				if (currentStatus != Play.SYNC_STATUS_SYNCED) {
-					if (currentStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+	public void save(boolean isSyncing) {
+		mStatus = STATUS_UNKNOWN;
+		if (playExistsInDatabase()) {
+			if (isSyncing) {
+				// don't replace the play in the database if there are unsynced changes
+				int currentSyncStatus = getCurrentSyncStatus();
+				if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {
+					if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 						mStatus = STATUS_IN_PROGRESS;
-					} else if (currentStatus == Play.SYNC_STATUS_PENDING) {
+					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING) {
 						mStatus = STATUS_PENDING;
 					} else {
 						mStatus = STATUS_ERROR;
-						Log.e(TAG, "Unknown sync status");
+						Log.e(TAG, "Unknown sync status!");
 					}
+					Log.i(TAG, "Not saving during the sync due to status=" + mStatus);
 					return;
 				}
 			}
@@ -80,6 +106,7 @@ public class PlayHelper {
 
 			if (mPlay.PlayId == 0) {
 				mPlay.PlayId = getTemporaryId();
+				// If a sync isn't pending, mark it as in progress
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_PENDING) {
 					mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
@@ -93,13 +120,15 @@ public class PlayHelper {
 			mResolver.insert(Plays.CONTENT_URI, values);
 		}
 
-		saveItem();
-		savePlayers();
+		updateOrInsertItem();
+		updateOrInsertPlayers();
 		removeUnusedItems();
 		removeUnusedPlayers();
+
+		Log.i(TAG, "Saved play ID=" + mPlay.PlayId);
 	}
 
-	private boolean isUpdate() {
+	private boolean playExistsInDatabase() {
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(mPlay.getUri(), new String[] { BaseColumns._ID }, null, null, null);
@@ -111,7 +140,7 @@ public class PlayHelper {
 		}
 	}
 
-	private int getCurrentStatus() {
+	private int getCurrentSyncStatus() {
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(mPlay.getUri(), new String[] { Plays.SYNC_STATUS }, null, null, null);
@@ -204,7 +233,7 @@ public class PlayHelper {
 		return uniqueIds;
 	}
 
-	private void saveItem() {
+	private void updateOrInsertItem() {
 		int objectId = mPlay.GameId;
 		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, mPlay.GameName);
@@ -217,7 +246,7 @@ public class PlayHelper {
 		}
 	}
 
-	private void savePlayers() {
+	private void updateOrInsertPlayers() {
 		ContentValues values = new ContentValues();
 		for (Player player : mPlay.getPlayers()) {
 
