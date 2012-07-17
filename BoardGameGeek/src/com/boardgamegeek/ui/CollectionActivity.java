@@ -279,6 +279,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_sort_rating:
 				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
+			case R.id.menu_collection_sort_wishlist_priority:
+				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
+				return true;
 			case R.id.menu_collection_sort_published_newest:
 				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
 				return true;

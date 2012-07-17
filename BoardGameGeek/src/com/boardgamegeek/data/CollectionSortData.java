@@ -45,6 +45,18 @@ public abstract class CollectionSortData {
 		return columnName + (isDescending ? " DESC, " : " ASC, ") + Collection.DEFAULT_SORT;
 	}
 
+	protected int getInt(Cursor cursor, String columnName) {
+		return getInt(cursor, columnName, 0);
+	}
+
+	protected int getInt(Cursor cursor, String columnName, int defaultValue) {
+		int index = cursor.getColumnIndex(columnName);
+		if (index == -1) {
+			return defaultValue;
+		}
+		return cursor.getInt(index);
+	}
+
 	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue) {
 		return getIntAsString(cursor, columnName, defaultValue, false);
 	}
