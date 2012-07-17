@@ -200,7 +200,7 @@ public class ActivityUtils {
 			canvas.restoreToCount(sc);
 			borderDrawable.draw(canvas);
 
-			Bitmap icon = Bitmap.createScaledBitmap(compositeBitmap, 96, 96, true);
+			Bitmap icon = Bitmap.createScaledBitmap(compositeBitmap, 64, 64, true);
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
 		}
 		return shortcut;
