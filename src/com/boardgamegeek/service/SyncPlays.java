@@ -50,8 +50,7 @@ public class SyncPlays extends SyncTask {
 				cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
 						new String[] { String.valueOf(Play.SYNC_STATUS_PENDING) }, null);
 				while (cursor.moveToNext()) {
-					Play play = new Play();
-					play.populate(cursor);
+					Play play = new Play().populate(cursor);
 					playSender.sendPlay(play);
 				}
 			} finally {

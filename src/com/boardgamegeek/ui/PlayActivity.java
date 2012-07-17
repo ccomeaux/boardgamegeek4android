@@ -253,11 +253,10 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				mPlay.populate(cursor);
 				bindUi();
 
-				long lastUpdated = cursor.getLong(Query.UPDATED_LIST);
-				if (lastUpdated == 0 || DateTimeUtils.howManyDaysOld(lastUpdated) > AGE_IN_DAYS_TO_REFRESH) {
+				if (mPlay.hasBeenSynced()
+						&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 					refresh();
 				}
-
 			} else if (token == TOKEN_PLAYER) {
 				mPlay.clearPlayers();
 				while (cursor.moveToNext()) {
@@ -368,7 +367,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				Plays.SYNC_STATUS, Plays.UPDATED };
 
 		int NAME = 1;
-		int UPDATED_LIST = 10;
 	}
 
 	private interface PlayerQuery {
@@ -439,17 +437,15 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		@Override
 		protected Boolean doInBackground(String... params) {
 			int gameId = StringUtils.parseInt(params[0]);
-			String date = params[1];
-			Log.d(TAG, "Refreshing game ID [" + gameId + "] on [" + date + "]");
+			Log.d(TAG, "Refreshing game ID [" + gameId + "]");
 			final String url = HttpUtils.constructPlayUrlSpecific(gameId, null);
 			try {
 				// TODO track the play IDs for this game ID, removing any plays
 				// not returned (hopefully can get an API change for this)
-				// TODO probably shouldn't include the date - that can change
 				RemotePlaysHandler handler = new RemotePlaysHandler();
 				mExecutor.executeGet(url, handler);
 			} catch (HandlerException e) {
-				Log.e(TAG, "Exception trying to refresh game ID [" + gameId + "] on [" + date + "]", e);
+				Log.e(TAG, "Exception trying to refresh game ID [" + gameId + "]");
 				showToastOnUiThread(R.string.msg_update_error);
 				return true;
 			}
