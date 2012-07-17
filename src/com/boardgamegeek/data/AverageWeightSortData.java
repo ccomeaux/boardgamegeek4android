@@ -23,7 +23,7 @@ public class AverageWeightSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return mContext.getString(R.string.weight) + " "+ getInfo(cursor, mDisplayFormat);
+		return mContext.getString(R.string.weight) + " " + getInfo(cursor, mDisplayFormat);
 	}
 
 	@Override

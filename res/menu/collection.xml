@@ -53,13 +53,17 @@
 			<item
 				android:id="@+id/menu_collection_sort_rating"
 				android:title="@string/menu_collection_sort_rating"/>
+			<item
+				android:id="@+id/menu_collection_sort_wishlist_priority"
+				android:title="@string/menu_collection_sort_wishlist_priority"/>
+
 			<!-- <item -->
 			<!-- android:id="@+id/menu_collection_sort_played_most" -->
 			<!-- android:title="@string/menu_collection_sort_played_most"/> -->
 			<!-- <item -->
 			<!-- android:id="@+id/menu_collection_sort_played_least" -->
 			<!-- android:title="@string/menu_collection_sort_played_least"/> -->
-<item
+			<item
 				android:id="@+id/menu_collection_sort_published_newest"
 				android:title="@string/menu_collection_sort_published_newest"/>
 			<item

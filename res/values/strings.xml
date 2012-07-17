@@ -265,6 +265,7 @@
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_collection_sort_name">Name</string>
 	<string name="menu_collection_sort_rating">Rating</string>
+	<string name="menu_collection_sort_wishlist_priority">Wishlist Priority</string>
 	<string name="menu_collection_sort_played_most">Most Played</string>
 	<string name="menu_collection_sort_played_least">Least Played</string>
 	<string name="menu_collection_sort_published_newest">Year Published - Newest</string>

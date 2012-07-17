@@ -16,6 +16,7 @@ public class CollectionSortDataFactory {
 	public static final int TYPE_AGE_DESC = 10;
 	public static final int TYPE_AVERAGE_WEIGHT_ASC = 11;
 	public static final int TYPE_AVERAGE_WEIGHT_DESC = 12;
+	public static final int TYPE_WISHLIST_PRIORITY = 13;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
 	public static CollectionSortData create(int type, Context context) {
@@ -44,6 +45,8 @@ public class CollectionSortDataFactory {
 				return new PlayCountAscendingSortData(context);
 			case TYPE_PLAY_COUNT_DESC:
 				return new PlayCountDescendingSortData(context);
+			case TYPE_WISHLIST_PRIORITY:
+				return new WishlistPrioritySortData(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

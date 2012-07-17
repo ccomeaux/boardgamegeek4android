@@ -56,5 +56,13 @@
 		<item>Exclude Expansions</item>
 		<item>Expansions</item>
 	</string-array>
+	<string-array name="wishlist_priority">
+		<item>Unknown</item>
+		<item>Must have</item>
+		<item>Love to have</item>
+		<item>Like to have</item>
+		<item>Thinking about it</item>
+		<item>Don\'t buy this</item>
+	</string-array>
 
 </resources>
