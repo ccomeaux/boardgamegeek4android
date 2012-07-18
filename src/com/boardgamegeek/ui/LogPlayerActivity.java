@@ -394,12 +394,12 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.autocomplete_color, parent, false);
+			return getLayoutInflater().inflate(R.layout.autocomplete_item, parent, false);
 		}
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_color);
+			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_item);
 			textView.setText(cursor.getString(ColorsQuery.COLOR));
 		}
 

@@ -89,6 +89,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private NotifyingAsyncQueryHandler mHandler;
 	private LocationAdapter mLocationAdapter;
 
+	private int mPlayId;
+	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
 	private Play mPlay;
@@ -125,57 +127,53 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mLogInHelper = new LogInHelper(this, this);
 		mCancelDialog = UIUtils.createCancelDialog(this);
 
-		if (savedInstanceState == null) {
-			final Intent intent = getIntent();
+		final Intent intent = getIntent();
+		mPlayId = intent.getExtras().getInt(KEY_PLAY_ID);
+		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+		mStartTime = intent.getExtras().getLong(KEY_START_TIME);
 
-			int playId = intent.getExtras().getInt(KEY_PLAY_ID);
-			int gameId = intent.getExtras().getInt(KEY_GAME_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
-			mStartTime = intent.getExtras().getLong(KEY_START_TIME);
-
-			if (gameId <= 0) {
-				Log.w(TAG, "Didn't get a game ID");
-				finish();
-			}
-
-			mPlay = new Play(gameId, mGameName);
-			if (playId > 0) {
-				startQuery(playId, gameId);
-			}
-
-			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-				quickLogPlay();
-				finish();
-			} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
-				Log.w(TAG, "Received bad intent action: " + intent.getAction());
-				finish();
-			}
-		} else {
+		if (savedInstanceState != null) {
 			restoreInstanceState(savedInstanceState);
 		}
 
-		bindUi();
-
-		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
-		setDateButtonText();
-
-		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
-
-		mLocationAdapter = new LocationAdapter(this);
-		mLocationView.setAdapter(mLocationAdapter);
-	}
-
-	private void startQuery(int playId, int gameId) {
-		if (mHandler == null) {
-			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		if (mGameId <= 0) {
+			Log.w(TAG, "Can't log a play without a game ID.");
+			Toast.makeText(this, "Can't log a play without a game ID.", Toast.LENGTH_LONG).show();
+			finish();
 		}
 
-		mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(playId), Query.PROJECTION);
-		mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(playId), PlayerQuery.PROJECTION);
-		if (TextUtils.isEmpty(mThumbnailUrl) && gameId > 0) {
-			Uri uri = Games.buildGameUri(gameId);
-			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
+		mPlay = new Play(mGameId, mGameName);
+
+		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+			// TODO: refactor to quick log without this activity (probably need to use AccountManager)
+			quickLogPlay();
+			finish();
+		} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
+			Log.w(TAG, "Received bad intent action: " + intent.getAction());
+			finish();
+		}
+
+		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		bindUi();
+
+		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		Toast.makeText(this, "Restoring saved data.", Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		mLocationAdapter = new LocationAdapter(this);
+		mLocationView.setAdapter(mLocationAdapter);
+		if (mPlayId > 0) {
+			startQuery(mPlayId, mGameId);
 		}
 	}
 
@@ -189,11 +187,11 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		save();
-		mPlay.saveState(outState);
-		outState.putString(KEY_GAME_NAME, mGameName);
-		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
-		outState.putLong(KEY_START_TIME, mStartTime);
+		if (mPlay.PlayId == 0) {
+			mPlayId = new PlayHelper(getContentResolver(), mPlay).getTemporaryId();
+			mPlay.PlayId = mPlayId;
+		}
+		outState.putInt(KEY_PLAY_ID, mPlayId);
 		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
 		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
@@ -202,25 +200,23 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
 	}
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (!isFinishing() && !mLaunchingActivity) {
+			save();
+			Toast.makeText(this, "Saving draft of play.", Toast.LENGTH_SHORT).show();
+		}
+	}
+
 	private void restoreInstanceState(Bundle savedInstanceState) {
-		mPlay = new Play(savedInstanceState);
-		mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-		mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
-		mStartTime = savedInstanceState.getLong(KEY_START_TIME);
+		mPlayId = savedInstanceState.getInt(KEY_PLAY_ID);
 		mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
 		mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
 		mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
 		mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
 		mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 		mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
-	}
-
-	@Override
-	protected void onPause() {
-		if (!isFinishing() && !mLaunchingActivity) {
-			save();
-		}
-		super.onPause();
 	}
 
 	@Override
@@ -426,6 +422,19 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		cancel();
 	}
 
+	private void startQuery(int playId, int gameId) {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
+
+		mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(playId), Query.PROJECTION);
+		mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(playId), PlayerQuery.PROJECTION);
+		if (TextUtils.isEmpty(mThumbnailUrl) && gameId > 0) {
+			Uri uri = Games.buildGameUri(gameId);
+			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
+		}
+	}
+
 	@Override
 	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
 		try {
@@ -525,8 +534,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		return new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mPlayerList.removeView(v);
 				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+				mPlayerList.removeView(v);
 				calculatePlayerCount();
 			}
 		};
@@ -609,6 +618,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	private void cancel() {
+		// TODO: check if data is dirty
 		mCancelDialog.show();
 	}
 
@@ -626,9 +636,13 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 			updateColors();
 			updateBuddyNicknames();
+			Log.d(TAG, "Sending play ID=" + mPlay.PlayId);
 			return new PlaySender(LogPlayActivity.this, mLogInHelper.getCookieStore()).sendPlay(mPlay);
 		}
 
+		/**
+		 * Add the current players' team/colors to the permanent list.
+		 */
 		private void updateColors() {
 			if (mPlay.getPlayers().size() > 0) {
 				List<ContentValues> values = new ArrayList<ContentValues>();
@@ -647,6 +661,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			}
 		}
 
+		/**
+		 * Update Geek buddies' nicknames with the names used here.
+		 */
 		private void updateBuddyNicknames() {
 			if (mPlay.getPlayers().size() > 0) {
 				for (Player player : mPlay.getPlayers()) {
@@ -722,6 +739,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		finish();
 	}
 
+	/**
+	 * Captures the data in the form in the mPlay object
+	 */
 	private void captureForm() {
 		// date info already captured
 		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
@@ -748,12 +768,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.autocomplete_color, parent, false);
+			return getLayoutInflater().inflate(R.layout.autocomplete_item, parent, false);
 		}
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_color);
+			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_item);
 			textView.setText(cursor.getString(LocationQuery.LOCATION));
 		}
 
