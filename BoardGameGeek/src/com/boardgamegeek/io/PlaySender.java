@@ -17,6 +17,7 @@ import org.apache.http.protocol.HTTP;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -27,6 +28,8 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class PlaySender {
+	private final static String TAG = "PlaySender";
+
 	private Context mContext;
 	private Resources mResources;
 	private CookieStore mCookieStore;
@@ -40,10 +43,23 @@ public class PlaySender {
 	}
 
 	public Result sendPlay(Play play) {
+		Result result = postPlay(play);
+
+		if (result.hasError() || !result.isValidResponse()) {
+			savePending(play);
+		} else {
+			updateSyncStatus(play);
+			result.ErrorMessage = syncGame(play);
+		}
+		Log.i(TAG, "Sent play with result:\n" + result.toString());
+		return result;
+	}
+
+	protected Result postPlay(Play play) {
 		Result result = new Result(play.Quantity);
 
-		UrlEncodedFormEntity entity;
 		List<NameValuePair> nvps = play.toNameValuePairs();
+		UrlEncodedFormEntity entity;
 		try {
 			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
 		} catch (UnsupportedEncodingException e) {
@@ -64,25 +80,16 @@ public class PlaySender {
 						+ mResources.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".";
 			} else {
 				result.setResponse(HttpUtils.parseResponse(response));
-				if (result.isValidResponse()) {
-					updateSyncStatus(play);
-					syncGame(play);
-				} else {
-					savePending(play);
-				}
 			}
 		} catch (ClientProtocolException e) {
 			result.ErrorMessage = e.toString();
-			savePending(play);
 		} catch (IOException e) {
 			result.ErrorMessage = e.toString();
-			savePending(play);
 		} finally {
 			if (mClient != null && mClient.getConnectionManager() != null) {
 				mClient.getConnectionManager().shutdown();
 			}
 		}
-
 		return result;
 	}
 
@@ -104,6 +111,10 @@ public class PlaySender {
 				return false;
 			}
 			return mResponse.startsWith("Plays: <a") || mResponse.startsWith("{\"html\":\"Plays:");
+		}
+
+		public boolean hasError() {
+			return !TextUtils.isEmpty(ErrorMessage);
 		}
 
 		public String getPlayCountDescription() {
@@ -134,15 +145,25 @@ public class PlaySender {
 			return playCount;
 		}
 
+		@Override
+		public String toString() {
+			return "RESPONSE: " + mResponse + "\nERROR: " + ErrorMessage;
+		}
 	}
 
-	private void syncGame(Play play) throws HandlerException {
+	private String syncGame(Play play) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext.getContentResolver());
-		re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getFormattedDate()),
-				new RemotePlaysHandler());
+		try {
+			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getFormattedDate()),
+					new RemotePlaysHandler());
+		} catch (HandlerException e) {
+			return e.toString();
+		}
+		return "";
 	}
 
 	private void savePending(Play play) {
+		Log.i(TAG, "Saving " + play.PlayId + " as pending due to sync problem");
 		play.SyncStatus = Play.SYNC_STATUS_PENDING;
 		new PlayHelper(mContext.getContentResolver(), play).save();
 	}

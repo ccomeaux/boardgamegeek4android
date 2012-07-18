@@ -99,13 +99,15 @@ public class PlayHelper {
 			mPlayerUserIds = getIds(Plays.buildPlayerUri(mPlay.PlayId), PlayPlayers.USER_ID);
 			mPlayerUserIds = removeDuplicatePlayerIds(mPlay.PlayId, mPlayerUserIds);
 
-			mResolver.update(mPlay.getUri(), getContentValues(), null, null);
+			mResolver.update(mPlay.getUri(), createContentValues(), null, null);
 		} else {
 			mStatus = STATUS_INSERT;
-			ContentValues values = getContentValues();
+			ContentValues values = createContentValues();
 
 			if (mPlay.PlayId == 0) {
 				mPlay.PlayId = getTemporaryId();
+			}
+			if (!mPlay.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as in progress
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_PENDING) {
 					mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
@@ -129,6 +131,10 @@ public class PlayHelper {
 	}
 
 	private boolean playExistsInDatabase() {
+		if (mPlay.PlayId == 0) {
+			return false;
+		}
+
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(mPlay.getUri(), new String[] { BaseColumns._ID }, null, null, null);
@@ -141,13 +147,17 @@ public class PlayHelper {
 	}
 
 	private int getCurrentSyncStatus() {
+		if (mPlay.PlayId == 0) {
+			return Play.SYNC_STATUS_NOT_STORED;
+		}
+
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(mPlay.getUri(), new String[] { Plays.SYNC_STATUS }, null, null, null);
 			if (cursor.moveToFirst()) {
 				return cursor.getInt(0);
 			}
-			return -1;
+			return Play.SYNC_STATUS_NOT_STORED;
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
@@ -155,7 +165,7 @@ public class PlayHelper {
 		}
 	}
 
-	private int getTemporaryId() {
+	public int getTemporaryId() {
 		Cursor cursor = null;
 		int id = Play.UNSYNCED_PLAY_ID;
 		try {
@@ -175,7 +185,7 @@ public class PlayHelper {
 		}
 	}
 
-	private ContentValues getContentValues() {
+	private ContentValues createContentValues() {
 		ContentValues values = new ContentValues();
 		values.put(Plays.DATE, mPlay.getFormattedDate());
 		values.put(Plays.QUANTITY, mPlay.Quantity);

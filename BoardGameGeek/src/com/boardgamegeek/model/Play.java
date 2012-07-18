@@ -27,6 +27,10 @@ import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
 	/**
+	 * The play has not been synced and isn't stored in the database
+	 */
+	public static final int SYNC_STATUS_NOT_STORED = -1;
+	/**
 	 * The play has been synced with the 'Geek
 	 */
 	public static final int SYNC_STATUS_SYNCED = 0;
@@ -38,6 +42,7 @@ public class Play {
 	 * The play is currently being edited and will not sync until the user manually tries to sync it
 	 */
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
+
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 
 	private static final String TAG = "Play";
