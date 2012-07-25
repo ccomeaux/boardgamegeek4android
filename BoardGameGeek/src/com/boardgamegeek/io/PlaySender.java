@@ -51,6 +51,7 @@ public class PlaySender {
 			updateSyncStatus(play);
 			result.ErrorMessage = syncGame(play);
 		}
+		shutdownClient();
 		Log.i(TAG, "Sent play with result:\n" + result.toString());
 		return result;
 	}
@@ -85,12 +86,14 @@ public class PlaySender {
 			result.ErrorMessage = e.toString();
 		} catch (IOException e) {
 			result.ErrorMessage = e.toString();
-		} finally {
-			if (mClient != null && mClient.getConnectionManager() != null) {
-				mClient.getConnectionManager().shutdown();
-			}
 		}
 		return result;
+	}
+
+	private void shutdownClient() {
+		if (mClient != null && mClient.getConnectionManager() != null) {
+			mClient.getConnectionManager().shutdown();
+		}
 	}
 
 	public class Result {
