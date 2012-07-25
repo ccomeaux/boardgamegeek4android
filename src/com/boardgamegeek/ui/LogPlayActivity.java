@@ -451,6 +451,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				}
 				bindUi();
 			} else if (token == TOKEN_PLAYER) {
+				mPlay.clearPlayers();
 				while (cursor.moveToNext()) {
 					Player player = new Player(cursor);
 					mPlay.addPlayer(player);
@@ -493,6 +494,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
 		mCommentsView.setText(mPlay.Comments);
+		mPlayerList.removeAllViews();
 		for (Player player : mPlay.getPlayers()) {
 			addPlayer(player);
 		}
