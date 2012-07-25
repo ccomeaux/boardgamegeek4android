@@ -1,5 +1,9 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -21,13 +25,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 
 public class LogInHelper {
-	private static final String TAG = "LogInTask";
+	private static final String TAG = makeLogTag(LogInHelper.class);
 
 	private Context mContext;
 	private LogInListener mListener;
@@ -120,7 +123,7 @@ public class LogInHelper {
 				return createErrorMessage(R.string.logInErrorSuffixNoResponse);
 			}
 
-			Log.i(TAG, response.toString());
+			LOGI(TAG, response.toString());
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 				return createErrorMessage(R.string.logInErrorSuffixBadResponse);
 			}
@@ -155,7 +158,7 @@ public class LogInHelper {
 		protected void onPostExecute(String result) {
 			if (mListener != null) {
 				if (!TextUtils.isEmpty(result)) {
-					Log.w(TAG, result);
+					LOGW(TAG, result);
 					mListener.onLogInError(result);
 				} else {
 					mListener.onLogInSuccess();

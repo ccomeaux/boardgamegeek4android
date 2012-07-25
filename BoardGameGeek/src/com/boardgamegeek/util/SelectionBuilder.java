@@ -18,12 +18,13 @@
 
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import static com.boardgamegeek.util.LogUtils.LOGV;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +36,7 @@ import java.util.Map;
  * This class is <em>not</em> thread safe.
  */
 public class SelectionBuilder {
-	private static final String TAG = "SelectionBuilder";
-	private static final boolean LOGV = false;
+	private static final String TAG = makeLogTag(SelectionBuilder.class);
 
 	private String mTable = null;
 	private Map<String, String> mProjectionMap = new HashMap<String, String>();
@@ -201,9 +201,7 @@ public class SelectionBuilder {
 		if (columns != null) {
 			mapColumns(columns);
 		}
-		if (LOGV) {
-			Log.v(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
-		}
+		LOGV(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
 		return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
 	}
 
@@ -212,9 +210,7 @@ public class SelectionBuilder {
 	 */
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
-		if (LOGV) {
-			Log.v(TAG, "update() " + this);
-		}
+		LOGV(TAG, "update() " + this);
 		return db.update(mTable, values, getSelection(), getSelectionArgs());
 	}
 
@@ -223,9 +219,7 @@ public class SelectionBuilder {
 	 */
 	public int delete(SQLiteDatabase db) {
 		assertTable();
-		if (LOGV) {
-			Log.v(TAG, "delete() " + this);
-		}
+		LOGV(TAG, "delete() " + this);
 		String selection = getSelection();
 		if (TextUtils.isEmpty(selection)) {
 			// this forces delete to return the count

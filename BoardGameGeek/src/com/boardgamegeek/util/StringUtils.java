@@ -8,7 +8,6 @@ import java.util.Set;
  * Provides utility methods for dealing with strings.
  */
 public class StringUtils {
-	// private final static String TAG = "StringUtils";
 
 	public static String createSortName(String name, int sortIndex) {
 		if (sortIndex <= 1 || sortIndex > name.length()) {
