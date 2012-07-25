@@ -214,11 +214,11 @@ public class UIUtils {
 			.setCancelable(false)
 			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
+					activity.setResult(Activity.RESULT_CANCELED);
 					activity.finish();
 				}
 			}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					activity.setResult(Activity.RESULT_CANCELED);
 					dialog.cancel();
 				}
 			});
@@ -262,5 +262,4 @@ public class UIUtils {
 			builder.create().show();
 		}
 	}
-
 }

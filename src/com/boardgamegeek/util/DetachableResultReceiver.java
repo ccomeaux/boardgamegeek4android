@@ -18,10 +18,12 @@
 
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
@@ -29,33 +31,32 @@ import android.util.Log;
  * listening {@link Activity} can be swapped out during configuration changes.
  */
 public class DetachableResultReceiver extends ResultReceiver {
-    private static final String TAG = "DetachableResultReceiver";
+	private static final String TAG = makeLogTag(DetachableResultReceiver.class);
 
-    private Receiver mReceiver;
+	private Receiver mReceiver;
 
-    public DetachableResultReceiver(Handler handler) {
-        super(handler);
-    }
+	public DetachableResultReceiver(Handler handler) {
+		super(handler);
+	}
 
-    public void clearReceiver() {
-        mReceiver = null;
-    }
+	public void clearReceiver() {
+		mReceiver = null;
+	}
 
-    public void setReceiver(Receiver receiver) {
-        mReceiver = receiver;
-    }
+	public void setReceiver(Receiver receiver) {
+		mReceiver = receiver;
+	}
 
-    public interface Receiver {
-        public void onReceiveResult(int resultCode, Bundle resultData);
-    }
+	public interface Receiver {
+		public void onReceiveResult(int resultCode, Bundle resultData);
+	}
 
-    @Override
-    protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (mReceiver != null) {
-            mReceiver.onReceiveResult(resultCode, resultData);
-        } else {
-            Log.w(TAG, "Dropping result on floor for code " + resultCode + ": "
-                    + resultData.toString());
-        }
-    }
+	@Override
+	protected void onReceiveResult(int resultCode, Bundle resultData) {
+		if (mReceiver != null) {
+			mReceiver.onReceiveResult(resultCode, resultData);
+		} else {
+			LOGW(TAG, "Dropping result on floor for code " + resultCode + ": " + resultData.toString());
+		}
+	}
 }

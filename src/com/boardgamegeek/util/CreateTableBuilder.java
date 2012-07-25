@@ -1,15 +1,17 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class CreateTableBuilder {
-	private static final String TAG = "CreateTableBuilder";
+	private static final String TAG = makeLogTag(CreateTableBuilder.class);
 
 	private String mTable = null;
 	private Column mPrimaryKey = null;
@@ -61,7 +63,7 @@ public class CreateTableBuilder {
 			sb = new StringBuilder(sb.substring(0, sb.length() - 1));
 		}
 		sb.append(")");
-		Log.d(TAG, sb.toString());
+		LOGD(TAG, sb.toString());
 		db.execSQL(sb.toString());
 	}
 

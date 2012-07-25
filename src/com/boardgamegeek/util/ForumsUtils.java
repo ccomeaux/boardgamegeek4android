@@ -1,5 +1,8 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
@@ -10,7 +13,6 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,18 +60,18 @@ public class ForumsUtils {
 
 		@Override
 		protected RemoteForumlistHandler doInBackground(Void... params) {
-			Log.i(mTag, "Loading forums from " + mUrl);
+			LOGI(mTag, "Loading forums from " + mUrl);
 			try {
 				mExecutor.executeGet(mUrl, mHandler);
 			} catch (HandlerException e) {
-				Log.e(mTag, e.toString());
+				LOGE(mTag, e.toString());
 			}
 			return mHandler;
 		}
 
 		@Override
 		protected void onPostExecute(RemoteForumlistHandler result) {
-			Log.i(mTag, "Forums count " + result.getCount());
+			LOGI(mTag, "Forums count " + result.getCount());
 			final int count = result.getCount();
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
@@ -160,7 +162,6 @@ public class ForumsUtils {
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
 		private RemoteForumHandler mHandler = new RemoteForumHandler();
-		
 
 		public ForumTask(ForumActivity activity, String tag) {
 			this.mActivity = activity;
@@ -176,18 +177,18 @@ public class ForumsUtils {
 		@Override
 		protected RemoteForumHandler doInBackground(Void... params) {
 			final String url = HttpUtils.constructForumUrl(mActivity.getForumId(), mActivity.getCurrentPage());  
-			Log.i(mTag, "Loading forum content from " + url);
+			LOGI(mTag, "Loading forum content from " + url);
 			try {
 				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
-				Log.e(mTag, e.toString());
+				LOGE(mTag, e.toString());
 			}
 			return mHandler;
 		}
 
 		@Override
 		protected void onPostExecute(RemoteForumHandler result) {
-			Log.i(mTag, "Threads count " + result.getTotalCount());
+			LOGI(mTag, "Threads count " + result.getTotalCount());
 			mActivity.setThreadCount(result.getTotalCount());
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
@@ -303,18 +304,18 @@ public class ForumsUtils {
 
 		@Override
 		protected RemoteThreadHandler doInBackground(Void... params) {
-			Log.i(mTag, "Loading thread content from " + mUrl);
+			LOGI(mTag, "Loading thread content from " + mUrl);
 			try {
 				mExecutor.executeGet(mUrl, mHandler);
 			} catch (HandlerException e) {
-				Log.e(mTag, e.toString());
+				LOGE(mTag, e.toString());
 			}
 			return mHandler;
 		}
 
 		@Override
 		protected void onPostExecute(RemoteThreadHandler result) {
-			Log.i(mTag, "Acticles count " + result.getCount());
+			LOGI(mTag, "Acticles count " + result.getCount());
 			final int count = result.getCount();
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);

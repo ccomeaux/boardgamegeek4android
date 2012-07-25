@@ -1,5 +1,9 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,18 +32,17 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 
-import com.boardgamegeek.BggApplication;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.Log;
+
+import com.boardgamegeek.BggApplication;
 
 public class HttpUtils {
-	private final static String TAG = "HttpUtils";
+	private static final String TAG = makeLogTag(HttpUtils.class);
 
 	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
 	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
@@ -56,7 +59,7 @@ public class HttpUtils {
 		if (useExact) {
 			queryUrl += "&exact=1";
 		}
-		Log.d(TAG, "Query: " + queryUrl);
+		LOGD(TAG, "Query: " + queryUrl);
 		return queryUrl;
 	}
 
@@ -295,7 +298,7 @@ public class HttpUtils {
 			try {
 				reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
-				Log.w(TAG, e.toString());
+				LOGE(TAG, "Parsing response", e);
 				return null;
 			}
 			String line;

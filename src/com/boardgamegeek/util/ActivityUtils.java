@@ -1,5 +1,8 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -31,7 +34,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
@@ -43,7 +45,7 @@ import com.boardgamegeek.ui.CommentsActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
 public class ActivityUtils {
-	private static final String TAG = "ActivityUtils";
+	private static final String TAG = makeLogTag(ActivityUtils.class);
 
 	public static void shareGame(Context context, int gameId, String gameName) {
 		Resources r = context.getResources();
@@ -85,7 +87,7 @@ public class ActivityUtils {
 		try {
 			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG, e.toString());
+			LOGE(TAG, "Trying to encode play for deletion", e);
 		}
 
 		HttpClient client = HttpUtils.createHttpClient(context, cookieStore);
@@ -123,7 +125,7 @@ public class ActivityUtils {
 			Toast.makeText(context, R.string.msg_play_deleted, Toast.LENGTH_LONG).show();
 			return true;
 		} else {
-			Log.e(TAG, message);
+			LOGE(TAG, message);
 			Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 			return false;
 		}

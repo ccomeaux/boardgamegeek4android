@@ -1,5 +1,10 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,12 +28,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
 
 public class ImageCache {
-	private static final String TAG = "ImageCache";
+	private static final String TAG = makeLogTag(ImageCache.class);
 	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;
@@ -44,7 +48,7 @@ public class ImageCache {
 
 		Drawable drawable = getDrawableFromCache(url, useTempCache, context);
 		if (drawable != null) {
-			Log.i(TAG, url + " found in cache!");
+			LOGI(TAG, url + " found in cache!");
 			return drawable;
 		}
 
@@ -56,7 +60,7 @@ public class ImageCache {
 
 			final int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != HttpStatus.SC_OK || entity == null) {
-				Log.w(TAG, "Didn't find thumbnail");
+				LOGW(TAG, "Didn't find thumbnail");
 				return null;
 			}
 
@@ -68,7 +72,7 @@ public class ImageCache {
 			return new BitmapDrawable(bitmap);
 
 		} catch (Exception e) {
-			Log.e(TAG, "Problem loading thumbnail", e);
+			LOGE(TAG, "Problem loading thumbnail", e);
 		}
 		return null;
 	}
@@ -165,7 +169,7 @@ public class ImageCache {
 				new File(cacheDirectory, ".nomedia").createNewFile();
 			}
 		} catch (IOException e) {
-			Log.e(TAG, "Could not create cache directory", e);
+			LOGE(TAG, "Could not create cache directory", e);
 			return false;
 		}
 		return true;
@@ -190,7 +194,7 @@ public class ImageCache {
 			try {
 				stream.close();
 			} catch (IOException e) {
-				Log.e(TAG, "Could not close stream", e);
+				LOGE(TAG, "Could not close stream", e);
 			}
 		}
 	}
