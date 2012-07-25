@@ -21,7 +21,7 @@ import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.PlayHelper;
+import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.util.HttpUtils;
@@ -168,11 +168,11 @@ public class PlaySender {
 	private void savePending(Play play) {
 		Log.i(TAG, "Saving " + play.PlayId + " as pending due to sync problem");
 		play.SyncStatus = Play.SYNC_STATUS_PENDING;
-		new PlayHelper(mContext.getContentResolver(), play).save();
+		new PlayPersister(mContext.getContentResolver(), play).save();
 	}
 
 	private void updateSyncStatus(Play play) {
-		PlayHelper ph = new PlayHelper(mContext.getContentResolver(), play);
+		PlayPersister ph = new PlayPersister(mContext.getContentResolver(), play);
 		if (play.hasBeenSynced()) {
 			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
 			ph.save();

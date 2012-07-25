@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.PlayHelper;
+import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
@@ -172,7 +172,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 									deleted = ActivityUtils.deletePlay(PlayActivity.this,
 											mLogInHelper.getCookieStore(), mPlay.PlayId);
 								} else {
-									PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
+									PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
 									deleted = ph.delete();
 								}
 								if (deleted) {
@@ -191,7 +191,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 							.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int id) {
 									mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
-									PlayHelper ph = new PlayHelper(getContentResolver(), mPlay);
+									PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
 									ph.save();
 									refresh();
 								}
