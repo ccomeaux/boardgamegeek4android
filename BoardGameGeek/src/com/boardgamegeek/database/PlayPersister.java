@@ -16,7 +16,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class PlayHelper {
+public class PlayPersister {
 	private static final String TAG = "PlayHelper";
 
 	/**
@@ -50,9 +50,29 @@ public class PlayHelper {
 	private List<Integer> mItemObjectIds;
 	private int mStatus;
 
-	public PlayHelper(ContentResolver resolver, Play play) {
+	public PlayPersister(ContentResolver resolver, Play play) {
 		mResolver = resolver;
 		mPlay = play;
+	}
+
+	public int getTemporaryId() {
+		Cursor cursor = null;
+		int id = Play.UNSYNCED_PLAY_ID;
+		try {
+			cursor = mResolver.query(Plays.CONTENT_URI, new String[] { "MAX(plays." + Plays.PLAY_ID + ")" }, null,
+					null, null);
+			if (cursor.moveToFirst()) {
+				int lastId = cursor.getInt(0);
+				if (lastId >= id) {
+					id = lastId + 1;
+				}
+			}
+			return id;
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		}
 	}
 
 	/**
@@ -158,26 +178,6 @@ public class PlayHelper {
 				return cursor.getInt(0);
 			}
 			return Play.SYNC_STATUS_NOT_STORED;
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-	}
-
-	public int getTemporaryId() {
-		Cursor cursor = null;
-		int id = Play.UNSYNCED_PLAY_ID;
-		try {
-			cursor = mResolver.query(Plays.CONTENT_URI, new String[] { "MAX(plays." + Plays.PLAY_ID + ")" }, null,
-					null, null);
-			if (cursor.moveToFirst()) {
-				int lastId = cursor.getInt(0);
-				if (lastId >= id) {
-					id = lastId + 1;
-				}
-			}
-			return id;
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();

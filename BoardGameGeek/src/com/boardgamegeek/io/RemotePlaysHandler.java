@@ -14,7 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
-import com.boardgamegeek.database.PlayHelper;
+import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.StringUtils;
@@ -96,23 +96,23 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 				} else if (type == END_TAG) {
 					String tag = mParser.getName();
 					if (Tags.PLAY.equals(tag)) {
-						PlayHelper helper = new PlayHelper(mResolver, mPlay);
+						PlayPersister helper = new PlayPersister(mResolver, mPlay);
 						helper.save(true);
 						mTotalCount++;
 						switch (helper.getStatus()) {
-							case PlayHelper.STATUS_IN_PROGRESS:
+							case PlayPersister.STATUS_IN_PROGRESS:
 								inProgressCount++;
 								break;
-							case PlayHelper.STATUS_INSERT:
+							case PlayPersister.STATUS_INSERT:
 								insertCount++;
 								break;
-							case PlayHelper.STATUS_PENDING:
+							case PlayPersister.STATUS_PENDING:
 								pendingCount++;
 								break;
-							case PlayHelper.STATUS_UPDATE:
+							case PlayPersister.STATUS_UPDATE:
 								updateCount++;
 								break;
-							case PlayHelper.STATUS_ERROR:
+							case PlayPersister.STATUS_ERROR:
 								errorCount++;
 								break;
 							default:

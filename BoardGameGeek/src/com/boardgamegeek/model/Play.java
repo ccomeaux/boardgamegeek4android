@@ -15,8 +15,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -46,35 +44,20 @@ public class Play {
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 
 	private static final String TAG = "Play";
-	private static final String KEY_PLAY_ID = "PLAY_ID";
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final String KEY_YEAR = "YEAR";
-	private static final String KEY_MONTH = "MONTH";
-	private static final String KEY_DATY = "DAY";
-	private static final String KEY_QUANTITY = "QUANTITY";
-	private static final String KEY_LENGTH = "LENGTH";
-	private static final String KEY_LOCATION = "LOCATION";
-	private static final String KEY_INCOMPLETE = "INCOMPLETE";
-	private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
-	private static final String KEY_COMMENTS = "COMMENTS";
-	private static final String KEY_PLAYERS = "PLAYERS";
-	private static final String KEY_UPDATED = "UPDATED";
-	private static final String KEY_SYNC_STATUS = "SYNC_STATUS";
-	private static final String KEY_SAVED = "SAVED";
 
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
-		init(-1, "");
+		init(0, -1, "");
 	}
 
-	public Play(int gameId, String gameName) {
-		init(gameId, gameName);
+	public Play(int playId, int gameId, String gameName) {
+		init(playId, gameId, gameName);
 	}
 
-	private void init(int gameId, String gameName) {
+	private void init(int playId, int gameId, String gameName) {
+		PlayId = playId;
 		GameId = gameId;
 		GameName = gameName;
 		Quantity = 1;
@@ -83,25 +66,6 @@ public class Play {
 		Year = c.get(Calendar.YEAR);
 		Month = c.get(Calendar.MONTH);
 		Day = c.get(Calendar.DAY_OF_MONTH);
-	}
-
-	public Play(Bundle bundle) {
-		PlayId = bundle.getInt(KEY_PLAY_ID);
-		GameId = bundle.getInt(KEY_GAME_ID);
-		GameName = bundle.getString(KEY_GAME_NAME);
-		Year = bundle.getInt(KEY_YEAR);
-		Month = bundle.getInt(KEY_MONTH);
-		Day = bundle.getInt(KEY_DATY);
-		Quantity = bundle.getInt(KEY_QUANTITY);
-		Length = bundle.getInt(KEY_LENGTH);
-		Location = bundle.getString(KEY_LOCATION);
-		Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
-		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
-		Comments = bundle.getString(KEY_COMMENTS);
-		Updated = bundle.getLong(KEY_UPDATED);
-		SyncStatus = bundle.getInt(KEY_SYNC_STATUS);
-		Saved = bundle.getLong(KEY_SAVED);
-		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
 	}
 
 	public int PlayId;
@@ -173,25 +137,6 @@ public class Play {
 
 	public void addPlayer(Player player) {
 		mPlayers.add(player);
-	}
-
-	public void saveState(Bundle bundle) {
-		bundle.putInt(KEY_PLAY_ID, PlayId);
-		bundle.putInt(KEY_GAME_ID, GameId);
-		bundle.putString(KEY_GAME_NAME, GameName);
-		bundle.putInt(KEY_YEAR, Year);
-		bundle.putInt(KEY_MONTH, Month);
-		bundle.putInt(KEY_DATY, Day);
-		bundle.putInt(KEY_QUANTITY, Quantity);
-		bundle.putInt(KEY_LENGTH, Length);
-		bundle.putString(KEY_LOCATION, Location);
-		bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
-		bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
-		bundle.putString(KEY_COMMENTS, Comments);
-		bundle.putLong(KEY_UPDATED, Updated);
-		bundle.putInt(KEY_SYNC_STATUS, SyncStatus);
-		bundle.putLong(KEY_SAVED, Saved);
-		bundle.putParcelableArrayList(KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
 	}
 
 	public List<NameValuePair> toNameValuePairs() {
