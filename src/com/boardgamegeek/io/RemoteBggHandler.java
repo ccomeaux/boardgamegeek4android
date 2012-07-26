@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
@@ -9,13 +11,12 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggHandler extends XmlHandler {
-	private static final String TAG = "RemoteBggHandler";
+	private static final String TAG = makeLogTag(RemoteBggHandler.class);
 
 	protected XmlPullParser mParser;
 	protected ContentResolver mResolver;
@@ -70,7 +71,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 				if (getRootNodeName().equals(name)) {
 					mTotalCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
 					mPageNumber = StringUtils.parseInt(parser.getAttributeValue(null, getPageNumberAttributeName()));
-					Log.i(TAG, "Expecting " + mTotalCount + " items on " + mPageNumber + " pages");
+					LOGI(TAG, "Expecting " + mTotalCount + " items on " + mPageNumber + " pages");
 					parseItems();
 				} else if (Tags.ANCHOR.equals(name)) {
 					String href = mParser.getAttributeValue(null, Tags.HREF);

@@ -1,23 +1,25 @@
 package com.boardgamegeek.model;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.util.CursorUtils;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.util.CursorUtils;
 
 public class Player implements Parcelable {
-	private static final String TAG = "Player";
+	private static final String TAG = makeLogTag(Player.class);
 
 	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
@@ -101,7 +103,7 @@ public class Player implements Parcelable {
 		addPair(nvps, index, "rating", String.valueOf(Rating));
 		addPair(nvps, index, "new", New ? "1" : "0");
 		addPair(nvps, index, "win", Win ? "1" : "0");
-		Log.d(TAG, nvps.toString());
+		LOGD(TAG, nvps.toString());
 		return nvps;
 	}
 

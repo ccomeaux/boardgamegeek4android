@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -13,7 +15,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -21,7 +22,7 @@ import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCollectionHandler extends RemoteBggHandler {
-	private static final String TAG = "RemoteCollectionHandler";
+	private static final String TAG = makeLogTag(RemoteCollectionHandler.class);
 
 	// TODO: Parse Version Info
 
@@ -73,9 +74,9 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues);
 			}
 		}
-		Log.i(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
+		LOGI(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
 				+ " games");
-		Log.i(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
+		LOGI(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
 				+ mSkipCollectionCount + " collection items");
 	}
 

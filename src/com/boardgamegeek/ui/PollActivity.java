@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -10,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -38,9 +41,8 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	public static final String SUGGESTED_PLAYERAGE = "suggested_playerage";
 	public static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
 
-	private static final String TAG = "PollActivity";
-	// The following should not be externalized, they're used to match the
-	// incoming XML
+	private static final String TAG = makeLogTag(PollActivity.class);
+	// The following should not be externalized, they're used to match the incoming XML
 	private static final String BEST = "Best";
 	private static final String RECOMMENDED = "Recommended";
 	private static final String NOT_RECOMMENDED = "Not Recommended";
@@ -210,7 +212,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 							pnr.setNotRecommended(votes);
 							voteCount[2] = votes;
 						} else {
-							Log.w(TAG, "Bad key: " + value);
+							LOGW(TAG, "Bad key: " + value);
 						}
 					}
 					pnr.setTag(voteCount);
@@ -298,7 +300,7 @@ public class PollActivity extends Activity implements AsyncQueryListener {
 	private ContentObserver mPollObserver = new ContentObserver(new Handler()) {
 		@Override
 		public void onChange(boolean selfChange) {
-			Log.d(TAG, "Caught changed URI = " + mPollUri);
+			LOGD(TAG, "Caught changed URI = " + mPollUri);
 			if (mCursor != null) {
 				mCursor.requery();
 			}

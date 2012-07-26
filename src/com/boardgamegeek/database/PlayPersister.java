@@ -1,5 +1,9 @@
 package com.boardgamegeek.database;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +12,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -17,7 +20,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlayPersister {
-	private static final String TAG = "PlayHelper";
+	private static final String TAG = makeLogTag(PlayPersister.class);
 
 	/**
 	 * A new play was inserted into the database
@@ -105,9 +108,9 @@ public class PlayPersister {
 						mStatus = STATUS_PENDING;
 					} else {
 						mStatus = STATUS_ERROR;
-						Log.e(TAG, "Unknown sync status!");
+						LOGE(TAG, "Unknown sync status!");
 					}
-					Log.i(TAG, "Not saving during the sync due to status=" + mStatus);
+					LOGI(TAG, "Not saving during the sync due to status=" + mStatus);
 					return;
 				}
 			}
@@ -147,7 +150,7 @@ public class PlayPersister {
 		removeUnusedItems();
 		removeUnusedPlayers();
 
-		Log.i(TAG, "Saved play ID=" + mPlay.PlayId);
+		LOGI(TAG, "Saved play ID=" + mPlay.PlayId);
 	}
 
 	private boolean playExistsInDatabase() {

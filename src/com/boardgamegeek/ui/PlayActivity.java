@@ -1,5 +1,10 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
@@ -14,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -46,7 +50,7 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlayActivity extends Activity implements AsyncQueryListener, LogInListener {
-	private final static String TAG = "PlayActivity";
+	private static final String TAG = makeLogTag(PlayActivity.class);
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -123,7 +127,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
 		if (mGameId == -1) {
-			Log.w(TAG, "Didn't get a game ID");
+			LOGW(TAG, "Didn't get a game ID");
 			finish();
 		}
 
@@ -156,7 +160,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			// TODO add menu_send if modified
+		// TODO add menu_send if modified
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
 				return true;
@@ -437,7 +441,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		@Override
 		protected Boolean doInBackground(String... params) {
 			int gameId = StringUtils.parseInt(params[0]);
-			Log.d(TAG, "Refreshing game ID [" + gameId + "]");
+			LOGD(TAG, "Refreshing game ID [" + gameId + "]");
 			final String url = HttpUtils.constructPlayUrlSpecific(gameId, null);
 			try {
 				// TODO track the play IDs for this game ID, removing any plays
@@ -445,7 +449,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				RemotePlaysHandler handler = new RemotePlaysHandler();
 				mExecutor.executeGet(url, handler);
 			} catch (HandlerException e) {
-				Log.e(TAG, "Exception trying to refresh game ID [" + gameId + "]");
+				LOGE(TAG, "Exception trying to refresh game ID [" + gameId + "]", e);
 				showToastOnUiThread(R.string.msg_update_error);
 				return true;
 			}
@@ -455,7 +459,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		@Override
 		protected void onPostExecute(Boolean result) {
 			hideLoadingMessage();
-			Log.d(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
+			LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
 		}
 	}
 

@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +37,7 @@ import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.UIUtils;
 
 public class HotnessActivity extends ListActivity implements AbsListView.OnScrollListener {
-	private final String TAG = "HotnessActivity";
+	private static final String TAG = makeLogTag(HotnessActivity.class);
 
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 	private BoardGameAdapter mAdapter;
@@ -114,7 +117,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 			try {
 				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
-				Log.e(TAG, e.toString());
+				LOGE(TAG, "getting hotness", e);
 			}
 			return mHandler;
 		}
@@ -151,7 +154,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 					ImageCache.getImage(HotnessActivity.this, url);
 					publishProgress(url);
 				} catch (InterruptedException e) {
-					Log.w(TAG, e.toString());
+					LOGW(TAG, e.toString());
 				}
 			}
 			return null;

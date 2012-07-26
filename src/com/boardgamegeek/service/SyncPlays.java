@@ -1,8 +1,9 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -17,7 +18,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 
 public class SyncPlays extends SyncTask {
-	private final static String TAG = "SyncPlays";
+	private static final String TAG = makeLogTag(SyncPlays.class);
 
 	private RemoteExecutor mExecutor;
 	private Context mContext;
@@ -78,7 +79,7 @@ public class SyncPlays extends SyncTask {
 				+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
 		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
-		Log.i(TAG, "Deleted " + count + " plays");
+		LOGI(TAG, "Deleted " + count + " plays");
 	}
 
 	@Override

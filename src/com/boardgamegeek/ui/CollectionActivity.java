@@ -1,5 +1,8 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -19,7 +22,6 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -82,7 +84,7 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
-	private static final String TAG = "CollectionActivity";
+	private static final String TAG = makeLogTag(CollectionActivity.class);
 
 	private static final String KEY_FILTERS = "FILTERS";
 	private static final String KEY_FILTER_NAME = "FILTER_NAME";
@@ -331,7 +333,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return;
 		}
 
@@ -352,7 +354,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				info = mLinksMenuInfo;
 			}
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return false;
 		}
 
@@ -677,7 +679,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 					ImageCache.getImage(CollectionActivity.this, url);
 					publishProgress(url);
 				} catch (InterruptedException e) {
-					Log.w(TAG, e.toString());
+					LOGE(TAG, "getting image from cache", e);
 				}
 			}
 			return null;

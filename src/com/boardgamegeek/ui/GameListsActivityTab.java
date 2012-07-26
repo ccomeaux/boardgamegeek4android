@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,7 +23,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -52,7 +55,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 public class GameListsActivityTab extends ExpandableListActivity implements AsyncQueryListener {
-	private static final String TAG = "GameListsActivityTab";
+	private static final String TAG = makeLogTag(GameListsActivityTab.class);
 
 	private static final int ID_DIALOG_RESULTS = 1;
 
@@ -542,12 +545,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		protected Void doInBackground(Integer... params) {
 			for (int designerId : params) {
-				Log.d(TAG, "Fetching designer ID = " + designerId);
+				LOGD(TAG, "Fetching designer ID = " + designerId);
 				final String url = HttpUtils.constructDesignerUrl(designerId);
 				try {
 					mExecutor.executeGet(url, new RemoteDesignerHandler(designerId));
 				} catch (HandlerException e) {
-					Log.e(TAG, "Exception trying to fetch designer ID = " + designerId, e);
+					LOGE(TAG, "Exception trying to fetch designer ID = " + designerId, e);
 					runOnUiThread(new Runnable() {
 						public void run() {
 							showToast(R.string.msg_error_remote);
@@ -573,12 +576,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		protected Void doInBackground(Integer... params) {
 			for (int artistId : params) {
-				Log.d(TAG, "Fetching artist ID = " + artistId);
+				LOGD(TAG, "Fetching artist ID = " + artistId);
 				final String url = HttpUtils.constructArtistUrl(artistId);
 				try {
 					mExecutor.executeGet(url, new RemoteArtistHandler(artistId));
 				} catch (HandlerException e) {
-					Log.e(TAG, "Exception trying to fetch artist ID = " + artistId, e);
+					LOGE(TAG, "Exception trying to fetch artist ID = " + artistId, e);
 					runOnUiThread(new Runnable() {
 						public void run() {
 							showToast(R.string.msg_error_remote);
@@ -604,12 +607,12 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		@Override
 		protected Void doInBackground(Integer... params) {
 			for (int publisherId : params) {
-				Log.d(TAG, "Fetching publisher ID = " + publisherId);
+				LOGD(TAG, "Fetching publisher ID = " + publisherId);
 				final String url = HttpUtils.constructPublisherUrl(publisherId);
 				try {
 					mExecutor.executeGet(url, new RemotePublisherHandler(publisherId));
 				} catch (HandlerException e) {
-					Log.e(TAG, "Exception trying to fetch publisher ID = " + publisherId, e);
+					LOGE(TAG, "Exception trying to fetch publisher ID = " + publisherId, e);
 					runOnUiThread(new Runnable() {
 						public void run() {
 							showToast(R.string.msg_error_remote);

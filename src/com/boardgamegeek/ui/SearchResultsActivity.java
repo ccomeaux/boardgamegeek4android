@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -40,7 +43,8 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends ListActivity {
-	private final String TAG = "SearchResultsActivity";
+	private static final String TAG = makeLogTag(SearchResultsActivity.class);
+
 	private static final int HELP_VERSION = 1;
 
 	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
@@ -97,7 +101,7 @@ public class SearchResultsActivity extends ListActivity {
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return;
 		}
 
@@ -114,7 +118,7 @@ public class SearchResultsActivity extends ListActivity {
 				info = mLinksMenuInfo;
 			}
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return false;
 		}
 
@@ -202,7 +206,7 @@ public class SearchResultsActivity extends ListActivity {
 	}
 
 	private void showError(String message) {
-		Log.w(TAG, message);
+		LOGW(TAG, message);
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		UIUtils.showListMessage(this, "Error");
 	}
@@ -267,7 +271,7 @@ public class SearchResultsActivity extends ListActivity {
 			try {
 				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
-				Log.e(TAG, e.toString());
+				LOGE(TAG, e.toString());
 			}
 		}
 	}

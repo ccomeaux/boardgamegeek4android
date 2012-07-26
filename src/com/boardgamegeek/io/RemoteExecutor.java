@@ -1,5 +1,8 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -13,13 +16,12 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.ContentResolver;
-import android.util.Log;
 
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 
 public class RemoteExecutor {
-	private static final String TAG = "RemoteExecutor";
-	
+	private static final String TAG = makeLogTag(RemoteExecutor.class);
+
 	private static XmlPullParserFactory sFactory;
 	private final HttpClient mHttpClient;
 	private final ContentResolver mContentResolver;
@@ -42,8 +44,8 @@ public class RemoteExecutor {
 	}
 
 	public boolean execute(HttpUriRequest request, XmlHandler handler) throws HandlerException {
-		Log.i(TAG, request.getURI().toString());
-		
+		LOGI(TAG, request.getURI().toString());
+
 		HttpResponse response;
 		try {
 			response = mHttpClient.execute(request);
@@ -51,7 +53,7 @@ public class RemoteExecutor {
 
 			if (status != HttpStatus.SC_OK) {
 				throw new HandlerException("Unexpected server response " + response.getStatusLine() + " for "
-					+ request.getRequestLine());
+						+ request.getRequestLine());
 			}
 
 			final InputStream input = response.getEntity().getContent();

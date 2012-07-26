@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -12,13 +14,11 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.util.Log;
-
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteForumHandler extends RemoteBggHandler {
-	private static final String TAG = "RemoteForumHandler";
+	private static final String TAG = makeLogTag(RemoteForumHandler.class);
 
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
@@ -73,7 +73,7 @@ public class RemoteForumHandler extends RemoteBggHandler {
 					thread.postdate = mFormat.parse(mParser.getAttributeValue(null, Tags.POST_DATE)).getTime();
 					thread.lastpostdate = mFormat.parse(mParser.getAttributeValue(null, Tags.LAST_POST_DATE)).getTime();
 				} catch (ParseException e) {
-					Log.w(TAG, e.toString());
+					LOGE(TAG, "Parsing forum thread", e);
 				}
 				mThreads.add(thread);
 			}

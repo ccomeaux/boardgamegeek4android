@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -11,14 +13,14 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddyUserHandler extends RemoteBggHandler {
-	private static final String TAG = "RemoteBuddyUserHandler";
+	private static final String TAG = makeLogTag(RemoteBuddyUserHandler.class);
+
 	private int mCount;
 
 	public RemoteBuddyUserHandler() {
@@ -49,7 +51,7 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 					mCount += mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
 							new String[] { name });
 				} else {
-					Log.w(TAG, "Tried to parse user, but ID not in database: " + id);
+					LOGW(TAG, "Tried to parse user, but ID not in database: " + id);
 				}
 			} else {
 				mCount += mResolver.update(uri, values, null, null);

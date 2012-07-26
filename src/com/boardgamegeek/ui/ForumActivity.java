@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +25,7 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumActivity extends ListActivity {
-	private final String TAG = "ForumActivity";
+	private static final String TAG = makeLogTag(ForumActivity.class);
 
 	public static final String KEY_FORUM_ID = "FORUM_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -30,7 +33,7 @@ public class ForumActivity extends ListActivity {
 	public static final String KEY_FORUM_TITLE = "FORUM_NAME";
 	public static final String KEY_NUM_THREADS = "NUM_THREADS";
 	public static final String KEY_THREADS = "THREADS";
-	
+
 	public static final int PAGE_SIZE = 50;
 
 	private static final String KEY_CURRENT_PAGE = "CURRENT_PAGE";
@@ -54,7 +57,7 @@ public class ForumActivity extends ListActivity {
 	private String mForumName;
 
 	private TextView mInfoView;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,7 +86,7 @@ public class ForumActivity extends ListActivity {
 			mPageCount = savedInstanceState.getInt(KEY_PAGE_COUNT);
 			mThreadCount = savedInstanceState.getInt(KEY_THREAD_COUNT);
 		}
-		
+
 		mInfoView = (TextView) findViewById(R.id.threads_counter);
 
 		UIUtils.setTitle(this, mForumName);
@@ -137,7 +140,7 @@ public class ForumActivity extends ListActivity {
 			this.startActivity(forumsIntent);
 		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -156,7 +159,7 @@ public class ForumActivity extends ListActivity {
 
 		return super.onPrepareOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		mCurrentForumThreads.clear();
@@ -181,28 +184,27 @@ public class ForumActivity extends ListActivity {
 		}
 		return false;
 	}
-	
+
 	public void updateDisplay() {
 		setInfoText();
 		setCurrentForumsPage();
 	}
-	
+
 	public void setInfoText() {
 		mInfoView.setVisibility(View.VISIBLE);
 		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mThreadCount + " threads");
 	}
-	
+
 	public void setCurrentForumsPage() {
 		for (int i = getPageStart(); i <= getPageEnd(); i++) {
 			try {
 				mCurrentForumThreads.add(mAllForumThreads.get(i - 1));
 			} catch (IndexOutOfBoundsException e) {
-				Log.w(TAG, "Problem with XML API. Probably 'numthreads' " +
-						   "is not equal to 'thread' markers.");
+				LOGW(TAG, "Problem with XML API. Probably 'numthreads' " + "is not equal to 'thread' markers.");
 				// TODO probably 'catch' could be removed after fix in API
 			}
 		}
-		Log.i(TAG, "Displaying from " + getPageStart() + " to " + getPageEnd());
+		LOGI(TAG, "Displaying from " + getPageStart() + " to " + getPageEnd());
 		if (mAdapter == null) {
 			mAdapter = new ForumsUtils.ForumAdapter(this, mCurrentForumThreads);
 			setListAdapter(mAdapter);
@@ -211,7 +213,7 @@ public class ForumActivity extends ListActivity {
 			setSelection(0);
 		}
 	}
-	
+
 	private int getPageEnd() {
 		return Math.min(mCurrentPage * ForumActivity.PAGE_SIZE, mThreadCount);
 	}
@@ -219,7 +221,7 @@ public class ForumActivity extends ListActivity {
 	private int getPageStart() {
 		return (mCurrentPage - 1) * ForumActivity.PAGE_SIZE + 1;
 	}
-	
+
 	public String getForumId() {
 		return mForumId;
 	}
@@ -227,7 +229,7 @@ public class ForumActivity extends ListActivity {
 	public int getCurrentPage() {
 		return mCurrentPage;
 	}
-	
+
 	public int getPageCount() {
 		return mPageCount;
 	}
@@ -235,7 +237,7 @@ public class ForumActivity extends ListActivity {
 	public void setmPageCount(int mPageCount) {
 		this.mPageCount = mPageCount;
 	}
-	
+
 	public int getThreadCount() {
 		return mThreadCount;
 	}
@@ -245,7 +247,7 @@ public class ForumActivity extends ListActivity {
 	}
 
 	public void addMoreForums(List<ForumThread> results) {
-		Log.i(TAG, "Adding more forums");
+		LOGI(TAG, "Adding more forums");
 		mAllForumThreads.addAll(results);
 	}
 }

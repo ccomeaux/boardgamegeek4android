@@ -1,10 +1,11 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,7 +24,7 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 public class HomeActivity extends Activity implements DetachableResultReceiver.Receiver {
-	private final static String TAG = "HomeActivity";
+	private static final String TAG = makeLogTag(HomeActivity.class);
 
 	private State mState;
 
@@ -166,7 +167,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 				}
 				break;
 			default:
-				Log.w(TAG, "Received unexpected result: " + resultCode);
+				LOGW(TAG, "Received unexpected result: " + resultCode);
 				break;
 		}
 	}

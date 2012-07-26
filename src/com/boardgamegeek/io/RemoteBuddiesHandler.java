@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -12,13 +14,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddiesHandler extends RemoteBggHandler {
-	private static final String TAG = "RemoteBuddiesHandler";
+	private static final String TAG = makeLogTag(RemoteBuddiesHandler.class);
+
 	private int mUpdateCount = 0;
 	private int mInsertCount = 0;
 
@@ -76,7 +78,7 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 				}
 			}
 		}
-		Log.i(TAG, "Updated " + mUpdateCount + ", inserted " + mInsertCount + " buddies");
+		LOGI(TAG, "Updated " + mUpdateCount + ", inserted " + mInsertCount + " buddies");
 	}
 
 	private interface Tags {

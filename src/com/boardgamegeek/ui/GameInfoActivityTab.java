@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.text.DecimalFormat;
 
 import android.app.Activity;
@@ -11,7 +15,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -26,7 +29,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 public class GameInfoActivityTab extends Activity implements AsyncQueryListener {
-	private static final String TAG = "GameInfoActivityTab";
+	private static final String TAG = makeLogTag(GameInfoActivityTab.class);
 
 	private static final int TOKEN_GAME = 1;
 	private static final int TOKEN_RANK = 2;
@@ -81,7 +84,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		cr.registerContentObserver(mGameUri, false, mGameObserver);
 		cr.registerContentObserver(mRankUri, false, mRankObserver);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -136,7 +139,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				intent.putExtra(PollActivity.KEY_TYPE, PollActivity.SUGGESTED_NUMPLAYERS);
 				break;
 			default:
-				Log.w(TAG, "Unexpected button: " + v.getId());
+				LOGW(TAG, "Unexpected button: " + v.getId());
 				return;
 		}
 		startActivity(intent);
@@ -245,7 +248,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			Log.d(TAG, "Caught changed URI = " + mGameUri);
+			LOGD(TAG, "Caught changed URI = " + mGameUri);
 			startGameQuery();
 		}
 	}
@@ -258,7 +261,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			Log.d(TAG, "Caught changed URI = " + mRankUri);
+			LOGD(TAG, "Caught changed URI = " + mRankUri);
 			startRankQuery();
 		}
 	}

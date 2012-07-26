@@ -1,5 +1,8 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.text.NumberFormat;
 
 import android.app.Activity;
@@ -12,7 +15,6 @@ import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -27,7 +29,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 public class GameStatsActivityTab extends Activity implements AsyncQueryListener {
-	private static final String TAG = "GameStatsActivityTab";
+	private static final String TAG = makeLogTag(GameStatsActivityTab.class);
 
 	private static final int TOKEN_GAME = 1;
 	private static final int TOKEN_RANK = 2;
@@ -263,7 +265,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
+			LOGD(TAG, "Caught changed URI = " + mBoardgameUri);
 			startGameQuery();
 		}
 	}
@@ -276,7 +278,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
-			Log.d(TAG, "Caught changed URI = " + mBoardgameUri);
+			LOGD(TAG, "Caught changed URI = " + mBoardgameUri);
 			startRankQuery();
 		}
 	}
