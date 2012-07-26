@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -12,10 +14,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 public abstract class RemoteProducerHandler extends RemoteBggHandler {
-	private static final String TAG = "RemotePublisherHandler";
+	private static final String TAG = makeLogTag(RemoteProducerHandler.class);
 
 	protected int mProducerId;
 	private int mCount;
@@ -45,7 +46,7 @@ public abstract class RemoteProducerHandler extends RemoteBggHandler {
 						ContentValues values = parseProducer(uri);
 						mCount = mResolver.update(uri, values, null, null);
 					} else {
-						Log.w(TAG, "Tried to parse " + type() + ", but ID not in database: " + mProducerId);
+						LOGW(TAG, "Tried to parse " + type() + ", but ID not in database: " + mProducerId);
 					}
 				} finally {
 					if (cursor != null && !cursor.isClosed()) {

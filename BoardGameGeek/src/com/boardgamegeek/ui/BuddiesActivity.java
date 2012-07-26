@@ -1,5 +1,8 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -15,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddiesActivity extends ListActivity implements AsyncQueryListener, AbsListView.OnScrollListener {
-	private static final String TAG = "BuddiesActivity";
+	private static final String TAG = makeLogTag(BuddiesActivity.class);
 
 	private Uri mUri;
 	private BuddiesAdapter mAdapter;
@@ -228,7 +230,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 					ImageCache.getImage(BuddiesActivity.this, url);
 					publishProgress(url);
 				} catch (InterruptedException e) {
-					Log.w(TAG, e.toString());
+					LOGE(TAG, "getting buddies", e);
 				}
 			}
 			return null;

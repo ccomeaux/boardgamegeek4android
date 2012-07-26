@@ -1,5 +1,10 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +18,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.boardgamegeek.BggApplication;
@@ -25,7 +29,7 @@ import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 
 public class SyncService extends IntentService implements LogInListener {
-	private final static String TAG = "SyncService";
+	private static final String TAG = makeLogTag(SyncService.class);
 
 	public static final int STATUS_RUNNING = 1;
 	public static final int STATUS_COMPLETE = 2;
@@ -92,10 +96,10 @@ public class SyncService extends IntentService implements LogInListener {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Log.d(TAG, "onHandleIntent(intent=" + intent + ")");
+		LOGD(TAG, "onHandleIntent(intent=" + intent + ")");
 
 		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
-			Log.w(TAG, "Invalid intent action: " + intent.getAction());
+			LOGW(TAG, "Invalid intent action: " + intent.getAction());
 			return;
 		}
 
@@ -129,16 +133,16 @@ public class SyncService extends IntentService implements LogInListener {
 				task.execute(mRemoteExecutor, this);
 				if (task.isBggDown()) {
 					String message = getResources().getString(R.string.notification_bgg_down);
-					Log.d(TAG, message);
+					LOGD(TAG, message);
 					sendError(message);
 					break;
 				}
 			}
 
-			Log.d(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
+			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 					+ (mUseGzip ? "on" : "off"));
 		} catch (Exception e) {
-			Log.e(TAG, e.toString());
+			LOGE(TAG, "", e);
 			sendError(e.toString());
 		} finally {
 			BggApplication.getInstance().putSyncTimestamp(0);
@@ -217,11 +221,11 @@ public class SyncService extends IntentService implements LogInListener {
 
 	@Override
 	public void onLogInError(String errorMessage) {
-		Log.d(TAG, "Couldn't log in: " + errorMessage);
+		LOGD(TAG, "Couldn't log in: " + errorMessage);
 	}
 
 	@Override
 	public void onNeedCredentials() {
-		Log.d(TAG, "Missing credentials.");
+		LOGD(TAG, "Missing credentials.");
 	}
 }

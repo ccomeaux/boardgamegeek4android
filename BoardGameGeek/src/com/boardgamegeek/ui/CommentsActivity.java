@@ -1,5 +1,10 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +17,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +36,7 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CommentsActivity extends ListActivity {
-	private final String TAG = "CommentsActivity";
+	private static final String TAG = makeLogTag(CommentsActivity.class);
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -84,7 +88,7 @@ public class CommentsActivity extends ListActivity {
 			final Intent intent = getIntent();
 			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 			if (mGameId < 1) {
-				Log.w(TAG, "Didn't get a game ID");
+				LOGW(TAG, "Didn't get a game ID");
 				finish();
 			}
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
@@ -201,11 +205,11 @@ public class CommentsActivity extends ListActivity {
 		@Override
 		protected RemoteCommentsHandler doInBackground(Void... params) {
 			String url = HttpUtils.constructCommentsUrl(mGameId, mCurrentPage);
-			Log.i(TAG, "Loading comments from " + url);
+			LOGI(TAG, "Loading comments from " + url);
 			try {
 				mExecutor.executeGet(url, mHandler);
 			} catch (HandlerException e) {
-				Log.e(TAG, e.toString());
+				LOGE(TAG, "getting comments", e);
 			}
 			return mHandler;
 		}

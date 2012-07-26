@@ -1,5 +1,8 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -17,7 +20,6 @@ import org.apache.http.protocol.HTTP;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -28,7 +30,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class PlaySender {
-	private final static String TAG = "PlaySender";
+	private static final String TAG = makeLogTag(PlaySender.class);
 
 	private Context mContext;
 	private Resources mResources;
@@ -52,7 +54,7 @@ public class PlaySender {
 			result.ErrorMessage = syncGame(play);
 		}
 		shutdownClient();
-		Log.i(TAG, "Sent play with result:\n" + result.toString());
+		LOGI(TAG, "Sent play with result:\n" + result.toString());
 		return result;
 	}
 
@@ -166,7 +168,7 @@ public class PlaySender {
 	}
 
 	private void savePending(Play play) {
-		Log.i(TAG, "Saving " + play.PlayId + " as pending due to sync problem");
+		LOGI(TAG, "Saving " + play.PlayId + " as pending due to sync problem");
 		play.SyncStatus = Play.SYNC_STATUS_PENDING;
 		new PlayPersister(mContext.getContentResolver(), play).save();
 	}

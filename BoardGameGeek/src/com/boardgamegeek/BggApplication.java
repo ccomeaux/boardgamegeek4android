@@ -1,7 +1,8 @@
 package com.boardgamegeek;
 
-import com.boardgamegeek.pref.ListPreferenceMultiSelect;
-
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,10 +11,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import com.boardgamegeek.pref.ListPreferenceMultiSelect;
 
 public class BggApplication extends Application {
-	private final static String TAG = "BggApplication";
+	private static final String TAG = makeLogTag(BggApplication.class);
 
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
 	public static final String HELP_BOARDGAME_KEY = "help.boardgame";
@@ -53,7 +55,7 @@ public class BggApplication extends Application {
 			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);
 			return "Version " + pInfo.versionName;
 		} catch (NameNotFoundException e) {
-			Log.e(TAG, "NameNotFoundException in getVersion", e);
+			LOGE(TAG, "NameNotFoundException in getVersion", e);
 		}
 		return "";
 	}
@@ -87,7 +89,7 @@ public class BggApplication extends Application {
 		Editor e = sp.edit();
 		e.putLong(key, startTime);
 		if (!e.commit()) {
-			Log.w(TAG, "Error saving time the collection last synced.");
+			LOGW(TAG, "Error saving time the collection last synced.");
 		}
 	}
 
@@ -121,7 +123,7 @@ public class BggApplication extends Application {
 		Editor e = sp.edit();
 		e.putString(MAX_PLAY_DATE_KEY, maxPlayDate);
 		if (!e.commit()) {
-			Log.w(TAG, "Error saving max play date.");
+			LOGW(TAG, "Error saving max play date.");
 		}
 	}
 
@@ -137,7 +139,7 @@ public class BggApplication extends Application {
 		Editor e = sp.edit();
 		e.putString(MIN_PLAY_DATE_KEY, minPlayDate);
 		if (!e.commit()) {
-			Log.w(TAG, "Error saving min play date.");
+			LOGW(TAG, "Error saving min play date.");
 		}
 	}
 
@@ -171,7 +173,7 @@ public class BggApplication extends Application {
 		Editor e = sp.edit();
 		e.putLong(key, System.currentTimeMillis());
 		if (!e.commit()) {
-			Log.w(TAG, "Error saving current time.");
+			LOGW(TAG, "Error saving current time.");
 		}
 	}
 

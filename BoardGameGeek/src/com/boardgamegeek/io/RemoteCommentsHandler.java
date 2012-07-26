@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -10,13 +12,11 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.util.Log;
-
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCommentsHandler extends RemoteBggHandler {
-	private static final String TAG = "RemoteCommentsHandler";
+	private static final String TAG = makeLogTag(RemoteCommentsHandler.class);
 
 	private List<Comment> mComments = new ArrayList<Comment>();
 	private int mCommentsCount;
@@ -48,7 +48,7 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 			if (type == START_TAG && Tags.COMMENTS.equals(mParser.getName())) {
 
 				mCommentsCount = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.TOTAL_ITEMS));
-				Log.i(TAG, "Expecting " + mCommentsCount + " comments");
+				LOGI(TAG, "Expecting " + mCommentsCount + " comments");
 
 				parseComments();
 			}

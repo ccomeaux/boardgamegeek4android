@@ -1,5 +1,9 @@
 package com.boardgamegeek.model;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,7 +20,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -43,8 +46,7 @@ public class Play {
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 
-	private static final String TAG = "Play";
-
+	private static final String TAG = makeLogTag(Play.class);
 	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
 
@@ -127,7 +129,7 @@ public class Play {
 			Month = d.getMonth();
 			Day = d.getDate();
 		} catch (ParseException e) {
-			Log.w(TAG, "Couldn't parse " + date);
+			LOGE(TAG, "Couldn't parse " + date, e);
 		}
 	}
 
@@ -163,7 +165,7 @@ public class Play {
 			nvps.addAll(mPlayers.get(i).toNameValuePairs(i));
 		}
 
-		Log.d(TAG, nvps.toString());
+		LOGD(TAG, nvps.toString());
 		return nvps;
 	}
 

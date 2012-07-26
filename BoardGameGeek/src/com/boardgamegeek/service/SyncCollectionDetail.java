@@ -1,5 +1,8 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +10,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBggHandler;
@@ -19,7 +21,7 @@ import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncCollectionDetail extends SyncTask {
-	private static final String TAG = "SyncCollectionDetail";
+	private static final String TAG = makeLogTag(SyncCollectionDetail.class);
 
 	private static final int GAMES_PER_FETCH = 25;
 	// TODO Perhaps move these constants into preferences
@@ -40,10 +42,10 @@ public class SyncCollectionDetail extends SyncTask {
 			cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, SyncColumns.UPDATED + "<? OR "
 					+ SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			if (cursor.getCount() > 0) {
-				Log.i(TAG, "Updating games older than " + SYNC_GAME_AGE_IN_DAYS + " days old");
+				LOGI(TAG, "Updating games older than " + SYNC_GAME_AGE_IN_DAYS + " days old");
 				fetchGames(cursor);
 			} else {
-				Log.i(TAG, "Updating " + SYNC_GAME_LIMIT + " oldest games");
+				LOGI(TAG, "Updating " + SYNC_GAME_LIMIT + " oldest games");
 				cursor.close();
 				cursor = resolver.query(Games.CONTENT_URI, new String[] { Games.GAME_ID }, null, null, Games.UPDATED
 						+ " LIMIT " + SYNC_GAME_LIMIT);

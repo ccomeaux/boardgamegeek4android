@@ -1,11 +1,13 @@
 package com.boardgamegeek.provider;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.BuddiesColumns;
@@ -13,8 +15,8 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionColumns;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
-import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.CollectionViewFiltersColumns;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.CollectionViewsColumns;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameColorsColumns;
@@ -42,7 +44,7 @@ import com.boardgamegeek.util.CreateTableBuilder;
 import com.boardgamegeek.util.CreateTableBuilder.COLUMN_TYPE;
 
 public class BggDatabase extends SQLiteOpenHelper {
-	private static final String TAG = "BggDatabase";
+	private static final String TAG = makeLogTag(BggDatabase.class);
 
 	private static final String DATABASE_NAME = "bgg.db";
 
@@ -391,7 +393,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
+		LOGD(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
 
 		// NOTE: This switch statement is designed to handle cascading database
 		// updates, starting at the current version and falling through to all
@@ -437,7 +439,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		}
 
 		if (version != DATABASE_VERSION) {
-			Log.w(TAG, "Destroying old data during upgrade");
+			LOGW(TAG, "Destroying old data during upgrade");
 
 			dropTable(db, Tables.DESIGNERS);
 			dropTable(db, Tables.ARTISTS);
@@ -476,7 +478,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		try {
 			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
 		} catch (SQLException e) {
-			Log.w(TAG, "Probably just trying to add an existing column.\n" + e.toString());
+			LOGW(TAG, "Probably just trying to add an existing column.\n" + e.toString());
 		}
 	}
 }

@@ -1,9 +1,10 @@
 package com.boardgamegeek.pref;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -19,7 +20,7 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.ImageCache;
 
 public class ClearDialogPreference extends AsyncDialogPreference {
-	private static final String TAG = "ClearDialogPreference";
+	private static final String TAG = makeLogTag(ClearDialogPreference.class);
 
 	private Context mContext;
 
@@ -72,12 +73,12 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += mResolver.delete(Buddies.CONTENT_URI, null, null);
 			count += mResolver.delete(Plays.CONTENT_URI, null, null);
 			count += mResolver.delete(CollectionViews.CONTENT_URI, null, null);
-			Log.d(TAG, "Removed " + count + " records");
+			LOGD(TAG, "Removed " + count + " records");
 
 			if (ImageCache.clear()) {
-				Log.d(TAG, "Cleared image cache");
+				LOGD(TAG, "Cleared image cache");
 			} else {
-				Log.d(TAG, "Unable to clear image cache (expected)");
+				LOGD(TAG, "Unable to clear image cache (expected)");
 			}
 
 			return null;

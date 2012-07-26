@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +25,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,7 +65,7 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayActivity extends Activity implements LogInListener, AsyncQueryListener {
-	private static final String TAG = "LogPlayActivity";
+	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 1;
 	private static final int DATE_DIALOG_ID = 0;
@@ -132,7 +135,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mStartTime = intent.getExtras().getLong(KEY_START_TIME);
 
 		if (gameId <= 0) {
-			Log.w(TAG, "Can't log a play without a game ID.");
+			LOGW(TAG, "Can't log a play without a game ID.");
 			Toast.makeText(this, "Can't log a play without a game ID.", Toast.LENGTH_LONG).show();
 			finish();
 		}
@@ -153,7 +156,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			quickLogPlay();
 			finish();
 		} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
-			Log.w(TAG, "Received bad intent action: " + intent.getAction());
+			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
 
@@ -620,7 +623,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 			updateColors();
 			updateBuddyNicknames();
-			Log.d(TAG, "Sending play ID=" + mPlay.PlayId);
+			LOGD(TAG, "Sending play ID=" + mPlay.PlayId);
 			return new PlaySender(LogPlayActivity.this, mLogInHelper.getCookieStore()).sendPlay(mPlay);
 		}
 
@@ -663,7 +666,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 		@Override
 		protected void onPostExecute(PlaySender.Result result) {
-			Log.d(TAG, "play result: " + result);
+			LOGD(TAG, "play result: " + result);
 			removeDialog(LOGGING_DIALOG_ID);
 			if (result.isValidResponse()) {
 				String message = getResources().getString(R.string.msg_play_updated);

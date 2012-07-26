@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import org.apache.http.client.HttpClient;
 
 import android.app.TabActivity;
@@ -11,7 +15,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,7 +38,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BoardgameActivity extends TabActivity implements AsyncQueryListener {
-	private static final String TAG = "BoardgameActivity";
+	private static final String TAG = makeLogTag(BoardgameActivity.class);
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final int HELP_VERSION = 4;
@@ -366,14 +369,14 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		@Override
 		protected Boolean doInBackground(String... params) {
 			String gameId = params[0];
-			Log.d(TAG, "Refreshing game ID = " + gameId);
+			LOGD(TAG, "Refreshing game ID = " + gameId);
 			final String url = HttpUtils.constructGameUrl(gameId);
 			try {
 				RemoteGameHandler rgh = new RemoteGameHandler();
 				rgh.setParsePolls();
 				mExecutor.executeGet(url, rgh);
 			} catch (HandlerException e) {
-				Log.e(TAG, "Exception trying to refresh game ID = " + gameId, e);
+				LOGE(TAG, "Exception trying to refresh game ID = " + gameId, e);
 				showToastOnUiThread(R.string.msg_update_error);
 				return true;
 			}
@@ -384,7 +387,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		protected void onPostExecute(Boolean result) {
 			mIsRefreshing = false;
 			hideLoadingMessage();
-			Log.d(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
+			LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
 		}
 	}
 

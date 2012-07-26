@@ -1,5 +1,9 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +40,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends ListActivity implements AsyncQueryListener {
-	private final static String TAG = "BuddyActivity";
+	private static final String TAG = makeLogTag(BuddyActivity.class);
 
 	private Uri mBuddyUri;
 	private NotifyingAsyncQueryHandler mHandler;
@@ -166,14 +169,14 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			try {
 				mExecutor.executeGet(mUrl, mHandler);
 			} catch (HandlerException e) {
-				Log.e(TAG, e.toString());
+				LOGE(TAG, "getting buddy", e);
 			}
 			return mHandler;
 		}
 
 		@Override
 		protected void onPostExecute(RemoteBuddyCollectionHandler result) {
-			Log.i(TAG, "Buddy collection size: " + result.getCount());
+			LOGI(TAG, "Buddy collection size: " + result.getCount());
 			final int count = result.getCount();
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);

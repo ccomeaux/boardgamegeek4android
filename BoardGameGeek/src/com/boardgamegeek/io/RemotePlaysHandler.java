@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -11,7 +13,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.database.PlayPersister;
@@ -20,7 +21,8 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemotePlaysHandler extends RemoteBggHandler {
-	private static final String TAG = "RemotePlaysHandler";
+	private static final String TAG = makeLogTag(RemotePlaysHandler.class);
+
 	private int mTotalCount = 0;
 
 	private Play mPlay;
@@ -142,7 +144,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending, %5$s in progress, %6$s errors)",
 					updateCount, insertCount, (pendingCount + inProgressCount + errorCount), pendingCount,
 					inProgressCount, errorCount);
-			Log.i(TAG, msg);
+			LOGI(TAG, msg);
 		}
 	}
 

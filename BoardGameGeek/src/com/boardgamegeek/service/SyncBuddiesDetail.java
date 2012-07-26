@@ -1,10 +1,11 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
@@ -15,7 +16,7 @@ import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesDetail extends SyncTask {
-	private static final String TAG = "SyncBuddiesDetail";
+	private static final String TAG = makeLogTag(SyncBuddiesDetail.class);
 
 	private static final int SYNC_BUDDY_DETAIL_DAYS = 21;
 	private static final int SYNC_BUDDY_LIMIT = 10;
@@ -31,7 +32,7 @@ public class SyncBuddiesDetail extends SyncTask {
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, SyncColumns.UPDATED
 					+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			if (cursor.getCount() > 0) {
-				Log.i(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
+				LOGI(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
 				fetchBuddies(executor, cursor);
 			} else {
 				fetchOldestBuddies(executor, resolver);
@@ -44,7 +45,7 @@ public class SyncBuddiesDetail extends SyncTask {
 	}
 
 	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver) throws HandlerException {
-		Log.i(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
+		LOGI(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
 		Cursor cursor = null;
 		try {
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,

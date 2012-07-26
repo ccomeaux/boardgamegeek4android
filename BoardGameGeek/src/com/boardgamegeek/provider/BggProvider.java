@@ -1,5 +1,9 @@
 package com.boardgamegeek.provider;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGV;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -13,15 +17,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
-	private static final String TAG = "BggProvider";
-	private static final boolean LOGV = Log.isLoggable(TAG, Log.VERBOSE);
+	private static final String TAG = makeLogTag(BggProvider.class);
 
 	private BggDatabase mOpenHelper;
 
@@ -128,9 +130,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		if (LOGV) {
-			Log.v(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
-		}
+		LOGV(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		return getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection, selectionArgs,
 				sortOrder);
@@ -138,9 +138,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		if (LOGV) {
-			Log.v(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
-		}
+		LOGV(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Uri newUri = getProvider(uri).insert(db, uri, values);
@@ -152,16 +150,12 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		if (LOGV) {
-			Log.v(TAG, "update(uri=" + uri + ", values=" + values.toString() + ")");
-		}
+		LOGV(TAG, "update(uri=" + uri + ", values=" + values.toString() + ")");
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		int rowCount = getProvider(uri).buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
 
-		if (LOGV) {
-			Log.v(TAG, "updated " + rowCount + " rows");
-		}
+		LOGV(TAG, "updated " + rowCount + " rows");
 
 		getContext().getContentResolver().notifyChange(uri, null);
 
@@ -170,9 +164,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		if (LOGV) {
-			Log.v(TAG, "delete(uri=" + uri + ")");
-		}
+		LOGV(TAG, "delete(uri=" + uri + ")");
 
 		BaseProvider provider = getProvider(uri);
 		SelectionBuilder builder = provider.buildSimpleSelection(uri).where(selection, selectionArgs);
@@ -181,9 +173,7 @@ public class BggProvider extends ContentProvider {
 		provider.deleteChildren(db, builder);
 		int rowCount = builder.delete(db);
 
-		if (LOGV) {
-			Log.v(TAG, "deleted " + rowCount + " rows");
-		}
+		LOGV(TAG, "deleted " + rowCount + " rows");
 
 		getContext().getContentResolver().notifyChange(uri, null);
 
@@ -192,7 +182,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		Log.d(TAG, "Open file: " + uri);
+		LOGD(TAG, "Open file: " + uri);
 
 		if (!uri.toString().startsWith(Thumbnails.CONTENT_URI.toString())) {
 			return null;

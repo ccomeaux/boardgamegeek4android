@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -11,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.BaseColumns;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -41,7 +42,7 @@ import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlaysActivity extends ListActivity implements AsyncQueryListener, LogInListener {
-	private static final String TAG = "PlaysActivity";
+	private static final String TAG = makeLogTag(PlaysActivity.class);
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
@@ -151,7 +152,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return;
 		}
 
@@ -174,7 +175,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		} catch (ClassCastException e) {
-			Log.e(TAG, "bad menuInfo", e);
+			LOGE(TAG, "bad menuInfo", e);
 			return false;
 		}
 
