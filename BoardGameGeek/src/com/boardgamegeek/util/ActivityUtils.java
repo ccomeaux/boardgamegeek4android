@@ -173,10 +173,10 @@ public class ActivityUtils {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
 					Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
 		} else {
-			Bitmap croppedBitmap = cropBitmap(d);
+			Bitmap icon = squarifyBitmap(d);
 
 			// load and size bezel drawables
-			Rect bounds = new Rect(0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
+			Rect bounds = new Rect(0, 0, icon.getWidth(), icon.getHeight());
 			Drawable maskDrawable = context.getResources().getDrawable(R.drawable.bezel_mask);
 			maskDrawable.setBounds(bounds);
 			Drawable borderDrawable = context.getResources().getDrawable(R.drawable.bezel_border);
@@ -188,8 +188,7 @@ public class ActivityUtils {
 			maskedPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
 
 			// create composite bitmap
-			Bitmap compositeBitmap = Bitmap.createBitmap(croppedBitmap.getWidth(), croppedBitmap.getHeight(),
-					Bitmap.Config.ARGB_8888);
+			Bitmap compositeBitmap = Bitmap.createBitmap(icon.getWidth(), icon.getHeight(), Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(compositeBitmap);
 
 			// assemble bitmaps
@@ -198,24 +197,22 @@ public class ActivityUtils {
 					| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
 			maskDrawable.draw(canvas);
 			canvas.saveLayer(boundsF, maskedPaint, 0);
-			canvas.drawBitmap(croppedBitmap, 0, 0, copyPaint);
+			canvas.drawBitmap(icon, 0, 0, copyPaint);
 			canvas.restoreToCount(sc);
 			borderDrawable.draw(canvas);
 
-			Bitmap icon = Bitmap.createScaledBitmap(compositeBitmap, 64, 64, true);
-			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
+			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, Bitmap.createScaledBitmap(compositeBitmap, 72, 72, true));
 		}
 		return shortcut;
 	}
 
-	private static Bitmap cropBitmap(BitmapDrawable d) {
+	private static Bitmap squarifyBitmap(BitmapDrawable d) {
 		Bitmap b = d.getBitmap();
 		int w = b.getWidth();
 		int h = b.getHeight();
 		int min = Math.min(w, h);
 		int x = (w - min) / 2;
 		int y = (h - min) / 2;
-		Bitmap croppedBitmap = Bitmap.createBitmap(b, x, y, min, min);
-		return croppedBitmap;
+		return Bitmap.createBitmap(b, x, y, min, min);
 	}
 }
