@@ -36,8 +36,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayerActivity extends Activity implements OnItemClickListener {
-	// private static final String TAG = "LogPlayerActivity";
-
 	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -82,25 +80,22 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		UIUtils.setTitle(this);
 		mCancelDialog = UIUtils.createCancelDialog(this);
 
-		if (savedInstanceState == null) {
-			final Intent intent = getIntent();
-			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+		final Intent intent = getIntent();
+		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
+		if (savedInstanceState == null) {
 			mPlayer = new Player(intent);
-			bindUi();
 		} else {
-			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
-			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
-			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
 			mPositionShown = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
 			mScoreShown = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
 			mRatingShown = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
 			mNewShown = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
 			mWinShown = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
+
+			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
 		bindUi();
@@ -120,9 +115,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_PLAYER, mPlayer);
-		outState.putInt(KEY_GAME_ID, mGameId);
-		outState.putString(KEY_GAME_NAME, mGameName);
-		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mTeamColorShown);
 		outState.putBoolean(KEY_POSITION_SHOWN, mPositionShown);
 		outState.putBoolean(KEY_SCORE_SHOWN, mScoreShown);

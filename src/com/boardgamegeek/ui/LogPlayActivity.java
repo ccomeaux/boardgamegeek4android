@@ -141,15 +141,17 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 
 		if (savedInstanceState != null) {
-			playId = savedInstanceState.getInt(KEY_PLAY_ID);
+			mPlay = new Play(savedInstanceState);
 			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
 			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
 			mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
 			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
+		} else {
+			mPlay = new Play(playId, gameId, gameName);
+			startQuery();
 		}
-		mPlay = new Play(playId, gameId, gameName);
 
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 			// TODO: refactor to quick log without this activity (probably need to use AccountManager)
@@ -167,28 +169,10 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	@Override
-	protected void onRestart() {
-		super.onRestart();
-		Toast.makeText(this, "Restoring saved data.", Toast.LENGTH_LONG).show();
-	}
-
-	@Override
 	protected void onStart() {
 		super.onStart();
 		mLocationAdapter = new LocationAdapter(this);
 		mLocationView.setAdapter(mLocationAdapter);
-
-		if (mHandler == null) {
-			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		}
-		if (mPlay.PlayId > 0) {
-			mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(mPlay.PlayId), Query.PROJECTION);
-			mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(mPlay.PlayId), PlayerQuery.PROJECTION);
-		}
-		if (TextUtils.isEmpty(mThumbnailUrl)) {
-			Uri uri = Games.buildGameUri(mPlay.GameId);
-			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
-		}
 	}
 
 	@Override
@@ -201,10 +185,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (mPlay.PlayId == 0) {
-			mPlay.PlayId = new PlayPersister(getContentResolver(), mPlay).getTemporaryId();
-		}
-		outState.putInt(KEY_PLAY_ID, mPlay.PlayId);
+		mPlay.saveState(outState);
 		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
 		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
@@ -280,6 +261,20 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				return true;
 		}
 		return false;
+	}
+
+	private void startQuery() {
+		if (mHandler == null) {
+			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+		}
+		if (mPlay.PlayId > 0) {
+			mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(mPlay.PlayId), PlayQuery.PROJECTION);
+			mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(mPlay.PlayId), PlayerQuery.PROJECTION);
+		}
+		if (TextUtils.isEmpty(mThumbnailUrl)) {
+			Uri uri = Games.buildGameUri(mPlay.GameId);
+			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
+		}
 	}
 
 	private void promptAddField(final CharSequence[] array) {
@@ -428,7 +423,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 					return;
 				}
 
-				mPlay.GameName = cursor.getString(Query.NAME);
+				mPlay.GameName = cursor.getString(PlayQuery.NAME);
 				UIUtils.setGameName(this, mPlay.GameName);
 				mPlay.populate(cursor);
 				if (mStartTime > 0) {
@@ -782,7 +777,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 	}
 
-	private interface Query {
+	private interface PlayQuery {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
 				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
 
