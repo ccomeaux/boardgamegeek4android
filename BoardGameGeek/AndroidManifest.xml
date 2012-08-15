@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="23"
-	android:versionName="3.6" >
+	android:versionCode="24"
+	android:versionName="3.7" >
 
 	<uses-sdk
-		android:minSdkVersion="4"
+		android:minSdkVersion="8"
 		android:targetSdkVersion="8" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -30,6 +30,7 @@
 		</activity>
 		<activity
 			android:name=".ui.CollectionActivity"
+			android:exported="false"
 			android:label="@string/title_collection"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -59,6 +60,7 @@
 			android:theme="@style/Theme.Bgg" />
 		<activity
 			android:name=".ui.BoardgameActivity"
+			android:exported="false"
 			android:label="@string/title_boardgame"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -71,6 +73,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameInfoActivityTab"
+			android:exported="false"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
@@ -80,6 +83,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameStatsActivityTab"
+			android:exported="false"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
@@ -89,6 +93,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameListsActivityTab"
+			android:exported="false"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
@@ -98,6 +103,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GamePollsActivityTab"
+			android:exported="false"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
@@ -111,6 +117,7 @@
 			android:theme="@style/Theme.Bgg" />
 		<activity
 			android:name=".ui.BuddiesActivity"
+			android:exported="false"
 			android:label="@string/title_buddies"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -123,6 +130,7 @@
 		</activity>
 		<activity
 			android:name=".ui.BuddyActivity"
+			android:exported="false"
 			android:label="@string/title_buddy"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -135,6 +143,7 @@
 		</activity>
 		<activity
 			android:name=".ui.PlaysActivity"
+			android:exported="false"
 			android:label="@string/title_plays"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -147,6 +156,7 @@
 		</activity>
 		<activity
 			android:name=".ui.PlayActivity"
+			android:exported="false"
 			android:label="@string/title_play"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -160,6 +170,7 @@
 		<activity
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
+			android:exported="false"
 			android:label="@string/search_label"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.Bgg" >
@@ -199,6 +210,7 @@
 			android:theme="@style/Theme.Bgg" />
 		<activity
 			android:name=".ui.ColorsActivity"
+			android:exported="false"
 			android:label="@string/title_colors"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
