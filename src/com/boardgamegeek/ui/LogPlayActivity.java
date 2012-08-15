@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -315,13 +314,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		// TODO replace with onBackPressed in API 5
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			cancel();
-			return true;
-		}
-		return super.onKeyUp(keyCode, event);
+	public void onBackPressed() {
+		super.onBackPressed();
+		cancel();
 	}
 
 	private void save() {
