@@ -253,8 +253,20 @@ public class Play {
 		return sb.toString();
 	}
 
-	public Uri getUri() {
+	public Uri uri() {
 		return Plays.buildPlayUri(PlayId);
+	}
+
+	public Uri itemUri() {
+		return Plays.buildItemUri(PlayId);
+	}
+
+	public Uri itemIdUri() {
+		return Plays.buildItemUri(PlayId, GameId);
+	}
+
+	public Uri playerUri() {
+		return Plays.buildPlayerUri(PlayId);
 	}
 
 	public boolean hasBeenSynced() {
