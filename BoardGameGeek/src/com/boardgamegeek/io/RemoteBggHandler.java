@@ -6,12 +6,15 @@ import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 
+import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
@@ -20,6 +23,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 
 	protected XmlPullParser mParser;
 	protected ContentResolver mResolver;
+	protected ArrayList<ContentProviderOperation> mBatch;
 	private boolean mIsBggDown;
 	private int mTotalCount;
 	private int mPageNumber;
@@ -61,6 +65,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 
 		mParser = parser;
 		mResolver = resolver;
+		mBatch = new ArrayList<ContentProviderOperation>();
 
 		clearResults();
 
@@ -87,7 +92,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 				}
 			}
 		}
-
+		ResolverUtils.applyBatch(mResolver, mBatch);
 		return mTotalCount > (mPageNumber * getPageSize());
 	}
 

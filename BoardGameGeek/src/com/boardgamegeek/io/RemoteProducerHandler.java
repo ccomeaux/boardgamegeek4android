@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -43,8 +44,8 @@ public abstract class RemoteProducerHandler extends RemoteBggHandler {
 				Cursor cursor = mResolver.query(uri, new String[] { idColumn() }, null, null, null);
 				try {
 					if (cursor.getCount() > 0) {
-						ContentValues values = parseProducer(uri);
-						mCount = mResolver.update(uri, values, null, null);
+						mCount++;
+						mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(parseProducer()).build());
 					} else {
 						LOGW(TAG, "Tried to parse " + type() + ", but ID not in database: " + mProducerId);
 					}
@@ -57,7 +58,7 @@ public abstract class RemoteProducerHandler extends RemoteBggHandler {
 		}
 	}
 
-	private ContentValues parseProducer(Uri uri) throws XmlPullParserException, IOException {
+	private ContentValues parseProducer() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
 		ContentValues values = new ContentValues();
 		String tag = null;
