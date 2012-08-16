@@ -18,7 +18,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.CursorUtils;
 
 public class PlayPersister {
 	private static final String TAG = makeLogTag(PlayPersister.class);
@@ -102,7 +101,7 @@ public class PlayPersister {
 	public int save(boolean isSyncing) {
 		int status = determineStatus(isSyncing);
 
-		if (status != STATUS_UPDATE || status != STATUS_INSERT) {
+		if (status != STATUS_UPDATE && status != STATUS_INSERT) {
 			return status;
 		}
 
@@ -111,9 +110,9 @@ public class PlayPersister {
 
 		if (status == STATUS_UPDATE) {
 			deletePlayerWithNullUserId();
-			mPlayerUserIds = CursorUtils.queryInts(mResolver, mPlay.playerUri(), PlayPlayers.USER_ID);
+			mPlayerUserIds = ResolverUtils.queryInts(mResolver, mPlay.playerUri(), PlayPlayers.USER_ID);
 			mPlayerUserIds = removeDuplicatePlayerIds(mPlay.PlayId, mPlayerUserIds);
-			mItemObjectIds = CursorUtils.queryInts(mResolver, mPlay.itemUri(), PlayItems.OBJECT_ID);
+			mItemObjectIds = ResolverUtils.queryInts(mResolver, mPlay.itemUri(), PlayItems.OBJECT_ID);
 			mBatch.add(ContentProviderOperation.newUpdate(mPlay.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
 			if (!mPlay.hasBeenSynced()) {
