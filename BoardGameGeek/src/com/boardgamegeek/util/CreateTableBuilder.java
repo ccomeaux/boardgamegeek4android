@@ -67,49 +67,107 @@ public class CreateTableBuilder {
 		db.execSQL(sb.toString());
 	}
 
-	public CreateTableBuilder table(String table) {
+	public void replace(SQLiteDatabase db) {
+		if (TextUtils.isEmpty(mTable)) {
+			throw new IllegalStateException("Table not specified");
+		}
+		db.beginTransaction();
+		try {
+			rename(db);
+			create(db);
+			copy(db);
+			dropTemp(db);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
+	}
+
+	private String tempTable() {
+		return mTable + "_tmp";
+	}
+
+	private void rename(SQLiteDatabase db) {
+		db.execSQL("ALTER TABLE " + mTable + " RENAME TO " + tempTable());
+	}
+
+	private void copy(SQLiteDatabase db) {
+		StringBuilder sb = new StringBuilder();
+		for (Column column : mColumns) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(column.name);
+		}
+		String sql = "INSERT INTO " + mTable + "(" + sb.toString() + ") SELECT " + sb.toString() + " FROM "
+			+ tempTable();
+		LOGD(TAG, sql);
+		db.execSQL(sql);
+	}
+
+	private void dropTemp(SQLiteDatabase db) {
+		db.execSQL("DROP TABLE " + tempTable());
+	}
+
+	public CreateTableBuilder setTable(String table) {
 		mTable = table;
 		return this;
 	}
 
-	public CreateTableBuilder conflictResolution(CONFLICT_RESOLUTION resolution) {
+	public CreateTableBuilder setConflictResolution(CONFLICT_RESOLUTION resolution) {
 		mResolution = resolution;
 		return this;
 	}
 
-	public CreateTableBuilder primaryKey(String columnName, COLUMN_TYPE type) {
+	public CreateTableBuilder setPrimaryKey(String columnName, COLUMN_TYPE type) {
 		mPrimaryKey = new Column();
 		mPrimaryKey.name = columnName;
 		mPrimaryKey.type = type;
 		return this;
 	}
 
-	public CreateTableBuilder defaultPrimaryKey() {
+	public CreateTableBuilder useDefaultPrimaryKey() {
 		mPrimaryKey = new Column();
 		mPrimaryKey.name = BaseColumns._ID;
 		mPrimaryKey.type = COLUMN_TYPE.INTEGER;
 		return this;
 	}
 
-	public CreateTableBuilder column(String name, COLUMN_TYPE type) {
-		return column(name, type, false, false);
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type) {
+		return addColumn(name, type, false, false);
 	}
 
-	public CreateTableBuilder column(String name, COLUMN_TYPE type, boolean notNull) {
-		return column(name, type, notNull, false);
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull) {
+		return addColumn(name, type, notNull, false);
 	}
 
-	public CreateTableBuilder column(String name, COLUMN_TYPE type, boolean notNull, boolean unique) {
-		return column(name, type, notNull, unique, null, null);
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, int defaultValue) {
+		return addColumn(name, type, notNull, false, null, null, false, String.valueOf(defaultValue));
 	}
 
-	public CreateTableBuilder column(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
-			String referenceTable, String referenceColumn) {
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique) {
+		return addColumn(name, type, notNull, unique, null, null);
+	}
+
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+		String referenceTable, String referenceColumn) {
+		return addColumn(name, type, notNull, unique, null, null, false, null);
+	}
+
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+		String referenceTable, String referenceColumn, boolean onCascadeDelete) {
+		return addColumn(name, type, notNull, unique, null, null, onCascadeDelete, null);
+	}
+
+	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+		String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
 		Column c = new Column();
 		c.name = name;
 		c.type = type;
 		c.notNull = notNull;
 		c.setReference(referenceTable, referenceColumn);
+		c.onCascadeDelete = onCascadeDelete;
+		c.defaultValue = defaultValue;
 		mColumns.add(c);
 
 		if (unique) {
@@ -128,10 +186,12 @@ public class CreateTableBuilder {
 		boolean notNull;
 		private String refTable;
 		private String refColumn;
+		private boolean onCascadeDelete;
+		private String defaultValue;
 
 		private void setReference(String table, String column) {
 			if (TextUtils.isEmpty(table) && !TextUtils.isEmpty(column) || TextUtils.isEmpty(column)
-					&& !TextUtils.isEmpty(table)) {
+				&& !TextUtils.isEmpty(table)) {
 				throw new IllegalStateException("Table and column must be specified");
 			}
 			refTable = table;
@@ -144,8 +204,14 @@ public class CreateTableBuilder {
 			if (notNull) {
 				s += " NOT NULL";
 			}
+			if (!TextUtils.isEmpty(defaultValue)) {
+				s += " DEFAULT " + defaultValue + " ";
+			}
 			if (refTable != null) {
 				s += " REFERENCES " + refTable + "(" + refColumn + ")";
+			}
+			if (onCascadeDelete) {
+				s += " ON DELETE CASCADE";
 			}
 			return s;
 		}
