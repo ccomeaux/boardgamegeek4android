@@ -27,9 +27,9 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.util.CreateTableBuilder;
-import com.boardgamegeek.util.CreateTableBuilder.COLUMN_TYPE;
-import com.boardgamegeek.util.CreateTableBuilder.CONFLICT_RESOLUTION;
+import com.boardgamegeek.util.TableBuilder;
+import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
+import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
 
 public class BggDatabase extends SQLiteOpenHelper {
 	private static final String TAG = makeLogTag(BggDatabase.class);
@@ -137,40 +137,79 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		CreateTableBuilder builder = new CreateTableBuilder();
+		buildDesignersTable().create(db);
+		buildArtistsTable().create(db);
+		buildPublishersTable().create(db);
+		buildMechanicsTable().create(db);
+		buildCategoriesTable().create(db);
 
-		builder.reset().setTable(Tables.DESIGNERS).useDefaultPrimaryKey()
+		buildGamesTable().create(db);
+
+		buildGameRanksTable().create(db);
+
+		buildGamesDesignersTable().create(db);
+		buildGamesArtistsTable().create(db);
+		buildGamesPublishersTable().create(db);
+		buildGamesMechanicsTable().create(db);
+		buildGamesCategoriesTable().create(db);
+
+		buildCollectionTable().create(db);
+
+		buildBuddiesTable().create(db);
+
+		buildGamePollsTable().create(db);
+		buildGamePollResultsTable().create(db);
+		buildGamePollResultsResultTable().create(db);
+		
+		buildGameColorsTable().create(db);
+		buildGameExpansionsTable().create(db);
+
+		buildPlaysTable().create(db);
+		buildPlayItemsTable().create(db);
+		buildPlayPlayersTable().create(db);
+
+		buildCollectionViewsTable().create(db);
+		buildCollectionViewFiltersTable().create(db);
+	}
+
+	private TableBuilder buildDesignersTable() {
+		return new TableBuilder().setTable(Tables.DESIGNERS).useDefaultPrimaryKey()
 			.addColumn(Designers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Designers.DESIGNER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Designers.DESIGNER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT)
-			.create(db);
+			.addColumn(Designers.DESIGNER_DESCRIPTION, COLUMN_TYPE.TEXT);
+	}
 
-		builder.reset().setTable(Tables.ARTISTS).useDefaultPrimaryKey()
+	private TableBuilder buildArtistsTable() {
+		return new TableBuilder().setTable(Tables.ARTISTS).useDefaultPrimaryKey()
 			.addColumn(Artists.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Artists.ARTIST_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Artists.ARTIST_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT)
-			.create(db);
+			.addColumn(Artists.ARTIST_DESCRIPTION, COLUMN_TYPE.TEXT);
+	}
 
-		builder.reset().setTable(Tables.PUBLISHERS).useDefaultPrimaryKey()
+	private TableBuilder buildPublishersTable() {
+		return new TableBuilder().setTable(Tables.PUBLISHERS).useDefaultPrimaryKey()
 			.addColumn(Publishers.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Publishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Publishers.PUBLISHER_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT)
-			.create(db);
+			.addColumn(Publishers.PUBLISHER_DESCRIPTION, COLUMN_TYPE.TEXT);
+	}
 
-		builder.reset().setTable(Tables.MECHANICS).useDefaultPrimaryKey()
+	private TableBuilder buildMechanicsTable() {
+		return new TableBuilder().setTable(Tables.MECHANICS).useDefaultPrimaryKey()
 			.addColumn(Mechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(Mechanics.MECHANIC_NAME, COLUMN_TYPE.TEXT, true)
-			.create(db);
+			.addColumn(Mechanics.MECHANIC_NAME, COLUMN_TYPE.TEXT, true);
+	}
 
-		builder.reset().setTable(Tables.CATEGORIES).useDefaultPrimaryKey()
+	private TableBuilder buildCategoriesTable() {
+		return new TableBuilder().setTable(Tables.CATEGORIES).useDefaultPrimaryKey()
 			.addColumn(Categories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(Categories.CATEGORY_NAME, COLUMN_TYPE.TEXT, true)
-			.create(db);
-		
-		builder.reset().setTable(Tables.GAMES).useDefaultPrimaryKey()
+			.addColumn(Categories.CATEGORY_NAME, COLUMN_TYPE.TEXT, true);
+	}
+
+	private TableBuilder buildGamesTable() {
+		return new TableBuilder().setTable(Tables.GAMES).useDefaultPrimaryKey()
 			.addColumn(Games.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, true, true)
@@ -199,10 +238,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL)
 			.addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER)
-			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
-			.create(db);
+			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+	}
 
-		builder.reset().setTable(Tables.GAME_RANKS).useDefaultPrimaryKey()
+	private TableBuilder buildGameRanksTable() {
+		return new TableBuilder().setTable(Tables.GAME_RANKS).useDefaultPrimaryKey()
 			.addColumn(GameRanks.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
 			.addColumn(GameRanks.GAME_RANK_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(GameRanks.GAME_RANK_TYPE, COLUMN_TYPE.TEXT, true)
@@ -210,35 +250,41 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(GameRanks.GAME_RANK_FRIENDLY_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(GameRanks.GAME_RANK_VALUE, COLUMN_TYPE.INTEGER, true)
 			.addColumn(GameRanks.GAME_RANK_BAYES_AVERAGE, COLUMN_TYPE.REAL, true)
-			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
-			.create(db);
+			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+	}
 
-		builder.reset().setTable(Tables.GAMES_DESIGNERS).useDefaultPrimaryKey()
+	private TableBuilder buildGamesDesignersTable() {
+		return new TableBuilder().setTable(Tables.GAMES_DESIGNERS).useDefaultPrimaryKey()
 			.addColumn(GamesDesigners.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(GamesDesigners.DESIGNER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.DESIGNERS, Designers.DESIGNER_ID)
-			.create(db);
+			.addColumn(GamesDesigners.DESIGNER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.DESIGNERS, Designers.DESIGNER_ID);
+	}
 
-		builder.reset().setTable(Tables.GAMES_ARTISTS).useDefaultPrimaryKey()
+	private TableBuilder buildGamesArtistsTable() {
+		return new TableBuilder().setTable(Tables.GAMES_ARTISTS).useDefaultPrimaryKey()
 			.addColumn(GamesArtists.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(GamesArtists.ARTIST_ID, COLUMN_TYPE.INTEGER, true, true, Tables.ARTISTS, Artists.ARTIST_ID)
-			.create(db);
+			.addColumn(GamesArtists.ARTIST_ID, COLUMN_TYPE.INTEGER, true, true, Tables.ARTISTS, Artists.ARTIST_ID);
+	}
 
-		builder.reset().setTable(Tables.GAMES_PUBLISHERS).useDefaultPrimaryKey()
+	private TableBuilder buildGamesPublishersTable() {
+		return new TableBuilder().setTable(Tables.GAMES_PUBLISHERS).useDefaultPrimaryKey()
 			.addColumn(GamesPublishers.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PUBLISHERS, Publishers.PUBLISHER_ID)
-			.create(db);
+			.addColumn(GamesPublishers.PUBLISHER_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PUBLISHERS, Publishers.PUBLISHER_ID);
+	}
 
-		builder.reset().setTable(Tables.GAMES_MECHANICS).useDefaultPrimaryKey()
+	private TableBuilder buildGamesMechanicsTable() {
+		return new TableBuilder().setTable(Tables.GAMES_MECHANICS).useDefaultPrimaryKey()
 			.addColumn(GamesMechanics.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(GamesMechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true, Tables.MECHANICS, Mechanics.MECHANIC_ID)
-			.create(db);
+			.addColumn(GamesMechanics.MECHANIC_ID, COLUMN_TYPE.INTEGER, true, true, Tables.MECHANICS, Mechanics.MECHANIC_ID);
+	}
 
-		builder.reset().setTable(Tables.GAMES_CATEGORIES).useDefaultPrimaryKey()
+	private TableBuilder buildGamesCategoriesTable() {
+		return new TableBuilder().setTable(Tables.GAMES_CATEGORIES).useDefaultPrimaryKey()
 			.addColumn(GamesCategories.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(GamesCategories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.CATEGORIES, Categories.CATEGORY_ID)
-			.create(db);
+			.addColumn(GamesCategories.CATEGORY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.CATEGORIES, Categories.CATEGORY_ID);	
+	}
 
-		builder.reset().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
+	private TableBuilder buildCollectionTable() {
+		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
 			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
@@ -264,10 +310,11 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.PRIVATE_INFO_ACQUISITION_DATE, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.PRIVATE_INFO_ACQUIRED_FROM, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.PRIVATE_INFO_COMMENT, COLUMN_TYPE.TEXT)
-			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
-			.create(db);
+			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+	}
 
-		builder.reset().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
+	private TableBuilder buildBuddiesTable() {
+		return new TableBuilder().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
 			.addColumn(Buddies.UPDATED, COLUMN_TYPE.INTEGER)
 			.addColumn(Buddies.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Buddies.BUDDY_ID, COLUMN_TYPE.INTEGER, true, true)
@@ -275,58 +322,51 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Buddies.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
 			.addColumn(Buddies.BUDDY_LASTNAME, COLUMN_TYPE.TEXT)
 			.addColumn(Buddies.AVATAR_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT)
-			.create(db);
+			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
+	}
 
-		builder.reset().setTable(Tables.GAME_POLLS).useDefaultPrimaryKey()
+	private TableBuilder buildGamePollsTable() {
+		return new TableBuilder().setTable(Tables.GAME_POLLS).useDefaultPrimaryKey()
 			.addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
 			.addColumn(GamePolls.POLL_NAME, COLUMN_TYPE.TEXT, true, true)
 			.addColumn(GamePolls.POLL_TITLE, COLUMN_TYPE.TEXT, true)
-			.addColumn(GamePolls.POLL_TOTAL_VOTES, COLUMN_TYPE.INTEGER, true)
-			.create(db);
+			.addColumn(GamePolls.POLL_TOTAL_VOTES, COLUMN_TYPE.INTEGER, true);
+	}
 
-		builder.reset().setTable(Tables.GAME_POLL_RESULTS).useDefaultPrimaryKey()
+	private TableBuilder buildGamePollResultsTable() {
+		return new TableBuilder().setTable(Tables.GAME_POLL_RESULTS).useDefaultPrimaryKey()
 			.addColumn(GamePollResults.POLL_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAME_POLLS, GamePolls._ID, true)
 			.addColumn(GamePollResults.POLL_RESULTS_KEY, COLUMN_TYPE.TEXT, true, true)
 			.addColumn(GamePollResults.POLL_RESULTS_PLAYERS, COLUMN_TYPE.TEXT)
-			.addColumn(GamePollResults.POLL_RESULTS_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
-			.create(db);
+			.addColumn(GamePollResults.POLL_RESULTS_SORT_INDEX, COLUMN_TYPE.INTEGER, true);
+	}
 
-		builder.reset().setTable(Tables.GAME_POLL_RESULTS_RESULT).useDefaultPrimaryKey()
+	private TableBuilder buildGamePollResultsResultTable() {
+		return new TableBuilder().setTable(Tables.GAME_POLL_RESULTS_RESULT).useDefaultPrimaryKey()
 			.addColumn(GamePollResultsResult.POLL_RESULTS_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAME_POLL_RESULTS, GamePollResults._ID, true)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, COLUMN_TYPE.TEXT, true, true)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, COLUMN_TYPE.INTEGER)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, COLUMN_TYPE.TEXT, true)
 			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, COLUMN_TYPE.INTEGER, true)
-			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true)
-			.create(db);
-		
-		createGameColorsTable(db, builder);
-		createGameExpansionsTable(db, builder);
-		createPlaysTable(db, builder);
-		createPlayItemsTable(db, builder);
-		createPlayPlayersTable(db, builder);
-		createCollectionViewsTable(db, builder);
+			.addColumn(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, COLUMN_TYPE.INTEGER, true);
 	}
 
-	private void createGameColorsTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.GAME_COLORS).useDefaultPrimaryKey()
+	private TableBuilder buildGameColorsTable() {
+		return new TableBuilder().setTable(Tables.GAME_COLORS).useDefaultPrimaryKey()
 			.addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(GameColors.COLOR, COLUMN_TYPE.TEXT, true, true)
-			.create(db);
+			.addColumn(GameColors.COLOR, COLUMN_TYPE.TEXT, true, true);
 	}
 
-	private void createGameExpansionsTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.GAMES_EXPANSIONS).useDefaultPrimaryKey()
+	private TableBuilder buildGameExpansionsTable() {
+		return new TableBuilder().setTable(Tables.GAMES_EXPANSIONS).useDefaultPrimaryKey()
 			.addColumn(Games.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
 			.addColumn(GamesExpansions.EXPANSION_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(GamesExpansions.EXPANSION_NAME, COLUMN_TYPE.TEXT, true)
-			.addColumn(GamesExpansions.INBOUND, COLUMN_TYPE.INTEGER)
-			.create(db);
+			.addColumn(GamesExpansions.INBOUND, COLUMN_TYPE.INTEGER);
 	}
 
-	private void createPlaysTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.PLAYS).useDefaultPrimaryKey()
+	private TableBuilder buildPlaysTable() {
+		return new TableBuilder().setTable(Tables.PLAYS).useDefaultPrimaryKey()
 			.addColumn(Plays.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
@@ -337,20 +377,18 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
 			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT)
 			.addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER)
-			.create(db);
+			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
 	}
 
-	private void createPlayItemsTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.PLAY_ITEMS).useDefaultPrimaryKey()
+	private TableBuilder buildPlayItemsTable() {
+		return new TableBuilder().setTable(Tables.PLAY_ITEMS).useDefaultPrimaryKey()
 			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true, Tables.PLAYS, Plays.PLAY_ID, true)
 			.addColumn(PlayItems.OBJECT_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(PlayItems.NAME, COLUMN_TYPE.TEXT, true)
-			.create(db);
+			.addColumn(PlayItems.NAME, COLUMN_TYPE.TEXT, true);
 	}
 
-	private void createPlayPlayersTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.PLAY_PLAYERS).useDefaultPrimaryKey()
+	private TableBuilder buildPlayPlayersTable() {
+		return new TableBuilder().setTable(Tables.PLAY_PLAYERS).useDefaultPrimaryKey()
 			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, false, Tables.PLAYS, Plays.PLAY_ID, true)
 			.addColumn(PlayPlayers.USER_NAME, COLUMN_TYPE.TEXT)
 			.addColumn(PlayPlayers.USER_ID, COLUMN_TYPE.INTEGER)
@@ -360,21 +398,21 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(PlayPlayers.SCORE, COLUMN_TYPE.TEXT)
 			.addColumn(PlayPlayers.NEW, COLUMN_TYPE.INTEGER)
 			.addColumn(PlayPlayers.RATING, COLUMN_TYPE.REAL)
-			.addColumn(PlayPlayers.WIN, COLUMN_TYPE.INTEGER)
-			.create(db);
+			.addColumn(PlayPlayers.WIN, COLUMN_TYPE.INTEGER);
 	}
 
-	private void createCollectionViewsTable(SQLiteDatabase db, CreateTableBuilder builder) {
-		builder.reset().setTable(Tables.COLLECTION_VIEWS).useDefaultPrimaryKey()
+	private TableBuilder buildCollectionViewsTable() {
+		return new TableBuilder().setTable(Tables.COLLECTION_VIEWS).useDefaultPrimaryKey()
 			.addColumn(CollectionViews.NAME, COLUMN_TYPE.TEXT)
 			.addColumn(CollectionViews.STARRED, COLUMN_TYPE.INTEGER)
-			.addColumn(CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER)
-			.create(db);
-		builder.reset().setTable(Tables.COLLECTION_VIEW_FILTERS).useDefaultPrimaryKey()
-			.addColumn(CollectionViewFilters.VIEW_ID, COLUMN_TYPE.INTEGER)
+			.addColumn(CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER);
+	}
+
+	private TableBuilder buildCollectionViewFiltersTable() {
+		return new TableBuilder().setTable(Tables.COLLECTION_VIEW_FILTERS).useDefaultPrimaryKey()
+			.addColumn(CollectionViewFilters.VIEW_ID, COLUMN_TYPE.INTEGER, true, false, Tables.COLLECTION_VIEWS, CollectionViews._ID, true)
 			.addColumn(CollectionViewFilters.TYPE, COLUMN_TYPE.INTEGER)
-			.addColumn(CollectionViewFilters.DATA, COLUMN_TYPE.TEXT)
-			.create(db);
+			.addColumn(CollectionViewFilters.DATA, COLUMN_TYPE.TEXT);
 	}
 
 	@Override
@@ -392,20 +430,20 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.COLLECTION, Collection.STATUS_WISHLIST_PRIORITY, COLUMN_TYPE.INTEGER);
 				version = VER_WISHLIST_PRIORITY;
 			case VER_WISHLIST_PRIORITY:
-				createGameColorsTable(db, new CreateTableBuilder());
+				buildGameColorsTable().create(db);
 				version = VER_GAME_COLORS;
 			case VER_GAME_COLORS:
-				createGameExpansionsTable(db, new CreateTableBuilder());
+				buildGameExpansionsTable().create(db);
 				version = VER_EXPANSIONS;
 			case VER_EXPANSIONS:
-				addColumn(db, Tables.COLLECTION, Collection.LAST_MODIFIED , COLUMN_TYPE.INTEGER);
+				addColumn(db, Tables.COLLECTION, Collection.LAST_MODIFIED, COLUMN_TYPE.INTEGER);
 				addColumn(db, Tables.GAMES, Games.LAST_VIEWED, COLUMN_TYPE.INTEGER);
 				addColumn(db, Tables.GAMES, Games.STARRED, COLUMN_TYPE.INTEGER);
 				version = VER_VARIOUS;
 			case VER_VARIOUS:
-				createPlaysTable(db, new CreateTableBuilder());
-				createPlayItemsTable(db, new CreateTableBuilder());
-				createPlayPlayersTable(db, new CreateTableBuilder());
+				buildPlaysTable().create(db);
+				buildPlayItemsTable().create(db);
+				buildPlayPlayersTable().create(db);
 				version = VER_PLAYS;
 			case VER_PLAYS:
 				addColumn(db, Tables.BUDDIES, Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
@@ -415,7 +453,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.PLAYS, Plays.UPDATED, COLUMN_TYPE.INTEGER);
 				version = VER_PLAY_SYNC_STATUS;
 			case VER_PLAY_SYNC_STATUS:
-				createCollectionViewsTable(db, new CreateTableBuilder());
+				buildCollectionViewsTable().create(db);
+				buildCollectionViewFiltersTable().create(db);
 				version = VER_COLLECTION_VIEWS;
 			case VER_COLLECTION_VIEWS:
 				addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.SORT_TYPE, COLUMN_TYPE.INTEGER);

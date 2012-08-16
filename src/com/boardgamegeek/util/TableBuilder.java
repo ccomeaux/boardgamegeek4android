@@ -10,8 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
-public class CreateTableBuilder {
-	private static final String TAG = makeLogTag(CreateTableBuilder.class);
+public class TableBuilder {
+	private static final String TAG = makeLogTag(TableBuilder.class);
 
 	private String mTable = null;
 	private Column mPrimaryKey = null;
@@ -27,7 +27,7 @@ public class CreateTableBuilder {
 		REPLACE, IGNORE
 	}
 
-	public CreateTableBuilder reset() {
+	public TableBuilder reset() {
 		mTable = null;
 		mPrimaryKey = null;
 		mColumns = new ArrayList<Column>();
@@ -109,57 +109,57 @@ public class CreateTableBuilder {
 		db.execSQL("DROP TABLE " + tempTable());
 	}
 
-	public CreateTableBuilder setTable(String table) {
+	public TableBuilder setTable(String table) {
 		mTable = table;
 		return this;
 	}
 
-	public CreateTableBuilder setConflictResolution(CONFLICT_RESOLUTION resolution) {
+	public TableBuilder setConflictResolution(CONFLICT_RESOLUTION resolution) {
 		mResolution = resolution;
 		return this;
 	}
 
-	public CreateTableBuilder setPrimaryKey(String columnName, COLUMN_TYPE type) {
+	public TableBuilder setPrimaryKey(String columnName, COLUMN_TYPE type) {
 		mPrimaryKey = new Column();
 		mPrimaryKey.name = columnName;
 		mPrimaryKey.type = type;
 		return this;
 	}
 
-	public CreateTableBuilder useDefaultPrimaryKey() {
+	public TableBuilder useDefaultPrimaryKey() {
 		mPrimaryKey = new Column();
 		mPrimaryKey.name = BaseColumns._ID;
 		mPrimaryKey.type = COLUMN_TYPE.INTEGER;
 		return this;
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type) {
+	public TableBuilder addColumn(String name, COLUMN_TYPE type) {
 		return addColumn(name, type, false, false);
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull) {
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull) {
 		return addColumn(name, type, notNull, false);
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, int defaultValue) {
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, int defaultValue) {
 		return addColumn(name, type, notNull, false, null, null, false, String.valueOf(defaultValue));
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique) {
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique) {
 		return addColumn(name, type, notNull, unique, null, null);
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
 		String referenceTable, String referenceColumn) {
-		return addColumn(name, type, notNull, unique, null, null, false, null);
+		return addColumn(name, type, notNull, unique, referenceTable, referenceColumn, false, null);
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
 		String referenceTable, String referenceColumn, boolean onCascadeDelete) {
-		return addColumn(name, type, notNull, unique, null, null, onCascadeDelete, null);
+		return addColumn(name, type, notNull, unique, referenceTable, referenceColumn, onCascadeDelete, null);
 	}
 
-	public CreateTableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
 		String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
 		Column c = new Column();
 		c.name = name;
@@ -199,7 +199,7 @@ public class CreateTableBuilder {
 		}
 
 		String build() {
-			// "NAME TEXT NOT NULL REFERENCES PARENT(NAME)"
+			// "NAME TEXT NOT NULL REFERENCES PARENT(NAME) ON DELETE CASCADE"
 			String s = name + " " + type;
 			if (notNull) {
 				s += " NOT NULL";
