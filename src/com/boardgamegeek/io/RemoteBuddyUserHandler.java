@@ -10,11 +10,12 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.StringUtils;
 
@@ -44,22 +45,17 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 		ContentValues values = parseUser();
 
 		Uri uri = Buddies.buildBuddyUri(id);
-		Cursor cursor = mResolver.query(uri, new String[] { Buddies.BUDDY_ID }, null, null, null);
-		try {
-			if (cursor.getCount() == 0) {
-				if (name.equals(BggApplication.getInstance().getUserName())) {
-					mCount += mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
-							new String[] { name });
-				} else {
-					LOGW(TAG, "Tried to parse user, but ID not in database: " + id);
-				}
+		if (ResolverUtils.rowExists(mResolver, uri)) {
+			if (name.equals(BggApplication.getInstance().getUserName())) {
+				mBatch.add(ContentProviderOperation.newUpdate(Buddies.CONTENT_URI)
+						.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { name }).withValues(values).build());
+				mCount++;
 			} else {
-				mCount += mResolver.update(uri, values, null, null);
+				LOGW(TAG, "Tried to parse user, but ID not in database: " + id);
 			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
+		} else {
+			mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+			mCount++;
 		}
 	}
 

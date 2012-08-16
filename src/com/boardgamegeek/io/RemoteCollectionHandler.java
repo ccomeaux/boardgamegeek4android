@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -90,15 +91,15 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			if (cursor.moveToFirst()) {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
-					mResolver.update(uri, values, null, null);
 					mUpdateGameCount++;
+					mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 				} else {
 					mSkipGameCount++;
 				}
 			} else {
-				values.put(Games.GAME_ID, gameId);
-				mResolver.insert(Games.CONTENT_URI, values);
 				mInsertGameCount++;
+				mBatch.add(ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values)
+						.withValue(Games.GAME_ID, gameId).build());
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -118,15 +119,16 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			if (cursor.moveToFirst()) {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
-					mResolver.update(uri, values, null, null);
 					mUpdateCollectionCount++;
+					mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 				} else {
 					mSkipCollectionCount++;
 				}
 			} else {
-				values.put(Collection.COLLECTION_ID, itemId);
-				mResolver.insert(Collection.CONTENT_URI, values);
 				mInsertCollectionCount++;
+				mBatch.add(ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values)
+						.withValue(Collection.COLLECTION_ID, itemId).build());
+
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {

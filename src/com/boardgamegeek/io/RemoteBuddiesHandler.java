@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -56,6 +57,7 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 				int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
 				if (id > 0) {
 					ContentValues values = new ContentValues();
+					values.put(Buddies.BUDDY_NAME, mParser.getAttributeValue(null, Tags.NAME));
 					values.put(Buddies.UPDATED_LIST, System.currentTimeMillis());
 
 					uri = Buddies.buildBuddyUri(id);
@@ -63,11 +65,12 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 					try {
 						cursor = mResolver.query(uri, projection, null, null, null);
 						if (cursor.getCount() > 0) {
-							mUpdateCount += mResolver.update(uri, values, null, null);
+							mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+							mUpdateCount++;
 						} else {
 							values.put(Buddies.BUDDY_ID, id);
-							values.put(Buddies.BUDDY_NAME, mParser.getAttributeValue(null, Tags.NAME));
-							mResolver.insert(Buddies.CONTENT_URI, values);
+							mBatch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values)
+									.build());
 							mInsertCount++;
 						}
 					} finally {

@@ -20,7 +20,7 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 	public List<BuddyGame> getResults() {
 		return mBuddyGames;
 	}
-	
+
 	@Override
 	public int getCount() {
 		return mBuddyGames.size();
@@ -42,15 +42,14 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
-				final BuddyGame game = new BuddyGame();
-				game.Id = mParser.getAttributeValue(null, Tags.OBJECTID);
-				parseGame(game);
-				mBuddyGames.add(game);
+				mBuddyGames.add(parseGame());
 			}
 		}
 	}
-	
-	protected void parseGame(final BuddyGame game) throws XmlPullParserException, IOException {
+
+	protected BuddyGame parseGame() throws XmlPullParserException, IOException {
+		BuddyGame game = new BuddyGame();
+		game.Id = mParser.getAttributeValue(null, Tags.OBJECTID);
 		String tag = null;
 		final int depth = mParser.getDepth();
 		int type;
@@ -69,8 +68,9 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 				}
 			}
 		}
+		return game;
 	}
-	
+
 	private interface Tags {
 		String ITEMS = "items";
 		String ITEM = "item";
