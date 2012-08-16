@@ -1,11 +1,6 @@
 package com.boardgamegeek.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 
 public class CursorUtils {
 
@@ -72,23 +67,5 @@ public class CursorUtils {
 		} else {
 			return cursor.getString(idx);
 		}
-	}
-
-	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI
-	 */
-	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName) {
-		List<Integer> list = new ArrayList<Integer>();
-		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
-		try {
-			while (cursor.moveToNext()) {
-				list.add(cursor.getInt(0));
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-		return list;
 	}
 }
