@@ -49,7 +49,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_VIEWS = 9;
 	private static final int VER_COLLECTION_VIEWS_SORT = 10;
 	private static final int VER_CASCADING_DELETE = 11;
-	private static final int DATABASE_VERSION = VER_COLLECTION_VIEWS_SORT;
+	private static final int DATABASE_VERSION = VER_CASCADING_DELETE;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
