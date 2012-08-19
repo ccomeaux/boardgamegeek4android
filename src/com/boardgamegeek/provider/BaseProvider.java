@@ -46,10 +46,6 @@ public abstract class BaseProvider {
 		throw new UnsupportedOperationException("Unknown uri: " + uri);
 	}
 
-	protected void deleteChildren(final SQLiteDatabase db, final SelectionBuilder builder) {
-		return;
-	}
-
 	protected String getType(Uri uri) {
 		throw new UnsupportedOperationException("Unknown uri getting type: " + uri);
 	}

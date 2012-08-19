@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -42,10 +41,5 @@ public class GamesIdPollsNameResultsKeyProvider extends BaseProvider {
 	@Override
 	protected String getType(Uri uri) {
 		return GamePollResults.CONTENT_ITEM_TYPE;
-	}
-
-	@Override
-	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		new GamesIdPollsNameResultsProvider().deleteChildren(db, builder);
 	}
 }

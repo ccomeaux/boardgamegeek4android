@@ -1,7 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.util.List;
-
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -9,7 +7,6 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.GamePollResults;
-import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
@@ -74,14 +71,5 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 					.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 		}
 		return null;
-	}
-
-	@Override
-	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		List<String> pollResultIds = getList(db, builder, GamePollResults._ID);
-		for (String pollResultId : pollResultIds) {
-			db.delete(Tables.GAME_POLL_RESULTS_RESULT, GamePollResultsResult.POLL_RESULTS_ID,
-					new String[] { pollResultId });
-		}
 	}
 }

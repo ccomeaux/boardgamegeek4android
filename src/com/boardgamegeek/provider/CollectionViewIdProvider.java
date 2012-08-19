@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -14,11 +13,6 @@ public class CollectionViewIdProvider extends BaseProvider {
 		long filterId = CollectionViews.getViewId(uri);
 		return new SelectionBuilder().table(Tables.COLLECTION_VIEWS).where(CollectionViews._ID + "=?",
 				String.valueOf(filterId));
-	}
-
-	@Override
-	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		new CollectionViewProvider().deleteChildren(db, builder);
 	}
 
 	@Override
