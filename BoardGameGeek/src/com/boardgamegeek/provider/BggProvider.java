@@ -133,7 +133,7 @@ public class BggProvider extends ContentProvider {
 		LOGV(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		return getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection, selectionArgs,
-				sortOrder);
+			sortOrder);
 	}
 
 	@Override
@@ -169,10 +169,7 @@ public class BggProvider extends ContentProvider {
 		BaseProvider provider = getProvider(uri);
 		SelectionBuilder builder = provider.buildSimpleSelection(uri).where(selection, selectionArgs);
 
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		provider.deleteChildren(db, builder);
-		int rowCount = builder.delete(db);
-
+		int rowCount = builder.delete(mOpenHelper.getWritableDatabase());
 		LOGV(TAG, "deleted " + rowCount + " rows");
 
 		getContext().getContentResolver().notifyChange(uri, null);

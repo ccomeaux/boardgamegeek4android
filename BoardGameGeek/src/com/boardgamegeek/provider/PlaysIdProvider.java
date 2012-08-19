@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -14,7 +13,7 @@ public class PlaysIdProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		int playId = Plays.getPlayId(uri);
 		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(BaseColumns._ID, Tables.PLAYS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAYS).whereEquals(Tables.PLAYS + "." + Plays.PLAY_ID, playId);
+			.mapToTable(Plays.PLAY_ID, Tables.PLAYS).whereEquals(Tables.PLAYS + "." + Plays.PLAY_ID, playId);
 	}
 
 	@Override
@@ -31,10 +30,5 @@ public class PlaysIdProvider extends BaseProvider {
 	@Override
 	protected String getType(Uri uri) {
 		return Plays.CONTENT_ITEM_TYPE;
-	}
-
-	@Override
-	protected void deleteChildren(SQLiteDatabase db, SelectionBuilder builder) {
-		new PlaysProvider().deleteChildren(db, builder);
 	}
 }
