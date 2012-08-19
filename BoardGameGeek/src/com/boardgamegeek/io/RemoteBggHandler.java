@@ -13,6 +13,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
@@ -61,7 +63,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 
 	@Override
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
-			throws XmlPullParserException, IOException {
+		throws XmlPullParserException, IOException {
 
 		mParser = parser;
 		mResolver = resolver;
@@ -97,6 +99,34 @@ public abstract class RemoteBggHandler extends XmlHandler {
 	}
 
 	protected abstract void parseItems() throws XmlPullParserException, IOException;
+
+	protected String parseStringAttribute(String tag) {
+		return mParser.getAttributeValue(null, tag);
+	}
+
+	protected double parseDoubleAttribute(String tag) {
+		return StringUtils.parseDouble(parseStringAttribute(tag));
+	}
+
+	protected int parseIntegerAttribute(String tag) {
+		return StringUtils.parseInt(parseStringAttribute(tag));
+	}
+
+	protected int parseIntegerAttribute(String tag, int defaultValue) {
+		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
+	}
+
+	protected void addDelete(Uri uri) {
+		mBatch.add(ContentProviderOperation.newDelete(uri).build());
+	}
+
+	protected void addUpdate(Uri uri, ContentValues values) {
+		mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+	}
+
+	protected void addInsert(Uri uri, ContentValues values) {
+		mBatch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+	}
 
 	interface Tags {
 		String ANCHOR = "a";
