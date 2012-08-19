@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -76,9 +75,9 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			}
 		}
 		LOGI(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
-				+ " games");
+			+ " games");
 		LOGI(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
-				+ mSkipCollectionCount + " collection items");
+			+ mSkipCollectionCount + " collection items");
 	}
 
 	private void insertOrUpdateGame(int gameId, ContentValues values) {
@@ -92,14 +91,14 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
 					mUpdateGameCount++;
-					mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+					addUpdate(uri, values);
 				} else {
 					mSkipGameCount++;
 				}
 			} else {
 				mInsertGameCount++;
-				mBatch.add(ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values)
-						.withValue(Games.GAME_ID, gameId).build());
+				values.put(Games.GAME_ID, gameId);
+				addInsert(Games.CONTENT_URI, values);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -120,15 +119,14 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
 					mUpdateCollectionCount++;
-					mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+					addUpdate(uri, values);
 				} else {
 					mSkipCollectionCount++;
 				}
 			} else {
 				mInsertCollectionCount++;
-				mBatch.add(ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values)
-						.withValue(Collection.COLLECTION_ID, itemId).build());
-
+				values.put(Collection.COLLECTION_ID, itemId);
+				addInsert(Collection.CONTENT_URI, values);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -138,7 +136,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	}
 
 	private void parseItem(ContentValues gameValues, ContentValues collectionValues) throws XmlPullParserException,
-			IOException {
+		IOException {
 
 		String tag = null;
 		int sortIndex = 1;
@@ -160,36 +158,36 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				} else if (Tags.STATUS.equals(tag)) {
 					collectionValues.put(Collection.STATUS_OWN, mParser.getAttributeValue(null, Tags.STATUS_OWN));
 					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED,
-							mParser.getAttributeValue(null, Tags.STATUS_PREVIOUSLY_OWNED));
+						mParser.getAttributeValue(null, Tags.STATUS_PREVIOUSLY_OWNED));
 					collectionValues.put(Collection.STATUS_FOR_TRADE,
-							mParser.getAttributeValue(null, Tags.STATUS_FOR_TRADE));
+						mParser.getAttributeValue(null, Tags.STATUS_FOR_TRADE));
 					collectionValues.put(Collection.STATUS_WANT, mParser.getAttributeValue(null, Tags.STATUS_WANT));
 					collectionValues.put(Collection.STATUS_WANT_TO_PLAY,
-							mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_PLAY));
+						mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_PLAY));
 					collectionValues.put(Collection.STATUS_WANT_TO_BUY,
-							mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_BUY));
+						mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_BUY));
 					collectionValues.put(Collection.STATUS_WISHLIST,
-							mParser.getAttributeValue(null, Tags.STATUS_WISHLIST));
+						mParser.getAttributeValue(null, Tags.STATUS_WISHLIST));
 					collectionValues.put(Collection.STATUS_WISHLIST_PRIORITY,
-							mParser.getAttributeValue(null, Tags.STATUS_WISHLIST_PRIORITY));
+						mParser.getAttributeValue(null, Tags.STATUS_WISHLIST_PRIORITY));
 					collectionValues.put(Collection.STATUS_PREORDERED,
-							mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
+						mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
 					collectionValues.put(Collection.LAST_MODIFIED, mParser.getAttributeValue(null, Tags.LAST_MODIFIED));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
+						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID,
-							getAttributeAsDouble(Tags.PRIVATE_INFO_PRICE_PAID));
+						getAttributeAsDouble(Tags.PRIVATE_INFO_PRICE_PAID));
 					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY));
+						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY));
 					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE,
-							getAttributeAsDouble(Tags.PRIVATE_INFO_CURRENT_VALUE));
+						getAttributeAsDouble(Tags.PRIVATE_INFO_CURRENT_VALUE));
 					collectionValues.put(Collection.PRIVATE_INFO_QUANTITY,
-							getAttributeAsInteger(Tags.PRIVATE_INFO_QUANTITY));
+						getAttributeAsInteger(Tags.PRIVATE_INFO_QUANTITY));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUISITION_DATE,
-							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUISITION_DATE));
+						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUISITION_DATE));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUIRED_FROM,
-							mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUIRED_FROM));
+						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUIRED_FROM));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -212,7 +210,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					gameValues.put(Games.THUMBNAIL_URL, text);
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
 					gameValues.put(Games.NUM_PLAYS,
-							StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_PLAYS)));
+						StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_PLAYS)));
 				} else if (Tags.COMMENT.equals(tag)) {
 					collectionValues.put(Collection.COMMENT, text);
 				} else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
