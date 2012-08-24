@@ -41,52 +41,27 @@ public class ImageCache {
 
 	private static HttpClient sHttpClient;
 
-	public static Drawable getCollectionThumbnailFromCache(Context context, Uri uri) {
-		return getCollectionThumbnail(context, uri, false);
+	public static Drawable getDrawableFromCache(Context context, Uri uri) {
+		return getDrawable(context, uri, null, null);
 	}
 
 	public static Drawable getCollectionThumbnail(Context context, Uri uri) {
-		return getCollectionThumbnail(context, uri, true);
-	}
-
-	private static Drawable getCollectionThumbnail(Context context, Uri uri, boolean shouldFetch) {
-		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), uri);
-		if (bitmap == null && shouldFetch) {
-			ContentResolver resolver = context.getContentResolver();
-			String thumbnailUrl = ResolverUtils.queryString(resolver,
-				Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL);
-			if (!INVALID_URL.equals(thumbnailUrl)) {
-				bitmap = fetchBitmap(context, thumbnailUrl);
-				if (bitmap != null) {
-					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
-				}
-			}
-		}
-
-		if (bitmap == null) {
-			return null;
-		}
-		return new BitmapDrawable(bitmap);
-	}
-
-	public static Drawable getAvatarFromCache(Context context, Uri uri) {
-		return getAvatar(context, uri, false);
+		return getDrawable(context, uri, Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL);
 	}
 
 	public static Drawable getAvatar(Context context, Uri uri) {
-		return getAvatar(context, uri, true);
+		return getDrawable(context, uri, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL);
 	}
 
-	private static Drawable getAvatar(Context context, Uri uri, boolean shouldFetch) {
-		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), uri);
-		if (bitmap == null && shouldFetch) {
+	private static Drawable getDrawable(Context context, Uri drawableUri, Uri fetchUri, String columnName) {
+		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), drawableUri);
+		if (bitmap == null && drawableUri != null && !TextUtils.isEmpty(columnName)) {
 			ContentResolver resolver = context.getContentResolver();
-			String avatarUrl = ResolverUtils.queryString(resolver, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)),
-				Buddies.AVATAR_URL);
-			if (!INVALID_URL.equals(avatarUrl)) {
-				bitmap = fetchBitmap(context, avatarUrl);
+			String thumbnailUrl = ResolverUtils.queryString(resolver, fetchUri, columnName);
+			if (!INVALID_URL.equals(thumbnailUrl)) {
+				bitmap = fetchBitmap(context, thumbnailUrl);
 				if (bitmap != null) {
-					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+					ResolverUtils.putBitmapInContentProvider(resolver, drawableUri, bitmap);
 				}
 			}
 		}

@@ -635,8 +635,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			holder.thumbnailUrl = Collection.buildThumbnailUri(cursor.getInt(Query.COLLECTION_ID));
 
-			Drawable thumbnail = ImageCache.getCollectionThumbnailFromCache(CollectionActivity.this,
-				holder.thumbnailUrl);
+			Drawable thumbnail = ImageCache.getDrawableFromCache(CollectionActivity.this, holder.thumbnailUrl);
 
 			if (thumbnail == null) {
 				holder.thumbnail.setVisibility(View.GONE);
