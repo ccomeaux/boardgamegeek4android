@@ -208,7 +208,7 @@ public class BggProvider extends ContentProvider {
 					Games.THUMBNAIL_URL));
 				break;
 			case CODE_COLLECTION_ID_THUMBNAIL:
-				file = ImageCache.getExistingImageFile(fetchFileName(
+				file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fetchFileName(
 					Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL));
 				break;
 			case CODE_BUDDIES_ID_AVATAR:

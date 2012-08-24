@@ -95,7 +95,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 	private CollectionAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mUri;
-	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
+	private final BlockingQueue<Uri> mThumbnailQueue = new ArrayBlockingQueue<Uri>(12);
 	private ThumbnailTask mThumbnailTask;
 	private boolean mShortcut;
 
@@ -133,7 +133,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastCollectionSync()) > 2) {
 			BggApplication.getInstance().putLastCollectionSync();
 			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
-					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_COLLECTION));
+				SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_COLLECTION));
 		}
 
 		mAdapter = new CollectionAdapter(this);
@@ -231,7 +231,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		boolean enabled = false;
 		Cursor c = getContentResolver().query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID }, null,
-				null, null);
+			null, null);
 		if (c != null) {
 			try {
 				if (c.getCount() > 0) {
@@ -422,52 +422,52 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
 				new CollectionStatusFilter().createDialog(this,
-						(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
+					(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
 				new ExpansionStatusFilter().createDialog(this,
-						(ExpansionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+					(ExpansionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
 				new PlayerNumberFilter().createDialog(this,
-						(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
+					(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
 				new PlayTimeFilter().createDialog(this,
-						(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
+					(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
 				return true;
 			case R.id.menu_suggested_age:
 			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
 				new SuggestedAgeFilter().createDialog(this,
-						(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+					(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
 				return true;
 			case R.id.menu_average_weight:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
 				new AverageWeightFilter().createDialog(this,
-						(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
+					(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 			case R.id.menu_year_published:
 			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
 				new YearPublishedFilter().createDialog(this,
-						(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
+					(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
 				return true;
 			case R.id.menu_average_rating:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
 				new AverageRatingFilter().createDialog(this,
-						(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
+					(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
 				return true;
 			case R.id.menu_geek_rating:
 			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
 				new GeekRatingFilter().createDialog(this,
-						(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
+					(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
 				return true;
 			case R.id.menu_geek_ranking:
 			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
 				new GeekRankingFilter().createDialog(this,
-						(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
+					(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
 		}
 		return false;
@@ -491,8 +491,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 		mUri = builder.build();
 		mHandler.startQuery(mUri,
-				mSort == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, mSort.getColumns()),
-				where.toString(), args, mSort == null ? null : mSort.getOrderByClause());
+			mSort == null ? Query.PROJECTION : StringUtils.unionArrays(Query.PROJECTION, mSort.getColumns()),
+			where.toString(), args, mSort == null ? null : mSort.getOrderByClause());
 	}
 
 	@Override
@@ -563,7 +563,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		button.setLongClickable(true);
 		button.setBackgroundResource(R.drawable.button_filter_normal);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
+			ViewGroup.LayoutParams.WRAP_CONTENT);
 		int margin = (int) getResources().getDimension(R.dimen.padding_small);
 		params.setMargins(margin, margin, margin, margin);
 		button.setLayoutParams(params);
@@ -587,7 +587,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (mShortcut) {
 			Intent shortcut = ActivityUtils.createShortcut(this, cursor.getInt(Query.GAME_ID),
-					cursor.getString(Query.COLLECTION_NAME), cursor.getString(Query.THUMBNAIL_URL));
+				cursor.getString(Query.COLLECTION_NAME), cursor.getString(Query.THUMBNAIL_URL));
 			setResult(RESULT_OK, shortcut);
 			finish();
 		} else {
@@ -633,9 +633,10 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
-			holder.thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			holder.thumbnailUrl = Collection.buildThumbnailUri(cursor.getInt(Query.COLLECTION_ID));
 
-			Drawable thumbnail = ImageCache.getDrawableFromCache(holder.thumbnailUrl);
+			Drawable thumbnail = ImageCache.getCollectionThumbnailFromCache(CollectionActivity.this,
+				holder.thumbnailUrl);
 
 			if (thumbnail == null) {
 				holder.thumbnail.setVisibility(View.GONE);
@@ -652,7 +653,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		TextView year;
 		TextView info;
 		BezelImageView thumbnail;
-		String thumbnailUrl;
+		Uri thumbnailUrl;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
@@ -662,7 +663,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 	}
 
-	private class ThumbnailTask extends AsyncTask<Void, String, Void> {
+	private class ThumbnailTask extends AsyncTask<Void, Void, Void> {
 
 		private ListView mView;
 
@@ -675,9 +676,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		protected Void doInBackground(Void... params) {
 			while (!isCancelled()) {
 				try {
-					String url = mThumbnailQueue.take();
-					ImageCache.getImage(CollectionActivity.this, url);
-					publishProgress(url);
+					Uri uri = mThumbnailQueue.take();
+					ImageCache.getCollectionThumbnail(CollectionActivity.this, uri);
+					publishProgress();
 				} catch (InterruptedException e) {
 					LOGE(TAG, "getting image from cache", e);
 				}
@@ -686,17 +687,17 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		}
 
 		@Override
-		protected void onProgressUpdate(String... values) {
+		protected void onProgressUpdate(Void... values) {
 			mView.invalidateViews();
 		}
 	}
 
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-				Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL };
+			Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Collection.THUMBNAIL_URL };
 
 		// int _ID = 0;
-		// int COLLECTION_ID = 1;
+		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
 		// int GAME_NAME = 4;

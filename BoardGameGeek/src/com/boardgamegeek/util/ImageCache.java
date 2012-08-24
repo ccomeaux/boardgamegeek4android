@@ -33,12 +33,41 @@ import android.text.TextUtils;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.Collection;
 
 public class ImageCache {
 	private static final String TAG = makeLogTag(ImageCache.class);
 	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;
+
+	public static Drawable getCollectionThumbnailFromCache(Context context, Uri uri) {
+		return getCollectionThumbnail(context, uri, false);
+	}
+
+	public static Drawable getCollectionThumbnail(Context context, Uri uri) {
+		return getCollectionThumbnail(context, uri, true);
+	}
+
+	private static Drawable getCollectionThumbnail(Context context, Uri uri, boolean shouldFetch) {
+		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), uri);
+		if (bitmap == null && shouldFetch) {
+			ContentResolver resolver = context.getContentResolver();
+			String thumbnailUrl = ResolverUtils.queryString(resolver,
+				Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL);
+			if (!INVALID_URL.equals(thumbnailUrl)) {
+				bitmap = fetchBitmap(context, thumbnailUrl);
+				if (bitmap != null) {
+					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+				}
+			}
+		}
+
+		if (bitmap == null) {
+			return null;
+		}
+		return new BitmapDrawable(bitmap);
+	}
 
 	public static Drawable getAvatarFromCache(Context context, Uri uri) {
 		return getAvatar(context, uri, false);
