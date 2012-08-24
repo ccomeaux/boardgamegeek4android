@@ -7,5 +7,4 @@ public class SearchSuggestTextProvider extends SearchSuggestProvider {
 	protected String getPath() {
 		return SearchManager.SUGGEST_URI_PATH_QUERY + "/*";
 	}
-
 }

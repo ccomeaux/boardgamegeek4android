@@ -86,8 +86,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 			mId.setText(cursor.getString(BuddiesQuery.BUDDY_ID));
 
 			if (BggApplication.getInstance().getImageLoad()) {
-				final String url = cursor.getString(BuddiesQuery.AVATAR_URL);
-				new AvatarTask().execute(url);
+				new AvatarTask().execute(Buddies.buildAvatarUri(Buddies.getBuddyId(mBuddyUri)));
 			}
 
 			BuddyCollectionTask buddyCollectionTask = new BuddyCollectionTask(this, (String) mName.getText());
@@ -110,15 +109,15 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 		onSearchRequested();
 	}
 
-	private class AvatarTask extends AsyncTask<String, Void, Drawable> {
+	private class AvatarTask extends AsyncTask<Uri, Void, Drawable> {
 		@Override
 		protected void onPreExecute() {
 			mProgress.setVisibility(View.VISIBLE);
 		}
 
 		@Override
-		protected Drawable doInBackground(String... params) {
-			return ImageCache.getImage(BuddyActivity.this, params[0]);
+		protected Drawable doInBackground(Uri... params) {
+			return ImageCache.getAvatar(BuddyActivity.this, params[0]);
 		}
 
 		@Override
@@ -243,13 +242,11 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 	}
 
 	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-				Buddies.AVATAR_URL, };
+		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, };
 
 		int BUDDY_ID = 0;
 		int NAME = 1;
 		int FIRSTNAME = 2;
 		int LASTNAME = 3;
-		int AVATAR_URL = 4;
 	}
 }

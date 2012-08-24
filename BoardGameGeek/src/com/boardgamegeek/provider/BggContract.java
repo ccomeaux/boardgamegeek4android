@@ -208,7 +208,8 @@ public class BggContract {
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
-	private static final String PATH_THUMBNAILS = "thumbnails";
+	public static final String PATH_THUMBNAILS = "thumbnails";
+	public static final String PATH_AVATARS = "avatars";
 	private static final String PATH_COLORS = "colors";
 	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
@@ -327,17 +328,17 @@ public class BggContract {
 
 		public static Uri buildPollResultsUri(int gameId, String pollName, String key) {
 			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
-					.build();
+				.build();
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key) {
 			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
-					.appendPath(PATH_POLL_RESULTS_RESULT).build();
+				.appendPath(PATH_POLL_RESULTS_RESULT).build();
 		}
 
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key, String key2) {
 			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
-					.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
+				.appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build();
 		}
 
 		public static Uri buildColorsUri(int gameId) {
@@ -362,7 +363,7 @@ public class BggContract {
 
 		private static Builder getUriBuilder(int gameId, String path, int id) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
-					.appendPath(String.valueOf(id));
+				.appendPath(String.valueOf(id));
 		}
 
 		public static int getGameId(Uri uri) {
@@ -405,7 +406,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.rank";
 
 		public static final String DEFAULT_SORT = GameRanksColumns.GAME_RANK_TYPE + " DESC,"
-				+ GameRanksColumns.GAME_RANK_VALUE + "," + GameRanksColumns.GAME_RANK_FRIENDLY_NAME;
+			+ GameRanksColumns.GAME_RANK_VALUE + "," + GameRanksColumns.GAME_RANK_FRIENDLY_NAME;
 
 		public static Uri buildGameRankUri(int gameRankId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameRankId)).build();
@@ -515,7 +516,7 @@ public class BggContract {
 	}
 
 	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
-			SyncListColumns {
+		SyncListColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
@@ -540,12 +541,16 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy";
 
 		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_LASTNAME + " COLLATE NOCASE ASC, "
-				+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
+			+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
 
 		public static final String NAME_SORT = BuddiesColumns.BUDDY_NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildBuddyUri(int buddyId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(buddyId)).build();
+		}
+
+		public static Uri buildAvatarUri(int buddyId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(buddyId)).appendPath(PATH_AVATARS).build();
 		}
 
 		public static int getBuddyId(Uri uri) {
@@ -572,9 +577,9 @@ public class BggContract {
 	}
 
 	public static final class GamePollResultsResult implements GamePollResultsResultColumns, GamePollResultsColumns,
-			BaseColumns {
+		BaseColumns {
 		public static final Uri CONTENT_URI = GamePollResults.CONTENT_URI.buildUpon()
-				.appendPath(PATH_POLL_RESULTS_RESULT).build();
+			.appendPath(PATH_POLL_RESULTS_RESULT).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult";
@@ -611,7 +616,7 @@ public class BggContract {
 
 		public static Uri buildItemUri(int playId, int objectId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_ITEMS)
-					.appendPath(String.valueOf(objectId)).build();
+				.appendPath(String.valueOf(objectId)).build();
 		}
 
 		public static Uri buildPlayerUri(int playId) {
@@ -620,7 +625,7 @@ public class BggContract {
 
 		public static Uri buildPlayerUri(int playId, long rowId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).appendPath(PATH_PLAYERS)
-					.appendPath(String.valueOf(rowId)).build();
+				.appendPath(String.valueOf(rowId)).build();
 		}
 
 		public static Uri buildLocationsUri() {
@@ -676,7 +681,7 @@ public class BggContract {
 
 		public static Uri buildViewFilterUri(long viewId, long filterId) {
 			return buildViewUri(viewId).buildUpon().appendPath(PATH_FILTERS).appendPath(String.valueOf(filterId))
-					.build();
+				.build();
 		}
 
 		public static int getViewId(Uri uri) {
@@ -685,7 +690,7 @@ public class BggContract {
 	}
 
 	public static final class CollectionViewFilters implements CollectionViewFiltersColumns, CollectionViewsColumns,
-			BaseColumns {
+		BaseColumns {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionviewfilter";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter";
 

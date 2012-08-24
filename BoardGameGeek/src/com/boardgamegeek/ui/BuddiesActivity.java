@@ -45,7 +45,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 	private BuddiesAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
 	private ThumbnailTask mThumbnailTask;
-	private final BlockingQueue<String> mThumbnailQueue = new ArrayBlockingQueue<String>(12);
+	private final BlockingQueue<Uri> mThumbnailQueue = new ArrayBlockingQueue<Uri>(12);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastBuddiesSync()) > 2) {
 			BggApplication.getInstance().putLastBuddiesSync();
 			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
-					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_BUDDIES));
+				SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_BUDDIES));
 		}
 
 		mAdapter = new BuddiesAdapter(this);
@@ -171,13 +171,14 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
+			int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
 			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
 			holder.fullname.setText(buildFullName(firstName, lastName));
 			holder.name.setText(cursor.getString(BuddiesQuery.NAME));
-			holder.avatarUrl = cursor.getString(BuddiesQuery.AVATAR_URL);
+			holder.avatarUrl = Buddies.buildAvatarUri(buddyId);
 
-			Drawable thumbnail = ImageCache.getDrawableFromCache(holder.avatarUrl);
+			Drawable thumbnail = ImageCache.getAvatarFromCache(BuddiesActivity.this, holder.avatarUrl);
 			if (thumbnail == null) {
 				holder.avatar.setVisibility(View.GONE);
 			} else {
@@ -204,7 +205,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		TextView fullname;
 		TextView name;
 		BezelImageView avatar;
-		String avatarUrl;
+		Uri avatarUrl;
 
 		public ViewHolder(View view) {
 			fullname = (TextView) view.findViewById(R.id.list_fullname);
@@ -213,7 +214,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		}
 	}
 
-	private class ThumbnailTask extends AsyncTask<Void, String, Void> {
+	private class ThumbnailTask extends AsyncTask<Void, Void, Void> {
 
 		private ListView mView;
 
@@ -226,9 +227,9 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		protected Void doInBackground(Void... params) {
 			while (!isCancelled()) {
 				try {
-					String url = mThumbnailQueue.take();
-					ImageCache.getImage(BuddiesActivity.this, url);
-					publishProgress(url);
+					Uri uri = mThumbnailQueue.take();
+					ImageCache.getAvatar(BuddiesActivity.this, uri);
+					publishProgress();
 				} catch (InterruptedException e) {
 					LOGE(TAG, "getting buddies", e);
 				}
@@ -237,7 +238,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 		}
 
 		@Override
-		protected void onProgressUpdate(String... values) {
+		protected void onProgressUpdate(Void... values) {
 			mView.invalidateViews();
 		}
 	}
@@ -267,13 +268,12 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 
 	private interface BuddiesQuery {
 		String[] PROJECTION = { BaseColumns._ID, Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME,
-				Buddies.BUDDY_LASTNAME, Buddies.AVATAR_URL };
+			Buddies.BUDDY_LASTNAME };
 
 		// int _ID = 0;
 		int BUDDY_ID = 1;
 		int NAME = 2;
 		int FIRSTNAME = 3;
 		int LASTNAME = 4;
-		int AVATAR_URL = 5;
 	}
 }

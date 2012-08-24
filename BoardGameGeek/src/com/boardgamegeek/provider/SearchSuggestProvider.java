@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
 public class SearchSuggestProvider extends BaseProvider {
@@ -20,19 +19,17 @@ public class SearchSuggestProvider extends BaseProvider {
 
 	private static HashMap<String, String> buildSuggestionProjectionMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put(Games._ID, Games._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, Games.YEAR_PUBLISHED + " AS "
-				+ SearchManager.SUGGEST_COLUMN_TEXT_2);
+			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
-				+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
 		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
-				+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
+			+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
 		map.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS " + SearchManager.SUGGEST_COLUMN_ICON_1);
-		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Thumbnails.CONTENT_URI + "/' || " + Tables.GAMES + "."
-				+ Games.THUMBNAIL_URL + " AS " + SearchManager.SUGGEST_COLUMN_ICON_2);
-		map.put(Games.GAME_SORT_NAME, "(CASE WHEN " + Games.GAME_SORT_NAME + " IS NULL THEN " + Games.GAME_SORT_NAME
-				+ " ELSE " + Games.GAME_SORT_NAME + " END) AS " + Games.GAME_SORT_NAME);
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.GAMES + "."
+			+ Games.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
+			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		return map;
 	}
 
@@ -48,7 +45,7 @@ public class SearchSuggestProvider extends BaseProvider {
 
 	@Override
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
+		String[] selectionArgs, String sortOrder) {
 		String query = null;
 		if (uri.getPathSegments().size() > 1) {
 			query = uri.getLastPathSegment().toLowerCase();
@@ -59,10 +56,10 @@ public class SearchSuggestProvider extends BaseProvider {
 		qb.setProjectionMap(sSuggestionProjectionMap);
 		if (!TextUtils.isEmpty(query)) {
 			qb.appendWhere("(" + Tables.GAMES + "." + Games.GAME_NAME + " like '" + query + "%' OR " + Tables.GAMES
-					+ "." + Games.GAME_NAME + " like '% " + query + "%')");
+				+ "." + Games.GAME_NAME + " like '% " + query + "%')");
 		}
 		Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, getSortOrder(sortOrder),
-				uri.getQueryParameter("limit"));
+			uri.getQueryParameter("limit"));
 		cursor.setNotificationUri(resolver, uri);
 		return cursor;
 	}
