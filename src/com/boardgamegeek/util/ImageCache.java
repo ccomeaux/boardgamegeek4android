@@ -20,6 +20,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,13 +30,43 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Buddies;
 
 public class ImageCache {
 	private static final String TAG = makeLogTag(ImageCache.class);
 	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;
+
+	public static Drawable getAvatarFromCache(Context context, Uri uri) {
+		return getAvatar(context, uri, false);
+	}
+
+	public static Drawable getAvatar(Context context, Uri uri) {
+		return getAvatar(context, uri, true);
+	}
+
+	private static Drawable getAvatar(Context context, Uri uri, boolean shouldFetch) {
+		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), uri);
+		if (bitmap == null && shouldFetch) {
+			ContentResolver resolver = context.getContentResolver();
+			String avatarUrl = ResolverUtils.queryString(resolver, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)),
+				Buddies.AVATAR_URL);
+			if (!INVALID_URL.equals(avatarUrl)) {
+				bitmap = fetchBitmap(context, avatarUrl);
+				if (bitmap != null) {
+					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+				}
+			}
+		}
+
+		if (bitmap == null) {
+			return null;
+		}
+		return new BitmapDrawable(bitmap);
+	}
 
 	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
 		return getImage(context, url, false);
@@ -52,6 +83,16 @@ public class ImageCache {
 			return drawable;
 		}
 
+		Bitmap bitmap = fetchBitmap(context, url);
+		if (bitmap != null) {
+			addImageToCache(url, bitmap, useTempCache, context);
+			return new BitmapDrawable(bitmap);
+		}
+		return null;
+	}
+
+	private static Bitmap fetchBitmap(Context context, String url) {
+		Bitmap bitmap = null;
 		try {
 			final HttpClient client = getHttpClient(context);
 			final HttpGet get = new HttpGet(url);
@@ -65,16 +106,12 @@ public class ImageCache {
 			}
 
 			final byte[] imageData = EntityUtils.toByteArray(entity);
-			Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-
-			addImageToCache(url, bitmap, useTempCache, context);
-
-			return new BitmapDrawable(bitmap);
+			bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
 
 		} catch (Exception e) {
 			LOGE(TAG, "Problem loading thumbnail", e);
 		}
-		return null;
+		return bitmap;
 	}
 
 	public static Drawable getDrawableFromCache(String url) {
