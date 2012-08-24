@@ -529,6 +529,10 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).build();
 		}
 
+		public static Uri buildThumbnailUri(int itemId) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).appendPath(PATH_THUMBNAILS).build();
+		}
+
 		public static int getItemId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
