@@ -21,7 +21,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -74,12 +73,10 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYER = 2;
-	private static final int TOKEN_GAME = 3;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_START_TIME = "START_TIME";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -92,7 +89,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private LocationAdapter mLocationAdapter;
 
 	private Play mPlay;
-	private String mThumbnailUrl;
 	private int mNextPlayerTag = 1;
 	private boolean mLaunchingActivity;
 	private long mStartTime;
@@ -130,7 +126,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		int playId = intent.getExtras().getInt(KEY_PLAY_ID);
 		int gameId = intent.getExtras().getInt(KEY_GAME_ID);
 		String gameName = intent.getExtras().getString(KEY_GAME_NAME);
-		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 		mStartTime = intent.getExtras().getLong(KEY_START_TIME);
 
 		if (gameId <= 0) {
@@ -161,7 +156,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			finish();
 		}
 
-		UIUtils.setGameHeader(this, mPlay.GameName, mThumbnailUrl);
+		UIUtils.setGameHeader(this, mPlay.GameName, mPlay.GameId);
+		// new UIUtils(this).setThumbnail(mPlay.GameId);
 		bindUi();
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
@@ -230,8 +226,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		menu.findItem(R.id.menu_send).setEnabled(mSendButton.isEnabled());
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
 		menu.findItem(R.id.menu_add_field).setEnabled(
-				hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments()
-						|| hidePlayers());
+			hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments() || hidePlayers());
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -269,10 +264,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		if (mPlay.PlayId > 0) {
 			mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(mPlay.PlayId), PlayQuery.PROJECTION);
 			mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(mPlay.PlayId), PlayerQuery.PROJECTION);
-		}
-		if (TextUtils.isEmpty(mThumbnailUrl)) {
-			Uri uri = Games.buildGameUri(mPlay.GameId);
-			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
 		}
 	}
 
@@ -334,7 +325,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		intent.putExtra(KEY_PLAY_ID, mPlay.PlayId);
 		intent.putExtra(KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(KEY_GAME_NAME, mPlay.GameName);
-		intent.putExtra(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		intent.putExtra(KEY_START_TIME, System.currentTimeMillis());
 
 		launchStartNotification(intent);
@@ -345,7 +335,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		String message = String.format(getResources().getString(R.string.notification_text_playing), mPlay.GameName);
 		Notification notification = new Notification(R.drawable.ic_stat_play, message, System.currentTimeMillis());
 		notification.setLatestEventInfo(this, title, message,
-				PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+			PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notification);
 	}
 
@@ -432,13 +422,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 					mPlay.addPlayer(player);
 				}
 				bindUi();
-			} else if (token == TOKEN_GAME) {
-				if (!cursor.moveToFirst()) {
-					return;
-				}
-
-				mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
-				new UIUtils(this).setThumbnail(mThumbnailUrl);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -523,7 +506,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
-		intent.putExtra(LogPlayerActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivityForResult(intent, requestCode);
 	}
 
@@ -559,7 +541,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private boolean hideLocation() {
 		return BggApplication.getInstance().getPlayLoggingHideLocation() && !mLocationShown
-				&& TextUtils.isEmpty(mPlay.Location);
+			&& TextUtils.isEmpty(mPlay.Location);
 	}
 
 	private boolean hideIncomplete() {
@@ -572,12 +554,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private boolean hideComments() {
 		return BggApplication.getInstance().getPlayLoggingHideComments() && !mCommentsShown
-				&& TextUtils.isEmpty(mPlay.Comments);
+			&& TextUtils.isEmpty(mPlay.Comments);
 	}
 
 	private boolean hidePlayers() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown
-				&& (mPlay.getPlayers().size() == 0);
+			&& (mPlay.getPlayers().size() == 0);
 	}
 
 	private void quickLogPlay() {
@@ -648,7 +630,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 						ContentValues values = new ContentValues();
 						values.put(Buddies.PLAY_NICKNAME, player.Name);
 						getContentResolver().update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
-								new String[] { player.Username });
+							new String[] { player.Username });
 					}
 				}
 			}
@@ -663,7 +645,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				if (!mPlay.hasBeenSynced()) {
 					String countDescription = result.getPlayCountDescription();
 					message = String.format(getResources().getString(R.string.logPlaySuccess), countDescription,
-							mPlay.GameName);
+						mPlay.GameName);
 				}
 				showToast(message);
 			} else {
@@ -768,26 +750,20 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 				selectionArgs = new String[] { constraint + "%" };
 			}
 			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection,
-					selectionArgs, null);
+				selectionArgs, null);
 		}
 	}
 
 	private interface PlayQuery {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
+			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
 
 		int NAME = 1;
 	}
 
 	private interface PlayerQuery {
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
-				PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
-	}
-
-	private interface GameQuery {
-		String[] PROJECTION = { Games.THUMBNAIL_URL };
-
-		int THUMBNAIL_URL = 0;
+			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 
 	private interface LocationQuery {

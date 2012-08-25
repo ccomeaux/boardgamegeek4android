@@ -56,7 +56,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private int mId;
 	private String mName;
-	private String mThumbnailUrl;
 	private String mImageUrl;
 	private long mUpdatedDate;
 
@@ -141,7 +140,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 			mId = cursor.getInt(GameQuery.GAME_ID);
 			mName = cursor.getString(GameQuery.GAME_NAME);
-			mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
 			mImageUrl = cursor.getString(GameQuery.IMAGE_URL);
 			mUpdatedDate = cursor.getLong(GameQuery.UPDATED);
 
@@ -155,7 +153,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 			UIUtils u = new UIUtils(this);
 			u.setGameName(mName);
-			u.setThumbnail(mThumbnailUrl);
+			u.setThumbnail(mId);
 			mIsLoaded = true;
 
 			if (!mIsRefreshing) {
@@ -186,7 +184,6 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.putExtra(ImageActivity.KEY_GAME_NAME, mName);
 		intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
-		intent.putExtra(ImageActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 		startActivity(intent);
 	}
 
@@ -209,7 +206,7 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private View buildIndicator(int textRes) {
 		final TextView indicator = (TextView) getLayoutInflater()
-				.inflate(R.layout.tab_indicator, getTabWidget(), false);
+			.inflate(R.layout.tab_indicator, getTabWidget(), false);
 		indicator.setText(textRes);
 		return indicator;
 	}
@@ -265,10 +262,10 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.log_play:
-				ActivityUtils.logPlay(this, false, mId, mName, mThumbnailUrl);
+				ActivityUtils.logPlay(this, false, mId, mName);
 				return true;
 			case R.id.log_play_quick:
-				ActivityUtils.logPlay(this, true, mId, mName, mThumbnailUrl);
+				ActivityUtils.logPlay(this, true, mId, mName);
 				return true;
 			case R.id.refresh:
 				if (DateTimeUtils.howManyHoursOld(mUpdatedDate) > REFRESH_THROTTLE_IN_HOURS) {
@@ -293,30 +290,30 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 				ActivityUtils.shareGame(this, mId, mName);
 				return true;
 			case R.id.shortcut:
-				Intent shortcut = ActivityUtils.createShortcut(this, mId, mName, mThumbnailUrl);
+				Intent shortcut = ActivityUtils.createShortcut(this, mId, mName);
 				sendBroadcast(shortcut);
 				return true;
 			case R.id.comments:
-				ActivityUtils.showComments(this, mId, mName, mThumbnailUrl);
+				ActivityUtils.showComments(this, mId, mName);
 				return true;
 			case R.id.colors:
 				final Uri colorUri = Games.buildColorsUri(mId);
 				Intent intent = new Intent(Intent.ACTION_VIEW, colorUri);
+				intent.putExtra(ColorsActivity.KEY_GAME_ID, mId);
 				intent.putExtra(ColorsActivity.KEY_GAME_NAME, mName);
-				intent.putExtra(ColorsActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 				startActivity(intent);
 				return true;
 			case R.id.forums:
 				Intent forumsIntent = new Intent(this, ForumlistActivity.class);
 				forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, mId);
-				forumsIntent.putExtra(ForumlistActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
+				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_ID, mId);
 				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, mName);
 				this.startActivity(forumsIntent);
 				return true;
 			case R.id.plays:
 				Intent playsIntent = new Intent(Intent.ACTION_VIEW, Plays.buildGameUri(mId));
+				playsIntent.putExtra(PlaysActivity.KEY_GAME_ID, mId);
 				playsIntent.putExtra(PlaysActivity.KEY_GAME_NAME, mName);
-				playsIntent.putExtra(PlaysActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 				startActivity(playsIntent);
 				return true;
 		}
@@ -393,12 +390,12 @@ public class BoardgameActivity extends TabActivity implements AsyncQueryListener
 
 	private interface GameQuery {
 		String[] PROJECTION = { Games._ID, Games.GAME_NAME, Games.GAME_ID, Games.THUMBNAIL_URL, Games.IMAGE_URL,
-				Games.UPDATED, };
+			Games.UPDATED, };
 
 		// int ID = 0;
 		int GAME_NAME = 1;
 		int GAME_ID = 2;
-		int THUMBNAIL_URL = 3;
+		// int THUMBNAIL_URL = 3;
 		int IMAGE_URL = 4;
 		int UPDATED = 5;
 	}

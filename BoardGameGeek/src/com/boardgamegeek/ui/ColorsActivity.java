@@ -31,16 +31,16 @@ import com.boardgamegeek.util.UIUtils;
 public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 	private static final String TAG = makeLogTag(ColorsActivity.class);
 
+	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final int MENU_COLOR_DELETE = Menu.FIRST;
 	private static final int HELP_VERSION = 1;
 
 	private ColorAdapter mAdapter;
 	private NotifyingAsyncQueryHandler mHandler;
 	private Uri mGameColorUri;
+	private int mGameId;
 	private String mGameName;
-	private String mThumbnailUrl;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 
 		processIntent();
 
-		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		UIUtils.setGameHeader(this, mGameName, mGameId);
 
 		mAdapter = new ColorAdapter(this);
 		setListAdapter(mAdapter);
@@ -74,11 +74,11 @@ public class ColorsActivity extends ListActivity implements AsyncQueryListener {
 	private void processIntent() {
 		final Intent intent = getIntent();
 		mGameColorUri = intent.getData();
+		if (intent.hasExtra(KEY_GAME_ID)) {
+			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+		}
 		if (intent.hasExtra(KEY_GAME_NAME)) {
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-		}
-		if (intent.hasExtra(KEY_THUMBNAIL_URL)) {
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 		}
 	}
 

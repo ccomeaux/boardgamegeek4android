@@ -54,11 +54,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYER = 2;
-	private static final int TOKEN_GAME = 3;
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
@@ -70,7 +68,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	private int mGameId;
 	private String mGameName;
-	private String mThumbnailUrl;
 	private Play mPlay = new Play();
 
 	private TextView mUpdated;
@@ -95,7 +92,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
 		parseIntent();
-		UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+		UIUtils.setGameHeader(this, mGameName, mGameId);
 		findViewById(R.id.game_thumbnail).setClickable(true);
 
 		mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
@@ -124,7 +121,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		Intent intent = getIntent();
 		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
 		if (mGameId == -1) {
 			LOGW(TAG, "Didn't get a game ID");
@@ -162,28 +158,27 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		switch (item.getItemId()) {
 		// TODO add menu_send if modified
 			case R.id.menu_edit:
-				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName, mThumbnailUrl);
+				ActivityUtils.logPlay(this, mPlay.PlayId, mGameId, mGameName);
 				return true;
 			case R.id.menu_delete: {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
-						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								boolean deleted = false;
-								if (mPlay.hasBeenSynced()) {
-									// TODO: if unsuccessful, mark for deletion
-									// in DB?
-									deleted = ActivityUtils.deletePlay(PlayActivity.this,
-											mLogInHelper.getCookieStore(), mPlay.PlayId);
-								} else {
-									PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
-									deleted = ph.delete();
-								}
-								if (deleted) {
-									finish();
-								}
+					.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							boolean deleted = false;
+							if (mPlay.hasBeenSynced()) {
+								// TODO: if unsuccessful, mark for deletion in DB?
+								deleted = ActivityUtils.deletePlay(PlayActivity.this, mLogInHelper.getCookieStore(),
+									mPlay.PlayId);
+							} else {
+								PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
+								deleted = ph.delete();
 							}
-						}).setNegativeButton(R.string.no, null);
+							if (deleted) {
+								finish();
+							}
+						}
+					}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 				return true;
 			}
@@ -191,20 +186,19 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_refresh_message)
-							.setCancelable(false)
-							.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int id) {
-									mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
-									PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
-									ph.save();
-									refresh();
-								}
-							}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int id) {
-									setResult(Activity.RESULT_CANCELED);
-									dialog.cancel();
-								}
-							});
+						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
+								PlayPersister ph = new PlayPersister(getContentResolver(), mPlay);
+								ph.save();
+								refresh();
+							}
+						}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								setResult(Activity.RESULT_CANCELED);
+								dialog.cancel();
+							}
+						});
 					builder.create().show();
 				} else {
 					refresh();
@@ -258,7 +252,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 				bindUi();
 
 				if (mPlay.hasBeenSynced()
-						&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+					&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 					refresh();
 				}
 			} else if (token == TOKEN_PLAYER) {
@@ -268,13 +262,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 					mPlay.addPlayer(player);
 				}
 				bindUi();
-			} else if (token == TOKEN_GAME) {
-				if (!cursor.moveToFirst()) {
-					return;
-				}
-
-				mThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
-				new UIUtils(this).setThumbnail(mThumbnailUrl);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -315,7 +302,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mLocation.setText(mPlay.Location);
 		mLocation.setVisibility(TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
 		findViewById(R.id.play_location_label).setVisibility(
-				TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
+			TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
 
 		mIncomplete.setVisibility(mPlay.Incomplete ? View.VISIBLE : View.GONE);
 		mNoWinStats.setVisibility(mPlay.NoWinStats ? View.VISIBLE : View.GONE);
@@ -323,7 +310,7 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		mComments.setText(mPlay.Comments);
 		mComments.setVisibility(TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
 		findViewById(R.id.play_comments_label).setVisibility(
-				TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
+			TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
 
 		mPlayerList.removeAllViews();
 		findViewById(R.id.play_player_label).setVisibility((mPlay.getPlayers().size() == 0) ? View.GONE : View.VISIBLE);
@@ -339,10 +326,8 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 			mUpdated.setVisibility(View.GONE);
 		} else {
 			mUpdated.setVisibility(View.VISIBLE);
-			mUpdated.setText(getResources().getString(R.string.updated)
-					+ " "
-					+ DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
-							DateUtils.MINUTE_IN_MILLIS));
+			mUpdated.setText(getResources().getString(R.string.updated) + " "
+				+ DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
 		}
 
 		if (mPlay.hasBeenSynced()) {
@@ -352,9 +337,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 		if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
 			mUnsyncedView.setVisibility(View.VISIBLE);
 			mSavedTimeStamp.setText(getResources().getString(R.string.saved)
-					+ " "
-					+ DateUtils.getRelativeTimeSpanString(mPlay.Saved, System.currentTimeMillis(),
-							DateUtils.MINUTE_IN_MILLIS));
+				+ " "
+				+ DateUtils.getRelativeTimeSpanString(mPlay.Saved, System.currentTimeMillis(),
+					DateUtils.MINUTE_IN_MILLIS));
 			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 				mUnsyncedMessage.setText(R.string.sync_in_process);
 			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING) {
@@ -367,21 +352,15 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 
 	private interface Query {
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-				Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
-				Plays.SYNC_STATUS, Plays.UPDATED };
+			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
+			Plays.SYNC_STATUS, Plays.UPDATED };
 
 		int NAME = 1;
 	}
 
 	private interface PlayerQuery {
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
-				PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
-	}
-
-	private interface GameQuery {
-		String[] PROJECTION = { Games.THUMBNAIL_URL };
-
-		int THUMBNAIL_URL = 0;
+			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 
 	@Override
@@ -414,10 +393,6 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	private void startQuery() {
 		mHandler.startQuery(TOKEN_PLAY, mPlayUri, Query.PROJECTION);
 		mHandler.startQuery(TOKEN_PLAYER, mPlayerUri, PlayerQuery.PROJECTION);
-		if (TextUtils.isEmpty(mThumbnailUrl)) {
-			Uri uri = Games.buildGameUri(mGameId);
-			mHandler.startQuery(TOKEN_GAME, uri, GameQuery.PROJECTION);
-		}
 	}
 
 	private void refresh() {

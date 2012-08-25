@@ -40,7 +40,6 @@ public class CommentsActivity extends ListActivity {
 
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_CURRENT_PAGE = "CURRENT_PAGE";
 	private static final String KEY_LAST_DISPLAYED_PAGE = "LAST_DISPLAYED_PAGE";
 	private static final String KEY_PAGE_COUNT = "PAGE_COUNT";
@@ -69,7 +68,6 @@ public class CommentsActivity extends ListActivity {
 
 	private int mGameId;
 	private String mGameName;
-	private String mThumbnailUrl;
 
 	private int mCurrentPage;
 	/** Used to not download already downloaded comments. */
@@ -92,7 +90,6 @@ public class CommentsActivity extends ListActivity {
 				finish();
 			}
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mCurrentPage = 1;
 			mLastDisplayedPage = 1;
 			mPageCount = -1;
@@ -100,7 +97,6 @@ public class CommentsActivity extends ListActivity {
 		} else {
 			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
 			mLastDisplayedPage = savedInstanceState.getInt(KEY_LAST_DISPLAYED_PAGE);
 			mPageCount = savedInstanceState.getInt(KEY_PAGE_COUNT);
@@ -113,7 +109,7 @@ public class CommentsActivity extends ListActivity {
 		UIUtils.setTitle(this);
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
+		u.setThumbnail(mGameId);
 
 		mAdapter = new CommentsAdapter();
 		setListAdapter(mAdapter);
@@ -138,7 +134,6 @@ public class CommentsActivity extends ListActivity {
 		super.onSaveInstanceState(outState);
 		outState.putInt(KEY_GAME_ID, mGameId);
 		outState.putString(KEY_GAME_NAME, mGameName);
-		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
 		outState.putInt(KEY_CURRENT_PAGE, mCurrentPage);
 		outState.putInt(KEY_LAST_DISPLAYED_PAGE, mLastDisplayedPage);
 		outState.putInt(KEY_PAGE_COUNT, mPageCount);
@@ -245,7 +240,7 @@ public class CommentsActivity extends ListActivity {
 	private void updateCurrentCommentsPage() {
 		mCurrentComments.clear();
 		mCurrentComments.addAll(mAllComments.subList(getPageStartNumber() - 1,
-				Math.min(getPageEndNumber(), mAllComments.size())));
+			Math.min(getPageEndNumber(), mAllComments.size())));
 		if (mAdapter == null) {
 			mAdapter = new CommentsAdapter();
 			setListAdapter(mAdapter);

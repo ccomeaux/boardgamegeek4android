@@ -44,8 +44,8 @@ import com.boardgamegeek.util.UIUtils;
 public class PlaysActivity extends ListActivity implements AsyncQueryListener, LogInListener {
 	private static final String TAG = makeLogTag(PlaysActivity.class);
 
+	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 
 	private static final int MENU_PLAY_EDIT = Menu.FIRST;
 	private static final int MENU_PLAY_DELETE = Menu.FIRST + 1;
@@ -68,7 +68,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
 			BggApplication.getInstance().putLastPlaysSync();
 			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
-					SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_PLAYS));
+				SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_PLAYS));
 		}
 
 		mAdapter = new PlaysAdapter(this);
@@ -78,7 +78,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 		if (mUri.getPathSegments().contains("games")) {
 			Bundle extras = getIntent().getExtras();
-			UIUtils.setGameHeader(this, extras.getString(KEY_GAME_NAME), extras.getString(KEY_THUMBNAIL_URL));
+			UIUtils.setGameHeader(this, extras.getString(KEY_GAME_NAME), extras.getInt(KEY_GAME_ID));
 		} else {
 			findViewById(R.id.game_header).setVisibility(View.GONE);
 			findViewById(R.id.header_divider).setVisibility(View.GONE);
@@ -187,18 +187,18 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 		switch (item.getItemId()) {
 			case MENU_PLAY_EDIT: {
 				ActivityUtils.logPlay(this, cursor.getInt(Query.PLAY_ID), cursor.getInt(Query.GAME_ID),
-						cursor.getString(Query.GAME_NAME), null);
+					cursor.getString(Query.GAME_NAME));
 				return true;
 			}
 			case MENU_PLAY_DELETE: {
 				final int playId = cursor.getInt(Query.PLAY_ID);
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
-						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								ActivityUtils.deletePlay(PlaysActivity.this, mLogInHelper.getCookieStore(), playId);
-							}
-						}).setNegativeButton(R.string.no, null);
+					.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							ActivityUtils.deletePlay(PlaysActivity.this, mLogInHelper.getCookieStore(), playId);
+						}
+					}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 				return true;
 			}
@@ -273,7 +273,7 @@ public class PlaysActivity extends ListActivity implements AsyncQueryListener, L
 
 	private interface Query {
 		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-				Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
 
 		int PLAY_ID = 1;
 		int DATE = 2;

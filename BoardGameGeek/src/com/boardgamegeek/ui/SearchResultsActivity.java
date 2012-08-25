@@ -133,11 +133,11 @@ public class SearchResultsActivity extends ListActivity {
 				return true;
 			}
 			case UIUtils.MENU_ITEM_LOG_PLAY: {
-				ActivityUtils.logPlay(this, false, game.Id, game.Name, null);
+				ActivityUtils.logPlay(this, false, game.Id, game.Name);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_QUICK_LOG_PLAY: {
-				ActivityUtils.logPlay(this, true, game.Id, game.Name, null);
+				ActivityUtils.logPlay(this, true, game.Id, game.Name);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_SHARE: {
@@ -165,7 +165,7 @@ public class SearchResultsActivity extends ListActivity {
 				return true;
 			}
 			case UIUtils.MENU_ITEM_COMMENTS: {
-				ActivityUtils.showComments(this, game.Id, game.Name, null);
+				ActivityUtils.showComments(this, game.Id, game.Name);
 			}
 		}
 		return false;
@@ -259,7 +259,7 @@ public class SearchResultsActivity extends ListActivity {
 			} else {
 				mSearchResults = result.getResults();
 				String message = String.format(getResources().getString(R.string.search_results),
-						mSearchResults.size(), mSearchText);
+					mSearchResults.size(), mSearchText);
 				mSearchTextView.setText(message);
 				mAdapter = new BoardGameAdapter();
 				setListAdapter(mAdapter);

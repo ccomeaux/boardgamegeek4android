@@ -178,7 +178,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 			holder.name.setText(cursor.getString(BuddiesQuery.NAME));
 			holder.avatarUrl = Buddies.buildAvatarUri(buddyId);
 
-			Drawable thumbnail = ImageCache.getDrawableFromCache(BuddiesActivity.this, holder.avatarUrl);
+			Drawable thumbnail = ImageCache.getDrawable(BuddiesActivity.this, holder.avatarUrl);
 			if (thumbnail == null) {
 				holder.avatar.setVisibility(View.GONE);
 			} else {
