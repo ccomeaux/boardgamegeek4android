@@ -1,13 +1,16 @@
 package com.boardgamegeek.provider;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.SelectionBuilder;
@@ -21,9 +24,9 @@ public abstract class BaseProvider {
 	}
 
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
+		String[] selectionArgs, String sortOrder) {
 		return buildExpandedSelection(uri).where(selection, selectionArgs).query(db, projection,
-				getSortOrder(sortOrder));
+			getSortOrder(sortOrder));
 	}
 
 	protected String getSortOrder(String sortOrder) {
@@ -54,33 +57,42 @@ public abstract class BaseProvider {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
 	}
 
+	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {
+		throw new UnsupportedOperationException("Unknown uri opening file: " + uri);
+	}
+
 	protected int queryInt(SQLiteDatabase db, SelectionBuilder builder, String columnName) {
-		int id = 0;
+		int value = 0;
 		Cursor cursor = builder.query(db, new String[] { columnName }, null);
 		try {
+			if (cursor.getCount() != 1) {
+				return value;
+			}
 			if (cursor.moveToFirst()) {
-				id = cursor.getInt(0);
+				value = cursor.getInt(0);
 			}
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			closeCursor(cursor);
 		}
-		return id;
+		return value;
 	}
 
 	protected List<String> getList(final SQLiteDatabase db, final SelectionBuilder builder, String columnName) {
 		List<String> list = new ArrayList<String>();
-		Cursor c = builder.query(db, new String[] { columnName }, null);
+		Cursor cursor = builder.query(db, new String[] { columnName }, null);
 		try {
-			if (c.moveToNext()) {
-				list.add(c.getString(0));
+			if (cursor.moveToNext()) {
+				list.add(cursor.getString(0));
 			}
 		} finally {
-			if (c != null) {
-				c.close();
-			}
+			closeCursor(cursor);
 		}
 		return list;
+	}
+
+	private static void closeCursor(Cursor cursor) {
+		if (cursor != null && !cursor.isClosed()) {
+			cursor.close();
+		}
 	}
 }

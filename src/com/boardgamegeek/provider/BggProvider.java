@@ -1,13 +1,9 @@
 package com.boardgamegeek.provider;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGV;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -19,14 +15,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 
-import com.boardgamegeek.database.ResolverUtils;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Thumbnails;
-import com.boardgamegeek.util.ImageCache;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class BggProvider extends ContentProvider {
@@ -36,20 +25,7 @@ public class BggProvider extends ContentProvider {
 
 	private static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	private static HashMap<Integer, BaseProvider> providers = buildProviderMap();
-	private static UriMatcher sFileUriMatcher = createFileUriMatcher();
 	private static int sCode = 1;
-
-	private static final int CODE_GAMES_ID_THUMBNAIL = 1001;
-	private static final int CODE_COLLECTION_ID_THUMBNAIL = 1002;
-	private static final int CODE_BUDDIES_ID_AVATAR = 1003;
-
-	private static UriMatcher createFileUriMatcher() {
-		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-		matcher.addURI(BggContract.CONTENT_AUTHORITY, "games/#/thumbnails", CODE_GAMES_ID_THUMBNAIL);
-		matcher.addURI(BggContract.CONTENT_AUTHORITY, "collection/#/thumbnails", CODE_COLLECTION_ID_THUMBNAIL);
-		matcher.addURI(BggContract.CONTENT_AUTHORITY, "buddies/#/avatars", CODE_BUDDIES_ID_AVATAR);
-		return matcher;
-	}
 
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
@@ -123,6 +99,10 @@ public class BggProvider extends ContentProvider {
 
 		addProvider(map, new BuddiesProvider());
 		addProvider(map, new BuddiesIdProvider());
+
+		addProvider(map, new GamesThumbnailProvider());
+		addProvider(map, new CollectionThumbnailProvider());
+		addProvider(map, new BuddiesAvatarProvider());
 
 		addProvider(map, new SearchSuggestProvider());
 		addProvider(map, new SearchSuggestTextProvider());
@@ -199,99 +179,10 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		LOGD(TAG, "Open file: " + uri);
+		LOGV(TAG, "Open file: " + uri);
 
-		File file = null;
-		int match = sFileUriMatcher.match(uri);
-		switch (match) {
-			case CODE_GAMES_ID_THUMBNAIL: {
-				String fileName = fetchFileName(Games.buildGameUri(Games.getGameId(uri)), Games.THUMBNAIL_URL);
-				if (!TextUtils.isEmpty(fileName)) {
-					file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fileName);
-				}
-			}
-				break;
-			case CODE_COLLECTION_ID_THUMBNAIL: {
-				String fileName = fetchFileName(Collection.buildItemUri(Collection.getItemId(uri)),
-					Collection.THUMBNAIL_URL);
-				if (!TextUtils.isEmpty(fileName)) {
-					file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fileName);
-				}
-			}
-				break;
-			case CODE_BUDDIES_ID_AVATAR: {
-				String fileName = fetchFileName(Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL);
-				if (!TextUtils.isEmpty(fileName)) {
-					file = new File(generateContentPath(BggContract.PATH_AVATARS), fileName);
-				}
-			}
-				break;
-			default:
-				if (uri.toString().startsWith(Thumbnails.CONTENT_URI.toString())) {
-					file = ImageCache.getExistingImageFile(uri.getLastPathSegment());
-				}
-				break;
-		}
-		if (file == null) {
-			return null;
-		}
-
-		if (!file.exists()) {
-			try {
-				if (!file.createNewFile()) {
-					throw new FileNotFoundException();
-				}
-			} catch (IOException e) {
-				LOGE(TAG, "Error creating a new file.", e);
-				throw new FileNotFoundException();
-			}
-		}
-
-		int parcelMode = calculatParcelMode(uri, mode);
-		return ParcelFileDescriptor.open(file, parcelMode);
-	}
-
-	private String fetchFileName(Uri uri, String columnName) {
-		String path = ResolverUtils.queryString(getContext().getContentResolver(), uri, columnName);
-		if (!TextUtils.isEmpty(path)) {
-			int i = path.lastIndexOf(File.separator);
-			if (i > 0) {
-				return path.substring(i + 1);
-			}
-		}
-		return null;
-	}
-
-	private String generateContentPath(String type) {
-		String path = getContext().getExternalFilesDir(null).getPath() + File.separator + "content" + File.separator
-			+ type;
-		File folder = new File(path);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		return path;
-	}
-
-	// from Android ContentResolver.modeToMode
-	private static int calculatParcelMode(Uri uri, String mode) throws FileNotFoundException {
-		int modeBits;
-		if ("r".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_ONLY;
-		} else if ("w".equals(mode) || "wt".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_TRUNCATE;
-		} else if ("wa".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_APPEND;
-		} else if ("rw".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE;
-		} else if ("rwt".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_TRUNCATE;
-		} else {
-			throw new FileNotFoundException("Bad mode for " + uri + ": " + mode);
-		}
-		return modeBits;
+		BaseProvider provider = getProvider(uri);
+		return provider.openFile(getContext(), uri, mode);
 	}
 
 	private BaseProvider getProvider(Uri uri) {
