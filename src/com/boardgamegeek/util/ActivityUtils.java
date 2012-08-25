@@ -53,28 +53,26 @@ public class ActivityUtils {
 		shareIntent.setType("text/plain");
 		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(r.getString(R.string.share_subject), gameName));
 		shareIntent.putExtra(
-				Intent.EXTRA_TEXT,
-				String.format(r.getString(R.string.share_text), gameName, "http://www.boardgamegeek.com/boardgame/"
-						+ gameId));
+			Intent.EXTRA_TEXT,
+			String.format(r.getString(R.string.share_text), gameName, "http://www.boardgamegeek.com/boardgame/"
+				+ gameId));
 		context.startActivity(Intent.createChooser(shareIntent, r.getString(R.string.share_title)));
 	}
 
-	public static void logPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+	public static void logPlay(Context context, int playId, int gameId, String gameName) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.setAction(Intent.ACTION_EDIT);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
-	public static void logPlay(Context context, boolean quick, int gameId, String gameName, String thumbnailUrl) {
+	public static void logPlay(Context context, boolean quick, int gameId, String gameName) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
@@ -103,7 +101,7 @@ public class ActivityUtils {
 				message = r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
 			} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 				message = r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
-						+ " " + response.toString() + ".";
+					+ " " + response.toString() + ".";
 			} else {
 				message = HttpUtils.parseResponse(response);
 				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
@@ -141,7 +139,7 @@ public class ActivityUtils {
 
 	public static void linkAmazon(Context context, String gameName) {
 		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + URLEncoder.encode(gameName)
-				+ "&i=toys-and-games&submitSearch=GO");
+			+ "&i=toys-and-games&submitSearch=GO");
 	}
 
 	public static void linkEbay(Context context, String gameName) {
@@ -152,15 +150,14 @@ public class ActivityUtils {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
 
-	public static void showComments(Context context, int gameId, String gameName, String thumbnailUrl) {
+	public static void showComments(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(context, CommentsActivity.class);
 		intent.putExtra(CommentsActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(CommentsActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(CommentsActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createShortcut(Context context, int gameId, String gameName, String iconUrl) {
+	public static Intent createShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
 		intent.putExtra(BoardgameActivity.KEY_GAME_NAME, gameName);
 
@@ -168,10 +165,10 @@ public class ActivityUtils {
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, gameName);
 
-		BitmapDrawable d = (BitmapDrawable) ImageCache.getDrawableFromCache(iconUrl);
+		BitmapDrawable d = (BitmapDrawable) ImageCache.getDrawable(context, Games.buildThumbnailUri(gameId));
 		if (d == null) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-					Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
+				Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
 		} else {
 			Bitmap icon = squarifyBitmap(d);
 
@@ -194,7 +191,7 @@ public class ActivityUtils {
 			// assemble bitmaps
 			RectF boundsF = new RectF(bounds);
 			int sc = canvas.saveLayer(boundsF, copyPaint, Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
-					| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
+				| Canvas.FULL_COLOR_LAYER_SAVE_FLAG);
 			maskDrawable.draw(canvas);
 			canvas.saveLayer(boundsF, maskedPaint, 0);
 			canvas.drawBitmap(icon, 0, 0, copyPaint);

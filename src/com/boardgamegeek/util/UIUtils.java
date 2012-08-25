@@ -10,8 +10,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.ui.widget.BezelImageView;
 
@@ -53,8 +54,7 @@ public class UIUtils {
 	}
 
 	/**
-	 * Sets the current activity to the home screen, clearing the activity
-	 * stack.
+	 * Sets the current activity to the home screen, clearing the activity stack.
 	 */
 	public static void resetToHome(Context context) {
 		final Intent intent = new Intent(context, HomeActivity.class);
@@ -87,11 +87,11 @@ public class UIUtils {
 		((TextView) activity.findViewById(R.id.game_name)).setText(gameName);
 	}
 
-	public static void setGameHeader(Activity activity, CharSequence gameName, String thumbnailUrl) {
+	public static void setGameHeader(Activity activity, CharSequence gameName, int gameId) {
 		setTitle(activity);
 		setGameName(activity, gameName);
 		UIUtils u = new UIUtils(activity);
-		u.setThumbnail(thumbnailUrl);
+		u.setThumbnail(gameId);
 		activity.findViewById(R.id.game_thumbnail).setClickable(false);
 		allowTypeToSearch(activity);
 	}
@@ -100,13 +100,13 @@ public class UIUtils {
 		setGameName(mActivity, gameName);
 	}
 
-	public void setThumbnail(String thumbnailUrl) {
-		if (BggApplication.getInstance().getImageLoad() && !TextUtils.isEmpty(thumbnailUrl)) {
-			new ThumbnailTask(mActivity).execute(thumbnailUrl);
+	public void setThumbnail(int gameId) {
+		if (BggApplication.getInstance().getImageLoad() && gameId > 0) {
+			new ThumbnailTask(mActivity).execute(Games.buildThumbnailUri(gameId));
 		}
 	}
 
-	private class ThumbnailTask extends AsyncTask<String, Void, Drawable> {
+	private class ThumbnailTask extends AsyncTask<Uri, Void, Drawable> {
 		private Activity mActivity;
 		private BezelImageView mThumbnail;
 		private View mProgress;
@@ -130,11 +130,11 @@ public class UIUtils {
 		}
 
 		@Override
-		protected Drawable doInBackground(String... params) {
+		protected Drawable doInBackground(Uri... params) {
 			if (mActivity == null || mThumbnail == null) {
 				return null;
 			}
-			return ImageCache.getImage(mActivity.getBaseContext(), params[0]);
+			return ImageCache.getGameThumbnail(mActivity, params[0]);
 		}
 
 		@Override
@@ -209,9 +209,7 @@ public class UIUtils {
 
 	public static AlertDialog createCancelDialog(final Activity activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(R.string.are_you_sure_title)
-			.setMessage(R.string.are_you_sure_message)
-			.setCancelable(false)
+		builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_message).setCancelable(false)
 			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					activity.setResult(Activity.RESULT_CANCELED);
@@ -248,17 +246,14 @@ public class UIUtils {
 	public static void showHelpDialog(Context context, final String key, final int version, int messageId) {
 		if (BggApplication.getInstance().showHelp(key, version)) {
 			Builder builder = new Builder(context);
-			builder.setTitle(R.string.help_title)
-					.setCancelable(false)
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setMessage(messageId)
-					.setPositiveButton(R.string.help_button_close, null)
-					.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							BggApplication.getInstance().updateHelp(key, version);
-						}
-					});
+			builder.setTitle(R.string.help_title).setCancelable(false).setIcon(android.R.drawable.ic_dialog_info)
+				.setMessage(messageId).setPositiveButton(R.string.help_button_close, null)
+				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						BggApplication.getInstance().updateHelp(key, version);
+					}
+				});
 			builder.create().show();
 		}
 	}

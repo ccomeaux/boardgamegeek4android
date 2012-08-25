@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -203,17 +204,27 @@ public class BggProvider extends ContentProvider {
 		File file = null;
 		int match = sFileUriMatcher.match(uri);
 		switch (match) {
-			case CODE_GAMES_ID_THUMBNAIL:
-				file = ImageCache.getExistingImageFile(fetchFileName(Games.buildGameUri(Games.getGameId(uri)),
-					Games.THUMBNAIL_URL));
+			case CODE_GAMES_ID_THUMBNAIL: {
+				String fileName = fetchFileName(Games.buildGameUri(Games.getGameId(uri)), Games.THUMBNAIL_URL);
+				if (!TextUtils.isEmpty(fileName)) {
+					file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fileName);
+				}
+			}
 				break;
-			case CODE_COLLECTION_ID_THUMBNAIL:
-				file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fetchFileName(
-					Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL));
+			case CODE_COLLECTION_ID_THUMBNAIL: {
+				String fileName = fetchFileName(Collection.buildItemUri(Collection.getItemId(uri)),
+					Collection.THUMBNAIL_URL);
+				if (!TextUtils.isEmpty(fileName)) {
+					file = new File(generateContentPath(BggContract.PATH_THUMBNAILS), fileName);
+				}
+			}
 				break;
-			case CODE_BUDDIES_ID_AVATAR:
-				file = new File(generateContentPath(BggContract.PATH_AVATARS), fetchFileName(
-					Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL));
+			case CODE_BUDDIES_ID_AVATAR: {
+				String fileName = fetchFileName(Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL);
+				if (!TextUtils.isEmpty(fileName)) {
+					file = new File(generateContentPath(BggContract.PATH_AVATARS), fileName);
+				}
+			}
 				break;
 			default:
 				if (uri.toString().startsWith(Thumbnails.CONTENT_URI.toString())) {
@@ -242,9 +253,11 @@ public class BggProvider extends ContentProvider {
 
 	private String fetchFileName(Uri uri, String columnName) {
 		String path = ResolverUtils.queryString(getContext().getContentResolver(), uri, columnName);
-		int i = path.lastIndexOf(File.separator);
-		if (i > 0) {
-			return path.substring(i + 1);
+		if (!TextUtils.isEmpty(path)) {
+			int i = path.lastIndexOf(File.separator);
+			if (i > 0) {
+				return path.substring(i + 1);
+			}
 		}
 		return null;
 	}

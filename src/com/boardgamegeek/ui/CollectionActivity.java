@@ -365,7 +365,6 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.COLLECTION_NAME);
-		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 		switch (item.getItemId()) {
 			case UIUtils.MENU_ITEM_VIEW: {
@@ -373,11 +372,11 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			}
 			case UIUtils.MENU_ITEM_LOG_PLAY: {
-				ActivityUtils.logPlay(this, false, gameId, gameName, thumbnailUrl);
+				ActivityUtils.logPlay(this, false, gameId, gameName);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_QUICK_LOG_PLAY: {
-				ActivityUtils.logPlay(this, true, gameId, gameName, thumbnailUrl);
+				ActivityUtils.logPlay(this, true, gameId, gameName);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_SHARE: {
@@ -405,7 +404,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			}
 			case UIUtils.MENU_ITEM_COMMENTS: {
-				ActivityUtils.showComments(this, gameId, gameName, thumbnailUrl);
+				ActivityUtils.showComments(this, gameId, gameName);
 			}
 		}
 		return false;
@@ -587,7 +586,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (mShortcut) {
 			Intent shortcut = ActivityUtils.createShortcut(this, cursor.getInt(Query.GAME_ID),
-				cursor.getString(Query.COLLECTION_NAME), cursor.getString(Query.THUMBNAIL_URL));
+				cursor.getString(Query.COLLECTION_NAME));
 			setResult(RESULT_OK, shortcut);
 			finish();
 		} else {
@@ -635,7 +634,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			holder.thumbnailUrl = Collection.buildThumbnailUri(cursor.getInt(Query.COLLECTION_ID));
 
-			Drawable thumbnail = ImageCache.getDrawableFromCache(CollectionActivity.this, holder.thumbnailUrl);
+			Drawable thumbnail = ImageCache.getDrawable(CollectionActivity.this, holder.thumbnailUrl);
 
 			if (thumbnail == null) {
 				holder.thumbnail.setVisibility(View.GONE);
@@ -701,7 +700,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		int YEAR_PUBLISHED = 3;
 		// int GAME_NAME = 4;
 		int GAME_ID = 5;
-		int THUMBNAIL_URL = 6;
+		// int THUMBNAIL_URL = 6;
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {

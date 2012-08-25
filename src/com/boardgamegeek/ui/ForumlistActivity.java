@@ -22,14 +22,14 @@ public class ForumlistActivity extends ListActivity {
 	private static final String GENERAL_FORUMLIST_LINK = "http://boardgamegeek.com/xmlapi2/forumlist?id=1&type=region";
 
 	public static final String KEY_FORUMLIST_ID = "FORUMLIST_ID";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FORUMS = "FORUMS";
 
 	private List<Forum> mForums = new ArrayList<Forum>();
 
 	private int mForumlistId;
-	private String mThumbnailUrl;
+	private int mGameId;
 	private String mGameName;
 
 	@Override
@@ -41,11 +41,11 @@ public class ForumlistActivity extends ListActivity {
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mForumlistId = intent.getExtras().getInt(KEY_FORUMLIST_ID);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
+			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 		} else {
 			mForumlistId = savedInstanceState.getInt(KEY_FORUMLIST_ID);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
+			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
 			mForums = savedInstanceState.getParcelableArrayList(KEY_FORUMS);
 		}
@@ -58,12 +58,12 @@ public class ForumlistActivity extends ListActivity {
 			UIUtils.setTitle(this);
 			findViewById(R.id.forumlist_game_header).setVisibility(View.VISIBLE);
 			findViewById(R.id.forumlist_header_divider).setVisibility(View.VISIBLE);
-			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+			UIUtils.setGameHeader(this, mGameName, mGameId);
 		}
 
 		if (mForums == null || mForums.size() == 0) {
 			String url = TextUtils.isEmpty(mGameName) ? GENERAL_FORUMLIST_LINK : HttpUtils
-					.constructForumlistUrl(mForumlistId);
+				.constructForumlistUrl(mForumlistId);
 			ForumsUtils.ForumlistTask task = new ForumsUtils.ForumlistTask(this, mForums, url, mGameName, TAG);
 
 			task.execute();
@@ -76,7 +76,7 @@ public class ForumlistActivity extends ListActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt(KEY_FORUMLIST_ID, mForumlistId);
-		outState.putString(KEY_THUMBNAIL_URL, mThumbnailUrl);
+		outState.putInt(KEY_GAME_ID, mGameId);
 		outState.putString(KEY_GAME_NAME, mGameName);
 		outState.putParcelableArrayList(KEY_FORUMS, (ArrayList<? extends Parcelable>) mForums);
 	}
@@ -95,8 +95,8 @@ public class ForumlistActivity extends ListActivity {
 		if (holder != null) {
 			Intent forumsIntent = new Intent(this, ForumActivity.class);
 			forumsIntent.putExtra(ForumActivity.KEY_FORUM_ID, holder.forumId);
+			forumsIntent.putExtra(ForumActivity.KEY_GAME_ID, mGameId);
 			forumsIntent.putExtra(ForumActivity.KEY_GAME_NAME, mGameName);
-			forumsIntent.putExtra(ForumActivity.KEY_THUMBNAIL_URL, mThumbnailUrl);
 			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
 			forumsIntent.putExtra(ForumActivity.KEY_NUM_THREADS, holder.numThreads.getText());
 			this.startActivity(forumsIntent);

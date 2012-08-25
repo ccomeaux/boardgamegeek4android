@@ -34,6 +34,7 @@ import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.Games;
 
 public class ImageCache {
 	private static final String TAG = makeLogTag(ImageCache.class);
@@ -41,25 +42,43 @@ public class ImageCache {
 
 	private static HttpClient sHttpClient;
 
-	public static Drawable getDrawableFromCache(Context context, Uri uri) {
-		return getDrawable(context, uri, null, null);
+	public static Drawable getDrawable(Context context, Uri uri) {
+		return getDrawable(context, uri, null, null, null);
+	}
+
+	public static Drawable getDrawable(Context context, Uri uri, String url) {
+		return getDrawable(context, uri, null, null, url);
+	}
+
+	public static Drawable getGameThumbnail(Context context, Uri uri) {
+		return getDrawable(context, uri, Games.buildGameUri(Games.getGameId(uri)), Games.THUMBNAIL_URL, null);
 	}
 
 	public static Drawable getCollectionThumbnail(Context context, Uri uri) {
-		return getDrawable(context, uri, Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL);
+		return getDrawable(context, uri, Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL,
+			null);
 	}
 
 	public static Drawable getAvatar(Context context, Uri uri) {
-		return getDrawable(context, uri, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL);
+		return getDrawable(context, uri, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL, null);
 	}
 
-	private static Drawable getDrawable(Context context, Uri drawableUri, Uri fetchUri, String columnName) {
-		Bitmap bitmap = ResolverUtils.getBitmapFromContentProvider(context.getContentResolver(), drawableUri);
-		if (bitmap == null && drawableUri != null && !TextUtils.isEmpty(columnName)) {
-			ContentResolver resolver = context.getContentResolver();
-			String thumbnailUrl = ResolverUtils.queryString(resolver, fetchUri, columnName);
-			if (!INVALID_URL.equals(thumbnailUrl)) {
-				bitmap = fetchBitmap(context, thumbnailUrl);
+	private static Drawable getDrawable(Context context, Uri drawableUri, Uri fetchUri, String columnName,
+		String fetchUrl) {
+		Bitmap bitmap = null;
+		ContentResolver resolver = context.getContentResolver();
+		if (drawableUri != null) {
+			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, drawableUri);
+		}
+		if (bitmap == null) {
+			String url = null;
+			if (!TextUtils.isEmpty(fetchUrl)) {
+				url = fetchUrl;
+			} else if (fetchUri != null && !TextUtils.isEmpty(columnName)) {
+				url = ResolverUtils.queryString(resolver, fetchUri, columnName);
+			}
+			if (!TextUtils.isEmpty(url) && !INVALID_URL.equals(url)) {
+				bitmap = fetchBitmap(context, url);
 				if (bitmap != null) {
 					ResolverUtils.putBitmapInContentProvider(resolver, drawableUri, bitmap);
 				}

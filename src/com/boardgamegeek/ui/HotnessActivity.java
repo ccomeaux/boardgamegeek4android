@@ -137,7 +137,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 		}
 	}
 
-	private class ThumbnailTask extends AsyncTask<Void, String, Void> {
+	private class ThumbnailTask extends AsyncTask<Void, Void, Void> {
 
 		private ListView mView;
 
@@ -151,8 +151,10 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 			while (!isCancelled()) {
 				try {
 					String url = mThumbnailQueue.take();
-					ImageCache.getImage(HotnessActivity.this, url);
-					publishProgress(url);
+					String[] parts = url.split("|");
+					ImageCache.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(Integer.valueOf(parts[0])),
+						parts[1]);
+					publishProgress();
 				} catch (InterruptedException e) {
 					LOGW(TAG, e.toString());
 				}
@@ -161,7 +163,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 		}
 
 		@Override
-		protected void onProgressUpdate(String... values) {
+		protected void onProgressUpdate(Void... values) {
 			mView.invalidateViews();
 		}
 	}
@@ -189,13 +191,12 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 				holder.rank.setText("" + game.Rank);
 				holder.name.setText(game.Name);
 				if (game.YearPublished > 0) {
-					holder.year.setText("" + game.YearPublished);
+					holder.year.setText(String.valueOf(game.YearPublished));
 				}
-				// holder.gameId.setText(String.format(getResources().getString(R.string.id_list_text),
-				// game.Id));
 				holder.thumbnailUrl = game.ThumbnailUrl;
 
-				Drawable thumbnail = ImageCache.getDrawableFromCache(holder.thumbnailUrl);
+				Drawable thumbnail = ImageCache.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(game.Id),
+					holder.thumbnailUrl);
 				if (thumbnail == null) {
 					holder.thumbnail.setVisibility(View.GONE);
 				} else {
@@ -236,7 +237,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 			for (int i = 0; i < count; i++) {
 				ViewHolder vh = (ViewHolder) view.getChildAt(i).getTag();
 				if (vh.thumbnailUrl != null) {
-					mThumbnailQueue.offer(vh.thumbnailUrl);
+					mThumbnailQueue.offer(vh.gameId + "|" + vh.thumbnailUrl);
 				}
 			}
 		} else {

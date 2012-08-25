@@ -39,7 +39,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
@@ -49,7 +48,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	private int mGameId;
 	private String mGameName;
-	private String mThumbnailUrl;
 
 	private UsernameAdapter mUsernameAdapter;
 	private ColorAdapter mColorAdapter;
@@ -83,7 +81,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		final Intent intent = getIntent();
 		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-		mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 
 		if (savedInstanceState == null) {
 			mPlayer = new Player(intent);
@@ -102,7 +99,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 		UIUtils u = new UIUtils(this);
 		u.setGameName(mGameName);
-		u.setThumbnail(mThumbnailUrl);
+		u.setThumbnail(mGameId);
 
 		mUsernameAdapter = new UsernameAdapter(this);
 		mUsername.setAdapter(mUsernameAdapter);
@@ -174,17 +171,17 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	private boolean hideTeamColor() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerTeamColor() && !mTeamColorShown
-				&& TextUtils.isEmpty(mPlayer.TeamColor);
+			&& TextUtils.isEmpty(mPlayer.TeamColor);
 	}
 
 	private boolean hidePosition() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerPosition() && !mPositionShown
-				&& TextUtils.isEmpty(mPlayer.StartingPosition);
+			&& TextUtils.isEmpty(mPlayer.StartingPosition);
 	}
 
 	private boolean hideScore() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerScore() && !mScoreShown
-				&& TextUtils.isEmpty(mPlayer.Score);
+			&& TextUtils.isEmpty(mPlayer.Score);
 	}
 
 	private boolean hideRating() {
@@ -370,12 +367,12 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 			String[] selectionArgs = null;
 			if (!TextUtils.isEmpty(constraint)) {
 				selection = Buddies.BUDDY_NAME + " LIKE ? OR " + Buddies.BUDDY_FIRSTNAME + " LIKE ? OR "
-						+ Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
+					+ Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
 				String selectionArg = constraint + "%";
 				selectionArgs = new String[] { selectionArg, selectionArg, selectionArg, selectionArg };
 			}
 			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, selectionArgs,
-					Buddies.NAME_SORT);
+				Buddies.NAME_SORT);
 		}
 	}
 
@@ -409,13 +406,13 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 				selectionArgs = new String[] { constraint + "%" };
 			}
 			return getContentResolver().query(Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, selection,
-					selectionArgs, null);
+				selectionArgs, null);
 		}
 	}
 
 	private interface BuddiesQuery {
 		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-				Buddies.PLAY_NICKNAME };
+			Buddies.PLAY_NICKNAME };
 		int NAME = 1;
 		int FIRST_NAME = 2;
 		int LAST_NAME = 3;

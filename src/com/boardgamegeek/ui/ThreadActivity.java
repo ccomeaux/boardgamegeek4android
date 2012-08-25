@@ -22,16 +22,16 @@ public class ThreadActivity extends ListActivity {
 	private final String TAG = "ThreadActivity";
 
 	public static final String KEY_THREAD_ID = "THREAD_ID";
+	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
 	public static final String KEY_ARTICLES = "ARTICLES";
 
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 
 	private String mThreadId;
+	private int mGameId;
 	private String mGameName;
-	private String mThumbnailUrl;
 	private String mThreadSubject;
 
 	@Override
@@ -43,13 +43,13 @@ public class ThreadActivity extends ListActivity {
 		if (savedInstanceState == null) {
 			final Intent intent = getIntent();
 			mThreadId = intent.getExtras().getString(KEY_THREAD_ID);
+			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
 			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThumbnailUrl = intent.getExtras().getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = intent.getExtras().getString(KEY_THREAD_SUBJECT);
 		} else {
 			mThreadId = savedInstanceState.getString(KEY_THREAD_ID);
+			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
 			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThumbnailUrl = savedInstanceState.getString(KEY_THUMBNAIL_URL);
 			mThreadSubject = savedInstanceState.getString(KEY_THREAD_SUBJECT);
 			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
 		}
@@ -64,12 +64,12 @@ public class ThreadActivity extends ListActivity {
 		} else {
 			findViewById(R.id.thread_game_header).setVisibility(View.VISIBLE);
 			findViewById(R.id.thread_header_divider).setVisibility(View.VISIBLE);
-			UIUtils.setGameHeader(this, mGameName, mThumbnailUrl);
+			UIUtils.setGameHeader(this, mGameName, mGameId);
 		}
 
 		if (mArticles == null || mArticles.size() == 0) {
 			ForumsUtils.ThreadTask task = new ForumsUtils.ThreadTask(this, mArticles,
-					HttpUtils.constructThreadUrl(mThreadId), mThreadSubject, TAG);
+				HttpUtils.constructThreadUrl(mThreadId), mThreadSubject, TAG);
 			task.execute();
 		} else {
 			setListAdapter(new ForumsUtils.ThreadAdapter(this, mArticles));
