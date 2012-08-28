@@ -34,7 +34,7 @@ import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
@@ -117,7 +117,7 @@ public class BuddyActivity extends ListActivity implements AsyncQueryListener {
 
 		@Override
 		protected Drawable doInBackground(Uri... params) {
-			return ImageCache.getAvatar(BuddyActivity.this, params[0]);
+			return ImageUtils.getAvatar(BuddyActivity.this, params[0]);
 		}
 
 		@Override

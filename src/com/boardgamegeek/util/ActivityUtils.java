@@ -164,7 +164,7 @@ public class ActivityUtils {
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, gameName);
 
-		BitmapDrawable d = (BitmapDrawable) ImageCache.getDrawable(context, Games.buildThumbnailUri(gameId));
+		BitmapDrawable d = (BitmapDrawable) ImageUtils.getDrawable(context, Games.buildThumbnailUri(gameId));
 		if (d == null) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
 				Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));

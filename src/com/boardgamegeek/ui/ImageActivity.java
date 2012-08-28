@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ImageActivity extends Activity {
@@ -35,7 +35,7 @@ public class ImageActivity extends Activity {
 		final Intent intent = getIntent();
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
-		Drawable d = ImageCache.getImageFromCache(this, intent.getStringExtra(KEY_THUMBNAIL_URL));
+		Drawable d = ImageUtils.getImageFromCache(this, intent.getStringExtra(KEY_THUMBNAIL_URL));
 		if (d != null) {
 			mImageView.setVisibility(View.VISIBLE);
 			mImageView.setImageDrawable(d);
@@ -71,7 +71,7 @@ public class ImageActivity extends Activity {
 		@Override
 		protected Drawable doInBackground(String... params) {
 			try {
-				return ImageCache.getImage(ImageActivity.this, params[0]);
+				return ImageUtils.getImage(ImageActivity.this, params[0]);
 			} catch (OutOfMemoryError e) {
 				mOomError = true;
 			}

@@ -33,8 +33,8 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class ImageCache {
-	private static final String TAG = makeLogTag(ImageCache.class);
+public class ImageUtils {
+	private static final String TAG = makeLogTag(ImageUtils.class);
 	private static final String INVALID_URL = "N/A";
 
 	private static HttpClient sHttpClient;

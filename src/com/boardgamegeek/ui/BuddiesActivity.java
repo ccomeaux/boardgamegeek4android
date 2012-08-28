@@ -33,7 +33,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.UIUtils;
@@ -178,7 +178,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 			holder.name.setText(cursor.getString(BuddiesQuery.NAME));
 			holder.avatarUrl = Buddies.buildAvatarUri(buddyId);
 
-			Drawable thumbnail = ImageCache.getDrawable(BuddiesActivity.this, holder.avatarUrl);
+			Drawable thumbnail = ImageUtils.getDrawable(BuddiesActivity.this, holder.avatarUrl);
 			if (thumbnail == null) {
 				holder.avatar.setVisibility(View.GONE);
 			} else {
@@ -228,7 +228,7 @@ public class BuddiesActivity extends ListActivity implements AsyncQueryListener,
 			while (!isCancelled()) {
 				try {
 					Uri uri = mThumbnailQueue.take();
-					ImageCache.getAvatar(BuddiesActivity.this, uri);
+					ImageUtils.getAvatar(BuddiesActivity.this, uri);
 					publishProgress();
 				} catch (InterruptedException e) {
 					LOGE(TAG, "getting buddies", e);

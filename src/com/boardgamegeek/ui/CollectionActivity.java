@@ -77,7 +77,7 @@ import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.StringUtils;
@@ -634,7 +634,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			holder.thumbnailUrl = Collection.buildThumbnailUri(cursor.getInt(Query.COLLECTION_ID));
 
-			Drawable thumbnail = ImageCache.getDrawable(CollectionActivity.this, holder.thumbnailUrl);
+			Drawable thumbnail = ImageUtils.getDrawable(CollectionActivity.this, holder.thumbnailUrl);
 
 			if (thumbnail == null) {
 				holder.thumbnail.setVisibility(View.GONE);
@@ -675,7 +675,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			while (!isCancelled()) {
 				try {
 					Uri uri = mThumbnailQueue.take();
-					ImageCache.getCollectionThumbnail(CollectionActivity.this, uri);
+					ImageUtils.getCollectionThumbnail(CollectionActivity.this, uri);
 					publishProgress();
 				} catch (InterruptedException e) {
 					LOGE(TAG, "getting image from cache", e);
