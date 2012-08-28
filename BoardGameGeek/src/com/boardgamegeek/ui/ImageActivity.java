@@ -35,12 +35,12 @@ public class ImageActivity extends Activity {
 		final Intent intent = getIntent();
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
-		Drawable d = ImageCache.getDrawableFromCache(intent.getStringExtra(KEY_THUMBNAIL_URL));
+		Drawable d = ImageCache.getImageFromCache(this, intent.getStringExtra(KEY_THUMBNAIL_URL));
 		if (d != null) {
 			mImageView.setVisibility(View.VISIBLE);
 			mImageView.setImageDrawable(d);
 		}
-		
+
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		((TextView) findViewById(R.id.game_name)).setText(gameName);
 
@@ -71,7 +71,7 @@ public class ImageActivity extends Activity {
 		@Override
 		protected Drawable doInBackground(String... params) {
 			try {
-				return ImageCache.getImage(ImageActivity.this, params[0], true);
+				return ImageCache.getImage(ImageActivity.this, params[0]);
 			} catch (OutOfMemoryError e) {
 				mOomError = true;
 			}
