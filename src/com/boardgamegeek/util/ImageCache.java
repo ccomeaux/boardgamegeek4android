@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,7 +29,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.database.ResolverUtils;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -78,7 +75,7 @@ public class ImageCache {
 				url = ResolverUtils.queryString(resolver, fetchUri, columnName);
 			}
 			if (!TextUtils.isEmpty(url) && !INVALID_URL.equals(url)) {
-				bitmap = fetchBitmap(context, url);
+				bitmap = downloadBitmap(context, url);
 				if (bitmap != null) {
 					ResolverUtils.putBitmapInContentProvider(resolver, drawableUri, bitmap);
 				}
@@ -91,30 +88,7 @@ public class ImageCache {
 		return new BitmapDrawable(bitmap);
 	}
 
-	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
-		return getImage(context, url, false);
-	}
-
-	public static Drawable getImage(Context context, String url, boolean useTempCache) throws OutOfMemoryError {
-		if (INVALID_URL.equals(url)) {
-			return null;
-		}
-
-		Drawable drawable = getDrawableFromCache(url, useTempCache, context);
-		if (drawable != null) {
-			LOGI(TAG, url + " found in cache!");
-			return drawable;
-		}
-
-		Bitmap bitmap = fetchBitmap(context, url);
-		if (bitmap != null) {
-			addImageToCache(url, bitmap, useTempCache, context);
-			return new BitmapDrawable(bitmap);
-		}
-		return null;
-	}
-
-	private static Bitmap fetchBitmap(Context context, String url) {
+	private static Bitmap downloadBitmap(Context context, String url) {
 		Bitmap bitmap = null;
 		try {
 			final HttpClient client = getHttpClient(context);
@@ -137,26 +111,37 @@ public class ImageCache {
 		return bitmap;
 	}
 
-	public static Drawable getDrawableFromCache(String url) {
-		return getDrawableFromCache(url, false, null);
+	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
+		if (TextUtils.isEmpty(url) || INVALID_URL.equals(url)) {
+			return null;
+		}
+
+		Drawable drawable = getImageFromCache(context, url);
+		if (drawable != null) {
+			LOGI(TAG, url + " found in cache!");
+			return drawable;
+		}
+
+		Bitmap bitmap = downloadBitmap(context, url);
+		if (bitmap != null) {
+			addImageToCache(url, bitmap, context);
+			return new BitmapDrawable(bitmap);
+		}
+		return null;
 	}
 
-	public static Drawable getDrawableFromCache(String url, boolean useTempCache, Context context) {
-		final String fileName = getFileNameFromUrl(url);
-		final File file = getExistingImageFile(fileName, useTempCache, context);
+	public static Drawable getImageFromCache(Context context, String url) {
+		final String fileName = FileUtils.getFileNameFromUrl(url);
+		final File file = getExistingImageFile(fileName, context);
 		if (file != null) {
 			return Drawable.createFromPath(file.getAbsolutePath());
 		}
 		return null;
 	}
 
-	public static File getExistingImageFile(String fileName) {
-		return getExistingImageFile(fileName, false, null);
-	}
-
-	public static File getExistingImageFile(String fileName, boolean useTempCache, Context context) {
+	private static File getExistingImageFile(String fileName, Context context) {
 		if (!TextUtils.isEmpty(fileName)) {
-			final File file = new File(useTempCache ? context.getCacheDir() : getCacheDirectory(), fileName);
+			final File file = new File(getCacheDirectory(context), fileName);
 			if (file.exists()) {
 				return file;
 			}
@@ -164,28 +149,25 @@ public class ImageCache {
 		return null;
 	}
 
-	public static boolean clear() {
-		File cacheDirectory = getCacheDirectory();
-		if (cacheDirectory.exists()) {
-			File[] files = cacheDirectory.listFiles();
-			for (File file : files) {
-				file.delete();
-			}
-			return cacheDirectory.delete();
+	public static boolean clearCache(Context context) {
+		try {
+			FileUtils.deleteContents(getCacheDirectory(context));
+		} catch (IOException e) {
+			LOGE(TAG, "Error clearing the cache", e);
+			return false;
 		}
 		return true;
 	}
 
-	private static boolean addImageToCache(String url, Bitmap bitmap, boolean useTempCache, Context context) {
-		if (!useTempCache && !ensureCache()) {
+	private static boolean addImageToCache(String url, Bitmap bitmap, Context context) {
+		File cacheDir = getCacheDirectory(context);
+		if (cacheDir == null) {
 			return false;
 		}
 
-		if (useTempCache) {
-			cleanTempCache(context);
-		}
+		FileUtils.trimDirectory(cacheDir, 10);
 
-		File imageFile = new File(useTempCache ? context.getCacheDir() : getCacheDirectory(), getFileNameFromUrl(url));
+		File imageFile = new File(cacheDir, FileUtils.getFileNameFromUrl(url));
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(imageFile);
@@ -199,47 +181,14 @@ public class ImageCache {
 		return true;
 	}
 
-	private static String getFileNameFromUrl(String url) {
-		if (TextUtils.isEmpty(url)) {
-			return null;
-		}
-		Uri uri = Uri.parse(url);
-		if (uri == null) {
-			return null;
-		}
-		return uri.getLastPathSegment();
-	}
-
-	private static File getCacheDirectory() {
-		if (!isExternalStorageAvailable()) {
-			return null;
-		}
-		final File file = new File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY);
-		return new File(file, ".imagecache");
-	}
-
-	private static boolean ensureCache() {
-		if (!isExternalStorageAvailable()) {
-			return false;
-		}
-		try {
-			File cacheDirectory = getCacheDirectory();
-			if (!cacheDirectory.exists()) {
-				cacheDirectory.mkdirs();
-				new File(cacheDirectory, ".nomedia").createNewFile();
-			}
-		} catch (IOException e) {
-			LOGE(TAG, "Could not create cache directory", e);
-			return false;
-		}
-		return true;
-	}
-
-	private static boolean isExternalStorageAvailable() {
+	private static File getCacheDirectory(Context context) {
+		File file;
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			return true;
+			file = context.getExternalCacheDir();
+		} else {
+			file = context.getCacheDir();
 		}
-		return false;
+		return file;
 	}
 
 	private static synchronized HttpClient getHttpClient(Context context) {
@@ -255,27 +204,6 @@ public class ImageCache {
 				stream.close();
 			} catch (IOException e) {
 				LOGE(TAG, "Could not close stream", e);
-			}
-		}
-	}
-
-	private static void cleanTempCache(Context context) {
-		File dir = context.getCacheDir();
-		File[] files = dir.listFiles();
-		if (files.length > 10) {
-			Arrays.sort(files, new ComparatorImplementation());
-			files[0].delete();
-		}
-	}
-
-	private static final class ComparatorImplementation implements Comparator<File> {
-		public int compare(File f1, File f2) {
-			if (f1.lastModified() > f2.lastModified()) {
-				return -1;
-			} else if (f1.lastModified() < f2.lastModified()) {
-				return 1;
-			} else {
-				return 0;
 			}
 		}
 	}

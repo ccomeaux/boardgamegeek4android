@@ -75,7 +75,7 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += mResolver.delete(CollectionViews.CONTENT_URI, null, null);
 			LOGD(TAG, "Removed " + count + " records");
 
-			if (ImageCache.clear()) {
+			if (ImageCache.clearCache(getContext())) {
 				LOGD(TAG, "Cleared image cache");
 			} else {
 				LOGD(TAG, "Unable to clear image cache (expected)");

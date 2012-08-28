@@ -1,12 +1,18 @@
 package com.boardgamegeek.provider;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.io.File;
+import java.io.IOException;
+
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -27,6 +33,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
@@ -36,8 +43,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "bgg.db";
 
-	// NOTE: carefully update onUpgrade() when bumping database versions to make
-	// sure user data is saved.
+	// NOTE: carefully update onUpgrade() when bumping database versions to make sure user data is saved.
 	private static final int VER_INITIAL = 1;
 	private static final int VER_WISHLIST_PRIORITY = 2;
 	private static final int VER_GAME_COLORS = 3;
@@ -49,7 +55,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_VIEWS = 9;
 	private static final int VER_COLLECTION_VIEWS_SORT = 10;
 	private static final int VER_CASCADING_DELETE = 11;
-	private static final int DATABASE_VERSION = VER_CASCADING_DELETE;
+	private static final int VER_IMAGE_CACHE = 12;
+	private static final int DATABASE_VERSION = VER_IMAGE_CACHE;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -471,6 +478,17 @@ public class BggDatabase extends SQLiteOpenHelper {
 				buildPlayPlayersTable().replace(db);
 				buildCollectionViewFiltersTable().replace(db);
 				version = VER_CASCADING_DELETE;
+			case VER_CASCADING_DELETE:
+				// remove the old cache directory
+				try {
+					File oldCacheDirectory = new File(Environment.getExternalStorageDirectory(),
+						BggContract.CONTENT_AUTHORITY);
+					FileUtils.deleteContents(oldCacheDirectory);
+					oldCacheDirectory.delete();
+				} catch (IOException e) {
+					LOGE(TAG, "Error clearing the cache", e);
+				}
+				version = VER_IMAGE_CACHE;
 		}
 
 		if (version != DATABASE_VERSION) {
