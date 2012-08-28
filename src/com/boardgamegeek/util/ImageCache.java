@@ -85,7 +85,7 @@ public class ImageCache {
 		if (bitmap == null) {
 			return null;
 		}
-		return new BitmapDrawable(bitmap);
+		return new BitmapDrawable(context.getResources(), bitmap);
 	}
 
 	private static Bitmap downloadBitmap(Context context, String url) {
@@ -125,7 +125,7 @@ public class ImageCache {
 		Bitmap bitmap = downloadBitmap(context, url);
 		if (bitmap != null) {
 			addImageToCache(url, bitmap, context);
-			return new BitmapDrawable(bitmap);
+			return new BitmapDrawable(context.getResources(), bitmap);
 		}
 		return null;
 	}

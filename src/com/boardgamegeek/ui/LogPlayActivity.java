@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -23,6 +22,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -331,12 +331,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	private void launchStartNotification(Intent intent) {
-		String title = getResources().getString(R.string.notification_title);
-		String message = String.format(getResources().getString(R.string.notification_text_playing), mPlay.GameName);
-		Notification notification = new Notification(R.drawable.ic_stat_play, message, System.currentTimeMillis());
-		notification.setLatestEventInfo(this, title, message,
-			PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
-		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notification);
+		String title = getString(R.string.notification_title);
+		String message = String.format(getString(R.string.notification_text_playing), mPlay.GameName);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+		builder.setContentTitle(title).setContentText(message).setTicker(message).setSmallIcon(R.drawable.ic_stat_play)
+			.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, builder.build());
 	}
 
 	private CharSequence[] createAddFieldArray() {

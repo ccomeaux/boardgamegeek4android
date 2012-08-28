@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -169,7 +168,9 @@ public class Play {
 	}
 
 	public CharSequence getDateText() {
-		return df.format(new Date(Year - 1900, Month, Day));
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Year, Month, Day);
+		return df.format(calendar.getTime());
 	}
 
 	public void setDate(int year, int month, int day) {
@@ -179,12 +180,12 @@ public class Play {
 	}
 
 	public void setDate(String date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		try {
-			Date d = sdf.parse(date);
-			Year = d.getYear() + 1900;
-			Month = d.getMonth();
-			Day = d.getDate();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(date));
+			Year = calendar.get(Calendar.YEAR);
+			Month = calendar.get(Calendar.MONTH);
+			Day = calendar.get(Calendar.DAY_OF_MONTH);
 		} catch (ParseException e) {
 			LOGE(TAG, "Couldn't parse " + date, e);
 		}
@@ -247,7 +248,7 @@ public class Play {
 		}
 		if (mPlayers.size() > 0) {
 			sb.append(" ").append(r.getString(R.string.share_play_with)).append(" ").append(mPlayers.size())
-					.append(" ").append(r.getString(R.string.share_play_players));
+				.append(" ").append(r.getString(R.string.share_play_players));
 		}
 		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
 		return sb.toString();

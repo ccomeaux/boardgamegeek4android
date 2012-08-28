@@ -144,7 +144,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 				// Ratings
 				mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
-						mFormat.format(cursor.getInt(GameQuery.STATS_USERS_RATED))));
+					mFormat.format(cursor.getInt(GameQuery.STATS_USERS_RATED))));
 				mAverageStatBar.setBar(R.string.average_meter_text, cursor.getDouble(GameQuery.STATS_AVERAGE));
 				mBayesAverageBar.setBar(R.string.bayes_meter_text, cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE));
 				final double median = cursor.getDouble(GameQuery.STATS_MEDIAN);
@@ -155,11 +155,11 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 					mMedianBar.setBar(R.string.median_meter_text, median);
 				}
 				mStdDevBar
-						.setBar(R.string.stdDev_meter_text, cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION), 5.0);
+					.setBar(R.string.stdDev_meter_text, cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION), 5.0);
 
 				// Weight
 				mWeightCount.setText(String.format(getResources().getString(R.string.weight_count),
-						mFormat.format(cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS))));
+					mFormat.format(cursor.getInt(GameQuery.STATS_NUMBER_WEIGHTS))));
 				final double weight = cursor.getDouble(GameQuery.STATS_AVERAGE_WEIGHT);
 				int textId = R.string.weight_1_text;
 				if (weight >= 4.5) {
@@ -213,19 +213,19 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
-		layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT));
+		layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.WRAP_CONTENT));
 
 		TextView tv = new TextView(this, null, R.style.StatsHeading);
 		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT));
+			LinearLayout.LayoutParams.WRAP_CONTENT));
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
 		setText(tv, label, bold);
 		layout.addView(tv);
 
 		tv = new TextView(this);
-		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT));
+		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.WRAP_CONTENT));
 		tv.setTextAppearance(this, android.R.style.TextAppearance_Small);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
 		tv.setGravity(Gravity.RIGHT);
@@ -234,8 +234,8 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 		layout.addView(tv);
 
 		StatBar sb = new StatBar(this);
-		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-				LinearLayout.LayoutParams.FILL_PARENT));
+		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.MATCH_PARENT));
 		sb.setPadding(mRankPadding, mRankPadding, mRankPadding, mRankPadding);
 		sb.setBar(R.string.average_meter_text, rating);
 
@@ -285,9 +285,9 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 	private interface GameQuery {
 		String[] PROJECTION = { Games.STATS_USERS_RATED, Games.STATS_AVERAGE, Games.STATS_BAYES_AVERAGE,
-				Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS,
-				Games.STATS_AVERAGE_WEIGHT, Games.STATS_NUMBER_COMMENTS, Games.STATS_NUMBER_OWNED,
-				Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING, Games.STATS_NUMBER_WISHING };
+			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
+			Games.STATS_NUMBER_COMMENTS, Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING,
+			Games.STATS_NUMBER_WANTING, Games.STATS_NUMBER_WISHING };
 
 		int STATS_USERS_RATED = 0;
 		int STATS_AVERAGE = 1;
@@ -305,7 +305,7 @@ public class GameStatsActivityTab extends Activity implements AsyncQueryListener
 
 	private interface RankQuery {
 		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
-				GameRanks.GAME_RANK_BAYES_AVERAGE };
+			GameRanks.GAME_RANK_BAYES_AVERAGE };
 
 		int GAME_RANK_FRIENDLY_NAME = 0;
 		int GAME_RANK_VALUE = 1;

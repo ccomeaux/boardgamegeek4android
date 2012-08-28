@@ -5,7 +5,6 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,16 +133,16 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
-		link(context, "http://boardgameprices.com/iphone/?s=" + URLEncoder.encode(gameName));
+		link(context, "http://boardgameprices.com/iphone/?s=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
-		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + URLEncoder.encode(gameName)
+		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + HttpUtils.encode(gameName)
 			+ "&i=toys-and-games&submitSearch=GO");
 	}
 
 	public static void linkEbay(Context context, String gameName) {
-		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + URLEncoder.encode(gameName));
+		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
 	}
 
 	private static void link(Context context, String link) {

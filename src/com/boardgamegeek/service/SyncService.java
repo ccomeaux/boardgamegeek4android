@@ -11,12 +11,12 @@ import java.util.List;
 import org.apache.http.client.HttpClient;
 
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -68,7 +68,7 @@ public class SyncService extends IntentService implements LogInListener {
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 
 		if (BggApplication.getInstance().getSyncStatuses() != null
-				&& BggApplication.getInstance().getSyncStatuses().length > 0) {
+			&& BggApplication.getInstance().getSyncStatuses().length > 0) {
 			List<SyncTask> list = new ArrayList<SyncTask>(2);
 			list.add(new SyncCollectionList());
 			list.add(new SyncCollectionDetail());
@@ -140,7 +140,7 @@ public class SyncService extends IntentService implements LogInListener {
 			}
 
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
-					+ (mUseGzip ? "on" : "off"));
+				+ (mUseGzip ? "on" : "off"));
 		} catch (Exception e) {
 			LOGE(TAG, "", e);
 			sendError(e.toString());
@@ -199,19 +199,15 @@ public class SyncService extends IntentService implements LogInListener {
 		String message = getResources().getString(messageId);
 		String title = getResources().getString(R.string.notification_title);
 
-		Notification notification = new Notification(android.R.drawable.stat_notify_sync, title + " - " + message,
-				System.currentTimeMillis());
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
 
-		Intent i = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
-				Intent.ACTION_SYNC);
-		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+		Intent intent = new Intent(this, HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(
+			Intent.ACTION_SYNC);
+		builder.setContentTitle(title).setContentText(message).setTicker(title + " - " + message)
+			.setSmallIcon(android.R.drawable.stat_notify_sync)
+			.setContentIntent(PendingIntent.getActivity(this, 0, intent, 0)).setAutoCancel(cancelNotification);
 
-		if (cancelNotification) {
-			notification.flags |= Notification.FLAG_AUTO_CANCEL;
-		}
-
-		notification.setLatestEventInfo(this, title, message, pi);
-		mNotificationManager.notify(NOTIFICATION_ID, notification);
+		mNotificationManager.notify(NOTIFICATION_ID, builder.build());
 	}
 
 	@Override

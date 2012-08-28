@@ -55,7 +55,7 @@ public class HttpUtils {
 	public static String constructSearchUrl(String searchTerm, boolean useExact) {
 		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
 		// http://boardgamegeek.com/xmlapi2/search?type=boardgame&query=puerto+rico
-		String queryUrl = BASE_URL + "search?search=" + URLEncoder.encode(searchTerm);
+		String queryUrl = BASE_URL + "search?search=" + encode(searchTerm);
 		if (useExact) {
 			queryUrl += "&exact=1";
 		}
@@ -111,7 +111,7 @@ public class HttpUtils {
 	public static String constructPlaysUrlOld(String username) {
 		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&maxdate=2011-12-03
 		String maxDate = BggApplication.getInstance().getMaxPlayDate();
-		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		String url = BASE_URL_2 + "plays?username=" + encode(username);
 		if (!TextUtils.isEmpty(maxDate)) {
 			url += "&maxdate=" + maxDate;
 		}
@@ -121,7 +121,7 @@ public class HttpUtils {
 	public static String constructPlaysUrlNew(String username) {
 		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&mindate=2011-12-03
 		String minDate = BggApplication.getInstance().getMinPlayDate();
-		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		String url = BASE_URL_2 + "plays?username=" + encode(username);
 		if (!TextUtils.isEmpty(minDate)) {
 			url += "&mindate=" + minDate;
 		}
@@ -131,7 +131,7 @@ public class HttpUtils {
 	public static String constructPlayUrlSpecific(int gameId, String date) {
 		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&id=13&mindate=2011-12-03&maxdate=2011-12-03
 		String username = BggApplication.getInstance().getUserName();
-		String url = BASE_URL_2 + "plays?username=" + URLEncoder.encode(username);
+		String url = BASE_URL_2 + "plays?username=" + encode(username);
 		url += "&id=" + String.valueOf(gameId);
 		if (!TextUtils.isEmpty(date)) {
 			url += "&mindate=" + date;
@@ -146,7 +146,7 @@ public class HttpUtils {
 
 	public static String constructUserUrl(String username, boolean includeBuddies) {
 		// http://www.boardgamegeek.com/xmlapi2/user?name=ccomeaux&buddies=1
-		String url = BASE_URL_2 + "user?name=" + URLEncoder.encode(username);
+		String url = BASE_URL_2 + "user?name=" + encode(username);
 		if (includeBuddies) {
 			url += "&buddies=1";
 		}
@@ -155,8 +155,8 @@ public class HttpUtils {
 
 	private static String constructCollectionUrl(String username, String status, boolean includeStats) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
-		return BASE_URL_2 + "collection?username=" + URLEncoder.encode(username) + "&" + status.trim()
-				+ "=1&showprivate=1" + (includeStats ? "&stats=1" : "");
+		return BASE_URL_2 + "collection?username=" + encode(username) + "&" + status.trim() + "=1&showprivate=1"
+			+ (includeStats ? "&stats=1" : "");
 	}
 
 	public static String constructCollectionUrl(String username, String status) {
@@ -172,7 +172,7 @@ public class HttpUtils {
 	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
 		return constructCollectionUrl(username, status) + "&modifiedsince="
-				+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(modifiedSince));
+			+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(modifiedSince));
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {
@@ -309,5 +309,14 @@ public class HttpUtils {
 			stream.close();
 		}
 		return sb.toString().trim();
+	}
+
+	public static String encode(String s) {
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			LOGE(TAG, "What do you mean UTF-8 isn't supported?!", e);
+		}
+		return s;
 	}
 }
