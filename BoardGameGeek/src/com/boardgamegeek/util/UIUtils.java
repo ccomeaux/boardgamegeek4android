@@ -134,7 +134,7 @@ public class UIUtils {
 			if (mActivity == null || mThumbnail == null) {
 				return null;
 			}
-			return ImageCache.getGameThumbnail(mActivity, params[0]);
+			return ImageUtils.getGameThumbnail(mActivity, params[0]);
 		}
 
 		@Override

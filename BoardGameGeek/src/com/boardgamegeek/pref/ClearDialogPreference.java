@@ -17,7 +17,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 
 public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = makeLogTag(ClearDialogPreference.class);
@@ -75,7 +75,7 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += mResolver.delete(CollectionViews.CONTENT_URI, null, null);
 			LOGD(TAG, "Removed " + count + " records");
 
-			if (ImageCache.clearCache(getContext())) {
+			if (ImageUtils.clearCache(getContext())) {
 				LOGD(TAG, "Cleared image cache");
 			} else {
 				LOGD(TAG, "Unable to clear image cache (expected)");

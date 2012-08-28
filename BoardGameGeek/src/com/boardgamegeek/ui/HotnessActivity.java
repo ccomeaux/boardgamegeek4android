@@ -33,7 +33,7 @@ import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageCache;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class HotnessActivity extends ListActivity implements AbsListView.OnScrollListener {
@@ -152,7 +152,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 				try {
 					String url = mThumbnailQueue.take();
 					String[] parts = url.split("|");
-					ImageCache.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(Integer.valueOf(parts[0])),
+					ImageUtils.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(Integer.valueOf(parts[0])),
 						parts[1]);
 					publishProgress();
 				} catch (InterruptedException e) {
@@ -195,7 +195,7 @@ public class HotnessActivity extends ListActivity implements AbsListView.OnScrol
 				}
 				holder.thumbnailUrl = game.ThumbnailUrl;
 
-				Drawable thumbnail = ImageCache.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(game.Id),
+				Drawable thumbnail = ImageUtils.getDrawable(HotnessActivity.this, Games.buildThumbnailUri(game.Id),
 					holder.thumbnailUrl);
 				if (thumbnail == null) {
 					holder.thumbnail.setVisibility(View.GONE);
