@@ -16,12 +16,13 @@
 	<application
 		android:name="BggApplication"
 		android:icon="@drawable/ic_launcher"
-		android:label="@string/app_name" >
+		android:label="@string/app_name"
+		android:logo="@drawable/title_logo" >
 		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
@@ -230,7 +231,13 @@
 			android:label="@string/app_name" />
 		<activity
 			android:name=".ui.AboutActivity"
-			android:theme="@style/Theme.Bgg" />
+			android:label="@string/title_about"
+			android:theme="@style/Theme.BoardGameGeek" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" >
+			</meta-data>
+		</activity>
 		<activity
 			android:name=".ui.PollActivity"
 			android:label="@string/title_poll"

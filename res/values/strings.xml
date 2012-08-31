@@ -179,6 +179,7 @@
 	<string name="app_name">BoardGameGeek</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
+	<string name="title_about">About</string>
 	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
