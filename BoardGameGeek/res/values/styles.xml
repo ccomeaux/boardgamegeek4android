@@ -175,4 +175,20 @@
 		<item name="android:textSize">@dimen/text_size_small</item>
 	</style>
 
+	<!-- New Sherlock-based themes -->
+
+	<style name="Theme.BoardGameGeek" parent="Theme.Sherlock.Light.DarkActionBar">
+		<item name="windowContentOverlay">@drawable/actionbar_shadow</item>
+		<item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
+		<item name="actionBarStyle">@style/Widget.BoardGameGeek.ActionBar</item>
+		<item name="android:actionBarStyle">@style/Widget.BoardGameGeek.ActionBar</item>
+	</style>
+
+	<style name="Widget.BoardGameGeek.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+		<item name="background">@drawable/gradient_title</item>
+		<item name="android:background">@drawable/gradient_title</item>
+		<item name="displayOptions">useLogo|showHome|showTitle</item>
+		<item name="android:displayOptions">useLogo|showHome|showTitle</item>
+	</style>
+
 </resources>

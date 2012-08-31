@@ -1,37 +1,34 @@
 package com.boardgamegeek.ui;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.util.UIUtils;
-
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
+import android.support.v4.app.NavUtils;
 import android.webkit.WebView;
 
-public class AboutActivity extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+import com.boardgamegeek.R;
+
+public class AboutActivity extends SherlockActivity {
 	private WebView browser;
 
 	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_about);
-		
-		UIUtils.setTitle(this);
-		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 		browser = (WebView) findViewById(R.id.webkit);
 		browser.loadUrl("file:///android_asset/About.html");
 	}
-	
-	@Override
-	public void setTitle(CharSequence title) {
-		UIUtils.setTitle(this, title);
-	}
-	
-	public void onHomeClick(View v) {
-		UIUtils.resetToHome(this);
-	}
 
-	public void onSearchClick(View v) {
-		onSearchRequested();
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				NavUtils.navigateUpFromSameTask(this);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 }

@@ -2,16 +2,16 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.pref.Preferences;
@@ -23,7 +23,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class HomeActivity extends Activity implements DetachableResultReceiver.Receiver {
+public class HomeActivity extends SherlockActivity implements DetachableResultReceiver.Receiver {
 	private static final String TAG = makeLogTag(HomeActivity.class);
 
 	private State mState;
@@ -33,7 +33,6 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		UIUtils.allowTypeToSearch(this);
-		UIUtils.setTitle(this);
 
 		mState = (State) getLastNonConfigurationInstance();
 		if (mState == null) {
@@ -46,13 +45,14 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	protected void onResume() {
 		super.onResume();
 
-		findViewById(R.id.home_btn_collection).setVisibility(
+		findViewById(R.id.home_btn_collection)
+			.setVisibility(
 				(BggApplication.getInstance().getSyncStatuses() != null && BggApplication.getInstance()
-						.getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
+					.getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
 		findViewById(R.id.home_btn_buddies).setVisibility(
-				BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE : View.GONE);
+			BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE : View.GONE);
 		findViewById(R.id.home_btn_plays).setVisibility(
-				BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
+			BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class HomeActivity extends Activity implements DetachableResultReceiver.R
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		final MenuInflater menuInflater = getMenuInflater();
+		final MenuInflater menuInflater = getSupportMenuInflater();
 		menuInflater.inflate(R.menu.home, menu);
 		return true;
 	}
