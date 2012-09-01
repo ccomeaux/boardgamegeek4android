@@ -3,6 +3,7 @@ package com.boardgamegeek.data;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public abstract class PlayCountSortData extends CollectionSortData {
@@ -17,8 +18,7 @@ public abstract class PlayCountSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		// TODO: need to use R
-		return getScrollText(cursor) + " Plays";
+		return getScrollText(cursor) + " " + mContext.getString(R.string.plays);
 	}
 
 	@Override

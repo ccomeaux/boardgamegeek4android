@@ -2,15 +2,18 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.annotation.TargetApi;
+import android.app.SearchManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -22,6 +25,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockActivity implements DetachableResultReceiver.Receiver {
 	private static final String TAG = makeLogTag(HomeActivity.class);
@@ -69,9 +73,21 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		final MenuInflater menuInflater = getSupportMenuInflater();
-		menuInflater.inflate(R.menu.home, menu);
+		getSupportMenuInflater().inflate(R.menu.home, menu);
+		setupSearchMenuItem(menu);
 		return true;
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void setupSearchMenuItem(Menu menu) {
+		MenuItem searchItem = menu.findItem(R.id.menu_search);
+		if (searchItem != null && VersionUtils.hasHoneycomb()) {
+			SearchView searchView = (SearchView) searchItem.getActionView();
+			if (searchView != null) {
+				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+			}
+		}
 	}
 
 	@Override
@@ -92,6 +108,12 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.menu_search:
+				if (!VersionUtils.hasHoneycomb()) {
+					onSearchRequested();
+					return true;
+				}
+				break;
 			case R.id.home_btn_sync:
 				Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
 				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
@@ -109,14 +131,6 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 				return true;
 		}
 		return false;
-	}
-
-	public void onHomeClick(View v) {
-		// do nothing; we're already home
-	}
-
-	public void onSearchClick(View v) {
-		onSearchRequested();
 	}
 
 	public void onCollectionClick(View v) {
