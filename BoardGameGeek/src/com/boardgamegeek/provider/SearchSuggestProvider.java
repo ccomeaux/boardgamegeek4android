@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Games;
@@ -19,6 +20,7 @@ public class SearchSuggestProvider extends BaseProvider {
 
 	private static HashMap<String, String> buildSuggestionProjectionMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(BaseColumns._ID, BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, Games.YEAR_PUBLISHED + " AS "
 			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
@@ -59,7 +61,7 @@ public class SearchSuggestProvider extends BaseProvider {
 				+ "." + Games.GAME_NAME + " like '% " + query + "%')");
 		}
 		Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, getSortOrder(sortOrder),
-			uri.getQueryParameter("limit"));
+			uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT));
 		cursor.setNotificationUri(resolver, uri);
 		return cursor;
 	}

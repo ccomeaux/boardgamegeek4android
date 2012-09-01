@@ -149,6 +149,7 @@
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
+	<string name="plays">Plays</string>
 	<string name="players">Players</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
@@ -247,6 +248,7 @@
 	<string name="generalforumlist_no_results">No general forums.</string>
 	<string name="forum_no_results">No threads in \"%s\"".</string>
 	<string name="thread_no_results">No posts in thread \"%s\"".</string>
+	<string name="menu_search">Search</string>
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>
 	<string name="menu_refresh">Refresh</string>
