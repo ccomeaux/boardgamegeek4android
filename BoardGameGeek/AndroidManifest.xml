@@ -120,7 +120,7 @@
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
 			android:label="@string/title_buddies"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -128,6 +128,11 @@
 
 				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.buddy" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" >
+			</meta-data>
 		</activity>
 		<activity
 			android:name=".ui.BuddyActivity"

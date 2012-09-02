@@ -2,6 +2,7 @@ package com.boardgamegeek.util;
 
 import java.util.Random;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -255,6 +257,13 @@ public class UIUtils {
 					}
 				});
 			builder.create().show();
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static void setActivatedCompat(View view, boolean activated) {
+		if (VersionUtils.hasHoneycomb()) {
+			view.setActivated(activated);
 		}
 	}
 }
