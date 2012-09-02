@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.boardgamegeek.ui.widget.DashboardLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent" >
+
+	<Button
+		android:id="@+id/home_btn_collection"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_collection"
+		android:text="@string/home_btn_collection" />
+
+	<Button
+		android:id="@+id/home_btn_hotness"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_hotness"
+		android:text="@string/home_btn_hotness" />
+
+	<Button
+		android:id="@+id/home_btn_buddies"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_buddies"
+		android:text="@string/home_btn_buddies" />
+
+	<Button
+		android:id="@+id/home_btn_forums"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_forums"
+		android:text="@string/home_btn_forums" />
+
+	<Button
+		android:id="@+id/home_btn_plays"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_plays"
+		android:text="@string/home_btn_plays" />
+
+	<Button
+		android:id="@+id/home_btn_settings"
+		style="@style/HomeButton"
+		android:drawableTop="@drawable/home_btn_settings"
+		android:text="@string/home_btn_settings" />
+
+</com.boardgamegeek.ui.widget.DashboardLayout>

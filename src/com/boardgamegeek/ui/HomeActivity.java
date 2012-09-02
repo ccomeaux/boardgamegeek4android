@@ -8,29 +8,25 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.pref.Preferences;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
-public class HomeActivity extends SherlockActivity implements DetachableResultReceiver.Receiver {
-	private static final String TAG = makeLogTag(HomeActivity.class);
-
-	private State mState;
+public class HomeActivity extends SherlockFragmentActivity {
+	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
+	private Menu mOptionsMenu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,41 +34,18 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 		setContentView(R.layout.activity_home);
 		UIUtils.allowTypeToSearch(this);
 
-		mState = (State) getLastNonConfigurationInstance();
-		if (mState == null) {
-			mState = new State();
+		FragmentManager fm = getSupportFragmentManager();
+		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
+		if (mSyncStatusUpdaterFragment == null) {
+			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
+			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
 		}
-		mState.mReceiver.setReceiver(this);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		findViewById(R.id.home_btn_collection)
-			.setVisibility(
-				(BggApplication.getInstance().getSyncStatuses() != null && BggApplication.getInstance()
-					.getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
-		findViewById(R.id.home_btn_buddies).setVisibility(
-			BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE : View.GONE);
-		findViewById(R.id.home_btn_plays).setVisibility(
-			BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
-	}
-
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		mState.mReceiver.clearReceiver();
-		return mState;
-	}
-
-	@Override
-	public void setTitle(CharSequence title) {
-		UIUtils.setTitle(this, title);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
+		mOptionsMenu = menu;
 		getSupportMenuInflater().inflate(R.menu.home, menu);
 		setupSearchMenuItem(menu);
 		return true;
@@ -91,21 +64,6 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.home_btn_sync);
-		if (mi != null) {
-			if (!mState.mSyncing) {
-				long time = BggApplication.getInstance().getSyncTimestamp();
-				int d = DateTimeUtils.howManyHoursOld(time);
-				boolean b = d == 0;
-				mState.mSyncing = b;
-			}
-			mi.setEnabled(!mState.mSyncing);
-		}
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_search:
@@ -114,84 +72,96 @@ public class HomeActivity extends SherlockActivity implements DetachableResultRe
 					return true;
 				}
 				break;
-			case R.id.home_btn_sync:
+			case R.id.menu_refresh:
 				Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
-				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mState.mReceiver);
+				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mSyncStatusUpdaterFragment.mReceiver);
 				startService(intent);
 				return true;
-			case R.id.home_btn_contact_us:
+			case R.id.menu_contact_us:
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
 				emailIntent.setType("text/plain");
 				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "bgg4android@gmail.com" });
 				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
 				startActivity(emailIntent);
 				return true;
-			case R.id.home_btn_about:
+			case R.id.menu_about:
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 		}
 		return false;
 	}
 
-	public void onCollectionClick(View v) {
-		final Intent intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
-		startActivity(intent);
-	}
+	private void updateRefreshStatus(boolean refreshing) {
+		if (mOptionsMenu == null) {
+			return;
+		}
 
-	public void onHotnessClick(View v) {
-		final Intent intent = new Intent(this, HotnessActivity.class);
-		startActivity(intent);
-	}
-
-	public void onForumsClick(View v) {
-		Intent forumsIntent = new Intent(this, ForumlistActivity.class);
-		forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, 0);
-		forumsIntent.putExtra(ForumlistActivity.KEY_GAME_ID, 0);
-		forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, "");
-		startActivity(forumsIntent);
-	}
-
-	public void onBuddiesClick(View v) {
-		final Intent intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
-		startActivity(intent);
-	}
-
-	public void onPlaysClick(View v) {
-		final Intent intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
-		startActivity(intent);
-	}
-
-	public void onSettingsClick(View v) {
-		startActivity(new Intent(this, Preferences.class));
-	}
-
-	public void onReceiveResult(int resultCode, Bundle resultData) {
-		switch (resultCode) {
-			case SyncService.STATUS_RUNNING:
-				mState.mSyncing = true;
-				break;
-			case SyncService.STATUS_COMPLETE:
-				mState.mSyncing = false;
-				break;
-			case SyncService.STATUS_ERROR:
-				mState.mSyncing = false;
-				final String error = resultData.getString(Intent.EXTRA_TEXT);
-				if (error != null) {
-					Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-				}
-				break;
-			default:
-				LOGW(TAG, "Received unexpected result: " + resultCode);
-				break;
+		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
+		if (refreshItem != null) {
+			if (!refreshing) {
+				long time = BggApplication.getInstance().getSyncTimestamp();
+				int hoursSinceSync = DateTimeUtils.howManyHoursOld(time);
+				refreshing = hoursSinceSync == 0;
+			}
+			// refreshItem.setEnabled(!refreshing);
+			if (refreshing) {
+				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+			} else {
+				refreshItem.setActionView(null);
+			}
 		}
 	}
 
-	private static class State {
-		public boolean mSyncing = false;
-		public DetachableResultReceiver mReceiver;
+	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
+		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
 
-		private State() {
+		private boolean mSyncing = false;
+		private DetachableResultReceiver mReceiver;
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setRetainInstance(true);
 			mReceiver = new DetachableResultReceiver(new Handler());
+			mReceiver.setReceiver(this);
+		}
+
+		/** {@inheritDoc} */
+		public void onReceiveResult(int resultCode, Bundle resultData) {
+			HomeActivity activity = (HomeActivity) getActivity();
+			if (activity == null) {
+				return;
+			}
+
+			switch (resultCode) {
+				case SyncService.STATUS_RUNNING: {
+					mSyncing = true;
+					break;
+				}
+				case SyncService.STATUS_COMPLETE: {
+					mSyncing = false;
+					break;
+				}
+				case SyncService.STATUS_ERROR:
+				default: {
+					// Error happened down in SyncService, show as toast.
+					LOGW(TAG, "Received unexpected result: " + resultCode);
+					final String error = resultData.getString(Intent.EXTRA_TEXT);
+					if (error != null) {
+						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+					}
+					break;
+				}
+			}
+
+			activity.updateRefreshStatus(mSyncing);
+		}
+
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+			// TODO: the menu hasn't been created yet, so the status is never updated
+			((HomeActivity) getActivity()).updateRefreshStatus(mSyncing);
 		}
 	}
 }

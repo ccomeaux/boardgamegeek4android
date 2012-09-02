@@ -9,18 +9,18 @@
 		android:showAsAction="always|collapseActionView"
 		android:title="@string/menu_search"/>
 	<item
-		android:id="@+id/home_btn_sync"
+		android:id="@+id/menu_refresh"
 		android:icon="@drawable/ic_action_refresh"
 		android:orderInCategory="1"
 		android:showAsAction="ifRoom"
 		android:title="@string/home_btn_sync"/>
 	<item
-		android:id="@+id/home_btn_contact_us"
+		android:id="@+id/menu_contact_us"
 		android:icon="@android:drawable/ic_menu_send"
 		android:showAsAction="never"
 		android:title="@string/home_btn_contact_us"/>
 	<item
-		android:id="@+id/home_btn_about"
+		android:id="@+id/menu_about"
 		android:icon="@android:drawable/ic_menu_info_details"
 		android:showAsAction="never"
 		android:title="@string/home_btn_about"/>
