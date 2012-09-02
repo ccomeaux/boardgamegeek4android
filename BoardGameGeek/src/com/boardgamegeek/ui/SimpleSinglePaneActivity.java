@@ -2,8 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.annotation.TargetApi;
 import android.app.SearchManager;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +12,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity {
@@ -27,7 +26,7 @@ public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity 
 
 		if (savedInstanceState == null) {
 			mFragment = onCreatePane();
-			mFragment.setArguments(intentToFragmentArguments(getIntent()));
+			mFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
 			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, "single_pane").commit();
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag("single_pane");
@@ -82,46 +81,5 @@ public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity 
 				break;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	/**
-	 * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
-	 */
-	public static Bundle intentToFragmentArguments(Intent intent) {
-		Bundle arguments = new Bundle();
-		if (intent == null) {
-			return arguments;
-		}
-
-		final Uri data = intent.getData();
-		if (data != null) {
-			arguments.putParcelable("_uri", data);
-		}
-
-		final Bundle extras = intent.getExtras();
-		if (extras != null) {
-			arguments.putAll(intent.getExtras());
-		}
-
-		return arguments;
-	}
-
-	/**
-	 * Converts a fragment arguments bundle into an intent.
-	 */
-	public static Intent fragmentArgumentsToIntent(Bundle arguments) {
-		Intent intent = new Intent();
-		if (arguments == null) {
-			return intent;
-		}
-
-		final Uri data = arguments.getParcelable("_uri");
-		if (data != null) {
-			intent.setData(data);
-		}
-
-		intent.putExtras(arguments);
-		intent.removeExtra("_uri");
-		return intent;
 	}
 }

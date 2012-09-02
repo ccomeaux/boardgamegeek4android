@@ -142,7 +142,7 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		final Intent intent = SimpleSinglePaneActivity.fragmentArgumentsToIntent(data);
+		final Intent intent = UIUtils.fragmentArgumentsToIntent(data);
 		final Uri buddiesUri = intent.getData();
 		return new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?",
 			new String[] { "0" }, null);
@@ -164,7 +164,7 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
 	private class BuddiesAdapter extends CursorAdapter {
