@@ -7,23 +7,28 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private Uri mBuddyUri;
 
-	private ViewGroup mRootView;
 	private TextView mFullName;
 	private TextView mName;
 	private TextView mId;
+	private ImageView mAvatar;
+
+	private ImageFetcher mImageFetcher;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -39,21 +44,31 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		LoaderManager manager = getLoaderManager();
 		manager.restartLoader(BuddyQuery._TOKEN, null, this);
 
-		// mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		// mImageFetcher.setImageFadeIn(false);
+		mImageFetcher = UIUtils.getImageFetcher(getActivity());
+		mImageFetcher.setImageFadeIn(false);
+		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
 
 		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, null);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, null);
 
-		mFullName = (TextView) mRootView.findViewById(R.id.buddy_full_name);
-		mName = (TextView) mRootView.findViewById(R.id.buddy_name);
-		mId = (TextView) mRootView.findViewById(R.id.buddy_id);
+		mFullName = (TextView) rootView.findViewById(R.id.buddy_full_name);
+		mName = (TextView) rootView.findViewById(R.id.buddy_name);
+		mId = (TextView) rootView.findViewById(R.id.buddy_id);
+		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
 
-		return mRootView;
+		return rootView;
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		if (mImageFetcher != null) {
+			mImageFetcher.closeCache();
+		}
 	}
 
 	@Override
@@ -87,20 +102,33 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			return;
 		}
 
-		mFullName.setText(cursor.getString(BuddyQuery.FIRSTNAME) + " " + cursor.getString(BuddyQuery.LASTNAME));
-		mName.setText(cursor.getString(BuddyQuery.NAME));
-		mId.setText(cursor.getString(BuddyQuery.BUDDY_ID));
+		int id = cursor.getInt(BuddyQuery.BUDDY_ID);
+		String firstName = cursor.getString(BuddyQuery.FIRSTNAME).trim();
+		String lastName = cursor.getString(BuddyQuery.LASTNAME).trim();
+		String name = cursor.getString(BuddyQuery.NAME);
+
+		mFullName.setText(firstName + " " + lastName);
+		mName.setText(name);
+		mId.setText(String.valueOf(id));
+
+		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
+		if (!TextUtils.isEmpty(avatarUrl)) {
+			mImageFetcher
+				.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar, R.drawable.person_image_empty);
+		}
 	}
 
 	private interface BuddyQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, };
+		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
+			Buddies.AVATAR_URL };
 
 		int BUDDY_ID = 0;
 		int NAME = 1;
 		int FIRSTNAME = 2;
 		int LASTNAME = 3;
+		int AVATAR_URL = 4;
 	}
 
 	// private class BuddyCollectionTask extends AsyncTask<Void, Void, RemoteBuddyCollectionHandler> {

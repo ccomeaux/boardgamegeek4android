@@ -7,6 +7,15 @@
 	android:orientation="horizontal"
 	android:padding="@dimen/padding_standard" >
 
+	<ImageView
+		android:id="@+id/buddy_avatar"
+		android:layout_width="@dimen/avatar_size"
+		android:layout_height="@dimen/avatar_size"
+		android:contentDescription="@string/avatar"
+		android:padding="@dimen/padding_standard"
+		android:scaleType="centerInside"
+		android:src="@drawable/person_image_empty" />
+
 	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
