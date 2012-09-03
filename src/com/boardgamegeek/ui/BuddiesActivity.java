@@ -14,7 +14,7 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.buddies;
+		return R.menu.search_only;
 	}
 
 	@Override

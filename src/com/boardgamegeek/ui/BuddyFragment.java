@@ -47,7 +47,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mRootView = (ViewGroup) inflater.inflate(R.layout.activity_buddy, null);
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, null);
 
 		mFullName = (TextView) mRootView.findViewById(R.id.buddy_full_name);
 		mName = (TextView) mRootView.findViewById(R.id.buddy_name);
