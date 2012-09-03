@@ -261,6 +261,8 @@ public class UIUtils {
 		}
 	}
 
+	private static String KEY_DATA = "_uri";
+
 	/**
 	 * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
 	 */
@@ -272,7 +274,7 @@ public class UIUtils {
 
 		final Uri data = intent.getData();
 		if (data != null) {
-			arguments.putParcelable("_uri", data);
+			arguments.putParcelable(KEY_DATA, data);
 		}
 
 		final Bundle extras = intent.getExtras();
@@ -292,13 +294,13 @@ public class UIUtils {
 			return intent;
 		}
 
-		final Uri data = arguments.getParcelable("_uri");
+		final Uri data = arguments.getParcelable(KEY_DATA);
 		if (data != null) {
 			intent.setData(data);
 		}
 
 		intent.putExtras(arguments);
-		intent.removeExtra("_uri");
+		intent.removeExtra(KEY_DATA);
 		return intent;
 	}
 
