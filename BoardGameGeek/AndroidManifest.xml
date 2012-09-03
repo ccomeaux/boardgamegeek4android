@@ -138,7 +138,7 @@
 			android:name=".ui.BuddyActivity"
 			android:exported="false"
 			android:label="@string/title_buddy"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -146,6 +146,11 @@
 
 				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.buddy" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.BuddiesActivity" >
+			</meta-data>
 		</activity>
 		<activity
 			android:name=".ui.PlaysActivity"
