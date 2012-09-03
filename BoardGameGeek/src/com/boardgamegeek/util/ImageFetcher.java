@@ -106,6 +106,18 @@ public class ImageFetcher extends ImageWorker {
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView);
 	}
 
+	public void loadThumnailImage(String url, Uri uri, ImageView imageView, Bitmap loadingBitmap) {
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, loadingBitmap);
+	}
+
+	public void loadThumnailImage(String url, Uri uri, ImageView imageView, int resId) {
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, resId);
+	}
+
+	public void loadThumnailImage(String url, Uri uri, ImageView imageView) {
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView);
+	}
+
 	public void loadThumbnailImage(String key, ImageView imageView, Bitmap loadingBitmap) {
 		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, loadingBitmap);
 	}
@@ -164,9 +176,9 @@ public class ImageFetcher extends ImageWorker {
 		if (type == ImageData.IMAGE_TYPE_NORMAL) {
 			return processNormalBitmap(key); // Process a regular, full sized bitmap
 		} else if (type == ImageData.IMAGE_TYPE_THUMBNAIL) {
-			return processThumbnailBitmap(key); // Process a smaller, thumbnail bitmap
+			return processBitmapFromResolver(uri, key);
 		} else if (type == ImageData.IMAGE_TYPE_AVATAR) {
-			return processAvatarBitmap(uri, key);
+			return processBitmapFromResolver(uri, key);
 		}
 		return null;
 	}
@@ -239,36 +251,19 @@ public class ImageFetcher extends ImageWorker {
 		return bitmap;
 	}
 
-	/**
-	 * Download a thumbnail sized remote bitmap from a HTTP URL. No HTTP caching is done (the {@link ImageCache} that
-	 * this eventually gets passed to will do it's own disk caching.
-	 * 
-	 * @param urlString
-	 *            The URL of the image to download
-	 * @return The bitmap
-	 */
-	private Bitmap processThumbnailBitmap(String urlString) {
-		final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
-		if (bitmapBytes != null) {
-			// Caution: we don't check the size of the bitmap here, we are relying on the output
-			// of downloadBitmapToMemory to not exceed our memory limits and load a huge bitmap
-			// into memory.
-			return BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-		}
-		return null;
-	}
-
-	private Bitmap processAvatarBitmap(Uri uri, String urlString) {
+	private Bitmap processBitmapFromResolver(Uri uri, String urlString) {
 		Bitmap bitmap = null;
 		ContentResolver resolver = mContext.getContentResolver();
 		if (uri != null) {
 			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, uri);
 		}
-		final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
-		if (bitmapBytes != null) {
-			bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-			if (bitmap != null) {
-				ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+		if (bitmap == null) {
+			final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
+			if (bitmapBytes != null) {
+				bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+				if (bitmap != null && uri != null) {
+					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+				}
 			}
 		}
 		return bitmap;

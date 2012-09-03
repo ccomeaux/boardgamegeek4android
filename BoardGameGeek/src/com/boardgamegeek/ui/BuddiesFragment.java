@@ -91,10 +91,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 
 		setEmptyText(getString(R.string.empty_buddies));
 		setListShown(false);
-		setListAdapter(null);
-
-		mAdapter = new BuddiesAdapter(getActivity());
-		setListAdapter(mAdapter);
 
 		mBuddyQueryToken = BuddiesQuery._TOKEN;
 		getLoaderManager().restartLoader(mBuddyQueryToken, getArguments(), this);
@@ -109,6 +105,14 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		}
 
 		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mSelectedBuddyId > 0) {
+			outState.putInt(STATE_SELECTED_ID, mSelectedBuddyId);
+		}
 	}
 
 	@Override
@@ -193,8 +197,8 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		if (buddiesUri == null) {
 			buddiesUri = Buddies.CONTENT_URI;
 		}
-		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?",
-			new String[] { "0" }, null);
+		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID
+			+ "!=?", new String[] { "0" }, null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}
@@ -205,18 +209,23 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 			return;
 		}
 
+		if (mAdapter == null) {
+			mAdapter = new BuddiesAdapter(getActivity());
+			setListAdapter(mAdapter);
+		}
+
 		int token = loader.getId();
 		if (token == BuddiesQuery._TOKEN) {
 			mAdapter.changeCursor(cursor);
-
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
+		}
+
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
 		}
 	}
 

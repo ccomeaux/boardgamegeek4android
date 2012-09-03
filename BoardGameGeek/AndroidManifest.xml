@@ -58,7 +58,12 @@
 		<activity
 			android:name=".ui.HotnessActivity"
 			android:label="@string/title_hotness"
-			android:theme="@style/Theme.Bgg" />
+			android:theme="@style/Theme.BoardGameGeek" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" >
+			</meta-data>
+		</activity>
 		<activity
 			android:name=".ui.BoardgameActivity"
 			android:exported="false"
