@@ -38,6 +38,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.boardgamegeek.database.ResolverUtils;
@@ -56,6 +57,7 @@ public class ImageFetcher extends ImageWorker {
 	private static final String HTTP_CACHE_DIR = "http";
 	private static final int DEFAULT_IMAGE_HEIGHT = 1024;
 	private static final int DEFAULT_IMAGE_WIDTH = 1024;
+	private static final String INVALID_URL = "N/A";
 
 	protected int mImageWidth;
 	protected int mImageHeight;
@@ -143,6 +145,12 @@ public class ImageFetcher extends ImageWorker {
 		setImageSize(size, size);
 	}
 
+	@Override
+	protected Bitmap processBitmap(Object key) {
+		final ImageData imageData = (ImageData) key;
+		return processBitmap(imageData.mUrl, imageData.mType, imageData.mUri);
+	}
+
 	/**
 	 * The main process method, which will be called by the ImageWorker in the AsyncTask background thread.
 	 * 
@@ -161,12 +169,6 @@ public class ImageFetcher extends ImageWorker {
 			return processAvatarBitmap(uri, key);
 		}
 		return null;
-	}
-
-	@Override
-	protected Bitmap processBitmap(Object key) {
-		final ImageData imageData = (ImageData) key;
-		return processBitmap(imageData.mUrl, imageData.mType, imageData.mUri);
 	}
 
 	/**
@@ -284,6 +286,10 @@ public class ImageFetcher extends ImageWorker {
 	 */
 	public static byte[] downloadBitmapToMemory(String urlString, int maxBytes) {
 		LOGD(TAG, "downloadBitmapToMemory - downloading - " + urlString);
+
+		if (TextUtils.isEmpty(urlString) || urlString.equals(INVALID_URL)) {
+			return null;
+		}
 
 		disableConnectionReuseIfNecessary();
 		HttpURLConnection urlConnection = null;
