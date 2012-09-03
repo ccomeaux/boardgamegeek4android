@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +35,12 @@ import com.boardgamegeek.util.UIUtils;
 
 public class HotnessFragment extends SherlockListFragment implements AbsListView.OnScrollListener {
 	private static final String TAG = makeLogTag(HotnessActivity.class);
+	private static final String KEY_HOT_GAMES = "HOT_GAMES";
 
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 	private BoardGameAdapter mAdapter;
 	private ImageFetcher mImageFetcher;
+	private String mEmptyMessage;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
+		mEmptyMessage = getString(R.string.hotness_no_results_details);
 	}
 
 	@Override
@@ -54,8 +58,15 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 
 		setListShown(false);
 
-		HotnessTask task = new HotnessTask();
-		task.execute();
+		if (savedInstanceState != null) {
+			mHotGames = savedInstanceState.getParcelableArrayList(KEY_HOT_GAMES);
+		}
+		if (mHotGames == null || mHotGames.size() == 0) {
+			HotnessTask task = new HotnessTask();
+			task.execute();
+		} else {
+			showList();
+		}
 	}
 
 	@Override
@@ -68,6 +79,14 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 	public void onDestroy() {
 		super.onDestroy();
 		mImageFetcher.closeCache();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mHotGames != null && mHotGames.size() > 0) {
+			outState.putParcelableArrayList(KEY_HOT_GAMES, (ArrayList<? extends Parcelable>) mHotGames);
+		}
 	}
 
 	@Override
@@ -125,25 +144,29 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 
 		@Override
 		protected void onPostExecute(RemoteHotnessHandler result) {
-			if (mAdapter == null) {
-				mAdapter = new BoardGameAdapter();
-				setListAdapter(mAdapter);
-			}
-
+			mHotGames = result.getResults();
 			if (result.isBggDown()) {
-				setEmptyText(getString(R.string.bgg_down));
-			} else if (result.getCount() == 0) {
-				setEmptyText(getString(R.string.hotness_no_results_details));
+				mEmptyMessage = getString(R.string.bgg_down);
 			} else {
-				mHotGames = result.getResults();
-				mAdapter.addAll(mHotGames);
+				mEmptyMessage = getString(R.string.hotness_no_results_details);
 			}
+			showList();
+		}
+	}
 
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
+	private void showList() {
+		if (mAdapter == null) {
+			mAdapter = new BoardGameAdapter();
+			setListAdapter(mAdapter);
+		}
+
+		setEmptyText(mEmptyMessage);
+		mAdapter.addAll(mHotGames);
+
+		if (isResumed()) {
+			setListShown(true);
+		} else {
+			setListShownNoAnimation(true);
 		}
 	}
 
