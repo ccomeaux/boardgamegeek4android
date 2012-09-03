@@ -46,6 +46,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
+		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
 		getSupportMenuInflater().inflate(R.menu.home, menu);
 		setupSearchMenuItem(menu);
 		return true;
@@ -103,7 +104,6 @@ public class HomeActivity extends SherlockFragmentActivity {
 				int hoursSinceSync = DateTimeUtils.howManyHoursOld(time);
 				refreshing = hoursSinceSync == 0;
 			}
-			// refreshItem.setEnabled(!refreshing);
 			if (refreshing) {
 				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
 			} else {
