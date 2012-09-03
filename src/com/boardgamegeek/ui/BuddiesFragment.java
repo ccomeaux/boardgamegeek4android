@@ -4,7 +4,6 @@ import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -85,7 +84,6 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		setEmptyText(getString(R.string.empty_buddies));
 	}
 
@@ -114,8 +112,7 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 		if (mCallbacks.onBuddySelected(buddyId)) {
-			mSelectedBuddyId = buddyId;
-			mAdapter.notifyDataSetChanged();
+			setSelectedSessionId(buddyId);
 		}
 	}
 
@@ -142,8 +139,10 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		final Intent intent = UIUtils.fragmentArgumentsToIntent(data);
-		final Uri buddiesUri = intent.getData();
+		Uri buddiesUri = UIUtils.fragmentArgumentsToIntent(data).getData();
+		if (buddiesUri == null) {
+			buddiesUri = Buddies.CONTENT_URI;
+		}
 		return new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?",
 			new String[] { "0" }, null);
 	}
@@ -247,7 +246,6 @@ public class BuddiesFragment extends SherlockListFragment implements LoaderManag
 		String[] PROJECTION = { BaseColumns._ID, Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME,
 			Buddies.BUDDY_LASTNAME };
 
-		// int _ID = 0;
 		int BUDDY_ID = 1;
 		int NAME = 2;
 		int FIRSTNAME = 3;

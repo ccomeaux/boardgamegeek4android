@@ -16,6 +16,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity {
+	private static final String TAG_SINGLE_PANE = "single_pane";
 	private Fragment mFragment;
 
 	@Override
@@ -27,9 +28,10 @@ public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity 
 		if (savedInstanceState == null) {
 			mFragment = onCreatePane();
 			mFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, "single_pane").commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
+				.commit();
 		} else {
-			mFragment = getSupportFragmentManager().findFragmentByTag("single_pane");
+			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
 	}
 
