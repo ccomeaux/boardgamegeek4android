@@ -18,5 +18,6 @@
 	<dimen name="progress_bar_small">30dp</dimen>
 	<!-- NEW -->
 	<dimen name="action_button_min_width">56dp</dimen>
+	<dimen name="avatar_size">64dp</dimen>
 
 </resources>
