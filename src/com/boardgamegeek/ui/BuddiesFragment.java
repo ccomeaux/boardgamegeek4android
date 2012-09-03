@@ -4,12 +4,10 @@ import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,12 +20,18 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -67,6 +71,8 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		if (savedInstanceState != null) {
 			mSelectedBuddyId = savedInstanceState.getInt(STATE_SELECTED_ID);
 		}
+
+		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -103,14 +109,12 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		}
 
 		mCallbacks = (Callbacks) activity;
-		activity.getContentResolver().registerContentObserver(BggContract.Buddies.CONTENT_URI, true, mObserver);
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-		getActivity().getContentResolver().unregisterContentObserver(mObserver);
 	}
 
 	@Override
@@ -123,6 +127,22 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	public void onDestroy() {
 		super.onDestroy();
 		mImageFetcher.closeCache();
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.refresh_only, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_refresh:
+				triggerRefresh();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/** {@inheritDoc} */
@@ -158,19 +178,14 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		}
 	}
 
-	private final ContentObserver mObserver = new ContentObserver(new Handler()) {
-		@Override
-		public void onChange(boolean selfChange) {
-			if (getActivity() == null) {
-				return;
-			}
-
-			Loader<Cursor> loader = getLoaderManager().getLoader(mBuddyQueryToken);
-			if (loader != null) {
-				loader.forceLoad();
-			}
+	private void triggerRefresh() {
+		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastBuddiesSync()) > 2) {
+			BggApplication.getInstance().putLastBuddiesSync();
+			SyncService.start(getActivity(), SyncService.SYNC_TYPE_BUDDIES);
+		} else {
+			Toast.makeText(getActivity(), R.string.message_sync_recent, Toast.LENGTH_LONG).show();
 		}
-	};
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
@@ -178,8 +193,10 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		if (buddiesUri == null) {
 			buddiesUri = Buddies.CONTENT_URI;
 		}
-		return new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?",
+		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID + "!=?",
 			new String[] { "0" }, null);
+		loader.setUpdateThrottle(2000);
+		return loader;
 	}
 
 	@Override
