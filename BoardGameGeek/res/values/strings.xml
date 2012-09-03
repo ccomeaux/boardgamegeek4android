@@ -235,6 +235,7 @@
 	<string name="search_settings_description">Names of board games</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
+	<string name="message_sync_recent">You just synced. Have some patience.</string>
 	<string name="search_message">Searching…</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
