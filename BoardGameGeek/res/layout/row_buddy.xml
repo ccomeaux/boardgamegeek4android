@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:gravity="center"
 	android:minHeight="?android:attr/listPreferredItemHeight"
@@ -32,7 +32,8 @@
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
 		android:layout_gravity="right|center_vertical"
+		android:contentDescription="@string/avatar"
 		android:scaleType="centerCrop"
-		android:visibility="gone" />
+		android:src="@drawable/person_image_empty" />
 
 </LinearLayout>

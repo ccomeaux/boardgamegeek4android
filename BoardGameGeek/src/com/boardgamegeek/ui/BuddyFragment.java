@@ -64,11 +64,15 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onStop() {
-		super.onStop();
-		if (mImageFetcher != null) {
-			mImageFetcher.closeCache();
-		}
+	public void onPause() {
+		super.onPause();
+		mImageFetcher.flushCache();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mImageFetcher.closeCache();
 	}
 
 	@Override
@@ -116,6 +120,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mImageFetcher
 				.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar, R.drawable.person_image_empty);
 		}
+
+		cursor.close();
 	}
 
 	private interface BuddyQuery {
