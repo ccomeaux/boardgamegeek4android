@@ -82,6 +82,7 @@ public class SelectionBuilder {
 			return this;
 		}
 
+		// TODO: map selection similar to projection
 		if (mSelection.length() > 0) {
 			mSelection.append(" AND ");
 		}
@@ -182,7 +183,7 @@ public class SelectionBuilder {
 	@Override
 	public String toString() {
 		return "SelectionBuilder[table=" + mTable + ", selection=" + getSelection() + ", selectionArgs="
-				+ Arrays.toString(getSelectionArgs()) + ", groupBy=" + mGroupBy + ", having=" + mHaving + "]";
+			+ Arrays.toString(getSelectionArgs()) + ", groupBy=" + mGroupBy + ", having=" + mHaving + "]";
 	}
 
 	/**
