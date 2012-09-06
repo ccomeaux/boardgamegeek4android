@@ -78,6 +78,19 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name=".ui.GameActivity"
+			android:exported="false"
+			android:label="@string/title_boardgame"
+			android:theme="@style/Theme.BoardGameGeek" >
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game" />
+			</intent-filter>
+		</activity>
+		<activity
 			android:name=".ui.GameInfoActivityTab"
 			android:exported="false"
 			android:theme="@style/Theme.Bgg" >
