@@ -19,5 +19,6 @@
 	<!-- NEW -->
 	<dimen name="action_button_min_width">56dp</dimen>
 	<dimen name="avatar_size">64dp</dimen>
+	<dimen name="page_margin_width">16dp</dimen>
 
 </resources>

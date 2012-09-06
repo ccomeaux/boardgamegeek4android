@@ -182,6 +182,12 @@
 		<item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
 		<item name="actionBarStyle">@style/Widget.BoardGameGeek.ActionBar</item>
 		<item name="android:actionBarStyle">@style/Widget.BoardGameGeek.ActionBar</item>
+		<item name="actionBarTabStyle">@style/Widget.BoardGameGeek.ActionBar.TabView</item>
+		<item name="android:actionBarTabStyle">@style/Widget.BoardGameGeek.ActionBar.TabView</item>
+		<item name="actionBarTabBarStyle">@style/Widget.BoardGameGeek.ActionBar.TabBar</item>
+		<item name="android:actionBarTabBarStyle">@style/Widget.BoardGameGeek.ActionBar.TabBar</item>
+		<item name="actionBarTabTextStyle">@style/Widget.BoardGameGeek.ActionBar.TabText</item>
+		<item name="android:actionBarTabTextStyle">@style/Widget.BoardGameGeek.ActionBar.TabText</item>
 	</style>
 
 	<style name="Widget.BoardGameGeek.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
@@ -189,6 +195,18 @@
 		<item name="android:background">@drawable/gradient_title</item>
 		<item name="displayOptions">useLogo|showHome|showTitle</item>
 		<item name="android:displayOptions">useLogo|showHome|showTitle</item>
+	</style>
+
+	<style name="Widget.BoardGameGeek.ActionBar.TabBar" parent="Widget.Sherlock.Light.ActionBar.TabBar.Inverse">
+		<item name="android:background">@color/background_light</item>
+	</style>
+
+	<style name="Widget.BoardGameGeek.ActionBar.TabText" parent="Widget.Sherlock.Light.ActionBar.TabText.Inverse">
+		<item name="android:textColor">@android:color/black</item>
+	</style>
+
+	<style name="Widget.BoardGameGeek.ActionBar.TabView" parent="Widget.Sherlock.Light.ActionBar.TabView.Inverse">
+		<item name="android:background">@drawable/tab_dark_ab</item>
 	</style>
 
 </resources>
