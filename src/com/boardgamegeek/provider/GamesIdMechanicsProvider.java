@@ -17,8 +17,8 @@ public class GamesIdMechanicsProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		final int gameId = Games.getGameId(uri);
 		return new SelectionBuilder().table(Tables.GAMES_MECHANICS_JOIN_MECHANICS)
-				.mapToTable(Mechanics._ID, Tables.MECHANICS).mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
-				.whereEquals(Tables.GAMES_MECHANICS + "." + GamesMechanics.GAME_ID, gameId);
+			.mapToTable(Mechanics._ID, Tables.MECHANICS).mapToTable(Mechanics.MECHANIC_ID, Tables.MECHANICS)
+			.whereEquals(Tables.GAMES_MECHANICS + "." + GamesMechanics.GAME_ID, gameId);
 	}
 
 	@Override
@@ -44,6 +44,7 @@ public class GamesIdMechanicsProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+		values.put(GamesMechanics.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildMechanicUri(rowId);
 	}

@@ -17,8 +17,8 @@ public class GamesIdCategoriesProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		final int gameId = Games.getGameId(uri);
 		return new SelectionBuilder().table(Tables.GAMES_CATEGORIES_JOIN_CATEGORIES)
-				.mapToTable(Categories._ID, Tables.CATEGORIES).mapToTable(Categories.CATEGORY_ID, Tables.CATEGORIES)
-				.whereEquals(Tables.GAMES_CATEGORIES + "." + GamesCategories.GAME_ID, gameId);
+			.mapToTable(Categories._ID, Tables.CATEGORIES).mapToTable(Categories.CATEGORY_ID, Tables.CATEGORIES)
+			.whereEquals(Tables.GAMES_CATEGORIES + "." + GamesCategories.GAME_ID, gameId);
 	}
 
 	@Override
@@ -44,6 +44,7 @@ public class GamesIdCategoriesProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+		values.put(GamesCategories.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildCategoryUri(rowId);
 	}
