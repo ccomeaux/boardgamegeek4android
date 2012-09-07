@@ -120,8 +120,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mImageFetcher
 				.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar, R.drawable.person_image_empty);
 		}
-
-		cursor.close();
 	}
 
 	private interface BuddyQuery {
