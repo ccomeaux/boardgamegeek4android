@@ -161,7 +161,10 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		}
 
 		setEmptyText(mEmptyMessage);
-		mAdapter.addAll(mHotGames);
+		// addAll not available until API11
+		for (HotGame hotGame : mHotGames) {
+			mAdapter.add(hotGame);
+		}
 
 		if (isResumed()) {
 			setListShown(true);
