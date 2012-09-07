@@ -13,8 +13,9 @@ public class GamesIdProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		int gameId = Games.getGameId(uri);
-		return new SelectionBuilder().table(Tables.GAMES_JOIN_GAME_RANKS).mapToTable(Games.GAME_ID, Tables.GAMES)
-			.whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId).whereEquals(GameRanks.GAME_RANK_TYPE, "subtype");
+		return new SelectionBuilder().table(Tables.GAMES_JOIN_GAME_RANKS).mapToTable(Games._ID, Tables.GAMES)
+			.mapToTable(Games.GAME_ID, Tables.GAMES).whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId)
+			.whereEquals(GameRanks.GAME_RANK_TYPE, "subtype");
 	}
 
 	@Override
