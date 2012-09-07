@@ -18,9 +18,9 @@ public class GamesIdPublishersProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		final int gameId = Games.getGameId(uri);
 		return new SelectionBuilder().table(Tables.GAMES_PUBLISHERS_JOIN_PUBLISHERS)
-				.mapToTable(Publishers._ID, Tables.PUBLISHERS).mapToTable(Publishers.PUBLISHER_ID, Tables.PUBLISHERS)
-				.mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
-				.whereEquals(Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID, gameId);
+			.mapToTable(Publishers._ID, Tables.PUBLISHERS).mapToTable(Publishers.PUBLISHER_ID, Tables.PUBLISHERS)
+			.mapToTable(SyncColumns.UPDATED, Tables.PUBLISHERS)
+			.whereEquals(Tables.GAMES_PUBLISHERS + "." + GamesPublishers.GAME_ID, gameId);
 	}
 
 	@Override
@@ -46,6 +46,7 @@ public class GamesIdPublishersProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+		values.put(GamesPublishers.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildPublisherUri(rowId);
 	}

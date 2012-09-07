@@ -215,7 +215,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		if (!mDesignerIds.remove(Integer.valueOf(designerId))) {
 			addInsert(Designers.CONTENT_URI, values);
 			mBatch.add(ContentProviderOperation.newInsert(Games.buildDesignersUri(mGameId))
-				.withValue(GamesDesigners.GAME_ID, mGameId).withValue(GamesDesigners.DESIGNER_ID, designerId).build());
+				.withValue(GamesDesigners.DESIGNER_ID, designerId).build());
 		}
 	}
 
@@ -236,7 +236,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		if (!mArtistIds.remove(Integer.valueOf(artistId))) {
 			addInsert(Artists.CONTENT_URI, values);
 			mBatch.add(ContentProviderOperation.newInsert(Games.buildArtistsUri(mGameId))
-				.withValue(GamesArtists.GAME_ID, mGameId).withValue(GamesArtists.ARTIST_ID, artistId).build());
+				.withValue(GamesArtists.ARTIST_ID, artistId).build());
 		}
 	}
 
@@ -257,8 +257,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		if (!mPublisherIds.remove(Integer.valueOf(publisherId))) {
 			addInsert(Publishers.CONTENT_URI, values);
 			mBatch.add(ContentProviderOperation.newInsert(Games.buildPublishersUri(mGameId))
-				.withValue(GamesPublishers.GAME_ID, mGameId).withValue(GamesPublishers.PUBLISHER_ID, publisherId)
-				.build());
+				.withValue(GamesPublishers.PUBLISHER_ID, publisherId).build());
 		}
 	}
 
@@ -279,7 +278,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		if (!mMechanicIds.remove(Integer.valueOf(mechanicId))) {
 			addInsert(Mechanics.CONTENT_URI, values);
 			mBatch.add(ContentProviderOperation.newInsert(Games.buildMechanicsUri(mGameId))
-				.withValue(GamesMechanics.GAME_ID, mGameId).withValue(GamesMechanics.MECHANIC_ID, mechanicId).build());
+				.withValue(GamesMechanics.MECHANIC_ID, mechanicId).build());
 		}
 	}
 
@@ -299,10 +298,8 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 		if (!mCategoryIds.remove(Integer.valueOf(categoryId))) {
 			addInsert(Categories.CONTENT_URI, values);
-			mBatch
-				.add(ContentProviderOperation.newInsert(Games.buildCategoriesUri(mGameId))
-					.withValue(GamesCategories.GAME_ID, mGameId).withValue(GamesCategories.CATEGORY_ID, categoryId)
-					.build());
+			mBatch.add(ContentProviderOperation.newInsert(Games.buildCategoriesUri(mGameId))
+				.withValue(GamesCategories.CATEGORY_ID, categoryId).build());
 		}
 	}
 
@@ -322,8 +319,8 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 		if (!mExpansionIds.remove(Integer.valueOf(expansionId))) {
 			values.put(GamesExpansions.EXPANSION_ID, expansionId);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildExpansionsUri(mGameId))
-				.withValue(GamesExpansions.GAME_ID, mGameId).withValues(values).build());
+			mBatch
+				.add(ContentProviderOperation.newInsert(Games.buildExpansionsUri(mGameId)).withValues(values).build());
 		}
 	}
 

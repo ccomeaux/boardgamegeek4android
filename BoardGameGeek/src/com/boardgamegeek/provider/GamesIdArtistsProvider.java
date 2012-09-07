@@ -18,8 +18,8 @@ public class GamesIdArtistsProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		int gameId = Games.getGameId(uri);
 		return new SelectionBuilder().table(Tables.GAMES_ARTISTS_JOIN_ARTISTS).mapToTable(Artists._ID, Tables.ARTISTS)
-				.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS).mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
-				.whereEquals(Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID, gameId);
+			.mapToTable(Artists.ARTIST_ID, Tables.ARTISTS).mapToTable(SyncColumns.UPDATED, Tables.ARTISTS)
+			.whereEquals(Tables.GAMES_ARTISTS + "." + GamesArtists.GAME_ID, gameId);
 	}
 
 	@Override
@@ -45,6 +45,7 @@ public class GamesIdArtistsProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+		values.put(GamesArtists.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildArtistUri(rowId);
 	}
