@@ -22,12 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Custom layout that arranges children in a grid-like manner, optimizing for
- * even horizontal and vertical whitespace.
+ * Custom layout that arranges children in a grid-like manner, optimizing for even horizontal and vertical whitespace.
  */
 public class DashboardLayout extends ViewGroup {
 
-	private static final int UNEVEN_GRID_PENALTY_MULTIPLIER = 10;
+	private static final int UNEVEN_GRID_PENALTY_MULTIPLIER = 2;
 
 	private int mMaxChildWidth = 0;
 	private int mMaxChildHeight = 0;
@@ -51,9 +50,9 @@ public class DashboardLayout extends ViewGroup {
 
 		// Measure once to find the maximum child size.
 		int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
-				MeasureSpec.AT_MOST);
+			MeasureSpec.AT_MOST);
 		int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
-				MeasureSpec.AT_MOST);
+			MeasureSpec.AT_MOST);
 
 		final int count = getChildCount();
 		for (int i = 0; i < count; i++) {
@@ -82,7 +81,7 @@ public class DashboardLayout extends ViewGroup {
 		}
 
 		setMeasuredDimension(resolveSize(mMaxChildWidth, widthMeasureSpec),
-				resolveSize(mMaxChildHeight, heightMeasureSpec));
+			resolveSize(mMaxChildHeight, heightMeasureSpec));
 	}
 
 	@Override
@@ -106,9 +105,8 @@ public class DashboardLayout extends ViewGroup {
 			return;
 		}
 
-		// Calculate what number of rows and columns will optimize for even
-		// horizontal and vertical whitespace between items. Start with a 1 x N
-		// grid, then try 2 x N, and so on.
+		// Calculate what number of rows and columns will optimize for even horizontal and
+		// vertical whitespace between items. Start with a 1 x N grid, then try 2 x N, and so on.
 		int bestSpaceDifference = Integer.MAX_VALUE;
 		int spaceDifference;
 
@@ -134,14 +132,13 @@ public class DashboardLayout extends ViewGroup {
 				// Found a better whitespace squareness/ratio
 				bestSpaceDifference = spaceDifference;
 
-				// If we found a better whitespace squareness and there's only 1
-				// row, this is the best we can do.
+				// If we found a better whitespace squareness and there's only 1 row, this is
+				// the best we can do.
 				if (rows == 1) {
 					break;
 				}
 			} else {
-				// This is a worse whitespace ratio, use the previous value of
-				// cols and exit.
+				// This is a worse whitespace ratio, use the previous value of cols and exit.
 				--cols;
 				rows = (visibleCount - 1) / cols + 1;
 				hSpace = ((width - mMaxChildWidth * cols) / (cols + 1));
@@ -152,11 +149,9 @@ public class DashboardLayout extends ViewGroup {
 			++cols;
 		}
 
-		// Lay out children based on calculated best-fit number of rows and
-		// cols.
+		// Lay out children based on calculated best-fit number of rows and cols.
 
-		// If we chose a layout that has negative horizontal or vertical space,
-		// force it to zero.
+		// If we chose a layout that has negative horizontal or vertical space, force it to zero.
 		hSpace = Math.max(0, hSpace);
 		vSpace = Math.max(0, vSpace);
 
@@ -176,11 +171,11 @@ public class DashboardLayout extends ViewGroup {
 			row = visibleIndex / cols;
 			col = visibleIndex % cols;
 
-			left = hSpace * (col + 1) + width * col;
-			top = vSpace * (row + 1) + height * row;
+			left = l + hSpace * (col + 1) + width * col;
+			top = t + vSpace * (row + 1) + height * row;
 
 			child.layout(left, top, (hSpace == 0 && col == cols - 1) ? r : (left + width),
-					(vSpace == 0 && row == rows - 1) ? b : (top + height));
+				(vSpace == 0 && row == rows - 1) ? b : (top + height));
 			++visibleIndex;
 		}
 	}
