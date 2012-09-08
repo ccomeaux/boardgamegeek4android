@@ -73,7 +73,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 				saveChildRecords();
 				ContentValues values = parseGame();
 				Uri uri = Games.buildGameUri(mGameId);
-				if (ResolverUtils.rowExists(mResolver, uri)) {
+				if (!ResolverUtils.rowExists(mResolver, uri)) {
 					values.put(Games.GAME_ID, mGameId);
 					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
 					mBatch.add(0, ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values).build());

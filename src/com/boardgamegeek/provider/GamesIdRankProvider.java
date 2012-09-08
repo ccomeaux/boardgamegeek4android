@@ -14,8 +14,7 @@ public class GamesIdRankProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		int gameId = Games.getGameId(uri);
-		return new SelectionBuilder().table(TABLE).whereEquals(GameRanks.GAME_ID, gameId);
+		return new SelectionBuilder().table(TABLE).whereEquals(GameRanks.GAME_ID, Games.getGameId(uri));
 	}
 
 	@Override
@@ -35,9 +34,11 @@ public class GamesIdRankProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
-		int gameId = Games.getGameId(uri);
-		values.put(GameRanks.GAME_ID, gameId);
+		values.put(GameRanks.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
-		return GameRanks.buildGameRankUri((int) rowId);
+		if (rowId != -1) {
+			return GameRanks.buildGameRankUri((int) rowId);
+		}
+		return null;
 	}
 }

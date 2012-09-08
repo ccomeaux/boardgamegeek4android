@@ -44,7 +44,7 @@ public class ResolverUtils {
 	public static boolean rowExists(ContentResolver resolver, Uri uri) {
 		Cursor cursor = resolver.query(uri, new String[] { BaseColumns._ID }, null, null, null);
 		try {
-			return (cursor.getCount() == 0);
+			return (cursor.getCount() == 1);
 		} finally {
 			closeCursor(cursor);
 		}
