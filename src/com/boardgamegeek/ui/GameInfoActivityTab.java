@@ -14,6 +14,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -26,6 +28,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 public class GameInfoActivityTab extends Activity implements AsyncQueryListener {
@@ -52,7 +55,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 	private TextView mSuggestedAgesView;
 	private TextView mIdView;
 	private TextView mUpdatedView;
-	private WebView mDescriptionView;
+	private TextView mDescriptionView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -119,10 +122,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 		mSuggestedAgesView = (TextView) findViewById(R.id.suggested_ages);
 		mIdView = (TextView) findViewById(R.id.game_id);
 		mUpdatedView = (TextView) findViewById(R.id.updated);
-		mDescriptionView = (WebView) findViewById(R.id.description);
-		WebSettings webSettings = mDescriptionView.getSettings();
-		webSettings.setDefaultFontSize((int) (getResources().getDimension(R.dimen.text_size_small) / getResources()
-				.getDisplayMetrics().density));
+		mDescriptionView = (TextView) findViewById(R.id.description);
 	}
 
 	public void onClick(View v) {
@@ -159,12 +159,10 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				mPlayingTimeView.setText(getPlayingTime(cursor.getInt(GameQuery.PLAYING_TIME)));
 				mPlayersView.setText(getPlayerDescription(cursor));
 				mSuggestedAgesView.setText(getAge(cursor.getInt(GameQuery.MINIMUM_AGE)));
-
-				mDescriptionView.loadDataWithBaseURL(null, cursor.getString(GameQuery.DESCRIPTION), "text/html",
-						"UTF-8", null);
+				UIUtils.setTextMaybeHtml(mDescriptionView, cursor.getString(GameQuery.DESCRIPTION));
 
 				mIdView.setText(String.format(getResources().getString(R.string.id_list_text),
-						cursor.getString(GameQuery.GAME_ID)));
+					cursor.getString(GameQuery.GAME_ID)));
 
 				long updated = cursor.getLong(GameQuery.UPDATED);
 				if (updated == 0) {
@@ -172,7 +170,7 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 				} else {
 					mUpdatedView.setVisibility(View.VISIBLE);
 					CharSequence u = DateUtils.getRelativeTimeSpanString(updated, System.currentTimeMillis(),
-							DateUtils.MINUTE_IN_MILLIS);
+						DateUtils.MINUTE_IN_MILLIS);
 					mUpdatedView.setText(getResources().getString(R.string.updated) + " " + u);
 				}
 			} else if (token == TOKEN_RANK) {
@@ -268,8 +266,8 @@ public class GameInfoActivityTab extends Activity implements AsyncQueryListener 
 
 	private interface GameQuery {
 		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
-				Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
-				Games.UPDATED };
+			Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
+			Games.UPDATED };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;

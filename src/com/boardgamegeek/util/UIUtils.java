@@ -16,6 +16,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -317,5 +322,28 @@ public class UIUtils {
 		ImageFetcher fetcher = new ImageFetcher(activity);
 		fetcher.addImageCache(activity);
 		return fetcher;
+	}
+
+	/**
+	 * Populate the given {@link TextView} with the requested text, formatting through {@link Html#fromHtml(String)}
+	 * when applicable. Also sets {@link TextView#setMovementMethod} so inline links are handled.
+	 */
+	public static void setTextMaybeHtml(TextView view, String text) {
+		if (TextUtils.isEmpty(text)) {
+			view.setText("");
+			return;
+		}
+		if (text.contains("<") && text.contains(">")) {
+			// remove extra BRs that add unnecessary white space at the end
+			while (text.length() > 5 && text.endsWith("<br/>")) {
+				text = text.substring(0, text.length() - 5);
+			}
+			Spanned st = Html.fromHtml(text);
+			Log.i("BGG", "TEXT:\n" + text + "\nSPAN:\n" + st.toString());
+			view.setText(st);
+			view.setMovementMethod(LinkMovementMethod.getInstance());
+		} else {
+			view.setText(text);
+		}
 	}
 }
