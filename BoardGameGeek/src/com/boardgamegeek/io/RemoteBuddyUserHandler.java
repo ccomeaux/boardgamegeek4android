@@ -45,7 +45,7 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 		ContentValues values = parseUser();
 
 		Uri uri = Buddies.buildBuddyUri(id);
-		if (ResolverUtils.rowExists(mResolver, uri)) {
+		if (!ResolverUtils.rowExists(mResolver, uri)) {
 			if (name.equals(BggApplication.getInstance().getUserName())) {
 				mBatch.add(ContentProviderOperation.newUpdate(Buddies.CONTENT_URI)
 						.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { name }).withValues(values).build());

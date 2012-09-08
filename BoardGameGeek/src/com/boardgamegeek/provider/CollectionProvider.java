@@ -5,7 +5,6 @@ import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.GameRanks;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -13,18 +12,10 @@ public class CollectionProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(getJoinTable()).mapToTable(Collection._ID, Tables.COLLECTION)
-				.mapToTable(Collection.GAME_ID, Tables.COLLECTION).whereEquals(GameRanks.GAME_RANK_ID, 1)
-				.groupBy(Collection.COLLECTION_ID);
-	}
-
-	protected String getJoinTable() {
-		return Tables.COLLECTION + createJoin(Tables.GAMES, Games.GAME_ID)
-				+ createJoin(Tables.GAME_RANKS, GameRanks.GAME_ID);
-	}
-
-	protected static String createJoin(String table2, String column) {
-		return " LEFT OUTER JOIN " + table2 + " ON " + Tables.COLLECTION + "." + column + "=" + table2 + "." + column;
+		return new SelectionBuilder().table(Tables.COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS)
+			.mapToTable(Collection._ID, Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION)
+			.mapToTable(Collection.UPDATED, Tables.COLLECTION).mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
+			.whereEqualsOrNull(GameRanks.GAME_RANK_ID, 1).groupBy(Collection.COLLECTION_ID);
 	}
 
 	@Override

@@ -56,16 +56,28 @@ public class SelectionBuilder {
 		return this;
 	}
 
-	public SelectionBuilder whereEquals(String selection, String selectionArg) {
-		return where(selection + "=?", selectionArg);
+	public SelectionBuilder whereEquals(String column, String selectionArg) {
+		return where(column + "=?", selectionArg);
 	}
 
-	public SelectionBuilder whereEquals(String selection, int selectionArg) {
-		return where(selection + "=?", String.valueOf(selectionArg));
+	public SelectionBuilder whereEquals(String column, int selectionArg) {
+		return where(column + "=?", String.valueOf(selectionArg));
 	}
 
-	public SelectionBuilder whereEquals(String selection, long selectionArg) {
-		return where(selection + "=?", String.valueOf(selectionArg));
+	public SelectionBuilder whereEquals(String column, long selectionArg) {
+		return where(column + "=?", String.valueOf(selectionArg));
+	}
+
+	public SelectionBuilder whereEqualsOrNull(String column, String selectionArg) {
+		return where(column + "=? OR " + column + " IS NULL", selectionArg);
+	}
+
+	public SelectionBuilder whereEqualsOrNull(String column, int selectionArg) {
+		return where(column + "=? OR " + column + " IS NULL", String.valueOf(selectionArg));
+	}
+
+	public SelectionBuilder whereEqualsOrNull(String column, long selectionArg) {
+		return where(column + "=? OR " + column + " IS NULL", String.valueOf(selectionArg));
 	}
 
 	/**
@@ -135,7 +147,6 @@ public class SelectionBuilder {
 
 	public SelectionBuilder groupBy(String... groupArgs) {
 		if (groupArgs != null) {
-			// mapColumns(groupArgs);
 			mGroupBy = new String();
 			for (String arg : groupArgs) {
 				if (mGroupBy.length() > 0) {
@@ -182,8 +193,8 @@ public class SelectionBuilder {
 
 	@Override
 	public String toString() {
-		return "SelectionBuilder[table=" + mTable + ", selection=" + getSelection() + ", selectionArgs="
-			+ Arrays.toString(getSelectionArgs()) + ", groupBy=" + mGroupBy + ", having=" + mHaving + "]";
+		return "table=[" + mTable + "], selection=[" + getSelection() + "], selectionArgs=["
+			+ Arrays.toString(getSelectionArgs()) + "], groupBy=[" + mGroupBy + "], having=[" + mHaving + "]";
 	}
 
 	/**
@@ -202,8 +213,10 @@ public class SelectionBuilder {
 		if (columns != null) {
 			mapColumns(columns);
 		}
-		LOGV(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
-		return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
+		LOGV(TAG, "QUERY: columns=" + Arrays.toString(columns) + ", " + this);
+		Cursor c = db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
+		LOGV(TAG, "queried " + c.getCount() + " rows");
+		return c;
 	}
 
 	/**
@@ -211,8 +224,10 @@ public class SelectionBuilder {
 	 */
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
-		LOGV(TAG, "update() " + this);
-		return db.update(mTable, values, getSelection(), getSelectionArgs());
+		LOGV(TAG, "UPDATE: " + this);
+		int count = db.update(mTable, values, getSelection(), getSelectionArgs());
+		LOGV(TAG, "updated " + count + " rows");
+		return count;
 	}
 
 	/**
@@ -220,12 +235,14 @@ public class SelectionBuilder {
 	 */
 	public int delete(SQLiteDatabase db) {
 		assertTable();
-		LOGV(TAG, "delete() " + this);
+		LOGV(TAG, "DELETE: " + this);
 		String selection = getSelection();
 		if (TextUtils.isEmpty(selection)) {
 			// this forces delete to return the count
 			selection = "1";
 		}
-		return db.delete(mTable, selection, getSelectionArgs());
+		int count = db.delete(mTable, selection, getSelectionArgs());
+		LOGV(TAG, "deleted " + count + " rows");
+		return count;
 	}
 }

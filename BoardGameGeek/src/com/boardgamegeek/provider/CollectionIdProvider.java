@@ -18,9 +18,9 @@ public class CollectionIdProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		int itemId = Collection.getItemId(uri);
 		return new SelectionBuilder().table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
-				.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
-				.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
-				.whereEquals(Tables.COLLECTION + "." + Collection.COLLECTION_ID, itemId);
+			.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
+			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
+			.whereEquals(Tables.COLLECTION + "." + Collection.COLLECTION_ID, itemId);
 	}
 
 	@Override

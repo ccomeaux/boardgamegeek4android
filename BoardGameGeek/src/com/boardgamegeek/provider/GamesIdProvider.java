@@ -15,7 +15,7 @@ public class GamesIdProvider extends BaseProvider {
 		int gameId = Games.getGameId(uri);
 		return new SelectionBuilder().table(Tables.GAMES_JOIN_GAME_RANKS).mapToTable(Games._ID, Tables.GAMES)
 			.mapToTable(Games.GAME_ID, Tables.GAMES).whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId)
-			.whereEquals(GameRanks.GAME_RANK_TYPE, "subtype");
+			.whereEqualsOrNull(GameRanks.GAME_RANK_ID, 1);
 	}
 
 	@Override
