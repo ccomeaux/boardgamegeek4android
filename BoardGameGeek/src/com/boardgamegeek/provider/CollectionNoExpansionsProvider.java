@@ -9,13 +9,15 @@ import com.boardgamegeek.util.SelectionBuilder;
 public class CollectionNoExpansionsProvider extends CollectionProvider {
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return super.buildExpandedSelection(uri).having("SUM(" + GamesExpansions.INBOUND + ")=0 OR " + GamesExpansions.INBOUND + " IS NULL");
+		return super.buildExpandedSelection(uri).having(
+			"SUM(" + GamesExpansions.INBOUND + ")=0 OR " + GamesExpansions.INBOUND + " IS NULL");
 	}
 
 	@Override
-	protected String getJoinTable() {
-		return super.getJoinTable() + createJoin(Tables.GAMES_EXPANSIONS, GamesExpansions.GAME_ID);
+	protected String getExpandedTable() {
+		return Tables.COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS_JOIN_EXPANSIONS;
 	}
+
 	@Override
 	protected String getPath() {
 		return super.getPath() + "/" + BggContract.PATH_NOEXPANSIONS;
