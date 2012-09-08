@@ -123,19 +123,31 @@ public class BggDatabase extends SQLiteOpenHelper {
 			GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
 		String COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS = Tables.COLLECTION
-			+ createJoin(Tables.COLLECTION, Tables.GAMES, Games.GAME_ID)
-			+ createJoin(Tables.COLLECTION, Tables.GAME_RANKS, GameRanks.GAME_ID);
+			+ createJoinSuffix(Tables.COLLECTION, Tables.GAMES, Games.GAME_ID)
+			+ createJoinSuffix(Tables.COLLECTION, Tables.GAME_RANKS, GameRanks.GAME_ID);
+		String COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS_JOIN_EXPANSIONS = Tables.COLLECTION
+			+ createJoinSuffix(Tables.COLLECTION, Tables.GAMES, Games.GAME_ID)
+			+ createJoinSuffix(Tables.COLLECTION, Tables.GAME_RANKS, GameRanks.GAME_ID)
+			+ createJoinSuffix(Tables.COLLECTION, Tables.GAMES_EXPANSIONS, GamesExpansions.GAME_ID);
 		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
 		String COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS = createJoin(COLLECTION_VIEW_FILTERS, COLLECTION_VIEWS,
 			CollectionViewFilters.VIEW_ID, CollectionViews._ID);
 	}
 
 	private static String createJoin(String table1, String table2, String column) {
-		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column + "=" + table2 + "." + column;
+		return table1 + createJoinSuffix(table1, table2, column, column);
 	}
 
 	private static String createJoin(String table1, String table2, String column1, String column2) {
-		return table1 + " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
+		return table1 + createJoinSuffix(table1, table2, column1, column2);
+	}
+
+	private static String createJoinSuffix(String table1, String table2, String column) {
+		return createJoinSuffix(table1, table2, column, column);
+	}
+
+	private static String createJoinSuffix(String table1, String table2, String column1, String column2) {
+		return " LEFT OUTER JOIN " + table2 + " ON " + table1 + "." + column1 + "=" + table2 + "." + column2;
 	}
 
 	public BggDatabase(Context context) {

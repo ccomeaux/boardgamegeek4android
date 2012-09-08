@@ -12,10 +12,14 @@ public class CollectionProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(Tables.COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS)
-			.mapToTable(Collection._ID, Tables.COLLECTION).mapToTable(Collection.GAME_ID, Tables.COLLECTION)
-			.mapToTable(Collection.UPDATED, Tables.COLLECTION).mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
-			.whereEqualsOrNull(GameRanks.GAME_RANK_ID, 1).groupBy(Collection.COLLECTION_ID);
+		return new SelectionBuilder().table(getExpandedTable()).mapToTable(Collection._ID, Tables.COLLECTION)
+			.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
+			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION).whereEqualsOrNull(GameRanks.GAME_RANK_ID, 1)
+			.groupBy(Collection.COLLECTION_ID);
+	}
+
+	protected String getExpandedTable() {
+		return Tables.COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS;
 	}
 
 	@Override

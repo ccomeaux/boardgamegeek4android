@@ -13,8 +13,8 @@ public class CollectionExpansionsProvider extends CollectionProvider {
 	}
 
 	@Override
-	protected String getJoinTable() {
-		return super.getJoinTable() + createJoin(Tables.GAMES_EXPANSIONS, GamesExpansions.GAME_ID);
+	protected String getExpandedTable() {
+		return Tables.COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS_JOIN_EXPANSIONS;
 	}
 
 	@Override
