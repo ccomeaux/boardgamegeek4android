@@ -41,9 +41,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			return;
 		}
 
-		LoaderManager manager = getLoaderManager();
-		manager.restartLoader(BuddyQuery._TOKEN, null, this);
-
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setImageFadeIn(false);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
@@ -59,6 +56,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mName = (TextView) rootView.findViewById(R.id.buddy_name);
 		mId = (TextView) rootView.findViewById(R.id.buddy_id);
 		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
+
+		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
 		return rootView;
 	}
@@ -102,7 +101,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	}
 
 	private void onBuddyQueryComplete(Cursor cursor) {
-		if (!cursor.moveToFirst()) {
+		if (cursor == null || !cursor.moveToFirst()) {
 			return;
 		}
 
