@@ -10,5 +10,10 @@
 	<color name="background_light">#ffe0e0ef</color>
 	<color name="background_medium">#ff2a2c70</color>
 	<color name="background_dark">#ff4c6099</color>
+	<!-- NEW -->
+	<color name="accent_light">#ffe0e0ef</color>
+	<color name="accent_light_2">#ffeceff6</color>
+	<color name="accent_light_3">#ffe5e5e5</color>
+	<color name="accent">#ff336699</color>
 
 </resources>

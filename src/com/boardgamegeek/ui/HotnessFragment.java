@@ -91,7 +91,6 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		// do nothing
 	}
 
 	@Override
@@ -114,7 +113,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 	private void viewBoardGame(int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-		intent.putExtra(BoardgameActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
 		startActivity(intent);
 	}
 

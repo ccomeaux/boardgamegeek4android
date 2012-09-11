@@ -14,12 +14,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextPaint;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +24,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import com.boardgamegeek.util.UIUtils;
 
 public class GameInfoActivityTab extends Activity implements AsyncQueryListener {
 	private static final String TAG = makeLogTag(GameInfoActivityTab.class);

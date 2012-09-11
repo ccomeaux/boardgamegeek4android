@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item
+		android:id="@+id/menu_search"
+		android:actionViewClass="android.widget.SearchView"
+		android:icon="@drawable/ic_action_search"
+		android:orderInCategory="0"
+		android:showAsAction="always|collapseActionView"
+		android:title="@string/menu_search"/>
+	<item
+		android:id="@+id/menu_share"
+		android:icon="@android:drawable/ic_menu_share"
+		android:showAsAction="never"
+		android:title="@string/menu_share"/>
+	<item
+		android:id="@+id/menu_shortcut"
+		android:showAsAction="never"
+		android:title="@string/menu_create_shortcut"/>
+	<item
+		android:id="@+id/menu_refresh"
+		android:icon="@drawable/ic_menu_refresh"
+		android:title="@string/menu_refresh"/>
+	<item
+		android:id="@+id/log_play"
+		android:icon="@android:drawable/ic_menu_edit"
+		android:title="@string/menu_log_play"/>
+	<item
+		android:id="@+id/log_play_quick"
+		android:icon="@drawable/ic_menu_mark"
+		android:title="@string/menu_log_play_quick"/>
+	<item
+		android:id="@+id/links"
+		android:icon="@drawable/ic_menu_link"
+		android:title="@string/menu_links">
+		<menu>
+			<item
+				android:id="@+id/menu_bgg"
+				android:title="@string/menu_link_bgg"/>
+			<item
+				android:id="@+id/menu_bg_prices"
+				android:title="@string/menu_link_bg_prices"/>
+			<item
+				android:id="@+id/menu_amazon"
+				android:title="@string/menu_link_amazon"/>
+			<item
+				android:id="@+id/menu_ebay"
+				android:title="@string/menu_link_ebay"/>
+		</menu>
+	</item>
+</menu>
