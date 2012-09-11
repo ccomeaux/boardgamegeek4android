@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<!-- Base application theme is the default theme. -->
 	<style name="Theme" parent="android:Theme"></style>
@@ -96,7 +96,10 @@
 	<style name="StatRow">
 		<item name="android:layout_width">fill_parent</item>
 		<item name="android:layout_height">fill_parent</item>
-		<item name="android:padding">2dp</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
 	</style>
 
 	<style name="StatBar" parent="@android:style/Widget.ProgressBar.Horizontal">
@@ -114,15 +117,23 @@
 	<style name="StatsHeading">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:paddingRight">@dimen/padding_small</item>
 		<item name="android:textSize">@dimen/text_size_small</item>
 		<item name="android:textStyle">bold</item>
 	</style>
 
 	<style name="StatsCount">
+		<item name="android:gravity">right</item>
 		<item name="android:layout_width">fill_parent</item>
 		<item name="android:layout_height">wrap_content</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/padding_small</item>
 		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:gravity">right</item>
 	</style>
 
 	<style name="PollProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">

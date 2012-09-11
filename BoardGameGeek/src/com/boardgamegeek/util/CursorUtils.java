@@ -68,4 +68,14 @@ public class CursorUtils {
 			return cursor.getString(idx);
 		}
 	}
+
+	public static String[] getStringArray(Cursor cursor, int columnIndex) {
+		String[] array = new String[cursor.getCount()];
+		cursor.moveToPosition(-1);
+		int i = 0;
+		while (cursor.moveToNext()) {
+			array[i++] = cursor.getString(columnIndex);
+		}
+		return array;
+	}
 }

@@ -89,6 +89,11 @@
 
 				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.CollectionActivity" >
+			</meta-data>
 		</activity>
 		<activity
 			android:name=".ui.GameInfoActivityTab"

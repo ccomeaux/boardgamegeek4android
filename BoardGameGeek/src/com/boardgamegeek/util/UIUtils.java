@@ -20,7 +20,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -338,9 +337,8 @@ public class UIUtils {
 			while (text.length() > 5 && text.endsWith("<br/>")) {
 				text = text.substring(0, text.length() - 5);
 			}
-			Spanned st = Html.fromHtml(text);
-			Log.i("BGG", "TEXT:\n" + text + "\nSPAN:\n" + st.toString());
-			view.setText(st);
+			Spanned spanned = Html.fromHtml(text);
+			view.setText(spanned);
 			view.setMovementMethod(LinkMovementMethod.getInstance());
 		} else {
 			view.setText(text);
