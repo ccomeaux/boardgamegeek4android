@@ -128,6 +128,10 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		mBatch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
 	}
 
+	protected void addInsert(Uri uri, String key, Object value) {
+		mBatch.add(ContentProviderOperation.newInsert(uri).withValue(key, value).build());
+	}
+
 	interface Tags {
 		String ANCHOR = "a";
 		String HREF = "href";

@@ -14,7 +14,7 @@ public abstract class BasicProvider extends BaseProvider {
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		return new SelectionBuilder().table(getTable());
 	}
-	
+
 	protected Integer getInsertedId(ContentValues values) {
 		return (int) mRowId;
 	}
