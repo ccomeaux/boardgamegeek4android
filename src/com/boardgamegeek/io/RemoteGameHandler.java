@@ -41,7 +41,12 @@ public class RemoteGameHandler extends RemoteBggHandler {
 	private List<Integer> mPublisherIds;
 	private List<Integer> mMechanicIds;
 	private List<Integer> mCategoryIds;
-	private List<Integer> mExpansionIds;
+	private List<Integer> mGameDesignerIds;
+	private List<Integer> mGameArtistIds;
+	private List<Integer> mGamePublisherIds;
+	private List<Integer> mGameMechanicIds;
+	private List<Integer> mGameCategoryIds;
+	private List<Integer> mGameExpansionIds;
 	private List<String> mPollNames;
 	private boolean mParsePolls;
 	private int mCount;
@@ -66,6 +71,12 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
+		mDesignerIds = ResolverUtils.queryInts(mResolver, Designers.CONTENT_URI, Designers.DESIGNER_ID);
+		mArtistIds = ResolverUtils.queryInts(mResolver, Artists.CONTENT_URI, Artists.ARTIST_ID);
+		mPublisherIds = ResolverUtils.queryInts(mResolver, Publishers.CONTENT_URI, Publishers.PUBLISHER_ID);
+		mMechanicIds = ResolverUtils.queryInts(mResolver, Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID);
+		mCategoryIds = ResolverUtils.queryInts(mResolver, Categories.CONTENT_URI, Categories.CATEGORY_ID);
+
 		int type;
 		while ((type = mParser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
@@ -87,33 +98,35 @@ public class RemoteGameHandler extends RemoteBggHandler {
 	}
 
 	private void saveChildRecords() {
-		mDesignerIds = ResolverUtils.queryInts(mResolver, Games.buildDesignersUri(mGameId), Designers.DESIGNER_ID);
-		mArtistIds = ResolverUtils.queryInts(mResolver, Games.buildArtistsUri(mGameId), Artists.ARTIST_ID);
-		mPublisherIds = ResolverUtils.queryInts(mResolver, Games.buildPublishersUri(mGameId), Publishers.PUBLISHER_ID);
-		mMechanicIds = ResolverUtils.queryInts(mResolver, Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
-		mCategoryIds = ResolverUtils.queryInts(mResolver, Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
-		mExpansionIds = ResolverUtils.queryInts(mResolver, Games.buildExpansionsUri(mGameId),
+		mGameDesignerIds = ResolverUtils.queryInts(mResolver, Games.buildDesignersUri(mGameId), Designers.DESIGNER_ID);
+		mGameArtistIds = ResolverUtils.queryInts(mResolver, Games.buildArtistsUri(mGameId), Artists.ARTIST_ID);
+		mGamePublisherIds = ResolverUtils.queryInts(mResolver, Games.buildPublishersUri(mGameId),
+			Publishers.PUBLISHER_ID);
+		mGameMechanicIds = ResolverUtils.queryInts(mResolver, Games.buildMechanicsUri(mGameId), Mechanics.MECHANIC_ID);
+		mGameCategoryIds = ResolverUtils
+			.queryInts(mResolver, Games.buildCategoriesUri(mGameId), Categories.CATEGORY_ID);
+		mGameExpansionIds = ResolverUtils.queryInts(mResolver, Games.buildExpansionsUri(mGameId),
 			GamesExpansions.EXPANSION_ID);
 		mPollNames = ResolverUtils.queryStrings(mResolver, Games.buildPollsUri(mGameId), GamePolls.POLL_NAME);
 	}
 
 	private void deleteOldChildRecords() {
-		for (Integer designerId : mDesignerIds) {
+		for (Integer designerId : mGameDesignerIds) {
 			addDelete(Games.buildDesignersUri(mGameId, designerId));
 		}
-		for (Integer artistId : mArtistIds) {
+		for (Integer artistId : mGameArtistIds) {
 			addDelete(Games.buildArtistsUri(mGameId, artistId));
 		}
-		for (Integer publisherId : mPublisherIds) {
+		for (Integer publisherId : mGamePublisherIds) {
 			addDelete(Games.buildPublishersUri(mGameId, publisherId));
 		}
-		for (Integer mechanicId : mMechanicIds) {
+		for (Integer mechanicId : mGameMechanicIds) {
 			addDelete(Games.buildMechanicsUri(mGameId, mechanicId));
 		}
-		for (Integer categoryId : mCategoryIds) {
+		for (Integer categoryId : mGameCategoryIds) {
 			addDelete(Games.buildCategoriesUri(mGameId, categoryId));
 		}
-		for (Integer expansionId : mExpansionIds) {
+		for (Integer expansionId : mGameExpansionIds) {
 			addDelete(Games.buildExpansionsUri(mGameId, expansionId));
 		}
 		for (String pollName : mPollNames) {
@@ -199,7 +212,6 @@ public class RemoteGameHandler extends RemoteBggHandler {
 	}
 
 	private void parseDesigner() throws XmlPullParserException, IOException {
-
 		ContentValues values = new ContentValues();
 		final int designerId = parseIntegerAttribute(Tags.ID);
 		values.put(Designers.DESIGNER_ID, designerId);
@@ -212,15 +224,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mDesignerIds.remove(Integer.valueOf(designerId))) {
-			addInsert(Designers.CONTENT_URI, values);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildDesignersUri(mGameId))
-				.withValue(GamesDesigners.DESIGNER_ID, designerId).build());
+		if (!mGameDesignerIds.remove(Integer.valueOf(designerId))) {
+			addInsertMaybe(Designers.CONTENT_URI, values, mDesignerIds, designerId);
+			addInsert(Games.buildDesignersUri(mGameId), GamesDesigners.DESIGNER_ID, designerId);
 		}
 	}
 
 	private void parseArtist() throws XmlPullParserException, IOException {
-
 		ContentValues values = new ContentValues();
 		final int artistId = parseIntegerAttribute(Tags.ID);
 		values.put(Artists.ARTIST_ID, artistId);
@@ -233,15 +243,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mArtistIds.remove(Integer.valueOf(artistId))) {
-			addInsert(Artists.CONTENT_URI, values);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildArtistsUri(mGameId))
-				.withValue(GamesArtists.ARTIST_ID, artistId).build());
+		if (!mGameArtistIds.remove(Integer.valueOf(artistId))) {
+			addInsertMaybe(Artists.CONTENT_URI, values, mArtistIds, artistId);
+			addInsert(Games.buildArtistsUri(mGameId), GamesArtists.ARTIST_ID, artistId);
 		}
 	}
 
 	private void parsePublisher() throws XmlPullParserException, IOException {
-
 		ContentValues values = new ContentValues();
 		final int publisherId = parseIntegerAttribute(Tags.ID);
 		values.put(Publishers.PUBLISHER_ID, publisherId);
@@ -254,15 +262,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mPublisherIds.remove(Integer.valueOf(publisherId))) {
-			addInsert(Publishers.CONTENT_URI, values);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildPublishersUri(mGameId))
-				.withValue(GamesPublishers.PUBLISHER_ID, publisherId).build());
+		if (!mGamePublisherIds.remove(Integer.valueOf(publisherId))) {
+			addInsertMaybe(Publishers.CONTENT_URI, values, mPublisherIds, publisherId);
+			addInsert(Games.buildPublishersUri(mGameId), GamesPublishers.PUBLISHER_ID, publisherId);
 		}
 	}
 
 	private void parseMechanic() throws XmlPullParserException, IOException {
-
 		ContentValues values = new ContentValues();
 		final int mechanicId = parseIntegerAttribute(Tags.ID);
 		values.put(Mechanics.MECHANIC_ID, mechanicId);
@@ -275,15 +281,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mMechanicIds.remove(Integer.valueOf(mechanicId))) {
-			addInsert(Mechanics.CONTENT_URI, values);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildMechanicsUri(mGameId))
-				.withValue(GamesMechanics.MECHANIC_ID, mechanicId).build());
+		if (!mGameMechanicIds.remove(Integer.valueOf(mechanicId))) {
+			addInsertMaybe(Mechanics.CONTENT_URI, values, mMechanicIds, mechanicId);
+			addInsert(Games.buildMechanicsUri(mGameId), GamesMechanics.MECHANIC_ID, mechanicId);
 		}
 	}
 
 	private void parseCategory() throws XmlPullParserException, IOException {
-
 		ContentValues values = new ContentValues();
 		final int categoryId = parseIntegerAttribute(Tags.ID);
 		values.put(Categories.CATEGORY_ID, categoryId);
@@ -296,10 +300,9 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		if (!mCategoryIds.remove(Integer.valueOf(categoryId))) {
-			addInsert(Categories.CONTENT_URI, values);
-			mBatch.add(ContentProviderOperation.newInsert(Games.buildCategoriesUri(mGameId))
-				.withValue(GamesCategories.CATEGORY_ID, categoryId).build());
+		if (!mGameCategoryIds.remove(Integer.valueOf(categoryId))) {
+			addInsertMaybe(Categories.CONTENT_URI, values, mCategoryIds, categoryId);
+			addInsert(Games.buildCategoriesUri(mGameId), GamesCategories.CATEGORY_ID, categoryId);
 		}
 	}
 
@@ -313,14 +316,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == TEXT) {
 				values.put(GamesExpansions.EXPANSION_NAME, mParser.getText());
-				values.put(GamesExpansions.INBOUND, inbound);
 			}
 		}
 
-		if (!mExpansionIds.remove(Integer.valueOf(expansionId))) {
+		if (!mGameExpansionIds.remove(Integer.valueOf(expansionId))) {
 			values.put(GamesExpansions.EXPANSION_ID, expansionId);
-			mBatch
-				.add(ContentProviderOperation.newInsert(Games.buildExpansionsUri(mGameId)).withValues(values).build());
+			values.put(GamesExpansions.INBOUND, inbound);
+			addInsert(Games.buildExpansionsUri(mGameId), values);
 		}
 	}
 
@@ -396,20 +398,20 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		List<Integer> ids = ResolverUtils.queryInts(mResolver, GameRanks.CONTENT_URI, GameRanks.GAME_RANK_ID,
+		List<Integer> rankIds = ResolverUtils.queryInts(mResolver, GameRanks.CONTENT_URI, GameRanks.GAME_RANK_ID,
 			GameRanks.GAME_ID + "=?", new String[] { String.valueOf(mGameId) });
 
 		for (ContentValues values : valuesList) {
-			Integer id = values.getAsInteger(GameRanks.GAME_RANK_ID);
-			if (ids.contains(id)) {
-				addUpdate(Games.buildRanksUri(mGameId, id.intValue()), values);
-				ids.remove(id);
+			Integer rankId = values.getAsInteger(GameRanks.GAME_RANK_ID);
+			if (rankIds.contains(rankId)) {
+				addUpdate(Games.buildRanksUri(mGameId, rankId.intValue()), values);
+				rankIds.remove(rankId);
 			} else {
 				addInsert(Games.buildRanksUri(mGameId), values);
 			}
 		}
-		for (Integer id : ids) {
-			addDelete(GameRanks.buildGameRankUri(id.intValue()));
+		for (Integer rankId : rankIds) {
+			addDelete(GameRanks.buildGameRankUri(rankId.intValue()));
 		}
 	}
 
@@ -417,14 +419,13 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		final int depth = mParser.getDepth();
 		int type;
 
-		List<String> players = new ArrayList<String>();
-
 		final String pollName = parseStringAttribute(Tags.POLL_NAME);
 		ContentValues values = new ContentValues();
 		values.put(GamePolls.POLL_NAME, pollName);
 		values.put(GamePolls.POLL_TITLE, parseStringAttribute(Tags.POLL_TITLE));
 		values.put(GamePolls.POLL_TOTAL_VOTES, parseStringAttribute(Tags.POLL_TOTAL_VOTES));
 
+		List<String> players = new ArrayList<String>();
 		if (mPollNames.remove(pollName)) {
 			addUpdate(Games.buildPollsUri(mGameId, pollName), values);
 			players = ResolverUtils.queryStrings(mResolver, Games.buildPollResultsUri(mGameId, pollName),
@@ -493,6 +494,12 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 		for (String value : existingValues) {
 			addDelete(Games.buildPollResultsResultUri(mGameId, pollName, players, value));
+		}
+	}
+
+	private void addInsertMaybe(Uri uri, ContentValues values, List<Integer> list, Integer id) {
+		if (!list.contains(id)) {
+			addInsert(Designers.CONTENT_URI, values);
 		}
 	}
 
