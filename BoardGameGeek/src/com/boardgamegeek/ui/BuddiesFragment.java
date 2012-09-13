@@ -187,7 +187,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 			BggApplication.getInstance().putLastBuddiesSync();
 			SyncService.start(getActivity(), SyncService.SYNC_TYPE_BUDDIES);
 		} else {
-			Toast.makeText(getActivity(), R.string.message_sync_recent, Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
 		}
 	}
 

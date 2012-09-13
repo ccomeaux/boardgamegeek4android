@@ -235,7 +235,6 @@
 	<string name="search_settings_description">Names of board games</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
-	<string name="message_sync_recent">You just synced. Have some patience.</string>
 	<string name="search_message">Searching…</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
@@ -299,6 +298,7 @@
 	<string name="menu_plays">Plays</string>
 	<string name="menu_delete">Delete</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
+	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updating">Updating…</string>
 	<string name="msg_update_error">Error updating.</string>

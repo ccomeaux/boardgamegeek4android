@@ -94,6 +94,8 @@ public class RemoteGameHandler extends RemoteBggHandler {
 				mCount++;
 				deleteOldChildRecords();
 			}
+			ResolverUtils.applyBatch(mResolver, mBatch);
+			mBatch.clear();
 		}
 	}
 
@@ -499,7 +501,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 	private void addInsertMaybe(Uri uri, ContentValues values, List<Integer> list, Integer id) {
 		if (!list.contains(id)) {
-			addInsert(Designers.CONTENT_URI, values);
+			addInsert(uri, values);
 		}
 	}
 
