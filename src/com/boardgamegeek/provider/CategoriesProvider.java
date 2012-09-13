@@ -7,7 +7,7 @@ import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
 public class CategoriesProvider extends BasicProvider {
-	
+
 	@Override
 	protected String getDefaultSortOrder() {
 		return Categories.DEFAULT_SORT;

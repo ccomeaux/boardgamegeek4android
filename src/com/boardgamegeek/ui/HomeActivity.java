@@ -144,10 +144,9 @@ public class HomeActivity extends SherlockFragmentActivity {
 				}
 				case SyncService.STATUS_ERROR:
 				default: {
-					// Error happened down in SyncService, show as toast.
-					LOGW(TAG, "Received unexpected result: " + resultCode);
 					final String error = resultData.getString(Intent.EXTRA_TEXT);
 					if (error != null) {
+						LOGW(TAG, "Received unexpected result: " + error);
 						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
 					}
 					break;
