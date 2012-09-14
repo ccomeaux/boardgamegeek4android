@@ -132,8 +132,10 @@ public class BggProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		LOGV(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-		return getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection, selectionArgs,
-			sortOrder);
+		Cursor cursor = getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection,
+			selectionArgs, sortOrder);
+		cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		return cursor;
 	}
 
 	@Override
