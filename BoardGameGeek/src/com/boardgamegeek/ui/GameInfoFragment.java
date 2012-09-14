@@ -1,15 +1,20 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import org.apache.http.client.HttpClient;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -29,9 +34,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemoteGameHandler;
+import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -42,11 +52,15 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 
 	private Uri mGameUri;
 	private ImageFetcher mImageFetcher;
@@ -99,9 +113,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private int mHPadding;
 	private int mVPadding;
 
+	private long mUpdated;
+	private boolean mIsRefreshing;
+	private boolean mMightNeedRefreshing;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameUri = intent.getData();
@@ -171,7 +190,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mRankTextSize = getResources().getDimension(R.dimen.text_size_small);
 		mHPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 		mVPadding = getResources().getDimensionPixelSize(R.dimen.padding_small);
-		mVPadding = (int) (getResources().getDimension(R.dimen.padding_small) / getResources().getDisplayMetrics().density);
 
 		mDescriptionView.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -206,6 +224,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			}
 		});
 
+		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(DesignerQuery._TOKEN, null, this);
@@ -236,6 +255,21 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	public void onDestroy() {
 		super.onDestroy();
 		mImageFetcher.closeCache();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_refresh) {
+			if (mIsRefreshing) {
+				Toast.makeText(getActivity(), "Already refreshing.", Toast.LENGTH_LONG).show();
+			} else if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
+				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
+			} else {
+				triggerRefresh();
+			}
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -322,6 +356,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
+			if (mMightNeedRefreshing) {
+				triggerRefresh();
+			}
 			return;
 		}
 
@@ -331,6 +368,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		formatRating(game);
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
+		mUpdated = game.Updated;
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
@@ -365,6 +403,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWantingBar.setBar(R.string.wanting_meter_text, game.NumberWanting, game.getMaxUsers());
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
+
+		if (mMightNeedRefreshing
+			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+			triggerRefresh();
+		}
+		mMightNeedRefreshing = false;
 	}
 
 	private void onListQueryComplete(Cursor cursor, View root, TextView data, int columnIndex) {
@@ -429,7 +473,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		tv = new TextView(getActivity());
 		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 			LinearLayout.LayoutParams.WRAP_CONTENT));
-		// tv.setTextAppearance(getActivity(), android.R.style.TextAppearance_Small);
 		tv.setPadding(mHPadding, mVPadding, mHPadding, mVPadding);
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
 		tv.setGravity(Gravity.RIGHT);
@@ -457,6 +500,57 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 	}
 
+	private void triggerRefresh() {
+		mMightNeedRefreshing = false;
+		new RefreshTask().execute(mGameUri.getLastPathSegment());
+	}
+
+	private class RefreshTask extends AsyncTask<String, Void, String> {
+
+		private HttpClient mHttpClient;
+		private RemoteExecutor mExecutor;
+		private long mStartTime;
+
+		@Override
+		protected void onPreExecute() {
+			mIsRefreshing = true;
+			Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
+			mStartTime = System.currentTimeMillis();
+			// showLoadingMessage();
+			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
+			mExecutor = new RemoteExecutor(mHttpClient, getActivity().getContentResolver());
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			String gameId = params[0];
+			LOGD(TAG, "Refreshing game ID=" + gameId);
+			RemoteGameHandler rgh = new RemoteGameHandler();
+			rgh.setParsePolls();
+			try {
+				mExecutor.executeGet(HttpUtils.constructGameUrl(gameId), rgh);
+			} catch (HandlerException e) {
+				LOGE(TAG, "Exception trying to refresh game ID = " + gameId, e);
+				return e.toString();
+			}
+			return "";
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			mIsRefreshing = false;
+			LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
+			// hideLoadingMessage();
+			String message;
+			if (TextUtils.isEmpty(result)) {
+				message = "Success!";
+			} else {
+				message = getString(R.string.msg_update_error) + "\n" + result;
+			}
+			Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+		}
+	}
+
 	private interface GameQuery {
 		int _TOKEN = 0x11;
 
@@ -465,7 +559,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.STATS_USERS_RATED };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -489,6 +583,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int STATS_NUMBER_TRADING = 19;
 		int STATS_NUMBER_WANTING = 20;
 		int STATS_NUMBER_WISHING = 21;
+		int POLLS_COUNT = 22;
 	}
 
 	private interface DesignerQuery {
@@ -560,6 +655,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int NumberTrading;
 		int NumberWanting;
 		int NumberWishing;
+		int PollsCount;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -572,8 +668,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			PlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
 			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
 			Description = cursor.getString(GameQuery.DESCRIPTION);
-			UsersRated = 0;// cursor.getInt(GameQuery.STATS_USERS_RATED);
-			Updated = 0;// cursor.getLong(GameQuery.UPDATED);
+			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
+			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK_VALUE);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
 			Median = cursor.getDouble(GameQuery.STATS_MEDIAN);
@@ -584,6 +680,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			NumberTrading = cursor.getInt(GameQuery.STATS_NUMBER_TRADING);
 			NumberWanting = cursor.getInt(GameQuery.STATS_NUMBER_WANTING);
 			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
+			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
 		}
 
 		public String getAgeDescription() {
