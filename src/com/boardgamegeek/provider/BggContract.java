@@ -230,6 +230,8 @@ public class BggContract {
 
 		public static final String DEFAULT_SORT = GamesColumns.GAME_SORT_NAME + " COLLATE NOCASE ASC";
 
+		public static final String POLLS_COUNT = "polls_count";
+
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
 		}
