@@ -97,6 +97,12 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 				Intent shortcut = ActivityUtils.createShortcut(this, mGameId, mGameName);
 				sendBroadcast(shortcut);
 				return true;
+			case R.id.log_play:
+				ActivityUtils.logPlay(this, false, mGameId, mGameName);
+				return true;
+			case R.id.log_play_quick:
+				ActivityUtils.logPlay(this, true, mGameId, mGameName);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
