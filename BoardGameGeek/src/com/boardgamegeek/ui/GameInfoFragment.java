@@ -30,6 +30,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -68,6 +69,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private String mGameName;
 	private String mImageUrl;
 
+	private View mScrollRoot;
+	private View mProgressView;
 	private ImageView mThumbnailView;
 	private TextView mNameView;
 	private TextView mUnratedView;
@@ -146,12 +149,15 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, null);
 
+		mScrollRoot = rootView.findViewById(R.id.game_info_scroll_root);
+		mProgressView = rootView.findViewById(R.id.game_info_progress);
+
 		mNameView = (TextView) rootView.findViewById(R.id.game_info_name);
 		mThumbnailView = (ImageView) rootView.findViewById(R.id.game_info_thumbnail);
 		mUnratedView = (TextView) rootView.findViewById(R.id.game_info_rating_unrated);
 		mRatingBar = (RatingBar) rootView.findViewById(R.id.game_info_rating_stars);
 		mRatingView = (TextView) rootView.findViewById(R.id.game_info_rating);
-		mRatingDenomView = (TextView) rootView.findViewById(R.id.game_info_rating_denom);
+		mRatingDenomView = (TextView) rootView.findViewById(R.id.game_info_rating_denominator);
 		mNumberRatingView = (TextView) rootView.findViewById(R.id.game_info_rating_count);
 		mIdView = (TextView) rootView.findViewById(R.id.game_info_id);
 		mUpdatedView = (TextView) rootView.findViewById(R.id.game_info_last_updated);
@@ -176,24 +182,24 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mExpansionsRoot = rootView.findViewById(R.id.game_info_expansions_root);
 		mExpansionsView = (TextView) rootView.findViewById(R.id.game_info_expansions_data);
 
-		mRankRoot = (LinearLayout) rootView.findViewById(R.id.game_info_rank_root);
+		mRankRoot = (LinearLayout) rootView.findViewById(R.id.game_stats_rank_root);
 
-		mRatingsCount = (TextView) rootView.findViewById(R.id.statsRatingCount);
-		mAverageStatBar = (StatBar) rootView.findViewById(R.id.average_bar);
-		mBayesAverageBar = (StatBar) rootView.findViewById(R.id.bayes_bar);
-		mMedianBar = (StatBar) rootView.findViewById(R.id.median_bar);
-		mStdDevBar = (StatBar) rootView.findViewById(R.id.stddev_bar);
+		mRatingsCount = (TextView) rootView.findViewById(R.id.game_stats_rating_count);
+		mAverageStatBar = (StatBar) rootView.findViewById(R.id.game_stats_average_bar);
+		mBayesAverageBar = (StatBar) rootView.findViewById(R.id.game_stats_bayes_bar);
+		mMedianBar = (StatBar) rootView.findViewById(R.id.game_stats_median_bar);
+		mStdDevBar = (StatBar) rootView.findViewById(R.id.game_stats_stddev_bar);
 
-		mWeightCount = (TextView) rootView.findViewById(R.id.statsWeightCount);
-		mWeightBar = (StatBar) rootView.findViewById(R.id.weight_bar);
+		mWeightCount = (TextView) rootView.findViewById(R.id.game_stats_weight_count);
+		mWeightBar = (StatBar) rootView.findViewById(R.id.game_stats_weight_bar);
 
-		mUserCount = (TextView) rootView.findViewById(R.id.game_info_users_count);
-		mNumOwningBar = (StatBar) rootView.findViewById(R.id.game_info_owning_bar);
-		mNumRatingBar = (StatBar) rootView.findViewById(R.id.game_info_rating_bar);
-		mNumTradingBar = (StatBar) rootView.findViewById(R.id.game_info_trading_bar);
-		mNumWantingBar = (StatBar) rootView.findViewById(R.id.game_info_wanting_bar);
-		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_info_wishing_bar);
-		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_info_weighting_bar);
+		mUserCount = (TextView) rootView.findViewById(R.id.game_stats_users_count);
+		mNumOwningBar = (StatBar) rootView.findViewById(R.id.game_stats_owning_bar);
+		mNumRatingBar = (StatBar) rootView.findViewById(R.id.game_stats_rating_bar);
+		mNumTradingBar = (StatBar) rootView.findViewById(R.id.game_stats_trading_bar);
+		mNumWantingBar = (StatBar) rootView.findViewById(R.id.game_stats_wanting_bar);
+		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_stats_wishing_bar);
+		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_stats_weighting_bar);
 
 		mBggLinkView = rootView.findViewById(R.id.game_info_link_bgg);
 		mBgPricesLinkView = rootView.findViewById(R.id.game_info_link_bg_prices);
@@ -419,6 +425,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		Game game = new Game(cursor);
 
 		mGameName = game.Name;
+		mImageUrl = game.ImageUrl;
+
+		if (mScrollRoot.getVisibility() != View.VISIBLE) {
+			mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+			mScrollRoot.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+			mProgressView.setVisibility(View.GONE);
+			mScrollRoot.setVisibility(View.VISIBLE);
+		}
 
 		mNameView.setText(game.Name);
 		formatRating(game);
@@ -434,7 +448,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		mImageFetcher.loadAvatarImage(game.ThumbnailUrl, Games.buildThumbnailUri(game.Id), mThumbnailView,
 			R.drawable.thumbnail_image_empty);
-		mImageUrl = game.ImageUrl;
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));

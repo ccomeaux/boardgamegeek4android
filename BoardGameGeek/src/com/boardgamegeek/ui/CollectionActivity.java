@@ -139,7 +139,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		mAdapter = new CollectionAdapter(this);
 		setListAdapter(mAdapter);
 
-		if (getIntent().getAction().equals("android.intent.action.CREATE_SHORTCUT")) {
+		if ("android.intent.action.CREATE_SHORTCUT".equals(getIntent().getAction())) {
 			mShortcut = true;
 			mUri = Collection.CONTENT_URI;
 		} else {
@@ -259,7 +259,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
-				showGame(cursor.getInt(Query.GAME_ID));
+				ActivityUtils.launchGame(this, cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_filter_clear:
 				mFilters.clear();
@@ -368,7 +368,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 
 		switch (item.getItemId()) {
 			case UIUtils.MENU_ITEM_VIEW: {
-				showGame(gameId);
+				ActivityUtils.launchGame(this, gameId, gameName);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_LOG_PLAY: {
@@ -590,13 +590,8 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 			setResult(RESULT_OK, shortcut);
 			finish();
 		} else {
-			showGame(cursor.getInt(Query.GAME_ID));
+			ActivityUtils.launchGame(this, cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 		}
-	}
-
-	private void showGame(final int gameId) {
-		final Uri gameUri = Games.buildGameUri(gameId);
-		startActivity(new Intent(Intent.ACTION_VIEW, gameUri));
 	}
 
 	private ContentObserver mGameObserver = new ContentObserver(new Handler()) {
@@ -612,7 +607,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 		String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
-			super(context, null);
+			super(context, null, false);
 			mInflater = getLayoutInflater();
 		}
 

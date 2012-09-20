@@ -49,6 +49,7 @@ import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.provider.BggDatabase.GamesArtists;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
@@ -190,10 +191,7 @@ public class GameListsActivityTab extends ExpandableListActivity implements Asyn
 		mName = (String) childItem.get(KEY_NAME);
 		mDescription = (String) childItem.get(KEY_DESCRIPTION);
 		if (groupPosition == GROUP_EXPANSIONS || groupPosition == GROUP_BASE_GAMES) {
-			Uri gameUri = Games.buildGameUri(Integer.valueOf(mDescription).intValue());
-			Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-			intent.putExtra(BoardgameActivity.KEY_GAME_NAME, mName);
-			startActivity(intent);
+			ActivityUtils.launchGame(this, Integer.valueOf(mDescription).intValue(), mName);
 		} else {
 			if (TextUtils.isEmpty(mDescription)) {
 				showToast(R.string.msg_no_description);
