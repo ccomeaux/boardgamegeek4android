@@ -26,7 +26,6 @@
 				android:layout_height="@dimen/thumbnail_size"
 				android:layout_alignParentLeft="true"
 				android:layout_alignParentTop="true"
-				android:onClick="onThumbnailClick"
 				android:scaleType="centerCrop"
 				android:src="@drawable/thumbnail_image_empty" />
 
@@ -63,7 +62,6 @@
 				android:numStars="10"
 				android:paddingBottom="@dimen/padding_small"
 				android:paddingTop="@dimen/padding_small"
-				android:rating="7.49"
 				android:stepSize="0.01" />
 
 			<TextView
@@ -139,75 +137,111 @@
 			android:orientation="vertical"
 			android:padding="@dimen/padding_standard" >
 
-			<TableRow>
+			<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" >
 
 				<TextView
 					android:id="@+id/game_info_rank"
 					style="@style/game_info_table"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:drawableLeft="@drawable/info_trophy"
 					android:textStyle="bold" />
 
 				<TextView
 					android:id="@+id/game_info_year"
 					style="@style/game_info_table"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:drawableLeft="@drawable/info_calendar" />
 			</TableRow>
 
-			<TableRow>
+			<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" >
 
 				<TextView
 					android:id="@+id/game_info_playing_time"
 					style="@style/game_info_table"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:drawableLeft="@drawable/info_clock" />
 
 				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:orientation="horizontal" >
 
 					<ImageButton
 						android:id="@+id/game_info_num_of_players_button"
 						style="@style/game_info_button"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
 						android:contentDescription="@string/num_of_players"
 						android:onClick="onClick"
 						android:src="@drawable/info_users" />
 
 					<TextView
 						android:id="@+id/game_info_num_of_players"
-						style="@style/game_info_button_text" />
+						style="@style/game_info_button_text"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1" />
 				</LinearLayout>
 			</TableRow>
 
-			<TableRow>
+			<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" >
 
 				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:orientation="horizontal" >
 
 					<ImageButton
 						android:id="@+id/game_info_suggested_ages_button"
 						style="@style/game_info_button"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
 						android:contentDescription="@string/suggested_playerage"
 						android:onClick="onClick"
 						android:src="@drawable/info_user" />
 
 					<TextView
 						android:id="@+id/game_info_suggested_ages"
-						style="@style/game_info_button_text" />
+						style="@style/game_info_button_text"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1" />
 				</LinearLayout>
 
 				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:orientation="horizontal" >
 
 					<ImageButton
 						android:id="@+id/game_info_languages_button"
 						style="@style/game_info_button"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
 						android:contentDescription="@string/language_dependence"
 						android:onClick="onClick"
 						android:src="@drawable/info_mouth" />
 
 					<TextView
 						style="@style/game_info_button_text"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
 						android:text="@string/language" />
 				</LinearLayout>
 			</TableRow>
@@ -395,7 +429,9 @@
 
 			<View
 				android:id="@+id/game_info_rank_rule"
-				style="@style/BodySeparator" />
+				style="@style/BodySeparator"
+				android:layout_width="fill_parent"
+				android:layout_height="1dp" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"
@@ -404,30 +440,46 @@
 
 				<TextView
 					style="@style/StatsHeading"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
 					android:text="@string/ratings" />
 
 				<TextView
 					android:id="@+id/statsRatingCount"
-					style="@style/StatsCount" />
+					style="@style/StatsCount"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1" />
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/average_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/bayes_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/median_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/stddev_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
-			<View style="@style/BodySeparator" />
+			<View
+				style="@style/BodySeparator"
+				android:layout_width="fill_parent"
+				android:layout_height="1dp" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"
@@ -436,18 +488,28 @@
 
 				<TextView
 					style="@style/StatsHeading"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
 					android:text="@string/weight" />
 
 				<TextView
 					android:id="@+id/statsWeightCount"
-					style="@style/StatsCount" />
+					style="@style/StatsCount"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1" />
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/weight_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
-			<View style="@style/BodySeparator" />
+			<View
+				style="@style/BodySeparator"
+				android:layout_width="match_parent"
+				android:layout_height="1dp" />
 
 			<LinearLayout
 				android:layout_width="fill_parent"
@@ -456,36 +518,53 @@
 
 				<TextView
 					style="@style/StatsHeading"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
 					android:text="@string/users" />
 
 				<TextView
 					android:id="@+id/game_info_users_count"
-					style="@style/StatsCount" />
+					style="@style/StatsCount"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1" />
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_owning_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_rating_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_trading_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_wanting_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_wishing_bar"
-				style="@style/StatRow" />
+				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
 
 			<com.boardgamegeek.ui.widget.StatBar
 				android:id="@+id/game_info_weighting_bar"
 				style="@style/StatRow"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:paddingBottom="@dimen/padding_standard" />
 		</LinearLayout>
 
@@ -494,17 +573,49 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/padding_standard"
-			android:background="@drawable/grey_frame_on_white_b" >
+			android:background="@drawable/grey_frame_on_white_b"
+			android:orientation="vertical" >
 
 			<TextView
 				android:id="@+id/game_info_links_label"
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:padding="@dimen/padding_standard"
-				android:paddingRight="0dp"
-				android:text="Links"
+				android:text="@string/menu_links"
 				android:textAllCaps="true"
 				android:textColor="@color/accent" />
+
+			<TextView
+				android:id="@+id/game_info_link_bgg"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:padding="@dimen/padding_standard"
+				android:text="@string/menu_link_bgg" />
+
+			<TextView
+				android:id="@+id/game_info_link_bg_prices"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:padding="@dimen/padding_standard"
+				android:text="@string/menu_link_bg_prices" />
+
+			<TextView
+				android:id="@+id/game_info_link_amazon"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:padding="@dimen/padding_standard"
+				android:text="@string/menu_link_amazon" />
+
+			<TextView
+				android:id="@+id/game_info_link_ebay"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:padding="@dimen/padding_standard"
+				android:text="@string/menu_link_ebay" />
 		</LinearLayout>
 	</LinearLayout>
 

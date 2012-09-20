@@ -29,23 +29,4 @@
 		android:id="@+id/log_play_quick"
 		android:icon="@drawable/ic_menu_mark"
 		android:title="@string/menu_log_play_quick"/>
-	<item
-		android:id="@+id/links"
-		android:icon="@drawable/ic_menu_link"
-		android:title="@string/menu_links">
-		<menu>
-			<item
-				android:id="@+id/menu_bgg"
-				android:title="@string/menu_link_bgg"/>
-			<item
-				android:id="@+id/menu_bg_prices"
-				android:title="@string/menu_link_bg_prices"/>
-			<item
-				android:id="@+id/menu_amazon"
-				android:title="@string/menu_link_amazon"/>
-			<item
-				android:id="@+id/menu_ebay"
-				android:title="@string/menu_link_ebay"/>
-		</menu>
-	</item>
 </menu>
