@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.apache.http.client.HttpClient;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -27,8 +25,8 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteHotnessHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.HotGame;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
@@ -107,14 +105,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		HotGame game = (HotGame) mAdapter.getItem(position);
-		viewBoardGame(game.Id, game.Name);
-	}
-
-	private void viewBoardGame(int gameId, String gameName) {
-		final Uri gameUri = Games.buildGameUri(gameId);
-		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
-		startActivity(intent);
+		ActivityUtils.launchGame(getActivity(), game.Id, game.Name);
 	}
 
 	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessHandler> {
@@ -125,7 +116,11 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 
 		@Override
 		protected void onPreExecute() {
-			mHotGames.clear();
+			if (mHotGames == null) {
+				mHotGames = new ArrayList<HotGame>();
+			} else {
+				mHotGames.clear();
+			}
 			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
 			mExecutor = new RemoteExecutor(mHttpClient, null);
 		}

@@ -36,7 +36,6 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.SearchResult;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -92,7 +91,7 @@ public class SearchResultsActivity extends ListActivity {
 
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		SearchResult game = (SearchResult) mAdapter.getItem(position);
-		viewBoardGame(game.Id, game.Name);
+		ActivityUtils.launchGame(this, game.Id, game.Name);
 	}
 
 	@Override
@@ -129,7 +128,7 @@ public class SearchResultsActivity extends ListActivity {
 
 		switch (item.getItemId()) {
 			case UIUtils.MENU_ITEM_VIEW: {
-				viewBoardGame(game.Id, game.Name);
+				ActivityUtils.launchGame(this, game.Id, game.Name);
 				return true;
 			}
 			case UIUtils.MENU_ITEM_LOG_PLAY: {
@@ -197,7 +196,7 @@ public class SearchResultsActivity extends ListActivity {
 				showError("Trying to view an unspecified game.");
 			} else {
 				Uri uri = Uri.parse(data);
-				viewBoardGame(StringUtils.parseInt(uri.getLastPathSegment(), 0), "");
+				ActivityUtils.launchGame(this, StringUtils.parseInt(uri.getLastPathSegment(), 0), "");
 				finish();
 			}
 		} else {
@@ -209,13 +208,6 @@ public class SearchResultsActivity extends ListActivity {
 		LOGW(TAG, message);
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		UIUtils.showListMessage(this, "Error");
-	}
-
-	private void viewBoardGame(int gameId, String gameName) {
-		final Uri gameUri = Games.buildGameUri(gameId);
-		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-		intent.putExtra(BoardgameActivity.KEY_GAME_NAME, gameName);
-		startActivity(intent);
 	}
 
 	private class SearchTask extends AsyncTask<Void, Void, RemoteSearchHandler> {
@@ -254,7 +246,7 @@ public class SearchResultsActivity extends ListActivity {
 				UIUtils.showListMessage(SearchResultsActivity.this, R.string.search_no_results_details);
 			} else if (count == 1 && BggApplication.getInstance().getSkipResults()) {
 				SearchResult game = result.getResults().get(0);
-				viewBoardGame(game.Id, game.Name);
+				ActivityUtils.launchGame(SearchResultsActivity.this, game.Id, game.Name);
 				finish();
 			} else {
 				mSearchResults = result.getResults();

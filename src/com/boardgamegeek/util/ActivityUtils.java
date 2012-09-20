@@ -39,12 +39,19 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.BoardgameActivity;
 import com.boardgamegeek.ui.CommentsActivity;
+import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
 public class ActivityUtils {
 	private static final String TAG = makeLogTag(ActivityUtils.class);
+
+	public static void launchGame(Context context, int gameId, String gameName) {
+		final Uri gameUri = Games.buildGameUri(gameId);
+		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
+		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
+		context.startActivity(intent);
+	}
 
 	public static void shareGame(Context context, int gameId, String gameName) {
 		Resources r = context.getResources();
@@ -170,7 +177,7 @@ public class ActivityUtils {
 
 	public static Intent createShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
-		intent.putExtra(BoardgameActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
 
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
