@@ -129,19 +129,31 @@ public class ActivityUtils {
 	}
 
 	public static void linkBgg(Context context, int gameId) {
+		if (gameId <= 0) {
+			return;
+		}
 		link(context, "http://www.boardgamegeek.com/boardgame/" + gameId);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
+		if (TextUtils.isEmpty(gameName)) {
+			return;
+		}
 		link(context, "http://boardgameprices.com/iphone/?s=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
+		if (TextUtils.isEmpty(gameName)) {
+			return;
+		}
 		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + HttpUtils.encode(gameName)
 			+ "&i=toys-and-games&submitSearch=GO");
 	}
 
 	public static void linkEbay(Context context, String gameName) {
+		if (TextUtils.isEmpty(gameName)) {
+			return;
+		}
 		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
 	}
 

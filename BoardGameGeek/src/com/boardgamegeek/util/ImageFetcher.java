@@ -257,7 +257,7 @@ public class ImageFetcher extends ImageWorker {
 		if (uri != null) {
 			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, uri);
 		}
-		if (bitmap == null) {
+		if (bitmap == null && !TextUtils.isEmpty(urlString)) {
 			final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
 			if (bitmapBytes != null) {
 				bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);

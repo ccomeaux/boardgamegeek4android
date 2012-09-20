@@ -94,8 +94,6 @@
 	</style>
 
 	<style name="StatRow">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">fill_parent</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
@@ -107,16 +105,12 @@
 	</style>
 
 	<style name="BodySeparator">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">1dip</item>
 		<item name="android:layout_marginTop">@dimen/padding_standard</item>
 		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
 		<item name="android:background">@android:drawable/divider_horizontal_bright</item>
 	</style>
 
 	<style name="StatsHeading">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
@@ -127,8 +121,6 @@
 
 	<style name="StatsCount">
 		<item name="android:gravity">right</item>
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">wrap_content</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
@@ -174,15 +166,11 @@
 	</style>
 
 	<style name="game_info_button" parent="android:Widget.ImageButton">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
 		<item name="android:adjustViewBounds">true</item>
 	</style>
 
 	<style name="game_info_button_text" parent="android:Widget.TextView">
 		<item name="android:layout_gravity">center_vertical</item>
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_small</item>
 	</style>
 

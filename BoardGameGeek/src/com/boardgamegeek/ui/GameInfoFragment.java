@@ -51,6 +51,7 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.ui.widget.StatBar;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -64,6 +65,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private Uri mGameUri;
 	private ImageFetcher mImageFetcher;
+	private String mGameName;
+	private String mImageUrl;
+
 	private ImageView mThumbnailView;
 	private TextView mNameView;
 	private TextView mUnratedView;
@@ -106,6 +110,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private StatBar mNumWantingBar;
 	private StatBar mNumWishingBar;
 	private StatBar mNumWeightingBar;
+	private View mBggLinkView;
+	private View mBgPricesLinkView;
+	private View mAmazonLinkView;
+	private View mEbayLinkView;
 
 	boolean mIsDescriptionExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
@@ -187,9 +195,55 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_info_wishing_bar);
 		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_info_weighting_bar);
 
+		mBggLinkView = rootView.findViewById(R.id.game_info_link_bgg);
+		mBgPricesLinkView = rootView.findViewById(R.id.game_info_link_bg_prices);
+		mAmazonLinkView = rootView.findViewById(R.id.game_info_link_amazon);
+		mEbayLinkView = rootView.findViewById(R.id.game_info_link_ebay);
+
+		mBggLinkView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.linkBgg(getActivity(), Games.getGameId(mGameUri));
+			}
+		});
+
+		mBgPricesLinkView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.linkBgPrices(getActivity(), mGameName);
+			}
+		});
+
+		mAmazonLinkView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.linkAmazon(getActivity(), mGameName);
+			}
+		});
+
+		mEbayLinkView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.linkEbay(getActivity(), mGameName);
+			}
+		});
+
 		mRankTextSize = getResources().getDimension(R.dimen.text_size_small);
 		mHPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 		mVPadding = getResources().getDimensionPixelSize(R.dimen.padding_small);
+
+		mThumbnailView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!TextUtils.isEmpty(mImageUrl)) {
+					final Intent intent = new Intent(getActivity(), ImageActivity.class);
+					intent.setData(mGameUri);
+					intent.setAction(Intent.ACTION_VIEW);
+					intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+					startActivity(intent);
+				}
+			}
+		});
 
 		mDescriptionView.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -206,21 +260,21 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startPoll(PollActivity.SUGGESTED_NUMPLAYERS);
+				launchPoll(PollActivity.SUGGESTED_NUMPLAYERS);
 			}
 		});
 
 		rootView.findViewById(R.id.game_info_suggested_ages_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startPoll(PollActivity.SUGGESTED_PLAYERAGE);
+				launchPoll(PollActivity.SUGGESTED_PLAYERAGE);
 			}
 		});
 
 		rootView.findViewById(R.id.game_info_languages_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startPoll(PollActivity.LANGUAGE_DEPENDENCE);
+				launchPoll(PollActivity.LANGUAGE_DEPENDENCE);
 			}
 		});
 
@@ -238,7 +292,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		return rootView;
 	}
 
-	private void startPoll(String type) {
+	private void launchPoll(String type) {
 		Intent intent = new Intent(getActivity(), PollActivity.class);
 		intent.putExtra(PollActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
 		intent.putExtra(PollActivity.KEY_TYPE, type);
@@ -364,6 +418,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		Game game = new Game(cursor);
 
+		mGameName = game.Name;
+
 		mNameView.setText(game.Name);
 		formatRating(game);
 		mIdView.setText(String.valueOf(game.Id));
@@ -378,6 +434,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		mImageFetcher.loadAvatarImage(game.ThumbnailUrl, Games.buildThumbnailUri(game.Id), mThumbnailView,
 			R.drawable.thumbnail_image_empty);
+		mImageUrl = game.ImageUrl;
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -420,7 +477,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			String list = TextUtils.join(", ", CursorUtils.getStringArray(cursor, columnIndex));
 			TextPaint paint = new TextPaint();
 			paint.setTextSize(data.getTextSize());
-			CharSequence text = TextUtils.commaEllipsize(list, paint, data.getWidth(), "1 more", "%d more");
+			CharSequence text = TextUtils.commaEllipsize(list, paint,
+				data.getWidth() - data.getPaddingLeft() - data.getPaddingRight(), "1 more", "%d more");
 			if (TextUtils.isEmpty(text)) {
 				text = String.format("%d more", cursor.getCount());
 			}
@@ -559,7 +617,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -584,6 +642,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int STATS_NUMBER_WANTING = 20;
 		int STATS_NUMBER_WISHING = 21;
 		int POLLS_COUNT = 22;
+		int IMAGE_URL = 23;
 	}
 
 	private interface DesignerQuery {
@@ -635,6 +694,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private class Game {
 		String Name;
 		String ThumbnailUrl;
+		String ImageUrl;
 		int Id;
 		float Rating;
 		int YearPublished;
@@ -660,6 +720,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
 			ThumbnailUrl = cursor.getString(GameQuery.THUMBNAIL_URL);
+			ImageUrl = cursor.getString(GameQuery.IMAGE_URL);
 			Id = cursor.getInt(GameQuery.GAME_ID);
 			Rating = (float) cursor.getDouble(GameQuery.STATS_AVERAGE);
 			YearPublished = cursor.getInt(GameQuery.YEAR_PUBLISHED);

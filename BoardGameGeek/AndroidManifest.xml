@@ -79,7 +79,6 @@
 		</activity>
 		<activity
 			android:name=".ui.GameActivity"
-			android:exported="false"
 			android:label="@string/title_boardgame"
 			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
@@ -138,7 +137,7 @@
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.Bgg" />
+			android:theme="@style/Theme.BoardGameGeek" />
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
