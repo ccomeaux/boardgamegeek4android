@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:bgg="http://schemas.android.com/apk/res/com.boardgamegeek"
 	android:id="@+id/game_info_frame_root"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent" >
@@ -259,171 +260,74 @@
 				</TableRow>
 			</TableLayout>
 
-			<LinearLayout
-				android:id="@+id/game_info_designers_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_designers"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
-				android:visibility="gone" >
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/designers" />
 
-				<TextView
-					android:id="@+id/game_info_designers_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/designers"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_designers_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_artists_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_artists"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
-				android:visibility="gone" >
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/artists" />
 
-				<TextView
-					android:id="@+id/game_info_artists_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/artists"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_artists_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_publishers_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_publishers"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
-				android:visibility="gone" >
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/publishers" />
 
-				<TextView
-					android:id="@+id/game_info_publishers_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/publishers"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_publishers_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_categories_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_categories"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
-				android:visibility="gone" >
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/categories" />
 
-				<TextView
-					android:id="@+id/game_info_categories_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/categories"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_categories_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_mechanics_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_mechanics"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
-				android:visibility="gone" >
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/mechanics" />
 
-				<TextView
-					android:id="@+id/game_info_mechanics_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/mechanics"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_mechanics_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_expansions_root"
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_expansions"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
-				android:background="@drawable/grey_frame_on_white_b" >
+				android:background="@drawable/grey_frame_on_white_b"
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/expansions" />
 
-				<TextView
-					android:id="@+id/game_info_expansions_label"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/padding_standard"
-					android:paddingRight="0dp"
-					android:text="@string/expansions"
-					android:textAllCaps="true"
-					android:textColor="@color/accent" />
-
-				<TextView
-					android:id="@+id/game_info_expansions_data"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:padding="@dimen/padding_standard"
-					android:paddingLeft="0dp" />
-			</LinearLayout>
+			<com.boardgamegeek.ui.widget.ExpandableListView
+				android:id="@+id/game_info_base_games"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/padding_standard"
+				android:background="@drawable/grey_frame_on_white_b"
+				android:padding="@dimen/padding_standard"
+				bgg:label="@string/base_games" />
 
 			<LinearLayout
 				android:id="@+id/game_info_stats_root"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:orientation="vertical" >
 

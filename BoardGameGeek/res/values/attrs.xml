@@ -1,10 +1,14 @@
 <resources>
+
 	<declare-styleable name="BezelImageView">
 		<attr name="maskDrawable" format="reference" />
 		<attr name="borderDrawable" format="reference" />
 	</declare-styleable>
-
 	<declare-styleable name="StatBar">
 		<attr name="drawable" format="reference" />
 	</declare-styleable>
+	<declare-styleable name="ExpandableListView">
+		<attr name="label" format="string" />
+	</declare-styleable>
+
 </resources>
