@@ -340,6 +340,8 @@
 	<string name="stats">Stats</string>
 	<string name="unrated">Unrated</string>
 	<string name="rating_denominator">" / 10"</string>
+	<string name="one_more">1 more</string>
+	<string name="some_more">%d more</string>
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
 		menu button:\n - Log plays\n - Read forums and comments\n - Refresh from the \'Geek\n - Access

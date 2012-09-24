@@ -21,7 +21,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
@@ -51,6 +50,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -86,18 +86,13 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private TextView mPlayersView;
 	private TextView mPlayingTimeView;
 	private TextView mSuggestedAgesView;
-	private View mDesignersRoot;
-	private TextView mDesignersView;
-	private View mArtistsRoot;
-	private TextView mArtistsView;
-	private View mPublishersRoot;
-	private TextView mPublishersView;
-	private View mCategoriesRoot;
-	private TextView mCategoriesView;
-	private View mMechanicsRoot;
-	private TextView mMechanicsView;
-	private View mExpansionsRoot;
-	private TextView mExpansionsView;
+	private ExpandableListView mDesignersView;
+	private ExpandableListView mArtistsView;
+	private ExpandableListView mPublishersView;
+	private ExpandableListView mCategoriesView;
+	private ExpandableListView mMechanicsView;
+	private ExpandableListView mExpansionsView;
+	private ExpandableListView mBaseGamesView;
 	private LinearLayout mRankRoot;
 	private TextView mRatingsCount;
 	private StatBar mAverageStatBar;
@@ -169,18 +164,13 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mPlayingTimeView = (TextView) rootView.findViewById(R.id.game_info_playing_time);
 		mSuggestedAgesView = (TextView) rootView.findViewById(R.id.game_info_suggested_ages);
 
-		mDesignersRoot = rootView.findViewById(R.id.game_info_designers_root);
-		mDesignersView = (TextView) rootView.findViewById(R.id.game_info_designers_data);
-		mArtistsRoot = rootView.findViewById(R.id.game_info_artists_root);
-		mArtistsView = (TextView) rootView.findViewById(R.id.game_info_artists_data);
-		mPublishersRoot = rootView.findViewById(R.id.game_info_publishers_root);
-		mPublishersView = (TextView) rootView.findViewById(R.id.game_info_publishers_data);
-		mCategoriesRoot = rootView.findViewById(R.id.game_info_categories_root);
-		mCategoriesView = (TextView) rootView.findViewById(R.id.game_info_categories_data);
-		mMechanicsRoot = rootView.findViewById(R.id.game_info_mechanics_root);
-		mMechanicsView = (TextView) rootView.findViewById(R.id.game_info_mechanics_data);
-		mExpansionsRoot = rootView.findViewById(R.id.game_info_expansions_root);
-		mExpansionsView = (TextView) rootView.findViewById(R.id.game_info_expansions_data);
+		mDesignersView = (ExpandableListView) rootView.findViewById(R.id.game_info_designers);
+		mArtistsView = (ExpandableListView) rootView.findViewById(R.id.game_info_artists);
+		mPublishersView = (ExpandableListView) rootView.findViewById(R.id.game_info_publishers);
+		mCategoriesView = (ExpandableListView) rootView.findViewById(R.id.game_info_categories);
+		mMechanicsView = (ExpandableListView) rootView.findViewById(R.id.game_info_mechanics);
+		mExpansionsView = (ExpandableListView) rootView.findViewById(R.id.game_info_expansions);
+		mBaseGamesView = (ExpandableListView) rootView.findViewById(R.id.game_info_base_games);
 
 		mRankRoot = (LinearLayout) rootView.findViewById(R.id.game_stats_rank_root);
 
@@ -293,6 +283,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		lm.restartLoader(CategoryQuery._TOKEN, null, this);
 		lm.restartLoader(MechanicQuery._TOKEN, null, this);
 		lm.restartLoader(ExpansionQuery._TOKEN, null, this);
+		lm.restartLoader(BaseGameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
 
 		return rootView;
@@ -361,7 +352,11 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 				break;
 			case ExpansionQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
-					ExpansionQuery.PROJECTION, null, null, null);
+					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
+				break;
+			case BaseGameQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
@@ -384,22 +379,25 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 				onGameQueryComplete(cursor);
 				break;
 			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, mDesignersRoot, mDesignersView, DesignerQuery.DESIGNER_NAME);
+				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME);
 				break;
 			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, mArtistsRoot, mArtistsView, ArtistQuery.ARTIST_NAME);
+				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME);
 				break;
 			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, mPublishersRoot, mPublishersView, PublisherQuery.PUBLISHER_NAME);
+				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME);
 				break;
 			case CategoryQuery._TOKEN:
-				onListQueryComplete(cursor, mCategoriesRoot, mCategoriesView, CategoryQuery.CATEGORY_NAME);
+				onListQueryComplete(cursor, mCategoriesView, CategoryQuery.CATEGORY_NAME);
 				break;
 			case MechanicQuery._TOKEN:
-				onListQueryComplete(cursor, mMechanicsRoot, mMechanicsView, MechanicQuery.MECHANIC_NAME);
+				onListQueryComplete(cursor, mMechanicsView, MechanicQuery.MECHANIC_NAME);
 				break;
 			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, mExpansionsRoot, mExpansionsView, ExpansionQuery.EXPANSION_NAME);
+				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME);
+				break;
+			case BaseGameQuery._TOKEN:
+				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME);
 				break;
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
@@ -481,21 +479,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mMightNeedRefreshing = false;
 	}
 
-	private void onListQueryComplete(Cursor cursor, View root, TextView data, int columnIndex) {
+	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int columnIndex) {
 		if (cursor == null || cursor.getCount() == 0) {
-			root.setVisibility(View.GONE);
+			view.setVisibility(View.GONE);
 		} else {
-			root.setVisibility(View.VISIBLE);
-
-			String list = TextUtils.join(", ", CursorUtils.getStringArray(cursor, columnIndex));
-			TextPaint paint = new TextPaint();
-			paint.setTextSize(data.getTextSize());
-			CharSequence text = TextUtils.commaEllipsize(list, paint,
-				data.getWidth() - data.getPaddingLeft() - data.getPaddingRight(), "1 more", "%d more");
-			if (TextUtils.isEmpty(text)) {
-				text = String.format("%d more", cursor.getCount());
-			}
-			data.setText(text);
+			view.setVisibility(View.VISIBLE);
+			view.setData(CursorUtils.getStringArray(cursor, columnIndex));
 		}
 	}
 
@@ -694,8 +683,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int EXPANSION_NAME = 1;
 	}
 
-	private interface RankQuery {
+	private interface BaseGameQuery {
 		int _TOKEN = 0x18;
+		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME };
+		int EXPANSION_NAME = 1;
+	}
+
+	private interface RankQuery {
+		int _TOKEN = 0x19;
 		String[] PROJECTION = { GameRanks.GAME_RANK_FRIENDLY_NAME, GameRanks.GAME_RANK_VALUE, GameRanks.GAME_RANK_TYPE,
 			GameRanks.GAME_RANK_BAYES_AVERAGE };
 		int GAME_RANK_FRIENDLY_NAME = 0;

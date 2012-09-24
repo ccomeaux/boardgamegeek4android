@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content" >
+
+	<TextView
+		android:id="@+id/label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+		android:padding="0dp"
+		android:text="Designers"
+		android:textAllCaps="true"
+		android:textColor="@color/accent" />
+
+	<TextView
+		android:id="@+id/summary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@+id/label"
+		android:layout_toLeftOf="@+id/toggle"
+		android:layout_toRightOf="@+id/label"
+		android:paddingBottom="0dp"
+		android:paddingLeft="@dimen/padding_extra"
+		android:paddingRight="@dimen/padding_small"
+		android:paddingTop="0dp"
+		android:singleLine="true" />
+
+	<ImageView
+		android:id="@+id/toggle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/label"
+		android:layout_alignParentRight="true"
+		android:layout_alignTop="@+id/label"
+		android:padding="0dp"
+		android:src="@drawable/expander_open" />
+
+	<LinearLayout
+		android:id="@+id/detail"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/label"
+		android:orientation="vertical"
+		android:paddingTop="@dimen/padding_standard" />
+
+</RelativeLayout>
