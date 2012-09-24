@@ -44,16 +44,14 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	private CursorAdapter mAdapter;
 	private ImageFetcher mImageFetcher;
 	private int mSelectedBuddyId;
-	private int mBuddyQueryToken;
 
 	public interface Callbacks {
-		/** Return true to select (activate) the session in the list, false otherwise. */
 		public boolean onBuddySelected(int buddyId);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onBuddySelected(int sessionId) {
+		public boolean onBuddySelected(int buddyId) {
 			return true;
 		}
 	};
@@ -92,8 +90,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		setEmptyText(getString(R.string.empty_buddies));
 		setListShown(false);
 
-		mBuddyQueryToken = BuddiesQuery._TOKEN;
-		getLoaderManager().restartLoader(mBuddyQueryToken, getArguments(), this);
+		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
 	}
 
 	@Override
@@ -149,7 +146,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		return super.onOptionsItemSelected(item);
 	}
 
-	/** {@inheritDoc} */
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);

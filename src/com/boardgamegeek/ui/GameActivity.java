@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.widget.SearchView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -33,6 +34,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	private String mGameName;
 	private ViewPager mViewPager;
 	private GameInfoFragment mGameInfoFragment;
+	private ColorsFragment mColorsFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,9 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		mGameId = Games.getGameId(getIntent().getData());
 		mGameName = getIntent().getExtras().getString(KEY_GAME_NAME);
+		if (!TextUtils.isEmpty(mGameName)) {
+			getSupportActionBar().setSubtitle(mGameName);
+		}
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(new GamePagerAdapter(getSupportFragmentManager()));
@@ -52,10 +57,10 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.addTab(actionBar.newTab().setText(R.string.tab_title_info).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_forum).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
+		// actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+		// actionBar.addTab(actionBar.newTab().setText(R.string.title_forum).setTabListener(this));
+		// actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
 	}
 
 	@Override
@@ -148,13 +153,19 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 						mGameInfoFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
 					}
 					return mGameInfoFragment;
+				case 1:
+					if (mColorsFragment == null) {
+						mColorsFragment = new ColorsFragment();
+						mColorsFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+					}
+					return mColorsFragment;
 			}
 			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 	}
 }
