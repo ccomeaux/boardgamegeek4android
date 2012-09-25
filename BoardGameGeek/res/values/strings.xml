@@ -342,11 +342,12 @@
 	<string name="rating_denominator">" / 10"</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
+	<string name="toggle">toggle</string>
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
-		menu button:\n - Log plays\n - Read forums and comments\n - Refresh from the \'Geek\n - Access
-		links\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a
-		larger version</string>
+		menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut
+		on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll
+		information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? Click the Menu button to filter
 		your collection and choose a random game from this list.\n\nYou can
 		also long-click on a game for more options.</string>
