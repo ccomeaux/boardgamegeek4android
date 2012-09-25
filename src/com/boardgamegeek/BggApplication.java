@@ -18,7 +18,6 @@ public class BggApplication extends Application {
 	private static final String TAG = makeLogTag(BggApplication.class);
 
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
-	public static final String HELP_BOARDGAME_KEY = "help.boardgame";
 	public static final String HELP_COLLECTION_KEY = "help.collection";
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";

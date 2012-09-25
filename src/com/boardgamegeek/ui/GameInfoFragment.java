@@ -61,6 +61,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
+	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 
@@ -138,6 +139,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setImageFadeIn(false);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
+
+		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	@Override

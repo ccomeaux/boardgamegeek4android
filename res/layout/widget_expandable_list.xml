@@ -10,7 +10,6 @@
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
 		android:padding="0dp"
-		android:text="Designers"
 		android:textAllCaps="true"
 		android:textColor="@color/accent" />
 
@@ -34,6 +33,7 @@
 		android:layout_alignBottom="@+id/label"
 		android:layout_alignParentRight="true"
 		android:layout_alignTop="@+id/label"
+		android:contentDescription="@string/toggle"
 		android:padding="0dp"
 		android:src="@drawable/expander_open" />
 

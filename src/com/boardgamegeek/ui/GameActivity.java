@@ -146,21 +146,19 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		@Override
 		public Fragment getItem(int position) {
+			Fragment fragment = null;
 			switch (position) {
 				case 0:
-					if (mGameInfoFragment == null) {
-						mGameInfoFragment = new GameInfoFragment();
-						mGameInfoFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-					}
-					return mGameInfoFragment;
+					fragment = new GameInfoFragment();
+					break;
 				case 1:
-					if (mColorsFragment == null) {
-						mColorsFragment = new ColorsFragment();
-						mColorsFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-					}
-					return mColorsFragment;
+					fragment = new ColorsFragment();
+					break;
 			}
-			return null;
+			if (fragment != null) {
+				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+			}
+			return fragment;
 		}
 
 		@Override

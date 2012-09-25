@@ -35,8 +35,7 @@ import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.ui.widget.BezelImageView;
 
 public class UIUtils {
-	private Activity mActivity;
-	private static Random mRandom;
+	public static final String HELP_GAME_KEY = "help.game";
 
 	public static final int MENU_ITEM_VIEW = Menu.FIRST;
 	public static final int MENU_ITEM_LOG_PLAY = Menu.FIRST + 1;
@@ -48,6 +47,9 @@ public class UIUtils {
 	public static final int MENU_ITEM_LINK_AMAZON = Menu.FIRST + 7;
 	public static final int MENU_ITEM_LINK_EBAY = Menu.FIRST + 8;
 	public static final int MENU_ITEM_COMMENTS = Menu.FIRST + 9;
+
+	private Activity mActivity;
+	private static Random mRandom;
 
 	public UIUtils(Activity activity) {
 		mActivity = activity;
