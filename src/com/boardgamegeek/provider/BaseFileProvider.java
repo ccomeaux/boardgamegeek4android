@@ -28,7 +28,11 @@ public abstract class BaseFileProvider extends BaseProvider {
 		File file = null;
 		String fileName = fetchFileName(context, getFileUri(uri), getColumnName());
 		if (!TextUtils.isEmpty(fileName)) {
-			file = new File(generateContentPath(context, getContentPath()), fileName);
+			String path = generateContentPath(context, getContentPath());
+			if (path == null) {
+				return null;
+			}
+			file = new File(path, fileName);
 		}
 		if (file == null) {
 			return null;
@@ -61,7 +65,11 @@ public abstract class BaseFileProvider extends BaseProvider {
 	}
 
 	protected String generateContentPath(Context context, String type) {
-		String path = context.getExternalFilesDir(null).getPath() + File.separator + "content" + File.separator + type;
+		File base = context.getExternalFilesDir(null);
+		if (base == null) {
+			return null;
+		}
+		String path = base.getPath() + File.separator + "content" + File.separator + type;
 		File folder = new File(path);
 		if (!folder.exists()) {
 			folder.mkdirs();
