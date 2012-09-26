@@ -2,6 +2,8 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -41,6 +43,28 @@ public class ExpandableListView extends RelativeLayout {
 		init(context, attrs);
 	}
 
+	@Override
+	protected Parcelable onSaveInstanceState() {
+		Parcelable p = super.onSaveInstanceState();
+		SavedState state = new SavedState(p);
+		state.expanded = mExpanded;
+		return p;
+	}
+
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
+		if (!(state instanceof SavedState)) {
+			super.onRestoreInstanceState(state);
+			return;
+		}
+
+		SavedState saved = (SavedState) state;
+		super.onRestoreInstanceState(saved.getSuperState());
+
+		mExpanded = saved.expanded;
+		expandOrCollapse();
+	}
+
 	private void init(Context context, AttributeSet attrs) {
 		mOneMore = context.getString(R.string.one_more);
 		mSomeMore = context.getString(R.string.some_more);
@@ -70,7 +94,6 @@ public class ExpandableListView extends RelativeLayout {
 				a.recycle();
 			}
 		}
-
 	}
 
 	@Override
@@ -126,5 +149,40 @@ public class ExpandableListView extends RelativeLayout {
 				mDetailView.addView(button);
 			}
 		}
+	}
+
+	private static class SavedState extends BaseSavedState {
+		public boolean expanded;
+
+		SavedState(Parcelable superState) {
+			super(superState);
+		}
+
+		private SavedState(Parcel in) {
+			super(in);
+			expanded = in.readInt() != 0;
+		}
+
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			super.writeToParcel(dest, flags);
+			dest.writeInt(expanded ? 1 : 0);
+		}
+
+		@SuppressWarnings("unused")
+		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
+
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 	}
 }
