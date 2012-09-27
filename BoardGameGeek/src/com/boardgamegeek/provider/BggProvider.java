@@ -67,6 +67,8 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new GamesIdColorsProvider());
 		addProvider(map, new GamesIdColorsNameProvider());
 
+		addProvider(map, new GamesIdPlaysProvider());
+
 		addProvider(map, new DesignersProvider());
 		addProvider(map, new DesignersIdProvider());
 		addProvider(map, new ArtistsProvider());
@@ -89,7 +91,6 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new PlaysIdItemsIdProvider());
 		addProvider(map, new PlaysIdPlayersProvider());
 		addProvider(map, new PlaysIdPlayersIdProvider());
-		addProvider(map, new PlaysGamesId());
 		addProvider(map, new PlaysLocationsProvider());
 
 		addProvider(map, new CollectionViewProvider());

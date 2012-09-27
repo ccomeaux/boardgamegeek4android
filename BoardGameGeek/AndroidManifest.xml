@@ -61,8 +61,7 @@
 			android:theme="@style/Theme.BoardGameGeek" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity" >
-			</meta-data>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.GameActivity"
@@ -140,8 +139,7 @@
 
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity" >
-			</meta-data>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.BuddyActivity"
@@ -158,14 +156,13 @@
 
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.BuddiesActivity" >
-			</meta-data>
+				android:value=".ui.BuddiesActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlaysActivity"
 			android:exported="false"
 			android:label="@string/title_plays"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -173,6 +170,10 @@
 
 				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.play" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PlayActivity"
@@ -254,8 +255,7 @@
 			android:theme="@style/Theme.BoardGameGeek" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity" >
-			</meta-data>
+				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.PollActivity"

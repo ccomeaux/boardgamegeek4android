@@ -33,8 +33,6 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	private int mGameId;
 	private String mGameName;
 	private ViewPager mViewPager;
-	private GameInfoFragment mGameInfoFragment;
-	private ColorsFragment mColorsFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +55,8 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.addTab(actionBar.newTab().setText(R.string.tab_title_info).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
-		// actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 		// actionBar.addTab(actionBar.newTab().setText(R.string.title_forum).setTabListener(this));
 		// actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
 	}
@@ -152,6 +150,9 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 					fragment = new GameInfoFragment();
 					break;
 				case 1:
+					fragment = new PlaysFragment();
+					break;
+				case 2:
 					fragment = new ColorsFragment();
 					break;
 			}
@@ -163,7 +164,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
 	}
 }
