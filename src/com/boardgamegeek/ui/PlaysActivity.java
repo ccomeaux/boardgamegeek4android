@@ -1,20 +1,15 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.LogInHelper;
-import com.boardgamegeek.util.LogInHelper.LogInListener;
 
 public class PlaysActivity extends SimpleSinglePaneActivity {
-	private static final String TAG = makeLogTag(PlaysActivity.class);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

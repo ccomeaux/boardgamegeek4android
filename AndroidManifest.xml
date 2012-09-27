@@ -45,7 +45,7 @@
 
 		<activity-alias
 			android:name="CreateShortcutActivity"
-			android:label="@string/title_boardgame"
+			android:label="@string/title_game"
 			android:targetActivity=".ui.CollectionActivity"
 			android:theme="@style/Theme.Bgg" >
 			<intent-filter>
@@ -65,7 +65,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameActivity"
-			android:label="@string/title_boardgame"
+			android:label="@string/title_game"
 			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

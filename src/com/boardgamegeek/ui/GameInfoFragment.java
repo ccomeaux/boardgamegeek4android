@@ -10,6 +10,7 @@ import java.text.NumberFormat;
 
 import org.apache.http.client.HttpClient;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -124,6 +125,18 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private long mUpdated;
 	private boolean mIsRefreshing;
 	private boolean mMightNeedRefreshing;
+
+	public interface Callbacks {
+		public void onNameChanged(String mGameName);
+	}
+
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override
+		public void onNameChanged(String gameName) {
+		}
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -295,6 +308,23 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
+	}
+
+	@Override
 	public void onPause() {
 		super.onPause();
 		mImageFetcher.flushCache();
@@ -427,6 +457,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		Game game = new Game(cursor);
 
 		mGameName = game.Name;
+		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
 
 		if (mScrollRoot.getVisibility() != View.VISIBLE) {
@@ -567,7 +598,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private void openOrCloseDescription() {
 		mDescriptionView.setMaxLines(mIsDescriptionOpen ? Integer.MAX_VALUE : 3);
 		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
-			mIsDescriptionOpen ? R.drawable.expander_close : R.drawable.expander_close);
+			mIsDescriptionOpen ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
 	private void launchPoll(String type) {
