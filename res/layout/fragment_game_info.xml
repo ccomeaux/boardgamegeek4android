@@ -123,23 +123,16 @@
 					android:textSize="@dimen/text_size_xsmall" />
 			</RelativeLayout>
 
-			<LinearLayout
-				xmlns:android="http://schemas.android.com/apk/res/android"
-				android:id="@+id/game_info_description_root"
+			<TextView
+				android:id="@+id/game_info_description"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:clickable="true"
-				android:orientation="vertical" >
-
-				<TextView
-					android:id="@+id/game_info_description"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:maxLines="3"
-					android:padding="@dimen/padding_standard" />
-			</LinearLayout>
+				android:drawableBottom="@drawable/expander_open"
+				android:maxLines="3"
+				android:padding="@dimen/padding_standard" />
 
 			<TableLayout
 				android:id="@+id/game_info_panel_root"

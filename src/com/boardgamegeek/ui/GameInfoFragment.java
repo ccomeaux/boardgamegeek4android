@@ -64,6 +64,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
+	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 
 	private Uri mGameUri;
 	private ImageFetcher mImageFetcher;
@@ -114,7 +115,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private View mAmazonLinkView;
 	private View mEbayLinkView;
 
-	boolean mIsDescriptionExpanded;
+	boolean mIsDescriptionOpen;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 	private float mRankTextSize;
 	private int mHPadding;
@@ -134,6 +135,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		if (mGameUri == null) {
 			return;
+		}
+
+		if (savedInstanceState != null) {
+			mIsDescriptionOpen = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 		}
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
@@ -247,14 +252,11 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mDescriptionView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (mIsDescriptionExpanded) {
-					mDescriptionView.setMaxLines(3);
-				} else {
-					mDescriptionView.setMaxLines(Integer.MAX_VALUE);
-				}
-				mIsDescriptionExpanded = !mIsDescriptionExpanded;
+				mIsDescriptionOpen = !mIsDescriptionOpen;
+				openOrCloseDescription();
 			}
 		});
+		openOrCloseDescription();
 
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -292,17 +294,16 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		return rootView;
 	}
 
-	private void launchPoll(String type) {
-		Intent intent = new Intent(getActivity(), PollActivity.class);
-		intent.putExtra(PollActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
-		intent.putExtra(PollActivity.KEY_TYPE, type);
-		startActivity(intent);
-	}
-
 	@Override
 	public void onPause() {
 		super.onPause();
 		mImageFetcher.flushCache();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionOpen);
 	}
 
 	@Override
@@ -561,6 +562,19 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		} else {
 			tv.setText(text);
 		}
+	}
+
+	private void openOrCloseDescription() {
+		mDescriptionView.setMaxLines(mIsDescriptionOpen ? Integer.MAX_VALUE : 3);
+		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
+			mIsDescriptionOpen ? R.drawable.expander_close : R.drawable.expander_close);
+	}
+
+	private void launchPoll(String type) {
+		Intent intent = new Intent(getActivity(), PollActivity.class);
+		intent.putExtra(PollActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
+		intent.putExtra(PollActivity.KEY_TYPE, type);
+		startActivity(intent);
 	}
 
 	private void triggerRefresh() {
