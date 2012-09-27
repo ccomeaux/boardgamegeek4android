@@ -31,8 +31,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.UIUtils;
 
 public class ColorsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	public static final int MENU_COLOR_DELETE = Menu.FIRST;
 	private static final String TAG = makeLogTag(ColorsFragment.class);
+	public static final int MENU_COLOR_DELETE = Menu.FIRST;
 	private int mGameId;
 	private CursorAdapter mAdapter;
 
@@ -99,7 +99,6 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		switch (item.getItemId()) {
 			case MENU_COLOR_DELETE: {
 				getActivity().getContentResolver().delete(Games.buildColorsUri(mGameId, color), null, null);
-				// mHandler.startQuery(mGameColorUri, Query.PROJECTION);
 				return true;
 			}
 		}
@@ -108,10 +107,6 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		// Uri gameUri = UIUtils.fragmentArgumentsToIntent(data).getData();
-		// if (gameUri == null) {
-		// return null;
-		// }
 		CursorLoader loader = new CursorLoader(getActivity(), Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION,
 			null, null, null);
 		loader.setUpdateThrottle(2000);

@@ -1,5 +1,7 @@
 package com.boardgamegeek.provider;
 
+import java.util.List;
+
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
@@ -8,6 +10,8 @@ import android.text.TextUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class BggContract {
+
+	public static final int INVALID_ID = -1;
 
 	public interface SyncColumns {
 		String UPDATED = "updated";
@@ -232,6 +236,14 @@ public class BggContract {
 
 		public static final String POLLS_COUNT = "polls_count";
 
+		public static boolean isGameUri(Uri uri) {
+			if (uri == null) {
+				return false;
+			}
+			List<String> segments = uri.getPathSegments();
+			return segments != null && segments.size() > 0 && PATH_GAMES.equals(segments.get(0));
+		}
+
 		public static Uri buildGameUri(int gameId) {
 			return getUriBuilder(gameId).build();
 		}
@@ -320,6 +332,10 @@ public class BggContract {
 			return getUriBuilder().appendPath(PATH_EXPANSIONS).appendPath(String.valueOf(rowId)).build();
 		}
 
+		public static Uri buildPlaysUri(int gameId) {
+			return getUriBuilder(gameId, PATH_PLAYS).build();
+		}
+
 		public static Uri buildPollsUri(int gameId) {
 			return getUriBuilder(gameId, PATH_POLLS).build();
 		}
@@ -373,7 +389,11 @@ public class BggContract {
 		}
 
 		public static int getGameId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+			List<String> segments = uri.getPathSegments();
+			if (segments != null && segments.size() > 1 && PATH_GAMES.equals(segments.get(0))) {
+				return StringUtils.parseInt(segments.get(1));
+			}
+			return INVALID_ID;
 		}
 
 		public static String getPollName(Uri uri) {
@@ -614,10 +634,6 @@ public class BggContract {
 
 		public static Uri buildPlayUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
-		}
-
-		public static Uri buildGameUri(int gameId) {
-			return CONTENT_URI.buildUpon().appendPath(PATH_GAMES).appendPath(String.valueOf(gameId)).build();
 		}
 
 		public static Uri buildItemUri(int playId) {
