@@ -26,7 +26,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class GameActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener {
+	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 
@@ -41,10 +41,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mGameId = Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getExtras().getString(KEY_GAME_NAME);
-		if (!TextUtils.isEmpty(mGameName)) {
-			getSupportActionBar().setSubtitle(mGameName);
-		}
+		changeName(getIntent().getExtras().getString(KEY_GAME_NAME));
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(new GamePagerAdapter(getSupportFragmentManager()));
@@ -165,6 +162,18 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		@Override
 		public int getCount() {
 			return 3;
+		}
+	}
+
+	@Override
+	public void onNameChanged(String gameName) {
+		changeName(gameName);
+	}
+
+	private void changeName(String gameName) {
+		mGameName = gameName;
+		if (!TextUtils.isEmpty(gameName)) {
+			getSupportActionBar().setSubtitle(gameName);
 		}
 	}
 }

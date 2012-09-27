@@ -151,7 +151,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 		if (mCallbacks.onBuddySelected(buddyId)) {
-			setSelectedSessionId(buddyId);
+			setSelectedBuddyId(buddyId);
 		}
 	}
 
@@ -171,7 +171,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		}
 	}
 
-	public void setSelectedSessionId(int id) {
+	public void setSelectedBuddyId(int id) {
 		mSelectedBuddyId = id;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();

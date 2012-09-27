@@ -52,6 +52,7 @@ public class PlayerNumberRow extends LinearLayout {
 		mTextView.setBackgroundResource(R.drawable.highlight);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void clearHighlight() {
 		mTextView.setBackgroundDrawable(null);
 	}
