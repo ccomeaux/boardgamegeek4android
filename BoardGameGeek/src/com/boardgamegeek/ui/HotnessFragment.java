@@ -47,7 +47,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
-		mEmptyMessage = getString(R.string.hotness_no_results_details);
+		mEmptyMessage = getString(R.string.empty_hotness);
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 			if (result.isBggDown()) {
 				mEmptyMessage = getString(R.string.bgg_down);
 			} else {
-				mEmptyMessage = getString(R.string.hotness_no_results_details);
+				mEmptyMessage = getString(R.string.empty_hotness);
 			}
 			showList();
 		}

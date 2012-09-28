@@ -404,7 +404,7 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				return true;
 			}
 			case UIUtils.MENU_ITEM_COMMENTS: {
-				ActivityUtils.showComments(this, gameId, gameName);
+				return false;
 			}
 		}
 		return false;

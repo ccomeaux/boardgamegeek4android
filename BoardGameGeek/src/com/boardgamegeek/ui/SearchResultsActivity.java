@@ -164,7 +164,7 @@ public class SearchResultsActivity extends ListActivity {
 				return true;
 			}
 			case UIUtils.MENU_ITEM_COMMENTS: {
-				ActivityUtils.showComments(this, game.Id, game.Name);
+				return false;
 			}
 		}
 		return false;
