@@ -193,7 +193,7 @@
 	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_colors">Teams/Colors</string>
-	<string name="title_forumlist">Forums</string>
+	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
 	<string name="title_generalforumlist">General Forums</string>
@@ -228,6 +228,9 @@
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
 	<string name="empty_plays">No plays. Check your sync settings and synchronize again.</string>
+	<string name="empty_forums">No forums</string>
+	<string name="empty_forum">No threads in \"%s\"".</string>
+	<string name="empty_thread">No posts in thread \"%s\"".</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="search_label">BoardGameGeek</string>
@@ -242,10 +245,6 @@
 	<string name="search_no_results_details">No results.\n\nThe search function doesn\'t like
 		some common words. Try again, dropping \"the\", \"a\", and \"of\",
 		etc.</string>
-	<string name="forumlist_no_results">No forums for \"%s\"".</string>
-	<string name="generalforumlist_no_results">No general forums.</string>
-	<string name="forum_no_results">No threads in \"%s\"".</string>
-	<string name="thread_no_results">No posts in thread \"%s\"".</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_log_play">Log Play</string>
 	<string name="menu_log_play_quick">Quick Log Play</string>

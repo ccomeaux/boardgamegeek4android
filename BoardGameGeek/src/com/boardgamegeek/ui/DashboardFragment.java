@@ -43,11 +43,7 @@ public class DashboardFragment extends SherlockFragment {
 		root.findViewById(R.id.home_btn_forums).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent forumsIntent = new Intent(getActivity(), ForumlistActivity.class);
-				forumsIntent.putExtra(ForumlistActivity.KEY_FORUMLIST_ID, 0);
-				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_ID, 0);
-				forumsIntent.putExtra(ForumlistActivity.KEY_GAME_NAME, "");
-				startActivity(forumsIntent);
+				startActivity(new Intent(getActivity(), ForumsActivity.class));
 			}
 		});
 

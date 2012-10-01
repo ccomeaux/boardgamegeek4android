@@ -214,13 +214,15 @@
 			android:label="@string/title_log_player"
 			android:theme="@style/Theme.Bgg" />
 		<activity
-			android:name=".ui.CommentsActivity"
-			android:label="@string/title_comments"
-			android:theme="@style/Theme.Bgg" />
-		<activity
-			android:name=".ui.ForumlistActivity"
-			android:label="@string/title_forumlist"
-			android:theme="@style/Theme.Bgg" />
+			android:name=".ui.ForumsActivity"
+			android:exported="false"
+			android:label="@string/title_forums"
+			android:theme="@style/Theme.BoardGameGeek" >
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
 		<activity
 			android:name=".ui.ForumActivity"
 			android:label="@string/title_forum"

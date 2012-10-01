@@ -14,8 +14,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +37,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-
-import android.support.v4.app.LoaderManager;
-import android.text.TextUtils;
 
 public class CommentsFragment extends SherlockListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<Comment>> {
@@ -151,10 +150,15 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 	@Override
 	public void onLoadFinished(Loader<List<Comment>> loader, List<Comment> comments) {
+		if (getActivity() == null) {
+			return;
+		}
+
 		if (comments != null) {
 			mComments = comments;
 		}
 		mCommentsAdapter.notifyDataSetChanged();
+
 		if (mListViewStatePosition != -1 && isAdded()) {
 			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
 			mListViewStatePosition = -1;
@@ -333,13 +337,6 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		public int getCount() {
 			return mComments.size()
 				+ (((isLoaderLoading() && mComments.size() == 0) || loaderHasMoreResults() || loaderHasError()) ? 1 : 0);
-			// return mComments.size() + (
-			// // show the status list row if...
-			// ((isStreamLoading() && mComments.size() == 0) // ...this is the first load
-			// || streamHasMoreResults() // ...or there's another page
-			// || streamHasError()) // ...or there's an error
-			// ? 1
-			// : 0);
 		}
 
 		@Override
