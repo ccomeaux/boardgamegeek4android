@@ -1,252 +1,67 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.ForumThread;
-import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
 
-public class ForumActivity extends ListActivity {
-	private static final String TAG = makeLogTag(ForumActivity.class);
-
+public class ForumActivity extends SimpleSinglePaneActivity {
 	public static final String KEY_FORUM_ID = "FORUM_ID";
+	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_FORUM_TITLE = "FORUM_NAME";
-	public static final String KEY_NUM_THREADS = "NUM_THREADS";
-	public static final String KEY_THREADS = "THREADS";
 
-	public static final int PAGE_SIZE = 50;
-
-	private static final String KEY_CURRENT_PAGE = "CURRENT_PAGE";
-	private static final String KEY_PAGE_COUNT = "PAGE_COUNT";
-	private static final String KEY_LAST_DISPLAYED_PAGE = "LAST_DISPLAYED_PAGE";
-	private static final String KEY_THREAD_COUNT = "THREAD_COUNT";
-
-	private ForumsUtils.ForumAdapter mAdapter;
-	private int mCurrentPage;
-	private int mPageCount;
-
-	private int mLastDisplayedPage;
-	private int mThreadCount;
-
-	private List<ForumThread> mAllForumThreads = new ArrayList<ForumThread>();
-	private List<ForumThread> mCurrentForumThreads = new ArrayList<ForumThread>();
-
-	private String mForumId;
 	private int mGameId;
 	private String mGameName;
-	private String mForumName;
-
-	private TextView mInfoView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_forum);
-		findViewById(R.id.game_thumbnail).setClickable(false);
+		final Intent intent = getIntent();
+		String forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
+		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 
-		if (savedInstanceState == null) {
-			final Intent intent = getIntent();
-			mForumId = intent.getExtras().getString(KEY_FORUM_ID);
-			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mForumName = intent.getExtras().getString(KEY_FORUM_TITLE);
-			mCurrentPage = 1;
-			mLastDisplayedPage = 1;
-			mPageCount = -1;
-			mThreadCount = 0;
-		} else {
-			mForumId = savedInstanceState.getString(KEY_FORUM_ID);
-			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
-			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mForumName = savedInstanceState.getString(KEY_FORUM_TITLE);
-			mAllForumThreads = savedInstanceState.getParcelableArrayList(KEY_THREADS);
-			mCurrentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE);
-			mLastDisplayedPage = savedInstanceState.getInt(KEY_LAST_DISPLAYED_PAGE);
-			mPageCount = savedInstanceState.getInt(KEY_PAGE_COUNT);
-			mThreadCount = savedInstanceState.getInt(KEY_THREAD_COUNT);
-		}
-
-		mInfoView = (TextView) findViewById(R.id.threads_counter);
-
-		UIUtils.setTitle(this, mForumName);
-		if (TextUtils.isEmpty(mGameName)) {
-			findViewById(R.id.game_thumbnail).setClickable(false);
-			findViewById(R.id.forum_game_header).setVisibility(View.GONE);
-		} else {
-			findViewById(R.id.forum_game_header).setVisibility(View.VISIBLE);
-			UIUtils.setGameHeader(this, mGameName, mGameId);
-		}
-
-		if (mAllForumThreads == null || mAllForumThreads.size() == 0) {
-			ForumsUtils.ForumTask forumTask = new ForumsUtils.ForumTask(this, TAG);
-			forumTask.execute();
-		} else {
-			updateDisplay();
+		if (!TextUtils.isEmpty(forumTitle)) {
+			final ActionBar actionBar = getSupportActionBar();
+			if (TextUtils.isEmpty(mGameName)) {
+				actionBar.setSubtitle(forumTitle);
+			} else {
+				actionBar.setTitle(forumTitle);
+				actionBar.setSubtitle(mGameName);
+			}
 		}
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(KEY_FORUM_ID, mForumId);
-		outState.putString(KEY_GAME_NAME, mGameName);
-		outState.putString(KEY_FORUM_TITLE, mForumName);
-		outState.putParcelableArrayList(KEY_THREADS, (ArrayList<? extends Parcelable>) mAllForumThreads);
-		outState.putInt(KEY_CURRENT_PAGE, mCurrentPage);
-		outState.putInt(KEY_LAST_DISPLAYED_PAGE, mLastDisplayedPage);
-		outState.putInt(KEY_PAGE_COUNT, mPageCount);
-		outState.putInt(KEY_THREAD_COUNT, mThreadCount);
-	}
-
-	public void onHomeClick(View v) {
-		UIUtils.goHome(this);
-	}
-
-	public void onSearchClick(View v) {
-		onSearchRequested();
+	protected Fragment onCreatePane() {
+		return new ForumFragment();
 	}
 
 	@Override
-	protected void onListItemClick(ListView listView, View convertView, int position, long id) {
-		ForumsUtils.ForumViewHolder holder = (ForumsUtils.ForumViewHolder) convertView.getTag();
-		if (holder != null) {
-			Intent forumsIntent = new Intent(this, ThreadActivity.class);
-			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
-			forumsIntent.putExtra(ThreadActivity.KEY_GAME_ID, mGameId);
-			forumsIntent.putExtra(ThreadActivity.KEY_GAME_NAME, mGameName);
-			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
-			this.startActivity(forumsIntent);
-		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		final MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.paging, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.menu_back);
-		mi.setEnabled(mCurrentPage > 1);
-
-		mi = menu.findItem(R.id.menu_forward);
-		mi.setEnabled(mCurrentPage < mPageCount);
-
-		return super.onPrepareOptionsMenu(menu);
+	protected int getOptionsMenuId() {
+		return R.menu.search_only;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		mCurrentForumThreads.clear();
 		switch (item.getItemId()) {
-			case R.id.menu_back:
-				mCurrentPage--;
-				setInfoText();
-				setCurrentForumsPage();
-				return true;
-			case R.id.menu_forward:
-				mAdapter.notifyDataSetChanged();
-				mCurrentPage++;
-				setInfoText();
-				if (mCurrentPage > mLastDisplayedPage) {
-					mLastDisplayedPage++;
-					ForumsUtils.ForumTask forumTask = new ForumsUtils.ForumTask(this, TAG);
-					forumTask.execute();
+			case android.R.id.home:
+				if (mGameId == BggContract.INVALID_ID) {
+					startActivity(new Intent(this, ForumsActivity.class));
 				} else {
-					setCurrentForumsPage();
+					ActivityUtils.launchGame(this, mGameId, mGameName);
 				}
+				finish();
 				return true;
 		}
-		return false;
-	}
-
-	public void updateDisplay() {
-		setInfoText();
-		setCurrentForumsPage();
-	}
-
-	public void setInfoText() {
-		mInfoView.setVisibility(View.VISIBLE);
-		mInfoView.setText(getPageStart() + " - " + getPageEnd() + " of " + mThreadCount + " threads");
-	}
-
-	public void setCurrentForumsPage() {
-		for (int i = getPageStart(); i <= getPageEnd(); i++) {
-			try {
-				mCurrentForumThreads.add(mAllForumThreads.get(i - 1));
-			} catch (IndexOutOfBoundsException e) {
-				LOGW(TAG, "Problem with XML API. Probably 'numthreads' " + "is not equal to 'thread' markers.");
-				// TODO probably 'catch' could be removed after fix in API
-			}
-		}
-		LOGI(TAG, "Displaying from " + getPageStart() + " to " + getPageEnd());
-		if (mAdapter == null) {
-			mAdapter = new ForumsUtils.ForumAdapter(this, mCurrentForumThreads);
-			setListAdapter(mAdapter);
-		} else {
-			mAdapter.notifyDataSetChanged();
-			setSelection(0);
-		}
-	}
-
-	private int getPageEnd() {
-		return Math.min(mCurrentPage * ForumActivity.PAGE_SIZE, mThreadCount);
-	}
-
-	private int getPageStart() {
-		return (mCurrentPage - 1) * ForumActivity.PAGE_SIZE + 1;
-	}
-
-	public String getForumId() {
-		return mForumId;
-	}
-
-	public int getCurrentPage() {
-		return mCurrentPage;
-	}
-
-	public int getPageCount() {
-		return mPageCount;
-	}
-
-	public void setmPageCount(int mPageCount) {
-		this.mPageCount = mPageCount;
-	}
-
-	public int getThreadCount() {
-		return mThreadCount;
-	}
-
-	public void setThreadCount(int mThreadCount) {
-		this.mThreadCount = mThreadCount;
-	}
-
-	public void addMoreForums(List<ForumThread> results) {
-		LOGI(TAG, "Adding more forums");
-		mAllForumThreads.addAll(results);
+		return super.onOptionsItemSelected(item);
 	}
 }

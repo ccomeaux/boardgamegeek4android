@@ -81,46 +81,6 @@
 			</meta-data>
 		</activity>
 		<activity
-			android:name=".ui.GameInfoActivityTab"
-			android:exported="false"
-			android:theme="@style/Theme.Bgg" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.TAB" />
-			</intent-filter>
-		</activity>
-		<activity
-			android:name=".ui.GameStatsActivityTab"
-			android:exported="false"
-			android:theme="@style/Theme.Bgg" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.TAB" />
-			</intent-filter>
-		</activity>
-		<activity
-			android:name=".ui.GameListsActivityTab"
-			android:exported="false"
-			android:theme="@style/Theme.Bgg" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.TAB" />
-			</intent-filter>
-		</activity>
-		<activity
-			android:name=".ui.GamePollsActivityTab"
-			android:exported="false"
-			android:theme="@style/Theme.Bgg" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.TAB" />
-			</intent-filter>
-		</activity>
-		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
 			android:theme="@style/Theme.BoardGameGeek" />
@@ -218,7 +178,6 @@
 			android:exported="false"
 			android:label="@string/title_forums"
 			android:theme="@style/Theme.BoardGameGeek" >
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -226,28 +185,11 @@
 		<activity
 			android:name=".ui.ForumActivity"
 			android:label="@string/title_forum"
-			android:theme="@style/Theme.Bgg" />
+			android:theme="@style/Theme.BoardGameGeek" />
 		<activity
 			android:name=".ui.ThreadActivity"
 			android:label="@string/title_thread"
 			android:theme="@style/Theme.Bgg" />
-		<activity
-			android:name=".ui.ColorsActivity"
-			android:exported="false"
-			android:label="@string/title_colors"
-			android:theme="@style/Theme.Bgg" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".view.BoardGameStatsTab" />
-		<activity android:name=".view.BoardGameExtraTab" />
-		<activity android:name=".view.BoardGameLinksTab" />
-		<activity android:name=".view.BoardGamePollsTab" />
 		<activity
 			android:name=".pref.Preferences"
 			android:label="@string/app_name" />
