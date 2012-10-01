@@ -49,7 +49,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 
 	private String mUrl;
 	private int mGameId;
-	private String mGameName = "";
+	private String mGameName;
 	private ForumsAdapter mForumsAdapter = null;
 
 	@Override
@@ -116,10 +116,9 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		if (holder != null) {
 			Intent forumsIntent = new Intent(getActivity(), ForumActivity.class);
 			forumsIntent.putExtra(ForumActivity.KEY_FORUM_ID, holder.forumId);
+			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
 			forumsIntent.putExtra(ForumActivity.KEY_GAME_ID, mGameId);
 			forumsIntent.putExtra(ForumActivity.KEY_GAME_NAME, mGameName);
-			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
-			forumsIntent.putExtra(ForumActivity.KEY_NUM_THREADS, holder.numThreads.getText());
 			this.startActivity(forumsIntent);
 		}
 	}
@@ -163,7 +162,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
 			RemoteForumlistHandler handler = new RemoteForumlistHandler();
 
-			LOGI(TAG, "Loading comments from " + mUrl);
+			LOGI(TAG, "Loading forums from " + mUrl);
 			try {
 				executor.executeGet(mUrl, handler);
 

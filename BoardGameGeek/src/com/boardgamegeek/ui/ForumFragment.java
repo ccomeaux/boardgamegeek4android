@@ -4,7 +4,6 @@ import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +11,14 @@ import org.apache.http.client.HttpClient;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,36 +30,44 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RemoteForumHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
-import com.boardgamegeek.model.Comment;
-import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class CommentsFragment extends SherlockListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<List<Comment>> {
-	private static final String TAG = makeLogTag(CommentsFragment.class);
-	private static final int COMMENTS_LOADER_ID = 0;
+public class ForumFragment extends SherlockListFragment implements OnScrollListener,
+	LoaderManager.LoaderCallbacks<List<ForumThread>> {
+	private static final String TAG = makeLogTag(ForumFragment.class);
+
+	public static final String KEY_FORUM_ID = "FORUM_ID";
+	public static final String KEY_GAME_ID = "GAME_ID";
+	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_FORUM_TITLE = "FORUM_NAME";
+
+	private static final int FORUM_LOADER_ID = 100;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
 
-	private int mGameId;
-	private List<Comment> mComments = new ArrayList<Comment>();
-	private CommentsAdapter mCommentsAdapter = new CommentsAdapter();
+	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
+	private ForumAdapter mForumAdapter = new ForumAdapter();
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
+	private String mForumId;
+	private int mGameId;
+	private String mGameName;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = Games.getGameId(intent.getData());
+		mForumId = intent.getExtras().getString(KEY_FORUM_ID);
+		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
+		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
 
-		setListAdapter(mCommentsAdapter);
+		setListAdapter(mForumAdapter);
 	}
 
 	@Override
@@ -76,8 +85,8 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_comments));
-		getLoaderManager().initLoader(COMMENTS_LOADER_ID, null, this);
+		setEmptyText(getString(R.string.empty_forum));
+		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
 	}
 
 	@Override
@@ -89,7 +98,6 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		listView.setOnScrollListener(this);
 		listView.setFastScrollEnabled(true);
 		listView.setCacheColorHint(Color.WHITE);
-		listView.setSelector(android.R.color.transparent);
 	}
 
 	@Override
@@ -109,12 +117,12 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		}
 
 		// clear current items
-		mComments.clear();
-		mCommentsAdapter.notifyDataSetInvalidated();
+		mThreads.clear();
+		mForumAdapter.notifyDataSetInvalidated();
 
-		final CommentsLoader loader = getLoader();
+		final ForumLoader loader = getLoader();
 		if (loader != null) {
-			loader.init(mGameId);
+			loader.init(mForumId);
 		}
 
 		loadMoreResults();
@@ -122,10 +130,23 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 	public void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
+			Loader<List<ForumThread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}
+		}
+	}
+
+	@Override
+	public void onListItemClick(ListView listView, View convertView, int position, long id) {
+		ThreadRowViewBinder.ViewHolder holder = (ThreadRowViewBinder.ViewHolder) convertView.getTag();
+		if (holder != null) {
+			Intent forumsIntent = new Intent(getActivity(), ThreadActivity.class);
+			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
+			forumsIntent.putExtra(ThreadActivity.KEY_GAME_ID, mGameId);
+			forumsIntent.putExtra(ThreadActivity.KEY_GAME_NAME, mGameName);
+			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
+			this.startActivity(forumsIntent);
 		}
 	}
 
@@ -135,8 +156,6 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		// Simple implementation of the infinite scrolling UI pattern; loads more comments as the user scrolls to the
-		// end of the list.
 		if (!isLoaderLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
 			loadMoreResults();
@@ -144,20 +163,20 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	}
 
 	@Override
-	public Loader<List<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), mGameId);
+	public Loader<List<ForumThread>> onCreateLoader(int id, Bundle data) {
+		return new ForumLoader(getActivity(), mForumId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<Comment>> loader, List<Comment> comments) {
+	public void onLoadFinished(Loader<List<ForumThread>> loader, List<ForumThread> threads) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (comments != null) {
-			mComments = comments;
+		if (threads != null) {
+			mThreads = threads;
 		}
-		mCommentsAdapter.notifyDataSetChanged();
+		mForumAdapter.notifyDataSetChanged();
 
 		if (mListViewStatePosition != -1 && isAdded()) {
 			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
@@ -166,70 +185,70 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<Comment>> loader) {
+	public void onLoaderReset(Loader<List<ForumThread>> loader) {
 	}
 
 	private boolean isLoaderLoading() {
-		final CommentsLoader loader = getLoader();
+		final ForumLoader loader = getLoader();
 		return (loader != null) ? loader.isLoading() : true;
 	}
 
 	private boolean loaderHasMoreResults() {
-		final CommentsLoader loader = getLoader();
+		final ForumLoader loader = getLoader();
 		return (loader != null) ? loader.hasMoreResults() : false;
 	}
 
 	private boolean loaderHasError() {
-		final CommentsLoader loader = getLoader();
+		final ForumLoader loader = getLoader();
 		return (loader != null) ? loader.hasError() : false;
 	}
 
 	private String loaderErrorMessage() {
-		final CommentsLoader loader = getLoader();
+		final ForumLoader loader = getLoader();
 		return (loader != null) ? loader.getErrorMessage() : "";
 	}
 
-	private CommentsLoader getLoader() {
+	private ForumLoader getLoader() {
 		if (isAdded()) {
-			Loader<List<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
-			return (CommentsLoader) loader;
+			Loader<List<ForumThread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
+			return (ForumLoader) loader;
 		}
 		return null;
 	}
 
-	private static class CommentsLoader extends AsyncTaskLoader<List<Comment>> {
+	private static class ForumLoader extends AsyncTaskLoader<List<ForumThread>> {
 		private static final int PAGE_SIZE = 100;
-		private int mGameId;
-		private List<Comment> mCommentList;
+		private String mForumId;
+		private List<ForumThread> mThreadList;
 		private int mNextPage;
 		private boolean mIsLoading;
 		private String mErrorMessage;
-		private int mCommentCount;
+		private int mThreadCount;
 
-		public CommentsLoader(Context context, int gameId) {
+		public ForumLoader(Context context, String forumId) {
 			super(context);
-			init(gameId);
+			init(forumId);
 		}
 
-		private void init(int gameId) {
-			mGameId = gameId;
+		private void init(String gameId) {
+			mForumId = gameId;
 			mNextPage = 1;
 			mIsLoading = true;
 			mErrorMessage = "";
-			mCommentList = null;
-			mCommentCount = 0;
+			mThreadList = null;
+			mThreadCount = 0;
 		}
 
 		@Override
-		public List<Comment> loadInBackground() {
+		public List<ForumThread> loadInBackground() {
 			mIsLoading = true;
 
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
-			RemoteCommentsHandler handler = new RemoteCommentsHandler();
+			RemoteForumHandler handler = new RemoteForumHandler();
 
-			String url = HttpUtils.constructCommentsUrl(mGameId, mNextPage);
-			LOGI(TAG, "Loading comments from " + url);
+			final String url = HttpUtils.constructForumUrl(mForumId, mNextPage);
+			LOGI(TAG, "Loading threads from " + url);
 			try {
 				executor.executeGet(url, handler);
 
@@ -238,10 +257,10 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 				} else {
 					mNextPage++;
 					mErrorMessage = "";
-					mCommentCount = handler.getCount();
+					mThreadCount = handler.getTotalCount();
 				}
 			} catch (HandlerException e) {
-				LOGE(TAG, "getting comments", e);
+				LOGE(TAG, "getting threads", e);
 				handleError(e.getMessage());
 			}
 			return handler.getResults();
@@ -250,27 +269,27 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		private void handleError(String message) {
 			mErrorMessage = message;
 			mNextPage = 1;
-			mCommentCount = 0;
+			mThreadCount = 0;
 		}
 
 		@Override
-		public void deliverResult(List<Comment> comments) {
+		public void deliverResult(List<ForumThread> threads) {
 			mIsLoading = false;
-			if (comments != null) {
-				if (mCommentList == null) {
-					mCommentList = comments;
+			if (threads != null) {
+				if (mThreadList == null) {
+					mThreadList = threads;
 				} else {
-					mCommentList.addAll(comments);
+					mThreadList.addAll(threads);
 				}
 			}
 			if (isStarted()) {
-				super.deliverResult(mCommentList == null ? null : new ArrayList<Comment>(mCommentList));
+				super.deliverResult(mThreadList == null ? null : new ArrayList<ForumThread>(mThreadList));
 			}
 		}
 
 		@Override
 		protected void onStartLoading() {
-			if (mCommentList != null) {
+			if (mThreadList != null) {
 				deliverResult(null);
 			} else {
 				forceLoad();
@@ -287,7 +306,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		protected void onReset() {
 			super.onReset();
 			onStopLoading();
-			mCommentList = null;
+			mThreadList = null;
 		}
 
 		public boolean isLoading() {
@@ -295,7 +314,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		}
 
 		public boolean hasMoreResults() {
-			return (mNextPage - 1) * PAGE_SIZE < mCommentCount;
+			return (mNextPage - 1) * PAGE_SIZE < mThreadCount;
 		}
 
 		public boolean hasError() {
@@ -307,8 +326,8 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		}
 	}
 
-	private class CommentsAdapter extends BaseAdapter {
-		private static final int VIEW_TYPE_COMMENT = 0;
+	private class ForumAdapter extends BaseAdapter {
+		private static final int VIEW_TYPE_THREAD = 0;
 		private static final int VIEW_TYPE_LOADING = 1;
 
 		@Override
@@ -318,7 +337,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 		@Override
 		public boolean isEnabled(int position) {
-			return getItemViewType(position) == VIEW_TYPE_COMMENT;
+			return getItemViewType(position) == VIEW_TYPE_THREAD;
 		}
 
 		@Override
@@ -333,23 +352,23 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 		@Override
 		public int getCount() {
-			return mComments.size()
-				+ (((isLoaderLoading() && mComments.size() == 0) || loaderHasMoreResults() || loaderHasError()) ? 1 : 0);
+			return mThreads.size()
+				+ (((isLoaderLoading() && mThreads.size() == 0) || loaderHasMoreResults() || loaderHasError()) ? 1 : 0);
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			return (position >= mComments.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_COMMENT;
+			return (position >= mThreads.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_THREAD;
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_COMMENT) ? mComments.get(position) : null;
+			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position) : null;
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_COMMENT) ? mComments.get(position).Username.hashCode() : -1;
+			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position).id.hashCode() : -1;
 		}
 
 		@Override
@@ -370,34 +389,36 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 				return convertView;
 
 			} else {
-				Comment comment = (Comment) getItem(position);
+				ForumThread thread = (ForumThread) getItem(position);
 				if (convertView == null) {
-					convertView = getLayoutInflater(null).inflate(R.layout.row_comment, parent, false);
+					convertView = getLayoutInflater(null).inflate(R.layout.row_forumthread, parent, false);
 				}
 
-				CommentRowViewBinder.bindActivityView(convertView, comment);
+				ThreadRowViewBinder.bindActivityView(convertView, thread);
 				return convertView;
 			}
 		}
 	}
 
-	private static class CommentRowViewBinder {
-		private static final int backgroundColors[] = { Color.WHITE, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
-			0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00 };
-
-		private static class ViewHolder {
-			TextView username;
-			TextView rating;
-			TextView comment;
+	private static class ThreadRowViewBinder {
+		public static class ViewHolder {
+			public String threadId;
+			public TextView subject;
+			public TextView author;
+			public TextView numarticles;
+			public TextView lastpostdate;
+			public TextView postdate;
 
 			public ViewHolder(View view) {
-				username = (TextView) view.findViewById(R.id.username);
-				rating = (TextView) view.findViewById(R.id.rating);
-				comment = (TextView) view.findViewById(R.id.comment);
+				subject = (TextView) view.findViewById(R.id.thread_title);
+				author = (TextView) view.findViewById(R.id.thread_author);
+				numarticles = (TextView) view.findViewById(R.id.thread_numarticles);
+				lastpostdate = (TextView) view.findViewById(R.id.thread_lastpostdate);
+				postdate = (TextView) view.findViewById(R.id.thread_postdate);
 			}
 		}
 
-		private static void bindActivityView(final View rootView, Comment comment) {
+		public static void bindActivityView(View rootView, ForumThread thread) {
 			ViewHolder temp = (ViewHolder) rootView.getTag();
 			final ViewHolder holder;
 			if (temp != null) {
@@ -407,11 +428,20 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 				rootView.setTag(holder);
 			}
 
-			holder.username.setText(comment.Username);
-			holder.rating.setText(new DecimalFormat("#0.00").format(StringUtils.parseDouble(comment.Rating, 0.0)));
-			final int rating = (int) StringUtils.parseDouble(comment.Rating, 0.0);
-			holder.rating.setBackgroundColor(backgroundColors[rating]);
-			holder.comment.setText(comment.Value);
+			Resources r = rootView.getResources();
+			String mAuthorText = r.getString(R.string.forum_thread_author);
+			String mLastPostText = r.getString(R.string.forum_last_post);
+			String mCreatedText = r.getString(R.string.forum_thread_created);
+
+			holder.threadId = thread.id;
+			holder.subject.setText(thread.subject);
+			holder.author.setText(String.format(mAuthorText, thread.author));
+			int replies = thread.numarticles - 1;
+			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies, replies));
+			holder.lastpostdate.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
+				thread.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
+			holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(thread.postdate,
+				System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
 		}
 	}
 }
