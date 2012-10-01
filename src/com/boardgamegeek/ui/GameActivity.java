@@ -54,8 +54,8 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
-		// actionBar.addTab(actionBar.newTab().setText(R.string.title_forum).setTabListener(this));
 	}
 
 	@Override
@@ -153,6 +153,9 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 					fragment = new ColorsFragment();
 					break;
 				case 3:
+					fragment = new ForumsFragment();
+					break;
+				case 4:
 					fragment = new CommentsFragment();
 					break;
 			}
@@ -164,7 +167,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		@Override
 		public int getCount() {
-			return 4;
+			return 5;
 		}
 	}
 
@@ -176,6 +179,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
+			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			getSupportActionBar().setSubtitle(gameName);
 		}
 	}

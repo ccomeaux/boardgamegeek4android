@@ -389,9 +389,11 @@ public class BggContract {
 		}
 
 		public static int getGameId(Uri uri) {
-			List<String> segments = uri.getPathSegments();
-			if (segments != null && segments.size() > 1 && PATH_GAMES.equals(segments.get(0))) {
-				return StringUtils.parseInt(segments.get(1));
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_GAMES.equals(segments.get(0))) {
+					return StringUtils.parseInt(segments.get(1));
+				}
 			}
 			return INVALID_ID;
 		}

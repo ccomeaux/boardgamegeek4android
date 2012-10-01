@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.app.ListActivity;
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,137 +22,13 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumHandler;
-import com.boardgamegeek.io.RemoteForumlistHandler;
 import com.boardgamegeek.io.RemoteThreadHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
-import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.model.ThreadArticle;
 import com.boardgamegeek.ui.ForumActivity;
 
 public class ForumsUtils {
-
-	public static class ForumlistTask extends AsyncTask<Void, Void, RemoteForumlistHandler> {
-		private Activity mActivity;
-		private List<Forum> mForums;
-		private String mUrl;
-		private String mGameName;
-		private String mTag;
-
-		private HttpClient mHttpClient;
-		private RemoteExecutor mExecutor;
-		private RemoteForumlistHandler mHandler = new RemoteForumlistHandler();
-
-		public ForumlistTask(Activity activity, List<Forum> forums, String url, String gameName, String tag) {
-			this.mActivity = activity;
-			this.mForums = forums;
-			this.mUrl = url;
-			this.mGameName = gameName;
-			this.mTag = tag;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			mHttpClient = HttpUtils.createHttpClient(mActivity, true);
-			mExecutor = new RemoteExecutor(mHttpClient, null);
-		}
-
-		@Override
-		protected RemoteForumlistHandler doInBackground(Void... params) {
-			LOGI(mTag, "Loading forums from " + mUrl);
-			try {
-				mExecutor.executeGet(mUrl, mHandler);
-			} catch (HandlerException e) {
-				LOGE(mTag, e.toString());
-			}
-			return mHandler;
-		}
-
-		@Override
-		protected void onPostExecute(RemoteForumlistHandler result) {
-			LOGI(mTag, "Forums count " + result.getCount());
-			final int count = result.getCount();
-			if (result.isBggDown()) {
-				UIUtils.showListMessage(mActivity, R.string.bgg_down);
-			} else if (count == 0) {
-				String message;
-				if (TextUtils.isEmpty(mGameName)) {
-					message = mActivity.getResources().getString(R.string.generalforumlist_no_results);
-				} else {
-					message = String.format(mActivity.getResources().getString(R.string.forumlist_no_results),
-							mGameName);
-				}
-				UIUtils.showListMessage(mActivity, message);
-			} else {
-				mForums.addAll(result.getResults());
-				((ListActivity) mActivity).setListAdapter(new ForumlistAdapter(mActivity, mForums));
-			}
-		}
-	}
-
-	public static class ForumlistAdapter extends ArrayAdapter<Forum> {
-		private Activity mActivity;
-		private List<Forum> mForums;
-
-		private LayoutInflater mInflater;
-		private Resources mResources;
-		private String mLastPostText;
-
-		public ForumlistAdapter(Activity activity, List<Forum> forums) {
-			super(activity, R.layout.row_forum, forums);
-			this.mActivity = activity;
-			this.mForums = forums;
-			mInflater = this.mActivity.getLayoutInflater();
-			mResources = this.mActivity.getResources();
-			mLastPostText = mResources.getString(R.string.forum_last_post);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ForumlistViewHolder holder;
-			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_forum, parent, false);
-				holder = new ForumlistViewHolder(convertView);
-				convertView.setTag(holder);
-			} else {
-				holder = (ForumlistViewHolder) convertView.getTag();
-			}
-
-			Forum forumlist;
-			try {
-				forumlist = mForums.get(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
-			}
-			if (forumlist != null) {
-				holder.forumId = forumlist.id;
-				holder.forumTitle.setText(forumlist.title);
-				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forumlist.numthreads,
-						forumlist.numthreads));
-				if (forumlist.lastpostdate > 0) {
-					holder.lastPost.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
-							forumlist.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
-					holder.lastPost.setVisibility(View.VISIBLE);
-				} else {
-					holder.lastPost.setVisibility(View.GONE);
-				}
-			}
-			return convertView;
-		}
-	}
-
-	public static class ForumlistViewHolder {
-		public String forumId;
-		public TextView forumTitle;
-		public TextView numThreads;
-		public TextView lastPost;
-
-		public ForumlistViewHolder(View view) {
-			forumTitle = (TextView) view.findViewById(R.id.forum_title);
-			numThreads = (TextView) view.findViewById(R.id.numthreads);
-			lastPost = (TextView) view.findViewById(R.id.lastpost);
-		}
-	}
 
 	public static class ForumTask extends AsyncTask<Void, Void, RemoteForumHandler> {
 		private ForumActivity mActivity;
@@ -193,7 +68,7 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (mActivity.getThreadCount() == 0) {
-				String message = String.format(mActivity.getResources().getString(R.string.forum_no_results),
+				String message = String.format(mActivity.getResources().getString(R.string.empty_forum),
 						mActivity.getTitle().toString());
 				UIUtils.showListMessage(mActivity, message);
 			} else {
@@ -320,7 +195,7 @@ public class ForumsUtils {
 			if (result.isBggDown()) {
 				UIUtils.showListMessage(mActivity, R.string.bgg_down);
 			} else if (count == 0) {
-				String message = String.format(mActivity.getResources().getString(R.string.thread_no_results),
+				String message = String.format(mActivity.getResources().getString(R.string.empty_thread),
 						mThreadSubject);
 				UIUtils.showListMessage(mActivity, message);
 			} else {
