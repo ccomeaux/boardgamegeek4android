@@ -34,19 +34,15 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.ForumThread;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumFragment extends SherlockListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<ForumThread>> {
 	private static final String TAG = makeLogTag(ForumFragment.class);
-
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_FORUM_TITLE = "FORUM_NAME";
-
-	private static final int FORUM_LOADER_ID = 100;
+	private static final int FORUM_LOADER_ID = 0;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
 
@@ -55,6 +51,7 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
 	private String mForumId;
+	private String mForumTitle;
 	private int mGameId;
 	private String mGameName;
 
@@ -63,9 +60,10 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mForumId = intent.getExtras().getString(KEY_FORUM_ID);
-		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+		mForumId = intent.getStringExtra(ForumsUtils.KEY_FORUM_ID);
+		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
+		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
 
 		setListAdapter(mForumAdapter);
 	}
@@ -141,17 +139,19 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ThreadRowViewBinder.ViewHolder holder = (ThreadRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
-			Intent forumsIntent = new Intent(getActivity(), ThreadActivity.class);
-			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_ID, holder.threadId);
-			forumsIntent.putExtra(ThreadActivity.KEY_GAME_ID, mGameId);
-			forumsIntent.putExtra(ThreadActivity.KEY_GAME_NAME, mGameName);
-			forumsIntent.putExtra(ThreadActivity.KEY_THREAD_SUBJECT, holder.subject.getText());
-			this.startActivity(forumsIntent);
+			Intent intent = new Intent(getActivity(), ThreadActivity.class);
+			intent.putExtra(ForumsUtils.KEY_THREAD_ID, holder.threadId);
+			intent.putExtra(ForumsUtils.KEY_THREAD_SUBJECT, holder.subject.getText());
+			intent.putExtra(ForumsUtils.KEY_FORUM_ID, mForumId);
+			intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
+			intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
+			intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+			startActivity(intent);
 		}
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView arg0, int arg1) {
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 
 	@Override
@@ -219,7 +219,7 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	private static class ForumLoader extends AsyncTaskLoader<List<ForumThread>> {
 		private static final int PAGE_SIZE = 100;
 		private String mForumId;
-		private List<ForumThread> mThreadList;
+		private List<ForumThread> mData;
 		private int mNextPage;
 		private boolean mIsLoading;
 		private String mErrorMessage;
@@ -230,12 +230,12 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			init(forumId);
 		}
 
-		private void init(String gameId) {
-			mForumId = gameId;
+		private void init(String forumId) {
+			mForumId = forumId;
 			mNextPage = 1;
 			mIsLoading = true;
 			mErrorMessage = "";
-			mThreadList = null;
+			mData = null;
 			mThreadCount = 0;
 		}
 
@@ -266,32 +266,27 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			return handler.getResults();
 		}
 
-		private void handleError(String message) {
-			mErrorMessage = message;
-			mNextPage = 1;
-			mThreadCount = 0;
-		}
-
 		@Override
 		public void deliverResult(List<ForumThread> threads) {
 			mIsLoading = false;
 			if (threads != null) {
-				if (mThreadList == null) {
-					mThreadList = threads;
+				if (mData == null) {
+					mData = threads;
 				} else {
-					mThreadList.addAll(threads);
+					mData.addAll(threads);
 				}
 			}
 			if (isStarted()) {
-				super.deliverResult(mThreadList == null ? null : new ArrayList<ForumThread>(mThreadList));
+				super.deliverResult(mData == null ? null : new ArrayList<ForumThread>(mData));
 			}
 		}
 
 		@Override
 		protected void onStartLoading() {
-			if (mThreadList != null) {
+			if (mData != null) {
 				deliverResult(null);
-			} else {
+			}
+			if (takeContentChanged() || mData == null) {
 				forceLoad();
 			}
 		}
@@ -306,7 +301,13 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 		protected void onReset() {
 			super.onReset();
 			onStopLoading();
-			mThreadList = null;
+			mData = null;
+		}
+
+		private void handleError(String message) {
+			mErrorMessage = message;
+			mNextPage = 1;
+			mThreadCount = 0;
 		}
 
 		public boolean isLoading() {

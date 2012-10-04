@@ -103,23 +103,6 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		super.onSaveInstanceState(outState);
 	}
 
-	public void refresh(boolean forceRefresh) {
-		if (isLoaderLoading() && !forceRefresh) {
-			return;
-		}
-
-		// clear current items
-		mComments.clear();
-		mCommentsAdapter.notifyDataSetInvalidated();
-
-		final CommentsLoader loader = getLoader();
-		if (loader != null) {
-			loader.init(mGameId);
-		}
-
-		loadMoreResults();
-	}
-
 	public void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
@@ -130,13 +113,11 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView arg0, int arg1) {
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		// Simple implementation of the infinite scrolling UI pattern; loads more comments as the user scrolls to the
-		// end of the list.
 		if (!isLoaderLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
 			loadMoreResults();
@@ -200,7 +181,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	private static class CommentsLoader extends AsyncTaskLoader<List<Comment>> {
 		private static final int PAGE_SIZE = 100;
 		private int mGameId;
-		private List<Comment> mCommentList;
+		private List<Comment> mData;
 		private int mNextPage;
 		private boolean mIsLoading;
 		private String mErrorMessage;
@@ -216,7 +197,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			mNextPage = 1;
 			mIsLoading = true;
 			mErrorMessage = "";
-			mCommentList = null;
+			mData = null;
 			mCommentCount = 0;
 		}
 
@@ -247,32 +228,27 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			return handler.getResults();
 		}
 
-		private void handleError(String message) {
-			mErrorMessage = message;
-			mNextPage = 1;
-			mCommentCount = 0;
-		}
-
 		@Override
 		public void deliverResult(List<Comment> comments) {
 			mIsLoading = false;
 			if (comments != null) {
-				if (mCommentList == null) {
-					mCommentList = comments;
+				if (mData == null) {
+					mData = comments;
 				} else {
-					mCommentList.addAll(comments);
+					mData.addAll(comments);
 				}
 			}
 			if (isStarted()) {
-				super.deliverResult(mCommentList == null ? null : new ArrayList<Comment>(mCommentList));
+				super.deliverResult(mData == null ? null : new ArrayList<Comment>(mData));
 			}
 		}
 
 		@Override
 		protected void onStartLoading() {
-			if (mCommentList != null) {
+			if (mData != null) {
 				deliverResult(null);
-			} else {
+			}
+			if (takeContentChanged() || mData == null) {
 				forceLoad();
 			}
 		}
@@ -287,7 +263,13 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		protected void onReset() {
 			super.onReset();
 			onStopLoading();
-			mCommentList = null;
+			mData = null;
+		}
+
+		private void handleError(String message) {
+			mErrorMessage = message;
+			mNextPage = 1;
+			mCommentCount = 0;
 		}
 
 		public boolean isLoading() {

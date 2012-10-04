@@ -36,14 +36,12 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
 	private static final String TAG = makeLogTag(ForumsFragment.class);
-
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	
 	private static final int FORUMS_LOADER_ID = 0;
 	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
 
@@ -60,9 +58,16 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		Uri uri = intent.getData();
 		mGameId = Games.getGameId(uri);
 		mUrl = (mGameId != BggContract.INVALID_ID) ? HttpUtils.constructForumlistUrl(mGameId) : GENERAL_FORUMS_URL;
-		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
 
 		setListAdapter(mForumsAdapter);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_forums));
+		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
@@ -72,13 +77,6 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 
 		final ListView listView = getListView();
 		listView.setCacheColorHint(Color.WHITE);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_forums));
-		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
@@ -114,12 +112,12 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
 		if (holder != null) {
-			Intent forumsIntent = new Intent(getActivity(), ForumActivity.class);
-			forumsIntent.putExtra(ForumActivity.KEY_FORUM_ID, holder.forumId);
-			forumsIntent.putExtra(ForumActivity.KEY_FORUM_TITLE, holder.forumTitle.getText());
-			forumsIntent.putExtra(ForumActivity.KEY_GAME_ID, mGameId);
-			forumsIntent.putExtra(ForumActivity.KEY_GAME_NAME, mGameName);
-			this.startActivity(forumsIntent);
+			Intent intent = new Intent(getActivity(), ForumActivity.class);
+			intent.putExtra(ForumsUtils.KEY_FORUM_ID, holder.forumId);
+			intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
+			intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
+			intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+			startActivity(intent);
 		}
 	}
 
@@ -142,6 +140,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 	}
 
 	private static class ForumsLoader extends AsyncTaskLoader<List<Forum>> {
+		private List<Forum> mData;
 		private String mUrl;
 		private String mErrorMessage;
 
@@ -149,11 +148,6 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 			super(context);
 			mUrl = url;
 			mErrorMessage = "";
-		}
-
-		@Override
-		protected void onStartLoading() {
-			forceLoad();
 		}
 
 		@Override
@@ -180,8 +174,23 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 
 		@Override
 		public void deliverResult(List<Forum> forums) {
+			if (isReset()) {
+				return;
+			}
+
+			mData = forums;
 			if (isStarted()) {
 				super.deliverResult(forums == null ? null : new ArrayList<Forum>(forums));
+			}
+		}
+
+		@Override
+		protected void onStartLoading() {
+			if (mData != null) {
+				deliverResult(mData);
+			}
+			if (takeContentChanged() || mData == null) {
+				forceLoad();
 			}
 		}
 
@@ -194,6 +203,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		protected void onReset() {
 			super.onReset();
 			onStopLoading();
+			mData = null;
 		}
 
 		public boolean hasError() {
@@ -239,13 +249,9 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 				holder.forumTitle.setText(forum.title);
 				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numthreads,
 					forum.numthreads));
-				if (forum.lastpostdate > 0) {
-					holder.lastPost.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
-						forum.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
-					holder.lastPost.setVisibility(View.VISIBLE);
-				} else {
-					holder.lastPost.setVisibility(View.GONE);
-				}
+				holder.lastPost.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
+					forum.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
+				holder.lastPost.setVisibility((forum.lastpostdate > 0) ? View.VISIBLE : View.GONE);
 			}
 			return convertView;
 		}
