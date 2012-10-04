@@ -138,13 +138,15 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 
 		@Override
 		protected void onPostExecute(RemoteHotnessHandler result) {
-			mHotGames = result.getResults();
-			if (result.isBggDown()) {
-				mEmptyMessage = getString(R.string.bgg_down);
-			} else {
-				mEmptyMessage = getString(R.string.empty_hotness);
+			if (isAdded()) {
+				mHotGames = result.getResults();
+				if (result.isBggDown()) {
+					mEmptyMessage = getString(R.string.bgg_down);
+				} else {
+					mEmptyMessage = getString(R.string.empty_hotness);
+				}
+				showList();
 			}
-			showList();
 		}
 	}
 
