@@ -1,103 +1,67 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.UIUtils;
 
-public class ThreadActivity extends ListActivity {
-	private final String TAG = "ThreadActivity";
-
-	public static final String KEY_THREAD_ID = "THREAD_ID";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
-	public static final String KEY_ARTICLES = "ARTICLES";
-
-	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
-
-	private String mThreadId;
+public class ThreadActivity extends SimpleSinglePaneActivity {
+	private String mThreadSubject;
+	private String mForumId;
+	private String mForumTitle;
 	private int mGameId;
 	private String mGameName;
-	private String mThreadSubject;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_thread);
+		final Intent intent = getIntent();
+		mThreadSubject = intent.getStringExtra(ForumsUtils.KEY_THREAD_SUBJECT);
+		mForumId = intent.getStringExtra(ForumsUtils.KEY_FORUM_ID);
+		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
+		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
 
-		if (savedInstanceState == null) {
-			final Intent intent = getIntent();
-			mThreadId = intent.getExtras().getString(KEY_THREAD_ID);
-			mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-			mGameName = intent.getExtras().getString(KEY_GAME_NAME);
-			mThreadSubject = intent.getExtras().getString(KEY_THREAD_SUBJECT);
-		} else {
-			mThreadId = savedInstanceState.getString(KEY_THREAD_ID);
-			mGameId = savedInstanceState.getInt(KEY_GAME_ID);
-			mGameName = savedInstanceState.getString(KEY_GAME_NAME);
-			mThreadSubject = savedInstanceState.getString(KEY_THREAD_SUBJECT);
-			mArticles = savedInstanceState.getParcelableArrayList(KEY_ARTICLES);
-		}
-
-		setSubjecxt();
-
+		final ActionBar actionBar = getSupportActionBar();
 		if (TextUtils.isEmpty(mGameName)) {
-			findViewById(R.id.game_thumbnail).setClickable(false);
-			findViewById(R.id.thread_game_header).setVisibility(View.GONE);
-			findViewById(R.id.thread_header_divider).setVisibility(View.GONE);
-
+			actionBar.setTitle(mForumTitle);
+			actionBar.setSubtitle(mThreadSubject);
 		} else {
-			findViewById(R.id.thread_game_header).setVisibility(View.VISIBLE);
-			findViewById(R.id.thread_header_divider).setVisibility(View.VISIBLE);
-			UIUtils.setGameHeader(this, mGameName, mGameId);
+			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
+			actionBar.setSubtitle(mGameName);
 		}
-
-		if (mArticles == null || mArticles.size() == 0) {
-			ForumsUtils.ThreadTask task = new ForumsUtils.ThreadTask(this, mArticles,
-				HttpUtils.constructThreadUrl(mThreadId), mThreadSubject, TAG);
-			task.execute();
-		} else {
-			setListAdapter(new ForumsUtils.ThreadAdapter(this, mArticles));
-		}
-	}
-
-	private void setSubjecxt() {
-		UIUtils.setTitle(this, mThreadSubject);
-		ListView lv = (ListView) findViewById(android.R.id.list);
-		View v = getLayoutInflater().inflate(R.layout.thread_header, null);
-		TextView tv = (TextView) v.findViewById(R.id.thread_header);
-		tv.setText(mThreadSubject);
-		lv.addHeaderView(v);
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(KEY_THREAD_ID, mThreadId);
-		outState.putString(KEY_THREAD_SUBJECT, mThreadSubject);
-		outState.putParcelableArrayList(KEY_ARTICLES, (ArrayList<? extends Parcelable>) mArticles);
+	protected Fragment onCreatePane() {
+		return new ThreadFragment();
 	}
 
-	public void onHomeClick(View v) {
-		UIUtils.goHome(this);
+	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.search_only;
 	}
 
-	public void onSearchClick(View v) {
-		onSearchRequested();
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				Intent intent = new Intent(this, ForumActivity.class);
+				intent.putExtra(ForumsUtils.KEY_FORUM_ID, mForumId);
+				intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
+				intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+				startActivity(intent);
+				finish();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }

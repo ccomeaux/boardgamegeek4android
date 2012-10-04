@@ -10,13 +10,9 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ForumsUtils;
 
 public class ForumActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_FORUM_ID = "FORUM_ID";
-	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-
 	private int mGameId;
 	private String mGameName;
 
@@ -25,9 +21,9 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		String forumTitle = intent.getStringExtra(KEY_FORUM_TITLE);
-		mGameName = intent.getStringExtra(KEY_GAME_NAME);
-		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		String forumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
+		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
