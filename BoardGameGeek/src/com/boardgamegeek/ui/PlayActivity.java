@@ -234,7 +234,9 @@ public class PlayActivity extends Activity implements AsyncQueryListener, LogInL
 	}
 
 	public void onThumbnailClick(View v) {
-		startActivity(new Intent(Intent.ACTION_VIEW, Games.buildGameUri(mGameId)));
+		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(mGameId));
+		intent.putExtra(GameActivity.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
 	}
 
 	@Override
