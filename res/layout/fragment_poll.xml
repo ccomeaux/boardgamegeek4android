@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:layout_gravity="center"
 	android:padding="@dimen/padding_standard" >
@@ -14,12 +14,12 @@
 
 	<ScrollView
 		android:id="@+id/poll_scroll"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:visibility="gone" >
 
 		<LinearLayout
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
 			android:paddingLeft="@dimen/padding_standard"
@@ -27,7 +27,7 @@
 
 			<TextView
 				android:id="@+id/poll_vote_total"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center" />
 
@@ -41,14 +41,14 @@
 
 			<LinearLayout
 				android:id="@+id/poll_list"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:orientation="vertical" />
 
 			<LinearLayout
 				android:id="@+id/poll_key_container"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal" >
 
@@ -65,7 +65,7 @@
 				<View
 					android:id="@+id/poll_key_divider"
 					android:layout_width="1dp"
-					android:layout_height="fill_parent"
+					android:layout_height="match_parent"
 					android:background="@color/background_light_transparent"
 					android:visibility="gone" />
 

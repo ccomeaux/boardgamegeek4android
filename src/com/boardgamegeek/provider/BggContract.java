@@ -353,6 +353,11 @@ public class BggContract {
 				.build();
 		}
 
+		public static Uri buildPollResultsResultUri(int gameId, String pollName) {
+			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
+				.appendPath(PATH_POLL_RESULTS_RESULT).build();
+		}
+
 		public static Uri buildPollResultsResultUri(int gameId, String pollName, String key) {
 			return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
 				.appendPath(PATH_POLL_RESULTS_RESULT).build();
