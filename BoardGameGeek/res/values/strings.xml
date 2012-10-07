@@ -192,14 +192,14 @@
 	<string name="title_log_player">Log Player</string>
 	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
-	<string name="title_colors">Teams/Colors</string>
+	<string name="title_colors">Colors</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
 	<string name="title_generalforumlist">General Forums</string>
 	<string name="title_poll">Poll Information</string>
-	<string name="title_plays">Games Played</string>
-	<string name="title_play">Played Game</string>
+	<string name="title_plays">Plays</string>
+	<string name="title_play">Play</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
@@ -324,7 +324,7 @@
 	<string name="ages">Ages</string>
 	<string name="language_dependence">Language Dependence</string>
 	<string name="suggested_playerage">Suggested Ages</string>
-	<string name="suggested_numplayers">Suggested Number of Players</string>
+	<string name="suggested_numplayers">Suggested Players</string>
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
 	<string name="name">Name</string>

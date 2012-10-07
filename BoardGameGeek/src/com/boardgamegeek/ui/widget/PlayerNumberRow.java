@@ -48,6 +48,14 @@ public class PlayerNumberRow extends LinearLayout {
 		mBar.setNotRecommended(notRecommended);
 	}
 
+	public int[] getVotes() {
+		int[] votes = new int[3];
+		votes[0] = mBar.getBest();
+		votes[1] = mBar.getRecommended();
+		votes[2] = mBar.getNotRecommended();
+		return votes;
+	}
+
 	public void setHighlight() {
 		mTextView.setBackgroundResource(R.drawable.highlight);
 	}

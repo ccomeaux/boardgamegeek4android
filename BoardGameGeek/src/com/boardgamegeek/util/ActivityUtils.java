@@ -32,6 +32,10 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -44,6 +48,18 @@ import com.boardgamegeek.ui.LogPlayActivity;
 
 public class ActivityUtils {
 	private static final String TAG = makeLogTag(ActivityUtils.class);
+
+	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
+		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
+		Fragment prev = host.getFragmentManager().findFragmentByTag(tag);
+		if (prev != null) {
+			ft.remove(prev);
+		}
+		ft.addToBackStack(null);
+
+		dialog.setArguments(arguments);
+		dialog.show(ft, tag);
+	}
 
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);

@@ -274,21 +274,21 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				launchPoll(PollActivity.SUGGESTED_NUMPLAYERS);
+				launchPoll(PollFragment.SUGGESTED_NUMPLAYERS);
 			}
 		});
 
 		rootView.findViewById(R.id.game_info_suggested_ages_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				launchPoll(PollActivity.SUGGESTED_PLAYERAGE);
+				launchPoll(PollFragment.SUGGESTED_PLAYERAGE);
 			}
 		});
 
 		rootView.findViewById(R.id.game_info_languages_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				launchPoll(PollActivity.LANGUAGE_DEPENDENCE);
+				launchPoll(PollFragment.LANGUAGE_DEPENDENCE);
 			}
 		});
 
@@ -602,10 +602,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void launchPoll(String type) {
-		Intent intent = new Intent(getActivity(), PollActivity.class);
-		intent.putExtra(PollActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
-		intent.putExtra(PollActivity.KEY_TYPE, type);
-		startActivity(intent);
+		Bundle arguments = new Bundle(2);
+		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));
+		arguments.putString(PollFragment.KEY_TYPE, type);
+		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
 	private void triggerRefresh() {
