@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
@@ -69,7 +70,7 @@ public class Play {
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
-		init(0, -1, "");
+		init(0, BggContract.INVALID_ID, "");
 	}
 
 	public Play(int playId, int gameId, String gameName) {
@@ -143,8 +144,8 @@ public class Play {
 	public long Saved;
 
 	public Play populate(Cursor c) {
-		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID);
-		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID);
+		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID, 0);
+		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
 		GameName = CursorUtils.getString(c, PlayItems.NAME);
 		setDate(CursorUtils.getString(c, Plays.DATE));
 		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, 1);
@@ -231,7 +232,7 @@ public class Play {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
 		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
-		sb.append(" ").append(r.getString(R.string.share_play_on)).append(" ").append(getFormattedDate());
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getFormattedDate());
 		return sb.toString();
 	}
 
@@ -240,15 +241,15 @@ public class Play {
 		StringBuilder sb = new StringBuilder();
 		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
 		if (Quantity > 1) {
-			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.share_play_times));
+			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.times));
 		}
-		sb.append(" ").append(r.getString(R.string.share_play_on)).append(" ").append(getFormattedDate());
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getFormattedDate());
 		if (!TextUtils.isEmpty(Location)) {
-			sb.append(" ").append(r.getString(R.string.share_play_at)).append(" ").append(Location);
+			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(Location);
 		}
 		if (mPlayers.size() > 0) {
-			sb.append(" ").append(r.getString(R.string.share_play_with)).append(" ").append(mPlayers.size())
-				.append(" ").append(r.getString(R.string.share_play_players));
+			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(mPlayers.size()).append(" ")
+				.append(r.getString(R.string.players));
 		}
 		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
 		return sb.toString();

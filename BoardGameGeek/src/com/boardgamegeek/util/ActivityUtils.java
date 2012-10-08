@@ -19,7 +19,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -37,6 +40,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
@@ -61,6 +65,26 @@ public class ActivityUtils {
 		dialog.show(ft, tag);
 	}
 
+	public static Dialog createConfirmationDialog(Context context, int messageId,
+		DialogInterface.OnClickListener okListener) {
+		return createConfirmationDialog(context, messageId, null, okListener, null);
+	}
+
+	public static Dialog createConfirmationDialog(Context context, int messageId, View view,
+		DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
+			.setIcon(android.R.drawable.ic_dialog_alert).setNegativeButton(android.R.string.cancel, cancelListener)
+			.setPositiveButton(android.R.string.ok, okListener).setTitle(R.string.are_you_sure_title);
+		if (messageId != -1) {
+			builder.setMessage(messageId);
+		}
+		if (view != null) {
+			builder.setView(view);
+		}
+
+		return builder.create();
+	}
+
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
@@ -68,16 +92,21 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
+	public static void share(Context context, String subject, String text, int titleResId) {
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+		intent.putExtra(Intent.EXTRA_TEXT, text);
+		context.startActivity(Intent.createChooser(intent, context.getResources().getString(titleResId)));
+	}
+
 	public static void shareGame(Context context, int gameId, String gameName) {
 		Resources r = context.getResources();
-		Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(r.getString(R.string.share_subject), gameName));
-		shareIntent.putExtra(
-			Intent.EXTRA_TEXT,
+		share(
+			context,
+			String.format(r.getString(R.string.share_subject), gameName),
 			String.format(r.getString(R.string.share_text), gameName, "http://www.boardgamegeek.com/boardgame/"
-				+ gameId));
-		context.startActivity(Intent.createChooser(shareIntent, r.getString(R.string.share_title)));
+				+ gameId), R.string.share_title);
 	}
 
 	public static void logPlay(Context context, int playId, int gameId, String gameName) {
