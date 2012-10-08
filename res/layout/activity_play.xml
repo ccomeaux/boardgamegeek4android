@@ -1,184 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:orientation="vertical" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center"
+	android:padding="@dimen/padding_standard" >
 
-	<include layout="@layout/titlebar" />
-
-	<LinearLayout
-		android:id="@+id/update_panel"
-		android:layout_width="fill_parent"
+	<ProgressBar
+		android:id="@+id/progress"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@color/background_light"
-		android:gravity="center"
-		android:orientation="horizontal"
-		android:visibility="gone" >
-
-		<ProgressBar
-			android:layout_width="@dimen/progress_bar_small"
-			android:layout_height="@dimen/progress_bar_small"
-			android:padding="@dimen/padding_standard" />
-
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/msg_updating"
-			android:textSize="@dimen/text_size_xsmall" />
-	</LinearLayout>
-
-	<include layout="@layout/game_header" />
-
-	<include layout="@layout/header_divider" />
+		android:layout_gravity="center"
+		android:indeterminateOnly="true" />
 
 	<ScrollView
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" >
+		android:id="@+id/play_scroll"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fillViewport="true"
+		android:padding="@dimen/padding_standard"
+		android:visibility="gone" >
 
-		<LinearLayout
+		<RelativeLayout
 			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:gravity="top"
-			android:orientation="vertical"
-			android:padding="@dimen/padding_standard" >
-
-			<TextView
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/date" />
+			android:layout_height="wrap_content" >
 
 			<TextView
 				android:id="@+id/play_date"
 				style="@style/log_play_value"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
-
-			<TextView
-				android:id="@+id/play_quantity_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/quantity" />
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true" />
 
 			<TextView
 				android:id="@+id/play_quantity"
 				style="@style/log_play_value"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
-
-			<TextView
-				android:id="@+id/play_length_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/length" />
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_date" />
 
 			<TextView
 				android:id="@+id/play_length"
 				style="@style/log_play_value"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
-
-			<TextView
-				android:id="@+id/play_location_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/location" />
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_quantity" />
 
 			<TextView
 				android:id="@+id/play_location"
 				style="@style/log_play_value"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_length" />
 
 			<TextView
 				android:id="@+id/play_comments_label"
 				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_location"
 				android:text="@string/comments" />
 
 			<TextView
 				android:id="@+id/play_comments"
 				style="@style/log_play_value"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_comments_label" />
 
 			<TextView
 				android:id="@+id/play_incomplete"
 				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_comments"
 				android:text="@string/incomplete" />
 
 			<TextView
 				android:id="@+id/play_no_win_stats"
 				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_incomplete"
 				android:text="@string/noWinStats" />
-
-			<TextView
-				android:id="@+id/play_player_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/players" />
 
 			<LinearLayout
 				android:id="@+id/play_player_list"
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_no_win_stats"
 				android:orientation="vertical" />
 
-			<LinearLayout
-				android:layout_width="fill_parent"
+			<TextView
+				android:id="@+id/play_unsynced_message"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal" >
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_player_list"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_tiny" />
 
-				<TextView
-					android:id="@+id/updated"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:textColor="@color/light_text"
-					android:textSize="@dimen/text_size_tiny" />
-
-				<TextView
-					android:id="@+id/play_id"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:textColor="@color/light_text"
-					android:textSize="@dimen/text_size_tiny" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/play_unsynced"
-				android:layout_width="fill_parent"
+			<TextView
+				android:id="@+id/play_saved"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:visibility="gone" >
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_unsynced_message"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_tiny" />
 
-				<TextView
-					android:id="@+id/play_saved"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:textColor="@color/light_text"
-					android:textSize="@dimen/text_size_tiny" />
+			<TextView
+				android:id="@+id/play_id"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@+id/play_player_list"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_tiny" />
 
-				<TextView
-					android:id="@+id/play_unsynced_message"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:textColor="@color/light_text"
-					android:textSize="@dimen/text_size_tiny" />
-			</LinearLayout>
-		</LinearLayout>
+			<TextView
+				android:id="@+id/updated"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@+id/play_id"
+				android:textColor="@color/light_text"
+				android:textSize="@dimen/text_size_tiny" />
+		</RelativeLayout>
 	</ScrollView>
 
-</LinearLayout>
+</FrameLayout>
