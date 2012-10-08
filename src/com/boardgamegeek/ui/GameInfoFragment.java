@@ -624,7 +624,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			mIsRefreshing = true;
 			Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
 			mStartTime = System.currentTimeMillis();
-			// showLoadingMessage();
 			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
 			mExecutor = new RemoteExecutor(mHttpClient, getActivity().getContentResolver());
 		}
@@ -647,15 +646,16 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		@Override
 		protected void onPostExecute(String result) {
 			mIsRefreshing = false;
-			LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
-			// hideLoadingMessage();
-			String message;
-			if (TextUtils.isEmpty(result)) {
-				message = "Success!";
-			} else {
-				message = getString(R.string.msg_update_error) + "\n" + result;
+			if (isAdded()) {
+				LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
+				String message;
+				if (TextUtils.isEmpty(result)) {
+					message = "Success!";
+				} else {
+					message = getString(R.string.msg_update_error) + "\n" + result;
+				}
+				Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 			}
-			Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -856,7 +856,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			if (Updated == 0) {
 				return "Needs updating";
 			}
-			return DateUtils.getRelativeTimeSpanString(Updated, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
+			return DateUtils.getRelativeTimeSpanString(Updated);
 		}
 
 		public int getWeightDescriptionResId() {

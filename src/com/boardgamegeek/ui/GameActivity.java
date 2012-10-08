@@ -41,7 +41,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mGameId = Games.getGameId(getIntent().getData());
-		changeName(getIntent().getExtras().getString(KEY_GAME_NAME));
+		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(new GamePagerAdapter(getSupportFragmentManager()));

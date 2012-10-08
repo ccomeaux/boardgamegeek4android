@@ -249,8 +249,8 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 				holder.forumTitle.setText(forum.title);
 				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numthreads,
 					forum.numthreads));
-				holder.lastPost.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
-					forum.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
+				holder.lastPost.setText(String.format(mLastPostText,
+					DateUtils.getRelativeTimeSpanString(forum.lastpostdate)));
 				holder.lastPost.setVisibility((forum.lastpostdate > 0) ? View.VISIBLE : View.GONE);
 			}
 			return convertView;
