@@ -439,10 +439,9 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			holder.author.setText(String.format(mAuthorText, thread.author));
 			int replies = thread.numarticles - 1;
 			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies, replies));
-			holder.lastpostdate.setText(String.format(mLastPostText, DateUtils.getRelativeTimeSpanString(
-				thread.lastpostdate, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
-			holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(thread.postdate,
-				System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS, 0)));
+			holder.lastpostdate.setText(String.format(mLastPostText,
+				DateUtils.getRelativeTimeSpanString(thread.lastpostdate)));
+			holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(thread.postdate)));
 		}
 	}
 }
