@@ -19,6 +19,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -63,6 +64,16 @@ public class ActivityUtils {
 
 		dialog.setArguments(arguments);
 		dialog.show(ft, tag);
+	}
+
+	public static Dialog createCancelDialog(final Activity activity) {
+		return ActivityUtils.createConfirmationDialog(activity, R.string.are_you_sure_message,
+			new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					activity.setResult(Activity.RESULT_CANCELED);
+					activity.finish();
+				}
+			});
 	}
 
 	public static Dialog createConfirmationDialog(Context context, int messageId,

@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,10 +11,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,16 +21,20 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayerActivity extends Activity implements OnItemClickListener {
+public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
 	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -61,7 +60,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	private EditText mRating;
 	private CheckBox mNew;
 	private CheckBox mWin;
-	private AlertDialog mCancelDialog;
 
 	private boolean mTeamColorShown;
 	private boolean mPositionShown;
@@ -73,14 +71,17 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
 		setContentView(R.layout.activity_logplayer);
 		setUiVariables();
-		UIUtils.setTitle(this);
-		mCancelDialog = UIUtils.createCancelDialog(this);
 
 		final Intent intent = getIntent();
-		mGameId = intent.getExtras().getInt(KEY_GAME_ID);
-		mGameName = intent.getExtras().getString(KEY_GAME_NAME);
+		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		if (!TextUtils.isEmpty(mGameName)) {
+			getSupportActionBar().setSubtitle(mGameName);
+		}
 
 		if (savedInstanceState == null) {
 			mPlayer = new Player(intent);
@@ -96,10 +97,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		}
 
 		bindUi();
-
-		UIUtils u = new UIUtils(this);
-		u.setGameName(mGameName);
-		u.setThumbnail(mGameId);
 
 		mUsernameAdapter = new UsernameAdapter(this);
 		mUsername.setAdapter(mUsernameAdapter);
@@ -122,8 +119,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.logplayer, menu);
+		getSupportMenuInflater().inflate(R.menu.logplayer, menu);
 		return true;
 	}
 
@@ -135,12 +131,8 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			cancel();
-			return true;
-		}
-		return super.onKeyUp(keyCode, event);
+	public void onBackPressed() {
+		cancel();
 	}
 
 	private void setUiVariables() {
@@ -223,40 +215,38 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 					return false;
 				}
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.add_field);
-				builder.setItems(array, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						Resources r = getResources();
+				new AlertDialog.Builder(this).setTitle(R.string.add_field)
+					.setItems(array, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Resources r = getResources();
 
-						String selection = array[which].toString();
-						if (selection == r.getString(R.string.team_color)) {
-							mTeamColorShown = true;
-							findViewById(R.id.log_player_team_color_label).setVisibility(View.VISIBLE);
-							mTeamColor.setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.starting_position)) {
-							mPositionShown = true;
-							findViewById(R.id.log_player_position_label).setVisibility(View.VISIBLE);
-							mStartingPosition.setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.score)) {
-							mScoreShown = true;
-							findViewById(R.id.log_player_score_label).setVisibility(View.VISIBLE);
-							mScore.setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.rating)) {
-							mRatingShown = true;
-							findViewById(R.id.log_player_rating_label).setVisibility(View.VISIBLE);
-							mRating.setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.new_label)) {
-							mNewShown = true;
-							mNew.setVisibility(View.VISIBLE);
-						} else if (selection == r.getString(R.string.win)) {
-							mWinShown = true;
-							mWin.setVisibility(View.VISIBLE);
+							String selection = array[which].toString();
+							if (selection == r.getString(R.string.team_color)) {
+								mTeamColorShown = true;
+								findViewById(R.id.log_player_team_color_label).setVisibility(View.VISIBLE);
+								mTeamColor.setVisibility(View.VISIBLE);
+							} else if (selection == r.getString(R.string.starting_position)) {
+								mPositionShown = true;
+								findViewById(R.id.log_player_position_label).setVisibility(View.VISIBLE);
+								mStartingPosition.setVisibility(View.VISIBLE);
+							} else if (selection == r.getString(R.string.score)) {
+								mScoreShown = true;
+								findViewById(R.id.log_player_score_label).setVisibility(View.VISIBLE);
+								mScore.setVisibility(View.VISIBLE);
+							} else if (selection == r.getString(R.string.rating)) {
+								mRatingShown = true;
+								findViewById(R.id.log_player_rating_label).setVisibility(View.VISIBLE);
+								mRating.setVisibility(View.VISIBLE);
+							} else if (selection == r.getString(R.string.new_label)) {
+								mNewShown = true;
+								mNew.setVisibility(View.VISIBLE);
+							} else if (selection == r.getString(R.string.win)) {
+								mWinShown = true;
+								mWin.setVisibility(View.VISIBLE);
+							}
 						}
-					}
-				});
-				builder.show();
+					}).show();
 				return true;
 		}
 		return false;
@@ -290,27 +280,6 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 		return csa;
 	}
 
-	@Override
-	public void setTitle(CharSequence title) {
-		UIUtils.setTitle(this, title);
-	}
-
-	public void onHomeClick(View v) {
-		UIUtils.goHome(this);
-	}
-
-	public void onSearchClick(View v) {
-		onSearchRequested();
-	}
-
-	public void onSaveClick(View v) {
-		save();
-	}
-
-	public void onCancelClick(View v) {
-		cancel();
-	}
-
 	private void save() {
 		captureForm();
 		setResult(RESULT_OK, mPlayer.toIntent());
@@ -318,7 +287,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 	}
 
 	private void cancel() {
-		mCancelDialog.show();
+		ActivityUtils.createCancelDialog(this).show();
 	}
 
 	private void captureForm() {
@@ -334,7 +303,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	private class UsernameAdapter extends CursorAdapter {
 		public UsernameAdapter(Context context) {
-			super(context, null);
+			super(context, null, false);
 		}
 
 		@Override
@@ -378,7 +347,7 @@ public class LogPlayerActivity extends Activity implements OnItemClickListener {
 
 	private class ColorAdapter extends CursorAdapter {
 		public ColorAdapter(Context context) {
-			super(context, null);
+			super(context, null, false);
 		}
 
 		@Override
