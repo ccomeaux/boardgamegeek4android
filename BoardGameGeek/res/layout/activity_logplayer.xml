@@ -1,164 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:orientation="vertical" >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:fillViewport="true" >
 
-	<include layout="@layout/titlebar" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="top"
+		android:orientation="vertical"
+		android:padding="@dimen/padding_standard" >
 
-	<include layout="@layout/game_header" />
+		<TextView
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/username" />
 
-	<include layout="@layout/header_divider" />
+		<AutoCompleteTextView
+			android:id="@+id/log_player_username"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:completionThreshold="1"
+			android:dropDownHeight="wrap_content"
+			android:hint="@string/username"
+			android:imeOptions="actionNext"
+			android:inputType="text"
+			android:maxLength="63"
+			android:textColor="#000" />
 
-	<ScrollView
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" >
+		<TextView
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/player_name" />
+
+		<EditText
+			android:id="@+id/log_player_name"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/player_name"
+			android:inputType="textPersonName|textCapWords"
+			android:maxLength="255" />
+
+		<TextView
+			android:id="@+id/log_player_team_color_label"
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/team_color" />
+
+		<AutoCompleteTextView
+			android:id="@+id/log_player_team_color"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:dropDownHeight="wrap_content"
+			android:hint="@string/team_color"
+			android:imeOptions="actionNext"
+			android:inputType="textCapSentences"
+			android:maxLength="32"
+			android:textColor="#000" />
+
+		<TextView
+			android:id="@+id/log_player_position_label"
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/starting_position" />
+
+		<EditText
+			android:id="@+id/log_player_position"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/starting_position"
+			android:inputType="textCapWords"
+			android:maxLength="32" />
+
+		<TextView
+			android:id="@+id/log_player_score_label"
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/score" />
+
+		<EditText
+			android:id="@+id/log_player_score"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/score"
+			android:inputType="textCapWords"
+			android:maxLength="32" />
+
+		<TextView
+			android:id="@+id/log_player_rating_label"
+			style="@style/log_play_label"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/rating" />
+
+		<EditText
+			android:id="@+id/log_player_rating"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/rating"
+			android:inputType="numberDecimal"
+			android:maxLength="8" />
 
 		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:gravity="top"
-			android:orientation="vertical"
-			android:padding="@dimen/padding_standard" >
+			android:orientation="horizontal" >
 
-			<TextView
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
+			<CheckBox
+				android:id="@+id/log_player_new"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:text="@string/username" />
+				android:layout_weight="1"
+				android:text="@string/new_label" />
 
-			<AutoCompleteTextView
-				android:id="@+id/log_player_username"
-				android:layout_width="fill_parent"
+			<CheckBox
+				android:id="@+id/log_player_win"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:completionThreshold="1"
-				android:dropDownHeight="wrap_content"
-				android:hint="@string/username"
-				android:imeOptions="actionNext"
-				android:inputType="text"
-				android:maxLength="63"
-				android:textColor="#000" />
-
-			<TextView
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/player_name" />
-
-			<EditText
-				android:id="@+id/log_player_name"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/player_name"
-				android:inputType="textPersonName|textCapWords"
-				android:maxLength="255" />
-
-			<TextView
-				android:id="@+id/log_player_team_color_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/team_color" />
-
-			<AutoCompleteTextView
-				android:id="@+id/log_player_team_color"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:dropDownHeight="wrap_content"
-				android:hint="@string/team_color"
-				android:imeOptions="actionNext"
-				android:inputType="textCapSentences"
-				android:maxLength="32"
-				android:textColor="#000" />
-
-			<TextView
-				android:id="@+id/log_player_position_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/starting_position" />
-
-			<EditText
-				android:id="@+id/log_player_position"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/starting_position"
-				android:inputType="textCapWords"
-				android:maxLength="32" />
-
-			<TextView
-				android:id="@+id/log_player_score_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/score" />
-
-			<EditText
-				android:id="@+id/log_player_score"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/score"
-				android:inputType="textCapWords"
-				android:maxLength="32" />
-
-			<TextView
-				android:id="@+id/log_player_rating_label"
-				style="@style/log_play_label"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/rating" />
-
-			<EditText
-				android:id="@+id/log_player_rating"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/rating"
-				android:inputType="numberDecimal"
-				android:maxLength="8" />
-
-			<LinearLayout
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal" >
-
-				<CheckBox
-					android:id="@+id/log_player_new"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/new_label" />
-
-				<CheckBox
-					android:id="@+id/log_player_win"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/win" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:paddingTop="@dimen/padding_extra" >
-
-				<Button
-					android:id="@+id/logPlayerSaveButton"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:onClick="onSaveClick"
-					android:text="@string/save" />
-
-				<Button
-					android:id="@+id/logPlayerCancelButton"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:onClick="onCancelClick"
-					android:text="@string/cancel" />
-			</LinearLayout>
+				android:layout_weight="1"
+				android:text="@string/win" />
 		</LinearLayout>
-	</ScrollView>
+	</LinearLayout>
 
-</LinearLayout>
+</ScrollView>

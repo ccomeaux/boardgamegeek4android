@@ -176,7 +176,7 @@
 		<activity
 			android:name=".ui.LogPlayerActivity"
 			android:label="@string/title_log_player"
-			android:theme="@style/Theme.Bgg" />
+			android:theme="@style/Theme.BoardGameGeek" />
 		<activity
 			android:name=".ui.ForumsActivity"
 			android:exported="false"

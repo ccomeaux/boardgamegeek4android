@@ -54,6 +54,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.PlayerRow;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
@@ -105,7 +106,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
 	private Button mSendButton;
-	private AlertDialog mCancelDialog;
+	private Dialog mCancelDialog;
 
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -120,7 +121,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		setContentView(R.layout.activity_logplay);
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
-		mCancelDialog = UIUtils.createCancelDialog(this);
+		mCancelDialog = ActivityUtils.createCancelDialog(this);
 
 		final Intent intent = getIntent();
 		int playId = intent.getExtras().getInt(KEY_PLAY_ID);

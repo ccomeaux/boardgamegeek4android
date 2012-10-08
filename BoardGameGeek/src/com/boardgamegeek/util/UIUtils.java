@@ -4,7 +4,6 @@ import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -215,22 +214,6 @@ public class UIUtils {
 			mRandom = new Random();
 		}
 		return mRandom;
-	}
-
-	public static AlertDialog createCancelDialog(final Activity activity) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_message).setCancelable(false)
-			.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					activity.setResult(Activity.RESULT_CANCELED);
-					activity.finish();
-				}
-			}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			});
-		return builder.create();
 	}
 
 	public static void createBoardgameContextMenu(ContextMenu menu, ContextMenuInfo menuInfo, String gameName) {
