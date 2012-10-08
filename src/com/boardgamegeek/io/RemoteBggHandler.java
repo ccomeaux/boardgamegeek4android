@@ -78,7 +78,12 @@ public abstract class RemoteBggHandler extends XmlHandler {
 				if (getRootNodeName().equals(name)) {
 					mTotalCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
 					mPageNumber = StringUtils.parseInt(parser.getAttributeValue(null, getPageNumberAttributeName()));
-					LOGI(TAG, "Expecting " + mTotalCount + " items on " + mPageNumber + " pages");
+					if (mTotalCount > 0) {
+						LOGI(TAG, "Expecting " + mTotalCount + " items");
+					}
+					if (mPageNumber > 0) {
+						LOGI(TAG, "Handling page " + mPageNumber);
+					}
 					parseItems();
 				} else if (Tags.ANCHOR.equals(name)) {
 					String href = mParser.getAttributeValue(null, Tags.HREF);
