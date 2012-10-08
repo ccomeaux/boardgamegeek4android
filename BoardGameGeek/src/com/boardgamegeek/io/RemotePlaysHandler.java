@@ -42,6 +42,11 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 	}
 
 	@Override
+	protected String getTotalCountAttributeName() {
+		return Tags.TOTAL;
+	}
+
+	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
 		final int depth = mParser.getDepth();
 
@@ -151,6 +156,8 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 
 	private interface Tags {
 		String PLAYS = "plays";
+		String TOTAL = "total";
+
 		String PLAY = "play";
 		String ID = "id";
 		String DATE = "date";
