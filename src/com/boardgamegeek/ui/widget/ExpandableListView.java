@@ -1,12 +1,18 @@
 package com.boardgamegeek.ui.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -23,10 +29,11 @@ public class ExpandableListView extends RelativeLayout {
 	private TextView mSummaryView;
 	private ImageView mToggleView;
 	private LinearLayout mDetailView;
+	private boolean mClickable;
 	private boolean mExpanded;
-	private String[] mData;
 	private String mOneMore;
 	private String mSomeMore;
+	private List<Pair<String, Uri>> mData;
 
 	public ExpandableListView(Context context) {
 		super(context);
@@ -90,6 +97,7 @@ public class ExpandableListView extends RelativeLayout {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
 			try {
 				mLabelView.setText(a.getString(R.styleable.ExpandableListView_label));
+				mClickable = a.getBoolean(R.styleable.ExpandableListView_clickable, true);
 			} finally {
 				a.recycle();
 			}
@@ -106,14 +114,61 @@ public class ExpandableListView extends RelativeLayout {
 		mLabelView.setText(label);
 	}
 
-	public void setData(String[] data) {
-		mData = data;
+	public void addItem(String label, Uri uri) {
+		if (mData == null) {
+			mData = new ArrayList<Pair<String, Uri>>();
+		}
+		mData.add(new Pair<String, Uri>(label, uri));
 		updateData();
 	}
 
 	private void updateData() {
 		updateSummary();
 		updateDetail();
+	}
+
+	private void updateSummary() {
+		CharSequence summary = null;
+		if (mData != null) {
+			TextPaint paint = new TextPaint();
+			paint.setTextSize(mSummaryView.getTextSize());
+			summary = TextUtils.commaEllipsize(joinFirsts(), paint,
+				mSummaryView.getWidth() - mSummaryView.getPaddingLeft() - mSummaryView.getPaddingRight(), mOneMore,
+				mSomeMore);
+			if (TextUtils.isEmpty(summary)) {
+				summary = String.format(mSomeMore, mData.size());
+			}
+		}
+		mSummaryView.setText(summary);
+	}
+
+	private void updateDetail() {
+		mDetailView.removeAllViews();
+		if (mData != null) {
+			List<Pair<String, Uri>> data = mData;
+			for (final Pair<String, Uri> item : data) {
+				Button button = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
+				button.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT));
+				button.setText(item.first);
+				button.setTag(item.second);
+				button.setEnabled(mClickable && item.second != null);
+				button.setOnClickListener(onClick());
+				mDetailView.addView(button);
+			}
+		}
+	}
+
+	private OnClickListener onClick() {
+		return new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Uri uri = (Uri) v.getTag();
+				if (uri != null) {
+					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+				}
+			}
+		};
 	}
 
 	private void expandOrCollapse() {
@@ -123,32 +178,18 @@ public class ExpandableListView extends RelativeLayout {
 		requestLayout();
 	}
 
-	private void updateSummary() {
-		CharSequence summary = null;
-		if (mData != null) {
-			String list = TextUtils.join(", ", mData);
-			TextPaint paint = new TextPaint();
-			paint.setTextSize(mSummaryView.getTextSize());
-			summary = TextUtils.commaEllipsize(list, paint, mSummaryView.getWidth() - mSummaryView.getPaddingLeft()
-				- mSummaryView.getPaddingRight(), mOneMore, mSomeMore);
-			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(mSomeMore, mData.length);
+	private String joinFirsts() {
+		StringBuilder sb = new StringBuilder();
+		boolean firstTime = true;
+		for (Pair<String, Uri> item : mData) {
+			if (firstTime) {
+				firstTime = false;
+			} else {
+				sb.append(", ");
 			}
+			sb.append(item.first);
 		}
-		mSummaryView.setText(summary);
-	}
-
-	private void updateDetail() {
-		mDetailView.removeAllViews();
-		if (mData != null) {
-			for (String d : mData) {
-				Button button = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
-				button.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT));
-				button.setText(d);
-				mDetailView.addView(button);
-			}
-		}
+		return sb.toString();
 	}
 
 	private static class SavedState extends BaseSavedState {

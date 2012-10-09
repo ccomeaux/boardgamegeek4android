@@ -260,6 +260,7 @@
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:padding="@dimen/padding_standard"
+				bgg:clickable="false"
 				bgg:label="@string/designers" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
@@ -269,6 +270,7 @@
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:padding="@dimen/padding_standard"
+				bgg:clickable="false"
 				bgg:label="@string/artists" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
@@ -278,6 +280,7 @@
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:padding="@dimen/padding_standard"
+				bgg:clickable="false"
 				bgg:label="@string/publishers" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
@@ -287,6 +290,7 @@
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:padding="@dimen/padding_standard"
+				bgg:clickable="false"
 				bgg:label="@string/categories" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
@@ -296,6 +300,7 @@
 				android:layout_marginBottom="@dimen/padding_standard"
 				android:background="@drawable/grey_frame_on_white_b"
 				android:padding="@dimen/padding_standard"
+				bgg:clickable="false"
 				bgg:label="@string/mechanics" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
