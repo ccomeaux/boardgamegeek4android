@@ -150,7 +150,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
-	<string name="players">Players</string>
+	<string name="title_players">Players</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>

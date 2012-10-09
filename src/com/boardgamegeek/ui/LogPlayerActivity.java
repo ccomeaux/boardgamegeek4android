@@ -148,6 +148,18 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mUsername.setOnItemClickListener(this);
 	}
 
+	private void bindUi() {
+		mName.setText(mPlayer.Name);
+		mUsername.setText(mPlayer.Username);
+		mTeamColor.setText(mPlayer.TeamColor);
+		mStartingPosition.setText(mPlayer.StartingPosition);
+		mScore.setText(mPlayer.Score);
+		mRating.setText(String.valueOf(mPlayer.Rating));
+		mNew.setChecked(mPlayer.New);
+		mWin.setChecked(mPlayer.Win);
+		hideFields();
+	}
+
 	private void hideFields() {
 		findViewById(R.id.log_player_team_color_label).setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
 		mTeamColor.setVisibility(hideTeamColor() ? View.GONE : View.VISIBLE);
@@ -186,18 +198,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private boolean hideWin() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerWin() && !mWinShown && !mPlayer.Win;
-	}
-
-	private void bindUi() {
-		mName.setText(mPlayer.Name);
-		mUsername.setText(mPlayer.Username);
-		mTeamColor.setText(mPlayer.TeamColor);
-		mStartingPosition.setText(mPlayer.StartingPosition);
-		mScore.setText(mPlayer.Score);
-		mRating.setText(String.valueOf(mPlayer.Rating));
-		mNew.setChecked(mPlayer.New);
-		mWin.setChecked(mPlayer.Win);
-		hideFields();
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 					}).show();
 				return true;
 		}
-		return false;
+		return super.onOptionsItemSelected(item);
 	}
 
 	private CharSequence[] createAddFieldArray() {

@@ -1,19 +1,23 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,11 +26,12 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -40,6 +45,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
@@ -58,22 +66,16 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
-import com.boardgamegeek.util.NotifyingAsyncQueryHandler;
-import com.boardgamegeek.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayActivity extends Activity implements LogInListener, AsyncQueryListener {
+public class LogPlayActivity extends SherlockFragmentActivity implements LogInListener,
+	LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 1;
-	private static final int DATE_DIALOG_ID = 0;
-	private static final int LOGGING_DIALOG_ID = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
 	private static final int NOTIFICATION_ID = 2;
-
-	private static final int TOKEN_PLAY = 1;
-	private static final int TOKEN_PLAYER = 2;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -86,7 +88,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 
-	private NotifyingAsyncQueryHandler mHandler;
 	private LocationAdapter mLocationAdapter;
 
 	private Play mPlay;
@@ -105,8 +106,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
-	private Button mSendButton;
-	private Dialog mCancelDialog;
+	private View mProgressView;
 
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -119,9 +119,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
+		getSupportActionBar().setHomeButtonEnabled(false);
 		setUiVariables();
 		mLogInHelper = new LogInHelper(this, this);
-		mCancelDialog = ActivityUtils.createCancelDialog(this);
 
 		final Intent intent = getIntent();
 		int playId = intent.getExtras().getInt(KEY_PLAY_ID);
@@ -134,6 +134,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			Toast.makeText(this, "Can't log a play without a game ID.", Toast.LENGTH_LONG).show();
 			finish();
 		}
+		changeName(gameName);
 
 		if (savedInstanceState != null) {
 			mPlay = new Play(savedInstanceState);
@@ -145,7 +146,10 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
-			startQuery();
+			if (playId > 0) {
+				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+			}
 		}
 
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -157,8 +161,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			finish();
 		}
 
-		UIUtils.setGameHeader(this, mPlay.GameName, mPlay.GameId);
-		// new UIUtils(this).setThumbnail(mPlay.GameId);
 		bindUi();
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
@@ -200,31 +202,19 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-			case DATE_DIALOG_ID:
-				return new DatePickerDialog(this, mDateSetListener, mPlay.Year, mPlay.Month, mPlay.Day);
-			case LOGGING_DIALOG_ID:
-				ProgressDialog dialog = new ProgressDialog(this);
-				dialog.setTitle(R.string.logPlayDialogTitle);
-				dialog.setMessage(getResources().getString(R.string.logPlayDialogMessage));
-				dialog.setIndeterminate(true);
-				dialog.setCancelable(true);
-				return dialog;
-		}
-		return null;
+	public void onBackPressed() {
+		cancel();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.logplay, menu);
+		getSupportMenuInflater().inflate(R.menu.logplay, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_send).setEnabled(mSendButton.isEnabled());
+		menu.findItem(R.id.menu_send).setEnabled(mLogInHelper != null && mLogInHelper.checkCookies());
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
 		menu.findItem(R.id.menu_add_field).setEnabled(
 			hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments() || hidePlayers());
@@ -258,57 +248,52 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		return false;
 	}
 
-	private void startQuery() {
-		if (mHandler == null) {
-			mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-		}
-		if (mPlay.PlayId > 0) {
-			mHandler.startQuery(TOKEN_PLAY, Plays.buildPlayUri(mPlay.PlayId), PlayQuery.PROJECTION);
-			mHandler.startQuery(TOKEN_PLAYER, Plays.buildPlayerUri(mPlay.PlayId), PlayerQuery.PROJECTION);
-		}
-	}
-
 	private void promptAddField(final CharSequence[] array) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.add_field);
-		builder.setItems(array, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Resources r = getResources();
-
-				String selection = array[which].toString();
-				if (selection == r.getString(R.string.length)) {
-					mLengthShown = true;
-					findViewById(R.id.log_play_length_label).setVisibility(View.VISIBLE);
-					mLengthView.setVisibility(View.VISIBLE);
-				} else if (selection == r.getString(R.string.location)) {
-					mLocationShown = true;
-					findViewById(R.id.log_play_location_label).setVisibility(View.VISIBLE);
-					mLocationView.setVisibility(View.VISIBLE);
-				} else if (selection == r.getString(R.string.incomplete)) {
-					mIncompleteShown = true;
-					findViewById(R.id.log_play_incomplete).setVisibility(View.VISIBLE);
-				} else if (selection == r.getString(R.string.noWinStats)) {
-					mNoWinStatsShown = true;
-					findViewById(R.id.log_play_no_win_stats).setVisibility(View.VISIBLE);
-				} else if (selection == r.getString(R.string.comments)) {
-					mCommentsShown = true;
-					findViewById(R.id.log_play_comments_label).setVisibility(View.VISIBLE);
-					findViewById(R.id.log_play_comments).setVisibility(View.VISIBLE);
-				} else if (selection == r.getString(R.string.players)) {
-					mPlayersShown = true;
-					mPlayerLabel.setVisibility(View.VISIBLE);
-					findViewById(R.id.log_play_players_add).setVisibility(View.VISIBLE);
+		new AlertDialog.Builder(this).setTitle(R.string.add_field)
+			.setItems(array, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Resources r = getResources();
+					String selection = array[which].toString();
+					if (selection == r.getString(R.string.length)) {
+						mLengthShown = true;
+						findViewById(R.id.log_play_length_label).setVisibility(View.VISIBLE);
+						mLengthView.setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.location)) {
+						mLocationShown = true;
+						findViewById(R.id.log_play_location_label).setVisibility(View.VISIBLE);
+						mLocationView.setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.incomplete)) {
+						mIncompleteShown = true;
+						findViewById(R.id.log_play_incomplete).setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.noWinStats)) {
+						mNoWinStatsShown = true;
+						findViewById(R.id.log_play_no_win_stats).setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.comments)) {
+						mCommentsShown = true;
+						findViewById(R.id.log_play_comments_label).setVisibility(View.VISIBLE);
+						findViewById(R.id.log_play_comments).setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.players)) {
+						mPlayersShown = true;
+						mPlayerLabel.setVisibility(View.VISIBLE);
+						findViewById(R.id.log_play_players_add).setVisibility(View.VISIBLE);
+					}
 				}
-			}
-		});
-		builder.show();
+			}).show();
 	}
 
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		cancel();
+	private void logPlay() {
+		captureForm();
+		LogPlayTask task = new LogPlayTask();
+		task.execute(mPlay);
+	}
+
+	private void quickLogPlay() {
+		if (mLogInHelper.checkCookies()) {
+			logPlay();
+		} else {
+			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void save() {
@@ -340,6 +325,11 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, builder.build());
 	}
 
+	private void cancel() {
+		// TODO: check if data is dirty
+		ActivityUtils.createCancelDialog(this).show();
+	}
+
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
@@ -368,21 +358,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		return array;
 	}
 
-	@Override
-	public void setTitle(CharSequence title) {
-		UIUtils.setTitle(this, title);
-	}
-
-	public void onHomeClick(View v) {
-		UIUtils.goHome(this);
-	}
-
-	public void onSearchClick(View v) {
-		onSearchRequested();
-	}
-
 	public void onDateClick(View v) {
-		showDialog(DATE_DIALOG_ID);
+		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
+		Bundle bundle = new Bundle();
+		bundle.putString(DatePickerFragment.KEY_DATE, mPlay.getFormattedDate());
+		fragment.setArguments(bundle);
+		fragment.show(getSupportFragmentManager(), "datePicker");
 	}
 
 	public void onAddPlayerClick(View v) {
@@ -390,44 +371,6 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			addPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
 			addPlayer(new Player());
-		}
-	}
-
-	public void onSendClick(View v) {
-		logPlay();
-	}
-
-	public void onCancelClick(View v) {
-		cancel();
-	}
-
-	@Override
-	public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-		try {
-			if (token == TOKEN_PLAY) {
-				if (!cursor.moveToFirst()) {
-					return;
-				}
-
-				mPlay.GameName = cursor.getString(PlayQuery.NAME);
-				UIUtils.setGameName(this, mPlay.GameName);
-				mPlay.populate(cursor);
-				if (mStartTime > 0) {
-					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
-				}
-				bindUi();
-			} else if (token == TOKEN_PLAYER) {
-				mPlay.clearPlayers();
-				while (cursor.moveToNext()) {
-					Player player = new Player(cursor);
-					mPlay.addPlayer(player);
-				}
-				bindUi();
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
 		}
 	}
 
@@ -446,6 +389,11 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 	}
 
 	private void bindUi() {
+		bindUiPlay();
+		bindUiPlayers();
+	}
+
+	private void bindUiPlay() {
 		setDateButtonText();
 		mQuantityView.setText(String.valueOf(mPlay.Quantity));
 		mLengthView.setText(String.valueOf(mPlay.Length));
@@ -453,6 +401,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
 		mCommentsView.setText(mPlay.Comments);
+	}
+
+	private void bindUiPlayers() {
 		mPlayerList.removeAllViews();
 		for (Player player : mPlay.getPlayers()) {
 			addPlayer(player);
@@ -474,9 +425,9 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		Resources r = getResources();
 		int playerCount = mPlayerList.getChildCount();
 		if (playerCount <= 0) {
-			mPlayerLabel.setText(r.getString(R.string.players));
+			mPlayerLabel.setText(r.getString(R.string.title_players));
 		} else {
-			mPlayerLabel.setText(r.getString(R.string.players) + " - " + String.valueOf(playerCount));
+			mPlayerLabel.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
 		}
 	}
 
@@ -520,7 +471,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
 		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
-		mSendButton = (Button) findViewById(R.id.log_play_send);
+		mProgressView = findViewById(R.id.progress);
 	}
 
 	private void hideFields() {
@@ -563,31 +514,12 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 			&& (mPlay.getPlayers().size() == 0);
 	}
 
-	private void quickLogPlay() {
-		if (mLogInHelper.checkCookies()) {
-			logPlay();
-		} else {
-			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG).show();
-		}
-	}
-
-	private void logPlay() {
-		captureForm();
-		LogPlayTask task = new LogPlayTask();
-		task.execute(mPlay);
-	}
-
-	private void cancel() {
-		// TODO: check if data is dirty
-		mCancelDialog.show();
-	}
-
 	class LogPlayTask extends AsyncTask<Play, Void, PlaySender.Result> {
 		Play mPlay;
 
 		@Override
 		protected void onPreExecute() {
-			showDialog(LOGGING_DIALOG_ID);
+			mProgressView.setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -640,7 +572,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		@Override
 		protected void onPostExecute(PlaySender.Result result) {
 			LOGD(TAG, "play result: " + result);
-			removeDialog(LOGGING_DIALOG_ID);
+			mProgressView.setVisibility(View.GONE);
 			if (result.isValidResponse()) {
 				String message = getResources().getString(R.string.msg_play_updated);
 				if (!mPlay.hasBeenSynced()) {
@@ -677,13 +609,8 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		mDateButton.setText(mPlay.getDateText());
 	}
 
-	private void enableSend() {
-		mSendButton.setEnabled(true);
-	}
-
 	@Override
 	public void onLogInSuccess() {
-		enableSend();
 	}
 
 	@Override
@@ -723,7 +650,7 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 
 	private class LocationAdapter extends CursorAdapter {
 		public LocationAdapter(Context context) {
-			super(context, null);
+			super(context, null, false);
 		}
 
 		@Override
@@ -755,21 +682,108 @@ public class LogPlayActivity extends Activity implements LogInListener, AsyncQue
 		}
 	}
 
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		CursorLoader loader = null;
+		switch (id) {
+			case PlayQuery._TOKEN:
+				loader = new CursorLoader(this, mPlay.uri(), PlayQuery.PROJECTION, null, null, null);
+				break;
+			case PlayerQuery._TOKEN:
+				loader = new CursorLoader(this, mPlay.playerUri(), PlayerQuery.PROJECTION, null, null, null);
+				break;
+		}
+		return loader;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+		switch (loader.getId()) {
+			case PlayQuery._TOKEN:
+				if (cursor == null || !cursor.moveToFirst()) {
+					return;
+				}
+
+				mPlay.populate(cursor);
+				if (mStartTime > 0) {
+					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
+				}
+				changeName(mPlay.GameName);
+				bindUiPlay();
+				break;
+			case PlayerQuery._TOKEN:
+				mPlay.clearPlayers();
+				while (cursor.moveToNext()) {
+					Player player = new Player(cursor);
+					mPlay.addPlayer(player);
+				}
+				bindUiPlayers();
+				break;
+			default:
+				if (cursor != null && !cursor.isClosed()) {
+					cursor.close();
+				}
+				break;
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	private void changeName(String gameName) {
+		if (!TextUtils.isEmpty(gameName)) {
+			getSupportActionBar().setSubtitle(gameName);
+		}
+	}
+
 	private interface PlayQuery {
+		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
 			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
-
-		int NAME = 1;
 	}
 
 	private interface PlayerQuery {
+		int _TOKEN = 0x02;
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
 			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 
 	private interface LocationQuery {
 		String[] PROJECTION = { Plays._ID, Plays.LOCATION };
-
 		int LOCATION = 1;
+	}
+
+	public static class DatePickerFragment extends DialogFragment {
+		public static final String KEY_DATE = "DATE";
+
+		private OnDateSetListener mListener;
+
+		@SuppressLint("ValidFragment")
+		public DatePickerFragment() {
+		}
+
+		@SuppressLint("ValidFragment")
+		public DatePickerFragment(DatePickerDialog.OnDateSetListener listener) {
+			mListener = listener;
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			Calendar calendar = Calendar.getInstance();
+			if (getArguments() != null) {
+				String date = getArguments().getString(KEY_DATE);
+				try {
+					calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(date));
+				} catch (ParseException e) {
+					LOGE(TAG, e.toString());
+				}
+			}
+			int year = calendar.get(Calendar.YEAR);
+			int month = calendar.get(Calendar.MONTH);
+			int day = calendar.get(Calendar.DAY_OF_MONTH);
+			return new DatePickerDialog(getActivity(), mListener, year, month, day);
+		}
 	}
 }
