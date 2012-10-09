@@ -9,6 +9,7 @@
 	</declare-styleable>
 	<declare-styleable name="ExpandableListView">
 		<attr name="label" format="string" />
+		<attr name="clickable" format="boolean" />
 	</declare-styleable>
 
 </resources>
