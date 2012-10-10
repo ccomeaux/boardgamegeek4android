@@ -383,28 +383,9 @@ public class CollectionActivity extends ListActivity implements AsyncQueryListen
 				ActivityUtils.shareGame(this, gameId, gameName);
 				return true;
 			}
-			case UIUtils.MENU_ITEM_LINKS: {
-				mLinksMenuInfo = info;
-				return true;
-			}
 			case UIUtils.MENU_ITEM_LINK_BGG: {
 				ActivityUtils.linkBgg(this, gameId);
 				return true;
-			}
-			case UIUtils.MENU_ITEM_LINK_BG_PRICES: {
-				ActivityUtils.linkBgPrices(this, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_LINK_AMAZON: {
-				ActivityUtils.linkAmazon(this, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_LINK_EBAY: {
-				ActivityUtils.linkEbay(this, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_COMMENTS: {
-				return false;
 			}
 		}
 		return false;
