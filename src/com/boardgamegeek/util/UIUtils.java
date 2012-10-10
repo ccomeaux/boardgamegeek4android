@@ -22,7 +22,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -40,12 +39,7 @@ public class UIUtils {
 	public static final int MENU_ITEM_LOG_PLAY = Menu.FIRST + 1;
 	public static final int MENU_ITEM_QUICK_LOG_PLAY = Menu.FIRST + 2;
 	public static final int MENU_ITEM_SHARE = Menu.FIRST + 3;
-	public static final int MENU_ITEM_LINKS = Menu.FIRST + 4;
-	public static final int MENU_ITEM_LINK_BGG = Menu.FIRST + 5;
-	public static final int MENU_ITEM_LINK_BG_PRICES = Menu.FIRST + 6;
-	public static final int MENU_ITEM_LINK_AMAZON = Menu.FIRST + 7;
-	public static final int MENU_ITEM_LINK_EBAY = Menu.FIRST + 8;
-	public static final int MENU_ITEM_COMMENTS = Menu.FIRST + 9;
+	public static final int MENU_ITEM_LINK_BGG = Menu.FIRST + 4;
 
 	private Activity mActivity;
 	private static Random mRandom;
@@ -227,13 +221,8 @@ public class UIUtils {
 		if (!BggApplication.getInstance().getPlayLoggingHideQuickMenu()) {
 			menu.add(0, MENU_ITEM_QUICK_LOG_PLAY, 0, R.string.menu_log_play_quick);
 		}
-		menu.add(0, MENU_ITEM_COMMENTS, 0, R.string.menu_comments);
 		menu.add(0, MENU_ITEM_SHARE, 0, R.string.menu_share);
-		SubMenu links = menu.addSubMenu(0, MENU_ITEM_LINKS, 0, R.string.menu_links);
-		links.add(0, MENU_ITEM_LINK_BGG, 0, R.string.menu_link_bgg);
-		links.add(0, MENU_ITEM_LINK_BG_PRICES, 0, R.string.menu_link_bg_prices);
-		links.add(0, MENU_ITEM_LINK_AMAZON, 0, R.string.menu_link_amazon);
-		links.add(0, MENU_ITEM_LINK_EBAY, 0, R.string.menu_link_ebay);
+		menu.add(0, MENU_ITEM_LINK_BGG, 0, R.string.menu_link_bgg);
 	}
 
 	public static void showHelpDialog(Context context, final String key, final int version, int messageId) {

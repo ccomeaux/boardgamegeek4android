@@ -1,21 +1,13 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
-import android.app.SearchManager;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
-import android.widget.SearchView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
-public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity {
+public abstract class SimpleSinglePaneActivity extends BaseActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private Fragment mFragment;
 
@@ -26,13 +18,15 @@ public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity 
 		setContentView(R.layout.activity_singlepane_empty);
 
 		if (savedInstanceState == null) {
-			mFragment = onCreatePane();
-			mFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
-				.commit();
+			parseIntent(getIntent());
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
+	}
+
+	@Override
+	public void onNewIntent(Intent intent) {
+		parseIntent(intent);
 	}
 
 	/**
@@ -45,43 +39,9 @@ public abstract class SimpleSinglePaneActivity extends SherlockFragmentActivity 
 		return mFragment;
 	}
 
-	protected abstract int getOptionsMenuId();
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		if (getOptionsMenuId() != 0) {
-			getSupportMenuInflater().inflate(getOptionsMenuId(), menu);
-			setupSearchMenuItem(menu);
-		}
-		return true;
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null && VersionUtils.hasHoneycomb()) {
-			SearchView searchView = (SearchView) searchItem.getActionView();
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				NavUtils.navigateUpFromSameTask(this);
-				return true;
-			case R.id.menu_search:
-				if (!VersionUtils.hasHoneycomb()) {
-					onSearchRequested();
-					return true;
-				}
-				break;
-		}
-		return super.onOptionsItemSelected(item);
+	private void parseIntent(Intent intent) {
+		mFragment = onCreatePane();
+		mFragment.setArguments(UIUtils.intentToFragmentArguments(intent));
+		getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE).commit();
 	}
 }

@@ -156,15 +156,18 @@
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="false"
-			android:label="@string/search_label"
+			android:label="@string/title_search_results"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
 			<meta-data
 				android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
