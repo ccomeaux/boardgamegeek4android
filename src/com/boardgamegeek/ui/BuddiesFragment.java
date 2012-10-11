@@ -46,12 +46,12 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	private int mSelectedBuddyId;
 
 	public interface Callbacks {
-		public boolean onBuddySelected(int buddyId);
+		public boolean onBuddySelected(int buddyId, String buddyName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onBuddySelected(int buddyId) {
+		public boolean onBuddySelected(int buddyId, String buddyName) {
 			return true;
 		}
 	};
@@ -150,7 +150,8 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
-		if (mCallbacks.onBuddySelected(buddyId)) {
+		final String buddyName = cursor.getString(BuddiesQuery.NAME);
+		if (mCallbacks.onBuddySelected(buddyId, buddyName)) {
 			setSelectedBuddyId(buddyId);
 		}
 	}
