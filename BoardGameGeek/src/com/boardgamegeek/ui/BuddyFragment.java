@@ -1,246 +1,256 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.client.HttpClient;
+
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.util.ImageFetcher;
+import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
+import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.XmlHandler.HandlerException;
+import com.boardgamegeek.model.BuddyGame;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private Uri mBuddyUri;
-
-	private TextView mFullName;
-	private TextView mName;
-	private TextView mId;
-	private ImageView mAvatar;
-
-	private ImageFetcher mImageFetcher;
-
+public class BuddyFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
+	private static final String TAG = makeLogTag(BuddyFragment.class);
+	
+	private static final int BUDDY_GAMES_LOADER_ID = 105;
+	
+	private BuddyGamesAdapter mGamesAdapter;
+	private int mBuddyId;
+	private String mUrl;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mBuddyUri = intent.getData();
+		mBuddyId = intent.getIntExtra(BuddiesActivity.KEY_BUDDY_ID, BggContract.INVALID_ID);
+		String mBuddyName = intent.getStringExtra(BuddiesActivity.KEY_BUDDY_NAME);
 
-		if (mBuddyUri == null) {
+		if (mBuddyId == BggContract.INVALID_ID || TextUtils.isEmpty(mBuddyName)) {
 			return;
 		}
 
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setImageFadeIn(false);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
-
+		mUrl = HttpUtils.constructBriefCollectionUrl(mBuddyName, "own");
+		
 		setHasOptionsMenu(true);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, null);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_buddy_collection));
+		getLoaderManager().initLoader(BUDDY_GAMES_LOADER_ID, null, this);
+	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		view.setBackgroundColor(Color.WHITE);
 
-		mFullName = (TextView) rootView.findViewById(R.id.buddy_full_name);
-		mName = (TextView) rootView.findViewById(R.id.buddy_name);
-		mId = (TextView) rootView.findViewById(R.id.buddy_id);
-		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
-
-		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
-
-		return rootView;
+		final ListView listView = getListView();
+		listView.setFastScrollEnabled(true);
+		listView.setCacheColorHint(Color.WHITE);
+		listView.setSelector(android.R.color.transparent);
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.flushCache();
+	public Loader<List<BuddyGame>> onCreateLoader(int id, Bundle data) {
+		return new BuddyGamesLoader(getActivity(), mUrl);
 	}
 
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		if (id == BuddyQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mBuddyUri, BuddyQuery.PROJECTION, null, null, null);
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(Loader<List<BuddyGame>> loader, List<BuddyGame> games) {
 		if (getActivity() == null) {
 			return;
 		}
+		
+		mGamesAdapter = new BuddyGamesAdapter(getActivity(), games);
+		setListAdapter(mGamesAdapter);
 
-		if (loader.getId() == BuddyQuery._TOKEN) {
-			onBuddyQueryComplete(cursor);
+		if (loaderHasError()) {
+			setEmptyText(loaderErrorMessage());
 		} else {
-			cursor.close();
+			if (isResumed()) {
+				setListShown(true);
+			} else {
+				setListShownNoAnimation(true);
+			}
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(Loader<List<BuddyGame>> loader) {
+	}
+	
+	private boolean loaderHasError() {
+		final BuddyGamesLoader loader = getLoader();
+		return (loader != null) ? loader.hasError() : false;
 	}
 
-	private void onBuddyQueryComplete(Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			return;
+	private String loaderErrorMessage() {
+		final BuddyGamesLoader loader = getLoader();
+		return (loader != null) ? loader.getErrorMessage() : "";
+	}
+	
+	private BuddyGamesLoader getLoader() {
+		if (isAdded()) {
+			Loader<List<BuddyGame>> loader = getLoaderManager().getLoader(BUDDY_GAMES_LOADER_ID);
+			return (BuddyGamesLoader) loader;
+		}
+		return null;
+	}
+
+	public static class BuddyGamesAdapter extends ArrayAdapter<BuddyGame> {
+		private List<BuddyGame> mBuddyGames;
+		private LayoutInflater mInflater;
+		
+		public BuddyGamesAdapter(Activity activity, List<BuddyGame> games) {
+			super(activity, R.layout.row_collection, games);
+			mInflater = activity.getLayoutInflater();
+			mBuddyGames = games;
+		}
+		
+		 @Override
+		 public View getView(int position, View convertView, ViewGroup parent) {
+			BuddyGameViewHolder holder;
+			if (convertView == null) {
+				convertView = mInflater.inflate(R.layout.row_collection, parent,
+						false);
+				holder = new BuddyGameViewHolder(convertView);
+				convertView.setTag(holder);
+			} else {
+				holder = (BuddyGameViewHolder) convertView.getTag();
+			}
+			
+			BuddyGame game;
+			try {
+				game = mBuddyGames.get(position);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return convertView;
+			}
+			if (game != null) {
+				holder.name.setText(game.Name);
+				holder.year.setText(game.Year);
+				holder.id = game.Id;
+			}
+			return convertView;
+		 }
+	}
+	
+	public static class BuddyGameViewHolder {
+		public TextView name;
+		public TextView year;
+		public String id;
+
+		public BuddyGameViewHolder(View view) {
+			name = (TextView) view.findViewById(R.id.name);
+			year = (TextView) view.findViewById(R.id.year);
+		}
+	}
+
+	@Override
+	public void onListItemClick(ListView listView, View convertView, int position, long id) {
+		super.onListItemClick(listView, convertView, position, id);
+		BuddyGameViewHolder holder = (BuddyGameViewHolder) convertView
+				.getTag();
+		if (holder != null) {
+			ActivityUtils.launchGame(getActivity(), Integer.parseInt(holder.id), holder.name.getText().toString());
+		}
+	 }
+	
+	private static class BuddyGamesLoader extends AsyncTaskLoader<List<BuddyGame>> {
+
+		private String mUrl;
+		private String mErrorMessage;
+
+		public BuddyGamesLoader(Context context, String url) {
+			super(context);
+			mUrl = url;
+			mErrorMessage = "";
 		}
 
-		int id = cursor.getInt(BuddyQuery.BUDDY_ID);
-		String firstName = cursor.getString(BuddyQuery.FIRSTNAME).trim();
-		String lastName = cursor.getString(BuddyQuery.LASTNAME).trim();
-		String name = cursor.getString(BuddyQuery.NAME);
+		@Override
+		public List<BuddyGame> loadInBackground() {
+			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteBuddyCollectionHandler handler = new RemoteBuddyCollectionHandler();
+			
+			LOGI(TAG, "Loading buddy collection from " + mUrl);
+			try {
+				executor.executeGet(mUrl, handler);
 
-		mFullName.setText(firstName + " " + lastName);
-		mName.setText(name);
-		mId.setText(String.valueOf(id));
+				if (handler.isBggDown()) {
+					handleError(getContext().getString(R.string.bgg_down));
+				} else {
+					mErrorMessage = "";
+				}
+			} catch (HandlerException e) {
+				LOGE(TAG, "getting buddy collection", e);
+				mErrorMessage = e.getMessage();
+			}
+			return handler.getResults();
+		}
+		
+		private void handleError(String message) {
+			mErrorMessage = message;
+		}
+		
+		@Override
+		public void deliverResult(List<BuddyGame> games) {
+			if (isStarted()) {
+				super.deliverResult(games == null ? null : new ArrayList<BuddyGame>(games));
+			}
+		}
+		
+		@Override
+		protected void onStartLoading() {
+			forceLoad();
+		}
 
-		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
-		if (!TextUtils.isEmpty(avatarUrl)) {
-			mImageFetcher
-				.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar, R.drawable.person_image_empty);
+		@Override
+		protected void onStopLoading() {
+			cancelLoad();
+		}
+
+		@Override
+		protected void onReset() {
+			super.onReset();
+			onStopLoading();
+		}
+		
+		public boolean hasError() {
+			return !TextUtils.isEmpty(mErrorMessage);
+		}
+
+		public String getErrorMessage() {
+			return mErrorMessage;
 		}
 	}
-
-	private interface BuddyQuery {
-		int _TOKEN = 0x1;
-
-		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-			Buddies.AVATAR_URL };
-
-		int BUDDY_ID = 0;
-		int NAME = 1;
-		int FIRSTNAME = 2;
-		int LASTNAME = 3;
-		int AVATAR_URL = 4;
-	}
-
-	// private class BuddyCollectionTask extends AsyncTask<Void, Void, RemoteBuddyCollectionHandler> {
-	//
-	// private Activity mActivity;
-	// private HttpClient mHttpClient;
-	// private RemoteExecutor mExecutor;
-	// private RemoteBuddyCollectionHandler mHandler = new RemoteBuddyCollectionHandler();
-	// private String mUrl;
-	//
-	// public BuddyCollectionTask(Activity activity, String username) {
-	// this.mActivity = activity;
-	// this.mUrl = HttpUtils.constructBriefCollectionUrl(username, "own");
-	// }
-	//
-	// @Override
-	// protected void onPreExecute() {
-	// mHttpClient = HttpUtils.createHttpClient(mActivity, true);
-	// mExecutor = new RemoteExecutor(mHttpClient, null);
-	// }
-	//
-	// @Override
-	// protected RemoteBuddyCollectionHandler doInBackground(Void... params) {
-	// try {
-	// mExecutor.executeGet(mUrl, mHandler);
-	// } catch (HandlerException e) {
-	// LOGE(TAG, "getting buddy", e);
-	// }
-	// return mHandler;
-	// }
-	//
-	// @Override
-	// protected void onPostExecute(RemoteBuddyCollectionHandler result) {
-	// LOGI(TAG, "Buddy collection size: " + result.getCount());
-	// final int count = result.getCount();
-	// if (result.isBggDown()) {
-	// UIUtils.showListMessage(mActivity, R.string.bgg_down);
-	// } else if (count == 0) {
-	// UIUtils.showListMessage(mActivity, mActivity.getResources().getString(R.string.empty_buddy_collection));
-	// } else {
-	// mInfoView.setText(String.format(getResources().getString(R.string.msg_collection_info), count));
-	// mBuddyGames.addAll(result.getResults());
-	// ((ListActivity) mActivity).setListAdapter(new BuddyActivityAdapter(mActivity, mBuddyGames));
-	// }
-	// }
-	//
-	// }
-	//
-	// private static class BuddyActivityAdapter extends ArrayAdapter<BuddyGame> {
-	// private Activity mActivity;
-	// private List<BuddyGame> mBuddyGames;
-	//
-	// private LayoutInflater mInflater;
-	//
-	// public BuddyActivityAdapter(Activity activity, List<BuddyGame> games) {
-	// super(activity, R.layout.row_buddygame, games);
-	// mActivity = activity;
-	// mInflater = mActivity.getLayoutInflater();
-	// mBuddyGames = games;
-	// }
-	//
-	// @Override
-	// public View getView(int position, View convertView, ViewGroup parent) {
-	// BuddyGamesViewHolder holder;
-	// if (convertView == null) {
-	// convertView = mInflater.inflate(R.layout.row_buddygame, parent, false);
-	// holder = new BuddyGamesViewHolder(convertView);
-	// convertView.setTag(holder);
-	// } else {
-	// holder = (BuddyGamesViewHolder) convertView.getTag();
-	// }
-	//
-	// BuddyGame game;
-	// try {
-	// game = mBuddyGames.get(position);
-	// } catch (ArrayIndexOutOfBoundsException e) {
-	// return convertView;
-	// }
-	// if (game != null) {
-	// holder.id.setText(game.Id);
-	// holder.name.setText(game.Name);
-	// holder.year.setText(game.Year);
-	// }
-	// return convertView;
-	// }
-	// }
-	//
-	// public static class BuddyGamesViewHolder {
-	// public TextView id;
-	// public TextView name;
-	// public TextView year;
-	//
-	// public BuddyGamesViewHolder(View view) {
-	// id = (TextView) view.findViewById(R.id.gameId);
-	// name = (TextView) view.findViewById(R.id.name);
-	// year = (TextView) view.findViewById(R.id.year);
-	// }
-	// }
-
-	// @Override
-	// protected void onListItemClick(ListView listView, View convertView, int position, long id) {
-	// super.onListItemClick(listView, convertView, position, id);
-	// BuddyGamesViewHolder holder = (BuddyGamesViewHolder) convertView.getTag();
-	// if (holder != null) {
-	// final Uri gameUri = Games.buildGameUri(Integer.parseInt((String) holder.id.getText()));
-	// final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-	// intent.putExtra(BoardgameActivity.KEY_GAME_NAME, holder.name.getText());
-	// startActivity(intent);
-	// }
-	// }
-	//
 }
