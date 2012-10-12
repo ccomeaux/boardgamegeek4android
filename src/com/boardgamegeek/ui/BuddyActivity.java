@@ -1,31 +1,37 @@
 package com.boardgamegeek.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.UIUtils;
 
-public class BuddyActivity extends SimpleSinglePaneActivity {
-	
+public class BuddyActivity extends BaseActivity {
+	private static final String TAG_INFO = "info";
+	private static final String TAG_COLLECTION = "collection";
+
+	private Fragment mInfoFragment;
+	private Fragment mCollectionFragment;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setContentView(R.layout.activity_buddy);
 
-		final Intent intent = getIntent();
-		String mBuddyName = intent.getStringExtra(BuddiesActivity.KEY_BUDDY_NAME);
+		if (savedInstanceState == null) {
+			mInfoFragment = new BuddyFragment();
+			mInfoFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mInfoFragment, TAG_INFO).commit();
 
-		final ActionBar actionBar = getSupportActionBar();
-		if (!TextUtils.isEmpty(mBuddyName)) {
-			actionBar.setSubtitle(mBuddyName);
+			mCollectionFragment = new BuddyCollectionFragment();
+			mCollectionFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+			getSupportFragmentManager().beginTransaction()
+				.add(R.id.root_container, mCollectionFragment, TAG_COLLECTION).commit();
+		} else {
+			mInfoFragment = getSupportFragmentManager().findFragmentByTag(TAG_INFO);
+			mCollectionFragment = getSupportFragmentManager().findFragmentByTag(TAG_COLLECTION);
 		}
-	}
-	
-	@Override
-	protected Fragment onCreatePane() {
-		return new BuddyFragment();
 	}
 
 	@Override
