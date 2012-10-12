@@ -465,10 +465,22 @@ public class BggContract {
 		public static int getDesignerId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
+
+		public static boolean isDesignerUri(Uri uri) {
+			return isUri(uri, PATH_DESIGNERS);
+		}
 	}
 
 	public static Uri buildBasicUri(String path, int id) {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
+	}
+
+	public static boolean isUri(Uri uri, String path) {
+		if (uri == null || TextUtils.isEmpty(path)) {
+			return false;
+		}
+		List<String> pathSegments = uri.getPathSegments();
+		return pathSegments != null && pathSegments.size() > 0 && path.equals(pathSegments.get(0));
 	}
 
 	public static class Artists implements ArtistsColumns, BaseColumns, SyncColumns {
@@ -486,6 +498,10 @@ public class BggContract {
 		public static int getArtistId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
+
+		public static boolean isArtistUri(Uri uri) {
+			return isUri(uri, PATH_ARTISTS);
+		}
 	}
 
 	public static class Publishers implements PublishersColumns, BaseColumns, SyncColumns {
@@ -502,6 +518,10 @@ public class BggContract {
 
 		public static int getPublisherId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		}
+
+		public static boolean isPublisherUri(Uri uri) {
+			return isUri(uri, PATH_PUBLISHERS);
 		}
 	}
 

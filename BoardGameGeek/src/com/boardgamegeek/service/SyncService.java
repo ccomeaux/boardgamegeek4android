@@ -24,6 +24,7 @@ import android.util.SparseArray;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
@@ -38,25 +39,36 @@ public class SyncService extends IntentService implements LogInListener {
 	public static final String EXTRA_STATUS_RECEIVER = "com.boardgamegeek.extra.STATUS_RECEIVER";
 
 	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
+	public static final String KEY_SYNC_ID = "KEY_SYNC_ID";
+	public static final String KEY_SYNC_SUPPRESS_NOTIFICATIONS = "KEY_SYNC_SUPPRESS_NOTIFICATIONS";
 	public static final int SYNC_TYPE_ALL = 0;
 	public static final int SYNC_TYPE_COLLECTION = 1;
 	public static final int SYNC_TYPE_PLAYS = 2;
 	public static final int SYNC_TYPE_BUDDIES = 3;
+	public static final int SYNC_TYPE_DESIGNER = 10;
+	public static final int SYNC_TYPE_ARTIST = 11;
+	public static final int SYNC_TYPE_PUBLISHER = 12;
 
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;
 
-	private boolean mIsRunning = false;
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
 	private SparseArray<List<SyncTask>> mTaskList = new SparseArray<List<SyncTask>>();
 	private ResultReceiver mResultReceiver;
 	private RemoteExecutor mRemoteExecutor;
 	private LogInHelper mLogInHelper;
+	private boolean mSuppressNotifications;
 
 	public static void start(Context context, int type) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, SyncService.class).putExtra(
 			SyncService.KEY_SYNC_TYPE, type));
+	}
+
+	public static void start(Context context, int type, int id) {
+		context.startService(new Intent(Intent.ACTION_SYNC, null, context, SyncService.class)
+			.putExtra(SyncService.KEY_SYNC_TYPE, type).putExtra(KEY_SYNC_ID, id)
+			.putExtra(KEY_SYNC_SUPPRESS_NOTIFICATIONS, true));
 	}
 
 	public SyncService() {
@@ -104,36 +116,49 @@ public class SyncService extends IntentService implements LogInListener {
 	protected void onHandleIntent(Intent intent) {
 		LOGD(TAG, "onHandleIntent(intent=" + intent + ")");
 
+		if (!ensureUsername()) {
+			LOGW(TAG, "No username");
+			return;
+		}
+
 		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
 			LOGW(TAG, "Invalid intent action: " + intent.getAction());
 			return;
 		}
 
 		mResultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
+		mSuppressNotifications = intent.getBooleanExtra(KEY_SYNC_SUPPRESS_NOTIFICATIONS, false);
+		int syncType = intent.getIntExtra(KEY_SYNC_TYPE, SYNC_TYPE_ALL);
+		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 
-		List<SyncTask> tasks = mTaskList.get(intent.getIntExtra(KEY_SYNC_TYPE, 0));
+		List<SyncTask> tasks = mTaskList.get(syncType);
+		if (tasks == null && syncId != BggContract.INVALID_ID) {
+			switch (syncType) {
+				case SYNC_TYPE_DESIGNER:
+					tasks = createTask(new SyncDesigner(syncId));
+					break;
+				case SYNC_TYPE_ARTIST:
+					tasks = createTask(new SyncArtist(syncId));
+					break;
+				case SYNC_TYPE_PUBLISHER:
+					tasks = createTask(new SyncPublisher(syncId));
+					break;
+			}
+		}
 		if (tasks == null) {
+			syncType = SYNC_TYPE_ALL;
 			tasks = mTaskList.get(SYNC_TYPE_ALL);
 		}
 
-		if (mIsRunning) {
-			sendResultToReceiver(STATUS_RUNNING);
-			return;
-		}
+		mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
 
-		if (!ensureUsername()) {
-			return;
-		}
-
-		mIsRunning = true;
 		final long startTime = System.currentTimeMillis();
-		BggApplication.getInstance().putSyncTimestamp(startTime);
+		if (syncType == SYNC_TYPE_ALL) {
+			BggApplication.getInstance().putSyncTimestamp(startTime);
+		}
 		signalStart();
 
 		try {
-
-			mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
-
 			for (SyncTask task : tasks) {
 				createNotification(task.getNotification());
 				task.execute(mRemoteExecutor, this);
@@ -148,14 +173,19 @@ public class SyncService extends IntentService implements LogInListener {
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
 		} catch (Exception e) {
-			LOGE(TAG, "", e);
+			LOGE(TAG, "Failed during sync type " + syncType, e);
 			sendError(e.toString());
 		} finally {
 			BggApplication.getInstance().putSyncTimestamp(0);
 			signalEnd();
 			mResultReceiver = null;
-			mIsRunning = false;
 		}
+	}
+
+	private List<SyncTask> createTask(SyncTask task) {
+		List<SyncTask> taskList = new ArrayList<SyncTask>(1);
+		taskList.add(task);
+		return taskList;
 	}
 
 	private boolean ensureUsername() {
@@ -202,6 +232,10 @@ public class SyncService extends IntentService implements LogInListener {
 	}
 
 	private void createNotification(int messageId, boolean cancelNotification) {
+		if (mSuppressNotifications || messageId == SyncTask.NO_NOTIFICATION) {
+			return;
+		}
+
 		String message = getResources().getString(messageId);
 		String title = getResources().getString(R.string.notification_title);
 
