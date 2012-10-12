@@ -15,7 +15,6 @@ import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public class ImageFragment extends SherlockFragment {
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 
 	private Uri mGameUri;
 	private String mImageUrl;
@@ -31,7 +30,7 @@ public class ImageFragment extends SherlockFragment {
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameUri = intent.getData();
-		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
+		mImageUrl = intent.getStringExtra(ImageActivity.KEY_IMAGE_URL);
 
 		if (mGameUri == null || TextUtils.isEmpty(mImageUrl)) {
 			return;
