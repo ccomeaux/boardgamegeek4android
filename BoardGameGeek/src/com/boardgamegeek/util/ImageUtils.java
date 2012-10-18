@@ -1,210 +1,118 @@
 package com.boardgamegeek.util;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.database.ResolverUtils;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
 
 public class ImageUtils {
 	private static final String TAG = makeLogTag(ImageUtils.class);
 	private static final String INVALID_URL = "N/A";
+	public static final int IO_BUFFER_SIZE_BYTES = 4 * 1024; // 4KB
+	private static final int MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
 
-	private static HttpClient sHttpClient;
+	// private static HttpClient sHttpClient;
 
-	public static Drawable getDrawable(Context context, Uri uri) {
-		return getDrawable(context, uri, null, null, null);
-	}
-
-	public static Drawable getDrawable(Context context, Uri uri, String url) {
-		return getDrawable(context, uri, null, null, url);
-	}
-
-	public static Drawable getGameThumbnail(Context context, Uri uri) {
-		return getDrawable(context, uri, Games.buildGameUri(Games.getGameId(uri)), Games.THUMBNAIL_URL, null);
-	}
-
-	public static Drawable getCollectionThumbnail(Context context, Uri uri) {
-		return getDrawable(context, uri, Collection.buildItemUri(Collection.getItemId(uri)), Collection.THUMBNAIL_URL,
-			null);
-	}
-
-	public static Drawable getAvatar(Context context, Uri uri) {
-		return getDrawable(context, uri, Buddies.buildBuddyUri(Buddies.getBuddyId(uri)), Buddies.AVATAR_URL, null);
-	}
-
-	private static Drawable getDrawable(Context context, Uri drawableUri, Uri fetchUri, String columnName,
-		String fetchUrl) {
-		Bitmap bitmap = null;
-		ContentResolver resolver = context.getContentResolver();
-		if (drawableUri != null) {
-			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, drawableUri);
-		}
-		if (bitmap == null) {
-			String url = null;
-			if (!TextUtils.isEmpty(fetchUrl)) {
-				url = fetchUrl;
-			} else if (fetchUri != null && !TextUtils.isEmpty(columnName)) {
-				url = ResolverUtils.queryString(resolver, fetchUri, columnName);
-			}
-			if (!TextUtils.isEmpty(url) && !INVALID_URL.equals(url)) {
-				bitmap = downloadBitmap(context, url);
-				if (bitmap != null) {
-					ResolverUtils.putBitmapInContentProvider(resolver, drawableUri, bitmap);
-				}
-			}
-		}
-
+	public static BitmapDrawable processDrawableFromResolver(Context context, Uri uri, String urlString) {
+		Bitmap bitmap = processBitmapFromResolver(context, uri, urlString);
 		if (bitmap == null) {
 			return null;
 		}
 		return new BitmapDrawable(context.getResources(), bitmap);
 	}
 
-	private static Bitmap downloadBitmap(Context context, String url) {
+	public static Bitmap processBitmapFromResolver(Context context, Uri uri, String urlString) {
 		Bitmap bitmap = null;
-		try {
-			final HttpClient client = getHttpClient(context);
-			final HttpGet get = new HttpGet(url);
-			final HttpResponse response = client.execute(get);
-			final HttpEntity entity = response.getEntity();
-
-			final int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode != HttpStatus.SC_OK || entity == null) {
-				LOGW(TAG, "Didn't find thumbnail");
-				return null;
+		ContentResolver resolver = context.getContentResolver();
+		if (uri != null) {
+			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, uri);
+		}
+		if (bitmap == null && !TextUtils.isEmpty(urlString)) {
+			final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
+			if (bitmapBytes != null) {
+				bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+				if (bitmap != null && uri != null) {
+					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
+				}
 			}
-
-			final byte[] imageData = EntityUtils.toByteArray(entity);
-			bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-
-		} catch (Exception e) {
-			LOGE(TAG, "Problem loading thumbnail", e);
 		}
 		return bitmap;
 	}
 
-	public static Drawable getImage(Context context, String url) throws OutOfMemoryError {
-		if (TextUtils.isEmpty(url) || INVALID_URL.equals(url)) {
+	/**
+	 * Download a bitmap from a URL, write it to a disk and return the File pointer. This implementation uses a simple
+	 * disk cache.
+	 * 
+	 * @param urlString
+	 *            The URL to fetch
+	 * @param maxBytes
+	 *            The maximum number of bytes to read before returning null to protect against OutOfMemory exceptions.
+	 * @return A File pointing to the fetched bitmap
+	 */
+	public static byte[] downloadBitmapToMemory(String urlString, int maxBytes) {
+		LOGD(TAG, "downloadBitmapToMemory - downloading - " + urlString);
+
+		if (TextUtils.isEmpty(urlString) || urlString.equals(INVALID_URL)) {
 			return null;
 		}
 
-		Drawable drawable = getImageFromCache(context, url);
-		if (drawable != null) {
-			LOGI(TAG, url + " found in cache!");
-			return drawable;
-		}
+		HttpUtils.disableConnectionReuseIfNecessary();
+		HttpURLConnection urlConnection = null;
+		ByteArrayOutputStream out = null;
+		InputStream in = null;
 
-		Bitmap bitmap = downloadBitmap(context, url);
-		if (bitmap != null) {
-			addImageToCache(url, bitmap, context);
-			return new BitmapDrawable(context.getResources(), bitmap);
-		}
-		return null;
-	}
-
-	public static Drawable getImageFromCache(Context context, String url) {
-		final String fileName = FileUtils.getFileNameFromUrl(url);
-		final File file = getExistingImageFile(fileName, context);
-		if (file != null) {
-			return Drawable.createFromPath(file.getAbsolutePath());
-		}
-		return null;
-	}
-
-	private static File getExistingImageFile(String fileName, Context context) {
-		if (!TextUtils.isEmpty(fileName)) {
-			final File file = new File(getCacheDirectory(context), fileName);
-			if (file.exists()) {
-				return file;
+		try {
+			final URL url = new URL(urlString);
+			urlConnection = (HttpURLConnection) url.openConnection();
+			if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				return null;
 			}
-		}
-		return null;
-	}
+			in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE_BYTES);
+			out = new ByteArrayOutputStream(IO_BUFFER_SIZE_BYTES);
 
-	public static boolean clearCache(Context context) {
-		try {
-			FileUtils.deleteContents(getCacheDirectory(context));
-		} catch (IOException e) {
-			LOGE(TAG, "Error clearing the cache", e);
-			return false;
-		}
-		return true;
-	}
-
-	private static boolean addImageToCache(String url, Bitmap bitmap, Context context) {
-		File cacheDir = getCacheDirectory(context);
-		if (cacheDir == null) {
-			return false;
-		}
-
-		FileUtils.trimDirectory(cacheDir, 10);
-
-		File imageFile = new File(cacheDir, FileUtils.getFileNameFromUrl(url));
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(imageFile);
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-		} catch (FileNotFoundException e) {
-			return false;
+			final byte[] buffer = new byte[128];
+			int total = 0;
+			int bytesRead;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				total += bytesRead;
+				if (total > maxBytes) {
+					return null;
+				}
+				out.write(buffer, 0, bytesRead);
+			}
+			return out.toByteArray();
+		} catch (final IOException e) {
+			LOGE(TAG, "Error in downloadBitmapToMemory - " + e);
 		} finally {
-			closeStream(out);
-		}
-
-		return true;
-	}
-
-	private static File getCacheDirectory(Context context) {
-		File file;
-		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			file = context.getExternalCacheDir();
-		} else {
-			file = context.getCacheDir();
-		}
-		return file;
-	}
-
-	private static synchronized HttpClient getHttpClient(Context context) {
-		if (sHttpClient == null) {
-			sHttpClient = HttpUtils.createHttpClient(context, true);
-		}
-		return sHttpClient;
-	}
-
-	private static void closeStream(Closeable stream) {
-		if (stream != null) {
+			if (urlConnection != null) {
+				urlConnection.disconnect();
+			}
 			try {
-				stream.close();
-			} catch (IOException e) {
-				LOGE(TAG, "Could not close stream", e);
+				if (in != null) {
+					in.close();
+				}
+				if (out != null) {
+					out.close();
+				}
+			} catch (final IOException e) {
 			}
 		}
+		return null;
 	}
 }

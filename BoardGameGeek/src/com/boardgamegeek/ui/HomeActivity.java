@@ -21,7 +21,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
@@ -32,7 +31,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		UIUtils.allowTypeToSearch(this);
+		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
