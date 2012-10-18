@@ -38,7 +38,6 @@ import com.boardgamegeek.util.UIUtils;
 public class BuddiesFragment extends SherlockListFragment implements AbsListView.OnScrollListener,
 	LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(BuddiesFragment.class);
-
 	private static final String STATE_SELECTED_ID = "selectedId";
 
 	private CursorAdapter mAdapter;
@@ -158,7 +157,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		// do nothing
 	}
 
 	@Override

@@ -43,7 +43,6 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		final ListView listView = getListView();
 		listView.setSelector(android.R.color.transparent);
 		listView.setCacheColorHint(Color.WHITE);
-		listView.setFastScrollEnabled(true);
 	}
 
 	@Override

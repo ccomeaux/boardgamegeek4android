@@ -755,16 +755,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		int LOCATION = 1;
 	}
 
+	@SuppressLint("ValidFragment")
 	public static class DatePickerFragment extends DialogFragment {
 		public static final String KEY_DATE = "DATE";
 
 		private OnDateSetListener mListener;
 
-		@SuppressLint("ValidFragment")
 		public DatePickerFragment() {
 		}
 
-		@SuppressLint("ValidFragment")
 		public DatePickerFragment(DatePickerDialog.OnDateSetListener listener) {
 			mListener = listener;
 		}
