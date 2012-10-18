@@ -127,7 +127,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
-		public void onNameChanged(String mGameName);
+		public void onNameChanged(String gameName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -524,6 +524,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex, int idColumnIndex,
 		String path) {
+		view.clear();
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 		} else {

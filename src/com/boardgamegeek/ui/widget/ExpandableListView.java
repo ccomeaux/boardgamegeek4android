@@ -114,6 +114,13 @@ public class ExpandableListView extends RelativeLayout {
 		mLabelView.setText(label);
 	}
 
+	public void clear() {
+		if (mData != null) {
+			mData.clear();
+		}
+		updateData();
+	}
+
 	public void addItem(String label, Uri uri) {
 		if (mData == null) {
 			mData = new ArrayList<Pair<String, Uri>>();
