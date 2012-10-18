@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class PlayTimeFilter extends SliderFilter {
 	private int mMinTime;
@@ -48,8 +49,8 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new PlayTimeFilterData(activity, mMinTime, mMaxTime, mUndefined);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new PlayTimeFilterData(context, mMinTime, mMaxTime, mUndefined);
 	}
 
 	@Override

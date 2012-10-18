@@ -15,113 +15,111 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class SaveFilters {
 
-	public static void createDialog(final CollectionActivity activity, String name, final int sortType,
-			final List<CollectionFilterData> filters) {
+	public static void createDialog(final Context context, final CollectionView view, String name,
+		final int sortType, final List<CollectionFilterData> filters) {
 
-		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_save_filters,
-				(ViewGroup) activity.findViewById(R.id.layout_root));
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.dialog_save_filters, null);
 
 		final EditText nameView = (EditText) layout.findViewById(R.id.name);
 		nameView.setText(name);
 		setDescription(filters, layout);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.menu_collection_view_save)
-				.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.menu_collection_view_save)
+			.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						final String name = nameView.getText().toString().trim();
-						final ContentResolver resolver = activity.getContentResolver();
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					final String name = nameView.getText().toString().trim();
+					final ContentResolver resolver = context.getContentResolver();
 
-						final int filterId = findFilterId(resolver, name);
-						if (filterId > 0) {
-							new AlertDialog.Builder(activity).setTitle(R.string.title_collection_view_name_in_use)
-									.setMessage(R.string.msg_collection_view_name_in_use)
-									.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											update(resolver, filterId, sortType, filters);
-											updateDisplay(activity, name);
-										}
-									}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											insert(resolver, name, sortType, filters);
-											updateDisplay(activity, name);
-										}
-									}).create().show();
-
-						} else {
-							insert(resolver, name, sortType, filters);
-							updateDisplay(activity, name);
-						}
-					}
-
-					private int findFilterId(ContentResolver resolver, String name) {
-						Cursor c = resolver.query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID },
-								CollectionViews.NAME + "=?", new String[] { name }, null);
-						if (c != null) {
-							try {
-								if (c.moveToFirst()) {
-									return c.getInt(0);
+					final int filterId = findFilterId(resolver, name);
+					if (filterId > 0) {
+						new AlertDialog.Builder(context).setTitle(R.string.title_collection_view_name_in_use)
+							.setMessage(R.string.msg_collection_view_name_in_use)
+							.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									update(resolver, filterId, sortType, filters);
+									updateDisplay(context, name);
 								}
-							} finally {
-								c.close();
+							}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									insert(resolver, name, sortType, filters);
+									updateDisplay(context, name);
+								}
+							}).create().show();
+
+					} else {
+						insert(resolver, name, sortType, filters);
+						updateDisplay(context, name);
+					}
+				}
+
+				private int findFilterId(ContentResolver resolver, String name) {
+					Cursor c = resolver.query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID },
+						CollectionViews.NAME + "=?", new String[] { name }, null);
+					if (c != null) {
+						try {
+							if (c.moveToFirst()) {
+								return c.getInt(0);
 							}
+						} finally {
+							c.close();
 						}
-						return -1;
 					}
+					return -1;
+				}
 
-					private void insert(ContentResolver resolver, String name, int sortType,
-							final List<CollectionFilterData> filters) {
-						ContentValues values = new ContentValues();
-						values.put(CollectionViews.NAME, name);
-						values.put(CollectionViews.STARRED, false);
-						values.put(CollectionViews.SORT_TYPE, sortType);
-						Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
-						int filterId = CollectionViews.getViewId(filterUri);
-						Uri uri = CollectionViews.buildViewFilterUri(filterId);
-						insertDetails(resolver, uri, filters);
-					}
+				private void insert(ContentResolver resolver, String name, int sortType,
+					final List<CollectionFilterData> filters) {
+					ContentValues values = new ContentValues();
+					values.put(CollectionViews.NAME, name);
+					values.put(CollectionViews.STARRED, false);
+					values.put(CollectionViews.SORT_TYPE, sortType);
+					Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+					int filterId = CollectionViews.getViewId(filterUri);
+					Uri uri = CollectionViews.buildViewFilterUri(filterId);
+					insertDetails(resolver, uri, filters);
+				}
 
-					private void update(ContentResolver resolver, int viewId, int sortType,
-							final List<CollectionFilterData> filters) {
-						Uri uri = CollectionViews.buildViewFilterUri(viewId);
-						resolver.delete(uri, null, null);
-						insertDetails(resolver, uri, filters);
-					}
+				private void update(ContentResolver resolver, int viewId, int sortType,
+					final List<CollectionFilterData> filters) {
+					Uri uri = CollectionViews.buildViewFilterUri(viewId);
+					resolver.delete(uri, null, null);
+					insertDetails(resolver, uri, filters);
+				}
 
-					private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
-							final List<CollectionFilterData> filters) {
-						List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
-						for (CollectionFilterData filter : filters) {
-							ContentValues cv = new ContentValues();
-							cv.put(CollectionViewFilters.TYPE, filter.getType());
-							cv.put(CollectionViewFilters.DATA, filter.flatten());
-							cvs.add(cv);
-						}
-						resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
+					final List<CollectionFilterData> filters) {
+					List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
+					for (CollectionFilterData filter : filters) {
+						ContentValues cv = new ContentValues();
+						cv.put(CollectionViewFilters.TYPE, filter.getType());
+						cv.put(CollectionViewFilters.DATA, filter.flatten());
+						cvs.add(cv);
 					}
+					resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+				}
 
-					private void updateDisplay(final CollectionActivity activity, String name) {
-						Toast.makeText(activity, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-						activity.setFilterName(name, false);
-					}
-				}).setNegativeButton(R.string.cancel, null).setCancelable(true);
+				private void updateDisplay(final Context context, String name) {
+					Toast.makeText(context, R.string.msg_saved, Toast.LENGTH_SHORT).show();
+					view.setFilterName(name, false);
+				}
+			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
 
 		final AlertDialog dialog = builder.create();
 		enableSaveButton(dialog, nameView);
@@ -133,7 +131,7 @@ public class SaveFilters {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(
-						nameView.getText().toString().trim().length() > 0);
+					nameView.getText().toString().trim().length() > 0);
 				return false;
 			}
 		});

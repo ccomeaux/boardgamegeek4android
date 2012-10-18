@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+
+	<LinearLayout
+		android:id="@+id/progress"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center"
+		android:orientation="vertical" >
+
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:id="@+id/list_container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:visibility="gone" >
+
+		<FrameLayout
+			android:id="@+id/list_content"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1" >
+
+			<ListView
+				android:id="@android:id/list"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:drawSelectorOnTop="false" />
+
+			<TextView
+				android:id="@android:id/empty"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="center"
+				android:text="@string/empty_collection" />
+		</FrameLayout>
+
+		<RelativeLayout
+			android:id="@+id/view_detail"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/background_light_transparent_2" >
+
+			<include
+				android:id="@+id/collection_info_header"
+				layout="@layout/header_divider" />
+
+			<TextView
+				android:id="@+id/collection_count"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@id/collection_info_header"
+				android:paddingRight="@dimen/padding_standard"
+				android:textSize="@dimen/text_size_tiny"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/collection_sort"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@id/collection_count"
+				android:paddingRight="@dimen/padding_standard"
+				android:textSize="@dimen/text_size_tiny"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/filter_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignBottom="@id/collection_sort"
+				android:layout_alignTop="@id/collection_count"
+				android:gravity="center_vertical"
+				android:paddingLeft="@dimen/padding_standard"
+				android:textSize="@dimen/text_size_small"
+				android:textStyle="bold" />
+
+			<HorizontalScrollView
+				android:id="@+id/filter_scroll_view"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/filter_name"
+				android:scrollbars="none" >
+
+				<LinearLayout
+					android:id="@+id/filter_linear_layout"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal" />
+			</HorizontalScrollView>
+		</RelativeLayout>
+	</LinearLayout>
+
+	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->
+
+	<TextView
+		android:id="@+id/fast_scroll_letter"
+		android:layout_width="wrap_content"
+		android:layout_height="60dp"
+		android:layout_gravity="center"
+		android:background="@drawable/text_view_border"
+		android:gravity="center"
+		android:minHeight="60dp"
+		android:minWidth="60dp"
+		android:paddingLeft="@dimen/padding_extra"
+		android:paddingRight="@dimen/padding_extra"
+		android:textSize="@dimen/text_size_huge"
+		android:visibility="gone" />
+
+</FrameLayout>

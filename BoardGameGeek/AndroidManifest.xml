@@ -33,7 +33,7 @@
 			android:name=".ui.CollectionActivity"
 			android:exported="false"
 			android:label="@string/title_collection"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -41,18 +41,26 @@
 
 				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.collection" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
 		</activity>
 
 		<activity-alias
 			android:name="CreateShortcutActivity"
 			android:label="@string/title_game"
 			android:targetActivity=".ui.CollectionActivity"
-			android:theme="@style/Theme.Bgg" >
+			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT" />
 
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
 		</activity-alias>
 
 		<activity
@@ -77,8 +85,7 @@
 
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.CollectionActivity" >
-			</meta-data>
+				android:value=".ui.CollectionActivity" />
 		</activity>
 		<activity
 			android:name=".ui.ImageActivity"
