@@ -319,4 +319,25 @@ public class HttpUtils {
 		}
 		return s;
 	}
+
+	/**
+	 * Workaround for bug pre-Froyo, see here for more info:
+	 * http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+	 */
+	public static void disableConnectionReuseIfNecessary() {
+		// HTTP connection reuse which was buggy pre-froyo
+		if (hasHttpConnectionBug()) {
+			System.setProperty("http.keepAlive", "false");
+		}
+	}
+
+	/**
+	 * Check if OS version has a http URLConnection bug. See here for more information:
+	 * http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+	 * 
+	 * @return true if this OS version is affected, false otherwise
+	 */
+	public static boolean hasHttpConnectionBug() {
+		return !VersionUtils.hasFroyo();
+	}
 }

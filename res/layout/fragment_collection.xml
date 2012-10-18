@@ -49,9 +49,11 @@
 			android:layout_height="wrap_content"
 			android:background="@color/background_light_transparent_2" >
 
-			<include
+			<View
 				android:id="@+id/collection_info_header"
-				layout="@layout/header_divider" />
+				android:layout_width="fill_parent"
+				android:layout_height="2dp"
+				android:background="@color/background_dark" />
 
 			<TextView
 				android:id="@+id/collection_count"

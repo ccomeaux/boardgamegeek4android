@@ -3,15 +3,12 @@ package com.boardgamegeek.util;
 import java.util.Random;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -27,9 +24,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.HomeActivity;
-import com.boardgamegeek.ui.widget.BezelImageView;
 
 public class UIUtils {
 	public static final String HELP_GAME_KEY = "help.game";
@@ -40,136 +34,7 @@ public class UIUtils {
 	public static final int MENU_ITEM_SHARE = Menu.FIRST + 3;
 	public static final int MENU_ITEM_LINK_BGG = Menu.FIRST + 4;
 
-	private Activity mActivity;
 	private static Random mRandom;
-
-	public UIUtils(Activity activity) {
-		mActivity = activity;
-	}
-
-	/**
-	 * Sets the current activity to the home screen.
-	 */
-	public static void goHome(Context context) {
-		final Intent intent = new Intent(context, HomeActivity.class);
-		context.startActivity(intent);
-	}
-
-	/**
-	 * Sets the current activity to the home screen, clearing the activity stack.
-	 */
-	public static void resetToHome(Context context) {
-		final Intent intent = new Intent(context, HomeActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		context.startActivity(intent);
-	}
-
-	/**
-	 * Sets the custom title since the default is hidden.
-	 */
-	public static void setTitle(Activity activity) {
-		setTitle(activity, activity.getTitle());
-	}
-
-	/**
-	 * Sets the custom title since the default is hidden.
-	 */
-	public static void setTitle(Activity activity, int titleId) {
-		((TextView) activity.findViewById(R.id.title_text)).setText(titleId);
-	}
-
-	/**
-	 * Sets the custom title since the default is hidden.
-	 */
-	public static void setTitle(Activity activity, CharSequence title) {
-		((TextView) activity.findViewById(R.id.title_text)).setText(title);
-	}
-
-	public static void setGameName(Activity activity, CharSequence gameName) {
-		((TextView) activity.findViewById(R.id.game_name)).setText(gameName);
-	}
-
-	public static void setGameHeader(Activity activity, CharSequence gameName, int gameId) {
-		setTitle(activity);
-		setGameName(activity, gameName);
-		UIUtils u = new UIUtils(activity);
-		u.setThumbnail(gameId);
-		activity.findViewById(R.id.game_thumbnail).setClickable(false);
-		allowTypeToSearch(activity);
-	}
-
-	public void setGameName(CharSequence gameName) {
-		setGameName(mActivity, gameName);
-	}
-
-	public void setThumbnail(int gameId) {
-		if (BggApplication.getInstance().getImageLoad() && gameId > 0) {
-			new ThumbnailTask(mActivity).execute(Games.buildThumbnailUri(gameId));
-		}
-	}
-
-	private class ThumbnailTask extends AsyncTask<Uri, Void, Drawable> {
-		private Activity mActivity;
-		private BezelImageView mThumbnail;
-		private View mProgress;
-
-		public ThumbnailTask(Activity activity) {
-			if (activity != null) {
-				mActivity = activity;
-				mThumbnail = (BezelImageView) mActivity.findViewById(R.id.game_thumbnail);
-				mProgress = mActivity.findViewById(R.id.thumbnail_progress);
-			}
-		}
-
-		@Override
-		protected void onPreExecute() {
-			if (mProgress != null) {
-				mProgress.setVisibility(View.VISIBLE);
-			}
-			if (mThumbnail != null) {
-				mThumbnail.setVisibility(View.GONE);
-			}
-		}
-
-		@Override
-		protected Drawable doInBackground(Uri... params) {
-			if (mActivity == null || mThumbnail == null) {
-				return null;
-			}
-			return ImageUtils.getGameThumbnail(mActivity, params[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Drawable result) {
-			if (mProgress != null) {
-				mProgress.setVisibility(View.GONE);
-			}
-			if (mThumbnail != null) {
-				mThumbnail.setVisibility(View.VISIBLE);
-				if (result != null) {
-					mThumbnail.setImageDrawable(result);
-				} else {
-					mThumbnail.setImageResource(R.drawable.noimage);
-				}
-			}
-		}
-	}
-
-	public static void allowTypeToSearch(Activity activity) {
-		activity.setDefaultKeyMode(Activity.DEFAULT_KEYS_SEARCH_LOCAL);
-	}
-
-	public static String[] projectionFromEnums(Enum<?> e[]) {
-		String projection[] = new String[e.length];
-
-		int index = 0;
-		for (Enum<?> currentEnum : e) {
-			projection[index] = currentEnum.toString();
-			index++;
-		}
-
-		return projection;
-	}
 
 	public static Random getRandom() {
 		if (mRandom == null) {
