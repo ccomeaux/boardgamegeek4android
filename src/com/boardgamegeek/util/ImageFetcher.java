@@ -22,26 +22,20 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.ImageView;
-
-import com.boardgamegeek.database.ResolverUtils;
 
 /**
  * A subclass of {@link ImageWorker} that fetches images from a URL.
@@ -52,12 +46,10 @@ public class ImageFetcher extends ImageWorker {
 	public static final int IO_BUFFER_SIZE_BYTES = 4 * 1024; // 4KB
 
 	// Default fetcher params
-	private static final int MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
 	private static final int HTTP_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
 	private static final String HTTP_CACHE_DIR = "http";
 	private static final int DEFAULT_IMAGE_HEIGHT = 1024;
 	private static final int DEFAULT_IMAGE_WIDTH = 1024;
-	private static final String INVALID_URL = "N/A";
 
 	protected int mImageWidth;
 	protected int mImageHeight;
@@ -95,51 +87,87 @@ public class ImageFetcher extends ImageWorker {
 	}
 
 	public void loadAvatarImage(String url, Uri uri, ImageView imageView, Bitmap loadingBitmap) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView, loadingBitmap);
 	}
 
 	public void loadAvatarImage(String url, Uri uri, ImageView imageView, int resId) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView, resId);
 	}
 
 	public void loadAvatarImage(String url, Uri uri, ImageView imageView) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView);
 	}
 
 	public void loadThumnailImage(String url, Uri uri, ImageView imageView, Bitmap loadingBitmap) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, loadingBitmap);
 	}
 
 	public void loadThumnailImage(String url, Uri uri, ImageView imageView, int resId) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, resId);
 	}
 
 	public void loadThumnailImage(String url, Uri uri, ImageView imageView) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView);
 	}
 
-	public void loadThumbnailImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, loadingBitmap);
+	public void loadThumbnailImage(String url, ImageView imageView, Bitmap loadingBitmap) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, loadingBitmap);
 	}
 
-	public void loadThumbnailImage(String key, ImageView imageView, int resId) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, resId);
+	public void loadThumbnailImage(String url, ImageView imageView, int resId) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, resId);
 	}
 
-	public void loadThumbnailImage(String key, ImageView imageView) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, mLoadingBitmap);
+	public void loadThumbnailImage(String url, ImageView imageView) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, mLoadingBitmap);
 	}
 
-	public void loadImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, loadingBitmap);
+	public void loadImage(String url, ImageView imageView, Bitmap loadingBitmap) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, loadingBitmap);
 	}
 
-	public void loadImage(String key, ImageView imageView, int resId) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, resId);
+	public void loadImage(String url, ImageView imageView, int resId) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, resId);
 	}
 
-	public void loadImage(String key, ImageView imageView) {
-		loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, mLoadingBitmap);
+	public void loadImage(String url, ImageView imageView) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, mLoadingBitmap);
 	}
 
 	/**
@@ -176,9 +204,9 @@ public class ImageFetcher extends ImageWorker {
 		if (type == ImageData.IMAGE_TYPE_NORMAL) {
 			return processNormalBitmap(key); // Process a regular, full sized bitmap
 		} else if (type == ImageData.IMAGE_TYPE_THUMBNAIL) {
-			return processBitmapFromResolver(uri, key);
+			return ImageUtils.processBitmapFromResolver(mContext, uri, key);
 		} else if (type == ImageData.IMAGE_TYPE_AVATAR) {
-			return processBitmapFromResolver(uri, key);
+			return ImageUtils.processBitmapFromResolver(mContext, uri, key);
 		}
 		return null;
 	}
@@ -251,85 +279,6 @@ public class ImageFetcher extends ImageWorker {
 		return bitmap;
 	}
 
-	private Bitmap processBitmapFromResolver(Uri uri, String urlString) {
-		Bitmap bitmap = null;
-		ContentResolver resolver = mContext.getContentResolver();
-		if (uri != null) {
-			bitmap = ResolverUtils.getBitmapFromContentProvider(resolver, uri);
-		}
-		if (bitmap == null && !TextUtils.isEmpty(urlString)) {
-			final byte[] bitmapBytes = downloadBitmapToMemory(urlString, MAX_THUMBNAIL_BYTES);
-			if (bitmapBytes != null) {
-				bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-				if (bitmap != null && uri != null) {
-					ResolverUtils.putBitmapInContentProvider(resolver, uri, bitmap);
-				}
-			}
-		}
-		return bitmap;
-	}
-
-	/**
-	 * Download a bitmap from a URL, write it to a disk and return the File pointer. This implementation uses a simple
-	 * disk cache.
-	 * 
-	 * @param urlString
-	 *            The URL to fetch
-	 * @param maxBytes
-	 *            The maximum number of bytes to read before returning null to protect against OutOfMemory exceptions.
-	 * @return A File pointing to the fetched bitmap
-	 */
-	public static byte[] downloadBitmapToMemory(String urlString, int maxBytes) {
-		LOGD(TAG, "downloadBitmapToMemory - downloading - " + urlString);
-
-		if (TextUtils.isEmpty(urlString) || urlString.equals(INVALID_URL)) {
-			return null;
-		}
-
-		disableConnectionReuseIfNecessary();
-		HttpURLConnection urlConnection = null;
-		ByteArrayOutputStream out = null;
-		InputStream in = null;
-
-		try {
-			final URL url = new URL(urlString);
-			urlConnection = (HttpURLConnection) url.openConnection();
-			if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				return null;
-			}
-			in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE_BYTES);
-			out = new ByteArrayOutputStream(IO_BUFFER_SIZE_BYTES);
-
-			final byte[] buffer = new byte[128];
-			int total = 0;
-			int bytesRead;
-			while ((bytesRead = in.read(buffer)) != -1) {
-				total += bytesRead;
-				if (total > maxBytes) {
-					return null;
-				}
-				out.write(buffer, 0, bytesRead);
-			}
-			return out.toByteArray();
-		} catch (final IOException e) {
-			LOGE(TAG, "Error in downloadBitmapToMemory - " + e);
-		} finally {
-			if (urlConnection != null) {
-				urlConnection.disconnect();
-			}
-			try {
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			} catch (final IOException e) {
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Download a bitmap from a URL and write the content to an output stream.
 	 * 
@@ -340,7 +289,7 @@ public class ImageFetcher extends ImageWorker {
 	 * @return true if successful, false otherwise
 	 */
 	public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-		disableConnectionReuseIfNecessary();
+		HttpUtils.disableConnectionReuseIfNecessary();
 		HttpURLConnection urlConnection = null;
 		BufferedOutputStream out = null;
 		BufferedInputStream in = null;
@@ -373,59 +322,6 @@ public class ImageFetcher extends ImageWorker {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Download a bitmap from a URL, write it to a disk and return the File pointer. This implementation uses a simple
-	 * disk cache.
-	 * 
-	 * @param urlString
-	 *            The URL to fetch
-	 * @param cacheDir
-	 *            The directory to store the downloaded file
-	 * @return A File pointing to the fetched bitmap
-	 */
-	public static File downloadBitmapToFile(String urlString, File cacheDir) {
-		LOGD(TAG, "downloadBitmap - downloading - " + urlString);
-
-		disableConnectionReuseIfNecessary();
-		HttpURLConnection urlConnection = null;
-		BufferedOutputStream out = null;
-		BufferedInputStream in = null;
-
-		try {
-			final File tempFile = File.createTempFile("bitmap", null, cacheDir);
-
-			final URL url = new URL(urlString);
-			urlConnection = (HttpURLConnection) url.openConnection();
-			if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				return null;
-			}
-			in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE_BYTES);
-			out = new BufferedOutputStream(new FileOutputStream(tempFile), IO_BUFFER_SIZE_BYTES);
-
-			int b;
-			while ((b = in.read()) != -1) {
-				out.write(b);
-			}
-			return tempFile;
-		} catch (final IOException e) {
-			LOGE(TAG, "Error in downloadBitmap - " + e);
-		} finally {
-			if (urlConnection != null) {
-				urlConnection.disconnect();
-			}
-			try {
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			} catch (final IOException e) {
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -529,27 +425,6 @@ public class ImageFetcher extends ImageWorker {
 			}
 		}
 		return inSampleSize;
-	}
-
-	/**
-	 * Workaround for bug pre-Froyo, see here for more info:
-	 * http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-	 */
-	public static void disableConnectionReuseIfNecessary() {
-		// HTTP connection reuse which was buggy pre-froyo
-		if (hasHttpConnectionBug()) {
-			System.setProperty("http.keepAlive", "false");
-		}
-	}
-
-	/**
-	 * Check if OS version has a http URLConnection bug. See here for more information:
-	 * http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-	 * 
-	 * @return true if this OS version is affected, false otherwise
-	 */
-	public static boolean hasHttpConnectionBug() {
-		return !VersionUtils.hasFroyo();
 	}
 
 	@Override

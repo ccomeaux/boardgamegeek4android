@@ -240,7 +240,7 @@ public class ImageCache {
 	 * @return The bitmap if found in cache, null otherwise
 	 */
 	public Bitmap getBitmapFromMemCache(String data) {
-		if (mMemoryCache != null) {
+		if (mMemoryCache != null && data != null) {
 			final Bitmap memBitmap = mMemoryCache.get(data);
 			if (memBitmap != null) {
 				LOGD(TAG, "Memory cache hit");
