@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class GeekRankingFilter extends SliderFilter {
 	private int mMinRanking;
@@ -48,8 +49,8 @@ public class GeekRankingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new GeekRankingFilterData(activity, mMinRanking, mMaxRanking, mUnranked);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new GeekRankingFilterData(context, mMinRanking, mMaxRanking, mUnranked);
 	}
 
 	@Override

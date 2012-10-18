@@ -23,7 +23,6 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
@@ -172,37 +171,6 @@ public class UIUtils {
 		return projection;
 	}
 
-	public static void showListMessage(Activity activity, int messageResourceId) {
-		showListMessage(activity, messageResourceId, true);
-	}
-
-	public static void showListMessage(Activity activity, int messageResourceId, boolean hideProgressBar) {
-		TextView tv = (TextView) activity.findViewById(R.id.list_message);
-		tv.setText(messageResourceId);
-
-		hideProgressBar(activity, hideProgressBar);
-	}
-
-	public static void showListMessage(Activity activity, String message) {
-		showListMessage(activity, message, true);
-	}
-
-	public static void showListMessage(Activity activity, String message, boolean hideProgressBar) {
-		TextView tv = (TextView) activity.findViewById(R.id.list_message);
-		tv.setText(message);
-
-		hideProgressBar(activity, hideProgressBar);
-	}
-
-	private static void hideProgressBar(Activity activity, boolean hide) {
-		ProgressBar pb = (ProgressBar) activity.findViewById(R.id.list_progress);
-		if (hide) {
-			pb.setVisibility(View.GONE);
-		} else {
-			pb.setVisibility(View.VISIBLE);
-		}
-	}
-
 	public static Random getRandom() {
 		if (mRandom == null) {
 			mRandom = new Random();
@@ -241,6 +209,7 @@ public class UIUtils {
 	}
 
 	private static String KEY_DATA = "_uri";
+	private static String KEY_ACTION = "_action";
 
 	/**
 	 * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
@@ -254,6 +223,11 @@ public class UIUtils {
 		final Uri data = intent.getData();
 		if (data != null) {
 			arguments.putParcelable(KEY_DATA, data);
+		}
+
+		final String action = intent.getAction();
+		if (action != null) {
+			arguments.putString(KEY_ACTION, action);
 		}
 
 		final Bundle extras = intent.getExtras();
@@ -278,8 +252,14 @@ public class UIUtils {
 			intent.setData(data);
 		}
 
+		final String action = arguments.getString(KEY_ACTION);
+		if (action != null) {
+			intent.setAction(action);
+		}
+
 		intent.putExtras(arguments);
 		intent.removeExtra(KEY_DATA);
+		intent.removeExtra(KEY_ACTION);
 		return intent;
 	}
 

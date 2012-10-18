@@ -1,11 +1,11 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
 import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class AverageRatingFilter extends SliderFilter {
 	private static final int FACTOR = 10;
@@ -54,8 +54,8 @@ public class AverageRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new AverageRatingFilterData(activity, mMinRating, mMaxRating);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new AverageRatingFilterData(context, mMinRating, mMaxRating);
 	}
 
 	@Override

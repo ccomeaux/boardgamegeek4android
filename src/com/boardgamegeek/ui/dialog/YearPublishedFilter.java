@@ -1,11 +1,11 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
 import android.view.View;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class YearPublishedFilter extends SliderFilter {
 	private int mMinYear;
@@ -34,8 +34,8 @@ public class YearPublishedFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new YearPublishedFilterData(activity, mMinYear, mMaxYear);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new YearPublishedFilterData(context, mMinYear, mMaxYear);
 	}
 
 	@Override

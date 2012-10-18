@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class AverageWeightFilter extends SliderFilter {
 	private static final int FACTOR = 10;
@@ -49,8 +50,8 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new AverageWeightFilterData(activity, mMinWeight, mMaxWeight, mUndefined);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new AverageWeightFilterData(context, mMinWeight, mMaxWeight, mUndefined);
 	}
 
 	@Override

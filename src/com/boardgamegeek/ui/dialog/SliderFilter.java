@@ -5,50 +5,47 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
+import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.ui.widget.DualSliderView;
 import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
 
 public abstract class SliderFilter {
-	public void createDialog(final CollectionActivity activity, CollectionFilterData filter) {
+	public void createDialog(final Context context, final CollectionView view, CollectionFilterData filter) {
 		initValues(filter);
 
-		LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_slider_filter,
-				(ViewGroup) activity.findViewById(R.id.layout_root));
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 
 		final TextView textInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.slider_filter_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
 
-		initSlider(activity, textInterval, sliderView);
+		initSlider(textInterval, sliderView);
 		initCheckbox(checkbox, sliderView);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(getTitleId())
-				.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						activity.removeFilter(getNegativeData());
-					}
-				}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						captureForm(sliderView.getMinKnobValue(), sliderView.getMaxKnobValue(), checkbox.isChecked());
-						activity.addFilter(getPositiveData(activity));
-					}
-				}).setView(layout);
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(getTitleId())
+			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					view.removeFilter(getNegativeData());
+				}
+			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int id) {
+					captureForm(sliderView.getMinKnobValue(), sliderView.getMaxKnobValue(), checkbox.isChecked());
+					view.addFilter(getPositiveData(context));
+				}
+			}).setView(layout);
 
 		builder.create().show();
 	}
 
-	private void initSlider(final CollectionActivity activity, final TextView textInterval,
-			final DualSliderView sliderView) {
+	private void initSlider(final TextView textInterval, final DualSliderView sliderView) {
 		sliderView.setStartOffset(getStartOffset());
 		sliderView.setRange(getMin(), getMax(), getStep());
 		sliderView.setStartKnobValue(getStart());
@@ -100,7 +97,7 @@ public abstract class SliderFilter {
 
 	protected abstract CollectionFilterData getNegativeData();
 
-	protected abstract CollectionFilterData getPositiveData(final CollectionActivity activity);
+	protected abstract CollectionFilterData getPositiveData(final Context context);
 
 	protected abstract int getStart();
 

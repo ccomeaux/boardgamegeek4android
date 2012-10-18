@@ -42,12 +42,19 @@ public class ResolverUtils {
 	 * Determines if the URI exists in the resolver
 	 */
 	public static boolean rowExists(ContentResolver resolver, Uri uri) {
+		return getCount(resolver, uri) == 1;
+	}
+
+	public static int getCount(ContentResolver resolver, Uri uri) {
 		Cursor cursor = resolver.query(uri, new String[] { BaseColumns._ID }, null, null, null);
-		try {
-			return (cursor.getCount() == 1);
-		} finally {
-			closeCursor(cursor);
+		if (cursor != null) {
+			try {
+				return cursor.getCount();
+			} finally {
+				closeCursor(cursor);
+			}
 		}
+		return 0;
 	}
 
 	/*

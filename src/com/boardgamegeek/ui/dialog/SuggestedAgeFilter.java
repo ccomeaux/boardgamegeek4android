@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class SuggestedAgeFilter extends SliderFilter {
 	private int mMinAge;
@@ -35,8 +36,8 @@ public class SuggestedAgeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new SuggestedAgeFilterData(activity, mMinAge, mMaxAge, mUndefined);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new SuggestedAgeFilterData(context, mMinAge, mMaxAge, mUndefined);
 	}
 
 	@Override

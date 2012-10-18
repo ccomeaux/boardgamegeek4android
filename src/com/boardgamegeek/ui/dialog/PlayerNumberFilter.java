@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
+import android.content.Context;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
-import com.boardgamegeek.ui.CollectionActivity;
 
 public class PlayerNumberFilter extends SliderFilter {
 	private int mMinPlayers;
@@ -53,8 +54,8 @@ public class PlayerNumberFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(CollectionActivity activity) {
-		return new PlayerNumberFilterData(activity, mMinPlayers, mMaxPlayers, mExact);
+	protected CollectionFilterData getPositiveData(Context context) {
+		return new PlayerNumberFilterData(context, mMinPlayers, mMaxPlayers, mExact);
 	}
 
 	@Override
