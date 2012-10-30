@@ -7,7 +7,7 @@
 
 	<ProgressBar
 		android:id="@android:id/progress"
-		style="?android:progressBarStyleSmall"
+		style="?android:attr/progressBarStyleSmall"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginRight="@dimen/padding_standard" />
