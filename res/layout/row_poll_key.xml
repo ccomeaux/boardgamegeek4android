@@ -19,12 +19,15 @@
 		android:ellipsize="end"
 		android:paddingRight="@dimen/padding_standard"
 		android:singleLine="true"
+		android:textColor="@color/dialog_text"
 		android:textSize="@dimen/text_size_small" />
-	<TextView
+
+	<TextView
 		android:id="@+id/row_poll_key_info"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:gravity="right"
+		android:textColor="@color/dialog_text"
 		android:textSize="@dimen/text_size_small" />
 
 </LinearLayout>

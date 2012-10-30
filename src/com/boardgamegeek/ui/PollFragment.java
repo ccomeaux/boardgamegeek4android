@@ -157,6 +157,7 @@ public class PollFragment extends SherlockDialogFragment implements LoaderManage
 	}
 
 	private void createBarChart(Cursor cursor) {
+		mPollList.removeAllViews();
 		PlayerNumberRow row = null;
 		String playerNumber = null;
 		String lastPlayerNumber = "-1";

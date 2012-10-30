@@ -11,6 +11,7 @@
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:padding="@dimen/padding_small"
+		android:textColor="@color/dialog_text"
 		android:textSize="@dimen/text_size_small" />
 
 	<com.boardgamegeek.ui.widget.PlayerNumberBar

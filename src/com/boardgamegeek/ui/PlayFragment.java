@@ -290,7 +290,8 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantity.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
 
-		mLength.setText(getString(R.string.for_) + " " + String.valueOf(mPlay.Length) + " " + R.string.minutes);
+		mLength.setText(getString(R.string.for_) + " " + String.valueOf(mPlay.Length) + " "
+			+ getString(R.string.minutes));
 		mLength.setVisibility((mPlay.Length == 0) ? View.GONE : View.VISIBLE);
 
 		mLocation.setText(getString(R.string.at) + " " + mPlay.Location);
