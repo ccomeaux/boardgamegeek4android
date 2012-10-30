@@ -13,11 +13,17 @@ public class PlayerNumberRow extends LinearLayout {
 	private TextView mTextView;
 
 	public PlayerNumberRow(Context context) {
-		this(context, null);
+		super(context);
+		init(context);
 	}
 
 	public PlayerNumberRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		init(context);
+	}
+
+	public PlayerNumberRow(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
 		init(context);
 	}
 

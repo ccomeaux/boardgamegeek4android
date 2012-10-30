@@ -131,7 +131,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		super.onCreate(savedInstanceState);
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
+		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
 
 		if (savedInstanceState != null) {
