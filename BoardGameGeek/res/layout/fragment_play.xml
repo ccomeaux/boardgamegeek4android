@@ -7,10 +7,10 @@
 
 	<ProgressBar
 		android:id="@+id/progress"
+		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:indeterminateOnly="true" />
+		android:layout_gravity="center" />
 
 	<ScrollView
 		android:id="@+id/play_scroll"
