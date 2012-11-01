@@ -58,7 +58,7 @@ public abstract class BaseProvider {
 	}
 
 	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {
-		throw new UnsupportedOperationException("Unknown uri opening file: " + uri);
+		throw new FileNotFoundException("Unknown uri opening file: " + uri);
 	}
 
 	protected int queryInt(SQLiteDatabase db, SelectionBuilder builder, String columnName) {
