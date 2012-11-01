@@ -30,22 +30,22 @@ public abstract class BaseFileProvider extends BaseProvider {
 		if (!TextUtils.isEmpty(fileName)) {
 			String path = generateContentPath(context, getContentPath());
 			if (path == null) {
-				return null;
+				throw new FileNotFoundException("Can't create path to access the content.");
 			}
 			file = new File(path, fileName);
 		}
 		if (file == null) {
-			return null;
+			throw new FileNotFoundException("Missing file name");
 		}
 
 		if (!file.exists()) {
 			try {
 				if (!file.createNewFile()) {
-					throw new FileNotFoundException();
+					throw new FileNotFoundException("Couldn't create a new file for " + file.getAbsolutePath());
 				}
 			} catch (IOException e) {
 				LOGE(TAG, "Error creating a new file.", e);
-				throw new FileNotFoundException();
+				throw new FileNotFoundException(e.getMessage());
 			}
 		}
 
