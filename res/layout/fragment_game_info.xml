@@ -330,8 +330,9 @@
 
 				<TextView
 					android:id="@+id/game_stats_label"
-					android:layout_width="wrap_content"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:drawableRight="@drawable/expander_open"
 					android:padding="@dimen/padding_standard"
 					android:paddingRight="0dp"
 					android:text="@string/stats"
@@ -339,10 +340,12 @@
 					android:textColor="@color/accent" />
 
 				<include
+					android:id="@+id/game_stats_content"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginBottom="@dimen/padding_standard"
-					layout="@layout/tab_game_stats" />
+					layout="@layout/tab_game_stats"
+					android:visibility="gone" />
 			</LinearLayout>
 
 			<LinearLayout
@@ -357,42 +360,51 @@
 					android:id="@+id/game_info_links_label"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:drawableRight="@drawable/expander_open"
 					android:padding="@dimen/padding_standard"
 					android:text="@string/menu_links"
 					android:textAllCaps="true"
 					android:textColor="@color/accent" />
 
-				<TextView
-					android:id="@+id/game_info_link_bgg"
+				<LinearLayout
+					android:id="@+id/game_info_links_content"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:clickable="true"
-					android:padding="@dimen/padding_standard"
-					android:text="@string/menu_link_bgg" />
+					android:orientation="vertical"
+					android:visibility="gone" >
 
-				<TextView
-					android:id="@+id/game_info_link_bg_prices"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:clickable="true"
-					android:padding="@dimen/padding_standard"
-					android:text="@string/menu_link_bg_prices" />
+					<TextView
+						android:id="@+id/game_info_link_bgg"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="true"
+						android:padding="@dimen/padding_standard"
+						android:text="@string/menu_link_bgg" />
 
-				<TextView
-					android:id="@+id/game_info_link_amazon"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:clickable="true"
-					android:padding="@dimen/padding_standard"
-					android:text="@string/menu_link_amazon" />
+					<TextView
+						android:id="@+id/game_info_link_bg_prices"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="true"
+						android:padding="@dimen/padding_standard"
+						android:text="@string/menu_link_bg_prices" />
 
-				<TextView
-					android:id="@+id/game_info_link_ebay"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:clickable="true"
-					android:padding="@dimen/padding_standard"
-					android:text="@string/menu_link_ebay" />
+					<TextView
+						android:id="@+id/game_info_link_amazon"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="true"
+						android:padding="@dimen/padding_standard"
+						android:text="@string/menu_link_amazon" />
+
+					<TextView
+						android:id="@+id/game_info_link_ebay"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="true"
+						android:padding="@dimen/padding_standard"
+						android:text="@string/menu_link_ebay" />
+				</LinearLayout>
 			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
