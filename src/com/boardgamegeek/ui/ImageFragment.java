@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,8 +14,6 @@ import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public class ImageFragment extends SherlockFragment {
-
-	private Uri mGameUri;
 	private String mImageUrl;
 	private ImageFetcher mImageFetcher;
 	private ImageView mImageView;
@@ -29,10 +26,9 @@ public class ImageFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameUri = intent.getData();
 		mImageUrl = intent.getStringExtra(ImageActivity.KEY_IMAGE_URL);
 
-		if (mGameUri == null || TextUtils.isEmpty(mImageUrl)) {
+		if (TextUtils.isEmpty(mImageUrl)) {
 			return;
 		}
 

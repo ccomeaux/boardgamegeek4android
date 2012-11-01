@@ -73,6 +73,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameActivity"
+			android:exported="false"
 			android:label="@string/title_game"
 			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>
@@ -90,7 +91,11 @@
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.BoardGameGeek" />
+			android:theme="@style/Theme.BoardGameGeek" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
 		<activity
 			android:name=".ui.ProducerActivity"
 			android:exported="false"
@@ -181,8 +186,8 @@
 		<activity
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
-			android:exported="false"
-			android:label="@string/title_search_results"
+			android:exported="true"
+			android:label="@string/search_label"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.BoardGameGeek" >
 			<intent-filter>

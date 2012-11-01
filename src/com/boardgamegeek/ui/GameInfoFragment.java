@@ -272,6 +272,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 					intent.setData(mGameUri);
 					intent.setAction(Intent.ACTION_VIEW);
 					intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+					intent.putExtra(ImageActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
+					intent.putExtra(ImageActivity.KEY_GAME_NAME, mGameName);
 					startActivity(intent);
 				}
 			}
