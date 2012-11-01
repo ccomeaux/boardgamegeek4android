@@ -66,6 +66,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
+	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
+	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 
 	private Uri mGameUri;
 	private ImageFetcher mImageFetcher;
@@ -96,6 +98,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private ExpandableListView mMechanicsView;
 	private ExpandableListView mExpansionsView;
 	private ExpandableListView mBaseGamesView;
+	private TextView mStatsLabel;
+	private View mStatsContent;
 	private LinearLayout mRankRoot;
 	private TextView mRatingsCount;
 	private StatBar mAverageStatBar;
@@ -111,12 +115,16 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private StatBar mNumWantingBar;
 	private StatBar mNumWishingBar;
 	private StatBar mNumWeightingBar;
+	private TextView mLinksLabel;
+	private View mLinksContent;
 	private View mBggLinkView;
 	private View mBgPricesLinkView;
 	private View mAmazonLinkView;
 	private View mEbayLinkView;
 
-	boolean mIsDescriptionOpen;
+	boolean mIsDescriptionExpanded;
+	boolean mIsStatsExpanded;
+	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 	private float mRankTextSize;
 	private int mHPadding;
@@ -151,7 +159,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 
 		if (savedInstanceState != null) {
-			mIsDescriptionOpen = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
+			mIsDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
+			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
+			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
@@ -193,6 +203,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mExpansionsView = (ExpandableListView) rootView.findViewById(R.id.game_info_expansions);
 		mBaseGamesView = (ExpandableListView) rootView.findViewById(R.id.game_info_base_games);
 
+		mStatsLabel = (TextView) rootView.findViewById(R.id.game_stats_label);
+		mStatsContent = rootView.findViewById(R.id.game_stats_content);
+
 		mRankRoot = (LinearLayout) rootView.findViewById(R.id.game_stats_rank_root);
 
 		mRatingsCount = (TextView) rootView.findViewById(R.id.game_stats_rating_count);
@@ -212,6 +225,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_stats_wishing_bar);
 		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_stats_weighting_bar);
 
+		mLinksLabel = (TextView) rootView.findViewById(R.id.game_info_links_label);
+		mLinksContent = rootView.findViewById(R.id.game_info_links_content);
 		mBggLinkView = rootView.findViewById(R.id.game_info_link_bgg);
 		mBgPricesLinkView = rootView.findViewById(R.id.game_info_link_bg_prices);
 		mAmazonLinkView = rootView.findViewById(R.id.game_info_link_amazon);
@@ -265,11 +280,29 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mDescriptionView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mIsDescriptionOpen = !mIsDescriptionOpen;
+				mIsDescriptionExpanded = !mIsDescriptionExpanded;
 				openOrCloseDescription();
 			}
 		});
 		openOrCloseDescription();
+
+		mStatsLabel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mIsStatsExpanded = !mIsStatsExpanded;
+				openOrCloseStats();
+			}
+		});
+		openOrCloseStats();
+
+		mLinksLabel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mIsLinksExpanded = !mIsLinksExpanded;
+				openOrCloseLinks();
+			}
+		});
+		openOrCloseLinks();
 
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -333,7 +366,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionOpen);
+		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
+		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
+		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
 	}
 
 	@Override
@@ -610,9 +645,21 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void openOrCloseDescription() {
-		mDescriptionView.setMaxLines(mIsDescriptionOpen ? Integer.MAX_VALUE : 3);
+		mDescriptionView.setMaxLines(mIsDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
-			mIsDescriptionOpen ? R.drawable.expander_close : R.drawable.expander_open);
+			mIsDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
+	}
+
+	private void openOrCloseStats() {
+		mStatsContent.setVisibility(mIsStatsExpanded ? View.VISIBLE : View.GONE);
+		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close
+			: R.drawable.expander_open, 0);
+	}
+
+	private void openOrCloseLinks() {
+		mLinksContent.setVisibility(mIsLinksExpanded ? View.VISIBLE : View.GONE);
+		mLinksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsLinksExpanded ? R.drawable.expander_close
+			: R.drawable.expander_open, 0);
 	}
 
 	private void launchPoll(String type) {
