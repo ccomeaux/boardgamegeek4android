@@ -25,6 +25,7 @@ public class SearchResultsActivity extends BaseActivity implements SearchResults
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.activity_singlepane_empty);
+		setTitle(R.string.title_search_results);
 
 		if (savedInstanceState == null) {
 			parseIntent(getIntent());

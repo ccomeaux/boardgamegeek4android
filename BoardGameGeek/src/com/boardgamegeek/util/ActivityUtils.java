@@ -97,10 +97,21 @@ public class ActivityUtils {
 	}
 
 	public static void launchGame(Context context, int gameId, String gameName) {
+		final Intent intent = createGameIntent(gameId, gameName);
+		context.startActivity(intent);
+	}
+
+	public static void navigateUpToGame(Context context, int gameId, String gameName) {
+		final Intent intent = createGameIntent(gameId, gameName);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(intent);
+	}
+
+	private static Intent createGameIntent(int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
-		context.startActivity(intent);
+		return intent;
 	}
 
 	public static void share(Context context, String subject, String text, int titleResId) {

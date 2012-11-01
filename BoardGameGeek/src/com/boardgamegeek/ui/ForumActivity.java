@@ -51,9 +51,11 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (mGameId == BggContract.INVALID_ID) {
-					startActivity(new Intent(this, ForumsActivity.class));
+					Intent intent = new Intent(this, ForumsActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
 				} else {
-					ActivityUtils.launchGame(this, mGameId, mGameName);
+					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
 				}
 				finish();
 				return true;

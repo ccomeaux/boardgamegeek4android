@@ -58,6 +58,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
 				intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
 				intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
 				return true;
