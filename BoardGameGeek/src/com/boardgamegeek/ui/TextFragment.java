@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.R;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.boardgamegeek.R;
 
 public class TextFragment extends SherlockFragment {
 	public static final String KEY_TEXT = "KEY_TEXT";

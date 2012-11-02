@@ -26,12 +26,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlaysFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -39,6 +43,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private static final int MENU_PLAY_EDIT = Menu.FIRST;
 	private PlayAdapter mAdapter;
 	private Uri mUri;
+	private int mGameId;
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -59,7 +64,18 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		setListShown(false);
 
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		mUri = (uri != null && Games.isGameUri(uri)) ? Games.buildPlaysUri(Games.getGameId(uri)) : Plays.CONTENT_URI;
+		if (uri != null && Games.isGameUri(uri)) {
+			mGameId = Games.getGameId(uri);
+			mUri = Games.buildPlaysUri(mGameId);
+			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
+		} else {
+			mGameId = BggContract.INVALID_ID;
+			mUri = Plays.CONTENT_URI;
+			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 4) {
+				BggApplication.getInstance().putLastPlaysSync();
+				SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_PLAYS);
+			}
+		}
 
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
@@ -144,8 +160,11 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+			loader.setUpdateThrottle(2000);
+		} else if (id == GameQuery._TOKEN) {
+			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
+				null);
 		}
-		loader.setUpdateThrottle(2000);
 		return loader;
 	}
 
@@ -166,21 +185,32 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		int token = loader.getId();
 		if (token == PlaysQuery._TOKEN) {
 			mAdapter.changeCursor(cursor);
+		} else if (token == GameQuery._TOKEN) {
+			if (cursor != null && cursor.moveToFirst()) {
+				long updated = cursor.getLong(GameQuery.UPDATED_PLAYS);
+				if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > 2) {
+					SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
+				}
+			}
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
+		if (token != GameQuery._TOKEN) {
+			if (isResumed()) {
+				setListShown(true);
+			} else {
+				setListShownNoAnimation(true);
+			}
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		if (loader.getId() == PlaysQuery._TOKEN) {
+			mAdapter.changeCursor(null);
+		}
 	}
 
 	private class PlayAdapter extends CursorAdapter {
@@ -230,11 +260,16 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		}
 	}
 
+	private interface GameQuery {
+		int _TOKEN = 0x22;
+		String[] PROJECTION = { Games.UPDATED_PLAYS };
+		int UPDATED_PLAYS = 0;
+	}
+
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
-
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;

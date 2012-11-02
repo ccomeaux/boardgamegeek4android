@@ -32,7 +32,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastCollectionSync()) > 2) {
 			BggApplication.getInstance().putLastCollectionSync();
-			SyncService.start(this, SyncService.SYNC_TYPE_COLLECTION);
+			SyncService.start(this, null, SyncService.SYNC_TYPE_COLLECTION);
 		}
 
 		UIUtils.showHelpDialog(this, BggApplication.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);

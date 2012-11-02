@@ -97,7 +97,7 @@ public class ProducerFragment extends SherlockFragment implements LoaderManager.
 			UIUtils.setTextMaybeHtml(mDescription, description);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
-				SyncService.start(getActivity(), mToken, id);
+				SyncService.start(getActivity(), null, mToken, id);
 			}
 		} else {
 			if (cursor != null) {

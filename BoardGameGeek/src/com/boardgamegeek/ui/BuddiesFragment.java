@@ -180,7 +180,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	private void triggerRefresh() {
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastBuddiesSync()) > 2) {
 			BggApplication.getInstance().putLastBuddiesSync();
-			SyncService.start(getActivity(), SyncService.SYNC_TYPE_BUDDIES);
+			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_BUDDIES);
 		} else {
 			Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
 		}

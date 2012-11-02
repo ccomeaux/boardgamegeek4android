@@ -56,6 +56,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_VIEWS_SORT = 10;
 	private static final int VER_CASCADING_DELETE = 11;
 	private static final int VER_IMAGE_CACHE = 12;
+	private static final int VER_GAMES_UPDATED_PLAYS = 13;
 	private static final int DATABASE_VERSION = VER_IMAGE_CACHE;
 
 	public interface GamesDesigners {
@@ -254,7 +255,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.STATS_NUMBER_COMMENTS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_NUMBER_WEIGHTS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL).addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
-			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER).setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER).addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
+			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
 	}
 
 	private TableBuilder buildGameRanksTable() {
@@ -508,6 +510,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					LOGE(TAG, "Error clearing the cache", e);
 				}
 				version = VER_IMAGE_CACHE;
+			case VER_IMAGE_CACHE:
+				addColumn(db, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER);
+				version = VER_GAMES_UPDATED_PLAYS;
 		}
 
 		if (version != DATABASE_VERSION) {

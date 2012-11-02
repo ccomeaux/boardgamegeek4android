@@ -26,6 +26,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.HomeActivity;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
@@ -45,6 +46,8 @@ public class SyncService extends IntentService implements LogInListener {
 	public static final int SYNC_TYPE_COLLECTION = 1;
 	public static final int SYNC_TYPE_PLAYS = 2;
 	public static final int SYNC_TYPE_BUDDIES = 3;
+	public static final int SYNC_TYPE_GAME = 4;
+	public static final int SYNC_TYPE_GAME_PLAYS = 5;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
 	public static final int SYNC_TYPE_PUBLISHER = 12;
@@ -60,15 +63,15 @@ public class SyncService extends IntentService implements LogInListener {
 	private LogInHelper mLogInHelper;
 	private boolean mSuppressNotifications;
 
-	public static void start(Context context, int type) {
+	public static void start(Context context, DetachableResultReceiver receiver, int type) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, SyncService.class).putExtra(
-			SyncService.KEY_SYNC_TYPE, type));
+			SyncService.EXTRA_STATUS_RECEIVER, receiver).putExtra(SyncService.KEY_SYNC_TYPE, type));
 	}
 
-	public static void start(Context context, int type, int id) {
+	public static void start(Context context, DetachableResultReceiver receiver, int type, int id) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, SyncService.class)
-			.putExtra(SyncService.KEY_SYNC_TYPE, type).putExtra(KEY_SYNC_ID, id)
-			.putExtra(KEY_SYNC_SUPPRESS_NOTIFICATIONS, true));
+			.putExtra(SyncService.EXTRA_STATUS_RECEIVER, receiver).putExtra(SyncService.KEY_SYNC_TYPE, type)
+			.putExtra(KEY_SYNC_ID, id).putExtra(KEY_SYNC_SUPPRESS_NOTIFICATIONS, true));
 	}
 
 	public SyncService() {
@@ -134,6 +137,12 @@ public class SyncService extends IntentService implements LogInListener {
 		List<SyncTask> tasks = mTaskList.get(syncType);
 		if (tasks == null && syncId != BggContract.INVALID_ID) {
 			switch (syncType) {
+				case SYNC_TYPE_GAME:
+					tasks = createTask(new SyncGame(syncId));
+					break;
+				case SYNC_TYPE_GAME_PLAYS:
+					tasks = createTask(new SyncGamePlays(syncId));
+					break;
 				case SYNC_TYPE_DESIGNER:
 					tasks = createTask(new SyncDesigner(syncId));
 					break;
