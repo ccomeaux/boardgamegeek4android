@@ -48,6 +48,7 @@ public class BggContract {
 		String STATS_AVERAGE_WEIGHT = "average_weight";
 		String LAST_VIEWED = "last_viewed";
 		String STARRED = "starred";
+		String UPDATED_PLAYS = "updated_plays";
 	}
 
 	interface GameRanksColumns {

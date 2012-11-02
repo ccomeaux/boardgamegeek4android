@@ -1,10 +1,13 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,6 +16,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -21,7 +25,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -33,6 +39,8 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	private int mGameId;
 	private String mGameName;
 	private ViewPager mViewPager;
+	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
+	private Menu mOptionsMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,13 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+
+		FragmentManager fm = getSupportFragmentManager();
+		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
+		if (mSyncStatusUpdaterFragment == null) {
+			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
+			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
+		}
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(new GamePagerAdapter(getSupportFragmentManager()));
@@ -61,6 +76,8 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
+		mOptionsMenu = menu;
+		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
 		getSupportMenuInflater().inflate(R.menu.game, menu);
 		setupSearchMenuItem(menu);
 		return true;
@@ -176,11 +193,76 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		changeName(gameName);
 	}
 
+	@Override
+	public DetachableResultReceiver getReceiver() {
+		return mSyncStatusUpdaterFragment.mReceiver;
+	}
+
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			getSupportActionBar().setSubtitle(gameName);
+		}
+	}
+
+	private void updateRefreshStatus(boolean refreshing) {
+		if (mOptionsMenu == null) {
+			return;
+		}
+
+		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
+		if (refreshItem != null) {
+			if (refreshing) {
+				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+			} else {
+				refreshItem.setActionView(null);
+			}
+		}
+	}
+
+	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
+		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
+
+		private boolean mSyncing = false;
+		private DetachableResultReceiver mReceiver;
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setRetainInstance(true);
+			mReceiver = new DetachableResultReceiver(new Handler());
+			mReceiver.setReceiver(this);
+		}
+
+		/** {@inheritDoc} */
+		public void onReceiveResult(int resultCode, Bundle resultData) {
+			GameActivity activity = (GameActivity) getActivity();
+			if (activity == null) {
+				return;
+			}
+
+			switch (resultCode) {
+				case SyncService.STATUS_RUNNING: {
+					mSyncing = true;
+					break;
+				}
+				case SyncService.STATUS_COMPLETE: {
+					mSyncing = false;
+					break;
+				}
+				case SyncService.STATUS_ERROR:
+				default: {
+					final String error = resultData.getString(Intent.EXTRA_TEXT);
+					if (error != null) {
+						LOGW(TAG, "Received unexpected result: " + error);
+						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+					}
+					break;
+				}
+			}
+
+			activity.updateRefreshStatus(mSyncing);
 		}
 	}
 }

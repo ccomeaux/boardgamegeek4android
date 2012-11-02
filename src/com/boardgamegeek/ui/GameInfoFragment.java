@@ -1,21 +1,16 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.apache.http.client.HttpClient;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -40,9 +35,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteGameHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -52,11 +44,12 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -131,17 +124,22 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private int mVPadding;
 
 	private long mUpdated;
-	private boolean mIsRefreshing;
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
 		public void onNameChanged(String gameName);
+
+		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public void onNameChanged(String gameName) {
 		}
+
+		public DetachableResultReceiver getReceiver() {
+			return null;
+		};
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -382,9 +380,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
-			if (mIsRefreshing) {
-				Toast.makeText(getActivity(), "Already refreshing.", Toast.LENGTH_LONG).show();
-			} else if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
+			if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
 				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
 			} else {
 				triggerRefresh();
@@ -673,53 +669,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		new RefreshTask().execute(mGameUri.getLastPathSegment());
-	}
-
-	private class RefreshTask extends AsyncTask<String, Void, String> {
-
-		private HttpClient mHttpClient;
-		private RemoteExecutor mExecutor;
-		private long mStartTime;
-
-		@Override
-		protected void onPreExecute() {
-			mIsRefreshing = true;
-			Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
-			mStartTime = System.currentTimeMillis();
-			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
-			mExecutor = new RemoteExecutor(mHttpClient, getActivity().getContentResolver());
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			String gameId = params[0];
-			LOGD(TAG, "Refreshing game ID=" + gameId);
-			RemoteGameHandler rgh = new RemoteGameHandler();
-			rgh.setParsePolls();
-			try {
-				mExecutor.executeGet(HttpUtils.constructGameUrl(gameId), rgh);
-			} catch (HandlerException e) {
-				LOGE(TAG, "Exception trying to refresh game ID = " + gameId, e);
-				return e.toString();
-			}
-			return "";
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			mIsRefreshing = false;
-			if (isAdded()) {
-				LOGD(TAG, "Refresh took " + (System.currentTimeMillis() - mStartTime) + "ms");
-				String message;
-				if (TextUtils.isEmpty(result)) {
-					message = "Success!";
-				} else {
-					message = getString(R.string.msg_update_error) + "\n" + result;
-				}
-				Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-			}
-		}
+		SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_GAME,
+			Games.getGameId(mGameUri));
 	}
 
 	private interface GameQuery {

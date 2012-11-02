@@ -68,6 +68,10 @@ public class HttpUtils {
 		return BASE_URL_2 + "hot";
 	}
 
+	public static String constructGameUrl(int gameId) {
+		return constructGameUrl(String.valueOf(gameId));
+	}
+
 	public static String constructGameUrl(String gameId) {
 		// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
 		// http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1
