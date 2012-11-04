@@ -16,8 +16,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
-import com.boardgamegeek.util.SelectionBuilder;
-
 public class BggProvider extends ContentProvider {
 	private static final String TAG = makeLogTag(BggProvider.class);
 
@@ -145,7 +143,7 @@ public class BggProvider extends ContentProvider {
 		LOGV(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		Uri newUri = getProvider(uri).insert(db, uri, values);
+		Uri newUri = getProvider(uri).insert(getContext(), db, uri, values);
 		if (newUri != null) {
 			getContext().getContentResolver().notifyChange(newUri, null);
 		}
@@ -155,29 +153,18 @@ public class BggProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		LOGV(TAG, "update(uri=" + uri + ", values=" + values.toString() + ")");
-
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-		int rowCount = getProvider(uri).buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
-
+		int rowCount = getProvider(uri).update(getContext(), mOpenHelper.getWritableDatabase(), uri, values, selection,
+			selectionArgs);
 		LOGV(TAG, "updated " + rowCount + " rows");
-
-		getContext().getContentResolver().notifyChange(uri, null);
-
 		return rowCount;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		LOGV(TAG, "delete(uri=" + uri + ")");
-
 		BaseProvider provider = getProvider(uri);
-		SelectionBuilder builder = provider.buildSimpleSelection(uri).where(selection, selectionArgs);
-
-		int rowCount = builder.delete(mOpenHelper.getWritableDatabase());
+		int rowCount = provider.delete(getContext(), mOpenHelper.getWritableDatabase(), uri, selection, selectionArgs);
 		LOGV(TAG, "deleted " + rowCount + " rows");
-
-		getContext().getContentResolver().notifyChange(uri, null);
-
 		return rowCount;
 	}
 

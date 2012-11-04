@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -20,8 +21,8 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 		int gameId = Games.getGameId(uri);
 		String pollName = Games.getPollName(uri);
 		return new SelectionBuilder().table(Tables.POLLS_JOIN_POLL_RESULTS)
-				.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS).whereEquals(GamePolls.GAME_ID, gameId)
-				.whereEquals(GamePolls.POLL_NAME, pollName);
+			.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS).whereEquals(GamePolls.GAME_ID, gameId)
+			.whereEquals(GamePolls.POLL_NAME, pollName);
 	}
 
 	@Override
@@ -29,10 +30,10 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 		int gameId = Games.getGameId(uri);
 		String pollName = Games.getPollName(uri);
 		return new SelectionBuilder()
-				.table(Tables.GAME_POLL_RESULTS)
-				.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-				.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
-						String.valueOf(gameId), pollName);
+			.table(Tables.GAME_POLL_RESULTS)
+			.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
+			.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
+				String.valueOf(gameId), pollName);
 	}
 
 	@Override
@@ -51,12 +52,12 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		int gameId = Games.getGameId(uri);
 		String pollName = Games.getPollName(uri);
 
 		SelectionBuilder builder = new GamesIdPollsNameProvider().buildSimpleSelection(Games.buildPollsUri(gameId,
-				pollName));
+			pollName));
 		int pollId = queryInt(db, builder, GamePolls._ID);
 		values.put(GamePollResults.POLL_ID, pollId);
 
@@ -68,7 +69,7 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 
 		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values) != -1) {
 			return Games
-					.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+				.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 		}
 		return null;
 	}

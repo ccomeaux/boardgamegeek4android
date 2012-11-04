@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
@@ -37,7 +38,7 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		long filterId = CollectionViews.getViewId(uri);
 		values.put(CollectionViewFilters.VIEW_ID, filterId);
 		long rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values);
@@ -47,7 +48,7 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 
 	private SelectionBuilder buildSelection(Uri uri, String table) {
 		long filterId = CollectionViews.getViewId(uri);
-		return new SelectionBuilder().table(table).where(CollectionViewFilters.VIEW_ID + "=?",
-				String.valueOf(filterId));
+		return new SelectionBuilder().table(table)
+			.where(CollectionViewFilters.VIEW_ID + "=?", String.valueOf(filterId));
 	}
 }

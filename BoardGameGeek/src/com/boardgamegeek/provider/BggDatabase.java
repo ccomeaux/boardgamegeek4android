@@ -57,7 +57,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_CASCADING_DELETE = 11;
 	private static final int VER_IMAGE_CACHE = 12;
 	private static final int VER_GAMES_UPDATED_PLAYS = 13;
-	private static final int DATABASE_VERSION = VER_IMAGE_CACHE;
+	private static final int DATABASE_VERSION = VER_GAMES_UPDATED_PLAYS;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
