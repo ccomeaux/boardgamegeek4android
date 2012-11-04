@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -20,11 +21,11 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		String pollName = Games.getPollName(uri);
 		String players = Games.getPollResultsKey(uri);
 		return new SelectionBuilder()
-				.table(Tables.POLL_RESULTS_JOIN_POLL_RESULTS_RESULT)
-				.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS_RESULT)
-				.whereEquals(GamePollResults.POLL_RESULTS_PLAYERS, players)
-				.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
-						String.valueOf(gameId), pollName);
+			.table(Tables.POLL_RESULTS_JOIN_POLL_RESULTS_RESULT)
+			.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS_RESULT)
+			.whereEquals(GamePollResults.POLL_RESULTS_PLAYERS, players)
+			.where("poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
+				String.valueOf(gameId), pollName);
 	}
 
 	@Override
@@ -33,11 +34,12 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		String pollName = Games.getPollName(uri);
 		String key = Games.getPollResultsKey(uri);
 		return new SelectionBuilder()
-				.table(Tables.GAME_POLL_RESULTS_RESULT)
-				.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
-				.whereEquals(GamePollResults.POLL_RESULTS_KEY, key)
-				.where("game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
-						String.valueOf(gameId), pollName);
+			.table(Tables.GAME_POLL_RESULTS_RESULT)
+			.mapToTable(BaseColumns._ID, Tables.GAME_POLL_RESULTS)
+			.whereEquals(GamePollResults.POLL_RESULTS_KEY, key)
+			.where(
+				"game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id =(SELECT game_poll_results._id FROM game_poll_results WHERE game_poll_results.poll_id = (SELECT game_polls._id FROM game_polls WHERE game_id=? AND poll_name=?)",
+				String.valueOf(gameId), pollName);
 	}
 
 	@Override
@@ -56,13 +58,13 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		int gameId = Games.getGameId(uri);
 		String pollName = Games.getPollName(uri);
 		String players = Games.getPollResultsKey(uri);
 
 		SelectionBuilder builder = new GamesIdPollsNameResultsKeyProvider().buildSimpleSelection(Games
-				.buildPollResultsUri(gameId, pollName, players));
+			.buildPollResultsUri(gameId, pollName, players));
 		int id = queryInt(db, builder, GamePollResultsResult._ID);
 		values.put(GamePollResultsResult.POLL_RESULTS_ID, id);
 
@@ -76,9 +78,10 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		}
 		values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key);
 
+		// TODO: threw a SQLiteConstraintException while syncing Dominion Dark Ages (125403)
 		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values) != -1) {
 			return Games.buildPollResultsResultUri(gameId, pollName, players,
-					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+				values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 		}
 		return null;
 	}
