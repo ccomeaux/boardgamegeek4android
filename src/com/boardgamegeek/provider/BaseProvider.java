@@ -53,8 +53,25 @@ public abstract class BaseProvider {
 		throw new UnsupportedOperationException("Unknown uri getting type: " + uri);
 	}
 
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		throw new UnsupportedOperationException("Unknown uri inserting: " + uri);
+	}
+
+	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection,
+		String[] selectionArgs) {
+		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
+		notifyChange(context, uri);
+		return rowCount;
+	}
+
+	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
+		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).delete(db);
+		notifyChange(context, uri);
+		return rowCount;
+	}
+
+	protected void notifyChange(Context context, Uri uri) {
+		context.getContentResolver().notifyChange(uri, null);
 	}
 
 	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {

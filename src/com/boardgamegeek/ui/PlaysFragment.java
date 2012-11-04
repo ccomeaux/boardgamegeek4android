@@ -44,6 +44,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
+	private boolean mAutoSyncTriggered;
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		if (uri != null && Games.isGameUri(uri)) {
 			mGameId = Games.getGameId(uri);
 			mUri = Games.buildPlaysUri(mGameId);
-			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
+			getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 		} else {
 			mGameId = BggContract.INVALID_ID;
 			mUri = Plays.CONTENT_URI;
@@ -186,7 +187,8 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		if (token == PlaysQuery._TOKEN) {
 			mAdapter.changeCursor(cursor);
 		} else if (token == GameQuery._TOKEN) {
-			if (cursor != null && cursor.moveToFirst()) {
+			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
+				mAutoSyncTriggered = true;
 				long updated = cursor.getLong(GameQuery.UPDATED_PLAYS);
 				if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > 2) {
 					SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);

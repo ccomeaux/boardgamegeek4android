@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
@@ -22,7 +23,7 @@ public abstract class BasicProvider extends BaseProvider {
 	protected abstract String getTable();
 
 	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		mRowId = db.insertOrThrow(getTable(), null, values);
 		if (mRowId != -1) {
 			return BggContract.buildBasicUri(getPath(), getInsertedId(values));

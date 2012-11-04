@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
@@ -45,7 +46,7 @@ public class GamesIdDesignersProvider extends BaseProvider {
 	}
 
 	@Override
-	protected Uri insert(SQLiteDatabase db, Uri uri, ContentValues values) {
+	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		values.put(GamesDesigners.GAME_ID, Games.getGameId(uri));
 		long rowId = db.insertOrThrow(TABLE, null, values);
 		return Games.buildDesignersUri(rowId);
