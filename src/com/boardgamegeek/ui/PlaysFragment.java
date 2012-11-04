@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.BggApplication;
@@ -45,6 +46,12 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private Uri mUri;
 	private int mGameId;
 	private boolean mAutoSyncTriggered;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -74,7 +81,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			mUri = Plays.CONTENT_URI;
 			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 4) {
 				BggApplication.getInstance().putLastPlaysSync();
-				SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_PLAYS);
+				triggerRefresh();
 			}
 		}
 
@@ -94,6 +101,19 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		i.putExtra(PlayActivity.KEY_GAME_ID, cursor.getInt(PlaysQuery.GAME_ID));
 		i.putExtra(PlayActivity.KEY_GAME_NAME, cursor.getString(PlaysQuery.GAME_NAME));
 		startActivity(i);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+		if (item.getItemId() == R.id.menu_refresh) {
+			if (mAutoSyncTriggered) {
+				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
+			} else {
+				triggerRefresh();
+			}
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -191,7 +211,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 				mAutoSyncTriggered = true;
 				long updated = cursor.getLong(GameQuery.UPDATED_PLAYS);
 				if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > 2) {
-					SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
+					triggerRefresh();
 				}
 			}
 		} else {
@@ -212,6 +232,14 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	public void onLoaderReset(Loader<Cursor> loader) {
 		if (loader.getId() == PlaysQuery._TOKEN) {
 			mAdapter.changeCursor(null);
+		}
+	}
+
+	public void triggerRefresh() {
+		if (mGameId == BggContract.INVALID_ID) {
+			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_PLAYS);
+		} else {
+			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
 		}
 	}
 
