@@ -19,7 +19,7 @@
 		android:title="@string/menu_create_shortcut"/>
 	<item
 		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_menu_refresh"
+		android:icon="@drawable/ic_action_refresh"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_refresh"/>
 	<item
