@@ -27,8 +27,6 @@ public class ImageUtils {
 	public static final int IO_BUFFER_SIZE_BYTES = 4 * 1024; // 4KB
 	private static final int MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
 
-	// private static HttpClient sHttpClient;
-
 	public static BitmapDrawable processDrawableFromResolver(Context context, Uri uri, String urlString) {
 		Bitmap bitmap = processBitmapFromResolver(context, uri, urlString);
 		if (bitmap == null) {

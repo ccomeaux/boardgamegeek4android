@@ -245,7 +245,7 @@ public class ActivityUtils {
 		BitmapDrawable d = ImageUtils.processDrawableFromResolver(context, Games.buildThumbnailUri(gameId), null);
 		if (d == null) {
 			shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-				Intent.ShortcutIconResource.fromContext(context, R.drawable.bgg_logo));
+				Intent.ShortcutIconResource.fromContext(context, R.drawable.ic_launcher));
 		} else {
 			Bitmap icon = squarifyBitmap(d);
 
