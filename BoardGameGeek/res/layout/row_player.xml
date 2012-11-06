@@ -8,10 +8,10 @@
 
 	<RelativeLayout
 		android:id="@+id/log_player_edit"
+		style="?android:attr/buttonStyle"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:background="@drawable/button_player" >
+		android:layout_weight="1" >
 
 		<View
 			android:id="@+id/color_swatch"
