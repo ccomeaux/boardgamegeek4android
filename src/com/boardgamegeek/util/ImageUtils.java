@@ -20,10 +20,10 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.database.ResolverUtils;
+import com.boardgamegeek.provider.BggContract;
 
 public class ImageUtils {
 	private static final String TAG = makeLogTag(ImageUtils.class);
-	private static final String INVALID_URL = "N/A";
 	public static final int IO_BUFFER_SIZE_BYTES = 4 * 1024; // 4KB
 	private static final int MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
 
@@ -66,7 +66,7 @@ public class ImageUtils {
 	public static byte[] downloadBitmapToMemory(String urlString, int maxBytes) {
 		LOGD(TAG, "downloadBitmapToMemory - downloading - " + urlString);
 
-		if (TextUtils.isEmpty(urlString) || urlString.equals(INVALID_URL)) {
+		if (TextUtils.isEmpty(urlString) || urlString.equals(BggContract.INVALID_URL)) {
 			return null;
 		}
 

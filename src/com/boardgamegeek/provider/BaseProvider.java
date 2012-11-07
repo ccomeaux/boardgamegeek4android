@@ -23,6 +23,10 @@ public abstract class BaseProvider {
 		return path + "/#";
 	}
 
+	protected String addWildCardToPath(String path) {
+		return path + "/*";
+	}
+
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
 		String[] selectionArgs, String sortOrder) {
 		return buildExpandedSelection(uri).where(selection, selectionArgs).query(db, projection,
