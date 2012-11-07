@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.boardgamegeek.util.FileUtils;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -52,29 +54,16 @@ public abstract class BaseFileProvider extends BaseProvider {
 		return ParcelFileDescriptor.open(file, parcelMode);
 	}
 
-	protected File getFile(Context context, Uri uri) {
+	private File getFile(Context context, Uri uri) {
 		String fileName = generateFileName(context, uri);
 		if (!TextUtils.isEmpty(fileName)) {
-			String path = generateContentPath(context);
+			String path = FileUtils.generateContentPath(context, getContentPath());
 			if (path == null) {
 				return null;
 			}
 			return new File(path, fileName);
 		}
 		return null;
-	}
-
-	private String generateContentPath(Context context) {
-		File base = context.getExternalFilesDir(null);
-		if (base == null) {
-			return null;
-		}
-		String path = base.getPath() + File.separator + "content" + File.separator + getContentPath();
-		File folder = new File(path);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		return path;
 	}
 
 	// from Android ContentResolver.modeToMode

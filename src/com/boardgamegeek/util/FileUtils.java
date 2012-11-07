@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import android.net.Uri;
+import android.content.Context;
 import android.text.TextUtils;
+
+import com.boardgamegeek.provider.BggContract;
 
 public class FileUtils {
 
@@ -17,14 +19,26 @@ public class FileUtils {
 	 * Returns a usable filename from the specified URL.
 	 */
 	public static String getFileNameFromUrl(String url) {
-		if (TextUtils.isEmpty(url)) {
+		if (!TextUtils.isEmpty(url) && !BggContract.INVALID_URL.equals(url)) {
+			int index = url.lastIndexOf('/');
+			if (index > 0) {
+				return url.substring(index + 1);
+			}
+		}
+		return null;
+	}
+
+	public static String generateContentPath(Context context, String type) {
+		File base = context.getExternalFilesDir(null);
+		if (base == null) {
 			return null;
 		}
-		Uri uri = Uri.parse(url);
-		if (uri == null) {
-			return null;
+		String path = base.getPath() + File.separator + "content" + File.separator + type;
+		File folder = new File(path);
+		if (!folder.exists()) {
+			folder.mkdirs();
 		}
-		return uri.getLastPathSegment();
+		return path;
 	}
 
 	// public static boolean clear(File directory) {
@@ -45,10 +59,11 @@ public class FileUtils {
 	/**
 	 * Recursively delete everything in {@code dir}.
 	 */
-	public static void deleteContents(File directory) throws IOException {
+	public static int deleteContents(File directory) throws IOException {
 		// TODO: this should specify paths as Strings rather than as Files
+		int count = 0;
 		if (directory == null || !directory.exists()) {
-			return;
+			return 0;
 		}
 		final File[] files = directory.listFiles();
 		if (files == null) {
@@ -56,12 +71,14 @@ public class FileUtils {
 		}
 		for (final File file : files) {
 			if (file.isDirectory()) {
-				deleteContents(file);
+				count += deleteContents(file);
 			}
 			if (!file.delete()) {
 				throw new IOException("failed to delete file: " + file);
 			}
+			count++;
 		}
+		return count;
 	}
 
 	/*

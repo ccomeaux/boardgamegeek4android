@@ -13,10 +13,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.database.ResolverUtils;
+import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddyUserHandler extends RemoteBggHandler {
@@ -48,14 +51,32 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 		if (!ResolverUtils.rowExists(mResolver, uri)) {
 			if (name.equals(BggApplication.getInstance().getUserName())) {
 				mBatch.add(ContentProviderOperation.newUpdate(Buddies.CONTENT_URI)
-						.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { name }).withValues(values).build());
+					.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { name }).withValues(values).build());
 				mCount++;
 			} else {
 				LOGW(TAG, "Tried to parse user, but ID not in database: " + id);
 			}
 		} else {
-			mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+			maybeDeleteAvatar(values, uri);
+			addUpdate(uri, values);
 			mCount++;
+		}
+	}
+
+	private void maybeDeleteAvatar(ContentValues values, Uri uri) {
+		if (!values.containsKey(Buddies.AVATAR_URL)) {
+			return;
+		}
+
+		String oldAvatarUrl = ResolverUtils.queryString(mResolver, uri, Buddies.AVATAR_URL);
+		String newAvatarUrl = values.getAsString(Buddies.AVATAR_URL);
+		if (newAvatarUrl.equals(oldAvatarUrl)) {
+			return;
+		}
+
+		String avatarFileName = FileUtils.getFileNameFromUrl(oldAvatarUrl);
+		if (!TextUtils.isEmpty(avatarFileName)) {
+			addDelete(Avatars.buildUri(avatarFileName));
 		}
 	}
 

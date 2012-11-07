@@ -16,9 +16,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncListColumns;
+import com.boardgamegeek.provider.BggContract.Thumbnails;
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCollectionHandler extends RemoteBggHandler {
@@ -80,6 +83,23 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			+ mSkipCollectionCount + " collection items");
 	}
 
+	private void maybeDeleteThumbnail(ContentValues values, Uri uri, String column) {
+		if (!values.containsKey(column)) {
+			return;
+		}
+
+		String oldThumbnailUrl = ResolverUtils.queryString(mResolver, uri, column);
+		String newThumbnailUrl = values.getAsString(column);
+		if (newThumbnailUrl.equals(oldThumbnailUrl)) {
+			return;
+		}
+
+		String thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl);
+		if (!TextUtils.isEmpty(thumbnailFileName)) {
+			addDelete(Thumbnails.buildUri(thumbnailFileName));
+		}
+	}
+
 	private void insertOrUpdateGame(int gameId, ContentValues values) {
 		Cursor cursor = null;
 		try {
@@ -91,6 +111,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
 					mUpdateGameCount++;
+					maybeDeleteThumbnail(values, uri, Games.THUMBNAIL_URL);
 					addUpdate(uri, values);
 				} else {
 					mSkipGameCount++;
@@ -119,6 +140,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
 					mUpdateCollectionCount++;
+					maybeDeleteThumbnail(values, uri, Collection.THUMBNAIL_URL);
 					addUpdate(uri, values);
 				} else {
 					mSkipCollectionCount++;

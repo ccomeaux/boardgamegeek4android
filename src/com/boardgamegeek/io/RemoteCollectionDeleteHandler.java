@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.net.Uri;
 
@@ -49,7 +48,7 @@ public class RemoteCollectionDeleteHandler extends RemoteBggHandler {
 				int collectionId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.COLLECTION_ID));
 
 				Uri uri = Collection.buildItemUri(collectionId);
-				mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
+				addUpdate(uri, values);
 				mCount++;
 			}
 		}

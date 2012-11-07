@@ -226,6 +226,18 @@ public class BggContract {
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
+
+		public static Uri buildUri(String avatarFileName) {
+			return CONTENT_URI.buildUpon().appendPath(avatarFileName).build();
+		}
+	}
+
+	public static class Avatars {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_AVATARS).build();
+
+		public static Uri buildUri(String avatarFileName) {
+			return CONTENT_URI.buildUpon().appendPath(avatarFileName).build();
+		}
 	}
 
 	public static class Games implements GamesColumns, BaseColumns, SyncColumns, SyncListColumns {
