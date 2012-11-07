@@ -8,34 +8,33 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
-import com.boardgamegeek.database.ResolverUtils;
-
 public abstract class BaseFileProvider extends BaseProvider {
 	private static final String TAG = makeLogTag(BaseFileProvider.class);
 
-	protected abstract Uri getFileUri(Uri uri);
-
-	protected abstract String getColumnName();
-
 	protected abstract String getContentPath();
+
+	protected abstract String generateFileName(Context context, Uri uri);
+
+	@Override
+	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
+		File file = getFile(context, uri);
+		if (file != null && file.exists()) {
+			boolean deleted = file.delete();
+			return deleted ? 1 : 0;
+		}
+		return 0;
+	}
 
 	@Override
 	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {
-		File file = null;
-		String fileName = fetchFileName(context, getFileUri(uri), getColumnName());
-		if (!TextUtils.isEmpty(fileName)) {
-			String path = generateContentPath(context, getContentPath());
-			if (path == null) {
-				throw new FileNotFoundException("Can't create path to access the content.");
-			}
-			file = new File(path, fileName);
-		}
+		File file = getFile(context, uri);
 		if (file == null) {
-			throw new FileNotFoundException("Missing file name");
+			throw new FileNotFoundException("Couldn't get the file at the specified path.");
 		}
 
 		if (!file.exists()) {
@@ -53,23 +52,24 @@ public abstract class BaseFileProvider extends BaseProvider {
 		return ParcelFileDescriptor.open(file, parcelMode);
 	}
 
-	protected String fetchFileName(Context context, Uri uri, String columnName) {
-		String path = ResolverUtils.queryString(context.getContentResolver(), uri, columnName);
-		if (!TextUtils.isEmpty(path)) {
-			int i = path.lastIndexOf(File.separator);
-			if (i > 0) {
-				return path.substring(i + 1);
+	protected File getFile(Context context, Uri uri) {
+		String fileName = generateFileName(context, uri);
+		if (!TextUtils.isEmpty(fileName)) {
+			String path = generateContentPath(context);
+			if (path == null) {
+				return null;
 			}
+			return new File(path, fileName);
 		}
 		return null;
 	}
 
-	protected String generateContentPath(Context context, String type) {
+	private String generateContentPath(Context context) {
 		File base = context.getExternalFilesDir(null);
 		if (base == null) {
 			return null;
 		}
-		String path = base.getPath() + File.separator + "content" + File.separator + type;
+		String path = base.getPath() + File.separator + "content" + File.separator + getContentPath();
 		File folder = new File(path);
 		if (!folder.exists()) {
 			folder.mkdirs();
@@ -78,7 +78,7 @@ public abstract class BaseFileProvider extends BaseProvider {
 	}
 
 	// from Android ContentResolver.modeToMode
-	protected static int calculateParcelMode(Uri uri, String mode) throws FileNotFoundException {
+	private static int calculateParcelMode(Uri uri, String mode) throws FileNotFoundException {
 		int modeBits;
 		if ("r".equals(mode)) {
 			modeBits = ParcelFileDescriptor.MODE_READ_ONLY;

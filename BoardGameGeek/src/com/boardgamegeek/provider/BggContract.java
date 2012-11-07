@@ -12,6 +12,7 @@ import com.boardgamegeek.util.StringUtils;
 public class BggContract {
 
 	public static final int INVALID_ID = -1;
+	public static final String INVALID_URL = "N/A";
 
 	public interface SyncColumns {
 		String UPDATED = "updated";

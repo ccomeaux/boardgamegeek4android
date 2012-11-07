@@ -4,7 +4,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 
 import android.net.Uri;
 
-public class CollectionThumbnailProvider extends BaseFileProvider {
+public class CollectionIdThumbnailProvider extends IndirectFileProvider {
 
 	@Override
 	protected Uri getFileUri(Uri uri) {

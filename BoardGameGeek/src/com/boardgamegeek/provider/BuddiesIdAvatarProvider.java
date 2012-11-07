@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 
-public class BuddiesAvatarProvider extends BaseFileProvider {
+public class BuddiesIdAvatarProvider extends IndirectFileProvider {
 	@Override
 	protected String getPath() {
 		return "buddies/#/avatars";
