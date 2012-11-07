@@ -1,14 +1,16 @@
 package com.boardgamegeek.pref;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
+import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -17,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
+import com.boardgamegeek.provider.BggContract.Thumbnails;
 
 public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = makeLogTag(ClearDialogPreference.class);
@@ -63,20 +66,29 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			BggApplication.getInstance().clearSyncPlaysSettings();
 
 			int count = 0;
-			count += mResolver.delete(Games.CONTENT_URI, null, null);
-			count += mResolver.delete(Artists.CONTENT_URI, null, null);
-			count += mResolver.delete(Designers.CONTENT_URI, null, null);
-			count += mResolver.delete(Publishers.CONTENT_URI, null, null);
-			count += mResolver.delete(Categories.CONTENT_URI, null, null);
-			count += mResolver.delete(Mechanics.CONTENT_URI, null, null);
-			count += mResolver.delete(Buddies.CONTENT_URI, null, null);
-			count += mResolver.delete(Plays.CONTENT_URI, null, null);
-			count += mResolver.delete(CollectionViews.CONTENT_URI, null, null);
-			LOGD(TAG, "Removed " + count + " records");
+			count += delete(Games.CONTENT_URI);
+			count += delete(Artists.CONTENT_URI);
+			count += delete(Designers.CONTENT_URI);
+			count += delete(Publishers.CONTENT_URI);
+			count += delete(Categories.CONTENT_URI);
+			count += delete(Mechanics.CONTENT_URI);
+			count += delete(Buddies.CONTENT_URI);
+			count += delete(Plays.CONTENT_URI);
+			count += delete(CollectionViews.CONTENT_URI);
+			LOGI(TAG, "Removed " + count + " records");
 
-			// TODO: delete files from content provider
+			count = 0;
+			count += mResolver.delete(Thumbnails.CONTENT_URI, null, null);
+			count += mResolver.delete(Avatars.CONTENT_URI, null, null);
+			LOGI(TAG, "Removed " + count + " files");
 
 			return null;
+		}
+
+		private int delete(Uri uri) {
+			int count = mResolver.delete(uri, null, null);
+			LOGI(TAG, "Removed " + count + " " + uri.getLastPathSegment());
+			return count;
 		}
 	}
 }

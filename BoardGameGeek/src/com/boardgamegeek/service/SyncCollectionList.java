@@ -30,9 +30,9 @@ public class SyncCollectionList extends SyncTask {
 
 			for (int i = 0; i < statuses.length; i++) {
 				get(executor,
-						((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(username, statuses[i], modifiedSince)
-								: HttpUtils.constructCollectionUrl(username, statuses[i])),
-						new RemoteCollectionHandler(startTime));
+					((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(username, statuses[i], modifiedSince)
+						: HttpUtils.constructCollectionUrl(username, statuses[i])), new RemoteCollectionHandler(
+						startTime));
 				if (isBggDown()) {
 					return;
 				}
@@ -41,7 +41,7 @@ public class SyncCollectionList extends SyncTask {
 			if (needsFullSync()) {
 				for (int i = 0; i < statuses.length; i++) {
 					get(executor, HttpUtils.constructBriefCollectionUrl(username, statuses[i]),
-							new RemoteCollectionDeleteHandler(startTime));
+						new RemoteCollectionDeleteHandler(startTime));
 					if (isBggDown()) {
 						return;
 					}
@@ -50,9 +50,10 @@ public class SyncCollectionList extends SyncTask {
 		}
 
 		if (needsFullSync()) {
+			// TODO: delete thunbnail images associated with this list (both collection and game
 			// This next delete removes old collection entries for current games
 			context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-					new String[] { String.valueOf(startTime) });
+				new String[] { String.valueOf(startTime) });
 			BggApplication.getInstance().putCollectionFullSyncTimestamp(startTime);
 		}
 		BggApplication.getInstance().putCollectionPartSyncTimestamp(startTime);

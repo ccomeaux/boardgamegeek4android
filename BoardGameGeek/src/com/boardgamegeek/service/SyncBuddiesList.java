@@ -30,8 +30,9 @@ public class SyncBuddiesList extends SyncTask {
 		if (handler.isBggDown()) {
 			setIsBggDown(true);
 		} else {
+			// TODO: delete avatar images associated with this list
 			resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
-					new String[] { String.valueOf(startTime) });
+				new String[] { String.valueOf(startTime) });
 		}
 	}
 
