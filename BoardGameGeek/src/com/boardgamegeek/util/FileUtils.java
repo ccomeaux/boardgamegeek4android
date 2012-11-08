@@ -41,20 +41,6 @@ public class FileUtils {
 		return path;
 	}
 
-	// public static boolean clear(File directory) {
-	// if (directory != null) {
-	// if (directory.exists()) {
-	// File[] files = directory.listFiles();
-	// for (File file : files) {
-	// file.delete();
-	// }
-	// return directory.delete();
-	// }
-	// return true;
-	// }
-	// return false;
-	// }
-
 	// from libcore.io.IoUtils and com.google.android.apps.iosched
 	/**
 	 * Recursively delete everything in {@code dir}.

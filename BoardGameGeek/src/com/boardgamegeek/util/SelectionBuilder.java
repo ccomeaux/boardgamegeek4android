@@ -193,8 +193,8 @@ public class SelectionBuilder {
 
 	@Override
 	public String toString() {
-		return "table=[" + mTable + "], selection=[" + getSelection() + "], selectionArgs=["
-			+ Arrays.toString(getSelectionArgs()) + "], groupBy=[" + mGroupBy + "], having=[" + mHaving + "]";
+		return "table=[" + mTable + "], selection=[" + getSelection() + "], selectionArgs="
+			+ Arrays.toString(getSelectionArgs()) + ", groupBy=[" + mGroupBy + "], having=[" + mHaving + "]";
 	}
 
 	/**
