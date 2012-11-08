@@ -15,14 +15,15 @@
 
 	<application
 		android:name="BggApplication"
+		android:allowBackup="true"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/app_name"
-		android:logo="@drawable/title_logo" >
+		android:logo="@drawable/title_logo"
+		android:theme="@style/Theme.bgglight" >
 		<activity
 			android:name=".ui.HomeActivity"
 			android:label="@string/app_name"
-			android:launchMode="singleTop"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:launchMode="singleTop" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
@@ -32,8 +33,7 @@
 		<activity
 			android:name=".ui.CollectionActivity"
 			android:exported="false"
-			android:label="@string/title_collection"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_collection" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -50,8 +50,7 @@
 		<activity-alias
 			android:name="CreateShortcutActivity"
 			android:label="@string/title_game"
-			android:targetActivity=".ui.CollectionActivity"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:targetActivity=".ui.CollectionActivity" >
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT" />
 
@@ -65,8 +64,7 @@
 
 		<activity
 			android:name=".ui.HotnessActivity"
-			android:label="@string/title_hotness"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_hotness" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -74,8 +72,7 @@
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="false"
-			android:label="@string/title_game"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_game" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -90,8 +87,7 @@
 		</activity>
 		<activity
 			android:name=".ui.ImageActivity"
-			android:label="@string/title_image"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_image" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -99,8 +95,7 @@
 		<activity
 			android:name=".ui.ProducerActivity"
 			android:exported="false"
-			android:label="@string/app_name"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/app_name" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -118,8 +113,7 @@
 		<activity
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
-			android:label="@string/title_buddies"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_buddies" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -135,8 +129,7 @@
 		<activity
 			android:name=".ui.BuddyActivity"
 			android:exported="false"
-			android:label="@string/title_buddy"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_buddy" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -152,8 +145,7 @@
 		<activity
 			android:name=".ui.PlaysActivity"
 			android:exported="false"
-			android:label="@string/title_plays"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_plays" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -169,8 +161,7 @@
 		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
-			android:label="@string/title_play"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_play" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -188,8 +179,7 @@
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="true"
 			android:label="@string/search_label"
-			android:launchMode="singleTop"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:launchMode="singleTop" >
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 
@@ -205,36 +195,30 @@
 		</activity>
 		<activity
 			android:name=".ui.LogPlayActivity"
-			android:label="@string/title_log_play"
-			android:theme="@style/Theme.BoardGameGeek" />
+			android:label="@string/title_log_play" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
-			android:label="@string/title_log_player"
-			android:theme="@style/Theme.BoardGameGeek" />
+			android:label="@string/title_log_player" />
 		<activity
 			android:name=".ui.ForumsActivity"
 			android:exported="false"
-			android:label="@string/title_forums"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_forums" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
 			android:name=".ui.ForumActivity"
-			android:label="@string/title_forum"
-			android:theme="@style/Theme.BoardGameGeek" />
+			android:label="@string/title_forum" />
 		<activity
 			android:name=".ui.ThreadActivity"
-			android:label="@string/title_thread"
-			android:theme="@style/Theme.BoardGameGeek" />
+			android:label="@string/title_thread" />
 		<activity
 			android:name=".pref.Preferences"
 			android:label="@string/app_name" />
 		<activity
 			android:name=".ui.AboutActivity"
-			android:label="@string/title_about"
-			android:theme="@style/Theme.BoardGameGeek" >
+			android:label="@string/title_about" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
