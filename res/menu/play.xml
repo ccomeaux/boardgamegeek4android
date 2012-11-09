@@ -3,27 +3,27 @@
 
 	<item
 		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_menu_refresh"
+		android:icon="?attr/ic_action_refresh"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_refresh"/>
 	<item
 		android:id="@+id/menu_edit"
-		android:icon="@android:drawable/ic_menu_edit"
+		android:icon="?attr/ic_action_edit"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_edit"/>
 	<item
 		android:id="@+id/menu_delete"
-		android:icon="@android:drawable/ic_menu_delete"
+		android:icon="?attr/ic_action_delete"
 		android:showAsAction="never"
 		android:title="@string/menu_delete"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="@android:drawable/ic_menu_share"
+		android:icon="?attr/ic_action_share"
 		android:showAsAction="never"
 		android:title="@string/menu_share"/>
 	<item
 		android:id="@+id/menu_view_game"
-		android:icon="@android:drawable/ic_menu_view"
+		android:icon="?attr/ic_action_info"
 		android:showAsAction="never"
 		android:title="@string/menu_view_game"/>
 
