@@ -3,27 +3,27 @@
 
 	<item
 		android:id="@+id/menu_send"
-		android:icon="@android:drawable/ic_menu_send"
+		android:icon="?attr/ic_action_send"
 		android:showAsAction="ifRoom"
 		android:title="@string/send"/>
 	<item
 		android:id="@+id/menu_start"
-		android:icon="@drawable/ic_menu_play_clip"
+		android:icon="?attr/ic_action_timer"
 		android:showAsAction="ifRoom"
 		android:title="@string/start"/>
 	<item
 		android:id="@+id/menu_save"
-		android:icon="@android:drawable/ic_menu_save"
+		android:icon="?attr/ic_action_save"
 		android:showAsAction="never"
 		android:title="@string/save"/>
 	<item
 		android:id="@+id/menu_cancel"
-		android:icon="@android:drawable/ic_menu_close_clear_cancel"
+		android:icon="?attr/ic_action_cancel"
 		android:showAsAction="never"
 		android:title="@string/cancel"/>
 	<item
 		android:id="@+id/menu_add_field"
-		android:icon="@android:drawable/ic_menu_add"
+		android:icon="?attr/ic_action_add"
 		android:showAsAction="never"
 		android:title="@string/add_field"/>
 
