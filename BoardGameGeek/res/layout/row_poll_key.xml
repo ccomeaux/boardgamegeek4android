@@ -7,27 +7,27 @@
 
 	<View
 		android:id="@+id/row_poll_key_view"
-		android:layout_width="@dimen/row_dimension"
-		android:layout_height="@dimen/row_dimension"
+		android:layout_width="@dimen/poll_key_height"
+		android:layout_height="@dimen/poll_key_height"
 		android:layout_margin="@dimen/padding_standard" />
 
 	<TextView
 		android:id="@+id/row_poll_key_text"
+		style="@style/Text"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:ellipsize="end"
 		android:paddingRight="@dimen/padding_standard"
 		android:singleLine="true"
-		android:textColor="@color/dialog_text"
-		android:textSize="@dimen/text_size_small" />
+		android:textColor="@color/dialog_text" />
 
 	<TextView
 		android:id="@+id/row_poll_key_info"
+		style="@style/Text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:gravity="right"
-		android:textColor="@color/dialog_text"
-		android:textSize="@dimen/text_size_small" />
+		android:textColor="@color/dialog_text" />
 
 </LinearLayout>

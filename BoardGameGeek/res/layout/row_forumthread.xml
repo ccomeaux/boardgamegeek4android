@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
+	style="@style/RowContainer"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:gravity="center"
-	android:orientation="vertical"
-	android:padding="@dimen/padding_standard" >
+	android:orientation="vertical" >
 
 	<TextView
 		android:id="@+id/thread_title"
-		android:layout_width="fill_parent"
+		style="@style/Text.Primary"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/padding_small"
-		android:textSize="@dimen/text_size_medium"
-		android:textStyle="bold" />
+		android:padding="@dimen/padding_small" />
 
 	<LinearLayout
 		android:id="@+id/thread_info"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:baselineAligned="false" >
 
@@ -28,20 +26,19 @@
 
 			<TextView
 				android:id="@+id/thread_author"
-				android:layout_width="fill_parent"
+				style="@style/Text"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right|center_vertical"
-				android:padding="@dimen/padding_small"
-				android:textSize="@dimen/text_size_small" />
+				android:padding="@dimen/padding_small" />
 
 			<TextView
 				android:id="@+id/thread_postdate"
-				android:layout_width="fill_parent"
+				style="@style/Text.Secondary"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="left|center_vertical"
-				android:paddingLeft="@dimen/padding_small"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:paddingLeft="@dimen/padding_small" />
 		</LinearLayout>
 
 		<LinearLayout
@@ -51,20 +48,19 @@
 
 			<TextView
 				android:id="@+id/thread_numarticles"
+				style="@style/Text"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="right|center_vertical"
-				android:padding="@dimen/padding_small"
-				android:textSize="@dimen/text_size_small" />
+				android:padding="@dimen/padding_small" />
 
 			<TextView
 				android:id="@+id/thread_lastpostdate"
+				style="@style/Text.Secondary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="left|center_vertical"
-				android:paddingLeft="@dimen/padding_small"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:paddingLeft="@dimen/padding_small" />
 		</LinearLayout>
 	</LinearLayout>
 
