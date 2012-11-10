@@ -104,4 +104,36 @@
 		<item name="android:textSize">@dimen/text_size_small</item>
 	</style>
 
+	<style name="Text" parent="@android:style/TextAppearance">
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="Text.Big">
+		<item name="android:textSize">16sp</item>
+	</style>
+
+	<style name="Text.Primary" parent="Text.Big">
+		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Secondary" parent="Text">
+		<item name="android:textColor">@color/light_text</item>
+		<item name="android:textSize">12sp</item>
+	</style>
+
+	<style name="Text.Footnote">
+		<item name="android:textSize">10sp</item>
+	</style>
+
+	<style name="RowContainer">
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
+		<item name="android:padding">@dimen/padding_standard</item>
+	</style>
+
+	<style name="ImageList">
+		<item name="android:layout_marginLeft">@dimen/padding_standard</item>
+		<item name="android:scaleType">centerCrop</item>
+	</style>
+
 </resources>

@@ -7,17 +7,17 @@
 
 	<TextView
 		android:id="@+id/poll_player_text"
+		style="@style/Text"
 		android:layout_width="24sp"
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:padding="@dimen/padding_small"
-		android:textColor="@color/dialog_text"
-		android:textSize="@dimen/text_size_small" />
+		android:textColor="@color/dialog_text" />
 
 	<com.boardgamegeek.ui.widget.PlayerNumberBar
 		android:id="@+id/poll_player_bar"
 		android:layout_width="0dp"
-		android:layout_height="@dimen/row_dimension"
+		android:layout_height="@dimen/poll_key_height"
 		android:layout_weight="1"
 		android:padding="@dimen/padding_small" />
 
