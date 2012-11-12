@@ -134,7 +134,7 @@ public class DualSliderView extends View {
 			mPaintNotSelected = new Paint(); // the paint outside knobs
 			mPaintNotSelected.setColor(Color.GRAY);
 			mPaintText = new Paint(); // the paint for the slider data(the values)
-			mPaintText.setColor(Color.WHITE);
+			mPaintText.setColor(getResources().getColor(R.color.dialog_text));
 
 			// rectangles that define the line between and outside of knob
 			mRectangleSelected = new Rect();

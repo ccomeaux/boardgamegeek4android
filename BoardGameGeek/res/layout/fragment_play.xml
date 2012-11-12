@@ -58,7 +58,7 @@
 
 			<TextView
 				android:id="@+id/play_comments_label"
-				style="@style/log_play_label"
+				style="@style/Text.Label"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
@@ -75,7 +75,7 @@
 
 			<TextView
 				android:id="@+id/play_incomplete"
-				style="@style/log_play_label"
+				style="@style/Text.Label"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
@@ -84,7 +84,7 @@
 
 			<TextView
 				android:id="@+id/play_no_win_stats"
-				style="@style/log_play_label"
+				style="@style/Text.Label"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
