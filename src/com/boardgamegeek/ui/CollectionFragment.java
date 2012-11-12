@@ -23,12 +23,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -110,6 +109,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	public interface Callbacks {
 		public boolean onGameSelected(int gameId, String gameName);
+
 		public void onSetShortcut(Intent intent);
 	}
 
@@ -251,8 +251,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		if (mShortcut) {
-			 Intent shortcut = ActivityUtils.createShortcut(getActivity(), gameId, gameName);
-			 mCallbacks.onSetShortcut(shortcut);
+			Intent shortcut = ActivityUtils.createShortcut(getActivity(), gameId, gameName);
+			mCallbacks.onSetShortcut(shortcut);
 		} else {
 			if (mCallbacks.onGameSelected(gameId, gameName)) {
 				setSelectedGameId(gameId);
@@ -593,10 +593,12 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	}
 
 	private void bindFilterButtons() {
+		final LayoutInflater layoutInflater = getLayoutInflater(null);
 		for (CollectionFilterData filter : mFilters) {
 			Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
 			if (button == null) {
-				mFilterLinearLayout.addView(createFilterButton(filter.getType(), filter.getDisplayText()));
+				mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(),
+					filter.getDisplayText()));
 			} else {
 				button.setText(filter.getDisplayText());
 			}
@@ -612,17 +614,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		}
 	}
 
-	private Button createFilterButton(final int type, String text) {
-		final Button button = new Button(getActivity());
+	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
+		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, null);
 		button.setText(text);
 		button.setTag(type);
-		button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_tiny));
-		button.setLongClickable(true);
-		button.setBackgroundResource(R.drawable.button_filter_normal);
-		// TODO: figure out why there's so much padding in JB compared to API8
-		// int padding = getResources().getDimensionPixelSize(R.dimen.padding_small);
-		// button.setPadding(padding, padding, padding, padding);
-		// button.setMinHeight(1);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
 			ViewGroup.LayoutParams.WRAP_CONTENT);
 		int margin = getResources().getDimensionPixelSize(R.dimen.padding_small);
