@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -34,7 +35,7 @@ public class PieChartView extends View {
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
 		mOvals = new RectF(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight()
-				- getPaddingBottom());
+			- getPaddingBottom());
 	}
 
 	@Override
@@ -45,9 +46,13 @@ public class PieChartView extends View {
 		for (int i = 0; i < mColors.size(); i++) {
 			float sweepAngle = (mColors.get(i).Value / mTotal) * 360;
 			mPaint.setColor(mColors.get(i).Color);
+			mPaint.setStyle(Paint.Style.FILL);
 			canvas.drawArc(mOvals, startAngle - 90, sweepAngle, true, mPaint);
 			startAngle += sweepAngle;
 		}
+		mPaint.setColor(Color.BLACK);
+		mPaint.setStyle(Paint.Style.STROKE);
+		canvas.drawArc(mOvals, 0, 360, true, mPaint);
 	}
 
 	public void addSlice(int value, int color) {
