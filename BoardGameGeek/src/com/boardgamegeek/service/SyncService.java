@@ -48,6 +48,7 @@ public class SyncService extends IntentService implements LogInListener {
 	public static final int SYNC_TYPE_BUDDIES = 3;
 	public static final int SYNC_TYPE_GAME = 4;
 	public static final int SYNC_TYPE_GAME_PLAYS = 5;
+	public static final int SYNC_TYPE_PLAYS_UPLOAD = 6;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
 	public static final int SYNC_TYPE_PUBLISHER = 12;
@@ -98,8 +99,9 @@ public class SyncService extends IntentService implements LogInListener {
 		}
 
 		if (BggApplication.getInstance().getSyncPlays()) {
-			List<SyncTask> list = new ArrayList<SyncTask>(1);
+			List<SyncTask> list = new ArrayList<SyncTask>(2);
 			list.add(new SyncPlays());
+			list.add(new SyncPlaysUpload());
 			tasks.addAll(list);
 			mTaskList.put(SYNC_TYPE_PLAYS, list);
 		}
@@ -135,23 +137,31 @@ public class SyncService extends IntentService implements LogInListener {
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 
 		List<SyncTask> tasks = mTaskList.get(syncType);
-		if (tasks == null && syncId != BggContract.INVALID_ID) {
-			switch (syncType) {
-				case SYNC_TYPE_GAME:
-					tasks = createTask(new SyncGame(syncId));
-					break;
-				case SYNC_TYPE_GAME_PLAYS:
-					tasks = createTask(new SyncGamePlays(syncId));
-					break;
-				case SYNC_TYPE_DESIGNER:
-					tasks = createTask(new SyncDesigner(syncId));
-					break;
-				case SYNC_TYPE_ARTIST:
-					tasks = createTask(new SyncArtist(syncId));
-					break;
-				case SYNC_TYPE_PUBLISHER:
-					tasks = createTask(new SyncPublisher(syncId));
-					break;
+		if (tasks == null) {
+			if (syncId != BggContract.INVALID_ID) {
+				switch (syncType) {
+					case SYNC_TYPE_GAME:
+						tasks = createTask(new SyncGame(syncId));
+						break;
+					case SYNC_TYPE_GAME_PLAYS:
+						tasks = createTask(new SyncGamePlays(syncId));
+						break;
+					case SYNC_TYPE_DESIGNER:
+						tasks = createTask(new SyncDesigner(syncId));
+						break;
+					case SYNC_TYPE_ARTIST:
+						tasks = createTask(new SyncArtist(syncId));
+						break;
+					case SYNC_TYPE_PUBLISHER:
+						tasks = createTask(new SyncPublisher(syncId));
+						break;
+				}
+			} else {
+				switch (syncType) {
+					case SYNC_TYPE_PLAYS_UPLOAD:
+						tasks = createTask(new SyncPlaysUpload());
+						break;
+				}
 			}
 		}
 		if (tasks == null) {
