@@ -9,7 +9,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public abstract class SimpleSinglePaneActivity extends BaseActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
-	private Fragment mFragment;
+	protected Fragment mFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
