@@ -52,7 +52,8 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 
 		int updateCount = 0;
 		int insertCount = 0;
-		int pendingCount = 0;
+		int pendingUpdateCount = 0;
+		int pendingDeleteCount = 0;
 		int inProgressCount = 0;
 		int errorCount = 0;
 
@@ -113,8 +114,11 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 							case PlayPersister.STATUS_INSERT:
 								insertCount++;
 								break;
-							case PlayPersister.STATUS_PENDING:
-								pendingCount++;
+							case PlayPersister.STATUS_PENDING_UPDATE:
+								pendingUpdateCount++;
+								break;
+							case PlayPersister.STATUS_PENDING_DELETE:
+								pendingDeleteCount++;
 								break;
 							case PlayPersister.STATUS_UPDATE:
 								updateCount++;
@@ -146,10 +150,11 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
-			String msg = String.format(
-					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending, %5$s in progress, %6$s errors)",
-					updateCount, insertCount, (pendingCount + inProgressCount + errorCount), pendingCount,
-					inProgressCount, errorCount);
+			String msg = String
+				.format(
+					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s in progress, %7$s errors)",
+					updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
+					pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount);
 			LOGI(TAG, msg);
 		}
 	}

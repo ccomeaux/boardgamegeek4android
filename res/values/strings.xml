@@ -222,6 +222,7 @@
 	<string name="notification_text_collection_list">Syncing collection list</string>
 	<string name="notification_text_collection_detail">Syncing collection detail</string>
 	<string name="notification_text_plays">Syncing plays</string>
+	<string name="notification_text_plays_upload">Uploading plays</string>
 	<string name="notification_text_complete">Sync complete</string>
 	<string name="notification_text_playing">Playing \"%s\"</string>
 	<string name="pref_warning_username">Please set your username first.</string>

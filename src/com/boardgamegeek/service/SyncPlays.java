@@ -3,11 +3,9 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Context;
-import android.database.Cursor;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.PlaySender;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -15,7 +13,6 @@ import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.LogInHelper;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
@@ -28,9 +25,6 @@ public class SyncPlays extends SyncTask {
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
 		mExecutor = executor;
 		mContext = context;
-
-		updatePendingPlays();
-
 		mStartTime = System.currentTimeMillis();
 
 		executePagedGet(HttpUtils.constructPlaysUrlNew(BggApplication.getInstance().getUserName()));
@@ -40,26 +34,6 @@ public class SyncPlays extends SyncTask {
 		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false);
 
 		BggApplication.getInstance().putMaxPlayDate("0000-00-00");
-	}
-
-	private void updatePendingPlays() {
-		LogInHelper helper = new LogInHelper(mContext, null);
-		if (helper.checkCookies()) {
-			PlaySender playSender = new PlaySender(mContext, helper.getCookieStore());
-			Cursor cursor = null;
-			try {
-				cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
-					new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
-				while (cursor.moveToNext()) {
-					Play play = new Play().populate(cursor);
-					playSender.sendPlay(play);
-				}
-			} finally {
-				if (cursor != null && !cursor.isClosed()) {
-					cursor.close();
-				}
-			}
-		}
 	}
 
 	private void executePagedGet(String url) throws HandlerException {

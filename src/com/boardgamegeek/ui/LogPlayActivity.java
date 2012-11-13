@@ -61,6 +61,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -196,7 +197,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	protected void onStop() {
 		super.onStop();
 		if (!isFinishing() && !mLaunchingActivity) {
-			save();
+			save(Play.SYNC_STATUS_IN_PROGRESS);
 			Toast.makeText(this, "Saving draft of play.", Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -226,9 +227,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				logPlay();
+				finish();
 				return true;
 			case R.id.menu_save:
-				save();
+				save(Play.SYNC_STATUS_IN_PROGRESS);
 				finish();
 				return true;
 			case R.id.menu_start:
@@ -283,9 +285,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	}
 
 	private void logPlay() {
-		captureForm();
-		LogPlayTask task = new LogPlayTask();
-		task.execute(mPlay);
+		save(Play.SYNC_STATUS_PENDING_UPDATE);
+		SyncService.start(this, null, SyncService.SYNC_TYPE_PLAYS_UPLOAD);
 	}
 
 	private void quickLogPlay() {
@@ -296,14 +297,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		}
 	}
 
-	private void save() {
+	private void save(int syncStatus) {
 		captureForm();
-		mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+		mPlay.SyncStatus = syncStatus;
 		new PlayPersister(getContentResolver(), mPlay).save();
 	}
 
 	private void startPlay() {
-		save();
+		save(Play.SYNC_STATUS_IN_PROGRESS);
 
 		Intent intent = new Intent(this, LogPlayActivity.class);
 		intent.setAction(Intent.ACTION_EDIT);

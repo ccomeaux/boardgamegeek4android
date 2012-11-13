@@ -35,9 +35,13 @@ public class PlayPersister {
 	 */
 	public static final int STATUS_IN_PROGRESS = 3;
 	/**
-	 * The play is pending a sync, therefore wasn't saved
+	 * The play is pending update, therefore wasn't saved
 	 */
-	public static final int STATUS_PENDING = 4;
+	public static final int STATUS_PENDING_UPDATE = 4;
+	/**
+	 * The play is pending delete, therefore wasn't saved
+	 */
+	public static final int STATUS_PENDING_DELETE = 5;
 	/**
 	 * The save status is unknown, most likely because it hasn't finished executing yet.
 	 */
@@ -155,7 +159,9 @@ public class PlayPersister {
 					if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 						status = STATUS_IN_PROGRESS;
 					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-						status = STATUS_PENDING;
+						status = STATUS_PENDING_UPDATE;
+					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
+						status = STATUS_PENDING_DELETE;
 					} else {
 						status = STATUS_ERROR;
 						LOGE(TAG, "Unknown sync status!");
