@@ -8,23 +8,14 @@
 		<item name="android:layout_weight">1</item>
 		<item name="android:gravity">center</item>
 		<item name="android:drawablePadding">2dp</item>
-		<item name="android:textSize">@dimen/text_size_small</item>
+		<item name="android:textSize">@dimen/text_size</item>
 		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">#ff000000</item>
 		<item name="android:background">@null</item>
-	</style>
-
-	<style name="TableLabel">
-		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:gravity">right</item>
-		<item name="android:paddingRight">10dp</item>
 	</style>
 
 	<style name="StatRow">
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
 	</style>
 
 	<style name="StatBar" parent="@android:style/Widget.ProgressBar.Horizontal">
@@ -37,59 +28,30 @@
 		<item name="android:background">@android:drawable/divider_horizontal_bright</item>
 	</style>
 
-	<style name="StatsHeading">
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingBottom">@dimen/padding_small</item>
-		<item name="android:paddingTop">@dimen/padding_small</item>
-		<item name="android:paddingRight">@dimen/padding_small</item>
-		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:textStyle">bold</item>
-	</style>
-
 	<style name="StatsCount">
 		<item name="android:gravity">right</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_small</item>
-		<item name="android:textSize">@dimen/text_size_small</item>
 	</style>
 
-	<style name="PollProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">18dp</item>
-		<item name="android:progressDrawable">@drawable/progress</item>
-	</style>
-
-	<style name="PollProgressBarText">
-		<item name="android:textSize">@dimen/text_size_xsmall</item>
-		<item name="android:textColor">#fff</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-
-	<style name="log_play_value" parent="android:Widget.TextView">
-		<item name="android:padding">@dimen/padding_standard</item>
-		<item name="android:textSize">@dimen/text_size_medium</item>
-	</style>
-
-	<style name="game_info" parent="android:Widget.TextView">
-		<item name="android:layout_gravity">center_vertical|left</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:padding">@dimen/padding_standard</item>
-		<item name="android:textSize">@dimen/text_size_small</item>
-	</style>
-
-	<style name="game_info_table" parent="game_info">
-		<item name="android:layout_weight">1</item>
-	</style>
-
-	<style name="game_info_button" parent="android:Widget.ImageButton">
+	<style name="Button.Info" parent="android:Widget.ImageButton">
 		<item name="android:adjustViewBounds">true</item>
 	</style>
 
-	<style name="game_info_button_text" parent="android:Widget.TextView">
+	<style name="Text.InfoButton">
 		<item name="android:layout_gravity">center_vertical</item>
-		<item name="android:textSize">@dimen/text_size_small</item>
+	</style>
+
+	<style name="Text.Info">
+		<item name="android:layout_gravity">center_vertical|left</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:padding">@dimen/padding_standard</item>
+	</style>
+
+	<style name="Text.Info.Table">
+		<item name="android:layout_weight">1</item>
 	</style>
 
 	<style name="Text" parent="@android:style/TextAppearance">
@@ -104,6 +66,16 @@
 		<item name="android:textStyle">bold</item>
 	</style>
 
+	<style name="Text.Primary2" parent="Text.Big">
+		<item name="android:textSize">14sp</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Primary3" parent="Text.Big">
+		<item name="android:textSize">10sp</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+
 	<style name="Text.Secondary" parent="Text">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">12sp</item>
@@ -113,16 +85,27 @@
 		<item name="android:textSize">10sp</item>
 	</style>
 
+	<style name="Text.Footnote2">
+		<item name="android:textColor">@color/light_text</item>
+		<item name="android:textSize">10sp</item>
+	</style>
+
 	<style name="Text.Dialog">
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Header">
+	<style name="Text.DialogHeader">
 		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.Header.Dialog">
-		<item name="android:textColor">@color/dialog_text</item>
+	<style name="Text.Title">
+		<item name="android:textSize">22sp</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Subtitle">
+		<item name="android:textColor">@color/light_text</item>
 	</style>
 
 	<style name="Text.Label">
@@ -131,6 +114,10 @@
 		<item name="android:paddingRight">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_small</item>
 		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Label.Dialog">
+		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
 	<style name="Text.CheckboxLabel">
@@ -146,6 +133,28 @@
 	<style name="ImageList">
 		<item name="android:layout_marginLeft">@dimen/padding_standard</item>
 		<item name="android:scaleType">centerCrop</item>
+	</style>
+
+	<style name="InfoSection">
+		<item name="android:background">@drawable/grey_frame_on_white_b</item>
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
+		<item name="android:padding">@dimen/padding_standard</item>
+	</style>
+
+	<style name="Text.Header">
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textColor">@color/accent</item>
+	</style>
+
+	<style name="Text.Header.Expandable">
+		<item name="android:drawableRight">@drawable/expander_open</item>
+		<item name="android:paddingRight">0dp</item>
+	</style>
+
+	<style name="Text.Header2">
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
 </resources>

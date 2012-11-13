@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<dimen name="text_size_tiny">10sp</dimen>
-	<dimen name="text_size_xsmall">12sp</dimen>
-	<dimen name="text_size_small">14sp</dimen>
-	<dimen name="text_size_medium">18sp</dimen>
-	<dimen name="text_size_large">22sp</dimen>
-	<dimen name="text_size_huge">30sp</dimen>
+	<dimen name="action_button_min_width">56dp</dimen>
+	<dimen name="avatar_size">64dp</dimen>
 	<dimen name="padding_small">2dp</dimen>
 	<dimen name="padding_standard">6dp</dimen>
 	<dimen name="padding_extra">12dp</dimen>
-	<dimen name="image_size">64dp</dimen>
-	<dimen name="thumbnail_list_size">45dp</dimen>
-	<dimen name="thumbnail_size">60dp</dimen>
-	<dimen name="poll_key_height">20dp</dimen>
-	<dimen name="progress_bar_small">30dp</dimen>
-	<!-- NEW -->
-	<dimen name="action_button_min_width">56dp</dimen>
-	<dimen name="avatar_size">64dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
+	<dimen name="poll_key_height">20dp</dimen>
+	<dimen name="text_size">14sp</dimen>
+	<dimen name="thumbnail_list_size">45dp</dimen>
+	<dimen name="thumbnail_size">72dp</dimen>
 
 </resources>

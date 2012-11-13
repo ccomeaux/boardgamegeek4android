@@ -35,15 +35,15 @@ public class StatBar extends RelativeLayout {
 	private void init(Context context) {
 		mProgressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
 		mProgressBar.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, (int) TypedValue
-				.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics())));
+			.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics())));
 		mProgressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progress));
 
 		mTextView = new TextView(context);
-		mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
+		mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size));
 		mTextView.setTextColor(Color.WHITE);
 		mTextView.setGravity(Gravity.CENTER);
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+			LayoutParams.WRAP_CONTENT);
 		lp.addRule(ALIGN_TOP, mProgressBar.getId());
 		lp.addRule(ALIGN_BOTTOM, mProgressBar.getId());
 		mTextView.setLayoutParams(lp);

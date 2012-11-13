@@ -20,8 +20,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,9 +117,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	boolean mIsStatsExpanded;
 	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
-	private float mRankTextSize;
-	private int mHPadding;
-	private int mVPadding;
 
 	private long mUpdated;
 	private boolean mMightNeedRefreshing;
@@ -257,10 +252,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 				ActivityUtils.linkEbay(getActivity(), mGameName);
 			}
 		});
-
-		mRankTextSize = getResources().getDimension(R.dimen.text_size_small);
-		mHPadding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
-		mVPadding = getResources().getDimensionPixelSize(R.dimen.padding_small);
 
 		mThumbnailView.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -598,34 +589,18 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		// TODO: move this to XML
-		LinearLayout layout = new LinearLayout(getActivity());
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-		layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-			LinearLayout.LayoutParams.WRAP_CONTENT));
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, null);
 
-		TextView tv = new TextView(getActivity(), null, R.style.StatsHeading);
-		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-			LinearLayout.LayoutParams.WRAP_CONTENT));
-		tv.setPadding(mHPadding, mVPadding, mVPadding, mVPadding);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
+		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);
-		layout.addView(tv);
 
-		tv = new TextView(getActivity());
-		tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-			LinearLayout.LayoutParams.WRAP_CONTENT));
-		tv.setPadding(mHPadding, mVPadding, mHPadding, mVPadding);
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mRankTextSize);
-		tv.setGravity(Gravity.RIGHT);
+		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
 		String rankText = (rank == 0) ? getResources().getString(R.string.text_not_available) : String.valueOf(rank);
 		setText(tv, rankText, bold);
-		layout.addView(tv);
 
 		StatBar sb = new StatBar(getActivity());
 		sb.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 			LinearLayout.LayoutParams.MATCH_PARENT));
-		sb.setPadding(mHPadding, mVPadding, mHPadding, mVPadding);
 		sb.setBar(R.string.average_meter_text, rating);
 
 		mRankRoot.addView(layout);

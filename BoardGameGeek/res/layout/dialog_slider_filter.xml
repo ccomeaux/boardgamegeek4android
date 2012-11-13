@@ -8,7 +8,7 @@
 
 	<TextView
 		android:id="@+id/slider_filter_text"
-		style="@style/Text.Header.Dialog"
+		style="@style/Text.DialogHeader"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center" />
