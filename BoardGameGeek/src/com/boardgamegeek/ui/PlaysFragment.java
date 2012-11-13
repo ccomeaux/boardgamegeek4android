@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -37,6 +38,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlaysFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -46,6 +48,18 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private Uri mUri;
 	private int mGameId;
 	private boolean mAutoSyncTriggered;
+
+	public interface Callbacks {
+		public DetachableResultReceiver getReceiver();
+	}
+
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		public DetachableResultReceiver getReceiver() {
+			return null;
+		};
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -71,14 +85,13 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		setEmptyText(getString(R.string.empty_plays));
 		setListShown(false);
 
+		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
 		if (uri != null && Games.isGameUri(uri)) {
 			mGameId = Games.getGameId(uri);
-			mUri = Games.buildPlaysUri(mGameId);
 			getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 		} else {
 			mGameId = BggContract.INVALID_ID;
-			mUri = Plays.CONTENT_URI;
 			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 4) {
 				BggApplication.getInstance().putLastPlaysSync();
 				triggerRefresh();
@@ -86,6 +99,23 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		}
 
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -180,7 +210,12 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+			if (mGameId == BggContract.INVALID_ID) {
+				loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+			} else {
+				loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayItems.OBJECT_ID + "=?",
+					new String[] { String.valueOf(mGameId) }, null);
+			}
 			loader.setUpdateThrottle(2000);
 		} else if (id == GameQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
@@ -197,7 +232,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 		if (mAdapter == null) {
 			mAdapter = new PlayAdapter(getActivity());
-			if (Games.isGameUri(mUri)) {
+			if (mGameId != BggContract.INVALID_ID) {
 				mAdapter.setRowResId(R.layout.row_play_game);
 			}
 			setListAdapter(mAdapter);
@@ -237,9 +272,9 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 	public void triggerRefresh() {
 		if (mGameId == BggContract.INVALID_ID) {
-			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_PLAYS);
+			SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_PLAYS);
 		} else {
-			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
+			SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
 		}
 	}
 

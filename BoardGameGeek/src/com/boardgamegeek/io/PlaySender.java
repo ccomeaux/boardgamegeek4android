@@ -34,14 +34,12 @@ public class PlaySender {
 
 	private Context mContext;
 	private Resources mResources;
-	private CookieStore mCookieStore;
 	private HttpClient mClient;
 
 	public PlaySender(Context context, CookieStore cookieStore) {
 		mContext = context;
 		mResources = mContext.getResources();
-		mCookieStore = cookieStore;
-		mClient = HttpUtils.createHttpClient(mContext, mCookieStore);
+		mClient = HttpUtils.createHttpClient(mContext, cookieStore);
 	}
 
 	public Result sendPlay(Play play) {
