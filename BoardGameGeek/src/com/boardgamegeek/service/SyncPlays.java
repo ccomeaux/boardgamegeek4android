@@ -49,7 +49,7 @@ public class SyncPlays extends SyncTask {
 			Cursor cursor = null;
 			try {
 				cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
-						new String[] { String.valueOf(Play.SYNC_STATUS_PENDING) }, null);
+					new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 				while (cursor.moveToNext()) {
 					Play play = new Play().populate(cursor);
 					playSender.sendPlay(play);
@@ -76,7 +76,7 @@ public class SyncPlays extends SyncTask {
 
 	private void deleteMissingPlays(String date, boolean isMinDate) {
 		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (isMinDate ? ">" : "<") + "=? AND "
-				+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
+			+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
 		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
 		LOGI(TAG, "Deleted " + count + " plays");

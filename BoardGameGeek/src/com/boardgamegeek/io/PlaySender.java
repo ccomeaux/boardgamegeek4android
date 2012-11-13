@@ -167,7 +167,7 @@ public class PlaySender {
 
 	private void savePending(Play play) {
 		LOGI(TAG, "Saving " + play.PlayId + " as pending due to sync problem");
-		play.SyncStatus = Play.SYNC_STATUS_PENDING;
+		play.SyncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
 		new PlayPersister(mContext.getContentResolver(), play).save();
 	}
 
