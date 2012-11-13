@@ -47,6 +47,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
+	private int mFilter;
 	private boolean mAutoSyncTriggered;
 
 	public interface Callbacks {
@@ -211,7 +212,12 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
 			if (mGameId == BggContract.INVALID_ID) {
-				loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+				if (mFilter == Play.SYNC_STATUS_ALL) {
+					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+				} else {
+					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, Plays.SYNC_STATUS + "=?",
+						new String[] { String.valueOf(mFilter) }, null);
+				}
 			} else {
 				loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayItems.OBJECT_ID + "=?",
 					new String[] { String.valueOf(mGameId) }, null);
@@ -276,6 +282,12 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		} else {
 			SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_GAME_PLAYS, mGameId);
 		}
+	}
+
+	public void filter(int filter) {
+		mFilter = filter;
+		// right now, filters can't be applied while viewing by game
+		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	private class PlayAdapter extends CursorAdapter {

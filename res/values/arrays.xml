@@ -64,5 +64,12 @@
 		<item>Thinking about it</item>
 		<item>Don\'t buy this</item>
 	</string-array>
+	<string-array name="plays_filter">
+		<item>Plays</item>
+		<item>Synced</item>
+		<item>In Progress</item>
+		<item>Pending Update</item>
+		<item>Pending Delete</item>
+	</string-array>
 
 </resources>

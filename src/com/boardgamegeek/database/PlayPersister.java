@@ -117,7 +117,7 @@ public class PlayPersister {
 		} else if (status == STATUS_INSERT) {
 			if (!mPlay.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as in progress
-				if (mPlay.SyncStatus != Play.SYNC_STATUS_PENDING) {
+				if (mPlay.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE) {
 					mPlay.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
 			}
@@ -154,7 +154,7 @@ public class PlayPersister {
 				if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {
 					if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 						status = STATUS_IN_PROGRESS;
-					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING) {
+					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 						status = STATUS_PENDING;
 					} else {
 						status = STATUS_ERROR;

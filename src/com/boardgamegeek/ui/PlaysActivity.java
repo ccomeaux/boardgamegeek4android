@@ -7,23 +7,34 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 
-public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks,
+	ActionBar.OnNavigationListener {
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		ArrayAdapter<CharSequence> mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.plays_filter,
+			R.layout.sherlock_spinner_item);
+		mSpinnerAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+		actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
@@ -34,9 +45,29 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 
 		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
 			BggApplication.getInstance().putLastPlaysSync();
-			startService(new Intent(Intent.ACTION_SYNC, null, this, SyncService.class).putExtra(
-				SyncService.KEY_SYNC_TYPE, SyncService.SYNC_TYPE_PLAYS));
+			((PlaysFragment) mFragment).triggerRefresh();
 		}
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		int filter = Play.SYNC_STATUS_ALL;
+		switch (itemPosition) {
+			case 1:
+				filter = Play.SYNC_STATUS_SYNCED;
+				break;
+			case 2:
+				filter = Play.SYNC_STATUS_IN_PROGRESS;
+				break;
+			case 3:
+				filter = Play.SYNC_STATUS_PENDING_UPDATE;
+				break;
+			case 4:
+				filter = Play.SYNC_STATUS_PENDING_DELETE;
+				break;
+		}
+		((PlaysFragment) mFragment).filter(filter);
+		return true;
 	}
 
 	@Override

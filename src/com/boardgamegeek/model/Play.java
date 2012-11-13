@@ -30,6 +30,10 @@ import com.boardgamegeek.util.CursorUtils;
 
 public class Play {
 	/**
+	 * Used for filtering to include all plays
+	 */
+	public static final int SYNC_STATUS_ALL = -2;
+	/**
 	 * The play has not been synced and isn't stored in the database
 	 */
 	public static final int SYNC_STATUS_NOT_STORED = -1;
@@ -38,13 +42,17 @@ public class Play {
 	 */
 	public static final int SYNC_STATUS_SYNCED = 0;
 	/**
-	 * The play is ready to be synced, but doesn't exist on the 'Geek
+	 * The play is ready to be synced, but doesn't exist on the 'Geek, or has local modifications?
 	 */
-	public static final int SYNC_STATUS_PENDING = 1;
+	public static final int SYNC_STATUS_PENDING_UPDATE = 1;
 	/**
 	 * The play is currently being edited and will not sync until the user manually tries to sync it
 	 */
 	public static final int SYNC_STATUS_IN_PROGRESS = 2;
+	/**
+	 * The play is ready to be deleted
+	 */
+	public static final int SYNC_STATUS_PENDING_DELETE = 3;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 
