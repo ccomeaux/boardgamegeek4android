@@ -5,13 +5,12 @@
 
 	<TextView
 		android:id="@+id/label"
+		style="@style/Text.Header"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
-		android:padding="0dp"
-		android:textAllCaps="true"
-		android:textColor="@color/accent" />
+		android:padding="0dp" />
 
 	<TextView
 		android:id="@+id/summary"

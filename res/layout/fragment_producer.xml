@@ -6,18 +6,24 @@
 
 	<TextView
 		android:id="@+id/name"
+		style="@style/Text.Title"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="@dimen/padding_standard"
-		android:textSize="@dimen/text_size_large" />
+		android:paddingBottom="@dimen/padding_small"
+		android:paddingLeft="@dimen/padding_standard"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_standard" />
 
 	<TextView
 		android:id="@+id/id"
+		style="@style/Text.Secondary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="right"
-		android:padding="@dimen/padding_standard"
-		android:textSize="@dimen/text_size_tiny" />
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/padding_standard"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_small" />
 
 	<ScrollView
 		android:layout_width="match_parent"

@@ -6,4 +6,4 @@
 	android:background="@drawable/button_filter_normal"
 	android:longClickable="true"
 	android:minHeight="24dp"
-	android:textSize="@dimen/text_size_tiny" />
+	android:textSize="10sp" />

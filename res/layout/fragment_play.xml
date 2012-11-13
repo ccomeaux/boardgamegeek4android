@@ -21,40 +21,40 @@
 		android:visibility="gone" >
 
 		<RelativeLayout
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content" >
 
 			<TextView
 				android:id="@+id/play_date"
-				style="@style/log_play_value"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_alignParentTop="true" />
+				android:layout_alignParentTop="true"
+				android:padding="@dimen/padding_standard" />
 
 			<TextView
 				android:id="@+id/play_quantity"
-				style="@style/log_play_value"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_date" />
+				android:layout_below="@+id/play_date"
+				android:padding="@dimen/padding_standard" />
 
 			<TextView
 				android:id="@+id/play_length"
-				style="@style/log_play_value"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_quantity" />
+				android:layout_below="@+id/play_quantity"
+				android:padding="@dimen/padding_standard" />
 
 			<TextView
 				android:id="@+id/play_location"
-				style="@style/log_play_value"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_length" />
+				android:layout_below="@+id/play_length"
+				android:padding="@dimen/padding_standard" />
 
 			<TextView
 				android:id="@+id/play_comments_label"
@@ -67,11 +67,11 @@
 
 			<TextView
 				android:id="@+id/play_comments"
-				style="@style/log_play_value"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_comments_label" />
+				android:layout_below="@+id/play_comments_label"
+				android:padding="@dimen/padding_standard" />
 
 			<TextView
 				android:id="@+id/play_incomplete"
@@ -101,39 +101,35 @@
 
 			<TextView
 				android:id="@+id/play_unsynced_message"
+				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_player_list"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:layout_below="@+id/play_player_list" />
 
 			<TextView
 				android:id="@+id/play_saved"
+				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_unsynced_message"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:layout_below="@+id/play_unsynced_message" />
 
 			<TextView
 				android:id="@+id/play_id"
+				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@+id/play_player_list"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:layout_below="@+id/play_player_list" />
 
 			<TextView
 				android:id="@+id/updated"
+				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@+id/play_id"
-				android:textColor="@color/light_text"
-				android:textSize="@dimen/text_size_tiny" />
+				android:layout_below="@+id/play_id" />
 		</RelativeLayout>
 	</ScrollView>
 

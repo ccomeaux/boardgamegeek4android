@@ -9,25 +9,23 @@
 
 	<TextView
 		android:id="@+id/buddy_username"
+		style="@style/Text"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:textSize="@dimen/text_size_medium" />
+		android:layout_height="wrap_content" />
 
 	<TextView
 		android:id="@+id/buddy_description"
+		style="@style/Text.Footnote2"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/buddy_username"
-		android:textColor="@color/light_text"
-		android:textSize="@dimen/text_size_tiny" />
+		android:layout_below="@id/buddy_username" />
 
 	<TextView
 		android:id="@+id/buddy_nickname"
+		style="@style/Text.Footnote"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentRight="true"
-		android:layout_below="@id/buddy_username"
-		android:textColor="@color/light_text"
-		android:textSize="@dimen/text_size_tiny" />
+		android:layout_below="@id/buddy_username" />
 
 </RelativeLayout>
