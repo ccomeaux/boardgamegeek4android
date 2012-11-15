@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import com.boardgamegeek.service.SyncService;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -41,5 +43,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	public void onDeleted() {
 		finish();
+		SyncService.start(this, null, SyncService.SYNC_TYPE_PLAYS_UPLOAD);
 	}
 }

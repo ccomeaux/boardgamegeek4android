@@ -281,19 +281,22 @@ public class HttpUtils {
 		}
 	}
 
+	/**
+	 * Parses an HttpResponse to a string. 
+	 */
 	public static String parseResponse(HttpResponse response) throws IOException {
 		if (response == null) {
-			return null;
+			return "";
 		}
 
 		final HttpEntity entity = response.getEntity();
 		if (entity == null) {
-			return null;
+			return "";
 		}
 
 		final InputStream stream = entity.getContent();
 		if (stream == null) {
-			return null;
+			return "";
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -303,7 +306,7 @@ public class HttpUtils {
 				reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				LOGE(TAG, "Parsing response", e);
-				return null;
+				return "";
 			}
 			String line;
 			while ((line = reader.readLine()) != null) {

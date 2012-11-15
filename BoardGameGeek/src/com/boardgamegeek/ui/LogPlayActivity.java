@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
@@ -18,13 +17,11 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -51,13 +48,9 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
-import com.boardgamegeek.io.PlaySender;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.Preferences;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.GameColors;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -107,7 +100,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
-	private View mProgressView;
 
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -286,6 +278,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
+		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
 		SyncService.start(this, null, SyncService.SYNC_TYPE_PLAYS_UPLOAD);
 	}
 
@@ -472,7 +465,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
 		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
-		mProgressView = findViewById(R.id.progress);
 	}
 
 	private void hideFields() {
@@ -513,87 +505,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	private boolean hidePlayers() {
 		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown
 			&& (mPlay.getPlayers().size() == 0);
-	}
-
-	class LogPlayTask extends AsyncTask<Play, Void, PlaySender.Result> {
-		Play mPlay;
-
-		@Override
-		protected void onPreExecute() {
-			mProgressView.setVisibility(View.VISIBLE);
-		}
-
-		@Override
-		protected PlaySender.Result doInBackground(Play... params) {
-			mPlay = params[0];
-
-			updateColors();
-			updateBuddyNicknames();
-			LOGD(TAG, "Sending play ID=" + mPlay.PlayId);
-			return new PlaySender(LogPlayActivity.this, mLogInHelper.getCookieStore()).sendPlay(mPlay);
-		}
-
-		/**
-		 * Add the current players' team/colors to the permanent list.
-		 */
-		private void updateColors() {
-			if (mPlay.getPlayers().size() > 0) {
-				List<ContentValues> values = new ArrayList<ContentValues>();
-				for (Player player : mPlay.getPlayers()) {
-					String color = player.TeamColor;
-					if (!TextUtils.isEmpty(color)) {
-						ContentValues cv = new ContentValues();
-						cv.put(GameColors.COLOR, player.TeamColor);
-						values.add(cv);
-					}
-				}
-				if (values.size() > 0) {
-					ContentValues[] array = {};
-					getContentResolver().bulkInsert(Games.buildColorsUri(mPlay.GameId), values.toArray(array));
-				}
-			}
-		}
-
-		/**
-		 * Update Geek buddies' nicknames with the names used here.
-		 */
-		private void updateBuddyNicknames() {
-			if (mPlay.getPlayers().size() > 0) {
-				for (Player player : mPlay.getPlayers()) {
-					if (!TextUtils.isEmpty(player.Username) && !TextUtils.isEmpty(player.Name)) {
-						ContentValues values = new ContentValues();
-						values.put(Buddies.PLAY_NICKNAME, player.Name);
-						getContentResolver().update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
-							new String[] { player.Username });
-					}
-				}
-			}
-		}
-
-		@Override
-		protected void onPostExecute(PlaySender.Result result) {
-			LOGD(TAG, "play result: " + result);
-			mProgressView.setVisibility(View.GONE);
-			if (result.isValidResponse()) {
-				String message = getResources().getString(R.string.msg_play_updated);
-				if (!mPlay.hasBeenSynced()) {
-					String countDescription = result.getPlayCountDescription();
-					message = String.format(getResources().getString(R.string.logPlaySuccess), countDescription,
-						mPlay.GameName);
-				}
-				showToast(message);
-			} else {
-				showToast(result.ErrorMessage);
-			}
-			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
-			finish();
-		}
-
-		private void showToast(String result) {
-			if (!TextUtils.isEmpty(result)) {
-				Toast.makeText(LogPlayActivity.this, result, Toast.LENGTH_LONG).show();
-			}
-		}
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
