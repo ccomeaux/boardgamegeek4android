@@ -4,7 +4,10 @@ import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -44,6 +47,7 @@ import com.boardgamegeek.util.UIUtils;
 public class PlaysFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	private static final int MENU_PLAY_EDIT = Menu.FIRST;
+	private static final int MENU_PLAY_DELETE = Menu.FIRST + 1;
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
@@ -165,8 +169,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 		menu.setHeaderTitle(gameName);
 		menu.add(0, MENU_PLAY_EDIT, 0, R.string.menu_edit);
-		// MenuItem mi = menu.add(0, MENU_PLAY_DELETE, 0, R.string.menu_delete);
-		// mi.setEnabled(mLogInHelper.checkCookies());
+		menu.add(0, MENU_PLAY_DELETE, 0, R.string.menu_delete);
 		// TODO: add Send and Share menu items
 	}
 
@@ -185,24 +188,27 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			return false;
 		}
 
+		final int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 		switch (item.getItemId()) {
 			case MENU_PLAY_EDIT: {
-				ActivityUtils.logPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
-					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME));
+				ActivityUtils.logPlay(getActivity(), playId, cursor.getInt(PlaysQuery.GAME_ID),
+					cursor.getString(PlaysQuery.GAME_NAME));
 				return true;
 			}
-			// case MENU_PLAY_DELETE: {
-			// final int playId = cursor.getInt(Query.PLAY_ID);
-			// AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			// builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_play)
-			// .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-			// public void onClick(DialogInterface dialog, int id) {
-			// ActivityUtils.deletePlay(PlaysActivity.this, mLogInHelper.getCookieStore(), playId);
-			// }
-			// }).setNegativeButton(R.string.no, null);
-			// builder.create().show();
-			// return true;
-			// }
+			case MENU_PLAY_DELETE: {
+				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							ContentValues values = new ContentValues();
+							values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_DELETE);
+							ContentResolver resolver = getActivity().getContentResolver();
+							resolver.update(Plays.buildPlayUri(playId), values, null, null);
+							SyncService.start(getActivity(), mCallbacks.getReceiver(),
+								SyncService.SYNC_TYPE_PLAYS_UPLOAD);
+						}
+					}).show();
+				return true;
+			}
 		}
 		return false;
 	}

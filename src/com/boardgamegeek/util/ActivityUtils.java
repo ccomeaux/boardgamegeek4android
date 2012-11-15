@@ -1,24 +1,5 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -42,17 +23,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 
 public class ActivityUtils {
-	private static final String TAG = makeLogTag(ActivityUtils.class);
+	// private static final String TAG = makeLogTag(ActivityUtils.class);
 
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
 		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
@@ -146,59 +124,6 @@ public class ActivityUtils {
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
 		context.startActivity(intent);
-	}
-
-	public static boolean deletePlay(Context context, CookieStore cookieStore, int playId) {
-		UrlEncodedFormEntity entity = null;
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("ajax", "1"));
-		nvps.add(new BasicNameValuePair("action", "delete"));
-		nvps.add(new BasicNameValuePair("playid", String.valueOf(playId)));
-		try {
-			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-		} catch (UnsupportedEncodingException e) {
-			LOGE(TAG, "Trying to encode play for deletion", e);
-		}
-
-		HttpClient client = HttpUtils.createHttpClient(context, cookieStore);
-		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
-		post.setEntity(entity);
-
-		String message = "";
-		HttpResponse response = null;
-		try {
-			Resources r = context.getResources();
-			response = client.execute(post);
-			if (response == null) {
-				message = r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
-			} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				message = r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
-					+ " " + response.toString() + ".";
-			} else {
-				message = HttpUtils.parseResponse(response);
-				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
-					message = "";
-				}
-			}
-		} catch (ClientProtocolException e) {
-			message = e.toString();
-		} catch (IOException e) {
-			message = e.toString();
-		} finally {
-			if (client != null && client.getConnectionManager() != null) {
-				client.getConnectionManager().shutdown();
-			}
-		}
-
-		if (TextUtils.isEmpty(message)) {
-			context.getContentResolver().delete(Plays.buildPlayUri(playId), null, null);
-			Toast.makeText(context, R.string.msg_play_deleted, Toast.LENGTH_LONG).show();
-			return true;
-		} else {
-			LOGE(TAG, message);
-			Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-			return false;
-		}
 	}
 
 	public static void linkBgg(Context context, int gameId) {

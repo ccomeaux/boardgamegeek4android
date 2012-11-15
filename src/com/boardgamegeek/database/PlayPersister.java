@@ -12,9 +12,13 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -70,7 +74,7 @@ public class PlayPersister {
 		Cursor cursor = null;
 		try {
 			cursor = mResolver.query(Plays.CONTENT_URI, new String[] { "MAX(plays." + Plays.PLAY_ID + ")" }, null,
-					null, null);
+				null, null);
 			if (cursor.moveToFirst()) {
 				int lastId = cursor.getInt(0);
 				if (lastId >= id) {
@@ -143,6 +147,8 @@ public class PlayPersister {
 		updateOrInsertPlayers();
 		removeUnusedItems();
 		removeUnusedPlayers();
+		updateColors();
+		updateBuddyNicknames();
 
 		ResolverUtils.applyBatch(mResolver, mBatch);
 		LOGI(TAG, "Saved play ID=" + mPlay.PlayId);
@@ -178,7 +184,7 @@ public class PlayPersister {
 
 	private void deletePlayerWithNullUserId() {
 		mBatch.add(ContentProviderOperation.newDelete(mPlay.playerUri())
-				.withSelection(PlayPlayers.USER_ID + " IS NULL", null).build());
+			.withSelection(PlayPlayers.USER_ID + " IS NULL", null).build());
 	}
 
 	private boolean playExistsInDatabase() {
@@ -254,7 +260,7 @@ public class PlayPersister {
 
 		for (Integer id : idsToDelete) {
 			mBatch.add(ContentProviderOperation.newDelete(mPlay.playerUri())
-					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(id) }).build());
+				.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(id) }).build());
 			uniqueIds.remove(id);
 		}
 
@@ -292,8 +298,8 @@ public class PlayPersister {
 
 			if (mPlayerUserIds != null && mPlayerUserIds.remove(Integer.valueOf(userId))) {
 				mBatch.add(ContentProviderOperation.newUpdate(mPlay.playerUri())
-						.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(userId) })
-						.withValues(values).build());
+					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(userId) })
+					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
 				mBatch.add(ContentProviderOperation.newInsert(mPlay.playerUri()).withValues(values).build());
@@ -313,8 +319,44 @@ public class PlayPersister {
 		if (mPlayerUserIds != null) {
 			for (Integer playerUserId : mPlayerUserIds) {
 				mBatch.add(ContentProviderOperation.newDelete(mPlay.playerUri())
-						.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(playerUserId) })
-						.build());
+					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(playerUserId) }).build());
+			}
+		}
+	}
+
+	/**
+	 * Add the current players' team/colors to the permanent list.
+	 */
+	private void updateColors() {
+		if (mPlay.getPlayers().size() > 0) {
+			List<ContentValues> values = new ArrayList<ContentValues>();
+			for (Player player : mPlay.getPlayers()) {
+				String color = player.TeamColor;
+				if (!TextUtils.isEmpty(color)) {
+					ContentValues cv = new ContentValues();
+					cv.put(GameColors.COLOR, player.TeamColor);
+					values.add(cv);
+				}
+			}
+			if (values.size() > 0) {
+				ContentValues[] array = {};
+				mResolver.bulkInsert(Games.buildColorsUri(mPlay.GameId), values.toArray(array));
+			}
+		}
+	}
+
+	/**
+	 * Update Geek buddies' nicknames with the names used here.
+	 */
+	private void updateBuddyNicknames() {
+		if (mPlay.getPlayers().size() > 0) {
+			for (Player player : mPlay.getPlayers()) {
+				if (!TextUtils.isEmpty(player.Username) && !TextUtils.isEmpty(player.Name)) {
+					ContentValues values = new ContentValues();
+					values.put(Buddies.PLAY_NICKNAME, player.Name);
+					mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
+						new String[] { player.Username });
+				}
 			}
 		}
 	}

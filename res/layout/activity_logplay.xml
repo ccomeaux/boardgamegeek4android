@@ -1,182 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent" >
+	android:layout_height="wrap_content"
+	android:fillViewport="true" >
 
-	<ScrollView
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:fillViewport="true" >
+		android:gravity="top"
+		android:orientation="vertical"
+		android:padding="@dimen/padding_standard" >
+
+		<TextView
+			style="@style/Text.Label"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/date" />
+
+		<Button
+			android:id="@+id/log_play_date"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="left|center_vertical"
+			android:onClick="onDateClick" />
+
+		<TextView
+			android:id="@+id/log_play_location_label"
+			style="@style/Text.Label"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/location" />
+
+		<AutoCompleteTextView
+			android:id="@+id/log_play_location"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:completionThreshold="1"
+			android:hint="@string/location_hint"
+			android:imeOptions="actionNext"
+			android:inputType="textCapWords"
+			android:textColor="#000" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="top"
-			android:orientation="vertical"
-			android:padding="@dimen/padding_standard" >
-
-			<TextView
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/date" />
-
-			<Button
-				android:id="@+id/log_play_date"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="left|center_vertical"
-				android:onClick="onDateClick" />
-
-			<TextView
-				android:id="@+id/log_play_location_label"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/location" />
-
-			<AutoCompleteTextView
-				android:id="@+id/log_play_location"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:completionThreshold="1"
-				android:hint="@string/location_hint"
-				android:imeOptions="actionNext"
-				android:inputType="textCapWords"
-				android:textColor="#000" />
+			android:baselineAligned="false"
+			android:orientation="horizontal" >
 
 			<LinearLayout
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:baselineAligned="false"
-				android:orientation="horizontal" >
-
-				<LinearLayout
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:orientation="vertical" >
-
-					<TextView
-						style="@style/Text.Label"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/quantity" />
-
-					<EditText
-						android:id="@+id/log_play_quantity"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:hint="@string/quantity_hint"
-						android:inputType="number" />
-				</LinearLayout>
-
-				<LinearLayout
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:orientation="vertical" >
-
-					<TextView
-						android:id="@+id/log_play_length_label"
-						style="@style/Text.Label"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/length" />
-
-					<EditText
-						android:id="@+id/log_play_length"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:hint="@string/length_hint"
-						android:inputType="number" />
-				</LinearLayout>
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
-				android:orientation="horizontal" >
-
-				<CheckBox
-					android:id="@+id/log_play_incomplete"
-					style="@style/Text.CheckboxLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:checked="false"
-					android:text="@string/incomplete" />
-
-				<CheckBox
-					android:id="@+id/log_play_no_win_stats"
-					style="@style/Text.CheckboxLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:checked="false"
-					android:text="@string/noWinStats" />
-			</LinearLayout>
-
-			<TextView
-				android:id="@+id/log_play_comments_label"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/comments" />
-
-			<EditText
-				android:id="@+id/log_play_comments"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:hint="@string/comments_hint"
-				android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
-				android:orientation="horizontal"
-				android:paddingBottom="@dimen/padding_standard"
-				android:paddingLeft="@dimen/padding_small"
-				android:paddingRight="@dimen/padding_small"
-				android:paddingTop="@dimen/padding_standard" >
+				android:layout_weight="1"
+				android:orientation="vertical" >
 
 				<TextView
-					android:id="@+id/log_play_players_label"
 					style="@style/Text.Label"
-					android:layout_width="0dp"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/title_players" />
+					android:text="@string/quantity" />
 
-				<TextView
-					android:id="@+id/log_play_players_add"
-					android:layout_width="wrap_content"
+				<EditText
+					android:id="@+id/log_play_quantity"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:clickable="true"
-					android:contentDescription="@string/add"
-					android:drawableRight="@drawable/add"
-					android:gravity="center_vertical"
-					android:onClick="onAddPlayerClick" />
+					android:hint="@string/quantity_hint"
+					android:inputType="number" />
 			</LinearLayout>
 
 			<LinearLayout
-				android:id="@+id/log_play_player_list"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:gravity="top"
-				android:orientation="vertical" />
+				android:layout_weight="1"
+				android:orientation="vertical" >
+
+				<TextView
+					android:id="@+id/log_play_length_label"
+					style="@style/Text.Label"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="@string/length" />
+
+				<EditText
+					android:id="@+id/log_play_length"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/length_hint"
+					android:inputType="number" />
+			</LinearLayout>
 		</LinearLayout>
-	</ScrollView>
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="@android:style/Widget.ProgressBar.Large.Inverse"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:visibility="gone" />
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal" >
 
-</FrameLayout>
+			<CheckBox
+				android:id="@+id/log_play_incomplete"
+				style="@style/Text.CheckboxLabel"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:checked="false"
+				android:text="@string/incomplete" />
+
+			<CheckBox
+				android:id="@+id/log_play_no_win_stats"
+				style="@style/Text.CheckboxLabel"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:checked="false"
+				android:text="@string/noWinStats" />
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/log_play_comments_label"
+			style="@style/Text.Label"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/comments" />
+
+		<EditText
+			android:id="@+id/log_play_comments"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/comments_hint"
+			android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingBottom="@dimen/padding_standard"
+			android:paddingLeft="@dimen/padding_small"
+			android:paddingRight="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_standard" >
+
+			<TextView
+				android:id="@+id/log_play_players_label"
+				style="@style/Text.Label"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/title_players" />
+
+			<TextView
+				android:id="@+id/log_play_players_add"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:clickable="true"
+				android:contentDescription="@string/add"
+				android:drawableRight="@drawable/add"
+				android:gravity="center_vertical"
+				android:onClick="onAddPlayerClick" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/log_play_player_list"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="top"
+			android:orientation="vertical" />
+	</LinearLayout>
+
+</ScrollView>

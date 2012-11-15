@@ -126,7 +126,8 @@
 	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
 	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
-	<string name="sync_pending">Sync pending</string>
+	<string name="sync_pending_update">Update pending</string>
+	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_in_process">Edit in process</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>

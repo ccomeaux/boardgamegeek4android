@@ -1,13 +1,10 @@
 package com.boardgamegeek.ui;
 
-import org.apache.http.client.HttpClient;
-
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -28,19 +25,16 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.UIUtils;
@@ -163,7 +157,6 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_refresh).setVisible(mPlay.hasBeenSynced());
-		menu.findItem(R.id.menu_delete).setEnabled(mLogInHelper != null && mLogInHelper.checkCookies());
 		menu.findItem(R.id.menu_share).setVisible(mPlay.hasBeenSynced());
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
@@ -212,18 +205,10 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							boolean deleted = false;
-							if (mPlay.hasBeenSynced()) {
-								// TODO: if unsuccessful, mark for deletion in DB?
-								deleted = ActivityUtils.deletePlay(getActivity(), mLogInHelper.getCookieStore(),
-									mPlay.PlayId);
-							} else {
-								PlayPersister ph = new PlayPersister(getActivity().getContentResolver(), mPlay);
-								deleted = ph.delete();
-							}
-							if (deleted) {
-								mCallbacks.onDeleted();
-							}
+							mPlay.SyncStatus = Play.SYNC_STATUS_PENDING_DELETE;
+							PlayPersister pp = new PlayPersister(getActivity().getContentResolver(), mPlay);
+							pp.save();
+							mCallbacks.onDeleted();
 						}
 					}).show();
 				return true;
@@ -319,8 +304,10 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 				+ DateUtils.getRelativeTimeSpanString(mPlay.Saved));
 			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 				mUnsyncedMessage.setText(R.string.sync_in_process);
-			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING) {
-				mUnsyncedMessage.setText(R.string.sync_pending);
+			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+				mUnsyncedMessage.setText(R.string.sync_pending_update);
+			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
+				mUnsyncedMessage.setText(R.string.sync_pending_delete);
 			}
 		} else {
 			mUnsyncedMessage.setVisibility(View.GONE);
@@ -355,44 +342,7 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 	}
 
 	private void triggerRefresh() {
-		new RefreshTask().execute(mPlay.GameId);
-	}
-
-	private class RefreshTask extends AsyncTask<Integer, Void, String> {
-
-		private HttpClient mHttpClient;
-		private RemoteExecutor mExecutor;
-
-		@Override
-		protected void onPreExecute() {
-			Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
-			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
-			mExecutor = new RemoteExecutor(mHttpClient, getActivity().getContentResolver());
-		}
-
-		@Override
-		protected String doInBackground(Integer... params) {
-			int gameId = params[0];
-			final String url = HttpUtils.constructPlayUrlSpecific(gameId, null);
-			RemotePlaysHandler handler = new RemotePlaysHandler();
-			try {
-				mExecutor.executeGet(url, handler);
-			} catch (HandlerException e) {
-				return e.toString();
-			}
-			return "";
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			String message;
-			if (TextUtils.isEmpty(result)) {
-				message = "Success!";
-			} else {
-				message = getString(R.string.msg_update_error) + "\n" + result;
-			}
-			Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-		}
+		SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId);
 	}
 
 	private interface PlayQuery {
