@@ -72,7 +72,7 @@ public class SyncPlaysUpload extends SyncTask {
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
-				Play play = new Play().populate(cursor);
+				Play play = new Play().fromCursor(cursor);
 				String error = postPlayUpdate(play);
 				if (TextUtils.isEmpty(error)) {
 					updateContentProvider(play);
@@ -137,7 +137,7 @@ public class SyncPlaysUpload extends SyncTask {
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 			LOGI(TAG, String.format("Deleting %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
-				Play play = new Play().populate(cursor);
+				Play play = new Play().fromCursor(cursor);
 				PlayPersister pp = new PlayPersister(mContext.getContentResolver(), play);
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId);
@@ -212,7 +212,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private String syncGame(Play play) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext.getContentResolver());
 		try {
-			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getFormattedDate()),
+			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getDate()),
 				new RemotePlaysHandler());
 		} catch (HandlerException e) {
 			return e.toString();

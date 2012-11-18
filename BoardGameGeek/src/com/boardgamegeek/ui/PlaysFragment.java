@@ -97,7 +97,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 		} else {
 			mGameId = BggContract.INVALID_ID;
-			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 4) {
+			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
 				BggApplication.getInstance().putLastPlaysSync();
 				triggerRefresh();
 			}

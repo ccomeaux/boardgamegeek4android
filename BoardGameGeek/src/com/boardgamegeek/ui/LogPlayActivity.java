@@ -1,13 +1,9 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -58,7 +54,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -89,8 +84,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	private boolean mLaunchingActivity;
 	private long mStartTime;
 
-	private LogInHelper mLogInHelper;
-
 	private Button mDateButton;
 	private EditText mQuantityView;
 	private EditText mLengthView;
@@ -114,7 +107,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		setContentView(R.layout.activity_logplay);
 		getSupportActionBar().setHomeButtonEnabled(false);
 		setUiVariables();
-		mLogInHelper = new LogInHelper(this, this);
 
 		final Intent intent = getIntent();
 		int playId = intent.getExtras().getInt(KEY_PLAY_ID);
@@ -147,7 +139,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 			// TODO: refactor to quick log without this activity (probably need to use AccountManager)
-			quickLogPlay();
+			logPlay();
 			finish();
 		} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
@@ -170,7 +162,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
-		mLogInHelper.logIn();
 	}
 
 	@Override
@@ -207,7 +198,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_send).setEnabled(mLogInHelper != null && mLogInHelper.checkCookies());
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
 		menu.findItem(R.id.menu_add_field).setEnabled(
 			hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments() || hidePlayers());
@@ -282,14 +272,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 		SyncService.start(this, null, SyncService.SYNC_TYPE_PLAYS_UPLOAD);
 	}
 
-	private void quickLogPlay() {
-		if (mLogInHelper.checkCookies()) {
-			logPlay();
-		} else {
-			Toast.makeText(this, R.string.logInError, Toast.LENGTH_LONG).show();
-		}
-	}
-
 	private void save(int syncStatus) {
 		captureForm();
 		mPlay.SyncStatus = syncStatus;
@@ -355,7 +337,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	public void onDateClick(View v) {
 		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
 		Bundle bundle = new Bundle();
-		bundle.putString(DatePickerFragment.KEY_DATE, mPlay.getFormattedDate());
+		bundle.putInt(DatePickerFragment.KEY_YEAR, mPlay.Year);
+		bundle.putInt(DatePickerFragment.KEY_MONTH, mPlay.Month);
+		bundle.putInt(DatePickerFragment.KEY_DAY, mPlay.Day);
 		fragment.setArguments(bundle);
 		fragment.show(getSupportFragmentManager(), "datePicker");
 	}
@@ -518,7 +502,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 	};
 
 	private void setDateButtonText() {
-		mDateButton.setText(mPlay.getDateText());
+		mDateButton.setText(mPlay.getDateForDisplay());
 	}
 
 	@Override
@@ -617,7 +601,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 					return;
 				}
 
-				mPlay.populate(cursor);
+				mPlay.fromCursor(cursor);
 				if (mStartTime > 0) {
 					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
 				}
@@ -669,7 +653,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 	@SuppressLint("ValidFragment")
 	public static class DatePickerFragment extends DialogFragment {
-		public static final String KEY_DATE = "DATE";
+		public static final String KEY_YEAR = "YEAR";
+		public static final String KEY_MONTH = "MONTH";
+		public static final String KEY_DAY = "DAY";
 
 		private OnDateSetListener mListener;
 
@@ -682,18 +668,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			Calendar calendar = Calendar.getInstance();
-			if (getArguments() != null) {
-				String date = getArguments().getString(KEY_DATE);
-				try {
-					calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(date));
-				} catch (ParseException e) {
-					LOGE(TAG, e.toString());
-				}
-			}
-			int year = calendar.get(Calendar.YEAR);
-			int month = calendar.get(Calendar.MONTH);
-			int day = calendar.get(Calendar.DAY_OF_MONTH);
+			Bundle b = getArguments();
+			int year = b.getInt(KEY_YEAR);
+			int month = b.getInt(KEY_MONTH);
+			int day = b.getInt(KEY_DAY);
 			return new DatePickerDialog(getActivity(), mListener, year, month, day);
 		}
 	}

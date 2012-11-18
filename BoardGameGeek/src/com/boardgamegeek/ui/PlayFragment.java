@@ -35,7 +35,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.UIUtils;
 
@@ -44,8 +43,6 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 
 	private Uri mPlayUri;
 	private Play mPlay = new Play();
-
-	private LogInHelper mLogInHelper;
 
 	private View mProgress;
 	private View mScroll;
@@ -96,8 +93,6 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 		mPlay = new Play(Plays.getPlayId(mPlayUri),
 			intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
-
-		mLogInHelper = new LogInHelper(getActivity(), this);
 	}
 
 	@Override
@@ -138,12 +133,6 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		mLogInHelper.logIn();
-	}
-
-	@Override
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
@@ -156,8 +145,7 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_refresh).setVisible(mPlay.hasBeenSynced());
-		menu.findItem(R.id.menu_share).setVisible(mPlay.hasBeenSynced());
+		menu.findItem(R.id.menu_refresh).setEnabled(mPlay.hasBeenSynced());
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
@@ -266,11 +254,11 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 			return;
 		}
 
-		mPlay.populate(cursor);
+		mPlay.fromCursor(cursor);
 
 		mCallbacks.onNameChanged(mPlay.GameName);
 
-		mDate.setText(getString(R.string.on) + " " + mPlay.getDateText());
+		mDate.setText(getString(R.string.on) + " " + mPlay.getDateForDisplay());
 
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantity.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);

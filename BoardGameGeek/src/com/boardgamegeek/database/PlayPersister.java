@@ -224,7 +224,7 @@ public class PlayPersister {
 
 	private ContentValues createContentValues() {
 		ContentValues values = new ContentValues();
-		values.put(Plays.DATE, mPlay.getFormattedDate());
+		values.put(Plays.DATE, mPlay.getDate());
 		values.put(Plays.QUANTITY, mPlay.Quantity);
 		values.put(Plays.LENGTH, mPlay.Length);
 		values.put(Plays.INCOMPLETE, mPlay.Incomplete);
