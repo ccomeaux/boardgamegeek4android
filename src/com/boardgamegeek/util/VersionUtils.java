@@ -38,6 +38,10 @@ public class VersionUtils {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
 	}
 
+	public static boolean hasJellyBeanMR1() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+	}
+
 	public static boolean isTablet(Context context) {
 		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
 	}
