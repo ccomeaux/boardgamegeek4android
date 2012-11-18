@@ -13,11 +13,9 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 
 public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks,
@@ -41,11 +39,6 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 		if (mSyncStatusUpdaterFragment == null) {
 			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
 			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
-		}
-
-		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
-			BggApplication.getInstance().putLastPlaysSync();
-			((PlaysFragment) mFragment).triggerRefresh();
 		}
 	}
 

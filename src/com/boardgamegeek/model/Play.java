@@ -1,12 +1,9 @@
 package com.boardgamegeek.model;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -151,7 +148,7 @@ public class Play {
 	public int SyncStatus;
 	public long Saved;
 
-	public Play populate(Cursor c) {
+	public Play fromCursor(Cursor c) {
 		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID, 0);
 		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
 		GameName = CursorUtils.getString(c, PlayItems.NAME);
@@ -172,11 +169,22 @@ public class Play {
 		return mPlayers;
 	}
 
-	public String getFormattedDate() {
+	/**
+	 * The date of the play in the yyyy-MM-dd format. This is the format the 'Geek uses and how it's stored in the
+	 * Content DB.
+	 * 
+	 * @return
+	 */
+	public String getDate() {
 		return String.format("%04d", Year) + "-" + String.format("%02d", Month + 1) + "-" + String.format("%02d", Day);
 	}
 
-	public CharSequence getDateText() {
+	/**
+	 * A text version of the date, formatted for display in the UI.
+	 * 
+	 * @return a localized date.
+	 */
+	public CharSequence getDateForDisplay() {
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Year, Month, Day);
 		return df.format(calendar.getTime());
@@ -188,16 +196,16 @@ public class Play {
 		Day = day;
 	}
 
+	/**
+	 * Sets the play's date
+	 * 
+	 * @param date
+	 *            in the yyyy-MM-dd format
+	 */
 	public void setDate(String date) {
-		try {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(date));
-			Year = calendar.get(Calendar.YEAR);
-			Month = calendar.get(Calendar.MONTH);
-			Day = calendar.get(Calendar.DAY_OF_MONTH);
-		} catch (ParseException e) {
-			LOGE(TAG, "Couldn't parse " + date, e);
-		}
+		Year = Integer.parseInt(date.substring(0, 4));
+		Month = Integer.parseInt(date.substring(5, 7)) - 1;
+		Day = Integer.parseInt(date.substring(8, 10));
 	}
 
 	public void clearPlayers() {
@@ -218,9 +226,9 @@ public class Play {
 			nvps.add(new BasicNameValuePair("playid", String.valueOf(PlayId)));
 		}
 		nvps.add(new BasicNameValuePair("objectid", String.valueOf(GameId)));
-		nvps.add(new BasicNameValuePair("playdate", getFormattedDate()));
+		nvps.add(new BasicNameValuePair("playdate", getDate()));
 		// TODO: ask Aldie what this is
-		nvps.add(new BasicNameValuePair("dateinput", getFormattedDate()));
+		nvps.add(new BasicNameValuePair("dateinput", getDate()));
 		nvps.add(new BasicNameValuePair("length", String.valueOf(Length)));
 		nvps.add(new BasicNameValuePair("location", Location));
 		nvps.add(new BasicNameValuePair("quantity", String.valueOf(Quantity)));
@@ -240,7 +248,7 @@ public class Play {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
 		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getFormattedDate());
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
 		return sb.toString();
 	}
 
@@ -251,7 +259,7 @@ public class Play {
 		if (Quantity > 1) {
 			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.times));
 		}
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getFormattedDate());
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
 		if (!TextUtils.isEmpty(Location)) {
 			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(Location);
 		}
@@ -263,26 +271,46 @@ public class Play {
 		return sb.toString();
 	}
 
+	/**
+	 * @return plays/#
+	 */
 	public Uri uri() {
 		return Plays.buildPlayUri(PlayId);
 	}
 
+	/**
+	 * @return plays/#/items
+	 */
 	public Uri itemUri() {
 		return Plays.buildItemUri(PlayId);
 	}
 
+	/**
+	 * @return plays/#/items/#
+	 */
 	public Uri itemIdUri() {
 		return Plays.buildItemUri(PlayId, GameId);
 	}
 
+	/**
+	 * @return plays/#/players
+	 */
 	public Uri playerUri() {
 		return Plays.buildPlayerUri(PlayId);
 	}
 
+	/**
+	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
+	 */
 	public boolean hasBeenSynced() {
 		return (PlayId > 0 && PlayId < UNSYNCED_PLAY_ID);
 	}
 
+	/**
+	 * Determines if this play appears to have ended.
+	 * 
+	 * @return true, if the length has been entered or at least one of the players has won.
+	 */
 	public boolean hasEnded() {
 		if (Length > 0) {
 			return true;
