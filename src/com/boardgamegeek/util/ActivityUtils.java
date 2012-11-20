@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +18,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -62,8 +64,9 @@ public class ActivityUtils {
 	public static Dialog createConfirmationDialog(Context context, int messageId, View view,
 		DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
-			.setIcon(android.R.drawable.ic_dialog_alert).setNegativeButton(android.R.string.cancel, cancelListener)
+			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener).setTitle(R.string.are_you_sure_title);
+		builder = addIcon(builder);
 		if (messageId != -1) {
 			builder.setMessage(messageId);
 		}
@@ -72,6 +75,15 @@ public class ActivityUtils {
 		}
 
 		return builder.create();
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private static AlertDialog.Builder addIcon(AlertDialog.Builder builder) {
+		if (VersionUtils.hasHoneycomb()) {
+			return builder.setIconAttribute(android.R.attr.alertDialogIcon);
+		} else {
+			return builder.setIcon(android.R.drawable.ic_dialog_alert);
+		}
 	}
 
 	public static void launchGame(Context context, int gameId, String gameName) {

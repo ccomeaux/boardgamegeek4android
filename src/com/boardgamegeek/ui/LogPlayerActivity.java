@@ -51,6 +51,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private UsernameAdapter mUsernameAdapter;
 	private ColorAdapter mColorAdapter;
 	private Player mPlayer;
+	private Player mOriginalPlayer;
 
 	private EditText mName;
 	private AutoCompleteTextView mUsername;
@@ -85,6 +86,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 		if (savedInstanceState == null) {
 			mPlayer = new Player(intent);
+			mOriginalPlayer = new Player(mPlayer);
 		} else {
 			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
 			mPositionShown = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
@@ -287,7 +289,13 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void cancel() {
-		ActivityUtils.createCancelDialog(this).show();
+		captureForm();
+		if (mPlayer.equals(mOriginalPlayer)) {
+			setResult(RESULT_CANCELED);
+			finish();
+		} else {
+			ActivityUtils.createCancelDialog(this).show();
+		}
 	}
 
 	private void captureForm() {
