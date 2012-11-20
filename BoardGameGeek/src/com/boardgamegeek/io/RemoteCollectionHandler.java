@@ -27,6 +27,8 @@ import com.boardgamegeek.util.StringUtils;
 public class RemoteCollectionHandler extends RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteCollectionHandler.class);
 
+	private static final int BATCH_SIZE = 25;
+
 	// TODO: Parse Version Info
 
 	private long mStartTime;
@@ -63,6 +65,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 
 		final int depth = mParser.getDepth();
 		int type;
+		int batchCount = 0;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
 
@@ -75,6 +78,13 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 
 				insertOrUpdateGame(gameId, gameValues);
 				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues);
+
+				batchCount++;
+				if (batchCount >= BATCH_SIZE) {
+					LOGI(TAG, "Applying a batch of " + BATCH_SIZE + " games.");
+					batchCount = 0;
+					ResolverUtils.applyBatch(mResolver, mBatch);
+				}
 			}
 		}
 		LOGI(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount

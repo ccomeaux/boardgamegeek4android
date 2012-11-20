@@ -32,6 +32,7 @@ public class SyncCollectionDetail extends SyncTask {
 
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+		LOGI(TAG, "Syncing collection detail...");
 
 		Cursor cursor = null;
 		mRemoteExecutor = executor;
@@ -52,6 +53,7 @@ public class SyncCollectionDetail extends SyncTask {
 				fetchGames(cursor);
 			}
 		} finally {
+			LOGI(TAG, "Syncing collection detail complete.");
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
