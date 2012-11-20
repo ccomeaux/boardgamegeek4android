@@ -33,21 +33,46 @@ public class Player implements Parcelable {
 	private static final String KEY_WIN = "WIN";
 
 	public Player() {
+		Name = "";
+		Username = "";
+		TeamColor = "";
+		StartingPosition = "";
+		Score = "";
+	}
+
+	public Player(Player player) {
+		Name = player.Name;
+		UserId = player.UserId;
+		Username = player.Username;
+		TeamColor = player.TeamColor;
+		StartingPosition = player.StartingPosition;
+		Score = player.Score;
+		Rating = player.Rating;
+		New = player.New;
+		Win = player.Win;
 	}
 
 	public Player(Intent intent) {
 		final Bundle bundle = intent.getExtras();
 		if (bundle.getBoolean(KEY_EXISTS)) {
-			Name = bundle.getString(KEY_NAME);
+			Name = getString(bundle, KEY_NAME);
 			UserId = bundle.getInt(KEY_USER_ID);
-			Username = bundle.getString(KEY_USERNAME);
-			TeamColor = bundle.getString(KEY_TEAM_COLOR);
-			StartingPosition = bundle.getString(KEY_STARTING_POSITION);
-			Score = bundle.getString(KEY_SCORE);
+			Username = getString(bundle, KEY_USERNAME);
+			TeamColor = getString(bundle, KEY_TEAM_COLOR);
+			StartingPosition = getString(bundle, KEY_STARTING_POSITION);
+			Score = getString(bundle, KEY_SCORE);
 			Rating = bundle.getDouble(KEY_RATING);
 			New = bundle.getBoolean(KEY_NEW);
 			Win = bundle.getBoolean(KEY_WIN);
 		}
+	}
+
+	private String getString(final Bundle bundle, String key) {
+		String s = bundle.getString(key);
+		if (s == null) {
+			return "";
+		}
+		return s;
 	}
 
 	public Player(Cursor cursor) {
@@ -85,6 +110,42 @@ public class Player implements Parcelable {
 		intent.putExtra(KEY_NEW, New);
 		intent.putExtra(KEY_WIN, Win);
 		return intent;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (o == null || o.getClass() != this.getClass()) {
+			return false;
+		}
+
+		Player p = (Player) o;
+		return (Name == p.Name || (Name != null && Name.equals(p.Name)))
+			&& (UserId == p.UserId)
+			&& (Username == p.Username || (Username != null && Username.equals(p.Username)))
+			&& (TeamColor == p.TeamColor || (TeamColor != null && TeamColor.equals(p.TeamColor)))
+			&& (StartingPosition == p.StartingPosition || (StartingPosition != null && StartingPosition
+				.equals(p.StartingPosition))) && (Score == p.Score || (Score != null && Score.equals(p.Score)))
+			&& (Rating == p.Rating) && (New == p.New) && (Win == p.Win);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((Name == null) ? 0 : Name.hashCode());
+		result = prime * result + UserId;
+		result = prime * result + ((Username == null) ? 0 : Username.hashCode());
+		result = prime * result + ((TeamColor == null) ? 0 : TeamColor.hashCode());
+		result = prime * result + ((StartingPosition == null) ? 0 : StartingPosition.hashCode());
+		result = prime * result + ((Score == null) ? 0 : Score.hashCode());
+		long r = Double.doubleToLongBits(Rating);
+		result = prime * result + (int) (r ^ (r >>> 32));
+		result = prime * result + (New ? 1231 : 1237);
+		result = prime * result + (Win ? 1231 : 1237);
+		return result;
 	}
 
 	@Override
