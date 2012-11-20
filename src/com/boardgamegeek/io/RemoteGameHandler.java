@@ -36,11 +36,6 @@ import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends RemoteBggHandler {
 	private int mGameId;
-	private List<Integer> mDesignerIds;
-	private List<Integer> mArtistIds;
-	private List<Integer> mPublisherIds;
-	private List<Integer> mMechanicIds;
-	private List<Integer> mCategoryIds;
 	private List<Integer> mGameDesignerIds;
 	private List<Integer> mGameArtistIds;
 	private List<Integer> mGamePublisherIds;
@@ -71,12 +66,6 @@ public class RemoteGameHandler extends RemoteBggHandler {
 
 	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
-		mDesignerIds = ResolverUtils.queryInts(mResolver, Designers.CONTENT_URI, Designers.DESIGNER_ID);
-		mArtistIds = ResolverUtils.queryInts(mResolver, Artists.CONTENT_URI, Artists.ARTIST_ID);
-		mPublisherIds = ResolverUtils.queryInts(mResolver, Publishers.CONTENT_URI, Publishers.PUBLISHER_ID);
-		mMechanicIds = ResolverUtils.queryInts(mResolver, Mechanics.CONTENT_URI, Mechanics.MECHANIC_ID);
-		mCategoryIds = ResolverUtils.queryInts(mResolver, Categories.CONTENT_URI, Categories.CATEGORY_ID);
-
 		int type;
 		while ((type = mParser.next()) != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
@@ -227,7 +216,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 
 		if (!mGameDesignerIds.remove(Integer.valueOf(designerId))) {
-			addInsertMaybe(Designers.CONTENT_URI, values, mDesignerIds, designerId);
+			insertMaybe(Designers.CONTENT_URI, values, designerId);
 			addInsert(Games.buildDesignersUri(mGameId), GamesDesigners.DESIGNER_ID, designerId);
 		}
 	}
@@ -246,7 +235,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 
 		if (!mGameArtistIds.remove(Integer.valueOf(artistId))) {
-			addInsertMaybe(Artists.CONTENT_URI, values, mArtistIds, artistId);
+			insertMaybe(Artists.CONTENT_URI, values, artistId);
 			addInsert(Games.buildArtistsUri(mGameId), GamesArtists.ARTIST_ID, artistId);
 		}
 	}
@@ -265,7 +254,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 
 		if (!mGamePublisherIds.remove(Integer.valueOf(publisherId))) {
-			addInsertMaybe(Publishers.CONTENT_URI, values, mPublisherIds, publisherId);
+			insertMaybe(Publishers.CONTENT_URI, values, publisherId);
 			addInsert(Games.buildPublishersUri(mGameId), GamesPublishers.PUBLISHER_ID, publisherId);
 		}
 	}
@@ -284,7 +273,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 
 		if (!mGameMechanicIds.remove(Integer.valueOf(mechanicId))) {
-			addInsertMaybe(Mechanics.CONTENT_URI, values, mMechanicIds, mechanicId);
+			insertMaybe(Mechanics.CONTENT_URI, values, mechanicId);
 			addInsert(Games.buildMechanicsUri(mGameId), GamesMechanics.MECHANIC_ID, mechanicId);
 		}
 	}
@@ -303,7 +292,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 
 		if (!mGameCategoryIds.remove(Integer.valueOf(categoryId))) {
-			addInsertMaybe(Categories.CONTENT_URI, values, mCategoryIds, categoryId);
+			insertMaybe(Categories.CONTENT_URI, values, categoryId);
 			addInsert(Games.buildCategoriesUri(mGameId), GamesCategories.CATEGORY_ID, categoryId);
 		}
 	}
@@ -499,9 +488,10 @@ public class RemoteGameHandler extends RemoteBggHandler {
 		}
 	}
 
-	private void addInsertMaybe(Uri uri, ContentValues values, List<Integer> list, Integer id) {
-		if (!list.contains(id)) {
-			addInsert(uri, values);
+	private void insertMaybe(Uri uri, ContentValues values, int id) {
+		if (!ResolverUtils.rowExists(mResolver, uri.buildUpon().appendPath(String.valueOf(id)).build())) {
+			// insert outside of the batching process
+			mResolver.insert(uri, values);
 		}
 	}
 

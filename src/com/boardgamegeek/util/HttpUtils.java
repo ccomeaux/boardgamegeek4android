@@ -165,7 +165,7 @@ public class HttpUtils {
 
 	public static String constructCollectionUrl(String username, String status) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
-		return constructCollectionUrl(username, status, true);
+		return constructCollectionUrl(username, status, false);
 	}
 
 	public static String constructBriefCollectionUrl(String username, String status) {
