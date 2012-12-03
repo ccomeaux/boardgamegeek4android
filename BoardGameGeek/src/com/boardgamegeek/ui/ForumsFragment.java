@@ -31,7 +31,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumlistHandler;
+import com.boardgamegeek.io.RemoteForumsHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.provider.BggContract;
@@ -154,7 +154,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		public List<Forum> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
-			RemoteForumlistHandler handler = new RemoteForumlistHandler();
+			RemoteForumsHandler handler = new RemoteForumsHandler();
 
 			LOGI(TAG, "Loading forums from " + mUrl);
 			try {
@@ -247,11 +247,11 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 			if (forum != null) {
 				holder.forumId = forum.id;
 				holder.forumTitle.setText(forum.title);
-				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numthreads,
-					forum.numthreads));
+				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads,
+					forum.numberOfThreads));
 				holder.lastPost.setText(String.format(mLastPostText,
-					DateUtils.getRelativeTimeSpanString(forum.lastpostdate)));
-				holder.lastPost.setVisibility((forum.lastpostdate > 0) ? View.VISIBLE : View.GONE);
+					DateUtils.getRelativeTimeSpanString(forum.lastPostDate)));
+				holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
 			}
 			return convertView;
 		}

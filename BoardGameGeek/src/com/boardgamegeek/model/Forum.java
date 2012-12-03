@@ -7,8 +7,8 @@ public class Forum implements Parcelable {
 
 	public String id;
 	public String title;
-	public int numthreads;
-	public long lastpostdate;
+	public int numberOfThreads;
+	public long lastPostDate;
 
 	public Forum() {
 	}
@@ -16,8 +16,8 @@ public class Forum implements Parcelable {
 	public Forum(Parcel in) {
 		id = in.readString();
 		title = in.readString();
-		numthreads = in.readInt();
-		lastpostdate = in.readLong();
+		numberOfThreads = in.readInt();
+		lastPostDate = in.readLong();
 	}
 
 	@Override
@@ -29,8 +29,8 @@ public class Forum implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
 		dest.writeString(title);
-		dest.writeInt(numthreads);
-		dest.writeLong(lastpostdate);
+		dest.writeInt(numberOfThreads);
+		dest.writeLong(lastPostDate);
 	}
 
 	public static final Parcelable.Creator<Forum> CREATOR = new Parcelable.Creator<Forum>() {

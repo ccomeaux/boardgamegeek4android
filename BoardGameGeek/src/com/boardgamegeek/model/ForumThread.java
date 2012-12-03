@@ -8,9 +8,9 @@ public class ForumThread implements Parcelable {
 	public String id;
 	public String subject;
 	public String author;
-	public int numarticles;
-	public long postdate;
-	public long lastpostdate;
+	public int numberOfArticles;
+	public long postPate;
+	public long lastPostDate;
 	
 	public ForumThread() {
 	}
@@ -19,9 +19,9 @@ public class ForumThread implements Parcelable {
 		id = in.readString();
 		subject = in.readString();
 		author = in.readString();
-		numarticles = in.readInt();
-		postdate = in.readLong();
-		lastpostdate = in.readLong();
+		numberOfArticles = in.readInt();
+		postPate = in.readLong();
+		lastPostDate = in.readLong();
 	}
 
 	@Override
@@ -34,9 +34,9 @@ public class ForumThread implements Parcelable {
 		dest.writeString(id);
 		dest.writeString(subject);
 		dest.writeString(author);
-		dest.writeInt(numarticles);
-		dest.writeLong(postdate);
-		dest.writeLong(lastpostdate);
+		dest.writeInt(numberOfArticles);
+		dest.writeLong(postPate);
+		dest.writeLong(lastPostDate);
 	}
 
 	public static final Parcelable.Creator<ForumThread> CREATOR = new Parcelable.Creator<ForumThread>() {

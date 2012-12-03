@@ -216,7 +216,7 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 			}
 			if (article != null) {
 				holder.username.setText(article.username);
-				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editdate));
+				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editDate));
 				holder.body.loadDataWithBaseURL(null, article.body, "text/html", "UTF-8", null);
 			}
 			return convertView;
