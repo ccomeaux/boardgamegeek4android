@@ -52,9 +52,9 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 
 				final ThreadArticle article = parseItem();
 				article.username = userName;
-				article.postdate = postDate;
-				article.editdate = editDate;
-				article.numedits = numEdits;
+				article.postDate = postDate;
+				article.editDate = editDate;
+				article.numberOfEdits = numEdits;
 				mArticles.add(article);
 			}
 		}

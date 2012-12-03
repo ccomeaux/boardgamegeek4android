@@ -11,17 +11,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteForumlistHandler extends RemoteBggHandler {
-	private static final String TAG = makeLogTag(RemoteForumlistHandler.class);
+public class RemoteForumsHandler extends RemoteBggHandler {
+	private static final String TAG = makeLogTag(RemoteForumsHandler.class);
 
 	private List<Forum> mForums = new ArrayList<Forum>();
-	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
+	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
 	public List<Forum> getResults() {
 		return mForums;
@@ -57,11 +58,12 @@ public class RemoteForumlistHandler extends RemoteBggHandler {
 				final Forum forum = new Forum();
 				forum.id = mParser.getAttributeValue(null, Tags.ID);
 				forum.title = mParser.getAttributeValue(null, Tags.TITLE);
-				forum.numthreads = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_THREADS));
+				forum.numberOfThreads = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_THREADS));
 				String date = mParser.getAttributeValue(null, Tags.LAST_POST_DATE);
 				if (date.length() > 0) {
+					// Mon, 03 Dec 2012 15:37:15 +0000
 					try {
-						forum.lastpostdate = mFormat.parse(date).getTime();
+						forum.lastPostDate = mFormat.parse(date).getTime();
 					} catch (ParseException e) {
 						LOGE(TAG, "Parsing forum", e);
 					}
