@@ -74,7 +74,7 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 			if (type == TEXT) {
 				final String text = mParser.getText();
 				if (Tags.SUBJECT.equals(tag)) {
-					article.subject = text;
+					article.subject = text.trim();
 				} else if (Tags.BODY.equals(tag)) {
 					article.body = text;
 				}

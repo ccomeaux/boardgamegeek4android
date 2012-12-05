@@ -127,11 +127,14 @@
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
-		<item name="android:padding">@dimen/padding_standard</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
 	<style name="ImageList">
-		<item name="android:layout_marginLeft">@dimen/padding_standard</item>
+		<item name="android:layout_marginRight">@dimen/padding_standard</item>
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 

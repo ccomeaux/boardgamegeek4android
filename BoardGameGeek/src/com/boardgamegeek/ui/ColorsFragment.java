@@ -153,7 +153,7 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+			View row = mInflater.inflate(R.layout.row_color, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -170,7 +170,7 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		TextView color;
 
 		public ViewHolder(View view) {
-			color = (TextView) view.findViewById(android.R.id.text1);
+			color = (TextView) view.findViewById(R.id.color);
 		}
 	}
 

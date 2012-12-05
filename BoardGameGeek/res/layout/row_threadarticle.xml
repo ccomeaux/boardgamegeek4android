@@ -27,8 +27,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="1dp"
 		android:layout_below="@+id/article_username"
-		android:background="@color/background_light"
-		android:paddingBottom="@dimen/padding_small" />
+		android:background="@color/background_light" />
 
 	<WebView
 		android:id="@+id/article_webkit"

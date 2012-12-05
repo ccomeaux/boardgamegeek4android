@@ -9,10 +9,9 @@
 		android:id="@+id/forum_title"
 		style="@style/Text.Primary"
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:gravity="center_vertical"
-		android:padding="@dimen/padding_small" />
+		android:gravity="center_vertical" />
 
 	<LinearLayout
 		android:layout_width="wrap_content"
@@ -24,16 +23,14 @@
 			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:padding="@dimen/padding_small" />
+			android:layout_gravity="right" />
 
 		<TextView
 			android:id="@+id/lastpost"
 			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:paddingLeft="@dimen/padding_small" />
+			android:layout_gravity="right" />
 	</LinearLayout>
 
 </LinearLayout>

@@ -5,9 +5,18 @@
 	android:layout_height="wrap_content"
 	android:orientation="horizontal" >
 
+	<com.boardgamegeek.ui.widget.BezelImageView
+		android:id="@+id/list_avatar"
+		style="@style/ImageList"
+		android:layout_width="@dimen/thumbnail_list_size"
+		android:layout_height="@dimen/thumbnail_list_size"
+		android:contentDescription="@string/avatar"
+		android:src="@drawable/person_image_empty" />
+
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
 		android:layout_weight="1"
 		android:orientation="vertical" >
 
@@ -23,14 +32,5 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 	</LinearLayout>
-
-	<com.boardgamegeek.ui.widget.BezelImageView
-		android:id="@+id/list_avatar"
-		style="@style/ImageList"
-		android:layout_width="@dimen/thumbnail_list_size"
-		android:layout_height="@dimen/thumbnail_list_size"
-		android:layout_gravity="right|center_vertical"
-		android:contentDescription="@string/avatar"
-		android:src="@drawable/person_image_empty" />
 
 </LinearLayout>
