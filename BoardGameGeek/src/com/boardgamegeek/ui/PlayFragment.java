@@ -253,6 +253,7 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 		if (cursor == null || !cursor.moveToFirst()) {
 			return;
 		}
+		// TODO: handle where cursor never returns anything
 
 		mPlay.fromCursor(cursor);
 
