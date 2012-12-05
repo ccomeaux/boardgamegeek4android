@@ -4,12 +4,13 @@
 	<dimen name="action_button_min_width">56dp</dimen>
 	<dimen name="avatar_size">64dp</dimen>
 	<dimen name="padding_small">2dp</dimen>
-	<dimen name="padding_standard">6dp</dimen>
-	<dimen name="padding_extra">12dp</dimen>
+	<dimen name="padding_half">4dp</dimen>
+	<dimen name="padding_standard">8dp</dimen>
+	<dimen name="padding_extra">16dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
 	<dimen name="poll_key_height">20dp</dimen>
 	<dimen name="text_size">14sp</dimen>
-	<dimen name="thumbnail_list_size">45dp</dimen>
+	<dimen name="thumbnail_list_size">48dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
 
 </resources>

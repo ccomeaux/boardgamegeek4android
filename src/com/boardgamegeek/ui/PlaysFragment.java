@@ -323,9 +323,22 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			holder.date.setText(cursor.getString(PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
 			holder.location.setText(cursor.getString(PlaysQuery.LOCATION));
-			if (cursor.getInt(PlaysQuery.SYNC_STATUS) != Play.SYNC_STATUS_SYNCED) {
+
+			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
+			if (status != Play.SYNC_STATUS_SYNCED) {
+				int messageId = 0;
+				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
+					messageId = R.string.sync_in_process;
+				} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
+					messageId = R.string.sync_pending_update;
+				} else if (status == Play.SYNC_STATUS_PENDING_DELETE) {
+					messageId = R.string.sync_pending_delete;
+				}
+				holder.status.setText(messageId);
+				holder.status.setVisibility(View.VISIBLE);
 				view.setBackgroundResource(R.color.background_light);
 			} else {
+				holder.status.setVisibility(View.GONE);
 				view.setBackgroundResource(R.color.background);
 			}
 		}
@@ -335,11 +348,13 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		TextView name;
 		TextView date;
 		TextView location;
+		TextView status;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.list_name);
 			date = (TextView) view.findViewById(R.id.list_date);
 			location = (TextView) view.findViewById(R.id.list_location);
+			status = (TextView) view.findViewById(R.id.list_status);
 		}
 	}
 

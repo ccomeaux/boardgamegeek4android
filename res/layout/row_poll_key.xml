@@ -19,7 +19,7 @@
 			android:id="@+id/row_poll_key_view"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_margin="1px" />
+			android:layout_margin="1dp" />
 	</FrameLayout>
 
 	<TextView
