@@ -32,6 +32,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.LogInHelper;
@@ -73,6 +74,19 @@ public class SyncPlaysUpload extends SyncTask {
 			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
 				Play play = new Play().fromCursor(cursor);
+
+				Cursor c = null;
+				try {
+					c = mContext.getContentResolver().query(play.playerUri(), null, null, null, null);
+					while (c.moveToNext()) {
+						play.addPlayer(new Player(c));
+					}
+				} finally {
+					if (c != null) {
+						c.close();
+					}
+				}
+
 				String error = postPlayUpdate(play);
 				if (TextUtils.isEmpty(error)) {
 					updateContentProvider(play);
@@ -212,8 +226,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private String syncGame(Play play) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext.getContentResolver());
 		try {
-			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getDate()),
-				new RemotePlaysHandler());
+			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getDate()), new RemotePlaysHandler());
 		} catch (HandlerException e) {
 			return e.toString();
 		}
