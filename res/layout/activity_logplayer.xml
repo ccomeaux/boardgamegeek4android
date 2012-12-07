@@ -9,7 +9,10 @@
 		android:layout_height="wrap_content"
 		android:gravity="top"
 		android:orientation="vertical"
-		android:padding="@dimen/padding_standard" >
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/padding_extra"
+		android:paddingRight="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_standard" >
 
 		<TextView
 			style="@style/Text.Label"
@@ -127,7 +130,6 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/win" />
-
 		</LinearLayout>
 	</LinearLayout>
 

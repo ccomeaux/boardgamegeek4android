@@ -37,6 +37,8 @@
 					android:layout_height="@dimen/thumbnail_size"
 					android:layout_alignParentLeft="true"
 					android:layout_alignParentTop="true"
+					android:layout_marginBottom="@dimen/padding_standard"
+					android:layout_marginRight="@dimen/padding_standard"
 					android:scaleType="centerCrop"
 					android:src="@drawable/thumbnail_image_empty" />
 
@@ -50,7 +52,7 @@
 					android:layout_toRightOf="@+id/game_info_thumbnail"
 					android:ellipsize="end"
 					android:gravity="center_vertical"
-					android:padding="@dimen/padding_standard" />
+					android:maxLines="2" />
 
 				<TextView
 					android:id="@+id/game_info_rating_unrated"
@@ -70,8 +72,6 @@
 					android:layout_below="@+id/game_info_thumbnail"
 					android:isIndicator="true"
 					android:numStars="10"
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small"
 					android:stepSize="0.01" />
 
 				<TextView
@@ -87,7 +87,7 @@
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_alignBottom="@+id/game_info_rating"
+					android:layout_alignBaseline="@+id/game_info_rating"
 					android:layout_toRightOf="@+id/game_info_rating"
 					android:text="@string/rating_denominator" />
 
@@ -96,8 +96,8 @@
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_alignRight="@+id/game_info_rating_stars"
-					android:layout_below="@+id/game_info_rating_stars" />
+					android:layout_alignBaseline="@+id/game_info_rating"
+					android:layout_alignRight="@+id/game_info_rating_stars" />
 
 				<TextView
 					android:id="@+id/game_info_id"
@@ -105,7 +105,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
-					android:layout_below="@+id/game_info_name" />
+					android:layout_alignTop="@+id/game_info_rating_stars" />
 
 				<TextView
 					android:id="@+id/game_info_last_updated"

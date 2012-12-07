@@ -2,7 +2,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:layout_gravity="center" >
+	android:layout_gravity="center"
+	android:paddingBottom="@dimen/padding_standard"
+	android:paddingLeft="@dimen/padding_extra"
+	android:paddingRight="@dimen/padding_extra"
+	android:paddingTop="@dimen/padding_standard" >
 
 	<ProgressBar
 		android:id="@+id/progress"
@@ -16,7 +20,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:fillViewport="true"
-		android:padding="@dimen/padding_standard"
 		android:visibility="gone" >
 
 		<RelativeLayout
@@ -29,7 +32,7 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_alignParentTop="true"
-				android:padding="@dimen/padding_standard" />
+				android:paddingBottom="@dimen/padding_half" />
 
 			<TextView
 				android:id="@+id/play_quantity"
@@ -37,7 +40,7 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_date"
-				android:padding="@dimen/padding_standard" />
+				android:paddingBottom="@dimen/padding_half" />
 
 			<TextView
 				android:id="@+id/play_length"
@@ -45,7 +48,7 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_quantity"
-				android:padding="@dimen/padding_standard" />
+				android:paddingBottom="@dimen/padding_half" />
 
 			<TextView
 				android:id="@+id/play_location"
@@ -53,16 +56,33 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_length"
-				android:padding="@dimen/padding_standard" />
+				android:paddingBottom="@dimen/padding_half" />
 
 			<TextView
-				android:id="@+id/play_comments_label"
-				style="@style/Text.Label"
+				android:id="@+id/play_incomplete"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_location"
-				android:text="@string/comments" />
+				android:paddingBottom="@dimen/padding_half"
+				android:text="@string/incomplete" />
+
+			<TextView
+				android:id="@+id/play_no_win_stats"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_incomplete"
+				android:paddingBottom="@dimen/padding_half"
+				android:text="@string/noWinStats" />
+
+			<View
+				android:id="@+id/play_comments_label"
+				style="@style/BodySeparator"
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/play_no_win_stats" />
 
 			<TextView
 				android:id="@+id/play_comments"
@@ -70,32 +90,14 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_comments_label"
-				android:padding="@dimen/padding_standard" />
-
-			<TextView
-				android:id="@+id/play_incomplete"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_comments"
-				android:text="@string/incomplete" />
-
-			<TextView
-				android:id="@+id/play_no_win_stats"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_incomplete"
-				android:text="@string/noWinStats" />
+				android:paddingBottom="@dimen/padding_half" />
 
 			<LinearLayout
 				android:id="@+id/play_player_list"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_no_win_stats"
+				android:layout_below="@+id/play_comments"
 				android:orientation="vertical" />
 
 			<TextView
