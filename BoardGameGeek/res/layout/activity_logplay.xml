@@ -9,7 +9,10 @@
 		android:layout_height="wrap_content"
 		android:gravity="top"
 		android:orientation="vertical"
-		android:padding="@dimen/padding_standard" >
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/padding_extra"
+		android:paddingRight="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_standard" >
 
 		<TextView
 			style="@style/Text.Label"
@@ -133,9 +136,6 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical"
 			android:orientation="horizontal"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingLeft="@dimen/padding_small"
-			android:paddingRight="@dimen/padding_small"
 			android:paddingTop="@dimen/padding_standard" >
 
 			<TextView
@@ -144,6 +144,7 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
+				android:padding="0dp"
 				android:text="@string/title_players" />
 
 			<TextView

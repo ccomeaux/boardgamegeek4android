@@ -2,28 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical" >
+	android:orientation="vertical"
+	android:paddingBottom="@dimen/padding_standard"
+	android:paddingLeft="@dimen/padding_extra"
+	android:paddingRight="@dimen/padding_extra"
+	android:paddingTop="@dimen/padding_standard" >
 
 	<TextView
 		android:id="@+id/name"
 		style="@style/Text.Title"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/padding_standard"
-		android:paddingBottom="@dimen/padding_small"
-		android:paddingLeft="@dimen/padding_standard"
-		android:paddingRight="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_standard" />
+		android:paddingBottom="@dimen/padding_half" />
 
 	<TextView
 		android:id="@+id/id"
 		style="@style/Text.Secondary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingLeft="@dimen/padding_standard"
-		android:paddingRight="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_small" />
+		android:paddingBottom="@dimen/padding_half" />
 
 	<ScrollView
 		android:layout_width="match_parent"
@@ -34,8 +31,7 @@
 			android:id="@+id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:autoLink="web"
-			android:padding="@dimen/padding_standard" />
+			android:autoLink="web" />
 	</ScrollView>
 
 </LinearLayout>

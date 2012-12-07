@@ -10,7 +10,8 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:orientation="vertical" >
+		android:orientation="vertical"
+		android:paddingRight="@dimen/padding_half" >
 
 		<LinearLayout
 			android:id="@+id/game_stats_rank_root"
@@ -27,7 +28,9 @@
 		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal" >
+			android:orientation="horizontal"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
 
 			<TextView
 				style="@style/Text.Header2"
@@ -73,12 +76,15 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:orientation="vertical" >
+		android:orientation="vertical"
+		android:paddingLeft="@dimen/padding_half" >
 
 		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal" >
+			android:orientation="horizontal"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
 
 			<TextView
 				style="@style/Text.Header2"
@@ -108,7 +114,9 @@
 		<LinearLayout
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal" >
+			android:orientation="horizontal"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
 
 			<TextView
 				style="@style/Text.Header2"
