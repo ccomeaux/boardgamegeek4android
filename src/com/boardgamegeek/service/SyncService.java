@@ -120,20 +120,15 @@ public class SyncService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		LOGD(TAG, "onHandleIntent(intent=" + intent + ")");
 
-		if (!ensureUsername()) {
-			LOGW(TAG, "No username");
-			return;
-		}
-
 		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
 			LOGW(TAG, "Invalid intent action: " + intent.getAction());
 			return;
 		}
 
 		mAccountManager = AccountManager.get(getApplicationContext());
-		Account account = Authenticator.getAccout(mAccountManager);
+		Account account = Authenticator.getAccount(mAccountManager);
 		if (account == null) {
-			LOGW(TAG, "Account not set up");
+			sendError(getResources().getString(R.string.pref_warning_username));
 			return;
 		}
 
@@ -178,7 +173,7 @@ public class SyncService extends IntentService {
 			tasks = mTaskList.get(SYNC_TYPE_ALL);
 		}
 
-		mRemoteExecutor = new RemoteExecutor(mHttpClient, getContentResolver());
+		mRemoteExecutor = new RemoteExecutor(mHttpClient, this);
 
 		final long startTime = System.currentTimeMillis();
 		if (syncType == SYNC_TYPE_ALL) {
@@ -214,15 +209,6 @@ public class SyncService extends IntentService {
 		List<SyncTask> taskList = new ArrayList<SyncTask>(1);
 		taskList.add(task);
 		return taskList;
-	}
-
-	private boolean ensureUsername() {
-		String username = BggApplication.getInstance().getUserName();
-		if (TextUtils.isEmpty(username)) {
-			sendError(getResources().getString(R.string.pref_warning_username));
-			return false;
-		}
-		return true;
 	}
 
 	private void sendError(String errorMessage) {

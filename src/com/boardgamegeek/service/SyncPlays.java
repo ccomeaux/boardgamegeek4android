@@ -2,10 +2,12 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.accounts.Account;
 import android.content.Context;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -27,10 +29,15 @@ public class SyncPlays extends SyncTask {
 		mContext = context;
 		mStartTime = System.currentTimeMillis();
 
-		executePagedGet(HttpUtils.constructPlaysUrlNew(BggApplication.getInstance().getUserName()));
+		Account account = Authenticator.getAccount(context);
+		if (account == null) {
+			return;
+		}
+
+		executePagedGet(HttpUtils.constructPlaysUrlNew(account.name));
 		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true);
 
-		executePagedGet(HttpUtils.constructPlaysUrlOld(BggApplication.getInstance().getUserName()));
+		executePagedGet(HttpUtils.constructPlaysUrlOld(account.name));
 		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false);
 
 		BggApplication.getInstance().putMaxPlayDate("0000-00-00");

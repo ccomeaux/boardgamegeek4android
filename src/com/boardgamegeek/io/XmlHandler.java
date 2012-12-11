@@ -6,17 +6,24 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentResolver;
+import android.content.Context;
 
 public abstract class XmlHandler {
 	private final String mAuthority;
+	private Context mContext;
+
+	protected Context getContext() {
+		return mContext;
+	}
 
 	public XmlHandler(String authority) {
 		mAuthority = authority;
 	}
 
-	public boolean parseAndHandle(XmlPullParser parser, ContentResolver resolver) throws HandlerException {
+	public boolean parseAndHandle(XmlPullParser parser, Context context) throws HandlerException {
+		mContext = context;
 		try {
-			return parse(parser, resolver, mAuthority);
+			return parse(parser, mContext.getContentResolver(), mAuthority);
 		} catch (XmlPullParserException e) {
 			throw new HandlerException("Problem parsing XML response", e);
 		} catch (IOException e) {

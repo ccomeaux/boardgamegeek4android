@@ -4,10 +4,12 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
+import android.accounts.Account;
 import android.content.Context;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteCollectionDeleteHandler;
 import com.boardgamegeek.io.RemoteCollectionHandler;
@@ -30,15 +32,19 @@ public class SyncCollectionList extends SyncTask {
 			String[] statuses = BggApplication.getInstance().getSyncStatuses();
 
 			if (statuses != null && statuses.length > 0) {
-				String username = BggApplication.getInstance().getUserName();
+				Account account = Authenticator.getAccount(context);
+				if (account == null) {
+					return;
+				}
+				
 				long modifiedSince = BggApplication.getInstance().getCollectionPartSyncTimestamp();
 
 				for (int i = 0; i < statuses.length; i++) {
 					LOGI(TAG, "Syncing status [" + statuses[i] + "]");
 					try {
 						get(executor,
-							((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(username, statuses[i],
-								modifiedSince) : HttpUtils.constructCollectionUrl(username, statuses[i])),
+							((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(account.name, statuses[i],
+								modifiedSince) : HttpUtils.constructCollectionUrl(account.name, statuses[i])),
 							new RemoteCollectionHandler(startTime));
 					} catch (HandlerException e) {
 						// This happens rather frequently with an EOF exception
@@ -53,7 +59,7 @@ public class SyncCollectionList extends SyncTask {
 				if (needsFullSync()) {
 					LOGI(TAG, "Full sync needed");
 					for (int i = 0; i < statuses.length; i++) {
-						get(executor, HttpUtils.constructBriefCollectionUrl(username, statuses[i]),
+						get(executor, HttpUtils.constructBriefCollectionUrl(account.name, statuses[i]),
 							new RemoteCollectionDeleteHandler(startTime));
 						if (isBggDown()) {
 							LOGW(TAG, "BGG down while full-syncing");

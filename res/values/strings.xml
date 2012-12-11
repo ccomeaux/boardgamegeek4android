@@ -111,7 +111,6 @@
 	<string name="logPlayDialogMessage">Logging play…</string>
 	<string name="logInError">Unable to log in, please verify your username and
 		password are correct.</string>
-	<string name="setUsernamePassword">Please set your username and password.</string>
 	<string name="logInErrorSuffixNoResponse">no response</string>
 	<string name="logInErrorSuffixBadResponse">received a bad response</string>
 	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
@@ -217,7 +216,7 @@
 	<string name="notification_text_plays_upload">Uploading plays</string>
 	<string name="notification_text_complete">Sync complete</string>
 	<string name="notification_text_playing">Playing \"%s\"</string>
-	<string name="pref_warning_username">Please set your username first.</string>
+	<string name="pref_warning_username">Please sign in first.</string>
 	<string name="loading">Loading…</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
