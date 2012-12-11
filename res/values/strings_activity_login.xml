@@ -1,0 +1,12 @@
+<resources>
+
+	<string name="title_login">Sign in to BoardGameGeek</string>
+	<string name="prompt_username">Username</string>
+	<string name="prompt_password">Password</string>
+	<string name="action_sign_in">Sign in</string>
+	<string name="login_progress_signing_in">Signing in&#8230;</string>
+	<string name="error_incorrect_password">This password is incorrect</string>
+	<string name="error_account_not_added">Couldn\'t add account. They\'re like the Highlander, there can be only one.</string>
+	<string name="error_field_required">This field is required</string>
+
+</resources>

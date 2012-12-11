@@ -23,6 +23,9 @@ public class BggApplication extends Application {
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";
 	public static final String HELP_COLORS_KEY = "help.colors";
 
+	public static final String AUTHTOKEN_TYPE = "com.boardgamegeek";
+	public static final String ACCOUNT_TYPE = "com.boardgamegeek";
+
 	private static final String SHARED_PREFERENCES_NAME = "com.boardgamegeek";
 	private static final String SYNC_TICKS_KEY = "sync_ticks";
 	private static final String KEY_SYNC_COLLECTION_FULL_TICKS = "collection_full_sync_ticks";
@@ -84,7 +87,7 @@ public class BggApplication extends Application {
 
 	private void putTimestamp(long startTime, String key) {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		e.putLong(key, startTime);
 		if (!e.commit()) {
@@ -106,19 +109,19 @@ public class BggApplication extends Application {
 
 	private long getTimestamp(String key) {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		return sp.getLong(key, 0);
 	}
 
 	public String getMaxPlayDate() {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		return sp.getString(MAX_PLAY_DATE_KEY, DEFAULT_MAX_PLAY_DATE);
 	}
 
 	public void putMaxPlayDate(String maxPlayDate) {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		e.putString(MAX_PLAY_DATE_KEY, maxPlayDate);
 		if (!e.commit()) {
@@ -128,13 +131,13 @@ public class BggApplication extends Application {
 
 	public String getMinPlayDate() {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		return sp.getString(MIN_PLAY_DATE_KEY, DEFAULT_MIN_PLAY_DATE);
 	}
 
 	public void putMinPlayDate(String minPlayDate) {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		e.putString(MIN_PLAY_DATE_KEY, minPlayDate);
 		if (!e.commit()) {
@@ -168,7 +171,7 @@ public class BggApplication extends Application {
 
 	private void putTimestamp(String key) {
 		SharedPreferences sp = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE);
+			Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		e.putLong(key, System.currentTimeMillis());
 		if (!e.commit()) {

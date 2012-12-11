@@ -30,6 +30,10 @@ public class VersionUtils {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
 	}
 
+	public static boolean hasHoneycombMR2() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2;
+	}
+
 	public static boolean hasICS() {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	}
