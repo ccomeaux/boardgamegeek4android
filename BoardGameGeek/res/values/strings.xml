@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="pref_user">User settings</string>
-	<string name="pref_user_username_title">BGG username</string>
-	<string name="pref_user_username_summary">BoardGameGeek.com username</string>
-	<string name="pref_user_username_message">Enter your BoardGameGeek.com username</string>
-	<string name="pref_user_password_title">BGG password</string>
-	<string name="pref_user_password_summary">BoardGameGeek.com password</string>
-	<string name="pref_user_password_message">Enter your BoardGameGeek.com password. Note that
-		your password is stored locally, but the only entity we share it with
-		is BoardGameGeek. Promise.</string>
 	<string name="pref_search">Search settings</string>
 	<string name="pref_exactSearch_title">Exact search</string>
 	<string name="pref_exactSearch_summary">Disable this to get more search results or do

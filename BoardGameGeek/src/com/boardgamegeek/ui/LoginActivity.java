@@ -227,6 +227,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			}
 		} else {
 			mAccountManager.setPassword(account, password);
+			mAccountManager.setUserData(account, Authenticator.KEY_PASSWORD_EXPIRY,
+				userData.getString(Authenticator.KEY_PASSWORD_EXPIRY));
 		}
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mUsername);

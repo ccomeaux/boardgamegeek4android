@@ -7,7 +7,6 @@ import android.preference.PreferenceActivity;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.Cookies;
 
 public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override
@@ -29,12 +28,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if ("username".equals(key) || "password".equals(key)) {
-			Cookies cookies = new Cookies(this);
-			cookies.clearCookies();
-		}
-
-		if ("username".equals(key) || "syncStatuses".equals(key)) {
+		if ("syncStatuses".equals(key)) {
 			BggApplication.getInstance().clearSyncTimestamps();
 		}
 	}

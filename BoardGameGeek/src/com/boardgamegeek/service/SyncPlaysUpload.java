@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -35,7 +34,6 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.LogInHelper;
 import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
@@ -47,18 +45,10 @@ public class SyncPlaysUpload extends SyncTask {
 	@Override
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
 		mContext = context;
+		mClient = executor.getHttpClient();
 
-		LogInHelper helper = new LogInHelper(mContext, null);
-		if (helper.checkCookies()) {
-			mClient = HttpUtils.createHttpClient(mContext, helper.getCookieStore());
-
-			updatePendingPlays();
-			deletePendingPlays();
-
-			if (mClient != null && mClient.getConnectionManager() != null) {
-				mClient.getConnectionManager().shutdown();
-			}
-		}
+		updatePendingPlays();
+		deletePendingPlays();
 	}
 
 	@Override
@@ -174,7 +164,8 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private void notifyUser(String message) {
-		Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+		// TODO: Sometimes this toast gets stuck until the app closes
+		// Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
 	}
 
 	protected String postPlayUpdate(Play play) {

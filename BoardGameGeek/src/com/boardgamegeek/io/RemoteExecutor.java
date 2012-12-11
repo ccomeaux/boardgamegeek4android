@@ -26,6 +26,10 @@ public class RemoteExecutor {
 	private final HttpClient mHttpClient;
 	private final ContentResolver mContentResolver;
 
+	public HttpClient getHttpClient() {
+		return mHttpClient;
+	}
+
 	public RemoteExecutor(HttpClient httpClient, ContentResolver contentResolver) {
 		mHttpClient = httpClient;
 		mContentResolver = contentResolver;
@@ -53,7 +57,7 @@ public class RemoteExecutor {
 
 			if (status != HttpStatus.SC_OK) {
 				throw new HandlerException("Unexpected server response " + response.getStatusLine() + " for "
-						+ request.getRequestLine());
+					+ request.getRequestLine());
 			}
 
 			final InputStream input = response.getEntity().getContent();

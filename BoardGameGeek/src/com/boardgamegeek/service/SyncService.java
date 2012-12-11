@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.apache.http.client.HttpClient;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,15 +25,14 @@ import android.util.SparseArray;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.LogInHelper;
-import com.boardgamegeek.util.LogInHelper.LogInListener;
 
-public class SyncService extends IntentService implements LogInListener {
+public class SyncService extends IntentService {
 	private static final String TAG = makeLogTag(SyncService.class);
 
 	public static final int STATUS_RUNNING = 1;
@@ -56,12 +57,12 @@ public class SyncService extends IntentService implements LogInListener {
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;
 
+	private AccountManager mAccountManager;
 	private NotificationManager mNotificationManager;
 	private HttpClient mHttpClient;
 	private SparseArray<List<SyncTask>> mTaskList = new SparseArray<List<SyncTask>>();
 	private ResultReceiver mResultReceiver;
 	private RemoteExecutor mRemoteExecutor;
-	private LogInHelper mLogInHelper;
 	private boolean mSuppressNotifications;
 
 	public static void start(Context context, DetachableResultReceiver receiver, int type) {
@@ -83,9 +84,7 @@ public class SyncService extends IntentService implements LogInListener {
 	public void onCreate() {
 		super.onCreate();
 
-		mLogInHelper = new LogInHelper(this.getApplicationContext(), this);
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		mHttpClient = HttpUtils.createHttpClient(this, mLogInHelper.logIn(), mUseGzip);
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 
@@ -130,6 +129,16 @@ public class SyncService extends IntentService implements LogInListener {
 			LOGW(TAG, "Invalid intent action: " + intent.getAction());
 			return;
 		}
+
+		mAccountManager = AccountManager.get(getApplicationContext());
+		Account account = Authenticator.getAccout(mAccountManager);
+		if (account == null) {
+			LOGW(TAG, "Account not set up");
+			return;
+		}
+
+		mHttpClient = HttpUtils.createHttpClient(this, account.name, mAccountManager.getPassword(account),
+			Long.parseLong(mAccountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
 
 		mResultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
 		mSuppressNotifications = intent.getBooleanExtra(KEY_SYNC_SUPPRESS_NOTIFICATIONS, false);
@@ -267,20 +276,5 @@ public class SyncService extends IntentService implements LogInListener {
 			.setContentIntent(PendingIntent.getActivity(this, 0, intent, 0)).setAutoCancel(cancelNotification);
 
 		mNotificationManager.notify(NOTIFICATION_ID, builder.build());
-	}
-
-	@Override
-	public void onLogInSuccess() {
-		mHttpClient = HttpUtils.createHttpClient(getApplicationContext(), mLogInHelper.getCookieStore(), mUseGzip);
-	}
-
-	@Override
-	public void onLogInError(String errorMessage) {
-		LOGD(TAG, "Couldn't log in: " + errorMessage);
-	}
-
-	@Override
-	public void onNeedCredentials() {
-		LOGD(TAG, "Missing credentials.");
 	}
 }

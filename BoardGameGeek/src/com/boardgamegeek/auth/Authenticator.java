@@ -1,6 +1,7 @@
 package com.boardgamegeek.auth;
 
 import static com.boardgamegeek.util.LogUtils.LOGV;
+import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -113,5 +114,17 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// TODO: is this needed? if so prompt for password only
 		LOGV(TAG, "updateCredentials - not supported");
 		return null;
+	}
+
+	public static Account getAccout(AccountManager accountManager) {
+		Account[] accounts = accountManager.getAccountsByType(BggApplication.ACCOUNT_TYPE);
+		if (accounts == null) {
+			LOGW(TAG, "no account!");
+			return null;
+		} else if (accounts.length != 1) {
+			LOGW(TAG, "multiple accounts!");
+			return null;
+		}
+		return accounts[0];
 	}
 }
