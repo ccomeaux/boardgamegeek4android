@@ -46,7 +46,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -54,12 +53,10 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayActivity extends SherlockFragmentActivity implements LogInListener,
-	LoaderManager.LoaderCallbacks<Cursor> {
+public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 1;
@@ -503,23 +500,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LogInLi
 
 	private void setDateButtonText() {
 		mDateButton.setText(mPlay.getDateForDisplay());
-	}
-
-	@Override
-	public void onLogInSuccess() {
-	}
-
-	@Override
-	public void onLogInError(String errorMessage) {
-		Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-	}
-
-	@Override
-	public void onNeedCredentials() {
-		Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
-		mLaunchingActivity = true;
-		startActivity(new Intent(this, Preferences.class));
-		finish();
 	}
 
 	/**

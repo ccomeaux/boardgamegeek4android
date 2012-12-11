@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -35,10 +34,9 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.LogInHelper.LogInListener;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayFragment extends SherlockFragment implements LogInListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private Uri mPlayUri;
@@ -149,20 +147,6 @@ public class PlayFragment extends SherlockFragment implements LogInListener, Loa
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public void onLogInSuccess() {
-	}
-
-	@Override
-	public void onLogInError(String errorMessage) {
-		Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_LONG).show();
-	}
-
-	@Override
-	public void onNeedCredentials() {
-		Toast.makeText(getActivity(), R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
 	}
 
 	@Override

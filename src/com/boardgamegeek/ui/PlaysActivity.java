@@ -155,25 +155,4 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 			activity.updateRefreshStatus(mSyncing);
 		}
 	}
-
-	// @Override
-	// protected void onResume() {
-	// super.onResume();
-	// mLogInHelper.logIn();
-	// }
-	//
-	// @Override
-	// public void onLogInSuccess() {
-	// // do nothing
-	// }
-	//
-	// @Override
-	// public void onLogInError(String errorMessage) {
-	// Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-	// }
-	//
-	// @Override
-	// public void onNeedCredentials() {
-	// Toast.makeText(this, R.string.setUsernamePassword, Toast.LENGTH_LONG).show();
-	// }
 }

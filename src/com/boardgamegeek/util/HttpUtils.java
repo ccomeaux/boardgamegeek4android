@@ -35,7 +35,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -206,24 +208,42 @@ public class HttpUtils {
 		return BASE_URL_2 + "thread?id=" + mThreadId;
 	}
 
-	public static HttpClient createHttpClient(Context context, CookieStore cookieStore, boolean useGzip) {
+	public static HttpClient createHttpClient(Context context, String username, String password,
+		long passwordExpiration, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);
 		final DefaultHttpClient client = new DefaultHttpClient(params);
-		if (cookieStore != null) {
-			client.setCookieStore(cookieStore);
-		}
+		client.setCookieStore(createCookieStore(username, password, passwordExpiration));
 		if (useGzip) {
 			addGzipInterceptors(client);
 		}
 		return client;
 	}
 
-	public static HttpClient createHttpClient(Context context, boolean useGzip) {
-		return createHttpClient(context, null, useGzip);
+	private static CookieStore createCookieStore(String username, String password, long expiration) {
+		BasicCookieStore cookieStore = new BasicCookieStore();
+
+		BasicClientCookie nameCookie = new BasicClientCookie("bggusername", username);
+		nameCookie.setDomain(".boardgamegeek.com");
+		nameCookie.setPath("/");
+		nameCookie.setExpiryDate(new Date(expiration));
+		cookieStore.addCookie(nameCookie);
+
+		BasicClientCookie pwCookie = new BasicClientCookie("bggpassword", password);
+		pwCookie.setDomain(".boardgamegeek.com");
+		pwCookie.setPath("/");
+		pwCookie.setExpiryDate(new Date(expiration));
+		cookieStore.addCookie(pwCookie);
+
+		return cookieStore;
 	}
 
-	public static HttpClient createHttpClient(Context context, CookieStore cookieStore) {
-		return createHttpClient(context, cookieStore, false);
+	public static HttpClient createHttpClient(Context context, boolean useGzip) {
+		final HttpParams params = createHttpParams(context, useGzip);
+		final DefaultHttpClient client = new DefaultHttpClient(params);
+		if (useGzip) {
+			addGzipInterceptors(client);
+		}
+		return client;
 	}
 
 	private static HttpParams createHttpParams(Context context, boolean useGzip) {
