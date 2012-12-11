@@ -2,6 +2,8 @@ package com.boardgamegeek.util;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.BufferedReader;
@@ -11,8 +13,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -22,10 +26,17 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -176,7 +187,7 @@ public class HttpUtils {
 	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
 		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
 		return constructCollectionUrl(username, status) + "&modifiedsince="
-			+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(modifiedSince));
+			+ new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(modifiedSince));
 	}
 
 	public static String constructCommentsUrl(int gameId, int page) {
@@ -282,7 +293,7 @@ public class HttpUtils {
 	}
 
 	/**
-	 * Parses an HttpResponse to a string. 
+	 * Parses an HttpResponse to a string.
 	 */
 	public static String parseResponse(HttpResponse response) throws IOException {
 		if (response == null) {
@@ -346,5 +357,74 @@ public class HttpUtils {
 	 */
 	public static boolean hasHttpConnectionBug() {
 		return !VersionUtils.hasFroyo();
+	}
+
+	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
+
+	/**
+	 * Configures the httpClient to connect to the URL provided.
+	 */
+	public static HttpClient getHttpClient() {
+		HttpClient httpClient = new DefaultHttpClient();
+		final HttpParams params = httpClient.getParams();
+		HttpConnectionParams.setConnectionTimeout(params, HTTP_REQUEST_TIMEOUT_MS);
+		HttpConnectionParams.setSoTimeout(params, HTTP_REQUEST_TIMEOUT_MS);
+		ConnManagerParams.setTimeout(params, HTTP_REQUEST_TIMEOUT_MS);
+		return httpClient;
+	}
+
+	public static CookieStore authenticate(String username, String password) {
+		String AUTH_URI = BggApplication.siteUrl + "login";
+
+		final HttpResponse resp;
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("username", username));
+		params.add(new BasicNameValuePair("password", password));
+
+		final HttpEntity entity;
+		try {
+			entity = new UrlEncodedFormEntity(params);
+		} catch (final UnsupportedEncodingException e) {
+			// this should never happen.
+			throw new IllegalStateException(e);
+		}
+		LOGI(TAG, "Authenticating to: " + AUTH_URI);
+		final HttpPost post = new HttpPost(AUTH_URI);
+		post.addHeader(entity.getContentType());
+		post.setEntity(entity);
+		try {
+			final DefaultHttpClient client = (DefaultHttpClient) getHttpClient();
+			resp = client.execute(post);
+			LOGW(TAG, resp.toString());
+			CookieStore cookieStore = null;
+			int code = resp.getStatusLine().getStatusCode();
+			if (code == HttpStatus.SC_OK) {
+				List<Cookie> cookies = client.getCookieStore().getCookies();
+				if (cookies == null || cookies.isEmpty()) {
+					LOGW(TAG, "missing cookies");
+				} else {
+					for (Cookie cookie : cookies) {
+						if (cookie.getName().equals("bggpassword")) {
+							cookieStore = client.getCookieStore();
+							break;
+						}
+					}
+				}
+			} else {
+				LOGW(TAG, "BAd response code - " + code);
+			}
+			if (cookieStore != null) {
+				LOGW(TAG, "Successful authentication");
+				return cookieStore;
+			} else {
+				LOGW(TAG, "Error authenticating - " + resp.getStatusLine());
+				return null;
+			}
+		} catch (final IOException e) {
+			LOGW(TAG, "IOException when getting authtoken", e);
+			return null;
+		} finally {
+			LOGW(TAG, "Authenticate complete");
+		}
 	}
 }
