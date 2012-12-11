@@ -19,6 +19,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -26,6 +27,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -47,7 +49,12 @@ public class SyncPlaysUpload extends SyncTask {
 		mContext = context;
 		mClient = executor.getHttpClient();
 
-		updatePendingPlays();
+		Account account = Authenticator.getAccount(context);
+		if (account == null) {
+			return;
+		}
+
+		updatePendingPlays(account.name);
 		deletePendingPlays();
 	}
 
@@ -56,7 +63,7 @@ public class SyncPlaysUpload extends SyncTask {
 		return R.string.notification_text_plays_upload;
 	}
 
-	private void updatePendingPlays() {
+	private void updatePendingPlays(String username) {
 		Cursor cursor = null;
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
@@ -80,7 +87,7 @@ public class SyncPlaysUpload extends SyncTask {
 				String error = postPlayUpdate(play);
 				if (TextUtils.isEmpty(error)) {
 					updateContentProvider(play);
-					error = syncGame(play);
+					error = syncGame(username, play);
 
 					if (TextUtils.isEmpty(error)) {
 						Resources r = mContext.getResources();
@@ -214,10 +221,11 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private String syncGame(Play play) {
-		RemoteExecutor re = new RemoteExecutor(mClient, mContext.getContentResolver());
+	private String syncGame(String username, Play play) {
+		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			re.executeGet(HttpUtils.constructPlayUrlSpecific(play.GameId, play.getDate()), new RemotePlaysHandler());
+			re.executeGet(HttpUtils.constructPlayUrlSpecific(username, play.GameId, play.getDate()),
+				new RemotePlaysHandler());
 		} catch (HandlerException e) {
 			return e.toString();
 		}

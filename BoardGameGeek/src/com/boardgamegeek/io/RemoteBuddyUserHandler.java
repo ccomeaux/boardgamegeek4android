@@ -10,12 +10,13 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.accounts.Account;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -49,7 +50,8 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 
 		Uri uri = Buddies.buildBuddyUri(id);
 		if (!ResolverUtils.rowExists(mResolver, uri)) {
-			if (name.equals(BggApplication.getInstance().getUserName())) {
+			Account account = Authenticator.getAccount(getContext());
+			if (account != null && name.equals(account.name)) {
 				mBatch.add(ContentProviderOperation.newUpdate(Buddies.CONTENT_URI)
 					.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { name }).withValues(values).build());
 				mCount++;

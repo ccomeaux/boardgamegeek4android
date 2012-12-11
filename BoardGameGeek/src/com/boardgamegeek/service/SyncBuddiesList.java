@@ -1,5 +1,6 @@
 package com.boardgamegeek.service;
 
+import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,8 +8,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBuddiesHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.XmlHandler.HandlerException;
@@ -21,12 +22,15 @@ public class SyncBuddiesList extends SyncTask {
 	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
 
 		ContentResolver resolver = context.getContentResolver();
-		String username = BggApplication.getInstance().getUserName();
+		Account account = Authenticator.getAccount(context);
+		if (account == null) {
+			return;
+		}
 
 		long startTime = System.currentTimeMillis();
-		insertSelf(resolver, username);
+		insertSelf(resolver, account.name);
 		RemoteBuddiesHandler handler = new RemoteBuddiesHandler();
-		executor.executePagedGet(HttpUtils.constructUserUrl(username, true), handler);
+		executor.executePagedGet(HttpUtils.constructUserUrl(account.name, true), handler);
 		if (handler.isBggDown()) {
 			setIsBggDown(true);
 		} else {

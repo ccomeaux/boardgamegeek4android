@@ -15,7 +15,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.content.ContentResolver;
+import android.content.Context;
 
 import com.boardgamegeek.io.XmlHandler.HandlerException;
 
@@ -24,15 +24,15 @@ public class RemoteExecutor {
 
 	private static XmlPullParserFactory sFactory;
 	private final HttpClient mHttpClient;
-	private final ContentResolver mContentResolver;
+	private final Context mContext;
 
 	public HttpClient getHttpClient() {
 		return mHttpClient;
 	}
 
-	public RemoteExecutor(HttpClient httpClient, ContentResolver contentResolver) {
+	public RemoteExecutor(HttpClient httpClient, Context context) {
 		mHttpClient = httpClient;
-		mContentResolver = contentResolver;
+		mContext = context;
 	}
 
 	public void executePagedGet(String url, XmlHandler handler) throws HandlerException {
@@ -63,7 +63,7 @@ public class RemoteExecutor {
 			final InputStream input = response.getEntity().getContent();
 			try {
 				XmlPullParser parser = createPullParser(input);
-				return handler.parseAndHandle(parser, mContentResolver);
+				return handler.parseAndHandle(parser, mContext);
 			} catch (XmlPullParserException e) {
 				throw new HandlerException("Malformed response for " + request.getRequestLine(), e);
 			} finally {

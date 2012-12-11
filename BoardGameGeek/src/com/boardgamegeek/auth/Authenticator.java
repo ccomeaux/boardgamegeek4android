@@ -116,7 +116,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
-	public static Account getAccout(AccountManager accountManager) {
+	public static Account getAccount(Context context) {
+		return getAccount(AccountManager.get(context));
+	}
+
+	public static Account getAccount(AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(BggApplication.ACCOUNT_TYPE);
 		if (accounts == null) {
 			LOGW(TAG, "no account!");
