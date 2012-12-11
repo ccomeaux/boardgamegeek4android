@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import android.accounts.Account;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -20,6 +23,14 @@ public class DashboardFragment extends SherlockFragment {
 	private View mCollection;
 	private View mBuddies;
 	private View mPlays;
+	private View mSignIn;
+	private Account mAccount;
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mAccount = Authenticator.getAccount(activity);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,15 +81,33 @@ public class DashboardFragment extends SherlockFragment {
 			}
 		});
 
+		mSignIn = root.findViewById(R.id.home_btn_signin);
+		mSignIn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivityForResult(new Intent(getActivity(), LoginActivity.class), 0);
+			}
+		});
+
 		return root;
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		mCollection.setVisibility((BggApplication.getInstance().getSyncStatuses() != null && BggApplication
-			.getInstance().getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
-		mBuddies.setVisibility(BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE : View.GONE);
-		mPlays.setVisibility(BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
+		mSignIn.setVisibility(mAccount == null ? View.VISIBLE : View.GONE);
+		mCollection
+			.setVisibility((mAccount != null && BggApplication.getInstance().getSyncStatuses() != null && BggApplication
+				.getInstance().getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
+		mBuddies.setVisibility(mAccount != null && BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE
+			: View.GONE);
+		mPlays
+			.setVisibility(mAccount != null && BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		mAccount = Authenticator.getAccount(getActivity());
 	}
 }

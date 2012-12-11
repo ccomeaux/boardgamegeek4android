@@ -75,7 +75,7 @@
 		</activity>
 		<activity
 			android:name=".ui.GameActivity"
-			android:exported="false"
+			android:exported="true"
 			android:label="@string/title_game" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

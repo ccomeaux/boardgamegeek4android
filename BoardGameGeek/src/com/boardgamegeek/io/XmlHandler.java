@@ -23,7 +23,7 @@ public abstract class XmlHandler {
 	public boolean parseAndHandle(XmlPullParser parser, Context context) throws HandlerException {
 		mContext = context;
 		try {
-			return parse(parser, mContext.getContentResolver(), mAuthority);
+			return parse(parser, mContext == null ? null : mContext.getContentResolver(), mAuthority);
 		} catch (XmlPullParserException e) {
 			throw new HandlerException("Problem parsing XML response", e);
 		} catch (IOException e) {
