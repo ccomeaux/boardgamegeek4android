@@ -17,7 +17,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -97,7 +97,7 @@ public class ProducerFragment extends SherlockFragment implements LoaderManager.
 			UIUtils.setTextMaybeHtml(mDescription, description);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
-				SyncService.start(getActivity(), null, mToken, id);
+				UpdateService.start(getActivity(), mToken, id, null);
 			}
 		} else {
 			if (cursor != null) {
@@ -118,18 +118,18 @@ public class ProducerFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private interface DesignerQuery extends Query {
-		int _TOKEN = SyncService.SYNC_TYPE_DESIGNER;
+		int _TOKEN = UpdateService.SYNC_TYPE_DESIGNER;
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers.DESIGNER_DESCRIPTION,
 			Designers.UPDATED };
 	}
 
 	private interface ArtistQuery extends Query {
-		int _TOKEN = SyncService.SYNC_TYPE_ARTIST;
+		int _TOKEN = UpdateService.SYNC_TYPE_ARTIST;
 		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists.ARTIST_DESCRIPTION, Artists.UPDATED };
 	}
 
 	private interface PublisherQuery extends Query {
-		int _TOKEN = SyncService.SYNC_TYPE_PUBLISHER;
+		int _TOKEN = UpdateService.SYNC_TYPE_PUBLISHER;
 		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers.PUBLISHER_DESCRIPTION,
 			Publishers.UPDATED };
 	}

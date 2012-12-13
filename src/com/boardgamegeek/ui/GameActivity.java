@@ -25,7 +25,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
@@ -243,15 +243,15 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 			}
 
 			switch (resultCode) {
-				case SyncService.STATUS_RUNNING: {
+				case UpdateService.STATUS_RUNNING: {
 					mSyncing = true;
 					break;
 				}
-				case SyncService.STATUS_COMPLETE: {
+				case UpdateService.STATUS_COMPLETE: {
 					mSyncing = false;
 					break;
 				}
-				case SyncService.STATUS_ERROR:
+				case UpdateService.STATUS_ERROR:
 				default: {
 					final String error = resultData.getString(Intent.EXTRA_TEXT);
 					if (error != null) {

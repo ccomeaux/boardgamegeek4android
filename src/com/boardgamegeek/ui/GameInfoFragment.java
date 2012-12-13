@@ -42,7 +42,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
@@ -644,8 +644,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_GAME,
-			Games.getGameId(mGameUri));
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri), null);
 	}
 
 	private interface GameQuery {

@@ -240,6 +240,7 @@
 			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<service android:name=".service.SyncService" />
+		<service android:name=".service.UpdateService" />
 		<service
 			android:name=".auth.AuthenticationService"
 			android:exported="true" >
