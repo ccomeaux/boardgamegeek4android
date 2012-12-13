@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.service.UpdateService;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,6 @@ import android.text.TextUtils;
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +43,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	public void onDeleted() {
 		finish();
-		SyncService.start(this, null, SyncService.SYNC_TYPE_PLAYS_UPLOAD);
+		UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
 	}
 }

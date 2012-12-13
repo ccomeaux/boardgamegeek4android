@@ -30,7 +30,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -315,7 +315,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	private void triggerRefresh() {
-		SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId, null);
 	}
 
 	private interface PlayQuery {
