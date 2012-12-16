@@ -149,17 +149,16 @@ public class SyncPlaysUpload extends SyncTask {
 			LOGI(TAG, String.format("Deleting %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
 				Play play = new Play().fromCursor(cursor);
-				PlayPersister pp = new PlayPersister(mContext.getContentResolver(), play);
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId);
 					if (TextUtils.isEmpty(error)) {
-						pp.delete();
+						PlayPersister.delete(mContext.getContentResolver(), play);
 						notifyUser(mContext.getString(R.string.msg_play_deleted));
 					} else {
 						notifyUser(error);
 					}
 				} else {
-					pp.delete();
+					PlayPersister.delete(mContext.getContentResolver(), play);
 					notifyUser(mContext.getString(R.string.msg_play_deleted));
 				}
 			}
@@ -212,12 +211,11 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private void updateContentProvider(Play play) {
-		PlayPersister ph = new PlayPersister(mContext.getContentResolver(), play);
 		if (play.hasBeenSynced()) {
 			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
-			ph.save();
+			PlayPersister.save(mContext.getContentResolver(), play);
 		} else {
-			ph.delete();
+			PlayPersister.delete(mContext.getContentResolver(), play);
 		}
 	}
 

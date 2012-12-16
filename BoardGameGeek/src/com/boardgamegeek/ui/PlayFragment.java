@@ -158,10 +158,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								mPlay.SyncStatus = Play.SYNC_STATUS_SYNCED;
-								PlayPersister ph = new PlayPersister(getActivity().getContentResolver(), mPlay);
-								ph.save();
-								triggerRefresh();
+								save(Play.SYNC_STATUS_SYNCED);
 							}
 						}).show();
 
@@ -177,9 +174,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							mPlay.SyncStatus = Play.SYNC_STATUS_PENDING_DELETE;
-							PlayPersister pp = new PlayPersister(getActivity().getContentResolver(), mPlay);
-							pp.save();
+							save(Play.SYNC_STATUS_PENDING_DELETE);
 							mCallbacks.onDeleted();
 						}
 					}).show();
@@ -316,6 +311,12 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private void triggerRefresh() {
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId, null);
+	}
+
+	private void save(int status) {
+		mPlay.SyncStatus = status;
+		PlayPersister.save(getActivity().getContentResolver(), mPlay);
+		triggerRefresh();
 	}
 
 	private interface PlayQuery {

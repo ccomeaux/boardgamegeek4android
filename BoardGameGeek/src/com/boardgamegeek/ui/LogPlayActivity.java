@@ -74,10 +74,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String KEY_NO_WIN_STATS_SHOWN = "NO_WIN_STATS_SHOWN";
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
+	private static final String KEY_DELETE_ON_BACK = "DELETE_ON_BACK";
 
 	private LocationAdapter mLocationAdapter;
 
 	private Play mPlay;
+	private Play mOriginalPlay;
 	private int mNextPlayerTag = 1;
 	private boolean mLaunchingActivity;
 	private long mStartTime;
@@ -98,6 +100,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mNoWinStatsShown;
 	private boolean mCommentsShown;
 	private boolean mPlayersShown;
+	private boolean mDeleteOnBack;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -107,10 +110,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setUiVariables();
 
 		final Intent intent = getIntent();
-		int playId = intent.getExtras().getInt(KEY_PLAY_ID);
-		int gameId = intent.getExtras().getInt(KEY_GAME_ID);
-		String gameName = intent.getExtras().getString(KEY_GAME_NAME);
-		mStartTime = intent.getExtras().getLong(KEY_START_TIME);
+		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		String gameName = intent.getStringExtra(KEY_GAME_NAME);
+		mStartTime = intent.getLongExtra(KEY_START_TIME, 0);
 
 		if (gameId <= 0) {
 			LOGW(TAG, "Can't log a play without a game ID.");
@@ -120,19 +123,26 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		changeName(gameName);
 
 		if (savedInstanceState != null) {
-			mPlay = new Play(savedInstanceState);
+			mPlay = new Play(savedInstanceState, "P");
+			mOriginalPlay = new Play(savedInstanceState, "O");
 			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
 			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
 			mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
 			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
+			mDeleteOnBack = savedInstanceState.getBoolean(KEY_DELETE_ON_BACK);
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
 			if (playId > 0) {
+				mDeleteOnBack = false;
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+			} else {
+				mDeleteOnBack = true;
+				save(Play.SYNC_STATUS_IN_PROGRESS);
 			}
+			mOriginalPlay = new Play(mPlay);
 		}
 
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -165,13 +175,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		mPlay.saveState(outState);
+		mPlay.saveState(outState, "P");
+		mOriginalPlay.saveState(outState, "O");
 		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
 		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
 		outState.putBoolean(KEY_NO_WIN_STATS_SHOWN, mNoWinStatsShown);
 		outState.putBoolean(KEY_COMMENTS_SHOWN, mCommentsShown);
 		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
+		outState.putBoolean(KEY_DELETE_ON_BACK, mDeleteOnBack);
 	}
 
 	@Override
@@ -267,13 +279,19 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+		triggerUpload();
+	}
+
+	private void triggerUpload() {
 		UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
 	}
 
 	private void save(int syncStatus) {
-		captureForm();
+		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
+			captureForm();
+		}
 		mPlay.SyncStatus = syncStatus;
-		new PlayPersister(getContentResolver(), mPlay).save();
+		PlayPersister.save(getContentResolver(), mPlay);
 	}
 
 	private void startPlay() {
@@ -300,8 +318,30 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void cancel() {
-		// TODO: check if data is dirty
-		ActivityUtils.createCancelDialog(this).show();
+		captureForm();
+		if (mPlay.equals(mOriginalPlay)) {
+			if (mDeleteOnBack) {
+				save(Play.SYNC_STATUS_PENDING_DELETE);
+			}
+			triggerUpload();
+			setResult(RESULT_CANCELED);
+			finish();
+		} else {
+			// TODO: if new, ask if it should be deleted
+			if (mDeleteOnBack) {
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_message,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							save(Play.SYNC_STATUS_PENDING_DELETE);
+							triggerUpload();
+							setResult(RESULT_CANCELED);
+							finish();
+						}
+					}).show();
+			} else {
+				ActivityUtils.createCancelDialog(this).show();
+			}
+		}
 	}
 
 	private CharSequence[] createAddFieldArray() {
@@ -583,6 +623,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 
 				mPlay.fromCursor(cursor);
+				mOriginalPlay = new Play(mPlay);
 				if (mStartTime > 0) {
 					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
 				}
@@ -595,6 +636,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					Player player = new Player(cursor);
 					mPlay.addPlayer(player);
 				}
+				mOriginalPlay = new Play(mPlay);
 				bindUiPlayers();
 				break;
 			default:

@@ -59,7 +59,7 @@ public class Play {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_YEAR = "YEAR";
 	private static final String KEY_MONTH = "MONTH";
-	private static final String KEY_DATY = "DAY";
+	private static final String KEY_DAY = "DAY";
 	private static final String KEY_QUANTITY = "QUANTITY";
 	private static final String KEY_LENGTH = "LENGTH";
 	private static final String KEY_LOCATION = "LOCATION";
@@ -92,44 +92,78 @@ public class Play {
 		Year = c.get(Calendar.YEAR);
 		Month = c.get(Calendar.MONTH);
 		Day = c.get(Calendar.DAY_OF_MONTH);
+		Location = "";
+		Comments = "";
 	}
 
-	public Play(Bundle bundle) {
-		PlayId = bundle.getInt(KEY_PLAY_ID);
-		GameId = bundle.getInt(KEY_GAME_ID);
-		GameName = bundle.getString(KEY_GAME_NAME);
-		Year = bundle.getInt(KEY_YEAR);
-		Month = bundle.getInt(KEY_MONTH);
-		Day = bundle.getInt(KEY_DATY);
-		Quantity = bundle.getInt(KEY_QUANTITY);
-		Length = bundle.getInt(KEY_LENGTH);
-		Location = bundle.getString(KEY_LOCATION);
-		Incomplete = bundle.getBoolean(KEY_INCOMPLETE);
-		NoWinStats = bundle.getBoolean(KEY_NOWINSTATS);
-		Comments = bundle.getString(KEY_COMMENTS);
-		Updated = bundle.getLong(KEY_UPDATED);
-		SyncStatus = bundle.getInt(KEY_SYNC_STATUS);
-		Saved = bundle.getLong(KEY_SAVED);
-		mPlayers = bundle.getParcelableArrayList(KEY_PLAYERS);
+	/**
+	 * Deep copy constructor.
+	 */
+	public Play(Play play) {
+		PlayId = play.PlayId;
+		GameId = play.GameId;
+		GameName = play.GameName;
+		Year = play.Year;
+		Month = play.Month;
+		Day = play.Day;
+		Quantity = play.Quantity;
+		Length = play.Length;
+		Location = play.Location;
+		Incomplete = play.Incomplete;
+		NoWinStats = play.NoWinStats;
+		Comments = play.Comments;
+		Updated = play.Updated;
+		SyncStatus = play.SyncStatus;
+		Saved = play.Saved;
+		for (Player player : play.getPlayers()) {
+			mPlayers.add(new Player(player));
+		}
 	}
 
-	public void saveState(Bundle bundle) {
-		bundle.putInt(KEY_PLAY_ID, PlayId);
-		bundle.putInt(KEY_GAME_ID, GameId);
-		bundle.putString(KEY_GAME_NAME, GameName);
-		bundle.putInt(KEY_YEAR, Year);
-		bundle.putInt(KEY_MONTH, Month);
-		bundle.putInt(KEY_DATY, Day);
-		bundle.putInt(KEY_QUANTITY, Quantity);
-		bundle.putInt(KEY_LENGTH, Length);
-		bundle.putString(KEY_LOCATION, Location);
-		bundle.putBoolean(KEY_INCOMPLETE, Incomplete);
-		bundle.putBoolean(KEY_NOWINSTATS, NoWinStats);
-		bundle.putString(KEY_COMMENTS, Comments);
-		bundle.putLong(KEY_UPDATED, Updated);
-		bundle.putInt(KEY_SYNC_STATUS, SyncStatus);
-		bundle.putLong(KEY_SAVED, Saved);
-		bundle.putParcelableArrayList(KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
+	public Play(Bundle bundle, String prefix) {
+		PlayId = bundle.getInt(prefix + KEY_PLAY_ID);
+		GameId = bundle.getInt(prefix + KEY_GAME_ID);
+		GameName = getString(bundle, prefix + KEY_GAME_NAME);
+		Year = bundle.getInt(prefix + KEY_YEAR);
+		Month = bundle.getInt(prefix + KEY_MONTH);
+		Day = bundle.getInt(prefix + KEY_DAY);
+		Quantity = bundle.getInt(prefix + KEY_QUANTITY);
+		Length = bundle.getInt(prefix + KEY_LENGTH);
+		Location = getString(bundle, prefix + KEY_LOCATION);
+		Incomplete = bundle.getBoolean(prefix + KEY_INCOMPLETE);
+		NoWinStats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
+		Comments = getString(bundle, prefix + KEY_COMMENTS);
+		Updated = bundle.getLong(prefix + KEY_UPDATED);
+		SyncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
+		Saved = bundle.getLong(prefix + KEY_SAVED);
+		mPlayers = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
+	}
+
+	private String getString(final Bundle bundle, String key) {
+		String s = bundle.getString(key);
+		if (s == null) {
+			return "";
+		}
+		return s;
+	}
+
+	public void saveState(Bundle bundle, String prefix) {
+		bundle.putInt(prefix + KEY_PLAY_ID, PlayId);
+		bundle.putInt(prefix + KEY_GAME_ID, GameId);
+		bundle.putString(prefix + KEY_GAME_NAME, GameName);
+		bundle.putInt(prefix + KEY_YEAR, Year);
+		bundle.putInt(prefix + KEY_MONTH, Month);
+		bundle.putInt(prefix + KEY_DAY, Day);
+		bundle.putInt(prefix + KEY_QUANTITY, Quantity);
+		bundle.putInt(prefix + KEY_LENGTH, Length);
+		bundle.putString(prefix + KEY_LOCATION, Location);
+		bundle.putBoolean(prefix + KEY_INCOMPLETE, Incomplete);
+		bundle.putBoolean(prefix + KEY_NOWINSTATS, NoWinStats);
+		bundle.putString(prefix + KEY_COMMENTS, Comments);
+		bundle.putLong(prefix + KEY_UPDATED, Updated);
+		bundle.putInt(prefix + KEY_SYNC_STATUS, SyncStatus);
+		bundle.putLong(prefix + KEY_SAVED, Saved);
+		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
 	}
 
 	public int PlayId;
@@ -323,5 +357,56 @@ public class Play {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (o == null || o.getClass() != this.getClass()) {
+			return false;
+		}
+
+		Play p = (Play) o;
+		boolean eq = (PlayId == p.PlayId) && (GameId == p.GameId)
+			&& (GameName == p.GameName || (GameName != null && GameName.equals(p.GameName))) && (Year == p.Year)
+			&& (Month == p.Month) && (Day == p.Day) && (Quantity == p.Quantity) && (Length == p.Length)
+			&& (Location == p.Location || (Location != null && Location.equals(p.Location)))
+			&& (Incomplete == p.Incomplete) && (NoWinStats == p.NoWinStats)
+			&& (Comments == p.Comments || (Comments != null && Comments.equals(p.Comments))) && (Updated == p.Updated)
+			&& (SyncStatus == p.SyncStatus) && (Saved == p.Saved) && (mPlayers.size() == p.mPlayers.size());
+		if (eq) {
+			for (int i = 0; i < mPlayers.size(); i++) {
+				if (mPlayers.get(i) != p.getPlayers().get(i)) {
+					return false;
+				}
+			}
+		}
+		return eq;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + PlayId;
+		result = prime * result + GameId;
+		result = prime * result + ((GameName == null) ? 0 : GameName.hashCode());
+		result = prime * result + Year;
+		result = prime * result + Month;
+		result = prime * result + Day;
+		result = prime * result + Quantity;
+		result = prime * result + Length;
+		result = prime * result + ((Location == null) ? 0 : Location.hashCode());
+		result = prime * result + (Incomplete ? 1231 : 1237);
+		result = prime * result + (NoWinStats ? 1231 : 1237);
+		result = prime * result + ((Comments == null) ? 0 : Comments.hashCode());
+		long u = Double.doubleToLongBits(Updated);
+		result = prime * result + (int) (u ^ (u >>> 32));
+		result = prime * result + SyncStatus;
+		long s = Double.doubleToLongBits(Saved);
+		result = prime * result + (int) (s ^ (s >>> 32));
+		return result;
 	}
 }
