@@ -58,6 +58,24 @@ public class ResolverUtils {
 	}
 
 	/*
+	 * Use the content resolver to get an integer from the specified column at the URI. Returns 0 if there's not exactly
+	 * one row at the URI.
+	 */
+	public static int queryInt(ContentResolver resolver, Uri uri, String columnName) {
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
+		try {
+			int count = cursor.getCount();
+			if (count != 1) {
+				return 0;
+			}
+			cursor.moveToFirst();
+			return cursor.getInt(0);
+		} finally {
+			closeCursor(cursor);
+		}
+	}
+
+	/*
 	 * Use the content resolver to get a list of integers from the specified column at the URI
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName) {

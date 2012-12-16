@@ -105,8 +105,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 					String tag = mParser.getName();
 					if (Tags.PLAY.equals(tag)) {
 						mTotalCount++;
-						PlayPersister helper = new PlayPersister(mResolver, mPlay);
-						int status = helper.save(true);
+						int status = PlayPersister.save(mResolver, mPlay, true);
 						switch (status) {
 							case PlayPersister.STATUS_IN_PROGRESS:
 								inProgressCount++;
