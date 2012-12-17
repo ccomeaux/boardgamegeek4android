@@ -169,6 +169,7 @@
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
 	<string name="app_name">BoardGameGeek</string>
+	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="description_logo">BoardGameGeek</string>
 	<string name="description_search">Search</string>
 	<string name="title_about">About</string>
