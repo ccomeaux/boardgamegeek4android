@@ -43,6 +43,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	public void onDeleted() {
 		finish();
-		UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
+		// TODO: hook this back up
+		// UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
 	}
 }

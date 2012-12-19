@@ -204,8 +204,9 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 							values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_DELETE);
 							ContentResolver resolver = getActivity().getContentResolver();
 							resolver.update(Plays.buildPlayUri(playId), values, null, null);
-							UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_UPLOAD,
-								BggContract.INVALID_ID, mCallbacks.getReceiver());
+							// TODO: hook this back up
+							// UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_UPLOAD,
+							// BggContract.INVALID_ID, mCallbacks.getReceiver());
 						}
 					}).show();
 				return true;

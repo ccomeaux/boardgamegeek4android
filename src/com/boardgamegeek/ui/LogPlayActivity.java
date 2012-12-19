@@ -283,7 +283,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void triggerUpload() {
-		UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
+		// TODO: hook this back up
+		// UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
 	}
 
 	private void save(int syncStatus) {

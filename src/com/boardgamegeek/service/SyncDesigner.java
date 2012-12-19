@@ -6,10 +6,9 @@ import android.content.Context;
 
 import com.boardgamegeek.io.RemoteDesignerHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.util.HttpUtils;
 
-public class SyncDesigner extends SyncTask {
+public class SyncDesigner extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncDesigner.class);
 	private int mDesignerId;
 
@@ -18,10 +17,10 @@ public class SyncDesigner extends SyncTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) {
 		RemoteDesignerHandler handler = new RemoteDesignerHandler(mDesignerId);
-		executor.executeGet(HttpUtils.constructDesignerUrl(mDesignerId), handler);
-		setIsBggDown(handler.isBggDown());
+		String url = HttpUtils.constructDesignerUrl(mDesignerId);
+		safelyExecuteGet(executor, url, handler);
 		LOGI(TAG, "Synched Designer " + mDesignerId);
 	}
 }
