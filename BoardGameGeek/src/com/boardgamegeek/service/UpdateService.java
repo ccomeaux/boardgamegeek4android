@@ -7,14 +7,6 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import org.apache.http.client.HttpClient;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.HttpUtils;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.IntentService;
@@ -23,6 +15,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
+
+import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HttpUtils;
 
 public class UpdateService extends IntentService {
 	private static final String TAG = makeLogTag(UpdateService.class);
@@ -34,7 +32,6 @@ public class UpdateService extends IntentService {
 	public static final int SYNC_TYPE_UNKNOWN = 0;
 	public static final int SYNC_TYPE_GAME = 1;
 	public static final int SYNC_TYPE_GAME_PLAYS = 2;
-	public static final int SYNC_TYPE_PLAYS_UPLOAD = 3;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
 	public static final int SYNC_TYPE_PUBLISHER = 12;
@@ -75,31 +72,28 @@ public class UpdateService extends IntentService {
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 		mResultReceiver = intent.getParcelableExtra(KEY_STATUS_RECEIVER);
 
-		SyncTask task = null;
 		if (syncId == BggContract.INVALID_ID) {
-			switch (syncType) {
-				case SYNC_TYPE_PLAYS_UPLOAD:
-					task = new SyncPlaysUpload();
-					break;
-			}
-		} else {
-			switch (syncType) {
-				case SYNC_TYPE_GAME:
-					task = new SyncGame(syncId);
-					break;
-				case SYNC_TYPE_GAME_PLAYS:
-					task = new SyncGamePlays(syncId);
-					break;
-				case SYNC_TYPE_DESIGNER:
-					task = new SyncDesigner(syncId);
-					break;
-				case SYNC_TYPE_ARTIST:
-					task = new SyncArtist(syncId);
-					break;
-				case SYNC_TYPE_PUBLISHER:
-					task = new SyncPublisher(syncId);
-					break;
-			}
+			sendResultToReceiver(STATUS_ERROR, "No ID specified.");
+			return;
+		}
+
+		UpdateTask task = null;
+		switch (syncType) {
+			case SYNC_TYPE_GAME:
+				task = new SyncGame(syncId);
+				break;
+			case SYNC_TYPE_GAME_PLAYS:
+				task = new SyncGamePlays(syncId);
+				break;
+			case SYNC_TYPE_DESIGNER:
+				task = new SyncDesigner(syncId);
+				break;
+			case SYNC_TYPE_ARTIST:
+				task = new SyncArtist(syncId);
+				break;
+			case SYNC_TYPE_PUBLISHER:
+				task = new SyncPublisher(syncId);
+				break;
 		}
 
 		if (task == null) {
@@ -118,21 +112,17 @@ public class UpdateService extends IntentService {
 
 		final long startTime = System.currentTimeMillis();
 		sendResultToReceiver(STATUS_RUNNING);
+		// TODO: show notification
 		try {
 			task.execute(mRemoteExecutor, this);
-			if (task.isBggDown()) {
-				String message = getResources().getString(R.string.notification_bgg_down);
-				LOGD(TAG, message);
+			String message = task.getErrorMessage();
+			if (!TextUtils.isEmpty(message)) {
+				LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
 				sendResultToReceiver(STATUS_ERROR, message);
 			}
+		} finally {
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
-		} catch (HandlerException e) {
-			LOGE(TAG, "Failed during sync type " + syncType, e);
-			LOGD(TAG, "Sync failed in " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
-				+ (mUseGzip ? "on" : "off"));
-			sendResultToReceiver(STATUS_ERROR, e.toString());
-		} finally {
 			sendResultToReceiver(STATUS_COMPLETE);
 			mResultReceiver = null;
 		}

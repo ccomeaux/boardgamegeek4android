@@ -6,10 +6,9 @@ import android.content.Context;
 
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.util.HttpUtils;
 
-public class SyncGame extends SyncTask {
+public class SyncGame extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGame.class);
 	private int mGameId;
 
@@ -18,11 +17,11 @@ public class SyncGame extends SyncTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) {
 		RemoteGameHandler handler = new RemoteGameHandler();
 		handler.setParsePolls();
-		executor.executeGet(HttpUtils.constructGameUrl(mGameId), handler);
-		setIsBggDown(handler.isBggDown());
+		String url = HttpUtils.constructGameUrl(mGameId);
+		executor.safelyExecuteGet(url, handler);
 		LOGI(TAG, "Synced Game " + mGameId);
 	}
 }

@@ -9,11 +9,10 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
 
-public class SyncGamePlays extends SyncTask {
+public class SyncGamePlays extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGamePlays.class);
 	private int mGameId;
 
@@ -22,16 +21,16 @@ public class SyncGamePlays extends SyncTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {
 			return;
 		}
 
 		RemotePlaysHandler handler = new RemotePlaysHandler();
-		executor.executeGet(HttpUtils.constructPlayUrlSpecific(account.name, mGameId, null), handler);
-		setIsBggDown(handler.isBggDown());
-		if (!handler.isBggDown()) {
+		String url = HttpUtils.constructPlayUrlSpecific(account.name, mGameId, null);
+		executor.safelyExecuteGet(url, handler);
+		if (!handler.hasError()) {
 			ContentValues values = new ContentValues(1);
 			values.put(Games.UPDATED_PLAYS, System.currentTimeMillis());
 			context.getContentResolver().update(Games.buildGameUri(mGameId), values, null, null);
