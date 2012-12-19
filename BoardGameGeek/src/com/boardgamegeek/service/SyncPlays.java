@@ -2,6 +2,11 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.accounts.Account;
 import android.content.Context;
 
@@ -11,7 +16,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
@@ -24,7 +28,7 @@ public class SyncPlays extends SyncTask {
 	private long mStartTime;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
 		mExecutor = executor;
 		mContext = context;
 		mStartTime = System.currentTimeMillis();
@@ -43,7 +47,7 @@ public class SyncPlays extends SyncTask {
 		BggApplication.getInstance().putMaxPlayDate("0000-00-00");
 	}
 
-	private void executePagedGet(String url) throws HandlerException {
+	private void executePagedGet(String url) throws IOException, XmlPullParserException {
 		RemoteBggHandler handler = new RemotePlaysHandler();
 		int page = 1;
 		while (mExecutor.executeGet(url + "&page=" + page, handler)) {

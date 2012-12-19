@@ -1,9 +1,14 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.accounts.Account;
 import android.content.Context;
 
@@ -14,7 +19,6 @@ import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteCollectionDeleteHandler;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -25,7 +29,7 @@ public class SyncCollectionList extends SyncTask {
 	private final static int DAYS_BETWEEN_FULL_SYNCS = 7;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
 		LOGI(TAG, "Syncing collection list...");
 		try {
 			final long startTime = System.currentTimeMillis();
@@ -46,7 +50,7 @@ public class SyncCollectionList extends SyncTask {
 							((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(account.name, statuses[i],
 								modifiedSince) : HttpUtils.constructCollectionUrl(account.name, statuses[i])),
 							new RemoteCollectionHandler(startTime));
-					} catch (HandlerException e) {
+					} catch (IOException e) {
 						// This happens rather frequently with an EOF exception
 						LOGE(TAG, "Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
 					}
@@ -88,7 +92,7 @@ public class SyncCollectionList extends SyncTask {
 		return DateTimeUtils.howManyDaysOld(lastFullSync) > DAYS_BETWEEN_FULL_SYNCS;
 	}
 
-	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws HandlerException {
+	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		executor.executeGet(url, handler);
 		setIsBggDown(handler.isBggDown());
 	}

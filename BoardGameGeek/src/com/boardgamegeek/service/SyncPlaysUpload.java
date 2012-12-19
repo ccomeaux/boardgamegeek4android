@@ -18,6 +18,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.Context;
@@ -31,7 +32,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -45,7 +45,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private HttpClient mClient;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
 		mContext = context;
 		mClient = executor.getHttpClient();
 
@@ -224,7 +224,9 @@ public class SyncPlaysUpload extends SyncTask {
 		try {
 			re.executeGet(HttpUtils.constructPlayUrlSpecific(username, play.GameId, play.getDate()),
 				new RemotePlaysHandler());
-		} catch (HandlerException e) {
+		} catch (IOException e) {
+			return e.toString();
+		} catch (XmlPullParserException e) {
 			return e.toString();
 		}
 		return "";

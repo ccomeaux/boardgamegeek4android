@@ -2,6 +2,11 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,7 +15,6 @@ import android.text.format.DateUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.HttpUtils;
@@ -22,7 +26,7 @@ public class SyncBuddiesDetail extends SyncTask {
 	private static final int SYNC_BUDDY_LIMIT = 10;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
 
 		ContentResolver resolver = context.getContentResolver();
 		Cursor cursor = null;
@@ -30,7 +34,7 @@ public class SyncBuddiesDetail extends SyncTask {
 		try {
 			long days = System.currentTimeMillis() - (SYNC_BUDDY_DETAIL_DAYS * DateUtils.DAY_IN_MILLIS);
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, SyncColumns.UPDATED
-					+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
+				+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			if (cursor.getCount() > 0) {
 				LOGI(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
 				fetchBuddies(executor, cursor);
@@ -44,12 +48,13 @@ public class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver) throws HandlerException {
+	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver) throws IOException,
+		XmlPullParserException {
 		LOGI(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
 		Cursor cursor = null;
 		try {
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,
-					SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
+				SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
 			fetchBuddies(executor, cursor);
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -58,7 +63,7 @@ public class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws HandlerException {
+	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws IOException, XmlPullParserException {
 		if (cursor.moveToFirst()) {
 			do {
 				String name = cursor.getString(0);

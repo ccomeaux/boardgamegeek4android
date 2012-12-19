@@ -14,6 +14,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -22,9 +23,11 @@ import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
-public abstract class RemoteBggHandler extends XmlHandler {
+public abstract class RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteBggHandler.class);
 
+	private final String mAuthority;
+	private Context mContext;
 	protected XmlPullParser mParser;
 	protected ContentResolver mResolver;
 	protected ArrayList<ContentProviderOperation> mBatch;
@@ -33,8 +36,12 @@ public abstract class RemoteBggHandler extends XmlHandler {
 	private int mTotalCount;
 	private int mPageNumber;
 
+	protected Context getContext() {
+		return mContext;
+	}
+
 	public RemoteBggHandler() {
-		super(BggContract.CONTENT_AUTHORITY);
+		mAuthority = BggContract.CONTENT_AUTHORITY;
 	}
 
 	public boolean isBggDown() {
@@ -79,7 +86,11 @@ public abstract class RemoteBggHandler extends XmlHandler {
 		return 100;
 	}
 
-	@Override
+	public boolean parseAndHandle(XmlPullParser parser, Context context) throws IOException, XmlPullParserException {
+		mContext = context;
+		return parse(parser, mContext == null ? null : mContext.getContentResolver(), mAuthority);
+	}
+
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 		throws XmlPullParserException, IOException {
 
