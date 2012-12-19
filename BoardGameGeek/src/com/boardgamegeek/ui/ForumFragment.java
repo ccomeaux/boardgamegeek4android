@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -32,7 +31,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ForumsUtils;
@@ -249,19 +247,15 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 
 			final String url = HttpUtils.constructForumUrl(mForumId, mNextPage);
 			LOGI(TAG, "Loading threads from " + url);
-			try {
-				executor.executeGet(url, handler);
-
-				if (handler.isBggDown()) {
-					handleError(getContext().getString(R.string.bgg_down));
-				} else {
-					mNextPage++;
-					mErrorMessage = "";
-					mThreadCount = handler.getTotalCount();
-				}
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting threads", e);
-				handleError(e.getMessage());
+			executor.safelyExecuteGet(url, handler);
+			if (handler.hasError()) {
+				mErrorMessage = handler.getErrorMessage();
+				mNextPage = 1;
+				mThreadCount = 0;
+			} else {
+				mErrorMessage = "";
+				mNextPage++;
+				mThreadCount = handler.getCount();
 			}
 			return handler.getResults();
 		}
@@ -302,12 +296,6 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			super.onReset();
 			onStopLoading();
 			mData = null;
-		}
-
-		private void handleError(String message) {
-			mErrorMessage = message;
-			mNextPage = 1;
-			mThreadCount = 0;
 		}
 
 		public boolean isLoading() {

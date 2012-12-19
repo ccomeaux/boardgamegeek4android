@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -31,7 +30,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteThreadHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.ThreadArticle;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -138,23 +136,9 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 
 			final String url = HttpUtils.constructThreadUrl(mThreadId);
 			LOGI(TAG, "Loading threads from " + url);
-			try {
-				executor.executeGet(url, handler);
-
-				if (handler.isBggDown()) {
-					handleError(getContext().getString(R.string.bgg_down));
-				} else {
-					mErrorMessage = "";
-				}
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting threads", e);
-				mErrorMessage = e.getMessage();
-			}
+			executor.safelyExecuteGet(url, handler);
+			mErrorMessage = handler.getErrorMessage();
 			return handler.getResults();
-		}
-
-		private void handleError(String message) {
-			mErrorMessage = message;
 		}
 
 		@Override

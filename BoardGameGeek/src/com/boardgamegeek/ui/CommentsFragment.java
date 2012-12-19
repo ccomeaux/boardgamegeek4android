@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -31,7 +30,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.HttpUtils;
@@ -211,19 +209,16 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 			String url = HttpUtils.constructCommentsUrl(mGameId, mNextPage);
 			LOGI(TAG, "Loading comments from " + url);
-			try {
-				executor.executeGet(url, handler);
 
-				if (handler.isBggDown()) {
-					handleError(getContext().getString(R.string.bgg_down));
-				} else {
-					mNextPage++;
-					mErrorMessage = "";
-					mCommentCount = handler.getCount();
-				}
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting comments", e);
-				handleError(e.getMessage());
+			executor.safelyExecuteGet(url, handler);
+			if (handler.hasError()) {
+				mErrorMessage = handler.getErrorMessage();
+				mNextPage = 1;
+				mCommentCount = 0;
+			} else {
+				mErrorMessage = "";
+				mNextPage++;
+				mCommentCount = handler.getCount();
 			}
 			return handler.getResults();
 		}
@@ -264,12 +259,6 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			super.onReset();
 			onStopLoading();
 			mData = null;
-		}
-
-		private void handleError(String message) {
-			mErrorMessage = message;
-			mNextPage = 1;
-			mCommentCount = 0;
 		}
 
 		public boolean isLoading() {
