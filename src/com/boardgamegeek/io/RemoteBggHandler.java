@@ -15,7 +15,9 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
+import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
@@ -27,6 +29,7 @@ public abstract class RemoteBggHandler extends XmlHandler {
 	protected ContentResolver mResolver;
 	protected ArrayList<ContentProviderOperation> mBatch;
 	private boolean mIsBggDown;
+	private String mErrorMessage;
 	private int mTotalCount;
 	private int mPageNumber;
 
@@ -36,6 +39,21 @@ public abstract class RemoteBggHandler extends XmlHandler {
 
 	public boolean isBggDown() {
 		return mIsBggDown;
+	}
+
+	public boolean hasError() {
+		return !TextUtils.isEmpty(mErrorMessage);
+	}
+
+	public String getErrorMessage() {
+		if (mIsBggDown) {
+			return getContext().getString(R.string.bgg_down);
+		}
+		return mErrorMessage;
+	}
+
+	public void setErrorMessage(String message) {
+		mErrorMessage = message;
 	}
 
 	public abstract int getCount();
@@ -65,6 +83,8 @@ public abstract class RemoteBggHandler extends XmlHandler {
 	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 		throws XmlPullParserException, IOException {
 
+		mErrorMessage = "";
+		mIsBggDown = false;
 		mParser = parser;
 		mResolver = resolver;
 		mBatch = new ArrayList<ContentProviderOperation>();

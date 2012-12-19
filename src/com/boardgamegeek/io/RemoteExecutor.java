@@ -1,5 +1,6 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -40,6 +41,17 @@ public class RemoteExecutor {
 		while (executeGet(url + "&page=" + page, handler)) {
 			page++;
 		}
+	}
+
+	public boolean safelyExecuteGet(String url, XmlHandler handler) {
+		final HttpUriRequest request = new HttpGet(url);
+		try {
+			return execute(request, handler);
+		} catch (HandlerException e) {
+			LOGE(TAG, "Getting " + url, e);
+			((RemoteBggHandler) handler).setErrorMessage(e.toString());
+		}
+		return false;
 	}
 
 	public boolean executeGet(String url, XmlHandler handler) throws HandlerException {

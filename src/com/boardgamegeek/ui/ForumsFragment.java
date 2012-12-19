@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -32,7 +31,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumsHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -157,18 +155,8 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 			RemoteForumsHandler handler = new RemoteForumsHandler();
 
 			LOGI(TAG, "Loading forums from " + mUrl);
-			try {
-				executor.executeGet(mUrl, handler);
-
-				if (handler.isBggDown()) {
-					mErrorMessage = getContext().getString(R.string.bgg_down);
-				} else {
-					mErrorMessage = "";
-				}
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting forums", e);
-				mErrorMessage = e.getMessage();
-			}
+			executor.safelyExecuteGet(mUrl, handler);
+			mErrorMessage = handler.getErrorMessage();
 			return handler.getResults();
 		}
 

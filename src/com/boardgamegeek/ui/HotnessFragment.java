@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +20,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteHotnessHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
@@ -32,7 +28,7 @@ import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public class HotnessFragment extends SherlockListFragment implements AbsListView.OnScrollListener {
-	private static final String TAG = makeLogTag(HotnessActivity.class);
+	// private static final String TAG = makeLogTag(HotnessActivity.class);
 	private static final String KEY_HOT_GAMES = "HOT_GAMES";
 
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
@@ -128,11 +124,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		@Override
 		protected RemoteHotnessHandler doInBackground(Void... params) {
 			String url = HttpUtils.constructHotnessUrl();
-			try {
-				mExecutor.executeGet(url, mHandler);
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting hotness", e);
-			}
+			mExecutor.safelyExecuteGet(url, mHandler);
 			return mHandler;
 		}
 
@@ -140,8 +132,8 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		protected void onPostExecute(RemoteHotnessHandler result) {
 			if (isAdded()) {
 				mHotGames = result.getResults();
-				if (result.isBggDown()) {
-					mEmptyMessage = getString(R.string.bgg_down);
+				if (result.hasError()) {
+					mEmptyMessage = result.getErrorMessage();
 				} else {
 					mEmptyMessage = getString(R.string.empty_hotness);
 				}

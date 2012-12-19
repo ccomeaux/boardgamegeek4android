@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
@@ -30,7 +29,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -150,18 +148,9 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 			RemoteBuddyCollectionHandler handler = new RemoteBuddyCollectionHandler();
 
 			LOGI(TAG, "Loading buddy collection from " + mUrl);
-			try {
-				executor.executeGet(mUrl, handler);
+			executor.safelyExecuteGet(mUrl, handler);
+			mErrorMessage = handler.getErrorMessage();
 
-				if (handler.isBggDown()) {
-					mErrorMessage = getContext().getString(R.string.bgg_down);
-				} else {
-					mErrorMessage = "";
-				}
-			} catch (HandlerException e) {
-				LOGE(TAG, "getting buddy collection", e);
-				mErrorMessage = e.getMessage();
-			}
 			return handler.getResults();
 		}
 

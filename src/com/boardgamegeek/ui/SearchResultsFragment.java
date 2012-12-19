@@ -36,7 +36,6 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -244,28 +243,14 @@ public class SearchResultsFragment extends SherlockListFragment implements
 			LOGI(TAG, "Searching for " + mQuery);
 			if (BggApplication.getInstance().getExactSearch()) {
 				String url = HttpUtils.constructSearchUrl(mQuery, true);
-				try {
-					executor.executeGet(url, handler);
-					if (handler.isBggDown()) {
-						mErrorMessage = getContext().getString(R.string.bgg_down);
-					}
-				} catch (HandlerException e) {
-					LOGE(TAG, "searching", e);
-					mErrorMessage = e.getMessage();
-				}
+				executor.safelyExecuteGet(url, handler);
+				mErrorMessage = handler.getErrorMessage();
 			}
 
 			if (TextUtils.isEmpty(mErrorMessage) && handler.getCount() == 0) {
 				String url = HttpUtils.constructSearchUrl(mQuery, false);
-				try {
-					executor.executeGet(url, handler);
-					if (handler.isBggDown()) {
-						mErrorMessage = getContext().getString(R.string.bgg_down);
-					}
-				} catch (HandlerException e) {
-					LOGE(TAG, "searching", e);
-					mErrorMessage = e.getMessage();
-				}
+				executor.safelyExecuteGet(url, handler);
+				mErrorMessage = handler.getErrorMessage();
 			}
 			return handler.getResults();
 		}
