@@ -1,5 +1,9 @@
 package com.boardgamegeek.service;
 
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -12,14 +16,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBuddiesHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncBuddiesList extends SyncTask {
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws HandlerException {
+	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
 
 		ContentResolver resolver = context.getContentResolver();
 		Account account = Authenticator.getAccount(context);

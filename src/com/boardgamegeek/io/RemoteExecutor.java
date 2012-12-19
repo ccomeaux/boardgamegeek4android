@@ -18,8 +18,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
 
-import com.boardgamegeek.io.XmlHandler.HandlerException;
-
 public class RemoteExecutor {
 	private static final String TAG = makeLogTag(RemoteExecutor.class);
 
@@ -36,55 +34,52 @@ public class RemoteExecutor {
 		mContext = context;
 	}
 
-	public void executePagedGet(String url, XmlHandler handler) throws HandlerException {
+	public void executePagedGet(String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		int page = 1;
 		while (executeGet(url + "&page=" + page, handler)) {
 			page++;
 		}
 	}
 
-	public boolean safelyExecuteGet(String url, XmlHandler handler) {
+	public boolean safelyExecuteGet(String url, RemoteBggHandler handler) {
 		final HttpUriRequest request = new HttpGet(url);
 		try {
 			return execute(request, handler);
-		} catch (HandlerException e) {
+		} catch (IOException e) {
 			LOGE(TAG, "Getting " + url, e);
-			((RemoteBggHandler) handler).setErrorMessage(e.toString());
+			handler.setErrorMessage(e.toString());
+		} catch (XmlPullParserException e) {
+			LOGE(TAG, "Getting " + url, e);
+			handler.setErrorMessage(e.toString());
 		}
 		return false;
 	}
 
-	public boolean executeGet(String url, XmlHandler handler) throws HandlerException {
+	public boolean executeGet(String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		final HttpUriRequest request = new HttpGet(url);
 		return execute(request, handler);
 	}
 
-	public boolean execute(HttpUriRequest request, XmlHandler handler) throws HandlerException {
+	public boolean execute(HttpUriRequest request, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		LOGI(TAG, request.getURI().toString());
 
 		HttpResponse response;
+		response = mHttpClient.execute(request);
+		final int status = response.getStatusLine().getStatusCode();
+
+		if (status != HttpStatus.SC_OK) {
+			throw new IOException("Unexpected server response " + response.getStatusLine() + " for "
+				+ request.getRequestLine());
+		}
+
+		final InputStream input = response.getEntity().getContent();
 		try {
-			response = mHttpClient.execute(request);
-			final int status = response.getStatusLine().getStatusCode();
-
-			if (status != HttpStatus.SC_OK) {
-				throw new HandlerException("Unexpected server response " + response.getStatusLine() + " for "
-					+ request.getRequestLine());
+			XmlPullParser parser = createPullParser(input);
+			return handler.parseAndHandle(parser, mContext);
+		} finally {
+			if (input != null) {
+				input.close();
 			}
-
-			final InputStream input = response.getEntity().getContent();
-			try {
-				XmlPullParser parser = createPullParser(input);
-				return handler.parseAndHandle(parser, mContext);
-			} catch (XmlPullParserException e) {
-				throw new HandlerException("Malformed response for " + request.getRequestLine(), e);
-			} finally {
-				if (input != null) {
-					input.close();
-				}
-			}
-		} catch (IOException e) {
-			throw new HandlerException("Problem reading remote response for " + request.getRequestLine(), e);
 		}
 	}
 

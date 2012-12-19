@@ -5,10 +5,12 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -22,7 +24,6 @@ import android.os.Bundle;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.XmlHandler.HandlerException;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -64,9 +65,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
 			ContentResolver.setSyncAutomatically(account, authority, true);
-			Bundle b = new Bundle();
-			ContentResolver.addPeriodicSync(account, authority, b, 6 * 60 * 60); // 6 hours
 		}
+		
+		Bundle b =new Bundle();
+		b.putString("TYPE", "PLAY");
+		ContentResolver.addPeriodicSync(account, authority, b, 6 * 60 * 60); // 6 hours
 
 		AccountManager accountManager = AccountManager.get(mContext);
 		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
@@ -90,11 +93,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				syncResult.stats.numEntries++;
 				syncResult.stats.numUpdates++;
 				syncResult.stats.numSkippedEntries++;
-			} catch (HandlerException e) {
-				// TODO separate exceptions
-				LOGE(TAG, "Syncing collection list", e);
-				syncResult.stats.numAuthExceptions++;
+				// syncResult.stats.numAuthExceptions++;
+			} catch (IOException e) {
+				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numIoExceptions++;
+			} catch (XmlPullParserException e) {
+				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numParseExceptions++;
 			}
 		}
