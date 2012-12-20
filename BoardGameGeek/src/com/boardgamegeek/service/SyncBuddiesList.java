@@ -7,13 +7,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBuddiesHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -22,13 +20,9 @@ import com.boardgamegeek.util.HttpUtils;
 public class SyncBuddiesList extends SyncTask {
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
 
-		ContentResolver resolver = context.getContentResolver();
-		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return;
-		}
+		ContentResolver resolver = executor.getContext().getContentResolver();
 
 		long startTime = System.currentTimeMillis();
 		insertSelf(resolver, account.name);

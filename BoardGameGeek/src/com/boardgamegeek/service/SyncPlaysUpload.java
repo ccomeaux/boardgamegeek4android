@@ -28,7 +28,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -45,14 +44,9 @@ public class SyncPlaysUpload extends SyncTask {
 	private HttpClient mClient;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
-		mContext = context;
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
+		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
-
-		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return;
-		}
 
 		updatePendingPlays(account.name);
 		deletePendingPlays();
