@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -77,6 +78,11 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
+		if (!HttpUtils.isOnline(getApplicationContext())) {
+			sendResultToReceiver(STATUS_ERROR, "Offline.");
+			return;
+		}
+
 		UpdateTask task = null;
 		switch (syncType) {
 			case SYNC_TYPE_GAME:
@@ -146,6 +152,7 @@ public class UpdateService extends IntentService {
 	}
 
 	private void sendResultToReceiver(int resultCode, String message) {
+		LOGI(TAG, "Code=" + resultCode + ", message=" + message);
 		if (mResultReceiver != null) {
 			Bundle bundle = Bundle.EMPTY;
 			if (!TextUtils.isEmpty(message)) {

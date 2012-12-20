@@ -49,6 +49,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -445,5 +446,10 @@ public class HttpUtils {
 		} finally {
 			LOGW(TAG, "Authenticate complete");
 		}
+	}
+
+	public static boolean isOnline(Context context) {
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
 	}
 }

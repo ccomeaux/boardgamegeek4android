@@ -29,6 +29,10 @@ public class RemoteExecutor {
 		return mHttpClient;
 	}
 
+	public Context getContext() {
+		return mContext;
+	}
+
 	public RemoteExecutor(HttpClient httpClient, Context context) {
 		mHttpClient = httpClient;
 		mContext = context;

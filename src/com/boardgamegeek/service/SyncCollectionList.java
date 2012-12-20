@@ -10,11 +10,9 @@ import java.io.IOException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
-import android.content.Context;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteCollectionDeleteHandler;
 import com.boardgamegeek.io.RemoteCollectionHandler;
@@ -29,18 +27,13 @@ public class SyncCollectionList extends SyncTask {
 	private final static int DAYS_BETWEEN_FULL_SYNCS = 7;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
 		LOGI(TAG, "Syncing collection list...");
 		try {
 			final long startTime = System.currentTimeMillis();
 			String[] statuses = BggApplication.getInstance().getSyncStatuses();
 
 			if (statuses != null && statuses.length > 0) {
-				Account account = Authenticator.getAccount(context);
-				if (account == null) {
-					return;
-				}
-				
 				long modifiedSince = BggApplication.getInstance().getCollectionPartSyncTimestamp();
 
 				for (int i = 0; i < statuses.length; i++) {
@@ -77,8 +70,11 @@ public class SyncCollectionList extends SyncTask {
 				LOGI(TAG, "Deleting old collection entries");
 				// TODO: delete thumbnail images associated with this list (both collection and game
 				// This next delete removes old collection entries for current games
-				context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-					new String[] { String.valueOf(startTime) });
+				executor
+					.getContext()
+					.getContentResolver()
+					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
+						new String[] { String.valueOf(startTime) });
 				BggApplication.getInstance().putCollectionFullSyncTimestamp(startTime);
 			}
 			BggApplication.getInstance().putCollectionPartSyncTimestamp(startTime);
@@ -92,7 +88,8 @@ public class SyncCollectionList extends SyncTask {
 		return DateTimeUtils.howManyDaysOld(lastFullSync) > DAYS_BETWEEN_FULL_SYNCS;
 	}
 
-	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
+	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws IOException,
+		XmlPullParserException {
 		executor.executeGet(url, handler);
 		setIsBggDown(handler.isBggDown());
 	}

@@ -12,7 +12,6 @@ import android.content.Context;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -28,15 +27,10 @@ public class SyncPlays extends SyncTask {
 	private long mStartTime;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
 		mExecutor = executor;
-		mContext = context;
+		mContext = executor.getContext();
 		mStartTime = System.currentTimeMillis();
-
-		Account account = Authenticator.getAccount(context);
-		if (account == null) {
-			return;
-		}
 
 		executePagedGet(HttpUtils.constructPlaysUrlNew(account.name));
 		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true);

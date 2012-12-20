@@ -70,6 +70,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
 		}
 
+		if (!HttpUtils.isOnline(mContext)) {
+			LOGI(TAG, "Skipping sync; offline");
+			return;
+		}
+
 		AccountManager accountManager = AccountManager.get(mContext);
 		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
 			accountManager.getPassword(account),
@@ -94,7 +99,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		for (SyncTask task : tasks) {
 			try {
-				task.execute(mRemoteExecutor, mContext);
+				task.execute(mRemoteExecutor, account);
 				// TODO set detail in syncResult.stats
 				syncResult.stats.numDeletes++;
 				syncResult.stats.numEntries++;

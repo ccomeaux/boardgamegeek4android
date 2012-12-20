@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.text.format.DateUtils;
 
@@ -26,9 +26,9 @@ public class SyncBuddiesDetail extends SyncTask {
 	private static final int SYNC_BUDDY_LIMIT = 10;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
 
-		ContentResolver resolver = context.getContentResolver();
+		ContentResolver resolver = executor.getContext().getContentResolver();
 		Cursor cursor = null;
 
 		try {

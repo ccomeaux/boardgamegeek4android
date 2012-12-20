@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.text.format.DateUtils;
 
@@ -33,12 +33,12 @@ public class SyncCollectionDetail extends SyncTask {
 	private RemoteExecutor mRemoteExecutor;
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
 		LOGI(TAG, "Syncing collection detail...");
 
 		Cursor cursor = null;
 		mRemoteExecutor = executor;
-		ContentResolver resolver = context.getContentResolver();
+		ContentResolver resolver = executor.getContext().getContentResolver();
 
 		try {
 			long days = System.currentTimeMillis() - (SYNC_GAME_AGE_IN_DAYS * DateUtils.DAY_IN_MILLIS);
