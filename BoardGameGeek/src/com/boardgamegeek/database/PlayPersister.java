@@ -92,9 +92,12 @@ public class PlayPersister {
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as in progress
-				if (play.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE) {
+				if (play.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE
+					|| play.SyncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 					play.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
+			} else {
+				play.SyncStatus = Play.SYNC_STATUS_SYNCED;
 			}
 			values.put(Plays.SYNC_STATUS, play.SyncStatus);
 
