@@ -1,53 +1,56 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SyncStatusObserver;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.service.SyncService2;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
-	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
+	private Object mSyncObserverHandle;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+	}
 
-		FragmentManager fm = getSupportFragmentManager();
-		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
-		if (mSyncStatusUpdaterFragment == null) {
-			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
-			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mSyncObserverHandle != null) {
+			ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
+			mSyncObserverHandle = null;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mSyncStatusObserver.onStatusChanged(0);
+		mSyncObserverHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_PENDING
+			| ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, mSyncStatusObserver);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
 		getSupportMenuInflater().inflate(R.menu.home, menu);
 		setupSearchMenuItem(menu);
+		mSyncStatusObserver.onStatusChanged(0);
 		return true;
 	}
 
@@ -73,9 +76,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 				}
 				break;
 			case R.id.menu_refresh:
-				Intent intent = new Intent(Intent.ACTION_SYNC, null, this, SyncService.class);
-				intent.putExtra(SyncService.EXTRA_STATUS_RECEIVER, mSyncStatusUpdaterFragment.mReceiver);
-				startService(intent);
+				triggerRefresh();
 				return true;
 			case R.id.menu_contact_us:
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
@@ -91,18 +92,17 @@ public class HomeActivity extends SherlockFragmentActivity {
 		return false;
 	}
 
-	private void updateRefreshStatus(boolean refreshing) {
+	private void triggerRefresh() {
+		SyncService2.sync(this, SyncService2.FLAG_SYNC_ALL);
+	}
+
+	private void setRefreshActionButtonState(boolean refreshing) {
 		if (mOptionsMenu == null) {
 			return;
 		}
 
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
-			if (!refreshing) {
-				long time = BggApplication.getInstance().getSyncTimestamp();
-				int hoursSinceSync = DateTimeUtils.howManyHoursOld(time);
-				refreshing = hoursSinceSync == 0;
-			}
 			if (refreshing) {
 				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
 			} else {
@@ -111,55 +111,15 @@ public class HomeActivity extends SherlockFragmentActivity {
 		}
 	}
 
-	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
-
-		private boolean mSyncing = false;
-		private DetachableResultReceiver mReceiver;
-
+	private final SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
 		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(new Handler());
-			mReceiver.setReceiver(this);
-		}
-
-		/** {@inheritDoc} */
-		public void onReceiveResult(int resultCode, Bundle resultData) {
-			HomeActivity activity = (HomeActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-
-			switch (resultCode) {
-				case SyncService.STATUS_RUNNING: {
-					mSyncing = true;
-					break;
+		public void onStatusChanged(int which) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					setRefreshActionButtonState(SyncService2.isActiveOrPending(HomeActivity.this));
 				}
-				case SyncService.STATUS_COMPLETE: {
-					mSyncing = false;
-					break;
-				}
-				case SyncService.STATUS_ERROR:
-				default: {
-					final String error = resultData.getString(Intent.EXTRA_TEXT);
-					if (error != null) {
-						LOGW(TAG, "Received unexpected result: " + error);
-						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
-					}
-					break;
-				}
-			}
-
-			activity.updateRefreshStatus(mSyncing);
+			});
 		}
-
-		@Override
-		public void onActivityCreated(Bundle savedInstanceState) {
-			super.onActivityCreated(savedInstanceState);
-			// TODO: the menu hasn't been created yet, so the status is never updated
-			((HomeActivity) getActivity()).updateRefreshStatus(mSyncing);
-		}
-	}
+	};
 }

@@ -50,7 +50,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.service.SyncService2;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -283,8 +283,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void triggerUpload() {
-		// TODO: hook this back up
-		// UpdateService.start(this, UpdateService.SYNC_TYPE_PLAYS_UPLOAD, BggContract.INVALID_ID, null);
+		SyncService2.sync(this, SyncService2.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
 	private void save(int syncStatus) {
@@ -328,7 +327,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
-			// TODO: if new, ask if it should be deleted
 			if (mDeleteOnBack) {
 				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_message,
 					new DialogInterface.OnClickListener() {

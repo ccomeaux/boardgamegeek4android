@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -38,11 +37,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.SyncService2;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlaysFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -54,18 +52,6 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private int mGameId;
 	private int mFilter;
 	private boolean mAutoSyncTriggered;
-
-	public interface Callbacks {
-		public DetachableResultReceiver getReceiver();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		public DetachableResultReceiver getReceiver() {
-			return null;
-		};
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -105,23 +91,6 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		}
 
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -204,9 +173,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 							values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_DELETE);
 							ContentResolver resolver = getActivity().getContentResolver();
 							resolver.update(Plays.buildPlayUri(playId), values, null, null);
-							// TODO: hook this back up
-							// UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_UPLOAD,
-							// BggContract.INVALID_ID, mCallbacks.getReceiver());
+							SyncService2.sync(getActivity(), SyncService2.FLAG_SYNC_PLAYS_UPLOAD);
 						}
 					}).show();
 				return true;
@@ -286,7 +253,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 	public void triggerRefresh() {
 		if (mGameId == BggContract.INVALID_ID) {
-			SyncService.start(getActivity(), mCallbacks.getReceiver(), SyncService.SYNC_TYPE_PLAYS);
+			SyncService2.sync(getActivity(), SyncService2.FLAG_SYNC_PLAYS);
 		} else {
 			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId, null);
 		}

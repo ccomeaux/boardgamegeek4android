@@ -32,7 +32,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class GameActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
+	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 
