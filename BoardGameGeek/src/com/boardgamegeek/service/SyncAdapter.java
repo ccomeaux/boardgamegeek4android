@@ -53,9 +53,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
+		final int type = extras.getInt(SyncService2.EXTRA_SYNC_TYPE, SyncService2.FLAG_SYNC_ALL);
 
 		LOGI(TAG, "Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
-			+ manualSync + " initialize=" + initialize);
+			+ manualSync + " initialize=" + initialize + ", type=" + type);
 
 		if (uploadOnly) {
 			LOGW(TAG, "Upload only, returning.");
@@ -65,11 +66,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
 			ContentResolver.setSyncAutomatically(account, authority, true);
+			Bundle b = new Bundle();
+			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
 		}
-		
-		Bundle b =new Bundle();
-		b.putString("TYPE", "PLAY");
-		ContentResolver.addPeriodicSync(account, authority, b, 6 * 60 * 60); // 6 hours
 
 		AccountManager accountManager = AccountManager.get(mContext);
 		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
@@ -78,12 +77,20 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		RemoteExecutor mRemoteExecutor = new RemoteExecutor(mHttpClient, mContext);
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
-		tasks.add(new SyncCollectionList());
-		tasks.add(new SyncCollectionDetail());
-		tasks.add(new SyncBuddiesList());
-		tasks.add(new SyncBuddiesDetail());
-		tasks.add(new SyncPlays());
-		tasks.add(new SyncPlaysUpload());
+		if ((type & SyncService2.FLAG_SYNC_COLLECTION) == SyncService2.FLAG_SYNC_COLLECTION) {
+			tasks.add(new SyncCollectionList());
+			tasks.add(new SyncCollectionDetail());
+		}
+		if ((type & SyncService2.FLAG_SYNC_BUDDIES) == SyncService2.FLAG_SYNC_BUDDIES) {
+			tasks.add(new SyncBuddiesList());
+			tasks.add(new SyncBuddiesDetail());
+		}
+		if ((type & SyncService2.FLAG_SYNC_PLAYS_UPLOAD) == SyncService2.FLAG_SYNC_PLAYS_UPLOAD) {
+			tasks.add(new SyncPlaysUpload());
+		}
+		if ((type & SyncService2.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService2.FLAG_SYNC_PLAYS_DOWNLOAD) {
+			tasks.add(new SyncPlays());
+		}
 
 		for (SyncTask task : tasks) {
 			try {

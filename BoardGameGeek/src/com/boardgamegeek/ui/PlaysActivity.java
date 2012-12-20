@@ -1,27 +1,21 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.content.Intent;
+import android.content.ContentResolver;
+import android.content.SyncStatusObserver;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.service.SyncService2;
 
-public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks,
-	ActionBar.OnNavigationListener {
-	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
+public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar.OnNavigationListener {
 	private Menu mOptionsMenu;
+	private Object mSyncObserverHandle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +27,23 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 			R.layout.sherlock_spinner_item);
 		mSpinnerAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 		actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
+	}
 
-		FragmentManager fm = getSupportFragmentManager();
-		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
-		if (mSyncStatusUpdaterFragment == null) {
-			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
-			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mSyncObserverHandle != null) {
+			ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
+			mSyncObserverHandle = null;
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mSyncStatusObserver.onStatusChanged(0);
+		mSyncObserverHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_PENDING
+			| ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, mSyncStatusObserver);
 	}
 
 	@Override
@@ -70,10 +74,9 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
-		return true;
+		mSyncStatusObserver.onStatusChanged(0);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -91,12 +94,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public DetachableResultReceiver getReceiver() {
-		return mSyncStatusUpdaterFragment.mReceiver;
-	}
-
-	public void updateRefreshStatus(boolean refreshing) {
+	private void setRefreshActionButtonState(boolean refreshing) {
 		if (mOptionsMenu == null) {
 			return;
 		}
@@ -111,48 +109,15 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements PlaysFrag
 		}
 	}
 
-	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
-
-		private boolean mSyncing = false;
-		private DetachableResultReceiver mReceiver;
-
+	private final SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
 		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(new Handler());
-			mReceiver.setReceiver(this);
+		public void onStatusChanged(int which) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					setRefreshActionButtonState(SyncService2.isActiveOrPending(PlaysActivity.this));
+				}
+			});
 		}
-
-		/** {@inheritDoc} */
-		public void onReceiveResult(int resultCode, Bundle resultData) {
-			PlaysActivity activity = (PlaysActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-
-			switch (resultCode) {
-				case SyncService.STATUS_RUNNING: {
-					mSyncing = true;
-					break;
-				}
-				case SyncService.STATUS_COMPLETE: {
-					mSyncing = false;
-					break;
-				}
-				case SyncService.STATUS_ERROR:
-				default: {
-					final String error = resultData.getString(Intent.EXTRA_TEXT);
-					if (error != null) {
-						LOGW(TAG, "Received unexpected result: " + error);
-						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
-					}
-					break;
-				}
-			}
-
-			activity.updateRefreshStatus(mSyncing);
-		}
-	}
+	};
 }

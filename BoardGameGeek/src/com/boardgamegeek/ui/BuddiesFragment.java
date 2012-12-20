@@ -20,18 +20,11 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.BezelImageView;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -130,22 +123,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.refresh_only, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_refresh:
-				triggerRefresh();
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
@@ -174,15 +151,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		mSelectedBuddyId = id;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
-		}
-	}
-
-	private void triggerRefresh() {
-		if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastBuddiesSync()) > 2) {
-			BggApplication.getInstance().putLastBuddiesSync();
-			SyncService.start(getActivity(), null, SyncService.SYNC_TYPE_BUDDIES);
-		} else {
-			Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
 		}
 	}
 
