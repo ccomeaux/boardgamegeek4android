@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
+import android.content.SyncResult;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -27,7 +28,8 @@ public class SyncCollectionList extends SyncTask {
 	private final static int DAYS_BETWEEN_FULL_SYNCS = 7;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
 		LOGI(TAG, "Syncing collection list...");
 		try {
 			final long startTime = System.currentTimeMillis();
@@ -39,16 +41,21 @@ public class SyncCollectionList extends SyncTask {
 				for (int i = 0; i < statuses.length; i++) {
 					LOGI(TAG, "Syncing status [" + statuses[i] + "]");
 					try {
+						RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime);
 						get(executor,
 							((modifiedSince > 0) ? HttpUtils.constructCollectionUrl(account.name, statuses[i],
-								modifiedSince) : HttpUtils.constructCollectionUrl(account.name, statuses[i])),
-							new RemoteCollectionHandler(startTime));
+								modifiedSince) : HttpUtils.constructCollectionUrl(account.name, statuses[i])), handler);
+						syncResult.stats.numInserts += handler.getNumInserts();
+						syncResult.stats.numUpdates += handler.getNumUpdates();
+						syncResult.stats.numSkippedEntries += handler.getNumSkips();
 					} catch (IOException e) {
 						// This happens rather frequently with an EOF exception
 						LOGE(TAG, "Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
+						syncResult.stats.numIoExceptions++;
 					}
 					if (isBggDown()) {
 						LOGW(TAG, "BGG down while syncing status " + statuses[i]);
+						syncResult.stats.numIoExceptions++;
 						return;
 					}
 				}
@@ -63,20 +70,20 @@ public class SyncCollectionList extends SyncTask {
 							return;
 						}
 					}
+
+					LOGI(TAG, "Deleting old collection entries");
+					// TODO: delete thumbnail images associated with this list (both collection and game
+					// This next delete removes old collection entries for current games
+					int count = executor
+						.getContext()
+						.getContentResolver()
+						.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
+							new String[] { String.valueOf(startTime) });
+					syncResult.stats.numDeletes += count;
+					BggApplication.getInstance().putCollectionFullSyncTimestamp(startTime);
 				}
 			}
 
-			if (needsFullSync()) {
-				LOGI(TAG, "Deleting old collection entries");
-				// TODO: delete thumbnail images associated with this list (both collection and game
-				// This next delete removes old collection entries for current games
-				executor
-					.getContext()
-					.getContentResolver()
-					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-						new String[] { String.valueOf(startTime) });
-				BggApplication.getInstance().putCollectionFullSyncTimestamp(startTime);
-			}
 			BggApplication.getInstance().putCollectionPartSyncTimestamp(startTime);
 		} finally {
 			LOGI(TAG, "Syncing collection list complete.");

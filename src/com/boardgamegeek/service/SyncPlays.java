@@ -9,6 +9,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.SyncResult;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -27,37 +28,41 @@ public class SyncPlays extends SyncTask {
 	private long mStartTime;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
 		mExecutor = executor;
 		mContext = executor.getContext();
 		mStartTime = System.currentTimeMillis();
 
-		executePagedGet(HttpUtils.constructPlaysUrlNew(account.name));
-		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true);
+		executePagedGet(HttpUtils.constructPlaysUrlNew(account.name), syncResult);
+		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true, syncResult);
 
-		executePagedGet(HttpUtils.constructPlaysUrlOld(account.name));
-		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false);
+		executePagedGet(HttpUtils.constructPlaysUrlOld(account.name), syncResult);
+		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false, syncResult);
 
 		BggApplication.getInstance().putMaxPlayDate("0000-00-00");
 	}
 
-	private void executePagedGet(String url) throws IOException, XmlPullParserException {
+	private void executePagedGet(String url, SyncResult syncResult) throws IOException, XmlPullParserException {
 		RemoteBggHandler handler = new RemotePlaysHandler();
 		int page = 1;
 		while (mExecutor.executeGet(url + "&page=" + page, handler)) {
+			syncResult.stats.numEntries += handler.getCount();
 			if (handler.isBggDown()) {
 				setIsBggDown(true);
+				syncResult.stats.numIoExceptions++;
 				break;
 			}
 			page++;
 		}
 	}
 
-	private void deleteMissingPlays(String date, boolean isMinDate) {
+	private void deleteMissingPlays(String date, boolean isMinDate, SyncResult syncResult) {
 		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (isMinDate ? ">" : "<") + "=? AND "
 			+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
 		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
+		syncResult.stats.numDeletes += count;
 		LOGI(TAG, "Deleted " + count + " plays");
 	}
 

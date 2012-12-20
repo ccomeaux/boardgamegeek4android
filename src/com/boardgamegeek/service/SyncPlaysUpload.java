@@ -22,6 +22,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.SyncResult;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.text.TextUtils;
@@ -44,12 +45,13 @@ public class SyncPlaysUpload extends SyncTask {
 	private HttpClient mClient;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
 		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
 
-		updatePendingPlays(account.name);
-		deletePendingPlays();
+		updatePendingPlays(account.name, syncResult);
+		deletePendingPlays(syncResult);
 	}
 
 	@Override
@@ -57,7 +59,7 @@ public class SyncPlaysUpload extends SyncTask {
 		return R.string.notification_text_plays_upload;
 	}
 
-	private void updatePendingPlays(String username) {
+	private void updatePendingPlays(String username, SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
@@ -80,8 +82,8 @@ public class SyncPlaysUpload extends SyncTask {
 
 				String error = postPlayUpdate(play);
 				if (TextUtils.isEmpty(error)) {
-					updateContentProvider(play);
-					error = syncGame(username, play);
+					updateContentProvider(play, syncResult);
+					error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
 						Resources r = mContext.getResources();
@@ -98,6 +100,7 @@ public class SyncPlaysUpload extends SyncTask {
 					}
 				} else {
 					notifyUser(error);
+					syncResult.stats.numIoExceptions++;
 				}
 			}
 		} finally {
@@ -135,7 +138,7 @@ public class SyncPlaysUpload extends SyncTask {
 		return playCount;
 	}
 
-	private void deletePendingPlays() {
+	private void deletePendingPlays(SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
@@ -144,16 +147,18 @@ public class SyncPlaysUpload extends SyncTask {
 			while (cursor.moveToNext()) {
 				Play play = new Play().fromCursor(cursor);
 				if (play.hasBeenSynced()) {
-					String error = postPlayDelete(play.PlayId);
+					String error = postPlayDelete(play.PlayId, syncResult);
 					if (TextUtils.isEmpty(error)) {
 						PlayPersister.delete(mContext.getContentResolver(), play);
 						notifyUser(mContext.getString(R.string.msg_play_deleted));
+						syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
 					notifyUser(mContext.getString(R.string.msg_play_deleted));
+					syncResult.stats.numDeletes++;
 				}
 			}
 		} finally {
@@ -204,29 +209,33 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private void updateContentProvider(Play play) {
+	private void updateContentProvider(Play play, SyncResult syncResult) {
 		if (play.hasBeenSynced()) {
 			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
 			PlayPersister.save(mContext.getContentResolver(), play);
+			syncResult.stats.numUpdates++;
 		} else {
 			PlayPersister.delete(mContext.getContentResolver(), play);
+			syncResult.stats.numDeletes++;
 		}
 	}
 
-	private String syncGame(String username, Play play) {
+	private String syncGame(String username, Play play, SyncResult syncResult) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
 			re.executeGet(HttpUtils.constructPlayUrlSpecific(username, play.GameId, play.getDate()),
 				new RemotePlaysHandler());
 		} catch (IOException e) {
+			syncResult.stats.numIoExceptions++;
 			return e.toString();
 		} catch (XmlPullParserException e) {
+			syncResult.stats.numParseExceptions++;
 			return e.toString();
 		}
 		return "";
 	}
 
-	public String postPlayDelete(int playId) {
+	public String postPlayDelete(int playId, SyncResult syncResult) {
 		UrlEncodedFormEntity entity = null;
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("ajax", "1"));
@@ -259,10 +268,13 @@ public class SyncPlaysUpload extends SyncTask {
 				}
 			}
 		} catch (ClientProtocolException e) {
+			syncResult.stats.numIoExceptions++;
 			return e.toString();
 		} catch (IOException e) {
+			syncResult.stats.numIoExceptions++;
 			return e.toString();
 		} catch (Exception e) {
+			syncResult.stats.numAuthExceptions++;
 			return e.toString();
 		}
 	}

@@ -34,6 +34,14 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 		return mUpdateCount + mInsertCount;
 	}
 
+	public int getNumUpdates() {
+		return mUpdateCount;
+	}
+
+	public int getNumInserts() {
+		return mInsertCount;
+	}
+
 	@Override
 	protected String getRootNodeName() {
 		return Tags.BUDDIES;
@@ -70,7 +78,7 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 						} else {
 							values.put(Buddies.BUDDY_ID, id);
 							mBatch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values)
-									.build());
+								.build());
 							mInsertCount++;
 						}
 					} finally {

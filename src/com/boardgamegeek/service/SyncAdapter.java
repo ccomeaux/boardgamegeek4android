@@ -99,13 +99,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		for (SyncTask task : tasks) {
 			try {
-				task.execute(mRemoteExecutor, account);
-				// TODO set detail in syncResult.stats
-				syncResult.stats.numDeletes++;
-				syncResult.stats.numEntries++;
-				syncResult.stats.numUpdates++;
-				syncResult.stats.numSkippedEntries++;
-				// syncResult.stats.numAuthExceptions++;
+				task.execute(mRemoteExecutor, account, syncResult);
 			} catch (IOException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numIoExceptions++;
