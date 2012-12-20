@@ -9,6 +9,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
+import android.content.SyncResult;
 import android.database.Cursor;
 import android.text.format.DateUtils;
 
@@ -26,7 +27,8 @@ public class SyncBuddiesDetail extends SyncTask {
 	private static final int SYNC_BUDDY_LIMIT = 10;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account) throws IOException, XmlPullParserException {
+	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
 
 		ContentResolver resolver = executor.getContext().getContentResolver();
 		Cursor cursor = null;
@@ -37,9 +39,9 @@ public class SyncBuddiesDetail extends SyncTask {
 				+ "<? OR " + SyncColumns.UPDATED + " IS NULL", new String[] { String.valueOf(days) }, null);
 			if (cursor.getCount() > 0) {
 				LOGI(TAG, "Updating buddies older than " + SYNC_BUDDY_DETAIL_DAYS + " days old");
-				fetchBuddies(executor, cursor);
+				fetchBuddies(executor, cursor, syncResult);
 			} else {
-				fetchOldestBuddies(executor, resolver);
+				fetchOldestBuddies(executor, resolver, syncResult);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
@@ -48,14 +50,14 @@ public class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver) throws IOException,
-		XmlPullParserException {
+	protected void fetchOldestBuddies(RemoteExecutor executor, ContentResolver resolver, SyncResult syncResult)
+		throws IOException, XmlPullParserException {
 		LOGI(TAG, "Updating " + SYNC_BUDDY_LIMIT + " oldest buddies");
 		Cursor cursor = null;
 		try {
 			cursor = resolver.query(Buddies.CONTENT_URI, new String[] { Buddies.BUDDY_NAME }, null, null,
 				SyncColumns.UPDATED + " LIMIT " + SYNC_BUDDY_LIMIT);
-			fetchBuddies(executor, cursor);
+			fetchBuddies(executor, cursor, syncResult);
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
@@ -63,13 +65,16 @@ public class SyncBuddiesDetail extends SyncTask {
 		}
 	}
 
-	private void fetchBuddies(RemoteExecutor executor, Cursor cursor) throws IOException, XmlPullParserException {
+	private void fetchBuddies(RemoteExecutor executor, Cursor cursor, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
 		if (cursor.moveToFirst()) {
 			do {
 				String name = cursor.getString(0);
 				RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
 				executor.executeGet(HttpUtils.constructUserUrl(name), handler);
+				syncResult.stats.numUpdates += handler.getCount();
 				if (handler.isBggDown()) {
+					syncResult.stats.numIoExceptions++;
 					setIsBggDown(true);
 					break;
 				}

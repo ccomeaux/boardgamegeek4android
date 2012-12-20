@@ -52,6 +52,18 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		return mUpdateGameCount + mInsertGameCount + mSkipGameCount;
 	}
 
+	public int getNumUpdates() {
+		return mUpdateCollectionCount + mUpdateGameCount;
+	}
+
+	public int getNumInserts() {
+		return mInsertCollectionCount + mInsertGameCount;
+	}
+
+	public int getNumSkips() {
+		return mSkipCollectionCount + mSkipGameCount;
+	}
+
 	@Override
 	protected String getRootNodeName() {
 		return Tags.ITEMS;
