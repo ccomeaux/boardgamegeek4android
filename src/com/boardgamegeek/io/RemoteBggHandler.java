@@ -31,7 +31,6 @@ public abstract class RemoteBggHandler {
 	protected XmlPullParser mParser;
 	protected ContentResolver mResolver;
 	protected ArrayList<ContentProviderOperation> mBatch;
-	private boolean mIsBggDown;
 	private String mErrorMessage;
 	private int mTotalCount;
 	private int mPageNumber;
@@ -44,18 +43,11 @@ public abstract class RemoteBggHandler {
 		mAuthority = BggContract.CONTENT_AUTHORITY;
 	}
 
-	public boolean isBggDown() {
-		return mIsBggDown;
-	}
-
 	public boolean hasError() {
 		return !TextUtils.isEmpty(mErrorMessage);
 	}
 
 	public String getErrorMessage() {
-		if (mIsBggDown) {
-			return getContext().getString(R.string.bgg_down);
-		}
 		return mErrorMessage;
 	}
 
@@ -95,7 +87,6 @@ public abstract class RemoteBggHandler {
 		throws XmlPullParserException, IOException {
 
 		mErrorMessage = "";
-		mIsBggDown = false;
 		mParser = parser;
 		mResolver = resolver;
 		mBatch = new ArrayList<ContentProviderOperation>();
@@ -119,19 +110,20 @@ public abstract class RemoteBggHandler {
 				} else if (Tags.ANCHOR.equals(name)) {
 					String href = mParser.getAttributeValue(null, Tags.HREF);
 					if (Tags.DOWN_LINK.equals(href)) {
-						clearResults();
-						mIsBggDown = true;
-						break;
+						setBggDown();
 					}
 				} else if (Tags.HTML.equals(name)) {
-					clearResults();
-					mIsBggDown = true;
-					break;
+					setBggDown();
 				}
 			}
 		}
 		ResolverUtils.applyBatch(mResolver, mBatch);
 		return mTotalCount > (mPageNumber * getPageSize());
+	}
+
+	public void setBggDown() throws IOException {
+		clearResults();
+		throw new IOException(mContext.getString(R.string.bgg_down));
 	}
 
 	protected abstract void parseItems() throws XmlPullParserException, IOException;

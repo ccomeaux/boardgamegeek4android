@@ -2,7 +2,6 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.IOException;
@@ -53,11 +52,6 @@ public class SyncCollectionList extends SyncTask {
 						LOGE(TAG, "Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
 						syncResult.stats.numIoExceptions++;
 					}
-					if (isBggDown()) {
-						LOGW(TAG, "BGG down while syncing status " + statuses[i]);
-						syncResult.stats.numIoExceptions++;
-						return;
-					}
 				}
 
 				if (needsFullSync()) {
@@ -65,10 +59,6 @@ public class SyncCollectionList extends SyncTask {
 					for (int i = 0; i < statuses.length; i++) {
 						get(executor, HttpUtils.constructBriefCollectionUrl(account.name, statuses[i]),
 							new RemoteCollectionDeleteHandler(startTime));
-						if (isBggDown()) {
-							LOGW(TAG, "BGG down while full-syncing");
-							return;
-						}
 					}
 
 					LOGI(TAG, "Deleting old collection entries");
@@ -98,7 +88,6 @@ public class SyncCollectionList extends SyncTask {
 	private void get(RemoteExecutor executor, String url, RemoteBggHandler handler) throws IOException,
 		XmlPullParserException {
 		executor.executeGet(url, handler);
-		setIsBggDown(handler.isBggDown());
 	}
 
 	@Override

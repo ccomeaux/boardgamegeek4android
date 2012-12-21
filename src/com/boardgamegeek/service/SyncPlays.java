@@ -48,11 +48,6 @@ public class SyncPlays extends SyncTask {
 		int page = 1;
 		while (mExecutor.executeGet(url + "&page=" + page, handler)) {
 			syncResult.stats.numEntries += handler.getCount();
-			if (handler.isBggDown()) {
-				setIsBggDown(true);
-				syncResult.stats.numIoExceptions++;
-				break;
-			}
 			page++;
 		}
 	}
