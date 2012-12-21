@@ -33,15 +33,10 @@ public class SyncBuddiesList extends SyncTask {
 		syncResult.stats.numInserts += handler.getNumInserts();
 		syncResult.stats.numUpdates += handler.getNumUpdates();
 
-		if (handler.isBggDown()) {
-			syncResult.stats.numIoExceptions++;
-			setIsBggDown(true);
-		} else {
-			// TODO: delete avatar images associated with this list
-			int count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
-				new String[] { String.valueOf(startTime) });
-			syncResult.stats.numIoExceptions += count;
-		}
+		// TODO: delete avatar images associated with this list
+		int count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
+			new String[] { String.valueOf(startTime) });
+		syncResult.stats.numDeletes += count;
 	}
 
 	@Override

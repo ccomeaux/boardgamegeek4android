@@ -73,12 +73,6 @@ public class SyncBuddiesDetail extends SyncTask {
 				RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
 				executor.executeGet(HttpUtils.constructUserUrl(name), handler);
 				syncResult.stats.numUpdates += handler.getCount();
-				if (handler.isBggDown()) {
-					syncResult.stats.numIoExceptions++;
-					setIsBggDown(true);
-					break;
-				}
-
 			} while (cursor.moveToNext());
 		}
 	}

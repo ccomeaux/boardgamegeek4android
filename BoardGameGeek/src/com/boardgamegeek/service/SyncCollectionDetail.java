@@ -82,11 +82,6 @@ public class SyncCollectionDetail extends SyncTask {
 			RemoteBggHandler handler = new RemoteGameHandler();
 			mRemoteExecutor.executeGet(HttpUtils.constructGameUrl(ids), handler);
 			syncResult.stats.numUpdates += handler.getCount();
-			if (handler.isBggDown()) {
-				syncResult.stats.numIoExceptions++;
-				setIsBggDown(true);
-			}
-
 		}
 	}
 
