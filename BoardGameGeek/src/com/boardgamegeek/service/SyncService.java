@@ -42,7 +42,6 @@ public class SyncService extends IntentService {
 	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
 	public static final String KEY_SYNC_SUPPRESS_NOTIFICATIONS = "KEY_SYNC_SUPPRESS_NOTIFICATIONS";
 	public static final int SYNC_TYPE_ALL = 0;
-	public static final int SYNC_TYPE_COLLECTION = 1;
 	public static final int SYNC_TYPE_PLAYS = 2;
 	public static final int SYNC_TYPE_BUDDIES = 3;
 
@@ -73,15 +72,6 @@ public class SyncService extends IntentService {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
-
-		if (BggApplication.getInstance().getSyncStatuses() != null
-			&& BggApplication.getInstance().getSyncStatuses().length > 0) {
-			List<SyncTask> list = new ArrayList<SyncTask>(2);
-			list.add(new SyncCollectionList());
-			list.add(new SyncCollectionDetail());
-			tasks.addAll(list);
-			mTaskList.put(SYNC_TYPE_COLLECTION, list);
-		}
 
 		if (BggApplication.getInstance().getSyncPlays()) {
 			List<SyncTask> list = new ArrayList<SyncTask>(2);

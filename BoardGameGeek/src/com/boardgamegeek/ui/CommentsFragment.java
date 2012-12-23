@@ -32,6 +32,7 @@ import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.GameUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -207,7 +208,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
 			RemoteCommentsHandler handler = new RemoteCommentsHandler();
 
-			String url = HttpUtils.constructCommentsUrl(mGameId, mNextPage);
+			String url = new GameUrlBuilder(mGameId).comments(mNextPage).build();
 			LOGI(TAG, "Loading comments from " + url);
 
 			executor.safelyExecuteGet(url, handler);

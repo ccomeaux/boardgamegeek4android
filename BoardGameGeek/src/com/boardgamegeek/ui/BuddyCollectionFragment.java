@@ -31,6 +31,7 @@ import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -54,7 +55,7 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 			return;
 		}
 
-		mUrl = HttpUtils.constructBriefCollectionUrl(mBuddyName, "own");
+		mUrl = new CollectionUrlBuilder(mBuddyName).status("own").brief().build();
 	}
 
 	@Override
