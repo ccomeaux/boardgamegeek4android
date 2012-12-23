@@ -54,6 +54,9 @@ public class RemoteBuddiesHandler extends RemoteBggHandler {
 
 	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
+		mInsertCount = 0;
+		mUpdateCount = 0;
+
 		String[] projection = { BaseColumns._ID, };
 		final int depth = mParser.getDepth();
 

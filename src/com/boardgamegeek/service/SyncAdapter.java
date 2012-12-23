@@ -83,8 +83,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 		if ((type & SyncService2.FLAG_SYNC_COLLECTION) == SyncService2.FLAG_SYNC_COLLECTION) {
-			tasks.add(new SyncCollectionList());
-			tasks.add(new SyncCollectionDetail());
+			tasks.add(new SyncCollectionListComplete());
+			tasks.add(new SyncCollectionListModifiedSince());
+			tasks.add(new SyncCollectionDetailOldest());
+			tasks.add(new SyncCollectionDetailUnsynced());
 		}
 		if ((type & SyncService2.FLAG_SYNC_BUDDIES) == SyncService2.FLAG_SYNC_BUDDIES) {
 			tasks.add(new SyncBuddiesList());

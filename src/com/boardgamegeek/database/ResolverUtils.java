@@ -103,8 +103,24 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of strings from the specified column at the URI
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName) {
+		return queryStrings(resolver, uri, columnName, null, null);
+	}
+
+	/*
+	 * Use the content resolver to get a list of strings from the specified column at the URI
+	 */
+	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
+		String[] selectionArgs) {
+		return queryStrings(resolver, uri, columnName, selection, selectionArgs, null);
+	}
+
+	/*
+	 * Use the content resolver to get a list of strings from the specified column at the URI
+	 */
+	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
+		String[] selectionArgs, String sortOrder) {
 		List<String> list = new ArrayList<String>();
-		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
 			while (cursor.moveToNext()) {
 				list.add(cursor.getString(0));
