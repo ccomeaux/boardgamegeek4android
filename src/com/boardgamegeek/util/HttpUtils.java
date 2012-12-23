@@ -12,11 +12,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -82,16 +80,6 @@ public class HttpUtils {
 		return BASE_URL_2 + "hot";
 	}
 
-	public static String constructGameUrl(int gameId) {
-		return constructGameUrl(String.valueOf(gameId));
-	}
-
-	public static String constructGameUrl(String gameId) {
-		// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
-		// http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1
-		return BASE_URL + "boardgame/" + gameId + "?stats=1";
-	}
-
 	public static String constructDesignerUrl(int designerId) {
 		// http://www.boardgamegeek.com/xmlapi/designer/13
 		return BASE_URL + "designer/" + designerId;
@@ -105,25 +93,6 @@ public class HttpUtils {
 	public static String constructPublisherUrl(int publisherId) {
 		// http://www.boardgamegeek.com/xmlapi/publisher/10
 		return BASE_URL + "publisher/" + publisherId;
-	}
-
-	public static String constructGameUrl(List<String> gameIds) {
-
-		if (gameIds == null) {
-			return null;
-		}
-
-		StringBuilder ids = new StringBuilder();
-		for (int i = 0; i < gameIds.size(); i++) {
-			if (i > 0) {
-				ids.append(",");
-			}
-			if (gameIds.get(i) != null) {
-				ids.append(gameIds.get(i));
-			}
-		}
-
-		return constructGameUrl(ids.toString());
 	}
 
 	public static String constructPlaysUrlOld(String username) {
@@ -168,32 +137,6 @@ public class HttpUtils {
 			url += "&buddies=1";
 		}
 		return url;
-	}
-
-	private static String constructCollectionUrl(String username, String status, boolean includeStats) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
-		return BASE_URL_2 + "collection?username=" + encode(username) + "&" + status.trim() + "=1&showprivate=1"
-			+ (includeStats ? "&stats=1" : "");
-	}
-
-	public static String constructCollectionUrl(String username, String status) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1
-		return constructCollectionUrl(username, status, false);
-	}
-
-	public static String constructBriefCollectionUrl(String username, String status) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1
-		return constructCollectionUrl(username, status, false) + "&brief=1";
-	}
-
-	public static String constructCollectionUrl(String username, String status, long modifiedSince) {
-		// http://www.boardgamegeek.com/xmlapi2/collection?username=ccomeaux&own=1&brief=1&modifiedsince=YY-MM-DD
-		return constructCollectionUrl(username, status) + "&modifiedsince="
-			+ new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(modifiedSince));
-	}
-
-	public static String constructCommentsUrl(int gameId, int page) {
-		return BASE_URL_2 + "thing?id=" + gameId + "&comments=1&page=" + page;
 	}
 
 	public static String constructForumlistUrl(int gameId) {

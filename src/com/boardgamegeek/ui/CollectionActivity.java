@@ -35,8 +35,6 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 			actionBar.setTitle(R.string.menu_create_shortcut);
 		}
 
-		triggerRefresh();
-
 		UIUtils.showHelpDialog(this, BggApplication.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
@@ -84,10 +82,6 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 	public void onSetShortcut(Intent intent) {
 		setResult(RESULT_OK, intent);
 		finish();
-	}
-
-	private void triggerRefresh() {
-		SyncService2.sync(this, SyncService2.FLAG_SYNC_COLLECTION);
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
