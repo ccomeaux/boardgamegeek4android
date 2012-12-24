@@ -19,8 +19,8 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
 import com.boardgamegeek.util.GameUrlBuilder;
 
-public class SyncCollectionDetailUnsynced extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionDetailUnsynced.class);
+public class SyncCollectionDetailUnupdated extends SyncTask {
+	private static final String TAG = makeLogTag(SyncCollectionDetailUnupdated.class);
 	private static final int GAMES_PER_FETCH = 25;
 
 	@Override

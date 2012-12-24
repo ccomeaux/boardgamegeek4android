@@ -43,7 +43,6 @@ public class SyncService extends IntentService {
 	public static final String KEY_SYNC_SUPPRESS_NOTIFICATIONS = "KEY_SYNC_SUPPRESS_NOTIFICATIONS";
 	public static final int SYNC_TYPE_ALL = 0;
 	public static final int SYNC_TYPE_PLAYS = 2;
-	public static final int SYNC_TYPE_BUDDIES = 3;
 
 	private static final int NOTIFICATION_ID = 1;
 	private static boolean mUseGzip = true;
@@ -79,14 +78,6 @@ public class SyncService extends IntentService {
 			list.add(new SyncPlaysUpload());
 			tasks.addAll(list);
 			mTaskList.put(SYNC_TYPE_PLAYS, list);
-		}
-
-		if (BggApplication.getInstance().getSyncBuddies()) {
-			List<SyncTask> list = new ArrayList<SyncTask>(2);
-			list.add(new SyncBuddiesList());
-			list.add(new SyncBuddiesDetail());
-			tasks.addAll(list);
-			mTaskList.put(SYNC_TYPE_BUDDIES, list);
 		}
 
 		mTaskList.put(SYNC_TYPE_ALL, tasks);

@@ -19,7 +19,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.GameUrlBuilder;
 
 public class SyncCollectionDetailOldest extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionDetailUnsynced.class);
+	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);
 	private static final int SYNC_GAME_LIMIT = 25;
 
 	@Override

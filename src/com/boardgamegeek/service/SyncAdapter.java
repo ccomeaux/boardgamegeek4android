@@ -86,11 +86,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionListComplete());
 			tasks.add(new SyncCollectionListModifiedSince());
 			tasks.add(new SyncCollectionDetailOldest());
-			tasks.add(new SyncCollectionDetailUnsynced());
+			tasks.add(new SyncCollectionDetailUnupdated());
 		}
 		if ((type & SyncService2.FLAG_SYNC_BUDDIES) == SyncService2.FLAG_SYNC_BUDDIES) {
 			tasks.add(new SyncBuddiesList());
-			tasks.add(new SyncBuddiesDetail());
+			tasks.add(new SyncBuddiesDetailOldest());
+			tasks.add(new SyncBuddiesDetailUnupdated());
 		}
 		if ((type & SyncService2.FLAG_SYNC_PLAYS_UPLOAD) == SyncService2.FLAG_SYNC_PLAYS_UPLOAD) {
 			tasks.add(new SyncPlaysUpload());

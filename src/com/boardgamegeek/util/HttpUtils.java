@@ -126,19 +126,6 @@ public class HttpUtils {
 		return url;
 	}
 
-	public static String constructUserUrl(String username) {
-		return constructUserUrl(username, false);
-	}
-
-	public static String constructUserUrl(String username, boolean includeBuddies) {
-		// http://www.boardgamegeek.com/xmlapi2/user?name=ccomeaux&buddies=1
-		String url = BASE_URL_2 + "user?name=" + encode(username);
-		if (includeBuddies) {
-			url += "&buddies=1";
-		}
-		return url;
-	}
-
 	public static String constructForumlistUrl(int gameId) {
 		return BASE_URL_2 + "forumlist?id=" + gameId + "&type=thing";
 	}
