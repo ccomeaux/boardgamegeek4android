@@ -4,21 +4,24 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PlaysUrlBuilder;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
@@ -30,30 +33,79 @@ public class SyncPlays extends SyncTask {
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
 		XmlPullParserException {
-		mExecutor = executor;
-		mContext = executor.getContext();
-		mStartTime = System.currentTimeMillis();
+		LOGI(TAG, "Syncing plays...");
+		try {
+			mExecutor = executor;
+			mContext = executor.getContext();
+			mStartTime = System.currentTimeMillis();
 
-		executePagedGet(HttpUtils.constructPlaysUrlNew(account.name), syncResult);
-		deleteMissingPlays(BggApplication.getInstance().getMinPlayDate(), true, syncResult);
+			AccountManager accountManager = AccountManager.get(executor.getContext());
+			long newestDate = 0;
+			try {
+				newestDate = Long.parseLong(accountManager.getUserData(account,
+					SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE));
+			} catch (NumberFormatException e) {
+				// swallow
+			}
+			long oldestDate = Long.MAX_VALUE;
+			try {
+				oldestDate = Long.parseLong(accountManager.getUserData(account,
+					SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE));
+			} catch (NumberFormatException e) {
+				// swallow
+			}
 
-		executePagedGet(HttpUtils.constructPlaysUrlOld(account.name), syncResult);
-		deleteMissingPlays(BggApplication.getInstance().getMaxPlayDate(), false, syncResult);
+			RemotePlaysHandler handler = new RemotePlaysHandler();
+			PlaysUrlBuilder builder = new PlaysUrlBuilder(account.name);
+			if (newestDate == 0 && oldestDate == Long.MAX_VALUE) {
+				// attempt to get all plays
+				LOGI(TAG, "...syncing all plays");
+				handlePage(handler, builder, syncResult);
+				accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE,
+					String.valueOf(handler.getNewestDate()));
+				accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE,
+					String.valueOf(handler.getOldestDate()));
+				// TODO: delete all unupdated
+			} else {
+				if (newestDate > 0) {
+					LOGI(TAG, "...syncing new plays since " + newestDate);
+					builder = builder.minDate(newestDate);
+					handlePage(handler, builder, syncResult);
+					accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE,
+						String.valueOf(handler.getNewestDate()));
+					deleteMissingPlays(handler.getNewestDate(), true, syncResult);
+				}
 
-		BggApplication.getInstance().putMaxPlayDate("0000-00-00");
+				if (oldestDate > 0 && oldestDate < Long.MAX_VALUE) {
+					LOGI(TAG, "...syncing old plays from " + oldestDate);
+					builder = builder.maxDate(oldestDate);
+					handlePage(handler, builder, syncResult);
+					accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE,
+						String.valueOf(handler.getOldestDate()));
+					deleteMissingPlays(handler.getOldestDate(), false, syncResult);
+				}
+			}
+
+			accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE, "0");
+		} finally {
+			LOGI(TAG, "...complete!");
+		}
 	}
 
-	private void executePagedGet(String url, SyncResult syncResult) throws IOException, XmlPullParserException {
-		RemoteBggHandler handler = new RemotePlaysHandler();
+	public void handlePage(RemotePlaysHandler handler, PlaysUrlBuilder builder, SyncResult syncResult)
+		throws IOException, XmlPullParserException {
 		int page = 1;
-		while (mExecutor.executeGet(url + "&page=" + page, handler)) {
+		while (mExecutor.executeGet(builder.build() + "&page=" + page, handler)) {
 			syncResult.stats.numEntries += handler.getCount();
 			page++;
 		}
 	}
 
-	private void deleteMissingPlays(String date, boolean isMinDate, SyncResult syncResult) {
-		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (isMinDate ? ">" : "<") + "=? AND "
+	private void deleteMissingPlays(long time, boolean greaterThan, SyncResult syncResult) {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		String date = df.format(new Date(time));
+
+		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (greaterThan ? ">" : "<") + "=? AND "
 			+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
 		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
