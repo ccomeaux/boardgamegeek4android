@@ -1,5 +1,6 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
@@ -8,13 +9,16 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.database.Cursor;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -22,13 +26,44 @@ import com.boardgamegeek.util.StringUtils;
 
 public class RemotePlaysHandler extends RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemotePlaysHandler.class);
+	private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private int mTotalCount = 0;
-
 	private Play mPlay;
+	private long mNewestDate;
+	private long mOldestDate;
 
 	public RemotePlaysHandler() {
 		super();
+		mNewestDate = 0;
+		mOldestDate = Long.MAX_VALUE;
+	}
+
+	public long getNewestDate() {
+		return mNewestDate;
+	}
+
+	public long getOldestDate() {
+		return mOldestDate;
+	}
+
+	public void setDatesMaybe(String date) {
+		if (TextUtils.isEmpty(date)) {
+			return;
+		}
+
+		try {
+			Date parsedDate = formatter.parse(date);
+			long time = parsedDate.getTime();
+			if (time > mNewestDate) {
+				mNewestDate = time;
+			}
+			if (time < mOldestDate) {
+				mOldestDate = time;
+			}
+		} catch (ParseException e) {
+			LOGE(TAG, "Bad date: " + date);
+		}
 	}
 
 	@Override
@@ -129,17 +164,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 							default:
 								break;
 						}
-
-						if (!TextUtils.isEmpty(date)) {
-							String maxDate = BggApplication.getInstance().getMaxPlayDate();
-							if ((date.compareTo(maxDate)) < 0) {
-								BggApplication.getInstance().putMaxPlayDate(date);
-							}
-							String minDate = BggApplication.getInstance().getMinPlayDate();
-							if ((date.compareTo(minDate)) > 0) {
-								BggApplication.getInstance().putMinPlayDate(date);
-							}
-						}
+						setDatesMaybe(date);
 					} else if (Tags.COMMENTS.equals(tag)) {
 						isComments = false;
 					}
