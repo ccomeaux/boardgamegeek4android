@@ -48,7 +48,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -93,37 +92,6 @@ public class HttpUtils {
 	public static String constructPublisherUrl(int publisherId) {
 		// http://www.boardgamegeek.com/xmlapi/publisher/10
 		return BASE_URL + "publisher/" + publisherId;
-	}
-
-	public static String constructPlaysUrlOld(String username) {
-		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&maxdate=2011-12-03
-		String maxDate = BggApplication.getInstance().getMaxPlayDate();
-		String url = BASE_URL_2 + "plays?username=" + encode(username);
-		if (!TextUtils.isEmpty(maxDate)) {
-			url += "&maxdate=" + maxDate;
-		}
-		return url;
-	}
-
-	public static String constructPlaysUrlNew(String username) {
-		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&mindate=2011-12-03
-		String minDate = BggApplication.getInstance().getMinPlayDate();
-		String url = BASE_URL_2 + "plays?username=" + encode(username);
-		if (!TextUtils.isEmpty(minDate)) {
-			url += "&mindate=" + minDate;
-		}
-		return url;
-	}
-
-	public static String constructPlayUrlSpecific(String username, int gameId, String date) {
-		// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&id=13&mindate=2011-12-03&maxdate=2011-12-03
-		String url = BASE_URL_2 + "plays?username=" + encode(username);
-		url += "&id=" + String.valueOf(gameId);
-		if (!TextUtils.isEmpty(date)) {
-			url += "&mindate=" + date;
-			url += "&maxdate=" + date;
-		}
-		return url;
 	}
 
 	public static String constructForumlistUrl(int gameId) {

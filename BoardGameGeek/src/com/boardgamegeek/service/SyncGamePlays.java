@@ -10,7 +10,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PlaysUrlBuilder;
 
 public class SyncGamePlays extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGamePlays.class);
@@ -28,7 +28,7 @@ public class SyncGamePlays extends UpdateTask {
 		}
 
 		RemotePlaysHandler handler = new RemotePlaysHandler();
-		String url = HttpUtils.constructPlayUrlSpecific(account.name, mGameId, null);
+		String url = new PlaysUrlBuilder(account.name).gameId(mGameId).build();
 		executor.safelyExecuteGet(url, handler);
 		if (!handler.hasError()) {
 			ContentValues values = new ContentValues(1);
