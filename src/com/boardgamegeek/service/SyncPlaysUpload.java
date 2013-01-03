@@ -36,6 +36,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PlaysUrlBuilder;
 import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
@@ -223,8 +224,8 @@ public class SyncPlaysUpload extends SyncTask {
 	private String syncGame(String username, Play play, SyncResult syncResult) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			re.executeGet(HttpUtils.constructPlayUrlSpecific(username, play.GameId, play.getDate()),
-				new RemotePlaysHandler());
+			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
+			re.executeGet(url, new RemotePlaysHandler());
 		} catch (IOException e) {
 			syncResult.stats.numIoExceptions++;
 			return e.toString();

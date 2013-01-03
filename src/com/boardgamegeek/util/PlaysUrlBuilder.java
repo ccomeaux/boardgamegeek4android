@@ -11,11 +11,23 @@ public class PlaysUrlBuilder extends UrlBuilder {
 	// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&mindate=2011-11-30&maxdate=2011-12-03
 	private final String mUsername;
 	private final DateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private int mGameId;
 	private String mMinDate;
 	private String mMaxDate;
 
 	public PlaysUrlBuilder(String username) {
 		mUsername = username;
+	}
+
+	public PlaysUrlBuilder gameId(int id) {
+		mGameId = id;
+		return this;
+	}
+
+	public PlaysUrlBuilder date(String date) {
+		mMinDate = date;
+		mMaxDate = date;
+		return this;
 	}
 
 	public PlaysUrlBuilder minDate(String date) {
@@ -40,6 +52,9 @@ public class PlaysUrlBuilder extends UrlBuilder {
 
 	public String build() {
 		String url = BASE_URL_2 + "plays?username=" + encode(mUsername);
+		if (mGameId > 0) {
+			url += "&id=" + mGameId;
+		}
 		if (!TextUtils.isEmpty(mMinDate)) {
 			url += "&mindate=" + mMaxDate;
 		}
