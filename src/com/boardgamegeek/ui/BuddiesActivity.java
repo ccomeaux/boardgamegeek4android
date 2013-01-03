@@ -9,7 +9,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 
 public class BuddiesActivity extends SimpleSinglePaneActivity implements BuddiesFragment.Callbacks {
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
@@ -70,7 +70,7 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 	}
 
 	private void triggerRefresh() {
-		SyncService2.sync(this, SyncService2.FLAG_SYNC_BUDDIES);
+		SyncService.sync(this, SyncService.FLAG_SYNC_BUDDIES);
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
@@ -94,7 +94,7 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					setRefreshActionButtonState(SyncService2.isActiveOrPending(BuddiesActivity.this));
+					setRefreshActionButtonState(SyncService.isActiveOrPending(BuddiesActivity.this));
 				}
 			});
 		}

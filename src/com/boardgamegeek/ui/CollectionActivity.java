@@ -11,7 +11,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -105,7 +105,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					setRefreshActionButtonState(SyncService2.isActiveOrPending(CollectionActivity.this));
+					setRefreshActionButtonState(SyncService.isActiveOrPending(CollectionActivity.this));
 				}
 			});
 		}

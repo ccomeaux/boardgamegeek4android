@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
-public class SyncService2 extends Service {
+public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
 	public static final int FLAG_SYNC_COLLECTION = 0x00000001;
 	public static final int FLAG_SYNC_BUDDIES = 0x00000002;

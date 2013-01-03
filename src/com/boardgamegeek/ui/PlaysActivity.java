@@ -11,7 +11,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 
 public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar.OnNavigationListener {
 	private Menu mOptionsMenu;
@@ -115,7 +115,7 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					setRefreshActionButtonState(SyncService2.isActiveOrPending(PlaysActivity.this));
+					setRefreshActionButtonState(SyncService.isActiveOrPending(PlaysActivity.this));
 				}
 			});
 		}

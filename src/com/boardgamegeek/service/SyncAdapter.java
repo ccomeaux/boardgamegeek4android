@@ -53,7 +53,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
-		final int type = extras.getInt(SyncService2.EXTRA_SYNC_TYPE, SyncService2.FLAG_SYNC_ALL);
+		final int type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL);
 
 		LOGI(TAG, "Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
 			+ manualSync + " initialize=" + initialize + ", type=" + type);
@@ -82,21 +82,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		RemoteExecutor mRemoteExecutor = new RemoteExecutor(mHttpClient, mContext);
 
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
-		if ((type & SyncService2.FLAG_SYNC_COLLECTION) == SyncService2.FLAG_SYNC_COLLECTION) {
+		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
 			tasks.add(new SyncCollectionListComplete());
 			tasks.add(new SyncCollectionListModifiedSince());
 			tasks.add(new SyncCollectionDetailOldest());
 			tasks.add(new SyncCollectionDetailUnupdated());
 		}
-		if ((type & SyncService2.FLAG_SYNC_BUDDIES) == SyncService2.FLAG_SYNC_BUDDIES) {
+		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
 			tasks.add(new SyncBuddiesList());
 			tasks.add(new SyncBuddiesDetailOldest());
 			tasks.add(new SyncBuddiesDetailUnupdated());
 		}
-		if ((type & SyncService2.FLAG_SYNC_PLAYS_UPLOAD) == SyncService2.FLAG_SYNC_PLAYS_UPLOAD) {
+		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
 			tasks.add(new SyncPlaysUpload());
 		}
-		if ((type & SyncService2.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService2.FLAG_SYNC_PLAYS_DOWNLOAD) {
+		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
 			tasks.add(new SyncPlays());
 		}
 

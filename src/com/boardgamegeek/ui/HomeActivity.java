@@ -13,7 +13,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
@@ -93,7 +93,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 	}
 
 	private void triggerRefresh() {
-		SyncService2.sync(this, SyncService2.FLAG_SYNC_ALL);
+		SyncService.sync(this, SyncService.FLAG_SYNC_ALL);
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
@@ -117,7 +117,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					setRefreshActionButtonState(SyncService2.isActiveOrPending(HomeActivity.this));
+					setRefreshActionButtonState(SyncService.isActiveOrPending(HomeActivity.this));
 				}
 			});
 		}

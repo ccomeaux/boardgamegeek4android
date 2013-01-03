@@ -35,7 +35,7 @@ public class SyncCollectionListComplete extends SyncTask {
 			}
 
 			AccountManager accountManager = AccountManager.get(executor.getContext());
-			String s = accountManager.getUserData(account, SyncService2.TIMESTAMP_COLLECTION_COMPLETE);
+			String s = accountManager.getUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 			long lastCompleteSync = TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
 				LOGI(TAG, "...skipping; we did a full sync already this week");
@@ -71,8 +71,8 @@ public class SyncCollectionListComplete extends SyncTask {
 			// TODO: delete games as well?!
 			// TODO: delete thumbnail images associated with this list (both collection and game
 
-			accountManager.setUserData(account, SyncService2.TIMESTAMP_COLLECTION_COMPLETE, String.valueOf(startTime));
-			accountManager.setUserData(account, SyncService2.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
+			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE, String.valueOf(startTime));
+			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

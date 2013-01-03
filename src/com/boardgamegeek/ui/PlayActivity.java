@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -42,6 +42,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	@Override
 	public void onDeleted() {
 		finish();
-		SyncService2.sync(this, SyncService2.FLAG_SYNC_PLAYS_UPLOAD);
+		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 }
