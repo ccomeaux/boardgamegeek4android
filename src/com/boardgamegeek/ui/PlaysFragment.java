@@ -37,7 +37,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -173,7 +173,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 							values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_DELETE);
 							ContentResolver resolver = getActivity().getContentResolver();
 							resolver.update(Plays.buildPlayUri(playId), values, null, null);
-							SyncService2.sync(getActivity(), SyncService2.FLAG_SYNC_PLAYS_UPLOAD);
+							SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 						}
 					}).show();
 				return true;
@@ -253,7 +253,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 	public void triggerRefresh() {
 		if (mGameId == BggContract.INVALID_ID) {
-			SyncService2.sync(getActivity(), SyncService2.FLAG_SYNC_PLAYS);
+			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 		} else {
 			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId, null);
 		}
