@@ -38,7 +38,7 @@ public class SyncBuddiesList extends SyncTask {
 			}
 
 			AccountManager accountManager = AccountManager.get(executor.getContext());
-			String s = accountManager.getUserData(account, SyncService2.TIMESTAMP_BUDDIES);
+			String s = accountManager.getUserData(account, SyncService.TIMESTAMP_BUDDIES);
 			long lastCompleteSync = TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
 				LOGI(TAG, "...skipping; we synced already within the last 3 days");
@@ -61,7 +61,7 @@ public class SyncBuddiesList extends SyncTask {
 				new String[] { String.valueOf(startTime) });
 			syncResult.stats.numDeletes += count;
 
-			accountManager.setUserData(account, SyncService2.TIMESTAMP_BUDDIES, String.valueOf(startTime));
+			accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, String.valueOf(startTime));
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

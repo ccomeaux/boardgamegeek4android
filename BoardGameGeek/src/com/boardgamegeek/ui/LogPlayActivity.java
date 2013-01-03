@@ -50,7 +50,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService2;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -283,7 +283,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void triggerUpload() {
-		SyncService2.sync(this, SyncService2.FLAG_SYNC_PLAYS_UPLOAD);
+		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
 	private void save(int syncStatus) {

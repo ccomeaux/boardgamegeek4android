@@ -43,14 +43,14 @@ public class SyncPlays extends SyncTask {
 			long newestDate = 0;
 			try {
 				newestDate = Long.parseLong(accountManager.getUserData(account,
-					SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE));
+					SyncService.TIMESTAMP_PLAYS_NEWEST_DATE));
 			} catch (NumberFormatException e) {
 				// swallow
 			}
 			long oldestDate = Long.MAX_VALUE;
 			try {
 				oldestDate = Long.parseLong(accountManager.getUserData(account,
-					SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE));
+					SyncService.TIMESTAMP_PLAYS_OLDEST_DATE));
 			} catch (NumberFormatException e) {
 				// swallow
 			}
@@ -61,9 +61,9 @@ public class SyncPlays extends SyncTask {
 				// attempt to get all plays
 				LOGI(TAG, "...syncing all plays");
 				handlePage(handler, builder, syncResult);
-				accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE,
+				accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE,
 					String.valueOf(handler.getNewestDate()));
-				accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE,
+				accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
 					String.valueOf(handler.getOldestDate()));
 				// TODO: delete all unupdated
 			} else {
@@ -71,7 +71,7 @@ public class SyncPlays extends SyncTask {
 					LOGI(TAG, "...syncing new plays since " + newestDate);
 					builder = builder.minDate(newestDate);
 					handlePage(handler, builder, syncResult);
-					accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_NEWEST_DATE,
+					accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE,
 						String.valueOf(handler.getNewestDate()));
 					deleteMissingPlays(handler.getNewestDate(), true, syncResult);
 				}
@@ -80,13 +80,13 @@ public class SyncPlays extends SyncTask {
 					LOGI(TAG, "...syncing old plays from " + oldestDate);
 					builder = builder.maxDate(oldestDate);
 					handlePage(handler, builder, syncResult);
-					accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE,
+					accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
 						String.valueOf(handler.getOldestDate()));
 					deleteMissingPlays(handler.getOldestDate(), false, syncResult);
 				}
 			}
 
-			accountManager.setUserData(account, SyncService2.TIMESTAMP_PLAYS_OLDEST_DATE, "0");
+			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, "0");
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

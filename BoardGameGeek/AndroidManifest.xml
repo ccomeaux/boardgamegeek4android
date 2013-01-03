@@ -244,7 +244,7 @@
 
 		<service android:name=".service.SyncService" />
 		<service
-			android:name=".service.SyncService2"
+			android:name=".service.SyncService"
 			android:exported="true" >
 			<intent-filter>
 				<action android:name="android.content.SyncAdapter" />

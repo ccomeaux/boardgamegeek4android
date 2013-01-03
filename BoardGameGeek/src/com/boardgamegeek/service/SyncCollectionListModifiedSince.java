@@ -27,7 +27,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
 		XmlPullParserException {
 		AccountManager accountManager = AccountManager.get(executor.getContext());
-		long modifiedSince = getLong(account, accountManager, SyncService2.TIMESTAMP_COLLECTION_PARTIAL);
+		long modifiedSince = getLong(account, accountManager, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(modifiedSince).toString() + "...");
 		try {
@@ -37,7 +37,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				return;
 			}
 
-			long lastFullSync = getLong(account, accountManager, SyncService2.TIMESTAMP_COLLECTION_COMPLETE);
+			long lastFullSync = getLong(account, accountManager, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 			if (DateTimeUtils.howManyHoursOld(lastFullSync) < 3) {
 				LOGI(TAG, "...skipping; we just did a complete sync");
 			}
@@ -61,7 +61,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				}
 			}
 
-			accountManager.setUserData(account, SyncService2.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
+			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
