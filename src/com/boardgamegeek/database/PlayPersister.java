@@ -300,6 +300,10 @@ public class PlayPersister {
 	 * Add the current players' team/colors to the permanent list.
 	 */
 	private static void updateColors(ContentResolver resolver, Play play) {
+		if (!ResolverUtils.rowExists(resolver, BggContract.Games.buildGameUri(play.GameId))) {
+			return;
+		}
+
 		if (play.getPlayers().size() > 0) {
 			List<ContentValues> values = new ArrayList<ContentValues>();
 			for (Player player : play.getPlayers()) {
