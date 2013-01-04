@@ -56,7 +56,7 @@ public class PlaysUrlBuilder extends UrlBuilder {
 			url += "&id=" + mGameId;
 		}
 		if (!TextUtils.isEmpty(mMinDate)) {
-			url += "&mindate=" + mMaxDate;
+			url += "&mindate=" + mMinDate;
 		}
 		if (!TextUtils.isEmpty(mMaxDate)) {
 			url += "&maxdate=" + mMaxDate;

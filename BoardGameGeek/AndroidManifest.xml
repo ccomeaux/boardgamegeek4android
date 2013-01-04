@@ -242,7 +242,6 @@
 			android:theme="@android:style/Theme.Dialog"
 			android:windowSoftInputMode="adjustResize|stateVisible" />
 
-		<service android:name=".service.SyncService" />
 		<service
 			android:name=".service.SyncService"
 			android:exported="true" >
