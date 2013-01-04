@@ -12,7 +12,7 @@ public class GameUrlBuilder extends UrlBuilder {
 	private final String mGameId;
 	private int mCommentsPage;
 	private boolean mStats;
-	private boolean mUseOldApi;
+	private boolean mUseOldApi = true;
 
 	public GameUrlBuilder(int gameId) {
 		mGameId = String.valueOf(gameId);
