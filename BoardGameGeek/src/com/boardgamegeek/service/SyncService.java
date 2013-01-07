@@ -4,6 +4,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -58,5 +59,25 @@ public class SyncService extends Service {
 		boolean syncActive = ContentResolver.isSyncActive(account, BggContract.CONTENT_AUTHORITY);
 		boolean syncPending = ContentResolver.isSyncPending(account, BggContract.CONTENT_AUTHORITY);
 		return syncActive || syncPending;
+	}
+
+	public static void clearCollection(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = Authenticator.getAccount(context);
+		accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE, null);
+		accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, null);
+	}
+
+	public static void clearBuddies(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = Authenticator.getAccount(context);
+		accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, null);
+	}
+
+	public static void clearPlays(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = Authenticator.getAccount(context);
+		accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, null);
+		accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, null);
 	}
 }

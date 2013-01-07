@@ -7,7 +7,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.AttributeSet;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Avatars;
@@ -20,6 +19,7 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
+import com.boardgamegeek.service.SyncService;
 
 public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = makeLogTag(ClearDialogPreference.class);
@@ -62,8 +62,9 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			BggApplication.getInstance().clearSyncTimestamps();
-			BggApplication.getInstance().clearSyncPlaysSettings();
+			SyncService.clearCollection(mContext);
+			SyncService.clearBuddies(mContext);
+			SyncService.clearPlays(mContext);
 
 			int count = 0;
 			count += delete(Games.CONTENT_URI);
