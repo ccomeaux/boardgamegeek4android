@@ -5,8 +5,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.service.SyncService;
 
 public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override
@@ -29,7 +29,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if ("syncStatuses".equals(key)) {
-			BggApplication.getInstance().clearSyncTimestamps();
+			SyncService.clearCollection(this);
 		}
 	}
 }

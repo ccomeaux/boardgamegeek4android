@@ -30,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
@@ -80,16 +79,11 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
 		if (uri != null && Games.isGameUri(uri)) {
-			mGameId = Games.getGameId(uri);
 			getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+			mGameId = Games.getGameId(uri);
 		} else {
 			mGameId = BggContract.INVALID_ID;
-			if (DateTimeUtils.howManyHoursOld(BggApplication.getInstance().getLastPlaysSync()) > 2) {
-				BggApplication.getInstance().putLastPlaysSync();
-				triggerRefresh();
-			}
 		}
-
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 

@@ -3,8 +3,8 @@ package com.boardgamegeek.pref;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.service.SyncService;
 
 public class ResetCollectionDialogPreference extends AsyncDialogPreference {
 
@@ -35,7 +35,7 @@ public class ResetCollectionDialogPreference extends AsyncDialogPreference {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			BggApplication.getInstance().clearSyncTimestamps();
+			SyncService.clearCollection(mContext);
 			return null;
 		}
 	}
