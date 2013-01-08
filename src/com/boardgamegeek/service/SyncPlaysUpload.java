@@ -57,7 +57,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 	@Override
 	public int getNotification() {
-		return R.string.notification_text_plays_upload;
+		return R.string.sync_notification_plays_upload;
 	}
 
 	private void updatePendingPlays(String username, SyncResult syncResult) {

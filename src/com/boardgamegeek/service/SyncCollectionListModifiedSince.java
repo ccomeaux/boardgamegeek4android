@@ -15,6 +15,7 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.util.CollectionUrlBuilder;
@@ -70,5 +71,10 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 	public long getLong(Account account, AccountManager accountManager, String key) {
 		String l = accountManager.getUserData(account, key);
 		return TextUtils.isEmpty(l) ? 0 : Long.parseLong(l);
+	}
+
+	@Override
+	public int getNotification() {
+		return R.string.sync_notification_collection_partial;
 	}
 }

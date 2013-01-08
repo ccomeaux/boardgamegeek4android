@@ -14,23 +14,33 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 
 import com.boardgamegeek.BuildConfig;
+import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.HttpUtils;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private static final String TAG = makeLogTag(SyncAdapter.class);
+	private static final int NOTIFICATION_ID = 0;
+	private static final int NOTIFICATION_ERROR_ID = -1;
 
 	private final Context mContext;
 	private final boolean mUseGzip = true;
+	private final boolean mShowNotifications = true;
 
 	public SyncAdapter(Context context, boolean autoInitialize) {
 		super(context, autoInitialize);
@@ -100,16 +110,60 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncPlays());
 		}
 
-		for (SyncTask task : tasks) {
+		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationCompat.Builder builder = createNotificationBuilder();
+		for (int i = 0; i < tasks.size(); i++) {
+			SyncTask task = tasks.get(i);
 			try {
+				if (mShowNotifications) {
+					builder.setProgress(tasks.size(), i, true);
+					builder.setContentText(mContext.getString(task.getNotification()));
+					NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
+					detail.setSummaryText(String.format(mContext.getString(R.string.sync_notification_step_summary),
+						i + 1, tasks.size()));
+					for (int j = i; j >= 0; j--) {
+						detail.addLine(mContext.getString(tasks.get(j).getNotification()));
+					}
+					nm.notify(NOTIFICATION_ID, builder.build());
+				}
 				task.execute(mRemoteExecutor, account, syncResult);
 			} catch (IOException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numIoExceptions++;
+				showError(e.toString());
 			} catch (XmlPullParserException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numParseExceptions++;
+				showError(e.toString());
+			} catch (Exception e) {
+				LOGE(TAG, "Syncing " + task, e);
+				showError(e.toString());
 			}
+
+			nm.cancel(NOTIFICATION_ID);
 		}
+	}
+
+	public NotificationCompat.Builder createNotificationBuilder() {
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
+			.setSmallIcon(R.drawable.ic_stat_bgg)
+			.setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.title_logo))
+			.setContentTitle(mContext.getString(R.string.sync_notification_title));
+		Intent intent = new Intent(mContext, HomeActivity.class);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+			PendingIntent.FLAG_UPDATE_CURRENT);
+		builder.setContentIntent(resultPendingIntent);
+		return builder;
+	}
+
+	private void showError(String message) {
+		if (!mShowNotifications)
+			return;
+
+		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		String text = mContext.getString(R.string.sync_notification_error);
+		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
+		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		nm.notify(NOTIFICATION_ERROR_ID, builder.build());
 	}
 }

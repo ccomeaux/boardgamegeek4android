@@ -11,6 +11,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.accounts.Account;
 import android.content.SyncResult;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -47,5 +48,10 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	@Override
+	public int getNotification() {
+		return R.string.sync_notification_collection_unupdated;
 	}
 }

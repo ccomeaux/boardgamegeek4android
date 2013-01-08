@@ -14,6 +14,7 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -76,5 +77,10 @@ public class SyncCollectionListComplete extends SyncTask {
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	@Override
+	public int getNotification() {
+		return R.string.sync_notification_collection_full;
 	}
 }
