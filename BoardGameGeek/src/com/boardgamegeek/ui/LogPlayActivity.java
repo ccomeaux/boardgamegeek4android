@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -309,12 +310,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void launchStartNotification(Intent intent) {
-		String title = getString(R.string.notification_title);
-		String message = String.format(getString(R.string.notification_text_playing), mPlay.GameName);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-		builder.setContentTitle(title).setContentText(message).setTicker(message).setSmallIcon(R.drawable.ic_stat_play)
+		String playing = getString(R.string.notification_playing);
+		builder.setContentTitle(playing).setContentText(mPlay.GameName)
+			.setTicker(playing + " \"" + mPlay.GameName + "\"").setSmallIcon(R.drawable.ic_stat_bgg)
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.title_logo))
 			.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, builder.build());
+		// TODO - set large icon with game thumbnail
 	}
 
 	private void cancel() {

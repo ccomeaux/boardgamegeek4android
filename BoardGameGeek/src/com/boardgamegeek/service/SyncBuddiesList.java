@@ -69,7 +69,7 @@ public class SyncBuddiesList extends SyncTask {
 
 	@Override
 	public int getNotification() {
-		return R.string.notification_text_buddies_list;
+		return R.string.sync_notification_buddies_list;
 	}
 
 	private void insertSelf(ContentResolver resolver, String username, long startTime, SyncResult syncResult) {

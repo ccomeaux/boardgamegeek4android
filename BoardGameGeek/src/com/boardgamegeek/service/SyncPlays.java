@@ -42,15 +42,15 @@ public class SyncPlays extends SyncTask {
 			AccountManager accountManager = AccountManager.get(executor.getContext());
 			long newestDate = 0;
 			try {
-				newestDate = Long.parseLong(accountManager.getUserData(account,
-					SyncService.TIMESTAMP_PLAYS_NEWEST_DATE));
+				newestDate = Long.parseLong(accountManager
+					.getUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE));
 			} catch (NumberFormatException e) {
 				// swallow
 			}
 			long oldestDate = Long.MAX_VALUE;
 			try {
-				oldestDate = Long.parseLong(accountManager.getUserData(account,
-					SyncService.TIMESTAMP_PLAYS_OLDEST_DATE));
+				oldestDate = Long.parseLong(accountManager
+					.getUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE));
 			} catch (NumberFormatException e) {
 				// swallow
 			}
@@ -115,6 +115,6 @@ public class SyncPlays extends SyncTask {
 
 	@Override
 	public int getNotification() {
-		return R.string.notification_text_plays;
+		return R.string.sync_notification_plays;
 	}
 }
