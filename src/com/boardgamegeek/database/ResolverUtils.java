@@ -1,6 +1,7 @@
 package com.boardgamegeek.database;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
+import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.Closeable;
@@ -159,7 +160,7 @@ public class ResolverUtils {
 		try {
 			stream = resolver.openInputStream(uri);
 		} catch (FileNotFoundException e) {
-			LOGE(TAG, "Couldn't find drawable: " + uri, e);
+			 LOGD(TAG, "Couldn't find drawable: " + uri, e);
 		}
 		if (stream != null) {
 			Bitmap bitmap = BitmapFactory.decodeStream(stream);
