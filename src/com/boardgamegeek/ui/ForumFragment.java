@@ -242,7 +242,7 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			mIsLoading = true;
 
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteForumHandler handler = new RemoteForumHandler();
 
 			final String url = HttpUtils.constructForumUrl(mForumId, mNextPage);

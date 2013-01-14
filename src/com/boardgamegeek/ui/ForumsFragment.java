@@ -151,7 +151,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		@Override
 		public List<Forum> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteForumsHandler handler = new RemoteForumsHandler();
 
 			LOGI(TAG, "Loading forums from " + mUrl);

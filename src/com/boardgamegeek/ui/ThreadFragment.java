@@ -131,7 +131,7 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 		@Override
 		public List<ThreadArticle> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteThreadHandler handler = new RemoteThreadHandler();
 
 			final String url = HttpUtils.constructThreadUrl(mThreadId);

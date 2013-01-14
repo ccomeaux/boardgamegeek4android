@@ -236,7 +236,7 @@ public class SearchResultsFragment extends SherlockListFragment implements
 		@Override
 		public List<SearchResult> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteSearchHandler handler = new RemoteSearchHandler();
 			mErrorMessage = "";
 
