@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-	<PreferenceCategory android:title="@string/pref_search" >
-		<CheckBoxPreference
-			android:defaultValue="true"
-			android:key="exactSearch"
-			android:summary="@string/pref_exactSearch_summary"
-			android:title="@string/pref_exactSearch_title" />
-		<CheckBoxPreference
-			android:defaultValue="true"
-			android:key="skipResults"
-			android:summary="@string/pref_skipResults_summary"
-			android:title="@string/pref_skipResults_title" />
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_general" >
-		<CheckBoxPreference
-			android:defaultValue="true"
-			android:key="imageLoad"
-			android:summary="@string/pref_imageLoad_summary"
-			android:title="@string/pref_imageLoad_title" />
-	</PreferenceCategory>
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="exactSearch"
+		android:summaryOff="@string/pref_exact_search_off"
+		android:summaryOn="@string/pref_exact_search_on"
+		android:title="@string/pref_exact_search" />
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="skipResults"
+		android:summaryOff="@string/pref_skipResults_off"
+		android:summaryOn="@string/pref_skipResults_on"
+		android:title="@string/pref_skipResults" />
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="imageLoad"
+		android:title="@string/pref_imageLoad" />
 
-	<PreferenceScreen
-		android:summary="@string/pref_log_summary"
-		android:title="@string/pref_log" >
+	<PreferenceScreen android:title="@string/pref_log" >
 		<CheckBoxPreference
 			android:key="logHideLog"
 			android:summaryOff="@string/pref_log_hide_log_off"
@@ -106,8 +101,7 @@
 				android:title="@string/pref_log_hide_player_win" />
 		</PreferenceCategory>
 	</PreferenceScreen>
-
-	<PreferenceCategory android:title="@string/pref_sync" >
+	<PreferenceScreen android:title="@string/pref_sync" >
 		<com.boardgamegeek.pref.ListPreferenceMultiSelect
 			android:defaultValue="own"
 			android:dialogTitle="@string/pref_sync_statuses"
@@ -119,31 +113,30 @@
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncPlays"
-			android:summary="@string/pref_sync_plays_summary"
 			android:title="@string/pref_sync_plays" />
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="syncBuddies"
-			android:summary="@string/pref_sync_buddies_summary"
 			android:title="@string/pref_sync_buddies" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="sync_notifications"
+			android:title="@string/pref_sync_notifications" />
 
 		<com.boardgamegeek.pref.ClearDialogPreference
-			android:negativeButtonText="@string/pref_sync_neg"
+			android:negativeButtonText="@string/cancel"
 			android:positiveButtonText="@string/pref_sync_clear_pos"
-			android:summary="@string/pref_sync_clear_summary"
 			android:title="@string/pref_sync_clear" />
 
 		<com.boardgamegeek.pref.ResetCollectionDialogPreference
-			android:negativeButtonText="@string/pref_sync_neg"
+			android:negativeButtonText="@string/cancel"
 			android:positiveButtonText="@string/pref_sync_reset_pos"
-			android:summary="@string/pref_sync_reset_collection_summary"
 			android:title="@string/pref_sync_reset_collection" />
 
 		<com.boardgamegeek.pref.ResetPlaysDialogPreference
-			android:negativeButtonText="@string/pref_sync_neg"
+			android:negativeButtonText="@string/cancel"
 			android:positiveButtonText="@string/pref_sync_reset_pos"
-			android:summary="@string/pref_sync_reset_plays_summary"
 			android:title="@string/pref_sync_reset_plays" />
-	</PreferenceCategory>
+	</PreferenceScreen>
 
 </PreferenceScreen>

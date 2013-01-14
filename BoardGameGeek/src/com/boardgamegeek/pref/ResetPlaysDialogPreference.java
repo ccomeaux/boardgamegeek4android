@@ -35,7 +35,8 @@ public class ResetPlaysDialogPreference extends AsyncDialogPreference {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			SyncService.clearPlays(mContext);
+			SyncService.clearPlays(getContext());
+			SyncService.sync(getContext(), SyncService.FLAG_SYNC_PLAYS);
 			return null;
 		}
 	}

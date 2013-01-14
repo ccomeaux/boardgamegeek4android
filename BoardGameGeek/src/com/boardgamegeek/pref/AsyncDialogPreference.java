@@ -12,9 +12,10 @@ import com.boardgamegeek.R;
 
 public abstract class AsyncDialogPreference extends DialogPreference {
 
-	protected Context mContext;
 	protected abstract Task getTask();
+
 	protected abstract int getInfoMessageResource();
+
 	protected abstract int getConfirmMessageResource();
 
 	public AsyncDialogPreference(Context context) {
@@ -27,14 +28,19 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 		init(context);
 	}
 
+	// @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void init(Context context) {
-		mContext = context;
+		// This caused the PreferencesActivity to crash on 4.2.1 (not sure why)
+		// if (VersionUtils.hasHoneycomb()) {
+		// setDialogIcon(android.R.attr.alertDialogIcon);
+		// } else {
 		setDialogIcon(android.R.drawable.ic_dialog_alert);
+		// }
 	}
 
 	@Override
 	protected View onCreateDialogView() {
-		TextView tw = new TextView(mContext);
+		TextView tw = new TextView(getContext());
 		tw.setText(getInfoMessageResource());
 		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
 		tw.setPadding(padding, padding, padding, padding);
@@ -48,7 +54,7 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 		}
 		notifyChanged();
 	}
-	
+
 	protected abstract class Task extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected void onPostExecute(Void result) {

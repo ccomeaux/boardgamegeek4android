@@ -35,7 +35,8 @@ public class ResetCollectionDialogPreference extends AsyncDialogPreference {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			SyncService.clearCollection(mContext);
+			SyncService.clearCollection(getContext());
+			SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
 			return null;
 		}
 	}
