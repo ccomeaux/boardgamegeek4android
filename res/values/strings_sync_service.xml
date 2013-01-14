@@ -3,7 +3,7 @@
 
 	<string name="sync_notification_title">Syncing</string>
 	<string name="sync_notification_error">Error</string>
-	<string name="sync_notification_collection_full">Complete collection</string>
+	<string name="sync_notification_collection_full">Entire collection</string>
 	<string name="sync_notification_collection_partial">Latest changes to collection</string>
 	<string name="sync_notification_collection_oldest">Oldest games in collection</string>
 	<string name="sync_notification_collection_unupdated">New games added to collection</string>
