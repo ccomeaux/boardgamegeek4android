@@ -205,7 +205,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			mIsLoading = true;
 
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteCommentsHandler handler = new RemoteCommentsHandler();
 
 			String url = new GameUrlBuilder(mGameId).comments(mNextPage).build();

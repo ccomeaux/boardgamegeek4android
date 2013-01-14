@@ -145,7 +145,7 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 		@Override
 		public List<BuddyGame> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, null);
+			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteBuddyCollectionHandler handler = new RemoteBuddyCollectionHandler();
 
 			LOGI(TAG, "Loading buddy collection from " + mUrl);

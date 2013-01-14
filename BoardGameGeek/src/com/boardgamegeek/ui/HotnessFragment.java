@@ -118,7 +118,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 				mHotGames.clear();
 			}
 			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
-			mExecutor = new RemoteExecutor(mHttpClient, null);
+			mExecutor = new RemoteExecutor(mHttpClient, getActivity());
 		}
 
 		@Override

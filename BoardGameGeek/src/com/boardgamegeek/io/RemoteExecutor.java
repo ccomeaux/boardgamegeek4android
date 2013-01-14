@@ -51,10 +51,10 @@ public class RemoteExecutor {
 			return execute(request, handler);
 		} catch (IOException e) {
 			LOGE(TAG, "Getting " + url, e);
-			handler.setErrorMessage(e.toString());
+			handler.setErrorMessage(e.getLocalizedMessage());
 		} catch (XmlPullParserException e) {
 			LOGE(TAG, "Getting " + url, e);
-			handler.setErrorMessage(e.toString());
+			handler.setErrorMessage(e.getLocalizedMessage());
 		}
 		return false;
 	}

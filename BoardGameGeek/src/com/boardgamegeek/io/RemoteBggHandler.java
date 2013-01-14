@@ -123,7 +123,11 @@ public abstract class RemoteBggHandler {
 
 	public void setBggDown() throws IOException {
 		clearResults();
-		throw new IOException(mContext.getString(R.string.bgg_down));
+		String message = "";
+		if (mContext != null) {
+			message = mContext.getString(R.string.bgg_down);
+		}
+		throw new IOException(message);
 	}
 
 	protected abstract void parseItems() throws XmlPullParserException, IOException;
