@@ -369,16 +369,15 @@ public class Play {
 		}
 
 		Play p = (Play) o;
-		boolean eq = (PlayId == p.PlayId) && (GameId == p.GameId)
-			&& (GameName == p.GameName || (GameName != null && GameName.equals(p.GameName))) && (Year == p.Year)
-			&& (Month == p.Month) && (Day == p.Day) && (Quantity == p.Quantity) && (Length == p.Length)
+		boolean eq = (PlayId == p.PlayId) && (GameId == p.GameId) && (Year == p.Year) && (Month == p.Month)
+			&& (Day == p.Day) && (Quantity == p.Quantity) && (Length == p.Length)
 			&& (Location == p.Location || (Location != null && Location.equals(p.Location)))
 			&& (Incomplete == p.Incomplete) && (NoWinStats == p.NoWinStats)
 			&& (Comments == p.Comments || (Comments != null && Comments.equals(p.Comments))) && (Updated == p.Updated)
 			&& (SyncStatus == p.SyncStatus) && (Saved == p.Saved) && (mPlayers.size() == p.mPlayers.size());
 		if (eq) {
 			for (int i = 0; i < mPlayers.size(); i++) {
-				if (mPlayers.get(i) != p.getPlayers().get(i)) {
+				if (!mPlayers.get(i).equals(p.getPlayers().get(i))) {
 					return false;
 				}
 			}
