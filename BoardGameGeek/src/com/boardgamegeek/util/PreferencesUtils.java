@@ -10,30 +10,41 @@ public class PreferencesUtils {
 	private PreferencesUtils() {
 	}
 
+	public static boolean getExactSearch(Context context) {
+		return getBoolean(context, "exactSearch", true);
+	}
+
+	public static boolean getSkipResults(Context context) {
+		return getBoolean(context, "skipResults", true);
+	}
+
 	public static String[] getSyncStatuses(Context context) {
 		return getStringArray(context, "syncStatuses", "");
+	}
+
+	public static boolean getSyncPlays(Context context) {
+		return getBoolean(context, "syncPlays", false);
+	}
+
+	public static boolean getSyncBuddies(Context context) {
+		return getBoolean(context, "syncBuddies", false);
 	}
 
 	public static boolean getShowSyncNotifications(Context context) {
 		return getBoolean(context, "sync_notifications", false);
 	}
 
-	public static boolean getBoolean(Context context, String key, boolean defaultValue) {
+	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
 	}
 
-	public static long getLong(Context context, String key, long defaultValue) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getLong(key, defaultValue);
-	}
-
-	public static String getString(Context context, String key, String defaultValue) {
+	private static String getString(Context context, String key, String defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getString(key, defaultValue);
 	}
 
-	public static String[] getStringArray(Context context, String key, String defaultValue) {
+	private static String[] getStringArray(Context context, String key, String defaultValue) {
 		return ListPreferenceMultiSelect.parseStoredValue(getString(context, key, defaultValue));
 	}
 }
