@@ -43,6 +43,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setImageFadeIn(false);
+		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
 
 		setHasOptionsMenu(true);
@@ -116,8 +117,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
 		if (!TextUtils.isEmpty(avatarUrl)) {
-			mImageFetcher
-				.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar, R.drawable.person_image_empty);
+			mImageFetcher.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar);
 		}
 	}
 

@@ -159,6 +159,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 		mImageFetcher.setImageFadeIn(false);
+		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
 
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -511,8 +512,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mPlayersView.setText(game.getPlayerRangeDescription());
 		mSuggestedAgesView.setText(game.getAgeDescription());
 
-		mImageFetcher.loadAvatarImage(game.ThumbnailUrl, Games.buildThumbnailUri(game.Id), mThumbnailView,
-			R.drawable.thumbnail_image_empty);
+		mImageFetcher.loadThumnailImage(game.ThumbnailUrl, Games.buildThumbnailUri(game.Id), mThumbnailView);
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));

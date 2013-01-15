@@ -86,20 +86,6 @@ public class ImageFetcher extends ImageWorker {
 		}
 	}
 
-	public void loadAvatarImage(String url, Uri uri, ImageView imageView, Bitmap loadingBitmap) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView, loadingBitmap);
-	}
-
-	public void loadAvatarImage(String url, Uri uri, ImageView imageView, int resId) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView, resId);
-	}
-
 	public void loadAvatarImage(String url, Uri uri, ImageView imageView) {
 		if (TextUtils.isEmpty(url)) {
 			return;
@@ -107,60 +93,11 @@ public class ImageFetcher extends ImageWorker {
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView);
 	}
 
-	public void loadThumnailImage(String url, Uri uri, ImageView imageView, Bitmap loadingBitmap) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, loadingBitmap);
-	}
-
-	public void loadThumnailImage(String url, Uri uri, ImageView imageView, int resId) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView, resId);
-	}
-
 	public void loadThumnailImage(String url, Uri uri, ImageView imageView) {
 		if (TextUtils.isEmpty(url)) {
 			return;
 		}
 		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView);
-	}
-
-	public void loadThumbnailImage(String url, ImageView imageView, Bitmap loadingBitmap) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, loadingBitmap);
-	}
-
-	public void loadThumbnailImage(String url, ImageView imageView, int resId) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, resId);
-	}
-
-	public void loadThumbnailImage(String url, ImageView imageView) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, mLoadingBitmap);
-	}
-
-	public void loadImage(String url, ImageView imageView, Bitmap loadingBitmap) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, loadingBitmap);
-	}
-
-	public void loadImage(String url, ImageView imageView, int resId) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, resId);
 	}
 
 	public void loadImage(String url, ImageView imageView) {
