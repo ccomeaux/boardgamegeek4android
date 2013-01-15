@@ -13,10 +13,6 @@
 		android:summaryOff="@string/pref_skipResults_off"
 		android:summaryOn="@string/pref_skipResults_on"
 		android:title="@string/pref_skipResults" />
-	<CheckBoxPreference
-		android:defaultValue="true"
-		android:key="imageLoad"
-		android:title="@string/pref_imageLoad" />
 
 	<PreferenceScreen android:title="@string/pref_log" >
 		<CheckBoxPreference

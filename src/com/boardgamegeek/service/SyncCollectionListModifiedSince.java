@@ -14,12 +14,12 @@ import android.accounts.AccountManager;
 import android.content.SyncResult;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncCollectionListModifiedSince extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListModifiedSince.class);
@@ -32,7 +32,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(modifiedSince).toString() + "...");
 		try {
-			String[] statuses = BggApplication.getInstance().getSyncStatuses();
+			String[] statuses = PreferencesUtils.getSyncStatuses(executor.getContext());
 			if (statuses == null || statuses.length == 0) {
 				LOGI(TAG, "...no statuses set to sync");
 				return;

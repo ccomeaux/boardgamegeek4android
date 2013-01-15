@@ -10,13 +10,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.PreferencesUtils;
 
 public class DashboardFragment extends SherlockFragment {
 
@@ -96,15 +96,16 @@ public class DashboardFragment extends SherlockFragment {
 	public void onResume() {
 		super.onResume();
 		mSignIn.setVisibility(mAccount == null ? View.VISIBLE : View.GONE);
-		mCollection
-			.setVisibility((mAccount != null && BggApplication.getInstance().getSyncStatuses() != null && BggApplication
-				.getInstance().getSyncStatuses().length > 0) ? View.VISIBLE : View.GONE);
-		mBuddies.setVisibility(mAccount != null && BggApplication.getInstance().getSyncBuddies() ? View.VISIBLE
-			: View.GONE);
+		mCollection.setVisibility((mAccount != null && getActivity() != null
+			&& PreferencesUtils.getSyncStatuses(getActivity()) != null && PreferencesUtils
+			.getSyncStatuses(getActivity()).length > 0) ? View.VISIBLE : View.GONE);
+		mBuddies.setVisibility(mAccount != null && getActivity() != null
+			&& PreferencesUtils.getSyncBuddies(getActivity()) ? View.VISIBLE : View.GONE);
 		mPlays
-			.setVisibility(mAccount != null && BggApplication.getInstance().getSyncPlays() ? View.VISIBLE : View.GONE);
+			.setVisibility(mAccount != null && getActivity() != null && PreferencesUtils.getSyncPlays(getActivity()) ? View.VISIBLE
+				: View.GONE);
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

@@ -10,8 +10,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 
-import com.boardgamegeek.pref.ListPreferenceMultiSelect;
-
 public class BggApplication extends Application {
 	private static final String TAG = makeLogTag(BggApplication.class);
 
@@ -45,37 +43,6 @@ public class BggApplication extends Application {
 			LOGE(TAG, "NameNotFoundException in getVersion", e);
 		}
 		return "";
-	}
-
-	public boolean getImageLoad() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("imageLoad", true);
-	}
-
-	public boolean getExactSearch() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("exactSearch", true);
-	}
-
-	public boolean getSkipResults() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("skipResults", true);
-	}
-
-	public String[] getSyncStatuses() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		String statuses = preferences.getString("syncStatuses", "");
-		return ListPreferenceMultiSelect.parseStoredValue(statuses);
-	}
-
-	public boolean getSyncPlays() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("syncPlays", false);
-	}
-
-	public boolean getSyncBuddies() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("syncBuddies", false);
 	}
 
 	public boolean getPlayLoggingHideMenu() {

@@ -32,13 +32,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsFragment extends SherlockListFragment implements
@@ -173,7 +173,7 @@ public class SearchResultsFragment extends SherlockListFragment implements
 			return;
 		}
 
-		if (results != null && results.size() == 1 && BggApplication.getInstance().getSkipResults()) {
+		if (results != null && results.size() == 1 && PreferencesUtils.getSkipResults(getActivity())) {
 			SearchResult game = results.get(0);
 			ActivityUtils.launchGame(getActivity(), game.Id, game.Name);
 			mCallbacks.onExactMatch();
@@ -241,7 +241,7 @@ public class SearchResultsFragment extends SherlockListFragment implements
 			mErrorMessage = "";
 
 			LOGI(TAG, "Searching for " + mQuery);
-			if (BggApplication.getInstance().getExactSearch()) {
+			if (PreferencesUtils.getExactSearch(getContext())) {
 				String url = HttpUtils.constructSearchUrl(mQuery, true);
 				executor.safelyExecuteGet(url, handler);
 				mErrorMessage = handler.getErrorMessage();

@@ -32,6 +32,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private static final String TAG = makeLogTag(SyncAdapter.class);
@@ -40,11 +41,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	private final Context mContext;
 	private final boolean mUseGzip = true;
-	private final boolean mShowNotifications = true;
+	private boolean mShowNotifications = true;
 
 	public SyncAdapter(Context context, boolean autoInitialize) {
 		super(context, autoInitialize);
 		mContext = context;
+		mShowNotifications = PreferencesUtils.getShowSyncNotifications(mContext);
 
 		// // noinspection ConstantConditions,PointlessBooleanExpression
 		if (!BuildConfig.DEBUG) {
@@ -84,6 +86,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			LOGI(TAG, "Skipping sync; offline");
 			return;
 		}
+
+		mShowNotifications = PreferencesUtils.getShowSyncNotifications(mContext);
 
 		AccountManager accountManager = AccountManager.get(mContext);
 		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
@@ -130,14 +134,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			} catch (IOException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numIoExceptions++;
-				showError(e.toString());
+				showError(e.getLocalizedMessage());
+				break;
 			} catch (XmlPullParserException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numParseExceptions++;
-				showError(e.toString());
+				showError(e.getLocalizedMessage());
 			} catch (Exception e) {
 				LOGE(TAG, "Syncing " + task, e);
-				showError(e.toString());
+				showError(e.getLocalizedMessage());
 			}
 
 			nm.cancel(NOTIFICATION_ID);
