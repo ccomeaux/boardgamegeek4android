@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -29,16 +30,28 @@ public class FileUtils {
 	}
 
 	public static String generateContentPath(Context context, String type) {
-		File base = context.getExternalFilesDir(null);
+		File base = getExternalFilesDir(context);
 		if (base == null) {
 			return null;
 		}
 		String path = base.getPath() + File.separator + "content" + File.separator + type;
 		File folder = new File(path);
 		if (!folder.exists()) {
-			folder.mkdirs();
+			if (!folder.mkdirs()) {
+				return null;
+			}
 		}
 		return path;
+	}
+
+	private static File getExternalFilesDir(Context context) {
+		File dir = context.getExternalFilesDir(null);
+		if (dir != null) {
+			return dir;
+		}
+
+		final String filesDir = "/Android/data/" + context.getPackageName() + "/files/";
+		return new File(Environment.getExternalStorageDirectory().getPath() + filesDir);
 	}
 
 	// from libcore.io.IoUtils and com.google.android.apps.iosched
