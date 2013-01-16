@@ -178,7 +178,7 @@ public class ResolverUtils {
 		try {
 			stream = resolver.openOutputStream(uri);
 		} catch (FileNotFoundException e) {
-			LOGE(TAG, "Couldn't find drawable: " + uri, e);
+			LOGD(TAG, "Couldn't find drawable: " + uri, e);
 		}
 		if (stream != null) {
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);

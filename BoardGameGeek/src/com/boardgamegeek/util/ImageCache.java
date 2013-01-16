@@ -33,6 +33,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -272,6 +273,7 @@ public class ImageCache {
 					final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
 					if (snapshot != null) {
 						LOGD(TAG, "Disk cache hit");
+						// TODO: This returns a bad bitmap (negative width or height) for no known reason
 						inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
 						if (inputStream != null) {
 							final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
@@ -491,12 +493,15 @@ public class ImageCache {
 	 * 
 	 * @param context
 	 *            The context to use
-	 * @return The external cache dir
+	 * @return The external cache directory
 	 */
-	@TargetApi(8)
+	@TargetApi(Build.VERSION_CODES.FROYO)
 	public static File getExternalCacheDir(Context context) {
 		if (VersionUtils.hasFroyo()) {
-			return context.getExternalCacheDir();
+			File dir = context.getExternalCacheDir();
+			if (dir != null) {
+				return dir;
+			}
 		}
 
 		// Before Froyo we need to construct the external cache dir ourselves
@@ -511,7 +516,7 @@ public class ImageCache {
 	 *            The path to check
 	 * @return The space available in bytes
 	 */
-	@TargetApi(9)
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 	public static long getUsableSpace(File path) {
 		if (VersionUtils.hasGingerbread()) {
 			return path.getUsableSpace();
