@@ -143,8 +143,8 @@
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="search_label">BoardGameGeek</string>
-	<string name="search_hint">Search BoardGameGeek.com</string>
-	<string name="search_settings_description">Names of board games</string>
+	<string name="search_hint">Search collection</string>
+	<string name="search_settings_description">Games in collection</string>
 	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
 		maintenance. Please try again later.</string>
 	<string name="search_searching">Searching for \"%s\"</string>

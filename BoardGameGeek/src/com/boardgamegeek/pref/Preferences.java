@@ -1,5 +1,7 @@
 package com.boardgamegeek.pref;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -15,6 +17,14 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+
+		findPreference("globalSearch").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(SearchManager.INTENT_ACTION_SEARCH_SETTINGS));
+				return true;
+			}
+		});
 	}
 
 	@Override
