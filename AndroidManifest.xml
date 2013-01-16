@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="24"
-	android:versionName="3.7" >
+	android:versionName="3.7 Beta" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
@@ -269,7 +269,7 @@
 		<provider
 			android:name=".provider.BggProvider"
 			android:authorities="com.boardgamegeek"
-			android:exported="false"
+			android:exported="true"
 			android:label="@string/provider_label" />
 
 		<meta-data

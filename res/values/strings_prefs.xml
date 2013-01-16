@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<string name="pref_search">Search</string>
 	<string name="pref_exact_search">Exact search</string>
 	<string name="pref_exact_search_off">Always perform a partial-name search</string>
 	<string name="pref_exact_search_on">Search for the exact name first</string>
 	<string name="pref_skipResults">Skip results</string>
 	<string name="pref_skipResults_off">Stop at the results page even if there is only one result</string>
 	<string name="pref_skipResults_on">Skip the results page if there is only one result</string>
-	<string name="pref_imageLoad">Load images</string>
+	<string name="pref_search_global">Global search</string>
+	<string name="pref_search_global_descr">Allows searching from the Quick Search Box</string>
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_hide_log">Hide Log Play</string>
 	<string name="pref_log_hide_log_off">Display the Log Play menu option</string>
