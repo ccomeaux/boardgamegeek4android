@@ -105,7 +105,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
-					android:layout_alignTop="@+id/game_info_rating_stars" />
+					android:layout_below="@+id/game_info_thumbnail" />
 
 				<TextView
 					android:id="@+id/game_info_last_updated"
