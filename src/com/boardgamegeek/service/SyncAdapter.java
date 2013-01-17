@@ -14,6 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -26,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
+import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -90,6 +93,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		mShowNotifications = PreferencesUtils.getShowSyncNotifications(mContext);
 
 		AccountManager accountManager = AccountManager.get(mContext);
+		if (getAuthToken(accountManager, account, syncResult) == null) {
+			return;
+		}
+
 		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
 			accountManager.getPassword(account),
 			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
@@ -149,7 +156,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 	}
 
-	public NotificationCompat.Builder createNotificationBuilder() {
+	private String getAuthToken(AccountManager accountManager, Account account, SyncResult syncResult) {
+		String token = null;
+		try {
+			token = accountManager.blockingGetAuthToken(account, BggApplication.AUTHTOKEN_TYPE, true);
+		} catch (OperationCanceledException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numIoExceptions++;
+			showAuthError(e.getLocalizedMessage());
+		} catch (AuthenticatorException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numAuthExceptions++;
+			showAuthError(e.getLocalizedMessage());
+		} catch (IOException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numIoExceptions++;
+			showAuthError(e.getLocalizedMessage());
+		}
+		return token;
+	}
+
+	private NotificationCompat.Builder createNotificationBuilder() {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
 			.setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.title_logo))
@@ -162,11 +189,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private void showError(String message) {
+		showError(mContext.getString(R.string.sync_notification_error), message);
+	}
+
+	private void showAuthError(String message) {
+		showError(mContext.getString(R.string.sync_notification_error_auth), message);
+	}
+
+	private void showError(String text, String message) {
 		if (!mShowNotifications)
 			return;
 
 		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-		String text = mContext.getString(R.string.sync_notification_error);
 		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
 		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		nm.notify(NOTIFICATION_ERROR_ID, builder.build());

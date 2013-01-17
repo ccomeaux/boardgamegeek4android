@@ -71,15 +71,15 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		final AccountManager am = AccountManager.get(mContext);
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			final String authToken = am.getUserData(account, KEY_SESSION_ID);
-			if (!TextUtils.isEmpty(authToken)) {
-				// TODO: test session expiry and re-authenticate if expired
-				// final String authToken = HttpUtils.authenticate(account.name, password);
-				final Bundle result = new Bundle();
-				result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-				result.putString(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
-				result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-				return result;
+			if (!isPasswordExpired(am, account)) {
+				final String authToken = am.getUserData(account, KEY_SESSION_ID);
+				if (!TextUtils.isEmpty(authToken)) {
+					final Bundle result = new Bundle();
+					result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+					result.putString(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
+					result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+					return result;
+				}
 			}
 		}
 
@@ -91,6 +91,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		final Bundle bundle = new Bundle();
 		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
 		return bundle;
+	}
+
+	private boolean isPasswordExpired(final AccountManager am, Account account) {
+		String passwordExpiration = am.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY);
+		return !TextUtils.isEmpty(passwordExpiration) && Long.valueOf(passwordExpiration) < System.currentTimeMillis();
 	}
 
 	@Override
