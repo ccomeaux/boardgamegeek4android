@@ -55,7 +55,7 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 			return;
 		}
 
-		mUrl = new CollectionUrlBuilder(mBuddyName).status("own").brief().build();
+		mUrl = new CollectionUrlBuilder(mBuddyName).status("own").build();
 	}
 
 	@Override
@@ -207,7 +207,8 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 			} else {
 				holder = (BuddyGameViewHolder) convertView.getTag();
 			}
-
+			convertView.findViewById(R.id.list_thumbnail).setVisibility(View.GONE);
+			
 			BuddyGame game;
 			try {
 				game = mBuddyGames.get(position);
