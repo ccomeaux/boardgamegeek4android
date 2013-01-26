@@ -5,9 +5,14 @@ import java.util.List;
 
 import android.text.TextUtils;
 
+/**
+ * Creates URL builder which will give results as:<br> 
+ * http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1<br>
+ * Invoke useNewApi() to use new API.<br>
+ * http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1<br>
+ * @see #useNewApi()
+ */
 public class GameUrlBuilder extends UrlBuilder {
-	// http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1
-	// http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1
 
 	private final String mGameId;
 	private int mCommentsPage;
@@ -35,9 +40,9 @@ public class GameUrlBuilder extends UrlBuilder {
 		mStats = true;
 		return this;
 	}
-
-	public GameUrlBuilder useOldApi() {
-		mUseOldApi = true;
+	
+	public GameUrlBuilder useNewApi() {
+		mUseOldApi = false;
 		return this;
 	}
 
