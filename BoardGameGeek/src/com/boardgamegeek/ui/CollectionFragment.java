@@ -234,6 +234,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	@Override
 	public void onPause() {
 		super.onPause();
+		mImageFetcher.setPauseWork(false);
 		mImageFetcher.flushCache();
 		mFastScrollLetter.setVisibility(View.INVISIBLE);
 		mFastScrollLetterEnabled = false;

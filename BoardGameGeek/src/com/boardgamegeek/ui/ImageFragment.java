@@ -18,9 +18,6 @@ public class ImageFragment extends SherlockFragment {
 	private ImageFetcher mImageFetcher;
 	private ImageView mImageView;
 
-	// private View mProgressView;
-	// private View mErrorView;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,8 +30,6 @@ public class ImageFragment extends SherlockFragment {
 		}
 
 		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		// mImageFetcher.setImageFadeIn(false);
-		// mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
 	}
 
 	@Override
@@ -42,9 +37,6 @@ public class ImageFragment extends SherlockFragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_image, null);
 
 		mImageView = (ImageView) rootView.findViewById(R.id.image);
-		// mProgressView = rootView.findViewById(R.id.image_progress);
-		// mErrorView = rootView.findViewById(R.id.image_error);
-
 		mImageFetcher.loadImage(mImageUrl, mImageView);
 
 		return rootView;
@@ -61,34 +53,4 @@ public class ImageFragment extends SherlockFragment {
 		super.onDestroy();
 		mImageFetcher.closeCache();
 	}
-
-	// private class ImageTask extends AsyncTask<String, Void, Drawable> {
-	// private boolean mOomError = false;
-	//
-	// @Override
-	// protected void onPreExecute() {
-	// mProgressView.setVisibility(View.VISIBLE);
-	// }
-	//
-	// @Override
-	// protected Drawable doInBackground(String... params) {
-	// try {
-	// return ImageUtils.getImage(getActivity(), params[0]);
-	// } catch (OutOfMemoryError e) {
-	// mOomError = true;
-	// }
-	// return null;
-	// }
-	//
-	// @Override
-	// protected void onPostExecute(Drawable result) {
-	// mProgressView.setVisibility(View.GONE);
-	// if (result != null) {
-	// mImageView.setVisibility(View.VISIBLE);
-	// mImageView.setImageDrawable(result);
-	// } else if (mOomError) {
-	// mErrorView.setVisibility(View.VISIBLE);
-	// }
-	// }
-	// }
 }

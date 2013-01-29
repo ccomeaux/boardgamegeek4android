@@ -113,6 +113,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	@Override
 	public void onPause() {
 		super.onPause();
+		mImageFetcher.setPauseWork(false);
 		mImageFetcher.flushCache();
 	}
 
