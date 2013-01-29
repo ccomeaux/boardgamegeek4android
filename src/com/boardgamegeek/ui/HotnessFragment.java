@@ -66,6 +66,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 	@Override
 	public void onPause() {
 		super.onPause();
+		mImageFetcher.setPauseWork(false);
 		mImageFetcher.flushCache();
 	}
 
