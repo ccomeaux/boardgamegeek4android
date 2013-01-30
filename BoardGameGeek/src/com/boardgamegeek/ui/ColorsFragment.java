@@ -32,7 +32,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public class ColorsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(ColorsFragment.class);
-	public static final int MENU_COLOR_DELETE = Menu.FIRST;
+	public static final int MENU_COLOR_DELETE = Menu.FIRST + 100;
 	private int mGameId;
 	private CursorAdapter mAdapter;
 
@@ -81,6 +81,11 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		final int itemId = item.getItemId();
+		if (itemId != MENU_COLOR_DELETE) {
+			return false;
+		}
+
 		AdapterView.AdapterContextMenuInfo info;
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -95,7 +100,7 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		}
 		final String color = cursor.getString(ColorsQuery.COLOR);
 
-		switch (item.getItemId()) {
+		switch (itemId) {
 			case MENU_COLOR_DELETE: {
 				getActivity().getContentResolver().delete(Games.buildColorsUri(mGameId, color), null, null);
 				return true;
