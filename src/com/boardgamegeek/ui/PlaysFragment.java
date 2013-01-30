@@ -137,8 +137,17 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		// TODO: add Send and Share menu items
 	}
 
+	private boolean isPlayMenuItem(int itemId) {
+		return itemId == MENU_PLAY_EDIT || itemId == MENU_PLAY_DELETE;
+	}
+
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		final int itemId = item.getItemId();
+		if (!isPlayMenuItem(itemId)) {
+			return false;
+		}
+
 		AdapterView.AdapterContextMenuInfo info;
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -153,7 +162,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 		}
 
 		final int playId = cursor.getInt(PlaysQuery.PLAY_ID);
-		switch (item.getItemId()) {
+		switch (itemId) {
 			case MENU_PLAY_EDIT: {
 				ActivityUtils.logPlay(getActivity(), playId, cursor.getInt(PlaysQuery.GAME_ID),
 					cursor.getString(PlaysQuery.GAME_NAME));
