@@ -180,7 +180,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
 			.setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.title_logo))
-			.setContentTitle(mContext.getString(R.string.sync_notification_title));
+			.setContentTitle(mContext.getString(R.string.sync_notification_title))
+			.setPriority(NotificationCompat.PRIORITY_LOW);
 		Intent intent = new Intent(mContext, HomeActivity.class);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, intent,
 			PendingIntent.FLAG_UPDATE_CURRENT);
@@ -202,7 +203,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
-		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text)).setPriority(
+			NotificationCompat.PRIORITY_DEFAULT);
 		nm.notify(NOTIFICATION_ERROR_ID, builder.build());
 	}
 }

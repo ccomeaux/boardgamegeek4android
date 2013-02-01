@@ -36,7 +36,7 @@ public class SyncBuddiesDetailUnupdated extends SyncTask {
 					RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
 					String url = new UserUrlBuilder(name).build();
 					executor.executeGet(url, handler);
-					syncResult.stats.numUpdates += handler.getCount();
+					// syncResult.stats.numUpdates += handler.getCount();
 				}
 			}
 		} finally {
