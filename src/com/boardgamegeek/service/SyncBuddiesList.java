@@ -53,13 +53,13 @@ public class SyncBuddiesList extends SyncTask {
 			RemoteBuddiesHandler handler = new RemoteBuddiesHandler();
 			String url = new UserUrlBuilder(account.name).buddies().build();
 			executor.executePagedGet(url, handler);
-			syncResult.stats.numInserts += handler.getNumInserts();
-			syncResult.stats.numUpdates += handler.getNumUpdates();
+			// syncResult.stats.numInserts += handler.getNumInserts();
+			// syncResult.stats.numUpdates += handler.getNumUpdates();
 
 			// TODO: delete avatar images associated with this list
 			int count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(startTime) });
-			syncResult.stats.numDeletes += count;
+			// syncResult.stats.numDeletes += count;
 
 			accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, String.valueOf(startTime));
 		} finally {
@@ -82,11 +82,11 @@ public class SyncBuddiesList extends SyncTask {
 
 		if (ResolverUtils.rowExists(resolver, uri)) {
 			resolver.update(uri, values, null, null);
-			syncResult.stats.numUpdates++;
+			// syncResult.stats.numUpdates++;
 		} else {
 			values.put(Buddies.BUDDY_ID, selfId);
 			resolver.insert(Buddies.CONTENT_URI, values);
-			syncResult.stats.numInserts++;
+			// syncResult.stats.numInserts++;
 		}
 	}
 }

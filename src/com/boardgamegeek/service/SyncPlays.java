@@ -96,7 +96,7 @@ public class SyncPlays extends SyncTask {
 		throws IOException, XmlPullParserException {
 		int page = 1;
 		while (mExecutor.executeGet(builder.build() + "&page=" + page, handler)) {
-			syncResult.stats.numEntries += handler.getCount();
+			// syncResult.stats.numEntries += handler.getCount();
 			page++;
 		}
 	}
@@ -109,7 +109,7 @@ public class SyncPlays extends SyncTask {
 			+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
 		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
-		syncResult.stats.numDeletes += count;
+		// syncResult.stats.numDeletes += count;
 		LOGI(TAG, "Deleted " + count + " plays");
 	}
 

@@ -52,9 +52,9 @@ public class SyncCollectionListComplete extends SyncTask {
 					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime);
 					String url = new CollectionUrlBuilder(account.name).status(statuses[i]).brief().build();
 					executor.executeGet(url, handler);
-					syncResult.stats.numInserts += handler.getNumInserts();
-					syncResult.stats.numUpdates += handler.getNumUpdates();
-					syncResult.stats.numSkippedEntries += handler.getNumSkips();
+					// syncResult.stats.numInserts += handler.getNumInserts();
+					// syncResult.stats.numUpdates += handler.getNumUpdates();
+					// syncResult.stats.numSkippedEntries += handler.getNumSkips();
 				} catch (IOException e) {
 					// This happens rather frequently with an EOF exception
 					LOGE(TAG, "  Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
@@ -71,7 +71,7 @@ public class SyncCollectionListComplete extends SyncTask {
 					.getContentResolver()
 					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
 						new String[] { String.valueOf(startTime) });
-				syncResult.stats.numDeletes += count;
+				// syncResult.stats.numDeletes += count;
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game
 

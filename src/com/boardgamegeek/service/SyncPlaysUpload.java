@@ -152,14 +152,14 @@ public class SyncPlaysUpload extends SyncTask {
 					if (TextUtils.isEmpty(error)) {
 						PlayPersister.delete(mContext.getContentResolver(), play);
 						notifyUser(mContext.getString(R.string.msg_play_deleted));
-						syncResult.stats.numDeletes++;
+						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
 					notifyUser(mContext.getString(R.string.msg_play_deleted));
-					syncResult.stats.numDeletes++;
+					// syncResult.stats.numDeletes++;
 				}
 			}
 		} finally {
@@ -214,10 +214,10 @@ public class SyncPlaysUpload extends SyncTask {
 		if (play.hasBeenSynced()) {
 			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
 			PlayPersister.save(mContext.getContentResolver(), play);
-			syncResult.stats.numUpdates++;
+			// syncResult.stats.numUpdates++;
 		} else {
 			PlayPersister.delete(mContext.getContentResolver(), play);
-			syncResult.stats.numDeletes++;
+			// syncResult.stats.numDeletes++;
 		}
 	}
 

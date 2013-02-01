@@ -52,9 +52,9 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 					String url = new CollectionUrlBuilder(account.name).status(statuses[i])
 						.modifiedSince(modifiedSince).stats().build();
 					executor.executeGet(url, handler);
-					syncResult.stats.numInserts += handler.getNumInserts();
-					syncResult.stats.numUpdates += handler.getNumUpdates();
-					syncResult.stats.numSkippedEntries += handler.getNumSkips();
+					// syncResult.stats.numInserts += handler.getNumInserts();
+					// syncResult.stats.numUpdates += handler.getNumUpdates();
+					// syncResult.stats.numSkippedEntries += handler.getNumSkips();
 				} catch (IOException e) {
 					// This happens rather frequently with an EOF exception
 					LOGE(TAG, "Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
