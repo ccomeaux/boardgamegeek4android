@@ -134,7 +134,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	@Override
 	public void onBackPressed() {
-		cancel();
+		save();
 	}
 
 	private void setUiVariables() {
