@@ -39,6 +39,8 @@
 					android:layout_alignParentTop="true"
 					android:layout_marginBottom="@dimen/padding_standard"
 					android:layout_marginRight="@dimen/padding_standard"
+					android:clickable="true"
+					android:focusable="true"
 					android:scaleType="centerCrop"
 					android:src="@drawable/thumbnail_image_empty" />
 
