@@ -45,16 +45,6 @@ public class BggApplication extends Application {
 		return "";
 	}
 
-	public boolean getPlayLoggingHideMenu() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideLog", false);
-	}
-
-	public boolean getPlayLoggingHideQuickMenu() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideQuickLog", false);
-	}
-
 	public boolean getPlayLoggingHideLength() {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		return preferences.getBoolean("logHideLength", false);

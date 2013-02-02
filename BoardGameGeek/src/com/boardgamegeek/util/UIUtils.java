@@ -43,15 +43,15 @@ public class UIUtils {
 		return mRandom;
 	}
 
-	public static void createBoardgameContextMenu(ContextMenu menu, ContextMenuInfo menuInfo, String gameName) {
+	public static void createBoardgameContextMenu(Context context, ContextMenu menu, ContextMenuInfo menuInfo, String gameName) {
 		// Setup the menu header
 		menu.setHeaderTitle(gameName);
 
 		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_display_game);
-		if (!BggApplication.getInstance().getPlayLoggingHideMenu()) {
+		if (PreferencesUtils.showLogPlay(context)) {
 			menu.add(0, MENU_ITEM_LOG_PLAY, 0, R.string.menu_log_play);
 		}
-		if (!BggApplication.getInstance().getPlayLoggingHideQuickMenu()) {
+		if (PreferencesUtils.showQuickLogPlay(context)) {
 			menu.add(0, MENU_ITEM_QUICK_LOG_PLAY, 0, R.string.menu_log_play_quick);
 		}
 		menu.add(0, MENU_ITEM_SHARE, 0, R.string.menu_share);
