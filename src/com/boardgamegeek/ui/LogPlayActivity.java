@@ -75,7 +75,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String KEY_NO_WIN_STATS_SHOWN = "NO_WIN_STATS_SHOWN";
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
-	private static final String KEY_DELETE_ON_BACK = "DELETE_ON_BACK";
+	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
 
 	private LocationAdapter mLocationAdapter;
 
@@ -101,7 +101,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mNoWinStatsShown;
 	private boolean mCommentsShown;
 	private boolean mPlayersShown;
-	private boolean mDeleteOnBack;
+	private boolean mDeleteOnCancel;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -132,15 +132,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
-			mDeleteOnBack = savedInstanceState.getBoolean(KEY_DELETE_ON_BACK);
+			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
 			if (playId > 0) {
-				mDeleteOnBack = false;
+				mDeleteOnCancel = false;
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
-				mDeleteOnBack = true;
+				mDeleteOnCancel = true;
 				save(Play.SYNC_STATUS_IN_PROGRESS);
 			}
 			mOriginalPlay = new Play(mPlay);
@@ -184,7 +184,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		outState.putBoolean(KEY_NO_WIN_STATS_SHOWN, mNoWinStatsShown);
 		outState.putBoolean(KEY_COMMENTS_SHOWN, mCommentsShown);
 		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
-		outState.putBoolean(KEY_DELETE_ON_BACK, mDeleteOnBack);
+		outState.putBoolean(KEY_DELETE_ON_CANCEL, mDeleteOnCancel);
 	}
 
 	@Override
@@ -192,13 +192,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onStop();
 		if (!isFinishing() && !mLaunchingActivity) {
 			save(Play.SYNC_STATUS_IN_PROGRESS);
-			Toast.makeText(this, "Saving draft of play.", Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	@Override
 	public void onBackPressed() {
-		cancel();
+		save(Play.SYNC_STATUS_IN_PROGRESS);
+		finish();
 	}
 
 	@Override
@@ -323,14 +323,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void cancel() {
 		captureForm();
 		if (mPlay.equals(mOriginalPlay)) {
-			if (mDeleteOnBack) {
+			if (mDeleteOnCancel) {
 				save(Play.SYNC_STATUS_PENDING_DELETE);
 			}
 			triggerUpload();
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
-			if (mDeleteOnBack) {
+			if (mDeleteOnCancel) {
 				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_message,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
