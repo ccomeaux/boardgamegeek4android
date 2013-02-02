@@ -28,6 +28,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -79,6 +80,8 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		mOptionsMenu = menu;
 		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
 		getSupportMenuInflater().inflate(R.menu.game, menu);
+		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
+		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		setupSearchMenuItem(menu);
 		return true;
 	}
@@ -114,10 +117,10 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 				Intent shortcut = ActivityUtils.createShortcut(this, mGameId, mGameName);
 				sendBroadcast(shortcut);
 				return true;
-			case R.id.log_play:
+			case R.id.menu_log_play:
 				ActivityUtils.logPlay(this, false, mGameId, mGameName);
 				return true;
-			case R.id.log_play_quick:
+			case R.id.menu_log_play_quick:
 				ActivityUtils.logPlay(this, true, mGameId, mGameName);
 				return true;
 		}

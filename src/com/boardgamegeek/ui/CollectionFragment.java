@@ -372,7 +372,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			return;
 		}
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
-		UIUtils.createBoardgameContextMenu(menu, menuInfo, gameName);
+		UIUtils.createBoardgameContextMenu(getActivity(), menu, menuInfo, gameName);
 	}
 
 	@Override

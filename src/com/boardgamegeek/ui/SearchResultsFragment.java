@@ -119,7 +119,7 @@ public class SearchResultsFragment extends SherlockListFragment implements
 		}
 
 		SearchResult game = (SearchResult) mAdapter.getItem(info.position);
-		UIUtils.createBoardgameContextMenu(menu, menuInfo, game.Name);
+		UIUtils.createBoardgameContextMenu(getActivity(), menu, menuInfo, game.Name);
 	}
 
 	@Override

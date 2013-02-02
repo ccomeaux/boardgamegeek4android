@@ -19,19 +19,16 @@
 			android:key="globalSearch"
 			android:summary="@string/pref_search_global_descr"
 			android:title="@string/pref_search_global" />
-
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/pref_log" >
 		<CheckBoxPreference
-			android:key="logHideLog"
-			android:summaryOff="@string/pref_log_hide_log_off"
-			android:summaryOn="@string/pref_log_hide_log_on"
-			android:title="@string/pref_log_hide_log" />
+			android:defaultValue="true"
+			android:key="logPlay"
+			android:title="@string/pref_log_play" />
 		<CheckBoxPreference
-			android:key="logHideQuickLog"
-			android:summaryOff="@string/pref_log_hide_quick_log_off"
-			android:summaryOn="@string/pref_log_hide_quick_log_on"
-			android:title="@string/pref_log_hide_quick_log" />
+			android:defaultValue="true"
+			android:key="quickLogPlay"
+			android:title="@string/pref_log_play_quick" />
 
 		<PreferenceCategory android:title="@string/pref_general" >
 			<CheckBoxPreference

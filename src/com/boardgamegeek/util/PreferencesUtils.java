@@ -18,6 +18,14 @@ public class PreferencesUtils {
 		return getBoolean(context, "skipResults", true);
 	}
 
+	public static boolean showLogPlay(Context context) {
+		return getBoolean(context, "logPlay", !getBoolean(context, "logHideLog", false));
+	}
+
+	public static boolean showQuickLogPlay(Context context) {
+		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
+	}
+
 	public static String[] getSyncStatuses(Context context) {
 		return getStringArray(context, "syncStatuses", "");
 	}
