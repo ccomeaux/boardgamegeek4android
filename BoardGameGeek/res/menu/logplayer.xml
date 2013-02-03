@@ -14,7 +14,7 @@
 	<item
 		android:id="@+id/menu_add_field"
 		android:icon="?attr/ic_action_add"
-		android:showAsAction="never"
+		android:showAsAction="ifRoom"
 		android:title="@string/add_field"/>
 
 </menu>
