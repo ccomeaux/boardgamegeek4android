@@ -24,7 +24,6 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
@@ -32,6 +31,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
@@ -127,8 +127,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem mi = menu.findItem(R.id.menu_add_field);
-		mi.setEnabled(hideTeamColor() || hidePosition() || hideScore() || hideRating() || hideNew() || hideWin());
+		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -175,31 +174,34 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mWin.setVisibility(hideWin() ? View.GONE : View.VISIBLE);
 	}
 
+	public void hideAddFieldMenuItem(MenuItem mi) {
+		mi.setVisible(hideTeamColor() || hidePosition() || hideScore() || hideRating() || hideNew() || hideWin());
+	}
+
 	private boolean hideTeamColor() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerTeamColor() && !mTeamColorShown
+		return !PreferencesUtils.showLogPlayerTeamColor(this) && !mTeamColorShown
 			&& TextUtils.isEmpty(mPlayer.TeamColor);
 	}
 
 	private boolean hidePosition() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerPosition() && !mPositionShown
+		return !PreferencesUtils.showLogPlayerPosition(this) && !mPositionShown
 			&& TextUtils.isEmpty(mPlayer.StartingPosition);
 	}
 
 	private boolean hideScore() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerScore() && !mScoreShown
-			&& TextUtils.isEmpty(mPlayer.Score);
+		return !PreferencesUtils.showLogPlayerScore(this) && !mScoreShown && TextUtils.isEmpty(mPlayer.Score);
 	}
 
 	private boolean hideRating() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerRating() && !mRatingShown && !(mPlayer.Rating > 0);
+		return !PreferencesUtils.showLogPlayerRating(this) && !mRatingShown && !(mPlayer.Rating > 0);
 	}
 
 	private boolean hideNew() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerNew() && !mNewShown && !mPlayer.New;
+		return !PreferencesUtils.showLogPlayerNew(this) && !mNewShown && !mPlayer.New;
 	}
 
 	private boolean hideWin() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerWin() && !mWinShown && !mPlayer.Win;
+		return !PreferencesUtils.showLogPlayerWin(this) && !mWinShown && !mPlayer.Win;
 	}
 
 	@Override
@@ -216,7 +218,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 				if (array == null || array.length == 0) {
 					return false;
 				}
-
+				final MenuItem mi = item;
 				new AlertDialog.Builder(this).setTitle(R.string.add_field)
 					.setItems(array, new DialogInterface.OnClickListener() {
 						@Override
@@ -243,10 +245,13 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 							} else if (selection == r.getString(R.string.new_label)) {
 								mNewShown = true;
 								mNew.setVisibility(View.VISIBLE);
+								mNew.setChecked(true);
 							} else if (selection == r.getString(R.string.win)) {
 								mWinShown = true;
 								mWin.setVisibility(View.VISIBLE);
+								mWin.setChecked(true);
 							}
+							hideAddFieldMenuItem(mi);
 						}
 					}).show();
 				return true;

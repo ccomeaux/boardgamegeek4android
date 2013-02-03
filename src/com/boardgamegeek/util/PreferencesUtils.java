@@ -26,6 +26,30 @@ public class PreferencesUtils {
 		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
 	}
 
+	public static boolean showLogPlayerTeamColor(Context context) {
+		return getBoolean(context, "logPlayerTeamColor", !getBoolean(context, "logHideTeamColor", true));
+	}
+
+	public static boolean showLogPlayerPosition(Context context) {
+		return getBoolean(context, "logPlayerPosition", !getBoolean(context, "logHidePosition", true));
+	}
+
+	public static boolean showLogPlayerScore(Context context) {
+		return getBoolean(context, "logPlayerScore", !getBoolean(context, "logHideScore", true));
+	}
+
+	public static boolean showLogPlayerRating(Context context) {
+		return getBoolean(context, "logPlayerRating", !getBoolean(context, "logHideRating", true));
+	}
+
+	public static boolean showLogPlayerNew(Context context) {
+		return getBoolean(context, "logPlayerNew", !getBoolean(context, "logHideNew", true));
+	}
+
+	public static boolean showLogPlayerWin(Context context) {
+		return getBoolean(context, "logPlayerWin", !getBoolean(context, "logHideWin", true));
+	}
+
 	public static String[] getSyncStatuses(Context context) {
 		return getStringArray(context, "syncStatuses", "");
 	}
