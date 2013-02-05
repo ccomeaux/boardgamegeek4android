@@ -55,6 +55,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -69,6 +70,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_START_TIME = "START_TIME";
+	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
 	private static final String KEY_INCOMPLETE_SHOWN = "INCOMPLETE_SHOWN";
@@ -95,6 +97,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
 
+	private boolean mQuantityShown;
 	private boolean mLengthShown;
 	private boolean mLocationShown;
 	private boolean mIncompleteShown;
@@ -126,6 +129,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (savedInstanceState != null) {
 			mPlay = new Play(savedInstanceState, "P");
 			mOriginalPlay = new Play(savedInstanceState, "O");
+			mQuantityShown = savedInstanceState.getBoolean(KEY_QUANTITY_SHOWN);
 			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
 			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
 			mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
@@ -178,6 +182,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onSaveInstanceState(outState);
 		mPlay.saveState(outState, "P");
 		mOriginalPlay.saveState(outState, "O");
+		outState.putBoolean(KEY_QUANTITY_SHOWN, mQuantityShown);
 		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
 		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
@@ -210,9 +215,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
-		menu.findItem(R.id.menu_add_field).setEnabled(
-			hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete() || hideComments() || hidePlayers());
+		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	public void hideAddFieldMenuItem(MenuItem menuItem) {
+		menuItem.setVisible(hideQuantity() || hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete()
+			|| hideComments() || hidePlayers());
 	}
 
 	@Override
@@ -228,6 +237,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				return true;
 			case R.id.menu_start:
 				startPlay();
+				item.setVisible(false);
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -237,20 +247,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				if (array == null || array.length == 0) {
 					return false;
 				}
-				promptAddField(array);
+				promptAddField(array, item);
 				return true;
 		}
 		return false;
 	}
 
-	private void promptAddField(final CharSequence[] array) {
+	private void promptAddField(final CharSequence[] array, final MenuItem menuItem) {
 		new AlertDialog.Builder(this).setTitle(R.string.add_field)
 			.setItems(array, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					Resources r = getResources();
 					String selection = array[which].toString();
-					if (selection == r.getString(R.string.length)) {
+					if (selection == r.getString(R.string.quantity)) {
+						mQuantityShown = true;
+						findViewById(R.id.log_play_quantity_label).setVisibility(View.VISIBLE);
+						mQuantityView.setVisibility(View.VISIBLE);
+					} else if (selection == r.getString(R.string.length)) {
 						mLengthShown = true;
 						findViewById(R.id.log_play_length_label).setVisibility(View.VISIBLE);
 						mLengthView.setVisibility(View.VISIBLE);
@@ -260,19 +274,22 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 						mLocationView.setVisibility(View.VISIBLE);
 					} else if (selection == r.getString(R.string.incomplete)) {
 						mIncompleteShown = true;
-						findViewById(R.id.log_play_incomplete).setVisibility(View.VISIBLE);
+						mIncompleteView.setVisibility(View.VISIBLE);
+						mIncompleteView.setChecked(true);
 					} else if (selection == r.getString(R.string.noWinStats)) {
 						mNoWinStatsShown = true;
-						findViewById(R.id.log_play_no_win_stats).setVisibility(View.VISIBLE);
+						mNoWinStatsView.setVisibility(View.VISIBLE);
+						mNoWinStatsView.setChecked(true);
 					} else if (selection == r.getString(R.string.comments)) {
 						mCommentsShown = true;
 						findViewById(R.id.log_play_comments_label).setVisibility(View.VISIBLE);
-						findViewById(R.id.log_play_comments).setVisibility(View.VISIBLE);
+						mCommentsView.setVisibility(View.VISIBLE);
 					} else if (selection == r.getString(R.string.players)) {
 						mPlayersShown = true;
 						mPlayerLabel.setVisibility(View.VISIBLE);
 						findViewById(R.id.log_play_players_add).setVisibility(View.VISIBLE);
 					}
+					hideAddFieldMenuItem(menuItem);
 				}
 			}).show();
 	}
@@ -349,7 +366,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
-
+		if (hideQuantity()) {
+			list.add(r.getString(R.string.quantity));
+		}
 		if (hideLength()) {
 			list.add(r.getString(R.string.length));
 		}
@@ -385,7 +404,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	public void onAddPlayerClick(View v) {
-		if (BggApplication.getInstance().getPlayLoggingEditPlayer()) {
+		if (PreferencesUtils.editPlayer(this)) {
 			addPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
 			addPlayer(new Player());
@@ -419,6 +438,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
 		mCommentsView.setText(mPlay.Comments);
+		hideFields();
 	}
 
 	private void bindUiPlayers() {
@@ -492,43 +512,46 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void hideFields() {
+		findViewById(R.id.log_play_quantity_label).setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
+		mQuantityView.setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_length_label).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
 		mLengthView.setVisibility(hideLength() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_location_label).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
 		mLocationView.setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_incomplete).setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_no_win_stats).setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
+		mIncompleteView.setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
+		mNoWinStatsView.setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_comments).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
+		mCommentsView.setVisibility(hideComments() ? View.GONE : View.VISIBLE);
 		mPlayerLabel.setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_players_add).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
 	}
 
+	private boolean hideQuantity() {
+		return !PreferencesUtils.showLogPlayQuantity(this) && !mQuantityShown && !(mPlay.Quantity > 1);
+	}
+
 	private boolean hideLength() {
-		return BggApplication.getInstance().getPlayLoggingHideLength() && !mLengthShown && !(mPlay.Length > 0);
+		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.Length > 0);
 	}
 
 	private boolean hideLocation() {
-		return BggApplication.getInstance().getPlayLoggingHideLocation() && !mLocationShown
-			&& TextUtils.isEmpty(mPlay.Location);
+		return !PreferencesUtils.showLogPlayLocation(this) && !mLocationShown && TextUtils.isEmpty(mPlay.Location);
 	}
 
 	private boolean hideIncomplete() {
-		return BggApplication.getInstance().getPlayLoggingHideIncomplete() && !mIncompleteShown && !mPlay.Incomplete;
+		return !PreferencesUtils.showLogPlayIncomplete(this) && !mIncompleteShown && !mPlay.Incomplete;
 	}
 
 	private boolean hideNoWinStats() {
-		return BggApplication.getInstance().getPlayLoggingHideNoWinStats() && !mNoWinStatsShown && !mPlay.NoWinStats;
+		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mNoWinStatsShown && !mPlay.NoWinStats;
 	}
 
 	private boolean hideComments() {
-		return BggApplication.getInstance().getPlayLoggingHideComments() && !mCommentsShown
-			&& TextUtils.isEmpty(mPlay.Comments);
+		return !PreferencesUtils.showLogPlayComments(this) && !mCommentsShown && TextUtils.isEmpty(mPlay.Comments);
 	}
 
 	private boolean hidePlayers() {
-		return BggApplication.getInstance().getPlayLoggingHidePlayerList() && !mPlayersShown
-			&& (mPlay.getPlayers().size() == 0);
+		return !PreferencesUtils.showLogPlayPlayerList(this) && !mPlayersShown && (mPlay.getPlayers().size() == 0);
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {

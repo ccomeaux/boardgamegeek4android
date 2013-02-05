@@ -45,41 +45,6 @@ public class BggApplication extends Application {
 		return "";
 	}
 
-	public boolean getPlayLoggingHideLength() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideLength", false);
-	}
-
-	public boolean getPlayLoggingHideLocation() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideLocation", false);
-	}
-
-	public boolean getPlayLoggingHideIncomplete() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideIncomplete", false);
-	}
-
-	public boolean getPlayLoggingHideNoWinStats() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideNoWinStats", false);
-	}
-
-	public boolean getPlayLoggingHideComments() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHideComments", false);
-	}
-
-	public boolean getPlayLoggingHidePlayerList() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logHidePlayerList", false);
-	}
-
-	public boolean getPlayLoggingEditPlayer() {
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getBoolean("logEditPlayer", false);
-	}
-
 	public boolean showHelp(String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		final int shownVersion = preferences.getInt(key, 0);

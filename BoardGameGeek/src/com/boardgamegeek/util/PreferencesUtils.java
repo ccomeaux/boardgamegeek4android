@@ -26,6 +26,38 @@ public class PreferencesUtils {
 		return getBoolean(context, "quickLogPlay", !getBoolean(context, "logHideQuickLog", false));
 	}
 
+	public static boolean editPlayer(Context context) {
+		return getBoolean(context, "logEditPlayer", false);
+	}
+
+	public static boolean showLogPlayQuantity(Context context) {
+		return getBoolean(context, "logPlayQuantity", false);
+	}
+
+	public static boolean showLogPlayLength(Context context) {
+		return getBoolean(context, "logPlayLength", !getBoolean(context, "logHideLength", true));
+	}
+
+	public static boolean showLogPlayLocation(Context context) {
+		return getBoolean(context, "logPlayLocation", !getBoolean(context, "logHideLocation", true));
+	}
+
+	public static boolean showLogPlayIncomplete(Context context) {
+		return getBoolean(context, "logPlayIncomplete", !getBoolean(context, "logHideIncomplete", true));
+	}
+
+	public static boolean showLogPlayNoWinStats(Context context) {
+		return getBoolean(context, "logPlayNoWinStats", !getBoolean(context, "logHideNoWinStats", true));
+	}
+
+	public static boolean showLogPlayComments(Context context) {
+		return getBoolean(context, "logPlayComments", !getBoolean(context, "logHideComments", true));
+	}
+
+	public static boolean showLogPlayPlayerList(Context context) {
+		return getBoolean(context, "logPlayPlayerList", !getBoolean(context, "logHidePlayerList", false));
+	}
+
 	public static boolean showLogPlayerTeamColor(Context context) {
 		return getBoolean(context, "logPlayerTeamColor", !getBoolean(context, "logHideTeamColor", true));
 	}
