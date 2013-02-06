@@ -51,6 +51,7 @@
 			android:orientation="horizontal" >
 
 			<LinearLayout
+				android:id="@+id/log_play_quantity_container"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -72,6 +73,7 @@
 			</LinearLayout>
 
 			<LinearLayout
+				android:id="@+id/log_play_length_container"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
