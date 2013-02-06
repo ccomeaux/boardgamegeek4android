@@ -262,12 +262,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					String selection = array[which].toString();
 					if (selection == r.getString(R.string.quantity)) {
 						mQuantityShown = true;
-						findViewById(R.id.log_play_quantity_label).setVisibility(View.VISIBLE);
-						mQuantityView.setVisibility(View.VISIBLE);
+						findViewById(R.id.log_play_quantity_container).setVisibility(View.VISIBLE);
 					} else if (selection == r.getString(R.string.length)) {
 						mLengthShown = true;
-						findViewById(R.id.log_play_length_label).setVisibility(View.VISIBLE);
-						mLengthView.setVisibility(View.VISIBLE);
+						findViewById(R.id.log_play_length_container).setVisibility(View.VISIBLE);
 					} else if (selection == r.getString(R.string.location)) {
 						mLocationShown = true;
 						findViewById(R.id.log_play_location_label).setVisibility(View.VISIBLE);
@@ -327,6 +325,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void launchStartNotification(Intent intent) {
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 		String playing = getString(R.string.notification_playing);
 		builder.setContentTitle(playing).setContentText(mPlay.GameName)
@@ -512,10 +511,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_play_quantity_label).setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
-		mQuantityView.setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_length_label).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
-		mLengthView.setVisibility(hideLength() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_quantity_container).setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_length_container).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_location_label).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
 		mLocationView.setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
 		mIncompleteView.setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);

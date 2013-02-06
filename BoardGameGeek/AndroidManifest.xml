@@ -202,7 +202,8 @@
 		</activity>
 		<activity
 			android:name=".ui.LogPlayActivity"
-			android:label="@string/title_log_play" />
+			android:label="@string/title_log_play"
+			android:launchMode="singleTop" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
 			android:label="@string/title_log_player" />
