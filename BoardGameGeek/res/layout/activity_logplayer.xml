@@ -59,6 +59,7 @@
 			android:layout_height="wrap_content"
 			android:dropDownHeight="wrap_content"
 			android:hint="@string/team_color"
+			android:completionThreshold="1"
 			android:imeOptions="actionNext"
 			android:inputType="textCapSentences"
 			android:maxLength="32"
