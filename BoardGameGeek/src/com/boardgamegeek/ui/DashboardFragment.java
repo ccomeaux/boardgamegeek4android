@@ -29,7 +29,7 @@ public class DashboardFragment extends SherlockFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mAccount = Authenticator.getAccount(activity);
+		fetchAccount(activity);
 	}
 
 	@Override
@@ -95,6 +95,7 @@ public class DashboardFragment extends SherlockFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		fetchAccount(getActivity());
 		mSignIn.setVisibility(mAccount == null ? View.VISIBLE : View.GONE);
 		mCollection.setVisibility((mAccount != null && getActivity() != null
 			&& PreferencesUtils.getSyncStatuses(getActivity()) != null && PreferencesUtils
@@ -104,6 +105,12 @@ public class DashboardFragment extends SherlockFragment {
 		mPlays
 			.setVisibility(mAccount != null && getActivity() != null && PreferencesUtils.getSyncPlays(getActivity()) ? View.VISIBLE
 				: View.GONE);
+	}
+
+	private void fetchAccount(Activity activity) {
+		if (activity != null) {
+			mAccount = Authenticator.getAccount(activity);
+		}
 	}
 
 	@Override

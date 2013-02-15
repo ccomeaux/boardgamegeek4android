@@ -87,24 +87,25 @@ public class ImageFetcher extends ImageWorker {
 	}
 
 	public void loadAvatarImage(String url, Uri uri, ImageView imageView) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_AVATAR, uri), imageView);
+		safelyLoadImage(url, uri, imageView, ImageData.IMAGE_TYPE_AVATAR);
 	}
 
 	public void loadThumnailImage(String url, Uri uri, ImageView imageView) {
-		if (TextUtils.isEmpty(url)) {
-			return;
-		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_THUMBNAIL, uri), imageView);
+		safelyLoadImage(url, uri, imageView, ImageData.IMAGE_TYPE_THUMBNAIL);
 	}
 
 	public void loadImage(String url, ImageView imageView) {
+		safelyLoadImage(url, null, imageView, ImageData.IMAGE_TYPE_NORMAL);
+	}
+
+	private void safelyLoadImage(String url, Uri uri, ImageView imageView, int imageType) {
 		if (TextUtils.isEmpty(url)) {
-			return;
+			if (imageView != null) {
+				imageView.setImageBitmap(mLoadingBitmap);
+			}
+		} else {
+			loadImage(new ImageData(url, imageType, uri), imageView);
 		}
-		loadImage(new ImageData(url, ImageData.IMAGE_TYPE_NORMAL), imageView, mLoadingBitmap);
 	}
 
 	/**
@@ -449,12 +450,6 @@ public class ImageFetcher extends ImageWorker {
 		public int mType;
 		public String mUrl;
 		public Uri mUri;
-
-		public ImageData(String url, int type) {
-			mUrl = url;
-			mType = type;
-			mUri = null;
-		}
 
 		public ImageData(String url, int type, Uri uri) {
 			mUrl = url;

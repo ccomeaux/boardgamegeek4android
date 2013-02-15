@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="24"
-	android:versionName="3.7 Beta" >
+	android:versionName="4.0" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
