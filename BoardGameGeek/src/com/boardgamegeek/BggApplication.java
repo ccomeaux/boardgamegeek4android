@@ -1,18 +1,10 @@
 package com.boardgamegeek;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 
 public class BggApplication extends Application {
-	private static final String TAG = makeLogTag(BggApplication.class);
-
 	public final static String siteUrl = "http://www.boardgamegeek.com/";
 	public static final String HELP_COLLECTION_KEY = "help.collection";
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
@@ -32,17 +24,6 @@ public class BggApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		singleton = this;
-	}
-
-	public static String getVersionDescription(Context context) {
-		try {
-			PackageManager pm = context.getPackageManager();
-			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);
-			return "Version " + pInfo.versionName;
-		} catch (NameNotFoundException e) {
-			LOGE(TAG, "NameNotFoundException in getVersion", e);
-		}
-		return "";
 	}
 
 	public boolean showHelp(String key, int version) {

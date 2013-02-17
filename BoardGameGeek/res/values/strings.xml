@@ -253,6 +253,36 @@
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
 	<string name="toggle">toggle</string>
+	<string name="close">Close</string>
+	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
+	<string name="about_body">
+<![CDATA[
+<b>What\'s New?</b><br/>
+- NEW: Updated look and feel including an action bar and other Android standards<br/>
+- NEW: Uses built-in account manager to handle authenticating to the \'Geek and synchronizes in the background (You will have to re-enter your username and password)<br/>
+- MOD: Lots of performance improvements under the hood<br/>
+- MOD: Rearranged settings<br/>
+- MOD: Can filter Plays by sync status<br/>
+- MOD: Play locations and GeekBuddy nicknames are saved during a sync (not just when modifying the game locally)<br/>
+- BUG: Improve layout of dashboard in landscape mode with an odd number of icons<br/>
+- BUG: Don\'t save multiple copies of a play in progress<br/>
+- Too many more to list!<br/>
+- <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
+<br/>
+<b>Designed and developed by</b><br/>
+Dennis Bond (<a href="http://boardgamegeek.com/user/rjnfc">rjnfc</a>)<br/>
+Chris Comeaux (<a href="http://boardgamegeek.com/user/ccomeaux">ccomeaux</a>)<br/>
+Marek Jeszka (<a href="http://boardgamegeek.com/user/Marc6">Marc6</a>)<br/>
+Gareth McSorley (<a href="http://boardgamegeek.com/user/Capoeirista">Capoeirista</a>)<br/>
+Leif Norcott (<a href="http://boardgamegeek.com/user/nibuen">nibuen</a>)<br/>
+<br/>
+Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission.<br/>
+<br/>
+Icons by <a href="http://dryicons.com">DryIcons</a> and <a href="http://www.androidicons.com">Android Icons</a>.<br/>
+<br/>
+We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
+]]>
+	</string>
 	<string name="help_title">Help</string>
 	<string name="help_boardgame">Be sure to check out the options available from the
 		menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut
