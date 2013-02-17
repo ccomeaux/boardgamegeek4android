@@ -14,6 +14,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
@@ -86,7 +87,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 				startActivity(emailIntent);
 				return true;
 			case R.id.menu_about:
-				startActivity(new Intent(this, AboutActivity.class));
+				HelpUtils.showAboutDialog(this);
 				return true;
 		}
 		return false;

@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:showDividers="middle" >
+
+	<TextView
+		android:id="@+id/app_name_and_version"
+		style="@style/Text.Title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/padding_standard"
+		android:layout_marginLeft="@dimen/padding_extra"
+		android:layout_marginRight="@dimen/padding_extra"
+		android:layout_marginTop="@dimen/padding_standard"
+		android:drawableLeft="@drawable/ic_launcher"
+		android:drawablePadding="@dimen/padding_standard"
+		android:gravity="center_vertical"
+		android:textIsSelectable="false" />
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1" >
+
+		<TextView
+			android:id="@+id/about_body"
+			style="@style/Text.Dialog"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_extra"
+			android:textIsSelectable="false" />
+	</ScrollView>
+
+</LinearLayout>
