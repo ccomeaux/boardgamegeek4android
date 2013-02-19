@@ -220,8 +220,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	public void hideAddFieldMenuItem(MenuItem menuItem) {
-		menuItem.setVisible(hideQuantity() || hideLength() || hideLocation() || hideNoWinStats() || hideIncomplete()
-			|| hideComments() || hidePlayers());
+		menuItem.setVisible(shouldHideQuantity() || shouldHideLength() || shouldHideLocation()
+			|| shouldHideNoWinStats() || shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
 	}
 
 	@Override
@@ -258,36 +258,35 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			.setItems(array, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
+					View viewToFocus = null;
 					Resources r = getResources();
 					String selection = array[which].toString();
 					if (selection == r.getString(R.string.quantity)) {
 						mQuantityShown = true;
-						findViewById(R.id.log_play_quantity_container).setVisibility(View.VISIBLE);
+						viewToFocus = mQuantityView;
 					} else if (selection == r.getString(R.string.length)) {
 						mLengthShown = true;
-						findViewById(R.id.log_play_length_container).setVisibility(View.VISIBLE);
+						viewToFocus = mLengthView;
 					} else if (selection == r.getString(R.string.location)) {
 						mLocationShown = true;
-						findViewById(R.id.log_play_location_label).setVisibility(View.VISIBLE);
-						mLocationView.setVisibility(View.VISIBLE);
+						viewToFocus = mLocationView;
 					} else if (selection == r.getString(R.string.incomplete)) {
 						mIncompleteShown = true;
-						mIncompleteView.setVisibility(View.VISIBLE);
 						mIncompleteView.setChecked(true);
 					} else if (selection == r.getString(R.string.noWinStats)) {
 						mNoWinStatsShown = true;
-						mNoWinStatsView.setVisibility(View.VISIBLE);
 						mNoWinStatsView.setChecked(true);
 					} else if (selection == r.getString(R.string.comments)) {
 						mCommentsShown = true;
-						findViewById(R.id.log_play_comments_label).setVisibility(View.VISIBLE);
-						mCommentsView.setVisibility(View.VISIBLE);
+						viewToFocus = mCommentsView;
 					} else if (selection == r.getString(R.string.players)) {
 						mPlayersShown = true;
-						mPlayerLabel.setVisibility(View.VISIBLE);
-						findViewById(R.id.log_play_players_add).setVisibility(View.VISIBLE);
 					}
 					hideAddFieldMenuItem(menuItem);
+					hideFields();
+					if (viewToFocus != null) {
+						viewToFocus.requestFocus();
+					}
 				}
 			}).show();
 	}
@@ -365,25 +364,25 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
-		if (hideQuantity()) {
+		if (shouldHideQuantity()) {
 			list.add(r.getString(R.string.quantity));
 		}
-		if (hideLength()) {
+		if (shouldHideLength()) {
 			list.add(r.getString(R.string.length));
 		}
-		if (hideLocation()) {
+		if (shouldHideLocation()) {
 			list.add(r.getString(R.string.location));
 		}
-		if (hideIncomplete()) {
+		if (shouldHideIncomplete()) {
 			list.add(r.getString(R.string.incomplete));
 		}
-		if (hideNoWinStats()) {
+		if (shouldHideNoWinStats()) {
 			list.add(r.getString(R.string.noWinStats));
 		}
-		if (hideComments()) {
+		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
 		}
-		if (hidePlayers()) {
+		if (shouldHidePlayers()) {
 			list.add(r.getString(R.string.players));
 		}
 
@@ -431,8 +430,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void bindUiPlay() {
 		setDateButtonText();
-		mQuantityView.setText(String.valueOf(mPlay.Quantity));
-		mLengthView.setText(String.valueOf(mPlay.Length));
+		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
+		mLengthView.setText((mPlay.Length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.Length));
 		mLocationView.setText(mPlay.Location);
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
@@ -511,43 +510,43 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_play_quantity_container).setVisibility(hideQuantity() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_length_container).setVisibility(hideLength() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_location_label).setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
-		mLocationView.setVisibility(hideLocation() ? View.GONE : View.VISIBLE);
-		mIncompleteView.setVisibility(hideIncomplete() ? View.GONE : View.VISIBLE);
-		mNoWinStatsView.setVisibility(hideNoWinStats() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_comments_label).setVisibility(hideComments() ? View.GONE : View.VISIBLE);
-		mCommentsView.setVisibility(hideComments() ? View.GONE : View.VISIBLE);
-		mPlayerLabel.setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_players_add).setVisibility(hidePlayers() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_quantity_container).setVisibility(shouldHideQuantity() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_length_container).setVisibility(shouldHideLength() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_location_label).setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
+		mLocationView.setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
+		mIncompleteView.setVisibility(shouldHideIncomplete() ? View.GONE : View.VISIBLE);
+		mNoWinStatsView.setVisibility(shouldHideNoWinStats() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_comments_label).setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
+		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
+		mPlayerLabel.setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_players_add).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 	}
 
-	private boolean hideQuantity() {
+	private boolean shouldHideQuantity() {
 		return !PreferencesUtils.showLogPlayQuantity(this) && !mQuantityShown && !(mPlay.Quantity > 1);
 	}
 
-	private boolean hideLength() {
+	private boolean shouldHideLength() {
 		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.Length > 0);
 	}
 
-	private boolean hideLocation() {
+	private boolean shouldHideLocation() {
 		return !PreferencesUtils.showLogPlayLocation(this) && !mLocationShown && TextUtils.isEmpty(mPlay.Location);
 	}
 
-	private boolean hideIncomplete() {
+	private boolean shouldHideIncomplete() {
 		return !PreferencesUtils.showLogPlayIncomplete(this) && !mIncompleteShown && !mPlay.Incomplete;
 	}
 
-	private boolean hideNoWinStats() {
+	private boolean shouldHideNoWinStats() {
 		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mNoWinStatsShown && !mPlay.NoWinStats;
 	}
 
-	private boolean hideComments() {
+	private boolean shouldHideComments() {
 		return !PreferencesUtils.showLogPlayComments(this) && !mCommentsShown && TextUtils.isEmpty(mPlay.Comments);
 	}
 
-	private boolean hidePlayers() {
+	private boolean shouldHidePlayers() {
 		return !PreferencesUtils.showLogPlayPlayerList(this) && !mPlayersShown && (mPlay.getPlayers().size() == 0);
 	}
 
