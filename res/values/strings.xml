@@ -258,15 +258,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
-- NEW: Updated look and feel including an action bar and other Android standards<br/>
-- NEW: Uses built-in account manager to handle authenticating to the \'Geek and synchronizes in the background (You will have to re-enter your username and password)<br/>
-- MOD: Lots of performance improvements under the hood<br/>
-- MOD: Rearranged settings<br/>
-- MOD: Can filter Plays by sync status<br/>
-- MOD: Play locations and GeekBuddy nicknames are saved during a sync (not just when modifying the game locally)<br/>
-- BUG: Improve layout of dashboard in landscape mode with an odd number of icons<br/>
-- BUG: Don\'t save multiple copies of a play in progress<br/>
-- Too many more to list!<br/>
+- MOD: New look for the about screen<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
