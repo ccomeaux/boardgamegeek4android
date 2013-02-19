@@ -52,6 +52,8 @@ public class Play {
 	public static final int SYNC_STATUS_PENDING_DELETE = 3;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
+	public static final int QUANTITY_DEFAULT = 1;
+	public static final int LENGTH_DEFAULT = 0;
 
 	private static final String TAG = makeLogTag(Play.class);
 	private static final String KEY_PLAY_ID = "PLAY_ID";
@@ -86,7 +88,8 @@ public class Play {
 		PlayId = playId;
 		GameId = gameId;
 		GameName = gameName;
-		Quantity = 1;
+		Quantity = QUANTITY_DEFAULT;
+		Length = LENGTH_DEFAULT;
 		// set current date
 		final Calendar c = Calendar.getInstance();
 		Year = c.get(Calendar.YEAR);
@@ -187,8 +190,8 @@ public class Play {
 		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
 		GameName = CursorUtils.getString(c, PlayItems.NAME);
 		setDate(CursorUtils.getString(c, Plays.DATE));
-		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, 1);
-		Length = CursorUtils.getInt(c, Plays.LENGTH);
+		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, QUANTITY_DEFAULT);
+		Length = CursorUtils.getInt(c, Plays.LENGTH, LENGTH_DEFAULT);
 		Location = CursorUtils.getString(c, Plays.LOCATION);
 		Incomplete = CursorUtils.getBoolean(c, Plays.INCOMPLETE);
 		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);

@@ -57,43 +57,89 @@
 			android:id="@+id/log_player_team_color"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:completionThreshold="1"
 			android:dropDownHeight="wrap_content"
 			android:hint="@string/team_color"
-			android:completionThreshold="1"
 			android:imeOptions="actionNext"
 			android:inputType="textCapSentences"
 			android:maxLength="32"
 			android:textColor="#000" />
 
-		<TextView
-			android:id="@+id/log_player_position_label"
-			style="@style/Text.Label"
+		<RelativeLayout
+			android:id="@+id/log_player_position_container"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/starting_position" />
+			android:layout_height="wrap_content" >
 
-		<EditText
-			android:id="@+id/log_player_position"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/starting_position"
-			android:inputType="textCapWords"
-			android:maxLength="32" />
+			<TextView
+				android:id="@+id/log_player_position_label"
+				style="@style/Text.Label"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:layout_toLeftOf="@+id/log_player_position_button"
+				android:text="@string/starting_position" />
 
-		<TextView
-			android:id="@+id/log_player_score_label"
-			style="@style/Text.Label"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/score" />
+			<EditText
+				android:id="@+id/log_player_position"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/log_player_position_label"
+				android:layout_toLeftOf="@+id/log_player_position_button"
+				android:hint="@string/starting_position"
+				android:imeOptions="flagNoExtractUi"
+				android:inputType="numberDecimal|numberSigned"
+				android:maxLength="32" />
 
-		<EditText
-			android:id="@+id/log_player_score"
+			<Button
+				android:id="@+id/log_player_position_button"
+				style="@style/Text.Footnote"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:text="@string/number_to_text" />
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:id="@+id/log_player_score_container"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/score"
-			android:inputType="textCapWords"
-			android:maxLength="32" />
+			android:layout_height="wrap_content" >
+
+			<TextView
+				android:id="@+id/log_player_score_label"
+				style="@style/Text.Label"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:layout_toLeftOf="@+id/log_player_score_button"
+				android:text="@string/score" />
+
+			<EditText
+				android:id="@+id/log_player_score"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/log_player_score_label"
+				android:layout_toLeftOf="@+id/log_player_score_button"
+				android:hint="@string/score"
+				android:imeOptions="flagNoExtractUi"
+				android:inputType="numberDecimal|numberSigned"
+				android:maxLength="32" />
+
+			<Button
+				android:id="@+id/log_player_score_button"
+				style="@style/Text.Footnote"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:text="@string/number_to_text" />
+		</RelativeLayout>
 
 		<TextView
 			android:id="@+id/log_player_rating_label"
@@ -106,7 +152,7 @@
 			android:id="@+id/log_player_rating"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/rating"
+			android:hint="@string/rating_hint"
 			android:inputType="numberDecimal"
 			android:maxLength="8" />
 

@@ -43,9 +43,9 @@
 	<string name="sync_in_process">Edit in process</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint"># of plays</string>
+	<string name="quantity_hint">1 play</string>
 	<string name="length">Length</string>
-	<string name="length_hint">Minutes</string>
+	<string name="length_hint">0 minutes</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Game play location</string>
 	<string name="incomplete">Incomplete</string>
@@ -75,6 +75,7 @@
 	<string name="starting_position">Starting Position</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
+	<string name="rating_hint">0.0</string>
 	<string name="average">Average</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
@@ -253,6 +254,7 @@
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
 	<string name="toggle">toggle</string>
+	<string name="number_to_text">123/ABC</string>
 	<string name="close">Close</string>
 	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
 	<string name="about_body">

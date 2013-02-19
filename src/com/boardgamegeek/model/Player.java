@@ -21,6 +21,8 @@ import com.boardgamegeek.util.CursorUtils;
 public class Player implements Parcelable {
 	private static final String TAG = makeLogTag(Player.class);
 
+	public static final double DEFAULT_RATING = 0.0;
+
 	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
 	private static final String KEY_USER_ID = "USER_ID";
@@ -82,7 +84,7 @@ public class Player implements Parcelable {
 		TeamColor = CursorUtils.getString(cursor, PlayPlayers.COLOR);
 		StartingPosition = CursorUtils.getString(cursor, PlayPlayers.START_POSITION);
 		Score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
-		Rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING);
+		Rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, DEFAULT_RATING);
 		New = CursorUtils.getBoolean(cursor, PlayPlayers.NEW);
 		Win = CursorUtils.getBoolean(cursor, PlayPlayers.WIN);
 	}
