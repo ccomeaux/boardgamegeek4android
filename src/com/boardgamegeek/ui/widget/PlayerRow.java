@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.ColorUtils;
-import com.boardgamegeek.util.StringUtils;
 
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
@@ -65,13 +64,13 @@ public class PlayerRow extends LinearLayout {
 			public void onClick(View v) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerRow.this.getContext());
 				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
-						.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (mDeleteClickListener != null) {
-									mDeleteClickListener.onClick(PlayerRow.this);
-								}
+					.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							if (mDeleteClickListener != null) {
+								mDeleteClickListener.onClick(PlayerRow.this);
 							}
-						}).setNegativeButton(R.string.no, null);
+						}
+					}).setNegativeButton(R.string.no, null);
 				builder.create().show();
 			}
 		});
@@ -141,8 +140,8 @@ public class PlayerRow extends LinearLayout {
 			}
 
 			setText(mScore, mPlayer.Score);
-			setText(mStartingPosition, (StringUtils.isInteger(mPlayer.StartingPosition)) ? "#"
-					+ mPlayer.StartingPosition : mPlayer.StartingPosition);
+			setText(mStartingPosition, (mPlayer.getSeat() == Player.SEAT_UNKNOWN) ? mPlayer.getStartingPosition() : "#"
+				+ mPlayer.getSeat());
 			setText(mRating, (mPlayer.Rating > 0) ? mFormat.format(mPlayer.Rating) : "");
 		}
 	}

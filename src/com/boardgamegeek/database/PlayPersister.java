@@ -150,6 +150,8 @@ public class PlayPersister {
 						status = STATUS_PENDING_UPDATE;
 					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
 						status = STATUS_PENDING_DELETE;
+					} else if (currentSyncStatus == Play.SYNC_STATUS_NOT_STORED) {
+						status = STATUS_IN_PROGRESS;
 					} else {
 						status = STATUS_ERROR;
 						LOGE(TAG, "Unknown sync status!");
@@ -259,7 +261,7 @@ public class PlayPersister {
 			values.put(PlayPlayers.USER_ID, userId);
 			values.put(PlayPlayers.USER_NAME, player.Username);
 			values.put(PlayPlayers.NAME, player.Name);
-			values.put(PlayPlayers.START_POSITION, player.StartingPosition);
+			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
 			values.put(PlayPlayers.COLOR, player.TeamColor);
 			values.put(PlayPlayers.SCORE, player.Score);
 			values.put(PlayPlayers.NEW, player.New);

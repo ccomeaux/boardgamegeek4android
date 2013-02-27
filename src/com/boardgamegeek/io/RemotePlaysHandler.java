@@ -124,7 +124,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 						player.UserId = Integer.valueOf(mParser.getAttributeValue(null, Tags.USERID));
 						player.Username = mParser.getAttributeValue(null, Tags.USERNAME);
 						player.Name = mParser.getAttributeValue(null, Tags.NAME);
-						player.StartingPosition = mParser.getAttributeValue(null, Tags.STARTPOSITION);
+						player.setStartingPosition(mParser.getAttributeValue(null, Tags.STARTPOSITION));
 						player.TeamColor = mParser.getAttributeValue(null, Tags.COLOR);
 						player.Score = mParser.getAttributeValue(null, Tags.SCORE);
 						player.New = "1".equals(mParser.getAttributeValue(null, Tags.NEW));

@@ -14,14 +14,17 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class Player implements Parcelable {
 	private static final String TAG = makeLogTag(Player.class);
 
 	public static final double DEFAULT_RATING = 0.0;
+	public static final int SEAT_UNKNOWN = -1;
 
 	private static final String KEY_EXISTS = "EXISTS";
 	private static final String KEY_NAME = "NAME";
@@ -38,7 +41,7 @@ public class Player implements Parcelable {
 		Name = "";
 		Username = "";
 		TeamColor = "";
-		StartingPosition = "";
+		setStartingPosition("");
 		Score = "";
 	}
 
@@ -47,7 +50,7 @@ public class Player implements Parcelable {
 		UserId = player.UserId;
 		Username = player.Username;
 		TeamColor = player.TeamColor;
-		StartingPosition = player.StartingPosition;
+		setStartingPosition(player.mStartingPosition);
 		Score = player.Score;
 		Rating = player.Rating;
 		New = player.New;
@@ -61,7 +64,7 @@ public class Player implements Parcelable {
 			UserId = bundle.getInt(KEY_USER_ID);
 			Username = getString(bundle, KEY_USERNAME);
 			TeamColor = getString(bundle, KEY_TEAM_COLOR);
-			StartingPosition = getString(bundle, KEY_STARTING_POSITION);
+			setStartingPosition(getString(bundle, KEY_STARTING_POSITION));
 			Score = getString(bundle, KEY_SCORE);
 			Rating = bundle.getDouble(KEY_RATING);
 			New = bundle.getBoolean(KEY_NEW);
@@ -82,7 +85,7 @@ public class Player implements Parcelable {
 		Username = CursorUtils.getString(cursor, PlayPlayers.USER_NAME);
 		Name = CursorUtils.getString(cursor, PlayPlayers.NAME);
 		TeamColor = CursorUtils.getString(cursor, PlayPlayers.COLOR);
-		StartingPosition = CursorUtils.getString(cursor, PlayPlayers.START_POSITION);
+		setStartingPosition(CursorUtils.getString(cursor, PlayPlayers.START_POSITION));
 		Score = CursorUtils.getString(cursor, PlayPlayers.SCORE);
 		Rating = CursorUtils.getDouble(cursor, PlayPlayers.RATING, DEFAULT_RATING);
 		New = CursorUtils.getBoolean(cursor, PlayPlayers.NEW);
@@ -93,11 +96,33 @@ public class Player implements Parcelable {
 	public int UserId;
 	public String Username;
 	public String TeamColor;
-	public String StartingPosition;
+	private String mStartingPosition;
+	private int mSeat;
 	public String Score;
 	public double Rating;
 	public boolean New;
 	public boolean Win;
+
+	public String getStartingPosition() {
+		return mStartingPosition;
+	}
+
+	public void setStartingPosition(String value) {
+		mStartingPosition = value;
+		if (StringUtils.isInteger(mStartingPosition)) {
+			mSeat = Integer.parseInt(mStartingPosition);
+		} else {
+			mSeat = SEAT_UNKNOWN;
+		}
+	}
+
+	public int getSeat() {
+		return mSeat;
+	}
+
+	public void setSeat(int value) {
+		setStartingPosition(String.valueOf(value));
+	}
 
 	public Intent toIntent() {
 		Intent intent = new Intent();
@@ -106,7 +131,7 @@ public class Player implements Parcelable {
 		intent.putExtra(KEY_USER_ID, UserId);
 		intent.putExtra(KEY_USERNAME, Username);
 		intent.putExtra(KEY_TEAM_COLOR, TeamColor);
-		intent.putExtra(KEY_STARTING_POSITION, StartingPosition);
+		intent.putExtra(KEY_STARTING_POSITION, mStartingPosition);
 		intent.putExtra(KEY_SCORE, Score);
 		intent.putExtra(KEY_RATING, Rating);
 		intent.putExtra(KEY_NEW, New);
@@ -128,8 +153,8 @@ public class Player implements Parcelable {
 			&& (UserId == p.UserId)
 			&& (Username == p.Username || (Username != null && Username.equals(p.Username)))
 			&& (TeamColor == p.TeamColor || (TeamColor != null && TeamColor.equals(p.TeamColor)))
-			&& (StartingPosition == p.StartingPosition || (StartingPosition != null && StartingPosition
-				.equals(p.StartingPosition))) && (Score == p.Score || (Score != null && Score.equals(p.Score)))
+			&& (mStartingPosition == p.mStartingPosition || (mStartingPosition != null && mStartingPosition
+				.equals(p.mStartingPosition))) && (Score == p.Score || (Score != null && Score.equals(p.Score)))
 			&& (Rating == p.Rating) && (New == p.New) && (Win == p.Win);
 	}
 
@@ -141,7 +166,7 @@ public class Player implements Parcelable {
 		result = prime * result + UserId;
 		result = prime * result + ((Username == null) ? 0 : Username.hashCode());
 		result = prime * result + ((TeamColor == null) ? 0 : TeamColor.hashCode());
-		result = prime * result + ((StartingPosition == null) ? 0 : StartingPosition.hashCode());
+		result = prime * result + ((mStartingPosition == null) ? 0 : mStartingPosition.hashCode());
 		result = prime * result + ((Score == null) ? 0 : Score.hashCode());
 		long r = Double.doubleToLongBits(Rating);
 		result = prime * result + (int) (r ^ (r >>> 32));
@@ -161,7 +186,7 @@ public class Player implements Parcelable {
 		addPair(nvps, index, "name", Name);
 		addPair(nvps, index, "username", Username);
 		addPair(nvps, index, "color", TeamColor);
-		addPair(nvps, index, "position", StartingPosition);
+		addPair(nvps, index, "position", mStartingPosition);
 		addPair(nvps, index, "score", Score);
 		addPair(nvps, index, "rating", String.valueOf(Rating));
 		addPair(nvps, index, "new", New ? "1" : "0");
@@ -185,7 +210,7 @@ public class Player implements Parcelable {
 		out.writeInt(UserId);
 		out.writeString(Username);
 		out.writeString(TeamColor);
-		out.writeString(StartingPosition);
+		out.writeString(mStartingPosition);
 		out.writeString(Score);
 		out.writeDouble(Rating);
 		out.writeInt(New ? 1 : 0);
@@ -207,7 +232,7 @@ public class Player implements Parcelable {
 		UserId = in.readInt();
 		Username = in.readString();
 		TeamColor = in.readString();
-		StartingPosition = in.readString();
+		setStartingPosition(in.readString());
 		Score = in.readString();
 		Rating = in.readDouble();
 		if (in.readInt() == 1) {

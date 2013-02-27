@@ -188,7 +188,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mName.setText(mPlayer.Name);
 		mUsername.setText(mPlayer.Username);
 		mTeamColor.setText(mPlayer.TeamColor);
-		mPosition.setText(mPlayer.StartingPosition);
+		mPosition.setText(mPlayer.getStartingPosition());
 		mScore.setText(mPlayer.Score);
 		mRating.setText((mPlayer.Rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.Rating));
 		mNew.setChecked(mPlayer.New);
@@ -219,7 +219,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private boolean shouldHidePosition() {
 		return !PreferencesUtils.showLogPlayerPosition(this) && !mPositionShown
-			&& TextUtils.isEmpty(mPlayer.StartingPosition);
+			&& TextUtils.isEmpty(mPlayer.getStartingPosition());
 	}
 
 	private boolean shouldHideScore() {
@@ -339,7 +339,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mPlayer.Name = mName.getText().toString().trim();
 		mPlayer.Username = mUsername.getText().toString().trim();
 		mPlayer.TeamColor = mTeamColor.getText().toString().trim();
-		mPlayer.StartingPosition = mPosition.getText().toString().trim();
+		mPlayer.setStartingPosition(mPosition.getText().toString().trim());
 		mPlayer.Score = mScore.getText().toString().trim();
 		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString().trim());
 		mPlayer.New = mNew.isChecked();
