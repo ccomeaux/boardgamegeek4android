@@ -124,6 +124,25 @@ public class Player implements Parcelable {
 		setStartingPosition(String.valueOf(value));
 	}
 
+	public String getDescsription() {
+		String description = "";
+		if (TextUtils.isEmpty(Name)) {
+			if (TextUtils.isEmpty(Username)) {
+				if (!TextUtils.isEmpty(TeamColor)) {
+					description = TeamColor;
+				}
+			} else {
+				description = Username;
+			}
+		} else {
+			description = Name;
+			if (!TextUtils.isEmpty(Username)) {
+				description += " (" + Username + ")";
+			}
+		}
+		return description;
+	}
+
 	public Intent toIntent() {
 		Intent intent = new Intent();
 		intent.putExtra(KEY_EXISTS, true);

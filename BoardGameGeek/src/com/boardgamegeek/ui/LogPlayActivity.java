@@ -5,6 +5,7 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -86,6 +87,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private int mNextPlayerTag = 1;
 	private boolean mLaunchingActivity;
 	private long mStartTime;
+	private Random mRandom = new Random();
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -216,6 +218,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
 		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
+		captureForm();
+		menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -249,8 +253,63 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 				promptAddField(array, item);
 				return true;
+			case R.id.menu_pick_start_player:
+				promptPickStartPlayer();
+				return true;
+			case R.id.menu_random_start_player:
+				int newSeat = mRandom.nextInt(mPlay.getPlayers().size());
+				mPlay.pickStartPlayer(newSeat);
+				notifyStartPlayer();
+				bindUiPlayers();
+				return true;
+			case R.id.menu_random_player_order:
+				mPlay.randomizePlayerOrder();
+				notifyStartPlayer();
+				bindUiPlayers();
+				return true;
 		}
 		return false;
+	}
+
+	private void notifyStartPlayer() {
+		Player p = mPlay.getPlayerAtSeat(1);
+		if (p != null) {
+			String name = p.getDescsription();
+			if (TextUtils.isEmpty(name)) {
+				name = String.format(getResources().getString(R.string.generic_player), 1);
+			}
+			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
+				Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void promptPickStartPlayer() {
+		CharSequence[] array = createArrayOfPlayerDescriptions();
+		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
+			.setItems(array, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mPlay.pickStartPlayer(which);
+					notifyStartPlayer();
+					bindUiPlayers();
+				}
+			}).show();
+	}
+
+	public CharSequence[] createArrayOfPlayerDescriptions() {
+		String playerPrefix = getResources().getString(R.string.generic_player);
+		List<CharSequence> list = new ArrayList<CharSequence>();
+		for (int i = 0; i < mPlay.getPlayers().size(); i++) {
+			Player p = mPlay.getPlayers().get(i);
+			String name = p.getDescsription();
+			if (TextUtils.isEmpty(name)) {
+				name = String.format(playerPrefix, (i + 1));
+			}
+			list.add(name);
+		}
+		CharSequence[] array = {};
+		array = list.toArray(array);
+		return array;
 	}
 
 	private void promptAddField(final CharSequence[] array, final MenuItem menuItem) {

@@ -159,7 +159,8 @@
 				android:contentDescription="@string/add"
 				android:drawableRight="@drawable/add"
 				android:gravity="center_vertical"
-				android:onClick="onAddPlayerClick" />
+				android:onClick="onAddPlayerClick"
+				android:textIsSelectable="false" />
 		</LinearLayout>
 
 		<LinearLayout

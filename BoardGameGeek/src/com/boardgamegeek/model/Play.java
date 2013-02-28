@@ -6,6 +6,7 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -360,6 +361,59 @@ public class Play {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Sets the start player based on the index, keeping the other players in order, assigns seats, then sorts
+	 * @param startPlayerIndex
+	 *            The zero-based index of the new start player
+	 */
+	public void pickStartPlayer(int startPlayerIndex) {
+		int playerCount = mPlayers.size();
+		for (int i = 0; i < playerCount; i++) {
+			Player p = mPlayers.get(i);
+			p.setSeat((i - startPlayerIndex + playerCount) % playerCount + 1);
+		}
+		sortPlayers();
+	}
+
+	/**
+	 * Randomizes the order of players, assigning seats to the new order.
+	 */
+	public void randomizePlayerOrder() {
+		if (mPlayers == null || mPlayers.size() == 0) {
+			return;
+		}
+		Collections.shuffle(mPlayers);
+		int playerCount = mPlayers.size();
+		for (int i = 0; i < playerCount; i++) {
+			Player p = mPlayers.get(i);
+			p.setSeat(i + 1);
+		}
+	}
+
+	/**
+	 * Sort the players by seat; unseated players left unsorted at the bottom of the list.
+	 */
+	public void sortPlayers() {
+		int index = 0;
+		for (int i = 1; i <= mPlayers.size(); i++) {
+			Player p = getPlayerAtSeat(i);
+			if (p != null) {
+				mPlayers.remove(p);
+				mPlayers.add(index, p);
+				index++;
+			}
+		}
+	}
+
+	public Player getPlayerAtSeat(int seat) {
+		for (Player player : mPlayers) {
+			if (player.getSeat() == seat) {
+				return player;
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -63,6 +63,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
@@ -205,7 +206,7 @@
 	<string name="menu_edit">Edit</string>
 	<string name="menu_plays">Plays</string>
 	<string name="menu_delete">Delete</string>
-	<string name="menu_view_game">View Game</string>
+	<string name="menu_view_game">View game</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
@@ -247,7 +248,13 @@
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="votes_suffix">"%s votes"</string>
-	<string name="add_field">Add Field</string>
+	<string name="add_field">Add field</string>
+	<string name="menu_player_order">Player order&#8230;</string>
+	<string name="menu_pick_start_player">Pick start player&#8230;</string>
+	<string name="menu_random_start_player">Random start player</string>
+	<string name="menu_random_player_order">Random player order</string>
+	<string name="generic_player">Player #%d</string>
+	<string name="notification_start_player">%s starts!</string>
 	<string name="stats">Stats</string>
 	<string name="unrated">Unrated</string>
 	<string name="rating_denominator">" / 10"</string>
@@ -260,6 +267,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- NEW: Options to set the player order when logging a play<br/>
 - MOD: New look for the about screen<br/>
 - MOD: Option to show password while logging in<br/>
 - MOD: Plays list sorted more logically<br/>
