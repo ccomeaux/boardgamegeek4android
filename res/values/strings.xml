@@ -261,6 +261,8 @@
 <![CDATA[
 <b>What\'s New?</b><br/>
 - MOD: New look for the about screen<br/>
+- MOD: Plays list sorted more logically<br/>
+- BUG: Fix crash when attempting to clear or perform a full sync from the Settings screen while not logged in<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>

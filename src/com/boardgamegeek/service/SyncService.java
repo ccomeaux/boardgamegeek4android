@@ -61,23 +61,35 @@ public class SyncService extends Service {
 		return syncActive || syncPending;
 	}
 
-	public static void clearCollection(Context context) {
+	public static boolean clearCollection(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = Authenticator.getAccount(context);
-		accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE, null);
-		accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, null);
+		if (accountManager != null && account != null) {
+			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE, null);
+			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, null);
+			return true;
+		}
+		return false;
 	}
 
-	public static void clearBuddies(Context context) {
+	public static boolean clearBuddies(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = Authenticator.getAccount(context);
-		accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, null);
+		if (accountManager != null && account != null) {
+			accountManager.setUserData(account, SyncService.TIMESTAMP_BUDDIES, null);
+			return true;
+		}
+		return false;
 	}
 
-	public static void clearPlays(Context context) {
+	public static boolean clearPlays(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = Authenticator.getAccount(context);
-		accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, null);
-		accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, null);
+		if (accountManager != null && account != null) {
+			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, null);
+			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, null);
+			return true;
+		}
+		return false;
 	}
 }

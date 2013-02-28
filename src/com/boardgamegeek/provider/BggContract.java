@@ -671,7 +671,8 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play";
 
-		public static final String DEFAULT_SORT = DATE + " DESC";
+		// TODO define table name in a better spot
+		public static final String DEFAULT_SORT = DATE + " DESC, plays." + PLAY_ID + " DESC";
 
 		public static Uri buildPlayUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();

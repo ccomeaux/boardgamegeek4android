@@ -27,17 +27,24 @@ public class ResetCollectionDialogPreference extends AsyncDialogPreference {
 	}
 
 	@Override
-	protected int getConfirmMessageResource() {
-		return R.string.pref_sync_reset_confirm_message;
+	protected int getSuccessMessageResource() {
+		return R.string.pref_sync_reset_success;
+	}
+
+	@Override
+	protected int getFailureMessageResource() {
+		return R.string.pref_sync_reset_failure;
 	}
 
 	private class Task extends AsyncDialogPreference.Task {
 
 		@Override
-		protected Void doInBackground(Void... params) {
-			SyncService.clearCollection(getContext());
-			SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
-			return null;
+		protected Boolean doInBackground(Void... params) {
+			boolean success = SyncService.clearCollection(getContext());
+			if (success) {
+				SyncService.sync(getContext(), SyncService.FLAG_SYNC_COLLECTION);
+			}
+			return success;
 		}
 	}
 }
