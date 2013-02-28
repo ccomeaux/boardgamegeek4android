@@ -42,8 +42,13 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 	}
 
 	@Override
-	protected int getConfirmMessageResource() {
-		return R.string.pref_sync_clear_confirm_message;
+	protected int getSuccessMessageResource() {
+		return R.string.pref_sync_clear_success;
+	}
+
+	@Override
+	protected int getFailureMessageResource() {
+		return R.string.pref_sync_clear_failure;
 	}
 
 	@Override
@@ -61,10 +66,10 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 		}
 
 		@Override
-		protected Void doInBackground(Void... params) {
-			SyncService.clearCollection(mContext);
-			SyncService.clearBuddies(mContext);
-			SyncService.clearPlays(mContext);
+		protected Boolean doInBackground(Void... params) {
+			boolean success = SyncService.clearCollection(mContext);
+			success &= SyncService.clearBuddies(mContext);
+			success &= SyncService.clearPlays(mContext);
 
 			int count = 0;
 			count += delete(Games.CONTENT_URI);
@@ -83,7 +88,7 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += mResolver.delete(Avatars.CONTENT_URI, null, null);
 			LOGI(TAG, "Removed " + count + " files");
 
-			return null;
+			return success;
 		}
 
 		private int delete(Uri uri) {

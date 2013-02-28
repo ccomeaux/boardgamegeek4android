@@ -16,7 +16,9 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 
 	protected abstract int getInfoMessageResource();
 
-	protected abstract int getConfirmMessageResource();
+	protected abstract int getSuccessMessageResource();
+
+	protected abstract int getFailureMessageResource();
 
 	public AsyncDialogPreference(Context context) {
 		super(context, null);
@@ -55,10 +57,11 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 		notifyChanged();
 	}
 
-	protected abstract class Task extends AsyncTask<Void, Void, Void> {
+	protected abstract class Task extends AsyncTask<Void, Void, Boolean> {
 		@Override
-		protected void onPostExecute(Void result) {
-			Toast.makeText(getContext(), getConfirmMessageResource(), Toast.LENGTH_LONG).show();
+		protected void onPostExecute(Boolean result) {
+			Toast.makeText(getContext(), result ? getSuccessMessageResource() : getFailureMessageResource(),
+				Toast.LENGTH_LONG).show();
 		}
 	}
 }

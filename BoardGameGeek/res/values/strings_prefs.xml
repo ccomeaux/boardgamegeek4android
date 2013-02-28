@@ -43,13 +43,15 @@
 	<string name="pref_sync_clear">Clear</string>
 	<string name="pref_sync_clear_pos">Clear</string>
 	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed.</string>
-	<string name="pref_sync_clear_confirm_message">Clear complete</string>
+	<string name="pref_sync_clear_success">Clear complete</string>
+	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
 	<string name="pref_sync_reset_collection">Full collection sync</string>
 	<string name="pref_sync_reset_plays">Full plays sync</string>
 	<string name="pref_sync_reset_pos">Force</string>
 	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
 	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
-	<string name="pref_sync_reset_confirm_message">Full sync started</string>
+	<string name="pref_sync_reset_success">Full sync started</string>
+	<string name="pref_sync_reset_failure">Full sync failed - are you sure you\'re signed in\?</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 
 </resources>
