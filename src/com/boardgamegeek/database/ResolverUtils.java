@@ -30,11 +30,13 @@ public class ResolverUtils {
 	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
 		if (batch.size() > 0) {
 			try {
+				// TODO: make a debug mode
+				LOGE(TAG, batch.toString());
 				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 			} catch (RemoteException e) {
 				throw new RuntimeException(e);
 			} catch (OperationApplicationException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException(batch.toString(), e);
 			}
 		}
 	}
@@ -160,7 +162,7 @@ public class ResolverUtils {
 		try {
 			stream = resolver.openInputStream(uri);
 		} catch (FileNotFoundException e) {
-			 LOGD(TAG, "Couldn't find drawable: " + uri, e);
+			LOGD(TAG, "Couldn't find drawable: " + uri, e);
 		}
 		if (stream != null) {
 			Bitmap bitmap = BitmapFactory.decodeStream(stream);
