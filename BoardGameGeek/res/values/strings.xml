@@ -271,6 +271,8 @@
 - MOD: New look for the about screen<br/>
 - MOD: Option to show password while logging in<br/>
 - MOD: Plays list sorted more logically<br/>
+- BUG: Fix crash viewing a game on low density devices<br/>
+- BUG: Fix game update when not signed in<br/>
 - BUG: Fix crash when attempting to clear or perform a full sync from the Settings screen while not logged in<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>

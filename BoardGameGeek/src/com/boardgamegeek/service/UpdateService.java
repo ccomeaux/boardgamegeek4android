@@ -135,16 +135,17 @@ public class UpdateService extends IntentService {
 	}
 
 	private RemoteExecutor createExecutor() {
+		HttpClient httpClient = null;
+
 		AccountManager accountManager = AccountManager.get(getApplicationContext());
 		Account account = Authenticator.getAccount(accountManager);
 		if (account == null) {
-			LOGW(TAG, "no account set up");
-			return null;
+			httpClient = HttpUtils.createHttpClient(this, mUseGzip);
+		} else {
+			httpClient = HttpUtils.createHttpClient(this, account.name, accountManager.getPassword(account),
+				Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
 		}
-
-		HttpClient mHttpClient = HttpUtils.createHttpClient(this, account.name, accountManager.getPassword(account),
-			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
-		return new RemoteExecutor(mHttpClient, this);
+		return new RemoteExecutor(httpClient, this);
 	}
 
 	private void sendResultToReceiver(int resultCode) {

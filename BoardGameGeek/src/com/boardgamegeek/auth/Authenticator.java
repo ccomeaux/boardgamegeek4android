@@ -71,7 +71,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		final AccountManager am = AccountManager.get(mContext);
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			if (!isPasswordExpired(am, account)) {
+			if (!isPasswordExpired(am, account) && !isSessionExpired(am, account)) {
 				final String authToken = am.getUserData(account, KEY_SESSION_ID);
 				if (!TextUtils.isEmpty(authToken)) {
 					final Bundle result = new Bundle();
@@ -94,8 +94,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	private boolean isPasswordExpired(final AccountManager am, Account account) {
-		String passwordExpiration = am.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY);
-		return !TextUtils.isEmpty(passwordExpiration) && Long.valueOf(passwordExpiration) < System.currentTimeMillis();
+		return isKeyExpired(am, account, Authenticator.KEY_PASSWORD_EXPIRY);
+	}
+
+	private boolean isSessionExpired(final AccountManager am, Account account) {
+		return isKeyExpired(am, account, Authenticator.KEY_SESSION_ID_EXPIRY);
+	}
+
+	private boolean isKeyExpired(final AccountManager am, Account account, String key) {
+		String expiration = am.getUserData(account, key);
+		return !TextUtils.isEmpty(expiration) && Long.valueOf(expiration) < System.currentTimeMillis();
 	}
 
 	@Override
@@ -127,7 +135,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	public static Account getAccount(AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(BggApplication.ACCOUNT_TYPE);
-		if (accounts == null) {
+		if (accounts == null || accounts.length == 0) {
 			LOGW(TAG, "no account!");
 			return null;
 		} else if (accounts.length != 1) {
