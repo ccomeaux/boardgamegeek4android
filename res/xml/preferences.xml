@@ -149,5 +149,13 @@
 			android:positiveButtonText="@string/pref_sync_reset_pos"
 			android:title="@string/pref_sync_reset_plays" />
 	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/pref_advanced" >
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="advancedDebugInsert"
+			android:summaryOff="@string/pref_advanced_debug_inserts_off"
+			android:summaryOn="@string/pref_advanced_debug_inserts_on"
+			android:title="@string/pref_advanced_debug_inserts" />
+	</PreferenceScreen>
 
 </PreferenceScreen>

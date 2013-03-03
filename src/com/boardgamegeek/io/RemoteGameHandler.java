@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.net.Uri;
 
@@ -76,15 +75,14 @@ public class RemoteGameHandler extends RemoteBggHandler {
 				if (!ResolverUtils.rowExists(mResolver, uri)) {
 					values.put(Games.GAME_ID, mGameId);
 					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
-					mBatch.add(0, ContentProviderOperation.newInsert(Games.CONTENT_URI).withValues(values).build());
+					addInsertToTop(Games.CONTENT_URI, values);
 				} else {
 					addUpdate(uri, values);
 				}
 				mCount++;
 				deleteOldChildRecords();
 			}
-			ResolverUtils.applyBatch(mResolver, mBatch);
-			mBatch.clear();
+			processBatch();
 		}
 	}
 

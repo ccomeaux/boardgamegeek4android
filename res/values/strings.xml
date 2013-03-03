@@ -267,6 +267,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- NEW: Option to turn on advanced debugging - please do this if you are experiencing crashes<br/>
 - NEW: Options to set the player order when logging a play<br/>
 - MOD: New look for the about screen<br/>
 - MOD: Option to show password while logging in<br/>

@@ -98,6 +98,10 @@ public class PreferencesUtils {
 		return getBoolean(context, "sync_notifications", false);
 	}
 
+	public static boolean getDebugInserts(Context context) {
+		return getBoolean(context, "advancedDebugInsert", false);
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
