@@ -1,7 +1,7 @@
 package com.boardgamegeek.database;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.Closeable;
@@ -30,13 +30,11 @@ public class ResolverUtils {
 	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
 		if (batch.size() > 0) {
 			try {
-				// TODO: make a debug mode
-				LOGE(TAG, batch.toString());
-				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+					resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 			} catch (RemoteException e) {
 				throw new RuntimeException(e);
 			} catch (OperationApplicationException e) {
-				throw new RuntimeException(batch.toString(), e);
+				throw new RuntimeException(e);
 			}
 		}
 	}
