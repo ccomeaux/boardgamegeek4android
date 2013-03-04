@@ -1,6 +1,5 @@
 package com.boardgamegeek.util;
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -9,6 +8,7 @@ import android.text.TextUtils;
 
 public class CollectionUrlBuilder extends UrlBuilder {
 	private final String mUsername;
+	private int mGameId;
 	private String mStatus;
 	private long mModifiedSince;
 	private boolean mBrief;
@@ -17,6 +17,11 @@ public class CollectionUrlBuilder extends UrlBuilder {
 
 	public CollectionUrlBuilder(String username) {
 		mUsername = username;
+	}
+
+	public CollectionUrlBuilder gameId(int gameId) {
+		mGameId = gameId;
+		return this;
 	}
 
 	public CollectionUrlBuilder status(String status) {
@@ -46,6 +51,9 @@ public class CollectionUrlBuilder extends UrlBuilder {
 
 	public String build() {
 		String url = BASE_URL_2 + "collection?username=" + encode(mUsername);
+		if (mGameId > 0){
+			url += "&id=" + mGameId;
+		}
 		if (!TextUtils.isEmpty(mStatus)) {
 			url += "&" + mStatus.trim() + "=1";
 		}

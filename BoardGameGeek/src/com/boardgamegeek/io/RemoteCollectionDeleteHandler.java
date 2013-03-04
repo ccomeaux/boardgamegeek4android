@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCollectionDeleteHandler extends RemoteBggHandler {
@@ -38,7 +37,7 @@ public class RemoteCollectionDeleteHandler extends RemoteBggHandler {
 	protected void parseItems() throws XmlPullParserException, IOException {
 
 		ContentValues values = new ContentValues();
-		values.put(SyncListColumns.UPDATED_LIST, mStartTime);
+		values.put(Collection.UPDATED_LIST, mStartTime);
 
 		final int depth = mParser.getDepth();
 		int type;
