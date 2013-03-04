@@ -108,7 +108,15 @@ public class BggContract {
 		String STATUS_WISHLIST = "wishlist";
 		String STATUS_WISHLIST_PRIORITY = "wishlist_priority";
 		String STATUS_PREORDERED = "preordered";
+		String COLLECTION_YEAR_PUBLISHED = "collection_year_published";
+		String RATING = "rating";
 		String COMMENT = "comment";
+		String CONDITION = "conditiontext";
+		String WANTPARTS_LIST = "wantpartslist";
+		String HASPARTS_LIST = "haspartslist";
+		String WISHLIST_COMMENT = "wishlistcomment";
+		String COLLECTION_THUMBNAIL_URL = "collection_thumbnail_url";
+		String COLLECTION_IMAGE_URL = "collection_image_url";
 		String LAST_MODIFIED = "last_modified";
 		String PRIVATE_INFO_PRICE_PAID_CURRENCY = "price_paid_currency";
 		String PRIVATE_INFO_PRICE_PAID = "price_paid";

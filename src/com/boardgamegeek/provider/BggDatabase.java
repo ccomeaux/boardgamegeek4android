@@ -57,7 +57,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_CASCADING_DELETE = 11;
 	private static final int VER_IMAGE_CACHE = 12;
 	private static final int VER_GAMES_UPDATED_PLAYS = 13;
-	private static final int DATABASE_VERSION = VER_GAMES_UPDATED_PLAYS;
+	private static final int VER_COLLECTION = 14;
+	private static final int DATABASE_VERSION = VER_COLLECTION;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -315,10 +316,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private TableBuilder buildCollectionTable() {
 		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
-			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER)
-			.addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
-			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, true, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAMES, Games.GAME_ID, true)
+			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.COLLECTION_SORT_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.STATUS_OWN, COLUMN_TYPE.INTEGER, true, 0)
@@ -339,6 +339,13 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.PRIVATE_INFO_ACQUISITION_DATE, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.PRIVATE_INFO_ACQUIRED_FROM, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.PRIVATE_INFO_COMMENT, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.CONDITION, COLUMN_TYPE.TEXT).addColumn(Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.RATING, COLUMN_TYPE.REAL)
+			.addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
 			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
 	}
 
@@ -513,6 +520,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_IMAGE_CACHE:
 				addColumn(db, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER);
 				version = VER_GAMES_UPDATED_PLAYS;
+			case VER_GAMES_UPDATED_PLAYS:
+				buildCollectionTable().replace(db);
+				version = VER_COLLECTION;
 		}
 
 		if (version != DATABASE_VERSION) {

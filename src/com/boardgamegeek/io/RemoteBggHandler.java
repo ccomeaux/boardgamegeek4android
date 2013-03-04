@@ -1,12 +1,18 @@
 package com.boardgamegeek.io;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -26,6 +32,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteBggHandler.class);
+	private static final DateFormat FORMATER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	private final String mAuthority;
 	private Context mContext;
@@ -153,6 +160,24 @@ public abstract class RemoteBggHandler {
 
 	protected int parseIntegerAttribute(String tag, int defaultValue) {
 		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
+	}
+
+	public long parseDateAttribute(String tag) {
+		String dateText = parseStringAttribute(tag);
+		try {
+			final Date date = FORMATER.parse(dateText);
+			return date.getTime();
+		} catch (ParseException e) {
+			LOGE(TAG, "Couldn't parse date", e);
+			return 0;
+		}
+	}
+
+	protected int parseBooleanAttribute(String tag) {
+		if ("1".equals(parseStringAttribute(tag))) {
+			return 1;
+		}
+		return 0;
 	}
 
 	protected void addDelete(Uri uri) {

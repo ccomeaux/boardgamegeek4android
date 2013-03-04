@@ -19,7 +19,6 @@ import android.text.TextUtils;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.SyncListColumns;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -39,8 +38,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	private int mInsertCollectionCount = 0;
 	private int mSkipCollectionCount = 0;
 
-	private String[] mGameProjection = new String[] { SyncListColumns.UPDATED_LIST };
-	private String[] mCollectionProjection = new String[] { SyncListColumns.UPDATED_LIST };
+	private String[] mGameProjection = new String[] { Games.UPDATED_LIST };
+	private String[] mCollectionProjection = new String[] { Collection.UPDATED };
 
 	public RemoteCollectionHandler(long startTime) {
 		super();
@@ -81,8 +80,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
 
-				int gameId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.GAME_ID));
-				int collectionId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.COLLECTION_ID));
+				int gameId = parseIntegerAttribute(Tags.GAME_ID);
+				int collectionId = parseIntegerAttribute(Tags.COLLECTION_ID);
 
 				gameValues.clear();
 				collectionValues.clear();
@@ -131,11 +130,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			cursor = mResolver.query(uri, mGameProjection, null, null, null);
 			if (cursor.moveToFirst()) {
 				long lastUpdated = cursor.getLong(0);
-				if (lastUpdated < mStartTime) {
-					mUpdateGameCount++;
-					maybeDeleteThumbnail(values, uri, Games.THUMBNAIL_URL);
-					addUpdate(uri, values);
-				} else {
+				if (lastUpdated >= mStartTime) {
 					mSkipGameCount++;
 				}
 			} else {
@@ -154,7 +149,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		Cursor cursor = null;
 		try {
 			values.put(Collection.GAME_ID, gameId);
-			values.put(Collection.UPDATED_LIST, System.currentTimeMillis());
+			values.put(Collection.UPDATED, System.currentTimeMillis());
 
 			Uri uri = Collection.buildItemUri(itemId);
 			cursor = mResolver.query(uri, mCollectionProjection, null, null, null);
@@ -193,45 +188,43 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				tag = mParser.getName();
 
 				if (Tags.NAME.equals(tag)) {
-					sortIndex = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.SORT_INDEX), 1);
+					sortIndex = parseIntegerAttribute(Tags.SORT_INDEX, 1);
 				} else if (Tags.STATS.equals(tag)) {
-					gameValues.put(Games.MIN_PLAYERS, mParser.getAttributeValue(null, Tags.MIN_PLAYERS));
-					gameValues.put(Games.MAX_PLAYERS, mParser.getAttributeValue(null, Tags.MAX_PLAYERS));
-					gameValues.put(Games.PLAYING_TIME, mParser.getAttributeValue(null, Tags.PLAYING_TIME));
-					gameValues.put(Games.STATS_NUMBER_OWNED, mParser.getAttributeValue(null, Tags.NUM_OWNED));
+					gameValues.put(Games.MIN_PLAYERS, parseIntegerAttribute(Tags.MIN_PLAYERS));
+					gameValues.put(Games.MAX_PLAYERS, parseIntegerAttribute(Tags.MAX_PLAYERS));
+					gameValues.put(Games.PLAYING_TIME, parseIntegerAttribute(Tags.PLAYING_TIME));
+					gameValues.put(Games.STATS_NUMBER_OWNED, parseIntegerAttribute(Tags.NUM_OWNED));
 				} else if (Tags.STATUS.equals(tag)) {
-					collectionValues.put(Collection.STATUS_OWN, mParser.getAttributeValue(null, Tags.STATUS_OWN));
+					collectionValues.put(Collection.STATUS_OWN, parseBooleanAttribute(Tags.STATUS_OWN));
 					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED,
-						mParser.getAttributeValue(null, Tags.STATUS_PREVIOUSLY_OWNED));
-					collectionValues.put(Collection.STATUS_FOR_TRADE,
-						mParser.getAttributeValue(null, Tags.STATUS_FOR_TRADE));
-					collectionValues.put(Collection.STATUS_WANT, mParser.getAttributeValue(null, Tags.STATUS_WANT));
+						parseBooleanAttribute(Tags.STATUS_PREVIOUSLY_OWNED));
+					collectionValues.put(Collection.STATUS_FOR_TRADE, parseBooleanAttribute(Tags.STATUS_FOR_TRADE));
+					collectionValues.put(Collection.STATUS_WANT, parseBooleanAttribute(Tags.STATUS_WANT));
 					collectionValues.put(Collection.STATUS_WANT_TO_PLAY,
-						mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_PLAY));
-					collectionValues.put(Collection.STATUS_WANT_TO_BUY,
-						mParser.getAttributeValue(null, Tags.STATUS_WANT_TO_BUY));
-					collectionValues.put(Collection.STATUS_WISHLIST,
-						mParser.getAttributeValue(null, Tags.STATUS_WISHLIST));
+						parseBooleanAttribute(Tags.STATUS_WANT_TO_PLAY));
+					collectionValues.put(Collection.STATUS_WANT_TO_BUY, parseBooleanAttribute(Tags.STATUS_WANT_TO_BUY));
+					collectionValues.put(Collection.STATUS_WISHLIST, parseBooleanAttribute(Tags.STATUS_WISHLIST));
 					collectionValues.put(Collection.STATUS_WISHLIST_PRIORITY,
-						mParser.getAttributeValue(null, Tags.STATUS_WISHLIST_PRIORITY));
-					collectionValues.put(Collection.STATUS_PREORDERED,
-						mParser.getAttributeValue(null, Tags.STATUS_PREORDERED));
-					collectionValues.put(Collection.LAST_MODIFIED, mParser.getAttributeValue(null, Tags.LAST_MODIFIED));
+						parseIntegerAttribute(Tags.STATUS_WISHLIST_PRIORITY));
+					collectionValues.put(Collection.STATUS_PREORDERED, parseBooleanAttribute(Tags.STATUS_PREORDERED));
+					collectionValues.put(Collection.LAST_MODIFIED, parseDateAttribute(Tags.LAST_MODIFIED));
+				} else if (Tags.RATING.equals(tag)) {
+					collectionValues.put(Collection.RATING, parseDoubleAttribute(Tags.VALUE));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
+						parseStringAttribute(Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID,
-						getAttributeAsDouble(Tags.PRIVATE_INFO_PRICE_PAID));
+						parseDoubleAttribute(Tags.PRIVATE_INFO_PRICE_PAID));
 					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
-						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY));
+						parseStringAttribute(Tags.PRIVATE_INFO_CURRENT_VALUE_CURRENCY));
 					collectionValues.put(Collection.PRIVATE_INFO_CURRENT_VALUE,
-						getAttributeAsDouble(Tags.PRIVATE_INFO_CURRENT_VALUE));
+						parseDoubleAttribute(Tags.PRIVATE_INFO_CURRENT_VALUE));
 					collectionValues.put(Collection.PRIVATE_INFO_QUANTITY,
-						getAttributeAsInteger(Tags.PRIVATE_INFO_QUANTITY));
+						parseIntegerAttribute(Tags.PRIVATE_INFO_QUANTITY));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUISITION_DATE,
-						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUISITION_DATE));
+						parseStringAttribute(Tags.PRIVATE_INFO_ACQUISITION_DATE));
 					collectionValues.put(Collection.PRIVATE_INFO_ACQUIRED_FROM,
-						mParser.getAttributeValue(null, Tags.PRIVATE_INFO_ACQUIRED_FROM));
+						parseStringAttribute(Tags.PRIVATE_INFO_ACQUIRED_FROM));
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -247,37 +240,32 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				} else if (Tags.ORIGINAL_NAME.equals(tag)) {
 					gameValues.put(Games.GAME_NAME, text);
 				} else if (Tags.YEAR_PUBLISHED.equals(tag)) {
-					gameValues.put(Games.YEAR_PUBLISHED, text);
+					int year = StringUtils.parseInt(text);
+					collectionValues.put(Collection.COLLECTION_YEAR_PUBLISHED, year);
+					gameValues.put(Games.YEAR_PUBLISHED, year);
 				} else if (Tags.IMAGE.equals(tag)) {
+					collectionValues.put(Collection.COLLECTION_IMAGE_URL, text);
 					gameValues.put(Games.IMAGE_URL, text);
 				} else if (Tags.THUMBNAIL.equals(tag)) {
+					collectionValues.put(Collection.COLLECTION_THUMBNAIL_URL, text);
 					gameValues.put(Games.THUMBNAIL_URL, text);
 				} else if (Tags.NUM_PLAYS.equals(tag)) {
-					gameValues.put(Games.NUM_PLAYS,
-						StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_PLAYS)));
+					gameValues.put(Games.NUM_PLAYS, parseIntegerAttribute(Tags.NUM_PLAYS));
 				} else if (Tags.COMMENT.equals(tag)) {
 					collectionValues.put(Collection.COMMENT, text);
+				} else if (Tags.CONDITION.equals(tag)) {
+					collectionValues.put(Collection.CONDITION, text);
+				} else if (Tags.HASPARTS_LIST.equals(tag)) {
+					collectionValues.put(Collection.HASPARTS_LIST, text);
+				} else if (Tags.WANTPARTS_LIST.equals(tag)) {
+					collectionValues.put(Collection.WANTPARTS_LIST, text);
+				} else if (Tags.WISHLIST_COMMENT.equals(tag)) {
+					collectionValues.put(Collection.WISHLIST_COMMENT, text);
 				} else if (Tags.PRIVATE_INFO_COMMENT.equals(tag)) {
 					collectionValues.put(Collection.PRIVATE_INFO_COMMENT, text);
 				}
 			}
 		}
-	}
-
-	private Integer getAttributeAsInteger(String tag) {
-		String av = mParser.getAttributeValue(null, tag);
-		if (TextUtils.isEmpty(av)) {
-			return null;
-		}
-		return Integer.valueOf(av);
-	}
-
-	private Double getAttributeAsDouble(String tag) {
-		String av = mParser.getAttributeValue(null, tag);
-		if (TextUtils.isEmpty(av)) {
-			return null;
-		}
-		return Double.valueOf(av);
 	}
 
 	private interface Tags {
@@ -297,6 +285,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		String MAX_PLAYERS = "maxplayers";
 		String PLAYING_TIME = "playingtime";
 		String NUM_OWNED = "numowned";
+		String RATING = "rating";
+		String VALUE = "value";
 
 		String STATUS = "status";
 		String STATUS_OWN = "own";
@@ -324,5 +314,9 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		String PRIVATE_INFO_COMMENT = "privatecomment";
 
 		String COMMENT = "comment";
+		String CONDITION = "conditiontext";
+		String WANTPARTS_LIST = "wantpartslist";
+		String HASPARTS_LIST = "haspartslist";
+		String WISHLIST_COMMENT = "wishlistcomment";
 	}
 }
