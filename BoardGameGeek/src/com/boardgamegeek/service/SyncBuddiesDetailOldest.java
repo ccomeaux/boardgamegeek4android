@@ -26,7 +26,7 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
 		XmlPullParserException {
-		LOGI(TAG, "Syncing full collection list...");
+		LOGI(TAG, "Syncing oldest buddies...");
 		try {
 			if (!PreferencesUtils.getSyncBuddies(executor.getContext())) {
 				LOGI(TAG, "...buddies not set to sync");

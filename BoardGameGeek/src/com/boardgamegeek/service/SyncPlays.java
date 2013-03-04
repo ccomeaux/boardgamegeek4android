@@ -22,6 +22,7 @@ import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.PlaysUrlBuilder;
+import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
@@ -35,6 +36,11 @@ public class SyncPlays extends SyncTask {
 		XmlPullParserException {
 		LOGI(TAG, "Syncing plays...");
 		try {
+			if (!PreferencesUtils.getSyncPlays(executor.getContext())) {
+				LOGI(TAG, "...plays not set to sync");
+				return;
+			}
+
 			mExecutor = executor;
 			mContext = executor.getContext();
 			mStartTime = System.currentTimeMillis();
