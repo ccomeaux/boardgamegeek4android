@@ -149,7 +149,9 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		Cursor cursor = null;
 		try {
 			values.put(Collection.GAME_ID, gameId);
+			// TODO - figure out why we need 2 of these!
 			values.put(Collection.UPDATED, System.currentTimeMillis());
+			values.put(Collection.UPDATED_LIST, System.currentTimeMillis());
 
 			Uri uri = Collection.buildItemUri(itemId);
 			cursor = mResolver.query(uri, mCollectionProjection, null, null, null);
