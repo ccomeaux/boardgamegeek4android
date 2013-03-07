@@ -2,6 +2,7 @@ package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -11,6 +12,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdPollsNameResultsProvider extends BaseProvider {
@@ -67,9 +69,15 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 		}
 		values.put(GamePollResults.POLL_RESULTS_KEY, key);
 
-		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values) != -1) {
-			return Games
-				.buildPollResultsUri(gameId, pollName, values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+		try {
+			if (db.insertOrThrow(Tables.GAME_POLL_RESULTS, null, values) != -1) {
+				return Games.buildPollResultsUri(gameId, pollName,
+					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+			}
+		} catch (SQLException e) {
+			if (PreferencesUtils.getNotifyErrors(context)) {
+				notifyException(context, e);
+			}
 		}
 		return null;
 	}

@@ -2,6 +2,7 @@ package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -11,6 +12,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
@@ -78,10 +80,15 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		}
 		values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key);
 
-		// TODO: threw a SQLiteConstraintException while syncing Dominion Dark Ages (125403)
-		if (db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values) != -1) {
-			return Games.buildPollResultsResultUri(gameId, pollName, players,
-				values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+		try {
+			if (db.insertOrThrow(Tables.GAME_POLL_RESULTS_RESULT, null, values) != -1) {
+				return Games.buildPollResultsResultUri(gameId, pollName, players,
+					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
+			}
+		} catch (SQLException e) {
+			if (PreferencesUtils.getNotifyErrors(context)) {
+				notifyException(context, e);
+			}
 		}
 		return null;
 	}

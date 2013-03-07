@@ -106,6 +106,10 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedPolls", true);
 	}
 
+	public static boolean getNotifyErrors(Context context) {
+		return getBoolean(context, "advancedNotifyErrors", false);
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);

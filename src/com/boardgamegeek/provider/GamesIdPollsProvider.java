@@ -2,12 +2,14 @@ package com.boardgamegeek.provider;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesIdPollsProvider extends BaseProvider {
@@ -38,8 +40,14 @@ public class GamesIdPollsProvider extends BaseProvider {
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		int gameId = Games.getGameId(uri);
 		values.put(GamePolls.GAME_ID, gameId);
-		if (db.insertOrThrow(TABLE, null, values) != -1) {
-			return Games.buildPollsUri(gameId, values.getAsString(GamePolls.POLL_NAME));
+		try {
+			if (db.insertOrThrow(TABLE, null, values) != -1) {
+				return Games.buildPollsUri(gameId, values.getAsString(GamePolls.POLL_NAME));
+			}
+		} catch (SQLException e) {
+			if (PreferencesUtils.getNotifyErrors(context)) {
+				notifyException(context, e);
+			}
 		}
 		return null;
 	}

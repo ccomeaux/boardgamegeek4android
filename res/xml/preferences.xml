@@ -162,6 +162,12 @@
 			android:summaryOff="@string/pref_advanced_polls_off"
 			android:summaryOn="@string/pref_advanced_polls_on"
 			android:title="@string/pref_advanced_polls" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="advancedNotifyErrors"
+			android:summaryOff="@string/pref_advanced_notify_errors_off"
+			android:summaryOn="@string/pref_advanced_notify_errors_on"
+			android:title="@string/pref_advanced_notify_errors" />
 	</PreferenceScreen>
 
 </PreferenceScreen>
