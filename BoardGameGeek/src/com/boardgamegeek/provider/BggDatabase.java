@@ -521,6 +521,14 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.GAMES, Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER);
 				version = VER_GAMES_UPDATED_PLAYS;
 			case VER_GAMES_UPDATED_PLAYS:
+				addColumn(db, Tables.COLLECTION, Collection.CONDITION, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.COLLECTION, Collection.HASPARTS_LIST, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.COLLECTION, Collection.WANTPARTS_LIST, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.COLLECTION, Collection.WISHLIST_COMMENT, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_YEAR_PUBLISHED, COLUMN_TYPE.INTEGER);
+				addColumn(db, Tables.COLLECTION, Collection.RATING, COLUMN_TYPE.REAL);
+				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT);
+				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT);
 				buildCollectionTable().replace(db);
 				version = VER_COLLECTION;
 		}
