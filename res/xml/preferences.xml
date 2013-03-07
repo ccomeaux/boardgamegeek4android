@@ -156,6 +156,12 @@
 			android:summaryOff="@string/pref_advanced_debug_inserts_off"
 			android:summaryOn="@string/pref_advanced_debug_inserts_on"
 			android:title="@string/pref_advanced_debug_inserts" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="advancedPolls"
+			android:summaryOff="@string/pref_advanced_polls_off"
+			android:summaryOn="@string/pref_advanced_polls_on"
+			android:title="@string/pref_advanced_polls" />
 	</PreferenceScreen>
 
 </PreferenceScreen>

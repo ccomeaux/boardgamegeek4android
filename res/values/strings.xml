@@ -31,8 +31,7 @@
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
 	<string name="logPlayDialogMessage">Logging play…</string>
-	<string name="logInError">Unable to log in, please verify your username and
-		password are correct.</string>
+	<string name="logInError">Unable to log in, please verify your username and password are correct.</string>
 	<string name="logInErrorSuffixNoResponse">no response</string>
 	<string name="logInErrorSuffixBadResponse">received a bad response</string>
 	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
@@ -86,8 +85,7 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
-	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all
-		of your changes.</string>
+	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
@@ -147,13 +145,10 @@
 	<string name="search_label">BoardGameGeek</string>
 	<string name="search_hint">Search collection</string>
 	<string name="search_settings_description">Games in collection</string>
-	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for
-		maintenance. Please try again later.</string>
+	<string name="bgg_down">Sorry, but it appears BoardGameGeek.com is down for maintenance. Please try again later.</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="search_results">%1$s matches for \"%2$s\"</string>
-	<string name="empty_search">No results.\n\nThe search function doesn\'t like
-		some common words. Try again, dropping \"the\", \"a\", and \"of\",
-		etc.</string>
+	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
 	<string name="search_error_no_text">Search performed with no search text.</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
 	<string name="search_error_bad_intent">Received bad intent action: </string>
@@ -222,8 +217,7 @@
 	<string name="msg_saved">Saved!</string>
 	<string name="share_title">Share Game</string>
 	<string name="share_subject">%s on BoardGameGeek</string>
-	<string name="share_text">I found this game using BoardGameGeek on Android
-		that I thought you might like:\n\n%1$s (%2$s)</string>
+	<string name="share_text">I found this game using BoardGameGeek on Android that I thought you might like:\n\n%1$s (%2$s)</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_play_played">Played</string>
 	<string name="times">times</string>
@@ -284,19 +278,12 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 ]]>
 	</string>
 	<string name="help_title">Help</string>
-	<string name="help_boardgame">Be sure to check out the options available from the
-		menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut
-		on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll
-		information\n\nThe image thumbnail can be clicked to view a larger version</string>
-	<string name="help_collection">Got lots of games? Click the Menu button to filter
-		your collection and choose a random game from this list.\n\nYou can
-		also long-click on a game for more options.</string>
+	<string name="help_home">If you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
+	<string name="help_collection">Got lots of games? Click the Menu button to filter your collection and choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
-	<string name="help_logplay">Too many fields? Check out the settings for ways to
-		customize this form.</string>
-	<string name="help_colors">As you log plays, the teams and colors you enter
-		appear here and will be available the next time you log a game. Long press on an
-		entry here to delete it.</string>
+	<string name="help_logplay">Too many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_colors">As you log plays, the teams and colors you enter appear here and will be available the next time you log a game. Long press on an entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
 	<string name="forum_last_post">Last post: %s</string>

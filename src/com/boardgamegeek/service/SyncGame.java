@@ -7,6 +7,7 @@ import android.content.Context;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.util.GameUrlBuilder;
+import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncGame extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGame.class);
@@ -19,7 +20,9 @@ public class SyncGame extends UpdateTask {
 	@Override
 	public void execute(RemoteExecutor executor, Context context) {
 		RemoteGameHandler handler = new RemoteGameHandler();
-		handler.setParsePolls();
+		if (PreferencesUtils.getPolls(context)) {
+			handler.setParsePolls();
+		}
 		String url = new GameUrlBuilder(mGameId).stats().build();
 		executor.safelyExecuteGet(url, handler);
 		LOGI(TAG, "Synced Game " + mGameId);

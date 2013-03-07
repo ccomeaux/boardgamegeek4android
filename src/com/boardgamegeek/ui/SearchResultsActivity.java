@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends BaseActivity implements SearchResultsFragment.Callbacks {
@@ -33,7 +33,7 @@ public class SearchResultsActivity extends BaseActivity implements SearchResults
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
 
-		UIUtils.showHelpDialog(this, BggApplication.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override

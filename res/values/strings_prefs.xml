@@ -57,5 +57,8 @@
 	<string name="pref_advanced_debug_inserts">Debug inserts</string>
 	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not crashing</string>
 	<string name="pref_advanced_debug_inserts_on">Next time the app crashes, please send a report. Thanks for helping us debug!</string>
+	<string name="pref_advanced_polls">Polls</string>
+	<string name="pref_advanced_polls_off">Polls will no longer work, but hopefully the crashes will stop</string>
+	<string name="pref_advanced_polls_on">Leave this on if you\'re not crashing</string>
 
 </resources>

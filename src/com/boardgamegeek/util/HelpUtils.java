@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -23,7 +25,24 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 
 public class HelpUtils {
+	public static final String HELP_HOME_KEY = "help.home";
+	public static final String HELP_COLLECTION_KEY = "help.collection";
+	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
+	public static final String HELP_LOGPLAY_KEY = "help.logplay";
+	public static final String HELP_COLORS_KEY = "help.colors";
+
 	private static final String FRAGMENT_TAG = "dialog_about";
+
+	public static boolean showHelp(Context context, String key, int version) {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		final int shownVersion = preferences.getInt(key, 0);
+		return version > shownVersion;
+	}
+
+	public static boolean updateHelp(Context context, String key, int version) {
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return preferences.edit().putInt(key, version).commit();
+	}
 
 	@SuppressLint("CommitTransaction")
 	public static void showAboutDialog(FragmentActivity activity) {
