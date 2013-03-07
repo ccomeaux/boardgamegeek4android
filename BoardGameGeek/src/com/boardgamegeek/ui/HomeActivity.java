@@ -15,9 +15,11 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
+	private static final int HELP_VERSION = 1;
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 
@@ -26,6 +28,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_HOME_KEY, HELP_VERSION, R.string.help_home);
 	}
 
 	@Override

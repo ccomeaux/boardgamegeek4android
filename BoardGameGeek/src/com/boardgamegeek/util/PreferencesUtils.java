@@ -102,6 +102,10 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
 
+	public static boolean getPolls(Context context) {
+		return getBoolean(context, "advancedPolls", true);
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);

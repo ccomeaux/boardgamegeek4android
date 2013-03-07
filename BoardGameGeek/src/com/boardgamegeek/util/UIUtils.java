@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 
 public class UIUtils {
@@ -43,7 +42,8 @@ public class UIUtils {
 		return mRandom;
 	}
 
-	public static void createBoardgameContextMenu(Context context, ContextMenu menu, ContextMenuInfo menuInfo, String gameName) {
+	public static void createBoardgameContextMenu(Context context, ContextMenu menu, ContextMenuInfo menuInfo,
+		String gameName) {
 		// Setup the menu header
 		menu.setHeaderTitle(gameName);
 
@@ -58,15 +58,15 @@ public class UIUtils {
 		menu.add(0, MENU_ITEM_LINK_BGG, 0, R.string.menu_link_bgg);
 	}
 
-	public static void showHelpDialog(Context context, final String key, final int version, int messageId) {
-		if (BggApplication.getInstance().showHelp(key, version)) {
+	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
+		if (HelpUtils.showHelp(context, key, version)) {
 			Builder builder = new Builder(context);
 			builder.setTitle(R.string.help_title).setCancelable(false).setIcon(android.R.drawable.ic_dialog_info)
 				.setMessage(messageId).setPositiveButton(R.string.help_button_close, null)
 				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						BggApplication.getInstance().updateHelp(key, version);
+						HelpUtils.updateHelp(context, key, version);
 					}
 				});
 			builder.create().show();

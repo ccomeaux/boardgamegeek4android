@@ -9,10 +9,10 @@ import android.support.v4.app.Fragment;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends SimpleSinglePaneActivity implements CollectionFragment.Callbacks {
@@ -35,7 +35,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 			actionBar.setTitle(R.string.menu_create_shortcut);
 		}
 
-		UIUtils.showHelpDialog(this, BggApplication.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
 	@Override
