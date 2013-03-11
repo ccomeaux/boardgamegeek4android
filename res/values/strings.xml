@@ -261,8 +261,6 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
-- NEW: Option to disable capturing poll information to prevent crashes<br/>
-- NEW: Option to show crash errors when polls are on - this will help the developers to track down the crashes<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
