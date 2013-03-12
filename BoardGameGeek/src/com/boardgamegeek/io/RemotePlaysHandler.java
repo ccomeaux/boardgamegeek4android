@@ -22,7 +22,6 @@ import android.text.TextUtils;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
-import com.boardgamegeek.util.StringUtils;
 
 public class RemotePlaysHandler extends RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemotePlaysHandler.class);
@@ -103,33 +102,31 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 					String tag = mParser.getName();
 
 					if (Tags.PLAY.equals(tag)) {
-						date = mParser.getAttributeValue(null, Tags.DATE);
-
 						mPlay = new Play();
-						mPlay.PlayId = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
-						mPlay.setDate(date);
-						mPlay.Quantity = Integer.valueOf(mParser.getAttributeValue(null, Tags.QUANTITY));
-						mPlay.Length = Integer.valueOf(mParser.getAttributeValue(null, Tags.LENGTH));
-						mPlay.Incomplete = !"0".equals(mParser.getAttributeValue(null, Tags.INCOMPLETE));
-						mPlay.NoWinStats = !"0".equals(mParser.getAttributeValue(null, Tags.NO_WIN_STATS));
-						mPlay.Location = mParser.getAttributeValue(null, Tags.LOCATION);
+						mPlay.PlayId = parseIntegerAttribute(Tags.ID);
+						mPlay.setDate(parseStringAttribute(Tags.DATE));
+						mPlay.Quantity = parseIntegerAttribute(Tags.QUANTITY);
+						mPlay.Length = parseIntegerAttribute(Tags.LENGTH);
+						mPlay.Incomplete = parseBooleanAttribute(Tags.INCOMPLETE);
+						mPlay.NoWinStats = parseBooleanAttribute(Tags.NO_WIN_STATS);
+						mPlay.Location = parseStringAttribute(Tags.LOCATION);
 						mPlay.Updated = System.currentTimeMillis();
 					} else if (Tags.ITEM.equals(tag)) {
-						mPlay.GameId = Integer.valueOf(mParser.getAttributeValue(null, Tags.OBJECT_ID));
-						mPlay.GameName = mParser.getAttributeValue(null, Tags.NAME);
+						mPlay.GameId = parseIntegerAttribute(Tags.OBJECT_ID);
+						mPlay.GameName = parseStringAttribute(Tags.NAME);
 					} else if (Tags.COMMENTS.equals(tag)) {
 						isComments = true;
 					} else if (Tags.PLAYER.equals(tag)) {
 						Player player = new Player();
-						player.UserId = Integer.valueOf(mParser.getAttributeValue(null, Tags.USERID));
-						player.Username = mParser.getAttributeValue(null, Tags.USERNAME);
-						player.Name = mParser.getAttributeValue(null, Tags.NAME);
-						player.setStartingPosition(mParser.getAttributeValue(null, Tags.STARTPOSITION));
-						player.TeamColor = mParser.getAttributeValue(null, Tags.COLOR);
-						player.Score = mParser.getAttributeValue(null, Tags.SCORE);
-						player.New = "1".equals(mParser.getAttributeValue(null, Tags.NEW));
-						player.Rating = Double.valueOf(mParser.getAttributeValue(null, Tags.RATING));
-						player.Win = "1".equals(mParser.getAttributeValue(null, Tags.WIN));
+						player.UserId = parseIntegerAttribute(Tags.USERID);
+						player.Username = parseStringAttribute(Tags.USERNAME);
+						player.Name = parseStringAttribute(Tags.NAME);
+						player.setStartingPosition(parseStringAttribute(Tags.STARTPOSITION));
+						player.TeamColor = parseStringAttribute(Tags.COLOR);
+						player.Score = parseStringAttribute(Tags.SCORE);
+						player.New = parseBooleanAttribute(Tags.NEW);
+						player.Rating = parseDoubleAttribute(Tags.RATING);
+						player.Win = parseBooleanAttribute(Tags.WIN);
 						mPlay.addPlayer(player);
 					}
 				} else if (type == TEXT) {
