@@ -197,18 +197,22 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					gameValues.put(Games.PLAYING_TIME, parseIntegerAttribute(Tags.PLAYING_TIME));
 					gameValues.put(Games.STATS_NUMBER_OWNED, parseIntegerAttribute(Tags.NUM_OWNED));
 				} else if (Tags.STATUS.equals(tag)) {
-					collectionValues.put(Collection.STATUS_OWN, parseBooleanAttribute(Tags.STATUS_OWN));
+					collectionValues.put(Collection.STATUS_OWN, parseBooleanAttributeAsInteger(Tags.STATUS_OWN));
 					collectionValues.put(Collection.STATUS_PREVIOUSLY_OWNED,
-						parseBooleanAttribute(Tags.STATUS_PREVIOUSLY_OWNED));
-					collectionValues.put(Collection.STATUS_FOR_TRADE, parseBooleanAttribute(Tags.STATUS_FOR_TRADE));
-					collectionValues.put(Collection.STATUS_WANT, parseBooleanAttribute(Tags.STATUS_WANT));
+						parseBooleanAttributeAsInteger(Tags.STATUS_PREVIOUSLY_OWNED));
+					collectionValues.put(Collection.STATUS_FOR_TRADE,
+						parseBooleanAttributeAsInteger(Tags.STATUS_FOR_TRADE));
+					collectionValues.put(Collection.STATUS_WANT, parseBooleanAttributeAsInteger(Tags.STATUS_WANT));
 					collectionValues.put(Collection.STATUS_WANT_TO_PLAY,
-						parseBooleanAttribute(Tags.STATUS_WANT_TO_PLAY));
-					collectionValues.put(Collection.STATUS_WANT_TO_BUY, parseBooleanAttribute(Tags.STATUS_WANT_TO_BUY));
-					collectionValues.put(Collection.STATUS_WISHLIST, parseBooleanAttribute(Tags.STATUS_WISHLIST));
+						parseBooleanAttributeAsInteger(Tags.STATUS_WANT_TO_PLAY));
+					collectionValues.put(Collection.STATUS_WANT_TO_BUY,
+						parseBooleanAttributeAsInteger(Tags.STATUS_WANT_TO_BUY));
+					collectionValues.put(Collection.STATUS_WISHLIST,
+						parseBooleanAttributeAsInteger(Tags.STATUS_WISHLIST));
 					collectionValues.put(Collection.STATUS_WISHLIST_PRIORITY,
 						parseIntegerAttribute(Tags.STATUS_WISHLIST_PRIORITY));
-					collectionValues.put(Collection.STATUS_PREORDERED, parseBooleanAttribute(Tags.STATUS_PREORDERED));
+					collectionValues.put(Collection.STATUS_PREORDERED,
+						parseBooleanAttributeAsInteger(Tags.STATUS_PREORDERED));
 					collectionValues.put(Collection.LAST_MODIFIED, parseDateAttribute(Tags.LAST_MODIFIED));
 				} else if (Tags.RATING.equals(tag)) {
 					collectionValues.put(Collection.RATING, parseDoubleAttribute(Tags.VALUE));

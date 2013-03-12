@@ -147,7 +147,11 @@ public abstract class RemoteBggHandler {
 	protected abstract void parseItems() throws XmlPullParserException, IOException;
 
 	protected String parseStringAttribute(String tag) {
-		return mParser.getAttributeValue(null, tag);
+		String s = mParser.getAttributeValue(null, tag);
+		if (s != null) {
+			s = s.trim();
+		}
+		return s;
 	}
 
 	protected double parseDoubleAttribute(String tag) {
@@ -173,11 +177,12 @@ public abstract class RemoteBggHandler {
 		}
 	}
 
-	protected int parseBooleanAttribute(String tag) {
-		if ("1".equals(parseStringAttribute(tag))) {
-			return 1;
-		}
-		return 0;
+	protected boolean parseBooleanAttribute(String tag) {
+		return "1".equals(parseStringAttribute(tag));
+	}
+
+	protected int parseBooleanAttributeAsInteger(String tag) {
+		return parseBooleanAttribute(tag) ? 1 : 0;
 	}
 
 	protected void addDelete(Uri uri) {
