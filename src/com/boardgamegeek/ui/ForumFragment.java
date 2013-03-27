@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,14 +12,12 @@ import org.apache.http.client.HttpClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -27,7 +26,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumHandler;
@@ -37,17 +35,13 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ForumFragment extends SherlockListFragment implements OnScrollListener,
+public class ForumFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<ForumThread>> {
 	private static final String TAG = makeLogTag(ForumFragment.class);
 	private static final int FORUM_LOADER_ID = 0;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
 
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private ForumAdapter mForumAdapter = new ForumAdapter();
-	private int mListViewStatePosition;
-	private int mListViewStateTop;
 	private String mForumId;
 	private String mForumTitle;
 	private int mGameId;
@@ -67,44 +61,23 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, -1);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, 0);
-		} else {
-			mListViewStatePosition = -1;
-			mListViewStateTop = 0;
-		}
-		return super.onCreateView(inflater, container, savedInstanceState);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		final ListView listView = getListView();
+		listView.setOnScrollListener(this);
+		listView.setFastScrollEnabled(true);
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_forum));
+	public void onResume() {
+		super.onResume();
+		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
-		listView.setFastScrollEnabled(true);
-		listView.setCacheColorHint(Color.WHITE);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		if (isAdded()) {
-			View v = getListView().getChildAt(0);
-			int top = (v == null) ? 0 : v.getTop();
-			outState.putInt(STATE_POSITION, getListView().getFirstVisiblePosition());
-			outState.putInt(STATE_TOP, top);
-		}
-		super.onSaveInstanceState(outState);
+	protected int getEmptyStringResoure() {
+		return R.string.empty_forum;
 	}
 
 	public void refresh(boolean forceRefresh) {
@@ -175,11 +148,7 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			mThreads = threads;
 		}
 		mForumAdapter.notifyDataSetChanged();
-
-		if (mListViewStatePosition != -1 && isAdded()) {
-			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
-			mListViewStatePosition = -1;
-		}
+		restoreScrollState();
 	}
 
 	@Override
@@ -215,7 +184,7 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	}
 
 	private static class ForumLoader extends AsyncTaskLoader<List<ForumThread>> {
-		private static final int PAGE_SIZE = 100;
+		private static final int PAGE_SIZE = 50;
 		private String mForumId;
 		private List<ForumThread> mData;
 		private int mNextPage;
@@ -390,6 +359,8 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 	}
 
 	private static class ThreadRowViewBinder {
+		private static NumberFormat mFormat = NumberFormat.getInstance();
+
 		public static class ViewHolder {
 			public String threadId;
 			public TextView subject;
@@ -426,7 +397,8 @@ public class ForumFragment extends SherlockListFragment implements OnScrollListe
 			holder.subject.setText(thread.subject);
 			holder.author.setText(String.format(mAuthorText, thread.author));
 			int replies = thread.numberOfArticles - 1;
-			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies, replies));
+			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies,
+				mFormat.format(replies)));
 			holder.lastpostdate.setText(String.format(mLastPostText,
 				DateUtils.getRelativeTimeSpanString(thread.lastPostDate)));
 			holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(thread.postPate)));

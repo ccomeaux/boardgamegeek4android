@@ -34,11 +34,6 @@ public class RemoteForumHandler extends RemoteBggHandler {
 	}
 
 	@Override
-	public int getCount() {
-		return mThreads.size();
-	}
-
-	@Override
 	protected String getRootNodeName() {
 		return Tags.FORUM;
 	}
