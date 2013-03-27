@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumsHandler;
@@ -38,7 +37,7 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ForumsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
+public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
 	private static final String TAG = makeLogTag(ForumsFragment.class);
 	private static final int FORUMS_LOADER_ID = 0;
 	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
@@ -62,19 +61,15 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_forums));
+	public void onResume() {
+		super.onResume();
+		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-
-		final ListView listView = getListView();
-		listView.setCacheColorHint(Color.WHITE);
+	protected int getEmptyStringResoure() {
+		return R.string.empty_forums;
 	}
 
 	@Override
@@ -99,6 +94,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 			} else {
 				setListShownNoAnimation(true);
 			}
+			restoreScrollState();
 		}
 	}
 
@@ -207,6 +203,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 		private LayoutInflater mInflater;
 		private Resources mResources;
 		private String mLastPostText;
+		private NumberFormat mFormat = NumberFormat.getInstance();
 
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
 			super(activity, R.layout.row_forum, forums);
@@ -236,7 +233,7 @@ public class ForumsFragment extends SherlockListFragment implements LoaderManage
 				holder.forumId = forum.id;
 				holder.forumTitle.setText(forum.title);
 				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads,
-					forum.numberOfThreads));
+					mFormat.format(forum.numberOfThreads)));
 				holder.lastPost.setText(String.format(mLastPostText,
 					DateUtils.getRelativeTimeSpanString(forum.lastPostDate)));
 				holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
