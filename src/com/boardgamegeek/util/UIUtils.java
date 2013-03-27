@@ -152,10 +152,17 @@ public class UIUtils {
 			return;
 		}
 		if (text.contains("<") && text.contains(">")) {
-			// remove extra BRs that add unnecessary white space at the end
-			while (text.length() > 5 && text.endsWith("<br/>")) {
-				text = text.substring(0, text.length() - 5);
-			}
+			// Fix up problematic HTML
+			// replace DIVs with BR
+			text = text.replaceAll("[<]div[^>]*[>]", "");
+			text = text.replaceAll("[<]/div[>]", "<br/>");
+			// remove all P tags
+			text = text.replaceAll("[<](/)?p[>]", "");
+			// remove trailing BRs
+			text = text.replaceAll("(<br\\s?/>)+$", "");
+			// replace multiple BRs with single
+			text = text.replaceAll("(<br\\s?/>){2,}", "<br/>");
+
 			Spanned spanned = Html.fromHtml(text);
 			view.setText(spanned);
 			view.setMovementMethod(LinkMovementMethod.getInstance());
