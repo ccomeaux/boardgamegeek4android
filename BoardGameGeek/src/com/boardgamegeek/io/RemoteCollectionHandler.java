@@ -87,8 +87,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				collectionValues.clear();
 				parseItem(gameValues, collectionValues);
 
-				insertOrUpdateGame(gameId, gameValues);
-				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues);
+				boolean yield = insertOrUpdateGame(gameId, gameValues);
+				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues, !yield);
 
 				batchCount++;
 				if (batchCount >= BATCH_SIZE) {
@@ -121,7 +121,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		}
 	}
 
-	private void insertOrUpdateGame(int gameId, ContentValues values) {
+	private boolean insertOrUpdateGame(int gameId, ContentValues values) {
 		Cursor cursor = null;
 		try {
 			values.put(Games.UPDATED_LIST, System.currentTimeMillis());
@@ -136,8 +136,10 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			} else {
 				mInsertGameCount++;
 				values.put(Games.GAME_ID, gameId);
-				addInsert(Games.CONTENT_URI, values);
+				addInsert(Games.CONTENT_URI, values, true);
+				return true;
 			}
+			return false;
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
@@ -145,7 +147,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		}
 	}
 
-	private void insertOrUpdateCollectionItem(int itemId, int gameId, ContentValues values) {
+	private void insertOrUpdateCollectionItem(int itemId, int gameId, ContentValues values, boolean yieldAllowed) {
 		Cursor cursor = null;
 		try {
 			values.put(Collection.GAME_ID, gameId);
@@ -159,15 +161,15 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				long lastUpdated = cursor.getLong(0);
 				if (lastUpdated < mStartTime) {
 					mUpdateCollectionCount++;
+					addUpdate(uri, values, yieldAllowed);
 					maybeDeleteThumbnail(values, uri, Collection.THUMBNAIL_URL);
-					addUpdate(uri, values);
 				} else {
 					mSkipCollectionCount++;
 				}
 			} else {
 				mInsertCollectionCount++;
 				values.put(Collection.COLLECTION_ID, itemId);
-				addInsert(Collection.CONTENT_URI, values);
+				addInsert(Collection.CONTENT_URI, values, yieldAllowed);
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {

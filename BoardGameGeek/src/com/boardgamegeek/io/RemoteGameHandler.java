@@ -77,7 +77,7 @@ public class RemoteGameHandler extends RemoteBggHandler {
 					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
 					addInsertToTop(Games.CONTENT_URI, values);
 				} else {
-					addUpdate(uri, values);
+					addUpdateToTop(uri, values);
 				}
 				mCount++;
 				deleteOldChildRecords();
