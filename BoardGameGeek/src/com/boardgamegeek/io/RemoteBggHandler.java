@@ -69,10 +69,6 @@ public abstract class RemoteBggHandler {
 		return mCount;
 	}
 
-	public int getTotalCount() {
-		return mCount;
-	}
-
 	protected void clearResults() {
 	}
 
