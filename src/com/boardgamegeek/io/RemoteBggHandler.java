@@ -40,7 +40,7 @@ public abstract class RemoteBggHandler {
 	protected ContentResolver mResolver;
 	protected ArrayList<ContentProviderOperation> mBatch;
 	private String mErrorMessage;
-	private int mTotalCount;
+	private int mCount;
 	private int mPageNumber;
 	private boolean mDebug = false;
 	private ArrayList<Insert> mInserts;
@@ -65,10 +65,12 @@ public abstract class RemoteBggHandler {
 		mErrorMessage = message;
 	}
 
-	public abstract int getCount();
+	public int getCount() {
+		return mCount;
+	}
 
 	public int getTotalCount() {
-		return mTotalCount;
+		return mCount;
 	}
 
 	protected void clearResults() {
@@ -112,10 +114,10 @@ public abstract class RemoteBggHandler {
 			if (type == START_TAG) {
 				String name = mParser.getName();
 				if (getRootNodeName().equals(name)) {
-					mTotalCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
+					mCount = StringUtils.parseInt(parser.getAttributeValue(null, getTotalCountAttributeName()));
 					mPageNumber = StringUtils.parseInt(parser.getAttributeValue(null, getPageNumberAttributeName()));
-					if (mTotalCount > 0) {
-						LOGI(TAG, "Expecting " + mTotalCount + " items");
+					if (mCount > 0) {
+						LOGI(TAG, "Expecting " + mCount + " items");
 					}
 					if (mPageNumber > 0) {
 						LOGI(TAG, "Handling page " + mPageNumber);
@@ -132,7 +134,7 @@ public abstract class RemoteBggHandler {
 			}
 		}
 		ResolverUtils.applyBatch(mResolver, mBatch);
-		return mTotalCount > (mPageNumber * getPageSize());
+		return mCount > (mPageNumber * getPageSize());
 	}
 
 	public void setBggDown() throws IOException {
@@ -193,11 +195,19 @@ public abstract class RemoteBggHandler {
 		mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 	}
 
+	protected void addUpdate(Uri uri, ContentValues values, boolean yieldAllowed) {
+		mBatch.add(ContentProviderOperation.newUpdate(uri).withValues(values).withYieldAllowed(yieldAllowed).build());
+	}
+
+	protected void addUpdateToTop(Uri uri, ContentValues values) {
+		mBatch.add(0, ContentProviderOperation.newUpdate(uri).withValues(values).withYieldAllowed(true).build());
+	}
+
 	protected void addInsertToTop(Uri uri, ContentValues values) {
 		if (mDebug) {
 			mInserts.add(0, new Insert(uri, values));
 		} else {
-			mBatch.add(0, ContentProviderOperation.newInsert(uri).withValues(values).build());
+			mBatch.add(0, ContentProviderOperation.newInsert(uri).withValues(values).withYieldAllowed(true).build());
 		}
 	}
 
@@ -206,6 +216,15 @@ public abstract class RemoteBggHandler {
 			mInserts.add(new Insert(uri, values));
 		} else {
 			mBatch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+		}
+	}
+
+	protected void addInsert(Uri uri, ContentValues values, boolean yieldAllowed) {
+		if (mDebug) {
+			mInserts.add(new Insert(uri, values));
+		} else {
+			mBatch.add(ContentProviderOperation.newInsert(uri).withValues(values).withYieldAllowed(yieldAllowed)
+				.build());
 		}
 	}
 
