@@ -11,7 +11,6 @@ import org.apache.http.client.HttpClient;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -21,12 +20,10 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteThreadHandler;
@@ -35,7 +32,7 @@ import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ThreadFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<List<ThreadArticle>> {
+public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<ThreadArticle>> {
 	private static final String TAG = makeLogTag(ThreadFragment.class);
 
 	private static final int THREAD_LOADER_ID = 103;
@@ -54,21 +51,24 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_thread));
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		final ListView listView = getListView();
+		listView.setSmoothScrollbarEnabled(false);
+		listView.setFastScrollEnabled(true);
+		listView.setSelector(android.R.color.transparent);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(THREAD_LOADER_ID, null, this);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-
-		final ListView listView = getListView();
-		listView.setFastScrollEnabled(true);
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setSelector(android.R.color.transparent);
+	protected int getEmptyStringResoure() {
+		return R.string.empty_thread;
 	}
 
 	@Override
@@ -93,6 +93,7 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 			} else {
 				setListShownNoAnimation(true);
 			}
+			restoreScrollState();
 		}
 	}
 
@@ -201,7 +202,7 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 			if (article != null) {
 				holder.username.setText(article.username);
 				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editDate));
-				holder.body.loadDataWithBaseURL(null, article.body, "text/html", "UTF-8", null);
+				UIUtils.setTextMaybeHtml(holder.body, article.body);
 			}
 			return convertView;
 		}
@@ -210,12 +211,12 @@ public class ThreadFragment extends SherlockListFragment implements LoaderManage
 	public static class ViewHolder {
 		TextView username;
 		TextView editdate;
-		WebView body;
+		TextView body;
 
 		public ViewHolder(View view) {
 			username = (TextView) view.findViewById(R.id.article_username);
 			editdate = (TextView) view.findViewById(R.id.article_editdate);
-			body = (WebView) view.findViewById(R.id.article_webkit);
+			body = (TextView) view.findViewById(R.id.article_body);
 		}
 	}
 }
