@@ -14,7 +14,6 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -29,11 +28,9 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CursorAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -54,6 +51,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -79,8 +77,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
-
-	private LocationAdapter mLocationAdapter;
 
 	private Play mPlay;
 	private Play mOriginalPlay;
@@ -169,8 +165,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	protected void onStart() {
 		super.onStart();
-		mLocationAdapter = new LocationAdapter(this);
-		mLocationView.setAdapter(mLocationAdapter);
+		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
 	}
 
 	@Override
@@ -645,40 +640,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private class LocationAdapter extends CursorAdapter {
-		public LocationAdapter(Context context) {
-			super(context, null, false);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.autocomplete_item, parent, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_item);
-			textView.setText(cursor.getString(LocationQuery.LOCATION));
-		}
-
-		@Override
-		public CharSequence convertToString(Cursor cursor) {
-			return cursor.getString(LocationQuery.LOCATION);
-		}
-
-		@Override
-		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (!TextUtils.isEmpty(constraint)) {
-				selection = Plays.LOCATION + " LIKE ?";
-				selectionArgs = new String[] { constraint + "%" };
-			}
-			return getContentResolver().query(Plays.buildLocationsUri(), LocationQuery.PROJECTION, selection,
-				selectionArgs, null);
-		}
-	}
-
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
@@ -747,11 +708,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		int _TOKEN = 0x02;
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
 			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
-	}
-
-	private interface LocationQuery {
-		String[] PROJECTION = { Plays._ID, Plays.LOCATION };
-		int LOCATION = 1;
 	}
 
 	@SuppressLint("ValidFragment")
