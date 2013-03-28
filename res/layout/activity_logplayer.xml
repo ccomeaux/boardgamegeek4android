@@ -38,13 +38,17 @@
 			android:layout_height="wrap_content"
 			android:text="@string/player_name" />
 
-		<EditText
+		<AutoCompleteTextView
 			android:id="@+id/log_player_name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:completionThreshold="1"
+			android:dropDownHeight="wrap_content"
 			android:hint="@string/player_name"
+			android:imeOptions="actionNext"
 			android:inputType="textPersonName|textCapWords"
-			android:maxLength="255" />
+			android:maxLength="255"
+			android:textColor="#000" />
 
 		<TextView
 			android:id="@+id/log_player_team_color_label"

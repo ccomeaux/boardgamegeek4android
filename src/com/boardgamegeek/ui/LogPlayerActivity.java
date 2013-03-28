@@ -33,7 +33,10 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -52,12 +55,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private String mGameName;
 
 	private UsernameAdapter mUsernameAdapter;
-	private ColorAdapter mColorAdapter;
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
-	private EditText mName;
 	private AutoCompleteTextView mUsername;
+	private AutoCompleteTextView mName;
 	private AutoCompleteTextView mTeamColor;
 	private EditText mPosition;
 	private Button mPositionButton;
@@ -107,9 +109,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 		mUsernameAdapter = new UsernameAdapter(this);
 		mUsername.setAdapter(mUsernameAdapter);
-
-		mColorAdapter = new ColorAdapter(this);
-		mTeamColor.setAdapter(mColorAdapter);
+		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersUri()));
+		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
 	}
 
 	@Override
@@ -143,7 +144,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private void setUiVariables() {
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
-		mName = (EditText) findViewById(R.id.log_player_name);
+		mName = (AutoCompleteTextView) findViewById(R.id.log_player_name);
 		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
 		mPosition = (EditText) findViewById(R.id.log_player_position);
 		mPositionButton = (Button) findViewById(R.id.log_player_position_button);
@@ -390,40 +391,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		}
 	}
 
-	private class ColorAdapter extends CursorAdapter {
-		public ColorAdapter(Context context) {
-			super(context, null, false);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.autocomplete_item, parent, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			final TextView textView = (TextView) view.findViewById(R.id.autocomplete_item);
-			textView.setText(cursor.getString(ColorsQuery.COLOR));
-		}
-
-		@Override
-		public CharSequence convertToString(Cursor cursor) {
-			return cursor.getString(ColorsQuery.COLOR);
-		}
-
-		@Override
-		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (!TextUtils.isEmpty(constraint)) {
-				selection = GameColors.COLOR + " LIKE ?";
-				selectionArgs = new String[] { constraint + "%" };
-			}
-			return getContentResolver().query(Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, selection,
-				selectionArgs, null);
-		}
-	}
-
 	private interface BuddiesQuery {
 		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
 			Buddies.PLAY_NICKNAME };
@@ -431,11 +398,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		int FIRST_NAME = 2;
 		int LAST_NAME = 3;
 		int PLAY_NICKNAME = 4;
-	}
-
-	private interface ColorsQuery {
-		String[] PROJECTION = { GameColors._ID, GameColors.COLOR };
-		int COLOR = 1;
 	}
 
 	@Override

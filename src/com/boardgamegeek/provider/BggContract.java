@@ -708,6 +708,10 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(PATH_LOCATIONS).build();
 		}
 
+		public static Uri buildPlayersUri() {
+			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
+		}
+
 		public static int getPlayId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
