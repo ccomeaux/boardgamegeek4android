@@ -23,14 +23,14 @@
 		android:textIsSelectable="false" />
 
 	<ImageView
-		android:id="@+id/article_button"
+		android:id="@+id/article_view"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignBottom="@+id/article_editdate"
 		android:layout_alignParentRight="true"
 		android:layout_alignTop="@+id/article_username"
 		android:layout_marginBottom="@dimen/padding_small"
-		android:contentDescription="view"
+		android:contentDescription="@string/view"
 		android:onClick="onButtonClick"
 		android:src="@drawable/view_thread" />
 
@@ -38,7 +38,7 @@
 		android:id="@+id/article_divider"
 		android:layout_width="fill_parent"
 		android:layout_height="1dp"
-		android:layout_below="@+id/article_button"
+		android:layout_below="@+id/article_view"
 		android:background="@color/background_light" />
 
 	<TextView

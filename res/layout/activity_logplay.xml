@@ -167,6 +167,7 @@
 			android:id="@+id/log_play_player_list"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:animateLayoutChanges="true"
 			android:gravity="top"
 			android:orientation="vertical" />
 	</LinearLayout>

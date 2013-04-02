@@ -24,13 +24,15 @@
 			android:id="@+id/list_fullname"
 			style="@style/Text.Primary"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/list_name"
 			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:textIsSelectable="false" />
 	</LinearLayout>
 
 </LinearLayout>
