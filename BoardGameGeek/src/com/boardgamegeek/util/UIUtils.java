@@ -20,6 +20,7 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -160,8 +161,8 @@ public class UIUtils {
 			text = text.replaceAll("[<](/)?p[>]", "");
 			// remove trailing BRs
 			text = text.replaceAll("(<br\\s?/>)+$", "");
-			// replace multiple BRs with single
-			text = text.replaceAll("(<br\\s?/>){2,}", "<br/>");
+			// replace 3+ BRs with a double
+			text = text.replaceAll("(<br\\s?/>){3,}", "<br/><br/>");
 
 			Spanned spanned = Html.fromHtml(text);
 			view.setText(spanned);
@@ -169,5 +170,9 @@ public class UIUtils {
 		} else {
 			view.setText(text);
 		}
+	}
+
+	public static void setWebViewText(WebView view, String text) {
+		view.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
 	}
 }
