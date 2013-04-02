@@ -203,6 +203,11 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				holder.username.setText(article.username);
 				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editDate));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
+				Bundle bundle = new Bundle();
+				bundle.putString(ForumsUtils.KEY_USER, article.username);
+				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate);
+				bundle.putString(ForumsUtils.KEY_BODY, article.body);
+				holder.viewArticle.setTag(bundle);
 			}
 			return convertView;
 		}
@@ -212,11 +217,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		TextView username;
 		TextView editdate;
 		TextView body;
+		View viewArticle;
 
 		public ViewHolder(View view) {
 			username = (TextView) view.findViewById(R.id.article_username);
 			editdate = (TextView) view.findViewById(R.id.article_editdate);
 			body = (TextView) view.findViewById(R.id.article_body);
+			viewArticle = view.findViewById(R.id.article_button);
 		}
 	}
 }

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer"
 	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:gravity="center" >
+	android:layout_height="fill_parent"
+	android:gravity="center"
+	android:paddingBottom="@dimen/padding_standard"
+	android:paddingLeft="@dimen/padding_extra"
+	android:paddingRight="@dimen/padding_extra"
+	android:paddingTop="@dimen/padding_standard" >
 
 	<TextView
 		android:id="@+id/article_username"
@@ -11,6 +14,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
+		android:paddingBottom="@dimen/padding_small"
 		android:textIsSelectable="false" />
 
 	<TextView
@@ -18,33 +22,22 @@
 		style="@style/Text.Secondary"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/article_username"
-		android:paddingBottom="@dimen/padding_small"
-		android:textIsSelectable="false" />
-
-	<ImageView
-		android:id="@+id/article_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/article_editdate"
+		android:layout_alignBaseline="@id/article_username"
 		android:layout_alignParentRight="true"
-		android:layout_alignTop="@+id/article_username"
-		android:layout_marginBottom="@dimen/padding_small"
-		android:contentDescription="view"
-		android:onClick="onButtonClick"
-		android:src="@drawable/view_thread" />
+		android:paddingLeft="@dimen/padding_small"
+		android:textIsSelectable="false" />
 
 	<View
 		android:id="@+id/article_divider"
 		android:layout_width="fill_parent"
 		android:layout_height="1dp"
-		android:layout_below="@+id/article_button"
+		android:layout_below="@+id/article_username"
 		android:background="@color/background_light" />
 
-	<TextView
+	<WebView
 		android:id="@+id/article_body"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="fill_parent"
 		android:layout_below="@id/article_divider"
 		android:textIsSelectable="true" />
 

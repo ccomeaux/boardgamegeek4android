@@ -222,6 +222,9 @@
 			android:name=".ui.ThreadActivity"
 			android:label="@string/title_thread" />
 		<activity
+			android:name=".ui.ArticleActivity"
+			android:label="Article" />
+		<activity
 			android:name=".pref.Preferences"
 			android:label="@string/app_name" />
 		<activity
