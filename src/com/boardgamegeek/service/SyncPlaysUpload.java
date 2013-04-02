@@ -104,7 +104,7 @@ public class SyncPlaysUpload extends SyncTask {
 					notifyUser(error);
 					syncResult.stats.numIoExceptions++;
 					if (error.contains("You must login to save plays")) {
-						Authenticator.clearPassword(mContext);
+						Authenticator.signOut(mContext);
 						return;
 					}
 				}
