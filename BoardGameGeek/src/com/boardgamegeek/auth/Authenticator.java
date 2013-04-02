@@ -156,7 +156,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return accounts[0];
 	}
 
-	public static void clearPassword(Context context) {
+	public static void signOut(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
 		accountManager.clearPassword(account);
