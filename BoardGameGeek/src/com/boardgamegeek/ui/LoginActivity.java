@@ -73,6 +73,9 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		mUsernameView.setText(mUsername);
 		mUsernameView.setEnabled(mRequestNewAccount);
+		if (!mRequestNewAccount){
+			mPasswordView.requestFocus();
+		}
 
 		mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
