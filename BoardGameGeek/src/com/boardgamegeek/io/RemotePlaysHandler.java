@@ -173,7 +173,7 @@ public class RemotePlaysHandler extends RemoteBggHandler {
 			}
 			String msg = String
 				.format(
-					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s in progress, %7$s errors)",
+					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
 					updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
 					pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount);
 			LOGI(TAG, msg);

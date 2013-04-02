@@ -67,7 +67,7 @@
 	<string-array name="plays_filter">
 		<item>All Plays</item>
 		<item>Synced</item>
-		<item>In Progress</item>
+		<item>Drafts</item>
 		<item>Pending Update</item>
 		<item>Pending Delete</item>
 	</string-array>
