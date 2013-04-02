@@ -1,5 +1,6 @@
 package com.boardgamegeek.auth;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGV;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
@@ -71,7 +72,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		final AccountManager am = AccountManager.get(mContext);
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			if (!isPasswordExpired(am, account) && !isSessionExpired(am, account)) {
+			if (!isPasswordExpired(am, account)) {
 				final String authToken = am.getUserData(account, KEY_SESSION_ID);
 				if (!TextUtils.isEmpty(authToken)) {
 					final Bundle result = new Bundle();
@@ -85,6 +86,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
 		// credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
+		LOGI(TAG, "Expired credentials...");
 		final Intent intent = new Intent(mContext, LoginActivity.class);
 		intent.putExtra(LoginActivity.EXTRA_USERNAME, account.name);
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -97,9 +99,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return isKeyExpired(am, account, Authenticator.KEY_PASSWORD_EXPIRY);
 	}
 
-	private boolean isSessionExpired(final AccountManager am, Account account) {
-		return isKeyExpired(am, account, Authenticator.KEY_SESSION_ID_EXPIRY);
-	}
+	// private boolean isSessionExpired(final AccountManager am, Account account) {
+	// return isKeyExpired(am, account, Authenticator.KEY_SESSION_ID_EXPIRY);
+	// }
 
 	private boolean isKeyExpired(final AccountManager am, Account account, String key) {
 		String expiration = am.getUserData(account, key);
@@ -129,6 +131,15 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
+	@Override
+	public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account)
+		throws NetworkErrorException {
+		LOGV(TAG, "getAccountRemovalAllowed - yes, always");
+		final Bundle result = new Bundle();
+		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
+		return result;
+	}
+
 	public static Account getAccount(Context context) {
 		return getAccount(AccountManager.get(context));
 	}
@@ -144,4 +155,23 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		}
 		return accounts[0];
 	}
+
+	public static void clearPassword(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		accountManager.clearPassword(account);
+	}
+
+	// StringBuilder sb = new StringBuilder();
+	// sb.append("ACCOUNT").append("\n");
+	// sb.append("Name:       ").append(account.name).append("\n");
+	// sb.append("Type:       ").append(account.type).append("\n");
+	// sb.append("Token type: ").append(authTokenType).append("\n");
+	// sb.append("Password:   ").append(am.getPassword(account)).append("\n");
+	// sb.append("Password X: ").append(new Date(Long.valueOf(am.getUserData(account, KEY_PASSWORD_EXPIRY))))
+	// .append("\n");
+	// sb.append("Session ID: ").append(am.getUserData(account, KEY_SESSION_ID)).append("\n");
+	// sb.append("Session X:  ").append(new Date(Long.valueOf(am.getUserData(account, KEY_SESSION_ID_EXPIRY))))
+	// .append("\n");
+	// LOGI(TAG, sb.toString());
 }

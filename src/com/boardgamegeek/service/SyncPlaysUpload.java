@@ -29,6 +29,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
@@ -102,6 +103,10 @@ public class SyncPlaysUpload extends SyncTask {
 				} else {
 					notifyUser(error);
 					syncResult.stats.numIoExceptions++;
+					if (error.contains("You must login to save plays")) {
+						Authenticator.clearPassword(mContext);
+						return;
+					}
 				}
 			}
 		} finally {
