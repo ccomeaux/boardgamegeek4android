@@ -69,7 +69,7 @@ public class PlayPersister {
 	}
 
 	/*
-	 * Save the play. If syncing, the play will not be saved if an edit is in progress.
+	 * Save the play. If syncing, the play will not be saved if it is a draft.
 	 */
 	public static int save(ContentResolver resolver, Play play, boolean isSyncing) {
 		int status = determineStatus(resolver, play, isSyncing);
@@ -91,7 +91,7 @@ public class PlayPersister {
 			batch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
-				// If a sync isn't pending, mark it as in progress
+				// If a sync isn't pending, mark it as draft
 				if (play.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE
 					|| play.SyncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 					play.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
