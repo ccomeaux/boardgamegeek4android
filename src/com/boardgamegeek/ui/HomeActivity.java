@@ -13,6 +13,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -81,6 +82,9 @@ public class HomeActivity extends SherlockFragmentActivity {
 				break;
 			case R.id.menu_refresh:
 				triggerRefresh();
+				return true;
+			case R.id.menu_sign_out:
+				Authenticator.clearPassword(this);
 				return true;
 			case R.id.menu_contact_us:
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
