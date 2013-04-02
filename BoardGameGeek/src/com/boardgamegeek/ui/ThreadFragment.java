@@ -223,7 +223,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			username = (TextView) view.findViewById(R.id.article_username);
 			editdate = (TextView) view.findViewById(R.id.article_editdate);
 			body = (TextView) view.findViewById(R.id.article_body);
-			viewArticle = view.findViewById(R.id.article_button);
+			viewArticle = view.findViewById(R.id.article_view);
 		}
 	}
 }

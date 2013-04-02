@@ -19,7 +19,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 

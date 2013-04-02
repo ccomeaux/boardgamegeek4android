@@ -39,7 +39,7 @@
 	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
-	<string name="sync_in_process">Edit in process</string>
+	<string name="sync_in_process">Draft</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
 	<string name="quantity_hint">1 play</string>
@@ -53,6 +53,7 @@
 	<string name="comments_hint">Game play comments</string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
+	<string name="save_draft">Save draft</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="start">Start</string>
@@ -257,10 +258,16 @@
 	<string name="toggle">toggle</string>
 	<string name="number_to_text">123/ABC</string>
 	<string name="close">Close</string>
+	<string name="view">View</string>
 	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- MOD: Player names now automcomplete<br/>
+- MOD: Forum UX improvements (including lists now remember their last position)<br/>
+- BUG: Fix overlapping location and date in the Plays list<br/>
+- BUG: Now correctly prompts when your password has expired<br/>
+- BUG: A forum with more than 50 threads will now load completely<br/>
 - BUG: Fix overlapping location and date in the Plays list<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
@@ -279,7 +286,7 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 ]]>
 	</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">If you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? Click the Menu button to filter your collection and choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
