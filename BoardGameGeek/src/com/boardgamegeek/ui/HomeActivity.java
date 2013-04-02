@@ -1,12 +1,16 @@
 package com.boardgamegeek.ui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.SearchView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -15,6 +19,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
@@ -72,6 +77,14 @@ public class HomeActivity extends SherlockFragmentActivity {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		AccountManager am = AccountManager.get(this);
+		Account account = Authenticator.getAccount(am);
+		menu.findItem(R.id.menu_sign_out).setVisible(account != null && !TextUtils.isEmpty(am.getPassword(account)));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_search:
@@ -84,7 +97,12 @@ public class HomeActivity extends SherlockFragmentActivity {
 				triggerRefresh();
 				return true;
 			case R.id.menu_sign_out:
-				Authenticator.clearPassword(this);
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_sign_out,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Authenticator.signOut(HomeActivity.this);
+						}
+					}).show();
 				return true;
 			case R.id.menu_contact_us:
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
