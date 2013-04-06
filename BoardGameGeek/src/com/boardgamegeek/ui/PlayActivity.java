@@ -40,6 +40,11 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	}
 
 	@Override
+	public void onSent() {
+		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+	}
+
+	@Override
 	public void onDeleted() {
 		finish();
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);

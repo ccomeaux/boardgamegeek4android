@@ -61,12 +61,18 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
 
+		public void onSent();
+
 		public void onDeleted();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public void onNameChanged(String gameName) {
+		}
+
+		@Override
+		public void onSent() {
 		}
 
 		@Override
@@ -143,6 +149,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.menu_send).setVisible(mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		menu.findItem(R.id.menu_refresh).setEnabled(mPlay.hasBeenSynced());
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
@@ -169,6 +176,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			}
 			case R.id.menu_edit:
 				ActivityUtils.logPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				return true;
+			case R.id.menu_send:
+				save(Play.SYNC_STATUS_PENDING_UPDATE);
+				mCallbacks.onSent();
 				return true;
 			case R.id.menu_delete: {
 				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
