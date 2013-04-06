@@ -16,15 +16,11 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SyncResult;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
@@ -33,14 +29,12 @@ import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.ui.HomeActivity;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private static final String TAG = makeLogTag(SyncAdapter.class);
-	private static final int NOTIFICATION_ID = 0;
-	private static final int NOTIFICATION_ERROR_ID = -1;
 
 	private final Context mContext;
 	private final boolean mUseGzip = true;
@@ -121,7 +115,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncPlays());
 		}
 
-		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = createNotificationBuilder();
 		for (int i = 0; i < tasks.size(); i++) {
 			SyncTask task = tasks.get(i);
@@ -135,7 +128,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 					for (int j = i; j >= 0; j--) {
 						detail.addLine(mContext.getString(tasks.get(j).getNotification()));
 					}
-					nm.notify(NOTIFICATION_ID, builder.build());
+					NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
 				}
 				task.execute(mRemoteExecutor, account, syncResult);
 			} catch (IOException e) {
@@ -152,7 +145,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				showError(e.getLocalizedMessage());
 			}
 
-			nm.cancel(NOTIFICATION_ID);
+			NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
 		}
 	}
 
@@ -177,16 +170,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private NotificationCompat.Builder createNotificationBuilder() {
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
-			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.title_logo))
-			.setContentTitle(mContext.getString(R.string.sync_notification_title))
-			.setPriority(NotificationCompat.PRIORITY_LOW);
-		Intent intent = new Intent(mContext, HomeActivity.class);
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, intent,
-			PendingIntent.FLAG_UPDATE_CURRENT);
-		builder.setContentIntent(resultPendingIntent);
-		return builder;
+		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title);
 	}
 
 	private void showError(String message) {
@@ -201,10 +185,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!mShowNotifications)
 			return;
 
-		NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
 		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text)).setPriority(
 			NotificationCompat.PRIORITY_DEFAULT);
-		nm.notify(NOTIFICATION_ERROR_ID, builder.build());
+		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }
