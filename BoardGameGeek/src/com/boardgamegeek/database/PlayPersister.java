@@ -158,8 +158,9 @@ public class PlayPersister {
 					}
 					LOGI(TAG, "Not saving during the sync due to status=" + status);
 				}
+			} else {
+				status = STATUS_UPDATE;
 			}
-			status = STATUS_UPDATE;
 		} else {
 			status = STATUS_INSERT;
 		}

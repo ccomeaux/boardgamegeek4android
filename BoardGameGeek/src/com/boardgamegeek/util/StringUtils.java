@@ -59,7 +59,7 @@ public class StringUtils {
 	public static String getOrdinal(int cardinal) {
 
 		if (cardinal < 0) {
-			return "";
+			return "-th";
 		}
 
 		String c = String.valueOf(cardinal);

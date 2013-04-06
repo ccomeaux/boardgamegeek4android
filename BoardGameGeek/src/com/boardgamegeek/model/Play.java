@@ -186,20 +186,37 @@ public class Play {
 	public int SyncStatus;
 	public long Saved;
 
-	public Play fromCursor(Cursor c) {
-		PlayId = CursorUtils.getInt(c, Plays.PLAY_ID, 0);
-		GameId = CursorUtils.getInt(c, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
-		GameName = CursorUtils.getString(c, PlayItems.NAME);
-		setDate(CursorUtils.getString(c, Plays.DATE));
-		Quantity = CursorUtils.getInt(c, Plays.QUANTITY, QUANTITY_DEFAULT);
-		Length = CursorUtils.getInt(c, Plays.LENGTH, LENGTH_DEFAULT);
-		Location = CursorUtils.getString(c, Plays.LOCATION);
-		Incomplete = CursorUtils.getBoolean(c, Plays.INCOMPLETE);
-		NoWinStats = CursorUtils.getBoolean(c, Plays.NO_WIN_STATS);
-		Comments = CursorUtils.getString(c, Plays.COMMENTS);
-		Updated = CursorUtils.getLong(c, Plays.UPDATED_LIST);
-		SyncStatus = CursorUtils.getInt(c, Plays.SYNC_STATUS);
-		Saved = CursorUtils.getLong(c, Plays.UPDATED);
+	public Play fromCursor(Cursor cursor) {
+		return fromCursor(cursor, null, false);
+	}
+
+	public Play fromCursor(Cursor cursor, Context context, boolean includePlayers) {
+		PlayId = CursorUtils.getInt(cursor, Plays.PLAY_ID, 0);
+		GameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
+		GameName = CursorUtils.getString(cursor, PlayItems.NAME);
+		setDate(CursorUtils.getString(cursor, Plays.DATE));
+		Quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, QUANTITY_DEFAULT);
+		Length = CursorUtils.getInt(cursor, Plays.LENGTH, LENGTH_DEFAULT);
+		Location = CursorUtils.getString(cursor, Plays.LOCATION);
+		Incomplete = CursorUtils.getBoolean(cursor, Plays.INCOMPLETE);
+		NoWinStats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
+		Comments = CursorUtils.getString(cursor, Plays.COMMENTS);
+		Updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
+		SyncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
+		Saved = CursorUtils.getLong(cursor, Plays.UPDATED);
+		if (includePlayers && context != null) {
+			Cursor c = null;
+			try {
+				c = context.getContentResolver().query(playerUri(), null, null, null, null);
+				while (c.moveToNext()) {
+					addPlayer(new Player(c));
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}
 		return this;
 	}
 
@@ -365,6 +382,7 @@ public class Play {
 
 	/**
 	 * Sets the start player based on the index, keeping the other players in order, assigns seats, then sorts
+	 * 
 	 * @param startPlayerIndex
 	 *            The zero-based index of the new start player
 	 */
