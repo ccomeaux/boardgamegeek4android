@@ -14,8 +14,13 @@
 	<item
 		android:id="@+id/menu_delete"
 		android:icon="?attr/ic_action_delete"
-		android:showAsAction="never"
+		android:showAsAction="ifRoom"
 		android:title="@string/menu_delete"/>
+	<item
+		android:id="@+id/menu_send"
+		android:icon="?attr/ic_action_send"
+		android:showAsAction="never"
+		android:title="@string/send"/>
 	<item
 		android:id="@+id/menu_share"
 		android:icon="?attr/ic_action_share"
