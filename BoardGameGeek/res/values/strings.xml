@@ -30,13 +30,11 @@
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
-	<string name="logPlayDialogMessage">Logging play…</string>
 	<string name="logInError">Unable to log in, please verify your username and password are correct.</string>
 	<string name="logInErrorSuffixNoResponse">no response</string>
 	<string name="logInErrorSuffixBadResponse">received a bad response</string>
 	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
-	<string name="logPlaySuccess">You just played your %1$s game of %2$s!</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_in_process">Draft</string>
@@ -129,7 +127,7 @@
 	<string name="home_btn_plays">Games Played</string>
 	<string name="home_btn_settings">Settings</string>
 	<string name="home_btn_about">About</string>
-	<string name="home_btn_sign_out">Sign out...</string>
+	<string name="home_btn_sign_out">Sign out…</string>
 	<string name="home_btn_contact_us">Contact us</string>
 	<string name="home_btn_signin">Sign In</string>
 	<string name="notification_playing">Playing</string>
@@ -214,8 +212,11 @@
 	<string name="msg_no_description">No description available.</string>
 	<string name="msg_collection_info">%s games</string>
 	<string name="msg_player_deleted">Player deleted.</string>
-	<string name="msg_play_updated">Play updated successfully!</string>
-	<string name="msg_play_deleted">Play deleted successfully</string>
+	<string name="msg_logging_play">Logging play…</string>
+	<string name="msg_saving_draft">Saving draft</string>
+	<string name="msg_play_added">Logged your %1$s play of \"%2$s\"</string>
+	<string name="msg_play_updated">Updated a play of \"%2$s\"</string>
+	<string name="msg_play_deleted">Deleted a play of \"%s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="share_title">Share Game</string>
@@ -266,6 +267,7 @@
 <![CDATA[
 <b>What\'s New?</b><br/>
 - NEW: You can now sign out from the home screen<br/>
+- MOD: Brought back confirmation of uploaded plays<br/>
 - MOD: Player names now auto-complete<br/>
 - MOD: Forum UX improvements (including lists now remember their last position)<br/>
 - BUG: Fix overlapping location and date in the Plays list<br/>
@@ -289,7 +291,7 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 ]]>
 	</string>
 	<string name="help_title">Help</string>
-	<string name="help_home">Installing this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
+	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? Click the Menu button to filter your collection and choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>

@@ -2,6 +2,7 @@
 <resources>
 
 	<string name="sync_notification_title">Syncing</string>
+	<string name="sync_notification_title_play_upload">Uploaded Plays</string>
 	<string name="sync_notification_error">Error</string>
 	<string name="sync_notification_error_auth">Error getting auth token</string>
 	<string name="sync_notification_collection_full">Entire collection</string>
@@ -14,5 +15,6 @@
 	<string name="sync_notification_plays">Plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
 	<string name="sync_notification_step_summary">Step %1$d of %2$d</string>
+	<string name="sync_notification_upload_summary">Uploaded %d plays</string>
 
 </resources>
