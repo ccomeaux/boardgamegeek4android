@@ -170,7 +170,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title);
+		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title).setPriority(
+			NotificationCompat.PRIORITY_LOW);
 	}
 
 	private void showError(String message) {

@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -34,9 +35,10 @@ import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PlaysUrlBuilder;
 import com.boardgamegeek.util.StringUtils;
 
@@ -45,12 +47,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 	private Context mContext;
 	private HttpClient mClient;
+	private List<String> mMessages;
 
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
 		XmlPullParserException {
 		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
+		mMessages = new ArrayList<String>();
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
@@ -68,45 +72,29 @@ public class SyncPlaysUpload extends SyncTask {
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
-				Play play = new Play().fromCursor(cursor);
+				Play play = new Play().fromCursor(cursor, mContext, true);
 
-				Cursor c = null;
-				try {
-					c = mContext.getContentResolver().query(play.playerUri(), null, null, null, null);
-					while (c.moveToNext()) {
-						play.addPlayer(new Player(c));
-					}
-				} finally {
-					if (c != null) {
-						c.close();
-					}
-				}
-
-				String error = postPlayUpdate(play);
-				if (TextUtils.isEmpty(error)) {
+				PlayUpdateResponse response = postPlayUpdate(play);
+				if (!response.hasError()) {
 					updateContentProvider(play, syncResult);
-					error = syncGame(username, play, syncResult);
+					String error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
 						Resources r = mContext.getResources();
-						String message = r.getString(R.string.msg_play_updated);
-						if (!play.hasBeenSynced()) {
-							String countDescription = "";// result.getPlayCountDescription();
-							message = String.format(r.getString(R.string.logPlaySuccess), countDescription,
-								play.GameName);
-						}
-
+						String message = String.format(
+							r.getString(play.hasBeenSynced() ? R.string.msg_play_updated : R.string.msg_play_added),
+							getPlayCountDescription(response.count, play.Quantity), play.GameName);
 						notifyUser(message);
 					} else {
 						notifyUser(error);
 					}
-				} else {
-					notifyUser(error);
+				} else if (response.hasAuthError()) {
 					syncResult.stats.numIoExceptions++;
-					if (error.contains("You must login to save plays")) {
-						Authenticator.signOut(mContext);
-						return;
-					}
+					Authenticator.signOut(mContext);
+					break;
+				} else {
+					notifyUser(response.error);
+					syncResult.stats.numIoExceptions++;
 				}
 			}
 		} finally {
@@ -114,34 +102,6 @@ public class SyncPlaysUpload extends SyncTask {
 				cursor.close();
 			}
 		}
-	}
-
-	// TODO: make this work again
-	public String getPlayCountDescription(String result) {
-		int playCount = parsePlayCount(result);
-
-		String countDescription = "";
-		int quantity = 0;// mPlayQuantity;
-		switch (quantity) {
-			case 1:
-				countDescription = StringUtils.getOrdinal(playCount);
-				break;
-			case 2:
-				countDescription = StringUtils.getOrdinal(playCount - 1) + " & " + StringUtils.getOrdinal(playCount);
-				break;
-			default:
-				countDescription = StringUtils.getOrdinal(playCount - quantity + 1) + " - "
-					+ StringUtils.getOrdinal(playCount);
-				break;
-		}
-		return countDescription;
-	}
-
-	private int parsePlayCount(String result) {
-		int start = result.indexOf(">");
-		int end = result.indexOf("<", start);
-		int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
-		return playCount;
 	}
 
 	private void deletePendingPlays(SyncResult syncResult) {
@@ -156,7 +116,7 @@ public class SyncPlaysUpload extends SyncTask {
 					String error = postPlayDelete(play.PlayId, syncResult);
 					if (TextUtils.isEmpty(error)) {
 						PlayPersister.delete(mContext.getContentResolver(), play);
-						notifyUser(mContext.getString(R.string.msg_play_deleted));
+						notifyUser(String.format(mContext.getString(R.string.msg_play_deleted), play.GameName));
 						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
@@ -174,19 +134,14 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private void notifyUser(String message) {
-		// TODO: Sometimes this toast gets stuck until the app closes
-		// Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-	}
-
-	protected String postPlayUpdate(Play play) {
+	private PlayUpdateResponse postPlayUpdate(Play play) {
 		List<NameValuePair> nvps = play.toNameValuePairs();
 		UrlEncodedFormEntity entity;
 		try {
 			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			LOGE(TAG, "Trying to encode play for update", e);
-			return "Couldn't create the HttpEntity";
+			return new PlayUpdateResponse("Couldn't create the HttpEntity");
 		}
 
 		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
@@ -196,52 +151,27 @@ public class SyncPlaysUpload extends SyncTask {
 			Resources r = mContext.getResources();
 			HttpResponse response = mClient.execute(post);
 			if (response == null) {
-				return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
+				return new PlayUpdateResponse(r.getString(R.string.logInError) + " : "
+					+ r.getString(R.string.logInErrorSuffixNoResponse));
 			} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
-					+ " " + response.toString() + ".";
+				return new PlayUpdateResponse(r.getString(R.string.logInError) + " : "
+					+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".");
 			} else {
 				String message = HttpUtils.parseResponse(response);
 				if (message.startsWith("Plays: <a") || message.startsWith("{\"html\":\"Plays:")) {
-					return "";
+					return new PlayUpdateResponse(parsePlayCount(message));
 				} else {
-					return "Bad response:\n" + message;
+					return new PlayUpdateResponse("Bad response:\n" + message);
 				}
 			}
 		} catch (ClientProtocolException e) {
-			return e.toString();
+			return new PlayUpdateResponse(e);
 		} catch (IOException e) {
-			return e.toString();
+			return new PlayUpdateResponse(e);
 		}
 	}
 
-	private void updateContentProvider(Play play, SyncResult syncResult) {
-		if (play.hasBeenSynced()) {
-			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
-			PlayPersister.save(mContext.getContentResolver(), play);
-			// syncResult.stats.numUpdates++;
-		} else {
-			PlayPersister.delete(mContext.getContentResolver(), play);
-			// syncResult.stats.numDeletes++;
-		}
-	}
-
-	private String syncGame(String username, Play play, SyncResult syncResult) {
-		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
-		try {
-			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
-			re.executeGet(url, new RemotePlaysHandler());
-		} catch (IOException e) {
-			syncResult.stats.numIoExceptions++;
-			return e.toString();
-		} catch (XmlPullParserException e) {
-			syncResult.stats.numParseExceptions++;
-			return e.toString();
-		}
-		return "";
-	}
-
-	public String postPlayDelete(int playId, SyncResult syncResult) {
+	private String postPlayDelete(int playId, SyncResult syncResult) {
 		UrlEncodedFormEntity entity = null;
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("ajax", "1"));
@@ -282,6 +212,112 @@ public class SyncPlaysUpload extends SyncTask {
 		} catch (Exception e) {
 			syncResult.stats.numAuthExceptions++;
 			return e.toString();
+		}
+	}
+
+	/**
+	 * Marks the specified play as synced or deleted in the content provider
+	 */
+	private void updateContentProvider(Play play, SyncResult syncResult) {
+		if (play.hasBeenSynced()) {
+			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
+			PlayPersister.save(mContext.getContentResolver(), play);
+			// syncResult.stats.numUpdates++;
+		} else {
+			PlayPersister.delete(mContext.getContentResolver(), play);
+			// syncResult.stats.numDeletes++;
+		}
+	}
+
+	/**
+	 * Syncs the specified game from the 'Geek to the local DB.
+	 * 
+	 * @return An error message, or blank if no error.
+	 */
+	private String syncGame(String username, Play play, SyncResult syncResult) {
+		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
+		try {
+			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
+			re.executeGet(url, new RemotePlaysHandler());
+		} catch (IOException e) {
+			syncResult.stats.numIoExceptions++;
+			return e.toString();
+		} catch (XmlPullParserException e) {
+			syncResult.stats.numParseExceptions++;
+			return e.toString();
+		}
+		return "";
+	}
+
+	private String getPlayCountDescription(int count, int quantity) {
+		String countDescription = "";
+		switch (quantity) {
+			case 1:
+				countDescription = StringUtils.getOrdinal(count);
+				break;
+			case 2:
+				countDescription = StringUtils.getOrdinal(count - 1) + " & " + StringUtils.getOrdinal(count);
+				break;
+			default:
+				countDescription = StringUtils.getOrdinal(count - quantity + 1) + " - " + StringUtils.getOrdinal(count);
+				break;
+		}
+		return countDescription;
+	}
+
+	private int parsePlayCount(String result) {
+		int start = result.indexOf(">");
+		int end = result.indexOf("<", start);
+		int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
+		return playCount;
+	}
+
+	private void notifyUser(String message) {
+		mMessages.add(message);
+
+		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(message);
+
+		if (mMessages.size() == 1) {
+			NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
+			detail.bigText(message);
+		} else {
+			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
+			detail.setSummaryText(String.format(mContext.getString(R.string.sync_notification_upload_summary),
+				mMessages.size()));
+			for (int i = mMessages.size() - 1; i >= 0; i--) {
+				detail.addLine(mMessages.get(i));
+			}
+		}
+		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD, builder);
+	}
+
+	private NotificationCompat.Builder createNotificationBuilder() {
+		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title_play_upload,
+			PlaysActivity.class);
+	}
+
+	private static class PlayUpdateResponse {
+		int count;
+		String error;
+
+		PlayUpdateResponse(int count) {
+			this.count = count;
+		}
+
+		PlayUpdateResponse(String error) {
+			this.error = error;
+		}
+
+		PlayUpdateResponse(Exception e) {
+			this.error = e.toString();
+		}
+
+		boolean hasError() {
+			return !TextUtils.isEmpty(error);
+		}
+
+		boolean hasAuthError() {
+			return hasError() && error.contains("You must login to save plays");
 		}
 	}
 }
