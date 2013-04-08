@@ -68,7 +68,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			return result;
 		}
 
-		// Extract the username and password from the Account Manager, and ask the server for an appropriate AuthToken.
+		// Ensure the password is valid an not expired, then return the stored AuthToken
 		final AccountManager am = AccountManager.get(mContext);
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {

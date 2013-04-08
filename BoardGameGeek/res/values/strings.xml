@@ -273,7 +273,6 @@
 - BUG: Fix overlapping location and date in the Plays list<br/>
 - BUG: Now correctly prompts when your password has expired<br/>
 - BUG: A forum with more than 50 threads will now load completely<br/>
-- BUG: Fix overlapping location and date in the Plays list<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
