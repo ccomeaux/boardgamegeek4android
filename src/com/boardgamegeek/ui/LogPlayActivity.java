@@ -138,12 +138,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
 			if (playId > 0) {
+				// Editing an existing play
 				mDeleteOnCancel = false;
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
+				// Starting a new play
 				mDeleteOnCancel = true;
-				save(Play.SYNC_STATUS_IN_PROGRESS);
+				saveDraft(false);
 			}
 			mOriginalPlay = new Play(mPlay);
 		}
@@ -193,13 +195,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	protected void onStop() {
 		super.onStop();
 		if (!isFinishing() && !mLaunchingActivity) {
-			save(Play.SYNC_STATUS_IN_PROGRESS);
+			saveDraft(false);
 		}
 	}
 
 	@Override
 	public void onBackPressed() {
-		save(Play.SYNC_STATUS_IN_PROGRESS);
+		saveDraft(true);
 		finish();
 	}
 
@@ -231,7 +233,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				finish();
 				return true;
 			case R.id.menu_save:
-				save(Play.SYNC_STATUS_IN_PROGRESS);
+				saveDraft(true);
 				finish();
 				return true;
 			case R.id.menu_start:
@@ -349,10 +351,18 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
 		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
 		triggerUpload();
+		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 	}
 
 	private void triggerUpload() {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+	}
+
+	private void saveDraft(boolean showToast) {
+		save(Play.SYNC_STATUS_IN_PROGRESS);
+		if (showToast) {
+			Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private void save(int syncStatus) {
@@ -364,7 +374,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void startPlay() {
-		save(Play.SYNC_STATUS_IN_PROGRESS);
+		saveDraft(false);
 
 		Intent intent = new Intent(this, LogPlayActivity.class);
 		intent.setAction(Intent.ACTION_EDIT);

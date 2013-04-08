@@ -123,7 +123,7 @@ public class SyncPlaysUpload extends SyncTask {
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(mContext.getString(R.string.msg_play_deleted));
+					notifyUser(String.format(mContext.getString(R.string.msg_play_deleted), play.GameName));
 					// syncResult.stats.numDeletes++;
 				}
 			}
