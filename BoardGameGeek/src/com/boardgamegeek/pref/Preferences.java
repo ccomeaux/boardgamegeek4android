@@ -12,6 +12,7 @@ import android.preference.PreferenceScreen;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 
+@SuppressWarnings("deprecation")
 public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

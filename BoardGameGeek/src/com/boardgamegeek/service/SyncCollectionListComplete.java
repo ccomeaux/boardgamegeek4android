@@ -66,7 +66,7 @@ public class SyncCollectionListComplete extends SyncTask {
 			if (success) {
 				LOGI(TAG, "...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
-				int count = executor
+				executor
 					.getContext()
 					.getContentResolver()
 					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",

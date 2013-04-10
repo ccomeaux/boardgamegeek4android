@@ -57,7 +57,7 @@ public class SyncBuddiesList extends SyncTask {
 			// syncResult.stats.numUpdates += handler.getNumUpdates();
 
 			// TODO: delete avatar images associated with this list
-			int count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
+			resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(startTime) });
 			// syncResult.stats.numDeletes += count;
 
