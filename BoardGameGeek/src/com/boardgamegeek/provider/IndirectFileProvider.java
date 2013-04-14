@@ -19,6 +19,7 @@ public abstract class IndirectFileProvider extends BaseFileProvider {
 			if (i > 0) {
 				return url.substring(i + 1);
 			}
+			return url;
 		}
 		return null;
 	}
