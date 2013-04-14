@@ -2,6 +2,7 @@ package com.boardgamegeek.util;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -98,5 +99,26 @@ public class StringUtils {
 		set.addAll(Arrays.asList(array1));
 		set.addAll(Arrays.asList(array2));
 		return set.toArray(new String[set.size()]);
+	}
+
+	public static String formatList(List<String> list) {
+		StringBuilder sb = new StringBuilder();
+		if (list != null && list.size() > 0) {
+			if (list.size() == 1) {
+				sb.append(list.get(0));
+			} else if (list.size() == 2) {
+				sb.append(list.get(0)).append(" & ").append(list.get(1));
+			} else {
+				for (int i = 0; i < list.size(); i++) {
+					sb.append(list.get(i));
+					if (i == list.size() - 2) {
+						sb.append(", & ");
+					} else if (i < list.size() - 2) {
+						sb.append(", ");
+					}
+				}
+			}
+		}
+		return sb.toString();
 	}
 }
