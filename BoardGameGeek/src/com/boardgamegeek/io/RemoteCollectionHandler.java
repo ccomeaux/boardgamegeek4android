@@ -85,6 +85,12 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 
 				gameValues.clear();
 				collectionValues.clear();
+				// The following fields aren't returned if they're blank
+				collectionValues.put(Collection.COMMENT, "");
+				collectionValues.put(Collection.CONDITION, "");
+				collectionValues.put(Collection.HASPARTS_LIST, "");
+				collectionValues.put(Collection.WANTPARTS_LIST, "");
+				collectionValues.put(Collection.WISHLIST_COMMENT, "");
 				parseItem(gameValues, collectionValues);
 
 				boolean yield = insertOrUpdateGame(gameId, gameValues);

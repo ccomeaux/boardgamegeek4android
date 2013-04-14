@@ -54,7 +54,8 @@
 					android:layout_toRightOf="@+id/game_info_thumbnail"
 					android:ellipsize="end"
 					android:gravity="center_vertical"
-					android:maxLines="2" />
+					android:maxLines="2"
+					android:textIsSelectable="false" />
 
 				<TextView
 					android:id="@+id/game_info_rating_unrated"
@@ -82,7 +83,8 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentLeft="true"
-					android:layout_below="@+id/game_info_rating_stars" />
+					android:layout_below="@+id/game_info_rating_stars"
+					android:textIsSelectable="false" />
 
 				<TextView
 					android:id="@+id/game_info_rating_denominator"
@@ -99,7 +101,8 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignBaseline="@+id/game_info_rating"
-					android:layout_alignRight="@+id/game_info_rating_stars" />
+					android:layout_alignRight="@+id/game_info_rating_stars"
+					android:textIsSelectable="false" />
 
 				<TextView
 					android:id="@+id/game_info_id"
@@ -107,7 +110,8 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
-					android:layout_below="@+id/game_info_thumbnail" />
+					android:layout_below="@+id/game_info_thumbnail"
+					android:textIsSelectable="false" />
 
 				<TextView
 					android:id="@+id/game_info_last_updated"
@@ -115,7 +119,8 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
-					android:layout_below="@+id/game_info_id" />
+					android:layout_below="@+id/game_info_id"
+					android:textIsSelectable="false" />
 			</RelativeLayout>
 
 			<TextView
@@ -126,7 +131,8 @@
 				android:autoLink="web"
 				android:clickable="true"
 				android:drawableBottom="@drawable/expander_open"
-				android:maxLines="3" />
+				android:maxLines="3"
+				android:textIsSelectable="false" />
 
 			<TableLayout
 				android:id="@+id/game_info_panel_root"
@@ -146,6 +152,7 @@
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
 						android:drawableLeft="@drawable/info_trophy"
+						android:textIsSelectable="false"
 						android:textStyle="bold" />
 
 					<TextView
@@ -154,7 +161,8 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
-						android:drawableLeft="@drawable/info_calendar" />
+						android:drawableLeft="@drawable/info_calendar"
+						android:textIsSelectable="false" />
 				</TableRow>
 
 				<TableRow
@@ -167,7 +175,8 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
-						android:drawableLeft="@drawable/info_clock" />
+						android:drawableLeft="@drawable/info_clock"
+						android:textIsSelectable="false" />
 
 					<LinearLayout
 						android:layout_width="0dp"
@@ -189,7 +198,8 @@
 							style="@style/Text.InfoButton"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
-							android:layout_weight="1" />
+							android:layout_weight="1"
+							android:textIsSelectable="false" />
 					</LinearLayout>
 				</TableRow>
 
@@ -217,7 +227,8 @@
 							style="@style/Text.InfoButton"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
-							android:layout_weight="1" />
+							android:layout_weight="1"
+							android:textIsSelectable="false" />
 					</LinearLayout>
 
 					<LinearLayout
