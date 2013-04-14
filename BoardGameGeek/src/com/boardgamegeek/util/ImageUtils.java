@@ -25,7 +25,7 @@ import com.boardgamegeek.provider.BggContract;
 public class ImageUtils {
 	private static final String TAG = makeLogTag(ImageUtils.class);
 	public static final int IO_BUFFER_SIZE_BYTES = 4 * 1024; // 4KB
-	private static final int MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
+	private static final int MAX_THUMBNAIL_BYTES = 130 * 1024; // 130KB
 
 	public static BitmapDrawable processDrawableFromResolver(Context context, Uri uri, String urlString) {
 		Bitmap bitmap = processBitmapFromResolver(context, uri, urlString);
