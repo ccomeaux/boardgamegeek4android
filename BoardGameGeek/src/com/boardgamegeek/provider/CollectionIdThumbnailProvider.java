@@ -13,7 +13,7 @@ public class CollectionIdThumbnailProvider extends IndirectFileProvider {
 
 	@Override
 	protected String getColumnName() {
-		return Collection.THUMBNAIL_URL;
+		return Collection.COLLECTION_THUMBNAIL_URL;
 	}
 
 	@Override

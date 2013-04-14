@@ -719,7 +719,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
-			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+			String thumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 
 			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
 
@@ -748,7 +748,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	private interface Query {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Collection.THUMBNAIL_URL };
+			Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -756,6 +756,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		int YEAR_PUBLISHED = 3;
 		// int GAME_NAME = 4;
 		int GAME_ID = 5;
-		int THUMBNAIL_URL = 6;
+		int COLLECTION_THUMBNAIL_URL = 6;
 	}
 }
