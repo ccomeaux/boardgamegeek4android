@@ -135,6 +135,7 @@
 	<string name="loading">Loading…</string>
 	<string name="empty_buddies">No buddies</string>
 	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
+	<string name="empty_game_collection">This game isn\'t in your collection. Want to add it? That\'s coming later…</string>
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
 	<string name="empty_plays">No plays. Check your sync settings and synchronize again.</string>
@@ -266,13 +267,8 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
-- NEW: You can now sign out from the home screen<br/>
-- MOD: Brought back confirmation of uploaded plays<br/>
-- MOD: Player names now auto-complete<br/>
-- MOD: Forum UX improvements (including lists now remember their last position)<br/>
-- BUG: Fix overlapping location and date in the Plays list<br/>
-- BUG: Now correctly prompts when your password has expired<br/>
-- BUG: A forum with more than 50 threads will now load completely<br/>
+- NEW: Collection tab in the game view<br/>
+- MOD: Collection list now shows collection thumbnail (not the game thumbnail)<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
@@ -301,6 +297,18 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
+	<string name="collection_modified">Collection modified</string>
+	<string name="invalid_collection_status">This game isn\'t in your collection (but you may have played it or commented on it).</string>
+	<string name="price">Price</string>
+	<string name="value">Value</string>
+	<string name="private_info">Private Info</string>
+	<string name="acquired_on">Acquired on %1$s</string>
+	<string name="acquired_from">Acquired from %2$s</string>
+	<string name="acquired_on_from">Acquired on %1$s from %2$s</string>
+	<string name="wishlist">Wishlist</string>
+	<string name="condition">Trade Condition</string>
+	<string name="want_parts">Want Parts</string>
+	<string name="has_parts">Has Parts</string>
 
 	<plurals name="forum_threads">
 		<item quantity="one">%s thread</item>

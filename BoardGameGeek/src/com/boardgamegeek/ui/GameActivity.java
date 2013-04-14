@@ -24,6 +24,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -68,6 +69,9 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
+		if (isSignedIn()) {
+			actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
+		}
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
@@ -162,20 +166,26 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		@Override
 		public Fragment getItem(int position) {
 			Fragment fragment = null;
+			if (position > 0 && !isSignedIn()) {
+				position--;
+			}
 			switch (position) {
 				case 0:
 					fragment = new GameInfoFragment();
 					break;
 				case 1:
-					fragment = new PlaysFragment();
+					fragment = new GameCollectionFragment();
 					break;
 				case 2:
-					fragment = new ColorsFragment();
+					fragment = new PlaysFragment();
 					break;
 				case 3:
-					fragment = new ForumsFragment();
+					fragment = new ColorsFragment();
 					break;
 				case 4:
+					fragment = new ForumsFragment();
+					break;
+				case 5:
 					fragment = new CommentsFragment();
 					break;
 			}
@@ -187,7 +197,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 		@Override
 		public int getCount() {
-			return 5;
+			return 5 + (isSignedIn() ? 1 : 0);
 		}
 	}
 
@@ -267,5 +277,9 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 			activity.updateRefreshStatus(mSyncing);
 		}
+	}
+
+	private boolean isSignedIn() {
+		return Authenticator.getAccount(this) != null;
 	}
 }
