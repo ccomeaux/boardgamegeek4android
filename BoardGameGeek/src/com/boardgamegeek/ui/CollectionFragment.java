@@ -718,15 +718,23 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			ViewHolder holder = (ViewHolder) view.getTag();
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
+			int gameId = cursor.getInt(Query.GAME_ID);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
-			String thumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
+			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
+			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
 
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
-			mImageFetcher.loadThumnailImage(thumbnailUrl, Collection.buildThumbnailUri(collectionId), holder.thumbnail);
+			if (!TextUtils.isEmpty(collectionThumbnailUrl)) {
+				mImageFetcher.loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
+					holder.thumbnail);
+			} else {
+				mImageFetcher.loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId),
+					holder.thumbnail);
+			}
 		}
 	}
 
@@ -748,7 +756,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	private interface Query {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
-			Collection.YEAR_PUBLISHED, Games.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL };
+			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
+			Collection.THUMBNAIL_URL };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -757,5 +766,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		// int GAME_NAME = 4;
 		int GAME_ID = 5;
 		int COLLECTION_THUMBNAIL_URL = 6;
+		int THUMBNAIL_URL = 7;
 	}
 }
