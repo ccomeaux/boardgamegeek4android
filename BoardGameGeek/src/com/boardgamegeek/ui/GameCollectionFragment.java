@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -82,7 +83,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		listView.setSelector(android.R.color.transparent);
 		listView.setCacheColorHint(Color.WHITE);
 		listView.setFastScrollEnabled(true);
-		listView.setDividerHeight(24);
+		listView.setDivider(new ColorDrawable(getResources().getColor(R.color.background_medium)));
+		listView.setDividerHeight(getResources().getDimensionPixelSize(R.dimen.padding_standard));
+		listView.setFooterDividersEnabled(false);
 	}
 
 	@Override
@@ -142,7 +145,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 				cursor.moveToFirst();
 				do {
 					long u = cursor.getLong(new CollectionItem().UPDATED);
-					if (DateTimeUtils.howManyDaysOld(u) > 1) {
+					if (DateTimeUtils.howManyDaysOld(u) > 0) {
 						triggerRefresh();
 						break;
 					}
@@ -236,6 +239,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.hasPartsRoot.setVisibility(TextUtils.isEmpty(item.hasParts) ? View.GONE : View.VISIBLE);
 			holder.hasPartsContent.setText(item.hasParts);
 
+			holder.thumbnail.setTag(R.id.image, item.imageUrl);
+			holder.thumbnail.setTag(R.id.name, item.name);
 			mImageFetcher.loadThumnailImage(item.thumbnailUrl, Collection.buildThumbnailUri(item.id), holder.thumbnail);
 		}
 	}
@@ -334,7 +339,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		int PRIVATE_INFO_COMMENT = 12;
 		int LAST_MODIFIED = 13;
 		int COLLECTION_THUMBNAIL_URL = 14;
-		// int COLLECTION_IMAGE_URL = 15;
+		int COLLECTION_IMAGE_URL = 15;
 		int COLLECTION_YEAR_PUBLISHED = 16;
 		int CONDITION = 17;
 		int HASPARTS_LIST = 18;
@@ -372,8 +377,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		private String acquisitionDate;
 		String privateComment;
 		String thumbnailUrl;
-		// TODO: enable clicking on thumbnail
-		// String imageUrl;
+		String imageUrl;
 		private int year;
 		String condition;
 		String wantParts;
@@ -410,7 +414,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			// TODO format this; is currently YYYY-MM-DD
 			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
 			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
-			// imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
+			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
 			wishlistComment = cursor.getString(WISHLIST_COMMENT);

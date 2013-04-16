@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -281,5 +282,18 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 
 	private boolean isSignedIn() {
 		return Authenticator.getAccount(this) != null;
+	}
+
+	public void onThumbnailClick(View v) {
+		String imageUrl = (String) v.getTag(R.id.image);
+		if (!TextUtils.isEmpty(imageUrl)) {
+			final Intent intent = new Intent(this, ImageActivity.class);
+			intent.setAction(Intent.ACTION_VIEW);
+			intent.putExtra(ImageActivity.KEY_IMAGE_URL, imageUrl);
+			intent.putExtra(ImageActivity.KEY_GAME_ID, mGameId);
+			intent.putExtra(ImageActivity.KEY_GAME_NAME, mGameName);
+			intent.putExtra(ImageActivity.KEY_TITLE, (String) v.getTag(R.id.name));
+			startActivity(intent);
+		}
 	}
 }

@@ -21,6 +21,7 @@
 			android:layout_marginRight="@dimen/padding_standard"
 			android:clickable="true"
 			android:focusable="true"
+			android:onClick="onThumbnailClick"
 			android:scaleType="centerCrop"
 			android:src="@drawable/thumbnail_image_empty" />
 
