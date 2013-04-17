@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
@@ -22,8 +23,8 @@ public class SearchSuggestProvider extends BaseProvider {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, Games.YEAR_PUBLISHED + " AS "
-			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, "IFNULL(CASE WHEN " + Games.YEAR_PUBLISHED + "=0 THEN NULL ELSE "
+			+ Games.YEAR_PUBLISHED + " END, '?') AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
 		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
@@ -50,7 +51,7 @@ public class SearchSuggestProvider extends BaseProvider {
 		String[] selectionArgs, String sortOrder) {
 		String query = null;
 		if (uri.getPathSegments().size() > 1) {
-			query = uri.getLastPathSegment().toLowerCase();
+			query = uri.getLastPathSegment().toLowerCase(Locale.US);
 		}
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
