@@ -122,13 +122,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			if (mMightNeedRefreshing) {
-				triggerRefresh();
-			}
-			return;
-		}
-
 		if (getActivity() == null) {
 			return;
 		}
@@ -136,6 +129,13 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		if (mAdapter == null) {
 			mAdapter = new CollectionAdapter(getActivity());
 			setListAdapter(mAdapter);
+		}
+
+		if (cursor == null || !cursor.moveToFirst()) {
+			if (mMightNeedRefreshing) {
+				triggerRefresh();
+			}
+			return;
 		}
 
 		int token = loader.getId();
@@ -168,7 +168,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		if (mAdapter != null) {
+			mAdapter.changeCursor(null);
+		}
 	}
 
 	private void triggerRefresh() {

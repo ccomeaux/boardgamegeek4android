@@ -129,7 +129,7 @@ public abstract class RemoteBggHandler {
 				}
 			}
 		}
-		ResolverUtils.applyBatch(mResolver, mBatch);
+		processBatch();
 		return mCount > (mPageNumber * getPageSize());
 	}
 

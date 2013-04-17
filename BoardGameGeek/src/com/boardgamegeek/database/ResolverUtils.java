@@ -30,7 +30,7 @@ public class ResolverUtils {
 	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
 		if (batch.size() > 0) {
 			try {
-					resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 			} catch (RemoteException e) {
 				throw new RuntimeException(e);
 			} catch (OperationApplicationException e) {
