@@ -4,13 +4,12 @@ import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.os.Build;
 import android.support.v4.app.NavUtils;
-import android.widget.SearchView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.VersionUtils;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
 
@@ -32,12 +31,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 			case android.R.id.home:
 				NavUtils.navigateUpFromSameTask(this);
 				return true;
-			case R.id.menu_search:
-				if (!VersionUtils.hasHoneycomb()) {
-					onSearchRequested();
-					return true;
-				}
-				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -45,7 +38,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null && VersionUtils.hasHoneycomb()) {
+		if (searchItem != null) {
 			SearchView searchView = (SearchView) searchItem.getActionView();
 			if (searchView != null) {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);

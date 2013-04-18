@@ -16,7 +16,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -24,6 +23,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -32,7 +32,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 public class GameActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
 	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks {
@@ -94,7 +93,7 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null && VersionUtils.hasHoneycomb()) {
+		if (searchItem != null) {
 			SearchView searchView = (SearchView) searchItem.getActionView();
 			if (searchView != null) {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
@@ -109,12 +108,6 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 			case android.R.id.home:
 				NavUtils.navigateUpFromSameTask(this);
 				return true;
-			case R.id.menu_search:
-				if (!VersionUtils.hasHoneycomb()) {
-					onSearchRequested();
-					return true;
-				}
-				break;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;

@@ -11,18 +11,17 @@ import android.content.SyncStatusObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.SearchView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.VersionUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
 	private static final int HELP_VERSION = 2;
@@ -67,7 +66,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null && VersionUtils.hasHoneycomb()) {
+		if (searchItem != null) {
 			SearchView searchView = (SearchView) searchItem.getActionView();
 			if (searchView != null) {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
@@ -87,12 +86,6 @@ public class HomeActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_search:
-				if (!VersionUtils.hasHoneycomb()) {
-					onSearchRequested();
-					return true;
-				}
-				break;
 			case R.id.menu_refresh:
 				triggerRefresh();
 				return true;
