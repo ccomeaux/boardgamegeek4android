@@ -453,6 +453,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		}
 
 		CharSequence getUpdatedDescription() {
+			if (updated == 0) {
+				return r.getString(R.string.needs_updating);
+			}
 			return r.getString(R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(updated);
 		}
 

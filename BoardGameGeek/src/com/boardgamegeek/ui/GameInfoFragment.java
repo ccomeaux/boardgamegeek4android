@@ -849,7 +849,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		public CharSequence getUpdatedDescription() {
 			if (Updated == 0) {
-				return "Needs updating";
+				return getResources().getString(R.string.needs_updating);
 			}
 			return DateUtils.getRelativeTimeSpanString(Updated);
 		}

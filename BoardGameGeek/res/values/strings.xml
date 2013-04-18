@@ -263,6 +263,7 @@
 	<string name="number_to_text">123/ABC</string>
 	<string name="close">Close</string>
 	<string name="view">View</string>
+	<string name="needs_updating">Needs updating</string>
 	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
 	<string name="about_body">
 <![CDATA[
