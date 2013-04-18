@@ -8,6 +8,8 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -37,6 +39,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	private int mUpdateCollectionCount = 0;
 	private int mInsertCollectionCount = 0;
 	private int mSkipCollectionCount = 0;
+	private List<Integer> mInsertedGameIds;
 
 	private String[] mGameProjection = new String[] { Games.UPDATED_LIST };
 	private String[] mCollectionProjection = new String[] { Collection.UPDATED };
@@ -77,6 +80,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		final int depth = mParser.getDepth();
 		int type;
 		int batchCount = 0;
+		mInsertedGameIds = new ArrayList<Integer>(BATCH_SIZE);
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
 
@@ -100,7 +104,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				if (batchCount >= BATCH_SIZE) {
 					LOGI(TAG, "Applying a batch of " + BATCH_SIZE + " games.");
 					batchCount = 0;
-					ResolverUtils.applyBatch(mResolver, mBatch);
+					processBatch();
+					mInsertedGameIds.clear();
 				}
 			}
 		}
@@ -132,18 +137,20 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		try {
 			values.put(Games.UPDATED_LIST, System.currentTimeMillis());
 
-			Uri uri = Games.buildGameUri(gameId);
-			cursor = mResolver.query(uri, mGameProjection, null, null, null);
-			if (cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				if (lastUpdated >= mStartTime) {
-					mSkipGameCount++;
-				}
+			if (mInsertedGameIds.contains(gameId)) {
+				mSkipGameCount++;
 			} else {
-				mInsertGameCount++;
-				values.put(Games.GAME_ID, gameId);
-				addInsert(Games.CONTENT_URI, values, true);
-				return true;
+				Uri uri = Games.buildGameUri(gameId);
+				cursor = mResolver.query(uri, mGameProjection, null, null, null);
+				if (cursor.moveToFirst()) {
+					mSkipGameCount++;
+				} else {
+					mInsertGameCount++;
+					values.put(Games.GAME_ID, gameId);
+					addInsert(Games.CONTENT_URI, values, true);
+					mInsertedGameIds.add(gameId);
+					return true;
+				}
 			}
 			return false;
 		} finally {
