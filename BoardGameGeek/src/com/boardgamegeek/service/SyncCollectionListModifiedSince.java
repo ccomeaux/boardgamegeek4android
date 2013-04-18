@@ -48,7 +48,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 			for (int i = 0; i < statuses.length; i++) {
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 				try {
-					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime);
+					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false);
 					String url = new CollectionUrlBuilder(account.name).status(statuses[i])
 						.modifiedSince(modifiedSince).stats().build();
 					executor.executeGet(url, handler);

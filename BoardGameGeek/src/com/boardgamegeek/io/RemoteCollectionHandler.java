@@ -14,7 +14,6 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -33,6 +32,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	// TODO: Parse Version Info
 
 	private long mStartTime;
+	private boolean mUpdate;
 	private int mUpdateGameCount = 0;
 	private int mInsertGameCount = 0;
 	private int mSkipGameCount = 0;
@@ -41,12 +41,10 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	private int mSkipCollectionCount = 0;
 	private List<Integer> mInsertedGameIds;
 
-	private String[] mGameProjection = new String[] { Games.UPDATED_LIST };
-	private String[] mCollectionProjection = new String[] { Collection.UPDATED };
-
-	public RemoteCollectionHandler(long startTime) {
+	public RemoteCollectionHandler(long startTime, boolean update) {
 		super();
 		mStartTime = startTime;
+		mUpdate = update;
 	}
 
 	@Override
@@ -88,17 +86,26 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				int collectionId = parseIntegerAttribute(Tags.COLLECTION_ID);
 
 				gameValues.clear();
+				gameValues.put(Games.GAME_ID, gameId);
+				gameValues.put(Games.UPDATED_LIST, mStartTime);
+
 				collectionValues.clear();
+				collectionValues.put(Collection.GAME_ID, gameId);
+				if (mUpdate) {
+					collectionValues.put(Collection.UPDATED, mStartTime);
+				}
+				collectionValues.put(Collection.UPDATED_LIST, mStartTime);
 				// The following fields aren't returned if they're blank
 				collectionValues.put(Collection.COMMENT, "");
 				collectionValues.put(Collection.CONDITION, "");
 				collectionValues.put(Collection.HASPARTS_LIST, "");
 				collectionValues.put(Collection.WANTPARTS_LIST, "");
 				collectionValues.put(Collection.WISHLIST_COMMENT, "");
+
 				parseItem(gameValues, collectionValues);
 
-				boolean yield = insertOrUpdateGame(gameId, gameValues);
-				insertOrUpdateCollectionItem(collectionId, gameId, collectionValues, !yield);
+				boolean yield = maybeInsertGame(gameId, gameValues);
+				insertOrUpdateCollectionItem(collectionId, collectionValues, !yield);
 
 				batchCount++;
 				if (batchCount >= BATCH_SIZE) {
@@ -115,6 +122,33 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			+ mSkipCollectionCount + " collection items");
 	}
 
+	private boolean maybeInsertGame(int gameId, ContentValues values) {
+		if (mInsertedGameIds.contains(gameId)) {
+			mSkipGameCount++;
+		} else if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(gameId))) {
+			mSkipGameCount++;
+		} else {
+			mInsertGameCount++;
+			addInsert(Games.CONTENT_URI, values, true);
+			mInsertedGameIds.add(gameId);
+			return true;
+		}
+		return false;
+	}
+
+	private void insertOrUpdateCollectionItem(int itemId, ContentValues values, boolean yieldAllowed) {
+		Uri uri = Collection.buildItemUri(itemId);
+		if (ResolverUtils.rowExists(mResolver, uri)) {
+			mUpdateCollectionCount++;
+			addUpdate(uri, values, yieldAllowed);
+			maybeDeleteThumbnail(values, uri, Collection.THUMBNAIL_URL);
+		} else {
+			mInsertCollectionCount++;
+			values.put(Collection.COLLECTION_ID, itemId);
+			addInsert(Collection.CONTENT_URI, values, yieldAllowed);
+		}
+	}
+
 	private void maybeDeleteThumbnail(ContentValues values, Uri uri, String column) {
 		if (!values.containsKey(column)) {
 			return;
@@ -129,65 +163,6 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 		String thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl);
 		if (!TextUtils.isEmpty(thumbnailFileName)) {
 			addDelete(Thumbnails.buildUri(thumbnailFileName));
-		}
-	}
-
-	private boolean insertOrUpdateGame(int gameId, ContentValues values) {
-		Cursor cursor = null;
-		try {
-			values.put(Games.UPDATED_LIST, System.currentTimeMillis());
-
-			if (mInsertedGameIds.contains(gameId)) {
-				mSkipGameCount++;
-			} else {
-				Uri uri = Games.buildGameUri(gameId);
-				cursor = mResolver.query(uri, mGameProjection, null, null, null);
-				if (cursor.moveToFirst()) {
-					mSkipGameCount++;
-				} else {
-					mInsertGameCount++;
-					values.put(Games.GAME_ID, gameId);
-					addInsert(Games.CONTENT_URI, values, true);
-					mInsertedGameIds.add(gameId);
-					return true;
-				}
-			}
-			return false;
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-	}
-
-	private void insertOrUpdateCollectionItem(int itemId, int gameId, ContentValues values, boolean yieldAllowed) {
-		Cursor cursor = null;
-		try {
-			values.put(Collection.GAME_ID, gameId);
-			// TODO - figure out why we need 2 of these!
-			values.put(Collection.UPDATED, System.currentTimeMillis());
-			values.put(Collection.UPDATED_LIST, System.currentTimeMillis());
-
-			Uri uri = Collection.buildItemUri(itemId);
-			cursor = mResolver.query(uri, mCollectionProjection, null, null, null);
-			if (cursor.moveToFirst()) {
-				long lastUpdated = cursor.getLong(0);
-				if (lastUpdated < mStartTime) {
-					mUpdateCollectionCount++;
-					addUpdate(uri, values, yieldAllowed);
-					maybeDeleteThumbnail(values, uri, Collection.THUMBNAIL_URL);
-				} else {
-					mSkipCollectionCount++;
-				}
-			} else {
-				mInsertCollectionCount++;
-				values.put(Collection.COLLECTION_ID, itemId);
-				addInsert(Collection.CONTENT_URI, values, yieldAllowed);
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
 		}
 	}
 
