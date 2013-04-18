@@ -16,16 +16,19 @@
 		android:title="@string/home_btn_sync"/>
 	<item
 		android:id="@+id/menu_sign_out"
+		android:orderInCategory="2"
 		android:showAsAction="never"
 		android:title="@string/home_btn_sign_out"/>
 	<item
 		android:id="@+id/menu_contact_us"
 		android:icon="?attr/ic_action_send"
+		android:orderInCategory="2"
 		android:showAsAction="never"
 		android:title="@string/home_btn_contact_us"/>
 	<item
 		android:id="@+id/menu_about"
 		android:icon="?attr/ic_action_info"
+		android:orderInCategory="2"
 		android:showAsAction="never"
 		android:title="@string/home_btn_about"/>
 

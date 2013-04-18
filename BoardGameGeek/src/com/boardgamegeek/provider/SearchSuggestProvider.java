@@ -27,9 +27,6 @@ public class SearchSuggestProvider extends BaseProvider {
 			+ Games.YEAR_PUBLISHED + " END, '?') AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
-			+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_ICON_1, "0 AS " + SearchManager.SUGGEST_COLUMN_ICON_1);
 		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.GAMES + "."
 			+ Games.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_2);
