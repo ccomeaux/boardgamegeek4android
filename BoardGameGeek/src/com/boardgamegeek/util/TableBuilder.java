@@ -24,7 +24,7 @@ public class TableBuilder {
 	}
 
 	public enum CONFLICT_RESOLUTION {
-		REPLACE, IGNORE
+		ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
 	}
 
 	public TableBuilder reset() {

@@ -58,7 +58,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_IMAGE_CACHE = 12;
 	private static final int VER_GAMES_UPDATED_PLAYS = 13;
 	private static final int VER_COLLECTION = 14;
-	private static final int DATABASE_VERSION = VER_COLLECTION;
+	private static final int VER_GAME_COLLECTION_CONFLICT = 15;
+	private static final int DATABASE_VERSION = VER_GAME_COLLECTION_CONFLICT;
 
 	public interface GamesDesigners {
 		String GAME_ID = Games.GAME_ID;
@@ -257,7 +258,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.STATS_NUMBER_WEIGHTS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL).addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER).addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
-			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
 	private TableBuilder buildGameRanksTable() {
@@ -318,7 +319,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
 			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
+			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.COLLECTION_SORT_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.STATUS_OWN, COLUMN_TYPE.INTEGER, true, 0)
@@ -346,7 +347,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Collection.RATING, COLUMN_TYPE.REAL)
 			.addColumn(Collection.COLLECTION_THUMBNAIL_URL, COLUMN_TYPE.TEXT)
 			.addColumn(Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT)
-			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE);
+			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
 	private TableBuilder buildBuddiesTable() {
@@ -531,6 +532,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 				addColumn(db, Tables.COLLECTION, Collection.COLLECTION_IMAGE_URL, COLUMN_TYPE.TEXT);
 				buildCollectionTable().replace(db);
 				version = VER_COLLECTION;
+			case VER_COLLECTION:
+				buildGamesTable().replace(db);
+				buildCollectionTable().replace(db);
+				version = VER_GAME_COLLECTION_CONFLICT;
 		}
 
 		if (version != DATABASE_VERSION) {
