@@ -6,16 +6,18 @@ import java.util.List;
 import android.text.TextUtils;
 
 /**
- * Creates URL builder which will give results as:<br> 
+ * Creates URL builder which will give results as:<br>
  * http://www.boardgamegeek.com/xmlapi/boardgame/13,1098&stats=1<br>
  * Invoke useNewApi() to use new API.<br>
  * http://www.boardgamegeek.com/xmlapi2/thing?id=13,1098&stats=1<br>
+ * 
  * @see #useNewApi()
  */
 public class GameUrlBuilder extends UrlBuilder {
 
 	private final String mGameId;
 	private int mCommentsPage;
+	private int mRatingsPage;
 	private boolean mStats;
 	private boolean mUseOldApi = true;
 
@@ -33,6 +35,13 @@ public class GameUrlBuilder extends UrlBuilder {
 
 	public GameUrlBuilder comments(int page) {
 		mCommentsPage = page;
+		mRatingsPage = 0;
+		return this;
+	}
+
+	public GameUrlBuilder ratings(int page) {
+		mRatingsPage = page;
+		mCommentsPage = 0;
 		return this;
 	}
 
@@ -40,7 +49,7 @@ public class GameUrlBuilder extends UrlBuilder {
 		mStats = true;
 		return this;
 	}
-	
+
 	public GameUrlBuilder useNewApi() {
 		mUseOldApi = false;
 		return this;
@@ -62,6 +71,8 @@ public class GameUrlBuilder extends UrlBuilder {
 		}
 		if (mCommentsPage > 0) {
 			opts.add("comments=1&page=" + mCommentsPage);
+		} else if (mRatingsPage > 0) {
+			opts.add("ratingcomments=1&page=" + mRatingsPage);
 		}
 		if (opts.size() > 0) {
 			url += (mUseOldApi ? "?" : "&") + TextUtils.join("&", opts);

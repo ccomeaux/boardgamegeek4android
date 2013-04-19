@@ -27,6 +27,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -43,16 +46,19 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 	private static final int COMMENTS_LOADER_ID = 0;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
+	private static final String STATE_BY_RATING = "by_rating";
 
 	private int mGameId;
 	private List<Comment> mComments = new ArrayList<Comment>();
 	private CommentsAdapter mCommentsAdapter = new CommentsAdapter();
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
+	private boolean mByRating = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = Games.getGameId(intent.getData());
@@ -65,9 +71,11 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		if (savedInstanceState != null) {
 			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, -1);
 			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, 0);
+			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
 		} else {
 			mListViewStatePosition = -1;
 			mListViewStateTop = 0;
+			mByRating = false;
 		}
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
@@ -99,7 +107,33 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			outState.putInt(STATE_POSITION, getListView().getFirstVisiblePosition());
 			outState.putInt(STATE_TOP, top);
 		}
+		outState.putBoolean(STATE_BY_RATING, mByRating);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.game_comments, menu);
+		if (mByRating) {
+			menu.findItem(R.id.menu_comments_by_rating).setChecked(true);
+		} else {
+			menu.findItem(R.id.menu_comments_by_user).setChecked(true);
+		}
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		if ((id == R.id.menu_comments_by_user && mByRating) || (id == R.id.menu_comments_by_rating && !mByRating)) {
+			item.setChecked(true);
+			mByRating = !mByRating;
+			mComments.clear();
+			mCommentsAdapter.notifyDataSetChanged();
+			getLoaderManager().restartLoader(COMMENTS_LOADER_ID, null, this);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	public void loadMoreResults() {
@@ -125,7 +159,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 	@Override
 	public Loader<List<Comment>> onCreateLoader(int id, Bundle data) {
-		return new CommentsLoader(getActivity(), mGameId);
+		return new CommentsLoader(getActivity(), mGameId, mByRating);
 	}
 
 	@Override
@@ -185,19 +219,21 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		private boolean mIsLoading;
 		private String mErrorMessage;
 		private int mCommentCount;
+		private boolean mByRating;
 
-		public CommentsLoader(Context context, int gameId) {
+		public CommentsLoader(Context context, int gameId, boolean byRating) {
 			super(context);
-			init(gameId);
+			init(gameId, byRating);
 		}
 
-		private void init(int gameId) {
+		private void init(int gameId, boolean byRating) {
 			mGameId = gameId;
 			mNextPage = 1;
 			mIsLoading = true;
 			mErrorMessage = "";
 			mData = null;
 			mCommentCount = 0;
+			mByRating = byRating;
 		}
 
 		@Override
@@ -208,7 +244,13 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteCommentsHandler handler = new RemoteCommentsHandler();
 
-			String url = new GameUrlBuilder(mGameId).useNewApi().comments(mNextPage).build();
+			GameUrlBuilder builder = new GameUrlBuilder(mGameId).useNewApi();
+			if (mByRating) {
+				builder.ratings(mNextPage);
+			} else {
+				builder.comments(mNextPage);
+			}
+			String url = builder.build();
 			LOGI(TAG, "Loading comments from " + url);
 
 			executor.safelyExecuteGet(url, handler);
