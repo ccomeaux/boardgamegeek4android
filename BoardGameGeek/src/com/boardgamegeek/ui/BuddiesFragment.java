@@ -70,7 +70,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		super.onViewCreated(view, savedInstanceState);
 		view.setBackgroundColor(Color.WHITE);
 		final ListView listView = getListView();
-		listView.setSelector(android.R.color.transparent);
 		listView.setCacheColorHint(Color.WHITE);
 		listView.setFastScrollEnabled(true);
 	}

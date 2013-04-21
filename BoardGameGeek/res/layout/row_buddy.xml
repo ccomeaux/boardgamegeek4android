@@ -10,6 +10,7 @@
 		style="@style/ImageList"
 		android:layout_width="@dimen/thumbnail_list_size"
 		android:layout_height="@dimen/thumbnail_list_size"
+		android:clickable="false"
 		android:contentDescription="@string/avatar"
 		android:src="@drawable/person_image_empty" />
 

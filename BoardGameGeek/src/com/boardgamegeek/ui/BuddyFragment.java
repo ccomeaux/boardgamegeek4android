@@ -2,12 +2,14 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private TextView mName;
 	private TextView mId;
 	private ImageView mAvatar;
-
+	private TextView mNickname;
+	private TextView mUpdated;
 	private ImageFetcher mImageFetcher;
 
 	@Override
@@ -57,6 +60,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mName = (TextView) rootView.findViewById(R.id.buddy_name);
 		mId = (TextView) rootView.findViewById(R.id.buddy_id);
 		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
+		mNickname = (TextView) rootView.findViewById(R.id.nickname);
+		mUpdated = (TextView) rootView.findViewById(R.id.updated);
 
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
@@ -110,15 +115,28 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		String firstName = cursor.getString(BuddyQuery.FIRSTNAME);
 		String lastName = cursor.getString(BuddyQuery.LASTNAME);
 		String name = cursor.getString(BuddyQuery.NAME);
-
-		mFullName.setText(buildFullName(firstName, lastName));
-		mName.setText(name);
-		mId.setText(String.valueOf(id));
-
+		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
+		long updated = cursor.getLong(BuddyQuery.UPDATED);
+		String fullName = buildFullName(firstName, lastName);
+
 		if (!TextUtils.isEmpty(avatarUrl)) {
 			mImageFetcher.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar);
 		}
+
+		mFullName.setText(fullName);
+		mName.setText(name);
+		mId.setText(String.valueOf(id));
+		if (TextUtils.isEmpty(nickname)) {
+			mNickname.setTextColor(Color.GRAY);
+			mNickname.setText(fullName);
+		} else {
+			mNickname.setText(nickname);
+		}
+		mUpdated.setText(getResources().getString(R.string.updated)
+			+ ": "
+			+ (updated == 0 ? getResources().getString(R.string.needs_updating) : DateUtils
+				.getRelativeTimeSpanString(updated)));
 	}
 
 	private String buildFullName(String firstName, String lastName) {
@@ -137,12 +155,14 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		int _TOKEN = 0x1;
 
 		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-			Buddies.AVATAR_URL };
+			Buddies.AVATAR_URL, Buddies.PLAY_NICKNAME, Buddies.UPDATED };
 
 		int BUDDY_ID = 0;
 		int NAME = 1;
 		int FIRSTNAME = 2;
 		int LASTNAME = 3;
 		int AVATAR_URL = 4;
+		int PLAY_NICKNAME = 5;
+		int UPDATED = 6;
 	}
 }

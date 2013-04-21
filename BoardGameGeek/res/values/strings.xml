@@ -267,6 +267,8 @@
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
+	<string name="nickname">Nickname</string>
+	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
 	<string name="about_body">
 <![CDATA[
@@ -277,13 +279,9 @@
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
-Dennis Bond (<a href="http://boardgamegeek.com/user/rjnfc">rjnfc</a>)<br/>
-Chris Comeaux (<a href="http://boardgamegeek.com/user/ccomeaux">ccomeaux</a>)<br/>
-Marek Jeszka (<a href="http://boardgamegeek.com/user/Marc6">Marc6</a>)<br/>
-Gareth McSorley (<a href="http://boardgamegeek.com/user/Capoeirista">Capoeirista</a>)<br/>
-Leif Norcott (<a href="http://boardgamegeek.com/user/nibuen">nibuen</a>)<br/>
+Dennis Bond (<a href="http://boardgamegeek.com/user/rjnfc">rjnfc</a>), Chris Comeaux (<a href="http://boardgamegeek.com/user/ccomeaux">ccomeaux</a>), Marek Jeszka (<a href="http://boardgamegeek.com/user/Marc6">Marc6</a>), Gareth McSorley (<a href="http://boardgamegeek.com/user/Capoeirista">Capoeirista</a>), Leif Norcott (<a href="http://boardgamegeek.com/user/nibuen">nibuen</a>)<br/>
 <br/>
-Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission.<br/>
+Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.<br/>
 <br/>
 Icons by <a href="http://dryicons.com">DryIcons</a> and <a href="http://www.androidicons.com">Android Icons</a>.<br/>
 <br/>

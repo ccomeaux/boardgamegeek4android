@@ -1,50 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/root"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content" >
+	android:layout_height="wrap_content"
+	android:background="@color/accent_light"
+	android:orientation="vertical" >
 
-	<LinearLayout
+	<RelativeLayout
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:orientation="horizontal" >
+		android:layout_height="wrap_content" >
 
 		<ImageView
 			android:id="@+id/buddy_avatar"
 			android:layout_width="@dimen/avatar_size"
 			android:layout_height="@dimen/avatar_size"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentTop="true"
 			android:layout_marginRight="@dimen/padding_standard"
 			android:contentDescription="@string/avatar"
 			android:scaleType="fitCenter"
 			android:src="@drawable/person_image_empty" />
 
-		<LinearLayout
+		<TextView
+			android:id="@+id/buddy_full_name"
+			style="@style/Text.Title"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical" >
+			android:layout_alignParentTop="true"
+			android:layout_toRightOf="@+id/buddy_avatar"
+			android:textIsSelectable="false" />
 
-			<TextView
-				android:id="@+id/buddy_full_name"
-				style="@style/Text.Title"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content" />
+		<TextView
+			android:id="@+id/buddy_name"
+			style="@style/Text.Subtitle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@+id/buddy_full_name"
+			android:layout_below="@+id/buddy_full_name"
+			android:textIsSelectable="false" />
 
-			<TextView
-				android:id="@+id/buddy_name"
-				style="@style/Text.Subtitle"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content" />
+		<TextView
+			android:id="@+id/buddy_id"
+			style="@style/Text.Secondary"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@+id/buddy_full_name"
+			android:layout_below="@+id/buddy_name"
+			android:textIsSelectable="false"
+			android:visibility="gone" />
 
-			<TextView
-				android:id="@+id/buddy_id"
-				style="@style/Text.Secondary"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:textColor="@color/light_text"
-				android:visibility="gone" />
-		</LinearLayout>
+		<TextView
+			android:id="@+id/updated"
+			style="@style/Text.Secondary"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/buddy_name"
+			android:layout_toRightOf="@+id/buddy_avatar"
+			android:gravity="right"
+			android:textIsSelectable="false" />
+	</RelativeLayout>
+
+	<LinearLayout
+		android:id="@+id/game_info_links_root"
+		style="@style/InfoSection"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical" >
+
+		<TextView
+			android:id="@+id/nickname_label"
+			style="@style/Text.Header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/nickname" />
+
+		<TextView
+			android:id="@+id/nickname"
+			style="@style/Text.Title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textIsSelectable="false" />
+
+		<TextView
+			style="@style/Text.Footnote2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/nickname_description" />
 	</LinearLayout>
 
-</FrameLayout>
+</LinearLayout>
