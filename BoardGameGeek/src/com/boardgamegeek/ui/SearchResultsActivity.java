@@ -15,6 +15,7 @@ import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends BaseActivity implements SearchResultsFragment.Callbacks {
 	private static final String TAG_SINGLE_PANE = "single_pane";
+	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
 
 	private Fragment mFragment;
@@ -31,9 +32,16 @@ public class SearchResultsActivity extends BaseActivity implements SearchResults
 			parseIntent(getIntent());
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
+			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putString(SEARCH_TEXT, mSearchText);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
