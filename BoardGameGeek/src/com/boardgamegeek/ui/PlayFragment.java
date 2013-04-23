@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -34,15 +37,18 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private Uri mPlayUri;
 	private Play mPlay = new Play();
 
 	private View mProgress;
+	private TextView mMessage;
 	private View mScroll;
 	private TextView mUpdated;
 	private TextView mPlayId;
@@ -57,6 +63,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	private LinearLayout mPlayerList;
 	private TextView mSavedTimeStamp;
 	private TextView mUnsyncedMessage;
+	private View mViewToLoad;
+	private View mViewToHide;
+	private boolean mPlayersLoaded;
+	private DetachableResultReceiver mReceiver;
 
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
@@ -87,6 +97,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 
+		// TODO: move this to a fragment so it survives orientation changes
+		mReceiver = new DetachableResultReceiver(new Handler());
+		mReceiver.setReceiver(this);
+
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mPlayUri = intent.getData();
 
@@ -104,6 +118,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
 
 		mProgress = rootView.findViewById(R.id.progress);
+		mMessage = (TextView) rootView.findViewById(R.id.message);
 		mScroll = rootView.findViewById(R.id.play_scroll);
 		mUpdated = (TextView) rootView.findViewById(R.id.updated);
 		mPlayId = (TextView) rootView.findViewById(R.id.play_id);
@@ -119,6 +134,9 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mSavedTimeStamp = (TextView) rootView.findViewById(R.id.play_saved);
 		mUnsyncedMessage = (TextView) rootView.findViewById(R.id.play_unsynced_message);
 
+		mViewToLoad = null;
+		mViewToHide = null;
+		mPlayersLoaded = false;
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
@@ -159,7 +177,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// TODO add menu_send if modified
 			case R.id.menu_refresh: {
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
 					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
@@ -233,6 +250,14 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				}
 				break;
 		}
+
+		if (mViewToLoad != null && mPlayersLoaded) {
+			if (mViewToHide != null) {
+				mViewToHide.setVisibility(View.GONE);
+			}
+			fadeIn(mViewToLoad);
+			fadeOut(mProgress);
+		}
 	}
 
 	@Override
@@ -241,9 +266,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private void onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
+			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
+			mViewToLoad = mMessage;
+			mViewToHide = mScroll;
 			return;
 		}
-		// TODO: handle where cursor never returns anything
 
 		mPlay.fromCursor(cursor);
 
@@ -293,10 +320,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			mSavedTimeStamp.setVisibility(View.GONE);
 		}
 
-		mProgress.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		mScroll.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		mProgress.setVisibility(View.GONE);
-		mScroll.setVisibility(View.VISIBLE);
+		ActivityCompat.invalidateOptionsMenu(getActivity());
+
+		mViewToLoad = mScroll;
+		mViewToHide = mMessage;
 
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
@@ -304,7 +331,22 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		}
 	}
 
+	private void fadeIn(View view) {
+		if (view.getVisibility() == View.GONE) {
+			view.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+			view.setVisibility(View.VISIBLE);
+		}
+	}
+
+	private void fadeOut(View view) {
+		if (view.getVisibility() != View.GONE) {
+			view.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+			view.setVisibility(View.GONE);
+		}
+	}
+
 	private void onPlayerQueryComplete(Cursor cursor) {
+		mPlayersLoaded = true;
 		mPlay.clearPlayers();
 		while (cursor.moveToNext()) {
 			Player player = new Player(cursor);
@@ -321,7 +363,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId, null);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId, mReceiver);
 	}
 
 	private void save(int status) {
@@ -341,5 +383,14 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		int _TOKEN = 0x02;
 		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
 			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
+	}
+
+	@Override
+	public void onReceiveResult(int resultCode, Bundle resultData) {
+		switch (resultCode) {
+			case UpdateService.STATUS_ERROR:
+				Toast.makeText(getActivity(), resultData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_LONG).show();
+				break;
+		}
 	}
 }

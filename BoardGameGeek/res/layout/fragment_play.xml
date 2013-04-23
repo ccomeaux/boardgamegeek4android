@@ -15,6 +15,13 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center" />
 
+	<TextView
+		android:id="@+id/message"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:visibility="gone" />
+
 	<ScrollView
 		android:id="@+id/play_scroll"
 		android:layout_width="match_parent"
@@ -32,7 +39,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_alignParentTop="true"
-				android:paddingBottom="@dimen/padding_half" />
+				android:paddingBottom="@dimen/padding_half"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_quantity"
@@ -40,7 +48,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_date"
-				android:paddingBottom="@dimen/padding_half" />
+				android:paddingBottom="@dimen/padding_half"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_length"
@@ -48,7 +57,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_quantity"
-				android:paddingBottom="@dimen/padding_half" />
+				android:paddingBottom="@dimen/padding_half"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_location"
@@ -56,7 +66,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_length"
-				android:paddingBottom="@dimen/padding_half" />
+				android:paddingBottom="@dimen/padding_half"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_incomplete"
@@ -90,7 +101,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/play_comments_label"
-				android:paddingBottom="@dimen/padding_half" />
+				android:paddingBottom="@dimen/padding_half"
+				android:textIsSelectable="true" />
 
 			<LinearLayout
 				android:id="@+id/play_player_list"
@@ -106,7 +118,8 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_player_list" />
+				android:layout_below="@+id/play_player_list"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_saved"
@@ -114,7 +127,8 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_unsynced_message" />
+				android:layout_below="@+id/play_unsynced_message"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/play_id"
@@ -122,7 +136,8 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@+id/play_player_list" />
+				android:layout_below="@+id/play_player_list"
+				android:textIsSelectable="true" />
 
 			<TextView
 				android:id="@+id/updated"
@@ -130,7 +145,8 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@+id/play_id" />
+				android:layout_below="@+id/play_id"
+				android:textIsSelectable="true" />
 		</RelativeLayout>
 	</ScrollView>
 

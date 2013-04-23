@@ -139,6 +139,7 @@
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
 	<string name="empty_plays">No plays. Check your sync settings and synchronize again.</string>
+	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_forums">No forums</string>
 	<string name="empty_forum">No threads in this forum</string>
 	<string name="empty_thread">No posts in this thread</string>
