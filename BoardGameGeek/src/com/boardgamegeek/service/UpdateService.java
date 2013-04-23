@@ -111,7 +111,7 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (mRemoteExecutor != null) {
+		if (mRemoteExecutor == null) {
 			mRemoteExecutor = createExecutor();
 		}
 

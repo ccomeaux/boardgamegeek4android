@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
 import android.app.SearchManager;
-import android.os.Build;
 import android.support.v4.app.NavUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -35,7 +33,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
@@ -46,5 +43,4 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 			}
 		}
 	}
-
 }

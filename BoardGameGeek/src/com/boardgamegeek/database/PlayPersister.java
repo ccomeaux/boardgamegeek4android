@@ -157,6 +157,8 @@ public class PlayPersister {
 						LOGE(TAG, "Unknown sync status!");
 					}
 					LOGI(TAG, "Not saving during the sync due to status=" + status);
+				} else {
+					status = STATUS_UPDATE;
 				}
 			} else {
 				status = STATUS_UPDATE;
@@ -184,12 +186,7 @@ public class PlayPersister {
 		if (play.PlayId == BggContract.INVALID_ID) {
 			return Play.SYNC_STATUS_NOT_STORED;
 		}
-
-		int status = ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_STATUS);
-		if (status == 0) {
-			return Play.SYNC_STATUS_NOT_STORED;
-		}
-		return status;
+		return ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
 	}
 
 	private static ContentValues createContentValues(Play play) {
