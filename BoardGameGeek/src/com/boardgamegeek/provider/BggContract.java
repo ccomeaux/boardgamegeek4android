@@ -231,6 +231,7 @@ public class BggContract {
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
+	public static final String FRAGMENT_NAME = "name";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -710,6 +711,10 @@ public class BggContract {
 
 		public static Uri buildPlayersUri() {
 			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
+		}
+
+		public static Uri buildPlayersUniqueUri() {
+			return buildPlayersUri().buildUpon().fragment(FRAGMENT_NAME).build();
 		}
 
 		public static int getPlayId(Uri uri) {
