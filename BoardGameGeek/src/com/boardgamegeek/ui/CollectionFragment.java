@@ -28,7 +28,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -76,6 +75,7 @@ import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -492,17 +492,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			cursor.close();
 		}
 
-		if (mListContainer.getVisibility() != View.VISIBLE) {
-			if (isResumed()) {
-				mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-				mListContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-			} else {
-				mProgressView.clearAnimation();
-				mListContainer.clearAnimation();
-			}
-			mProgressView.setVisibility(View.GONE);
-			mListContainer.setVisibility(View.VISIBLE);
-		}
+		AnimationUtils.fadeOut(getActivity(), mProgressView, isResumed());
+		AnimationUtils.fadeIn(getActivity(), mListContainer, isResumed());
 	}
 
 	@Override
@@ -732,8 +723,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 				mImageFetcher.loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
 					holder.thumbnail);
 			} else {
-				mImageFetcher.loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId),
-					holder.thumbnail);
+				mImageFetcher.loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId), holder.thumbnail);
 			}
 		}
 	}

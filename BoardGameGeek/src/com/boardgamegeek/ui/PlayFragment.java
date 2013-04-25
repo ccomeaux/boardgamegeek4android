@@ -16,7 +16,6 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +35,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
@@ -255,8 +255,8 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			if (mViewToHide != null) {
 				mViewToHide.setVisibility(View.GONE);
 			}
-			fadeIn(mViewToLoad);
-			fadeOut(mProgress);
+			AnimationUtils.fadeIn(getActivity(), mViewToLoad, true);
+			AnimationUtils.fadeOut(getActivity(), mProgress, true);
 		}
 	}
 
@@ -328,20 +328,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
-		}
-	}
-
-	private void fadeIn(View view) {
-		if (view.getVisibility() == View.GONE) {
-			view.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-			view.setVisibility(View.VISIBLE);
-		}
-	}
-
-	private void fadeOut(View view) {
-		if (view.getVisibility() != View.GONE) {
-			view.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-			view.setVisibility(View.GONE);
 		}
 	}
 

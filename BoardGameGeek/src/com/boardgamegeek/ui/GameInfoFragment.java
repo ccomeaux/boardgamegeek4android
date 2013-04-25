@@ -23,7 +23,6 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -46,6 +45,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ImageFetcher;
@@ -493,12 +493,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
 
-		if (mScrollRoot.getVisibility() != View.VISIBLE) {
-			mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-			mScrollRoot.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-			mProgressView.setVisibility(View.GONE);
-			mScrollRoot.setVisibility(View.VISIBLE);
-		}
+		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
+		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
 
 		mNameView.setText(game.Name);
 		formatRating(game);
