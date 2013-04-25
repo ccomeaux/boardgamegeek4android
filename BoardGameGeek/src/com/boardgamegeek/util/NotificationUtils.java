@@ -12,13 +12,18 @@ import com.boardgamegeek.ui.HomeActivity;
 
 public class NotificationUtils {
 	public static final int ID_SYNC = 0;
-	public static final int ID_SYNC_ERROR = -1;
 	public static final int ID_SYNC_PLAY_UPLOAD = 1;
+	public static final int ID_PLAY_TIMER = 2;
+	public static final int ID_SYNC_ERROR = -1;
+	public static final int ID_PROVIDER_ERROR = -2;
 
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
 		return createNotificationBuilder(context, titleId, HomeActivity.class);
 	}
 
+	/**
+	 * Creates a notification builder with the correct icons, specified title, and pending intent.
+	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)

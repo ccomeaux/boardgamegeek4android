@@ -12,13 +12,11 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
@@ -54,6 +52,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -63,7 +62,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private static final int HELP_VERSION = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
-	private static final int NOTIFICATION_ID = 2;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -349,7 +347,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
-		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 	}
@@ -389,13 +387,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void launchStartNotification(Intent intent) {
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-		String playing = getString(R.string.notification_playing);
-		builder.setContentTitle(playing).setContentText(mPlay.GameName)
-			.setTicker(playing + " \"" + mPlay.GameName + "\"").setSmallIcon(R.drawable.ic_stat_bgg)
-			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.title_logo))
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(this,
+			R.string.notification_playing);
+		builder.setContentText(mPlay.GameName)
+			.setTicker(String.format(getString(R.string.notification_playing_game), mPlay.GameName))
 			.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
-		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, builder.build());
+		NotificationUtils.notify(this, NotificationUtils.ID_PLAY_TIMER, builder);
 		// TODO - set large icon with game thumbnail
 	}
 

@@ -119,6 +119,7 @@
 	<string name="title_publisher">Publisher</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
+	<string name="title_error">Error!</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
@@ -133,6 +134,7 @@
 	<string name="home_btn_contact_us">Contact us</string>
 	<string name="home_btn_signin">Sign In</string>
 	<string name="notification_playing">Playing</string>
+	<string name="notification_playing_game">Playing "%s"</string>
 	<string name="pref_warning_username">Please sign in first.</string>
 	<string name="loading">Loading…</string>
 	<string name="empty_buddies">No buddies</string>

@@ -4,23 +4,19 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.ui.HomeActivity;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
 public abstract class BaseProvider {
@@ -126,19 +122,10 @@ public abstract class BaseProvider {
 	}
 
 	protected void notifyException(Context context, SQLException e) {
-		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.title_logo))
-			.setContentTitle("Error!").setContentText(e.getLocalizedMessage())
-			.setPriority(NotificationCompat.PRIORITY_LOW);
-		Intent intent = new Intent(context, HomeActivity.class);
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
-			PendingIntent.FLAG_UPDATE_CURRENT);
-		builder.setContentIntent(resultPendingIntent);
-		builder.setStyle(
-			new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getLocalizedMessage()))
-			.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-		nm.notify(451, builder.build());
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, R.string.title_error)
+			.setContentText(e.getLocalizedMessage());
+		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
+			e.getLocalizedMessage()));
+		NotificationUtils.notify(context, NotificationUtils.ID_PROVIDER_ERROR, builder);
 	}
 }
