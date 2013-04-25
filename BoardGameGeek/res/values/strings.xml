@@ -118,6 +118,8 @@
 	<string name="title_artist">Artist</string>
 	<string name="title_publisher">Publisher</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
+	<string name="title_edit_nickname">Edit Nickname</string>
+	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
@@ -208,6 +210,7 @@
 	<string name="menu_sort_comments">Sort comments by…</string>
 	<string name="menu_sort_comments_user">User</string>
 	<string name="menu_sort_comments_rating">Rating</string>
+	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
@@ -251,7 +254,7 @@
 	<string name="update">Update</string>
 	<string name="create">Create</string>
 	<string name="votes_suffix">"%s votes"</string>
-	<string name="add_field">Add field</string>
+	<string name="add_field">Add field…</string>
 	<string name="menu_player_order">Player order&#8230;</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
@@ -270,12 +273,14 @@
 	<string name="needs_updating">Needs updating</string>
 	<string name="nickname">Nickname</string>
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
+	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
 - NEW: Collection tab in the game view<br/>
 - NEW: Sort comments by rating instead of user<br/>
+- NEW: Ability to change your GeekBuddies\' nickname used while logging plays<br/>
 - MOD: Collection list now shows collection thumbnail (not the game thumbnail)<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
@@ -321,6 +326,10 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<plurals name="forum_thread_replies">
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
+	</plurals>
+	<plurals name="msg_updated_plays">
+		<item quantity="one">Updated %s play!</item>
+		<item quantity="other">Updated %s plays!</item>
 	</plurals>
 
 </resources>

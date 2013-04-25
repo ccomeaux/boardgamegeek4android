@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_standard" >
+
+	<EditText
+		android:id="@+id/nickname"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:imeOptions="actionDone"
+		android:inputType="textPersonName" />
+
+	<CheckBox
+		android:id="@+id/change_plays"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/nickname_update_plays" />
+
+</LinearLayout>

@@ -1,9 +1,16 @@
 package com.boardgamegeek.ui;
 
+import java.util.List;
+
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -13,12 +20,24 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.database.ResolverUtils;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -36,6 +55,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mBuddyUri = intent.getData();
@@ -78,6 +98,23 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	public void onDestroy() {
 		super.onDestroy();
 		mImageFetcher.closeCache();
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.buddy, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		switch (id) {
+			case R.id.menu_edit:
+				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -131,6 +168,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mNickname.setTextColor(Color.GRAY);
 			mNickname.setText(fullName);
 		} else {
+			mNickname.setTextColor(mFullName.getTextColors().getDefaultColor());
 			mNickname.setText(nickname);
 		}
 		mUpdated.setText(getResources().getString(R.string.updated)
@@ -164,5 +202,98 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		int AVATAR_URL = 4;
 		int PLAY_NICKNAME = 5;
 		int UPDATED = 6;
+	}
+
+	public void showDialog(final Context context, final Uri uri, final String nickname, final String username) {
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.dialog_edit_nickname, null);
+
+		final EditText mEditText = (EditText) view.findViewById(R.id.nickname);
+		final CheckBox mCheckBox = (CheckBox) view.findViewById(R.id.change_plays);
+		if (!TextUtils.isEmpty(nickname)) {
+			mEditText.setText(nickname);
+			mEditText.setSelection(0, nickname.length());
+		}
+
+		AlertDialog dialog = new AlertDialog.Builder(context).setView(view).setTitle(R.string.title_edit_nickname)
+			.setNegativeButton(R.string.cancel, null)
+			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					String newNickname = mEditText.getText().toString();
+					if (!newNickname.equals(nickname)) {
+						new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
+					}
+				}
+			}).create();
+		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		dialog.show();
+	}
+
+	private class Task extends AsyncTask<String, Void, Void> {
+		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND " + PlayPlayers.NAME + "!=?";
+		Context mContext;
+		Uri mUri;
+		String mUsername;
+		boolean mUpdatePlays;
+
+		public Task(Context context, Uri uri, String username, boolean updatePlays) {
+			mContext = context;
+			mUri = uri;
+			mUsername = username;
+			mUpdatePlays = updatePlays;
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+			String newNickname = params[0];
+			updateNickname(mContext, mUri, newNickname);
+			if (mUpdatePlays) {
+				if (TextUtils.isEmpty(newNickname)) {
+					showToast(getString(R.string.msg_missing_nickname));
+				} else {
+					int count = updatePlays(mContext, mUsername, newNickname);
+					if (count > 0) {
+						updatePlayers(mContext, mUsername, newNickname);
+						SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+					}
+					showToast(getResources().getQuantityString(R.plurals.msg_updated_plays, count, count));
+				}
+			}
+			return null;
+		}
+
+		private void showToast(final String text) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+				}
+			});
+		}
+
+		private void updateNickname(final Context context, final Uri uri, String nickname) {
+			ContentValues values = new ContentValues(1);
+			values.put(Buddies.PLAY_NICKNAME, nickname);
+			context.getContentResolver().update(uri, values, null, null);
+		}
+
+		private int updatePlays(final Context context, final String username, final String newNickname) {
+			ContentValues values = new ContentValues(1);
+			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
+			List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersUri(),
+				Plays.PLAY_ID, SELECTION, new String[] { username, newNickname });
+			for (Integer playId : playIds) {
+				context.getContentResolver().update(Plays.buildPlayUri(playId), values, null, null);
+			}
+			return playIds.size();
+		}
+
+		private int updatePlayers(final Context context, final String username, String newNickname) {
+			ContentValues values = new ContentValues(1);
+			values.put(PlayPlayers.NAME, newNickname);
+			return context.getContentResolver().update(Plays.buildPlayersUri(), values, SELECTION,
+				new String[] { username, newNickname });
+		}
 	}
 }
