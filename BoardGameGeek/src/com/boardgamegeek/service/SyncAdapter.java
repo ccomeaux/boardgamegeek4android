@@ -134,15 +134,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			} catch (IOException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numIoExceptions++;
-				showError(e.getLocalizedMessage());
+				showError(e);
 				break;
 			} catch (XmlPullParserException e) {
 				LOGE(TAG, "Syncing " + task, e);
 				syncResult.stats.numParseExceptions++;
-				showError(e.getLocalizedMessage());
+				showError(e);
 			} catch (Exception e) {
 				LOGE(TAG, "Syncing " + task, e);
-				showError(e.getLocalizedMessage());
+				showError(e);
 			}
 
 			NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
@@ -156,15 +156,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		} catch (OperationCanceledException e) {
 			LOGE(TAG, "Getting auth token", e);
 			syncResult.stats.numIoExceptions++;
-			showAuthError(e.getLocalizedMessage());
+			showAuthError(e);
 		} catch (AuthenticatorException e) {
 			LOGE(TAG, "Getting auth token", e);
 			syncResult.stats.numAuthExceptions++;
-			showAuthError(e.getLocalizedMessage());
+			showAuthError(e);
 		} catch (IOException e) {
 			LOGE(TAG, "Getting auth token", e);
 			syncResult.stats.numIoExceptions++;
-			showAuthError(e.getLocalizedMessage());
+			showAuthError(e);
 		}
 		return token;
 	}
@@ -174,12 +174,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			NotificationCompat.PRIORITY_LOW);
 	}
 
-	private void showError(String message) {
-		showError(mContext.getString(R.string.sync_notification_error), message);
+	private void showError(Throwable t) {
+		showError(mContext.getString(R.string.sync_notification_error), t.getLocalizedMessage());
 	}
 
-	private void showAuthError(String message) {
-		showError(mContext.getString(R.string.sync_notification_error_auth), message);
+	private void showAuthError(Throwable t) {
+		showError(mContext.getString(R.string.sync_notification_error_auth), t.getLocalizedMessage());
 	}
 
 	private void showError(String text, String message) {

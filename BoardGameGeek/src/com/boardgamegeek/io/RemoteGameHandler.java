@@ -44,9 +44,11 @@ public class RemoteGameHandler extends RemoteBggHandler {
 	private List<String> mPollNames;
 	private boolean mParsePolls;
 	private int mCount;
+	private long mStartTime;
 
-	public RemoteGameHandler() {
+	public RemoteGameHandler(long startTime) {
 		super();
+		mStartTime = startTime;
 	}
 
 	public void setParsePolls() {
@@ -74,15 +76,14 @@ public class RemoteGameHandler extends RemoteBggHandler {
 				Uri uri = Games.buildGameUri(mGameId);
 				if (!ResolverUtils.rowExists(mResolver, uri)) {
 					values.put(Games.GAME_ID, mGameId);
-					values.put(Games.UPDATED_LIST, System.currentTimeMillis());
 					addInsertToTop(Games.CONTENT_URI, values);
 				} else {
 					addUpdateToTop(uri, values);
 				}
 				mCount++;
 				deleteOldChildRecords();
+				processBatch();
 			}
-			processBatch();
 		}
 	}
 
@@ -196,7 +197,8 @@ public class RemoteGameHandler extends RemoteBggHandler {
 			}
 		}
 
-		values.put(Games.UPDATED, System.currentTimeMillis());
+		values.put(Games.UPDATED, mStartTime);
+		values.put(Games.UPDATED_LIST, mStartTime);
 		return values;
 	}
 

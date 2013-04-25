@@ -19,7 +19,7 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public void execute(RemoteExecutor executor, Context context) {
-		RemoteGameHandler handler = new RemoteGameHandler();
+		RemoteGameHandler handler = new RemoteGameHandler(System.currentTimeMillis());
 		if (PreferencesUtils.getPolls(context)) {
 			handler.setParsePolls();
 		}

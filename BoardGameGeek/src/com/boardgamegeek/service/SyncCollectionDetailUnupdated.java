@@ -38,7 +38,7 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 					if (i <= gameIds.size()) {
 						List<String> ids = gameIds.subList(i, Math.min(i + GAMES_PER_FETCH, gameIds.size()));
 						LOGI(TAG, "...updating " + ids.size() + " games");
-						RemoteBggHandler handler = new RemoteGameHandler();
+						RemoteBggHandler handler = new RemoteGameHandler(System.currentTimeMillis());
 						String url = new GameUrlBuilder(ids).stats().build();
 						executor.executeGet(url, handler);
 						// syncResult.stats.numUpdates += handler.getCount();
