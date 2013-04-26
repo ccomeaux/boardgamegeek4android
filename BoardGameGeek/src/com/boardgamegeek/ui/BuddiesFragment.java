@@ -16,7 +16,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -70,11 +72,9 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-
 		if (!(activity instanceof Callbacks)) {
 			throw new ClassCastException("Activity must implement fragment's callbacks.");
 		}
-
 		mCallbacks = (Callbacks) activity;
 	}
 
@@ -164,12 +164,20 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		mAdapter.changeCursor(null);
 	}
 
-	private class BuddiesAdapter extends CursorAdapter {
+	private class BuddiesAdapter extends CursorAdapter implements SectionIndexer {
 		private LayoutInflater mInflater;
+		private AlphabetIndexer mAlphabetIndexer;
 
 		public BuddiesAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
+			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, " ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		}
+
+		@Override
+		public Cursor swapCursor(Cursor newCursor) {
+			mAlphabetIndexer.setCursor(newCursor);
+			return super.swapCursor(newCursor);
 		}
 
 		@Override
@@ -216,6 +224,21 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			} else {
 				return name;
 			}
+		}
+
+		@Override
+		public int getPositionForSection(int section) {
+			return mAlphabetIndexer.getPositionForSection(section);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			return mAlphabetIndexer.getSectionForPosition(position);
+		}
+
+		@Override
+		public Object[] getSections() {
+			return mAlphabetIndexer.getSections();
 		}
 	}
 
