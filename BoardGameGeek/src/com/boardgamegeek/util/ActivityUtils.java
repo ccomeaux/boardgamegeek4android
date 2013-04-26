@@ -1,5 +1,6 @@
 package com.boardgamegeek.util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,6 +35,7 @@ import com.boardgamegeek.ui.LogPlayActivity;
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
 
+	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
 		FragmentTransaction ft = host.getFragmentManager().beginTransaction();
 		Fragment prev = host.getFragmentManager().findFragmentByTag(tag);

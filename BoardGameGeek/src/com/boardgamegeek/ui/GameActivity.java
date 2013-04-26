@@ -2,10 +2,8 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -90,7 +88,6 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		return true;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
