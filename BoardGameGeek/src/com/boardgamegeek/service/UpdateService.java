@@ -28,12 +28,14 @@ public class UpdateService extends IntentService {
 
 	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
 	public static final String KEY_SYNC_ID = "KEY_SYNC_ID";
+	public static final String KEY_SYNC_KEY = "KEY_SYNC_KEY";
 	public static final String KEY_STATUS_RECEIVER = "com.boardgamegeek.extra.STATUS_RECEIVER";
 
 	public static final int SYNC_TYPE_UNKNOWN = 0;
 	public static final int SYNC_TYPE_GAME = 1;
 	public static final int SYNC_TYPE_GAME_PLAYS = 2;
 	public static final int SYNC_TYPE_GAME_COLLECTION = 3;
+	public static final int SYNC_TYPE_BUDDY = 4;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
 	public static final int SYNC_TYPE_PUBLISHER = 12;
@@ -49,6 +51,12 @@ public class UpdateService extends IntentService {
 	public static void start(Context context, int type, int id, DetachableResultReceiver receiver) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, UpdateService.class)
 			.putExtra(UpdateService.KEY_SYNC_TYPE, type).putExtra(KEY_SYNC_ID, id)
+			.putExtra(UpdateService.KEY_STATUS_RECEIVER, receiver));
+	}
+
+	public static void start(Context context, int type, String key, DetachableResultReceiver receiver) {
+		context.startService(new Intent(Intent.ACTION_SYNC, null, context, UpdateService.class)
+			.putExtra(UpdateService.KEY_SYNC_TYPE, type).putExtra(KEY_SYNC_KEY, key)
 			.putExtra(UpdateService.KEY_STATUS_RECEIVER, receiver));
 	}
 
@@ -72,10 +80,11 @@ public class UpdateService extends IntentService {
 		}
 		int syncType = intent.getIntExtra(KEY_SYNC_TYPE, SYNC_TYPE_UNKNOWN);
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
+		String syncKey = intent.getStringExtra(KEY_SYNC_KEY);
 		mResultReceiver = intent.getParcelableExtra(KEY_STATUS_RECEIVER);
 
-		if (syncId == BggContract.INVALID_ID) {
-			sendResultToReceiver(STATUS_ERROR, "No ID specified.");
+		if (syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
+			sendResultToReceiver(STATUS_ERROR, "No ID or key specified.");
 			return;
 		}
 
@@ -94,6 +103,9 @@ public class UpdateService extends IntentService {
 				break;
 			case SYNC_TYPE_GAME_COLLECTION:
 				task = new SyncGameCollection(syncId);
+				break;
+			case SYNC_TYPE_BUDDY:
+				task = new SyncBuddy(syncKey);
 				break;
 			case SYNC_TYPE_DESIGNER:
 				task = new SyncDesigner(syncId);

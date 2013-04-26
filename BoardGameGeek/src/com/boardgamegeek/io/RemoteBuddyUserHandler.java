@@ -27,9 +27,11 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteBuddyUserHandler.class);
 
 	private int mCount;
+	private long mStartTime;
 
-	public RemoteBuddyUserHandler() {
+	public RemoteBuddyUserHandler(long startTime) {
 		super();
+		mStartTime = startTime;
 	}
 
 	@Override
@@ -45,6 +47,11 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 	@Override
 	protected void parseItems() throws XmlPullParserException, IOException {
 		int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
+		if (id == 0) {
+			// No ID indicates the was an invalid user
+			return;
+		}
+
 		String name = mParser.getAttributeValue(null, Tags.NAME);
 		ContentValues values = parseUser();
 
@@ -101,7 +108,7 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 			}
 		}
 
-		values.put(Buddies.UPDATED, System.currentTimeMillis());
+		values.put(Buddies.UPDATED, mStartTime);
 		return values;
 	}
 

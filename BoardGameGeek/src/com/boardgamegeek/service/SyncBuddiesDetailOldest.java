@@ -38,7 +38,7 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				for (String name : names) {
-					RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler();
+					RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
 					String url = new UserUrlBuilder(name).build();
 					executor.executeGet(url, handler);
 					// syncResult.stats.numUpdates += handler.getCount();
