@@ -5,7 +5,6 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -17,25 +16,20 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.BuddyUtils;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddiesFragment extends SherlockListFragment implements AbsListView.OnScrollListener,
-	LoaderManager.LoaderCallbacks<Cursor> {
+public class BuddiesFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(BuddiesFragment.class);
 	private static final String STATE_SELECTED_ID = "selectedId";
 
 	private CursorAdapter mAdapter;
-	private ImageFetcher mImageFetcher;
 	private int mSelectedBuddyId;
 
 	public interface Callbacks {
@@ -54,34 +48,22 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
+		setHasOptionsMenu(true);
 
 		if (savedInstanceState != null) {
 			mSelectedBuddyId = savedInstanceState.getInt(STATE_SELECTED_ID);
 		}
-
-		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-		final ListView listView = getListView();
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setFastScrollEnabled(true);
+		getListView().setFastScrollEnabled(true);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		setEmptyText(getString(R.string.empty_buddies));
-		setListShown(false);
-
 		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
 	}
 
@@ -111,16 +93,13 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.setPauseWork(false);
-		mImageFetcher.flushCache();
+	protected int getEmptyStringResoure() {
+		return R.string.empty_buddies;
 	}
 
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
+	protected int getLoadingImage() {
+		return R.drawable.person_image_empty;
 	}
 
 	@Override
@@ -131,21 +110,6 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		final String fullName = BuddyUtils.buildFullName(cursor, BuddiesQuery.FIRSTNAME, BuddiesQuery.LASTNAME);
 		if (mCallbacks.onBuddySelected(buddyId, name, fullName)) {
 			setSelectedBuddyId(buddyId);
-		}
-	}
-
-	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		// Pause disk cache access to ensure smoother scrolling
-		if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING
-			|| scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-			mImageFetcher.setPauseWork(true);
-		} else {
-			mImageFetcher.setPauseWork(false);
 		}
 	}
 
@@ -192,6 +156,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 		} else {
 			setListShownNoAnimation(true);
 		}
+		restoreScrollState();
 	}
 
 	@Override
@@ -230,7 +195,7 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 			holder.fullname.setText(buildFullName(firstName, lastName, name).trim());
 			holder.name.setText(buildName(firstName, lastName, name).trim());
 			holder.avatar.setImageResource(R.drawable.person_image_empty);
-			mImageFetcher.loadAvatarImage(url, Buddies.buildAvatarUri(buddyId), holder.avatar);
+			getImageFetcher().loadAvatarImage(url, Buddies.buildAvatarUri(buddyId), holder.avatar);
 		}
 
 		private String buildFullName(String firstName, String lastName, String name) {
