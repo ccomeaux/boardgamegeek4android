@@ -10,10 +10,9 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.BuddyUtils;
 
 public class BuddiesActivity extends SimpleSinglePaneActivity implements BuddiesFragment.Callbacks {
-	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
-
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 
@@ -62,9 +61,10 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 	}
 
 	@Override
-	public boolean onBuddySelected(int buddyId, String buddyName) {
+	public boolean onBuddySelected(int buddyId, String name, String fullName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Buddies.buildBuddyUri(buddyId));
-		intent.putExtra(KEY_BUDDY_NAME, buddyName);
+		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);
+		intent.putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, fullName);
 		startActivity(intent);
 		return false;
 	}

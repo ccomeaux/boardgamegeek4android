@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -38,6 +39,8 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -51,6 +54,24 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private TextView mNickname;
 	private TextView mUpdated;
 	private ImageFetcher mImageFetcher;
+
+	public interface Callbacks {
+		public void onNameChanged(String name);
+
+		public DetachableResultReceiver getReceiver();
+	}
+
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override
+		public void onNameChanged(String name) {
+		}
+
+		public DetachableResultReceiver getReceiver() {
+			return null;
+		};
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +107,23 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
 		return rootView;
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -149,19 +187,18 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		}
 
 		int id = cursor.getInt(BuddyQuery.BUDDY_ID);
-		String firstName = cursor.getString(BuddyQuery.FIRSTNAME);
-		String lastName = cursor.getString(BuddyQuery.LASTNAME);
 		String name = cursor.getString(BuddyQuery.NAME);
 		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
 		long updated = cursor.getLong(BuddyQuery.UPDATED);
-		String fullName = buildFullName(firstName, lastName);
+		String fullName = BuddyUtils.buildFullName(cursor, BuddyQuery.FIRSTNAME, BuddyQuery.LASTNAME);
 
 		if (!TextUtils.isEmpty(avatarUrl)) {
 			mImageFetcher.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar);
 		}
 
 		mFullName.setText(fullName);
+		mCallbacks.onNameChanged(fullName);
 		mName.setText(name);
 		mId.setText(String.valueOf(id));
 		if (TextUtils.isEmpty(nickname)) {
@@ -175,18 +212,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			+ ": "
 			+ (updated == 0 ? getResources().getString(R.string.needs_updating) : DateUtils
 				.getRelativeTimeSpanString(updated)));
-	}
-
-	private String buildFullName(String firstName, String lastName) {
-		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-			return "";
-		} else if (TextUtils.isEmpty(firstName)) {
-			return lastName.trim();
-		} else if (TextUtils.isEmpty(lastName)) {
-			return firstName.trim();
-		} else {
-			return firstName.trim() + " " + lastName.trim();
-		}
 	}
 
 	private interface BuddyQuery {

@@ -25,6 +25,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
@@ -38,12 +39,12 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	private int mSelectedBuddyId;
 
 	public interface Callbacks {
-		public boolean onBuddySelected(int buddyId, String buddyName);
+		public boolean onBuddySelected(int buddyId, String name, String fullName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onBuddySelected(int buddyId, String buddyName) {
+		public boolean onBuddySelected(int buddyId, String name, String fullName) {
 			return true;
 		}
 	};
@@ -126,8 +127,9 @@ public class BuddiesFragment extends SherlockListFragment implements AbsListView
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
-		final String buddyName = cursor.getString(BuddiesQuery.NAME);
-		if (mCallbacks.onBuddySelected(buddyId, buddyName)) {
+		final String name = cursor.getString(BuddiesQuery.NAME);
+		final String fullName = BuddyUtils.buildFullName(cursor, BuddiesQuery.FIRSTNAME, BuddiesQuery.LASTNAME);
+		if (mCallbacks.onBuddySelected(buddyId, name, fullName)) {
 			setSelectedBuddyId(buddyId);
 		}
 	}

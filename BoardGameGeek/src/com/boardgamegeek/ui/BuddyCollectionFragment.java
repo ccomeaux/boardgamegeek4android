@@ -31,6 +31,7 @@ import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -48,14 +49,14 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		String mBuddyName = intent.getStringExtra(BuddiesActivity.KEY_BUDDY_NAME);
+		String name = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
 
-		if (TextUtils.isEmpty(mBuddyName)) {
+		if (TextUtils.isEmpty(name)) {
 			LOGW(TAG, "Missing buddy name.");
 			return;
 		}
 
-		mUrl = new CollectionUrlBuilder(mBuddyName).status("own").build();
+		mUrl = new CollectionUrlBuilder(name).status("own").build();
 	}
 
 	@Override
