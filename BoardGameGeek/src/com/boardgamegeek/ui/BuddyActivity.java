@@ -31,7 +31,6 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
-	private BuddyFragment mBuddyFragment;
 	private String mName;
 
 	@Override
@@ -60,7 +59,7 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
-		// actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
 	}
 
 	@Override
@@ -130,11 +129,13 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 			Fragment fragment = null;
 			switch (position) {
 				case 0:
-					mBuddyFragment = new BuddyFragment();
-					fragment = mBuddyFragment;
+					fragment = new BuddyFragment();
 					break;
 				case 1:
 					fragment = new BuddyCollectionFragment();
+					break;
+				case 2:
+					fragment = new PlaysFragment();
 					break;
 			}
 			if (fragment != null) {
@@ -145,7 +146,7 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
 	}
 

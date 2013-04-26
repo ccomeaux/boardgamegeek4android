@@ -636,6 +636,14 @@ public class BggContract {
 		public static int getBuddyId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
+
+		public static boolean isBuddyUri(Uri uri) {
+			if (uri == null) {
+				return false;
+			}
+			List<String> segments = uri.getPathSegments();
+			return segments != null && segments.size() > 0 && PATH_BUDDIES.equals(segments.get(0));
+		}
 	}
 
 	public static class GamePolls implements GamePollsColumns, GamesColumns, BaseColumns {
@@ -737,7 +745,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer";
 
-		public static final String DEFAULT_SORT = START_POSITION + " ASC, " + NAME + " ASC";
+		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + " ASC";
 
 		public static long getPlayPlayerId(Uri uri) {
 			return Long.valueOf(uri.getLastPathSegment());

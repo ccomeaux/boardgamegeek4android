@@ -2,6 +2,7 @@ package com.boardgamegeek.provider;
 
 import android.net.Uri;
 
+import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
@@ -19,14 +20,15 @@ public class PlaysPlayersProvider extends BaseProvider {
 		if (BggContract.FRAGMENT_NAME.equals(uri.getFragment())) {
 			return new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME);
 		} else {
-			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS).mapToTable(Plays._ID, Tables.PLAYS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAYS);
+			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
+				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS);
 		}
 	}
 
 	@Override
 	protected String getDefaultSortOrder() {
-		return PlayPlayers.NAME;
+		return PlayPlayers.DEFAULT_SORT;
 	}
 
 	@Override

@@ -33,12 +33,15 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -46,11 +49,16 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	private static final int MENU_PLAY_EDIT = Menu.FIRST;
 	private static final int MENU_PLAY_DELETE = Menu.FIRST + 1;
+	private static final int MODE_ALL = 0;
+	private static final int MODE_GAME = 1;
+	private static final int MODE_BUDDY = 2;
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
+	private String mBuddyName;
 	private int mFilter;
 	private boolean mAutoSyncTriggered;
+	private int mMode = MODE_ALL;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,11 +86,19 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		if (uri != null && Games.isGameUri(uri)) {
-			getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
-			mGameId = Games.getGameId(uri);
-		} else {
-			mGameId = BggContract.INVALID_ID;
+		mMode = MODE_ALL;
+		mGameId = BggContract.INVALID_ID;
+		mBuddyName = "";
+		if (uri != null) {
+			if (Games.isGameUri(uri)) {
+				mMode = MODE_GAME;
+				mGameId = Games.getGameId(uri);
+				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+			} else if (Buddies.isBuddyUri(uri)) {
+				mMode = MODE_BUDDY;
+				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
+				mUri = Plays.buildPlayersUri();
+			}
 		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
@@ -189,18 +205,27 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
-			if (mGameId == BggContract.INVALID_ID) {
-				if (mFilter == Play.SYNC_STATUS_ALL) {
-					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
-				} else {
-					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, Plays.SYNC_STATUS + "=?",
-						new String[] { String.valueOf(mFilter) }, null);
-				}
-			} else {
-				loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayItems.OBJECT_ID + "=?",
-					new String[] { String.valueOf(mGameId) }, null);
+			switch (mMode) {
+				case MODE_ALL:
+					if (mFilter == Play.SYNC_STATUS_ALL) {
+						loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
+					} else {
+						loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, Plays.SYNC_STATUS + "=?",
+							new String[] { String.valueOf(mFilter) }, null);
+					}
+					break;
+				case MODE_GAME:
+					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayItems.OBJECT_ID + "=?",
+						new String[] { String.valueOf(mGameId) }, null);
+					break;
+				case MODE_BUDDY:
+					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayPlayers.USER_NAME + "=?",
+						new String[] { mBuddyName }, null);
+					break;
 			}
-			loader.setUpdateThrottle(2000);
+			if (loader != null) {
+				loader.setUpdateThrottle(2000);
+			}
 		} else if (id == GameQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
 				null);
@@ -216,7 +241,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 
 		if (mAdapter == null) {
 			mAdapter = new PlayAdapter(getActivity());
-			if (mGameId != BggContract.INVALID_ID) {
+			if (mMode == MODE_GAME) {
 				mAdapter.setRowResId(R.layout.row_play_game);
 			}
 			setListAdapter(mAdapter);
@@ -255,17 +280,23 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	}
 
 	public void triggerRefresh() {
-		if (mGameId == BggContract.INVALID_ID) {
-			SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
-		} else {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId, null);
+		switch (mMode) {
+			case MODE_ALL:
+			case MODE_BUDDY:
+				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
+				break;
+			case MODE_GAME:
+				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId, null);
+				break;
 		}
 	}
 
 	public void filter(int filter) {
 		mFilter = filter;
 		// right now, filters can't be applied while viewing by game
-		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+		if (mMode == MODE_ALL) {
+			getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+		}
 	}
 
 	private class PlayAdapter extends CursorAdapter {
