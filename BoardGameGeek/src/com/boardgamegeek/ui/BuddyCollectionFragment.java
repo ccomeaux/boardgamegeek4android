@@ -5,14 +5,16 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -23,9 +25,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -34,10 +36,10 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddyCollectionFragment extends SherlockListFragment implements
-	LoaderManager.LoaderCallbacks<List<BuddyGame>> {
+public class BuddyCollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
 	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
@@ -62,19 +64,20 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_buddy_collection));
 		getLoaderManager().initLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-
 		final ListView listView = getListView();
 		listView.setFastScrollEnabled(true);
-		listView.setCacheColorHint(Color.WHITE);
 		listView.setSelector(android.R.color.transparent);
+	}
+
+	@Override
+	protected int getEmptyStringResoure() {
+		return R.string.empty_buddy_collection;
 	}
 
 	@Override
@@ -108,6 +111,7 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 			} else {
 				setListShownNoAnimation(true);
 			}
+			restoreScrollState();
 		}
 	}
 
@@ -188,14 +192,38 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 		}
 	}
 
-	public static class BuddyGamesAdapter extends ArrayAdapter<BuddyGame> {
+	public static class BuddyGamesAdapter extends ArrayAdapter<BuddyGame> implements SectionIndexer {
 		private List<BuddyGame> mBuddyGames;
 		private LayoutInflater mInflater;
+		private String[] mSections;
+		HashMap<String, Integer> mIndexer;
 
 		public BuddyGamesAdapter(Activity activity, List<BuddyGame> games) {
 			super(activity, R.layout.row_collection, games);
 			mInflater = activity.getLayoutInflater();
 			mBuddyGames = games;
+
+			// Create indexer
+			mIndexer = new HashMap<String, Integer>();
+			int size = games.size();
+			for (int i = size - 1; i >= 0; i--) {
+				String index = getIndexForPosition(games, i);
+				mIndexer.put(index, i);
+			}
+			// Create sections from indexer
+			ArrayList<String> sections = new ArrayList<String>(mIndexer.keySet());
+			Collections.sort(sections);
+			mSections = new String[sections.size()];
+			sections.toArray(mSections);
+		}
+
+		private String getIndexForPosition(List<BuddyGame> games, int position) {
+			BuddyGame game = games.get(position);
+			String index = game.Name.substring(0, 1).toUpperCase(Locale.getDefault());
+			if (StringUtils.isInteger(index)) {
+				index = "#";
+			}
+			return index;
 		}
 
 		@Override
@@ -209,7 +237,7 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 				holder = (BuddyGameViewHolder) convertView.getTag();
 			}
 			convertView.findViewById(R.id.list_thumbnail).setVisibility(View.GONE);
-			
+
 			BuddyGame game;
 			try {
 				game = mBuddyGames.get(position);
@@ -222,6 +250,28 @@ public class BuddyCollectionFragment extends SherlockListFragment implements
 				holder.id = game.Id;
 			}
 			return convertView;
+		}
+
+		@Override
+		public int getPositionForSection(int section) {
+			String letter = mSections[section];
+			return mIndexer.get(letter);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			String index = getIndexForPosition(mBuddyGames, position);
+			for (int i = 0; i < mSections.length; i++) {
+				if (index.equals(mSections[i])) {
+					return i;
+				}
+			}
+			return 0;
+		}
+
+		@Override
+		public Object[] getSections() {
+			return mSections;
 		}
 	}
 
