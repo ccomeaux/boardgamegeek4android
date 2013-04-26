@@ -246,9 +246,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String newNickname = mEditText.getText().toString();
-					if (!newNickname.equals(nickname)) {
-						new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
-					}
+					new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -256,7 +254,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	}
 
 	private class Task extends AsyncTask<String, Void, Void> {
-		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND " + PlayPlayers.NAME + "!=?";
+		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME
+			+ "!=?";
 		Context mContext;
 		Uri mUri;
 		String mUsername;
