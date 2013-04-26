@@ -12,6 +12,7 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.BuddyGame;
+import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 
@@ -50,21 +51,28 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 	protected BuddyGame parseGame() throws XmlPullParserException, IOException {
 		BuddyGame game = new BuddyGame();
 		game.Id = mParser.getAttributeValue(null, Tags.OBJECTID);
+		int sortIndex = 1;
 		String tag = null;
 		final int depth = mParser.getDepth();
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				tag = mParser.getName();
+				if (Tags.SORT_INDEX.equals(tag)) {
+					sortIndex = parseIntegerAttribute(Tags.SORT_INDEX, 1);
+				}
 			} else if (type == END_TAG) {
 				tag = null;
+				sortIndex = 1;
 			}
 			if (type == TEXT) {
+				String text = mParser.getText();
 				if (Tags.NAME.equals(tag)) {
-					game.Name = mParser.getText();
+					game.Name = text;
+					game.SortName = StringUtils.createSortName(text, sortIndex);
 				}
 				if (Tags.YEAR.equals(tag)) {
-					game.Year = mParser.getText();
+					game.Year = text;
 				}
 			}
 		}
@@ -77,5 +85,6 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 		String OBJECTID = "objectid";
 		String NAME = "name";
 		String YEAR = "yearpublished";
+		String SORT_INDEX = "sortindex";
 	}
 }

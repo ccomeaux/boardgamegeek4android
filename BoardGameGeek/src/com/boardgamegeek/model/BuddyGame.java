@@ -7,7 +7,7 @@ public class BuddyGame implements Parcelable {
 	public String Id;
 	public String Name;
 	public String Year;
-	
+	public String SortName;
 
 	public BuddyGame() {
 	}
@@ -22,6 +22,7 @@ public class BuddyGame implements Parcelable {
 		dest.writeString(Id);
 		dest.writeString(Name);
 		dest.writeString(Year);
+		dest.writeString(SortName);
 	}
 
 	public static final Parcelable.Creator<BuddyGame> CREATOR = new Parcelable.Creator<BuddyGame>() {
@@ -38,5 +39,6 @@ public class BuddyGame implements Parcelable {
 		Id = in.readString();
 		Name = in.readString();
 		Year = in.readString();
+		SortName = in.readString();
 	}
 }
