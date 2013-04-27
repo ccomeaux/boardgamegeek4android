@@ -72,6 +72,9 @@ public class SyncPlaysUpload extends SyncTask {
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
+				if (isCancelled()) {
+					break;
+				}
 				Play play = new Play().fromCursor(cursor, mContext, true);
 
 				PlayUpdateResponse response = postPlayUpdate(play);
@@ -111,6 +114,9 @@ public class SyncPlaysUpload extends SyncTask {
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 			LOGI(TAG, String.format("Deleting %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
+				if (isCancelled()) {
+					break;
+				}
 				Play play = new Play().fromCursor(cursor);
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId, syncResult);

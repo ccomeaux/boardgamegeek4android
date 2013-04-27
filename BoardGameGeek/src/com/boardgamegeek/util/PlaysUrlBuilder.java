@@ -14,6 +14,7 @@ public class PlaysUrlBuilder extends UrlBuilder {
 	private int mGameId;
 	private String mMinDate;
 	private String mMaxDate;
+	private int mPage = 0;
 
 	public PlaysUrlBuilder(String username) {
 		mUsername = username;
@@ -50,6 +51,11 @@ public class PlaysUrlBuilder extends UrlBuilder {
 		return this;
 	}
 
+	public PlaysUrlBuilder page(int page) {
+		mPage = page;
+		return this;
+	}
+
 	public String build() {
 		String url = BASE_URL_2 + "plays?username=" + encode(mUsername);
 		if (mGameId > 0) {
@@ -60,6 +66,9 @@ public class PlaysUrlBuilder extends UrlBuilder {
 		}
 		if (!TextUtils.isEmpty(mMaxDate)) {
 			url += "&maxdate=" + mMaxDate;
+		}
+		if (mPage > 0) {
+			url += "&page=" + mPage;
 		}
 		return url;
 	}

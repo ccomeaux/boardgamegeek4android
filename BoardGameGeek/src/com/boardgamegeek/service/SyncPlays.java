@@ -28,8 +28,10 @@ public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
 
 	private RemoteExecutor mExecutor;
+	private Account mAccount;
 	private Context mContext;
 	private long mStartTime;
+	private AccountManager mAccountManager;
 
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
@@ -42,68 +44,81 @@ public class SyncPlays extends SyncTask {
 			}
 
 			mExecutor = executor;
+			mAccount = account;
 			mContext = executor.getContext();
 			mStartTime = System.currentTimeMillis();
+			mAccountManager = AccountManager.get(executor.getContext());
 
-			AccountManager accountManager = AccountManager.get(executor.getContext());
-			long newestDate = parseLong(account, accountManager, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
-			long oldestDate = parseLong(account, accountManager, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
-				Long.MAX_VALUE);
+			long newestDate = parseLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 
+			boolean success = false;
 			RemotePlaysHandler handler = new RemotePlaysHandler();
 			PlaysUrlBuilder builder = new PlaysUrlBuilder(account.name);
 			if (newestDate == 0 && oldestDate == Long.MAX_VALUE) {
 				// attempt to get all plays
 				LOGI(TAG, "...syncing all plays");
-				handlePage(handler, builder, syncResult);
-				accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE,
-					String.valueOf(handler.getNewestDate()));
-				accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
-					String.valueOf(handler.getOldestDate()));
-				// TODO: delete all unupdated
+
+				if (handlePage(handler, builder, syncResult)) {
+					setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, handler.getNewestDate());
+					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, handler.getOldestDate());
+					success = true;
+					// TODO: delete all unupdated}
+				}
 			} else {
 				if (newestDate > 0) {
-					LOGI(TAG, "...syncing new plays since " + newestDate);
+					LOGI(TAG, "...syncing plays since " + newestDate);
 					builder = builder.minDate(newestDate);
-					handlePage(handler, builder, syncResult);
-					accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE,
-						String.valueOf(handler.getNewestDate()));
-					deleteMissingPlays(handler.getNewestDate(), true, syncResult);
+					if (handlePage(handler, builder, syncResult)) {
+						setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, handler.getNewestDate());
+						deleteMissingPlays(handler.getNewestDate(), true, syncResult);
+					}
 				}
 
 				if (oldestDate > 0 && oldestDate < Long.MAX_VALUE) {
-					LOGI(TAG, "...syncing old plays from " + oldestDate);
+					LOGI(TAG, "...syncing plays before " + oldestDate);
 					builder = builder.maxDate(oldestDate);
-					handlePage(handler, builder, syncResult);
-					accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
-						String.valueOf(handler.getOldestDate()));
-					deleteMissingPlays(handler.getOldestDate(), false, syncResult);
+					if (handlePage(handler, builder, syncResult)) {
+						setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, handler.getOldestDate());
+						deleteMissingPlays(handler.getOldestDate(), false, syncResult);
+						success = true;
+					}
 				}
 			}
 
-			accountManager.setUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, "0");
+			if (success) {
+				setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+			}
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
 	}
 
-	private long parseLong(Account account, AccountManager accountManager, String key, long defaultValue) {
+	private void setLong(String key, long l) {
+		mAccountManager.setUserData(mAccount, key, String.valueOf(l));
+	}
+
+	private long parseLong(String key, long defaultValue) {
 		long l = defaultValue;
 		try {
-			l = Long.parseLong(accountManager.getUserData(account, key));
+			l = Long.parseLong(mAccountManager.getUserData(mAccount, key));
 		} catch (NumberFormatException e) {
 			// swallow
 		}
 		return l;
 	}
 
-	public void handlePage(RemotePlaysHandler handler, PlaysUrlBuilder builder, SyncResult syncResult)
+	public boolean handlePage(RemotePlaysHandler handler, PlaysUrlBuilder builder, SyncResult syncResult)
 		throws IOException, XmlPullParserException {
 		int page = 1;
-		while (mExecutor.executeGet(builder.build() + "&page=" + page, handler)) {
+		while (mExecutor.executeGet(builder.page(page).build(), handler)) {
+			if (isCancelled()) {
+				return false;
+			}
 			// syncResult.stats.numEntries += handler.getCount();
 			page++;
 		}
+		return true;
 	}
 
 	private void deleteMissingPlays(long time, boolean greaterThan, SyncResult syncResult) {
