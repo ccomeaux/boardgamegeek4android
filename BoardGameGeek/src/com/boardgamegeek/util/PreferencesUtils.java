@@ -94,8 +94,16 @@ public class PreferencesUtils {
 		return getBoolean(context, "syncBuddies", false);
 	}
 
-	public static boolean getShowSyncNotifications(Context context) {
+	public static boolean getSyncShowNotifications(Context context) {
 		return getBoolean(context, "sync_notifications", false);
+	}
+
+	public static boolean getSyncOnlyCharging(Context context) {
+		return getBoolean(context, "sync_only_charging", false);
+	}
+
+	public static boolean getSyncOnlyWifi(Context context) {
+		return getBoolean(context, "sync_only_wifi", false);
 	}
 
 	public static boolean getDebugInserts(Context context) {

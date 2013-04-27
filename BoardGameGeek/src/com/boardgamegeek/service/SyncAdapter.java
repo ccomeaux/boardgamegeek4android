@@ -47,7 +47,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	public SyncAdapter(Context context, boolean autoInitialize) {
 		super(context, autoInitialize);
 		mContext = context;
-		mShowNotifications = PreferencesUtils.getShowSyncNotifications(mContext);
+		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 
 		// // noinspection ConstantConditions,PointlessBooleanExpression
 		if (!BuildConfig.DEBUG) {
@@ -72,11 +72,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		LOGI(TAG, "Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
 			+ manualSync + " initialize=" + initialize + ", type=" + type);
 
-		if (uploadOnly) {
-			LOGW(TAG, "Upload only, returning.");
-			return;
-		}
-
 		if (initialize) {
 			ContentResolver.setIsSyncable(account, authority, 1);
 			ContentResolver.setSyncAutomatically(account, authority, true);
@@ -84,41 +79,23 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
 		}
 
-		if (!NetworkUtils.isOnline(mContext)) {
-			LOGI(TAG, "Skipping sync; offline");
+		if (!shouldContinueSync(uploadOnly)) {
 			return;
 		}
 
-		mShowNotifications = PreferencesUtils.getShowSyncNotifications(mContext);
+		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 
 		AccountManager accountManager = AccountManager.get(mContext);
 		if (getAuthToken(accountManager, account, syncResult) == null) {
 			return;
 		}
 
-		HttpClient mHttpClient = HttpUtils.createHttpClient(mContext, account.name,
+		HttpClient httpClient = HttpUtils.createHttpClient(mContext, account.name,
 			accountManager.getPassword(account),
 			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
-		RemoteExecutor mRemoteExecutor = new RemoteExecutor(mHttpClient, mContext);
+		RemoteExecutor remoteExecutor = new RemoteExecutor(httpClient, mContext);
 
-		List<SyncTask> tasks = new ArrayList<SyncTask>();
-		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
-			tasks.add(new SyncCollectionListComplete());
-			tasks.add(new SyncCollectionListModifiedSince());
-			tasks.add(new SyncCollectionDetailOldest());
-			tasks.add(new SyncCollectionDetailUnupdated());
-		}
-		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList());
-			tasks.add(new SyncBuddiesDetailOldest());
-			tasks.add(new SyncBuddiesDetailUnupdated());
-		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-			tasks.add(new SyncPlaysUpload());
-		}
-		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
-			tasks.add(new SyncPlays());
-		}
+		List<SyncTask> tasks = createTasks(type);
 
 		NotificationCompat.Builder builder = createNotificationBuilder();
 		for (int i = 0; i < tasks.size(); i++) {
@@ -139,7 +116,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 					}
 					NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
 				}
-				mCurrentTask.execute(mRemoteExecutor, account, syncResult);
+				mCurrentTask.execute(remoteExecutor, account, syncResult);
 			} catch (IOException e) {
 				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				syncResult.stats.numIoExceptions++;
@@ -167,6 +144,35 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 	}
 
+	private boolean shouldContinueSync(boolean uploadOnly) {
+		if (uploadOnly) {
+			LOGW(TAG, "Upload only, returning.");
+			return false;
+		}
+
+		if (!NetworkUtils.isOnline(mContext)) {
+			LOGI(TAG, "Skipping sync; offline");
+			return false;
+		}
+
+		if (PreferencesUtils.getSyncOnlyCharging(mContext) && !NetworkUtils.isCharging(mContext)) {
+			LOGI(TAG, "Skipping sync; not charging");
+			return false;
+		}
+
+		if (PreferencesUtils.getSyncOnlyWifi(mContext) && !NetworkUtils.isOnWiFi(mContext)) {
+			LOGI(TAG, "Skipping sync; not on wifi");
+			return false;
+		}
+
+		if (NetworkUtils.isBatteryLow(mContext)) {
+			LOGI(TAG, "Skipping sync; battery low");
+			return false;
+		}
+
+		return true;
+	}
+
 	private String getAuthToken(AccountManager accountManager, Account account, SyncResult syncResult) {
 		String token = null;
 		try {
@@ -185,6 +191,28 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			showAuthError(e);
 		}
 		return token;
+	}
+
+	private List<SyncTask> createTasks(final int type) {
+		List<SyncTask> tasks = new ArrayList<SyncTask>();
+		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
+			tasks.add(new SyncCollectionListComplete());
+			tasks.add(new SyncCollectionListModifiedSince());
+			tasks.add(new SyncCollectionDetailOldest());
+			tasks.add(new SyncCollectionDetailUnupdated());
+		}
+		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
+			tasks.add(new SyncBuddiesList());
+			tasks.add(new SyncBuddiesDetailOldest());
+			tasks.add(new SyncBuddiesDetailUnupdated());
+		}
+		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
+			tasks.add(new SyncPlaysUpload());
+		}
+		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
+			tasks.add(new SyncPlays());
+		}
+		return tasks;
 	}
 
 	private NotificationCompat.Builder createNotificationBuilder() {

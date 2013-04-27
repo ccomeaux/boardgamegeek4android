@@ -113,41 +113,54 @@
 		</PreferenceCategory>
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/pref_sync" >
-		<com.boardgamegeek.pref.ListPreferenceMultiSelect
-			android:defaultValue="own"
-			android:dialogTitle="@string/pref_sync_statuses"
-			android:entries="@array/pref_sync_status_entries"
-			android:entryValues="@array/pref_sync_status_values"
-			android:key="syncStatuses"
-			android:title="@string/pref_sync_statuses" />
+		<PreferenceCategory android:title="@string/pref_sync_group_what" >
+			<com.boardgamegeek.pref.ListPreferenceMultiSelect
+				android:defaultValue="own"
+				android:dialogTitle="@string/pref_sync_statuses"
+				android:entries="@array/pref_sync_status_entries"
+				android:entryValues="@array/pref_sync_status_values"
+				android:key="syncStatuses"
+				android:title="@string/pref_sync_statuses" />
 
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:key="syncPlays"
-			android:title="@string/pref_sync_plays" />
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:key="syncBuddies"
-			android:title="@string/pref_sync_buddies" />
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:key="sync_notifications"
-			android:title="@string/pref_sync_notifications" />
+			<CheckBoxPreference
+				android:defaultValue="false"
+				android:key="syncPlays"
+				android:title="@string/pref_sync_plays" />
+			<CheckBoxPreference
+				android:defaultValue="false"
+				android:key="syncBuddies"
+				android:title="@string/pref_sync_buddies" />
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/pref_sync_group_how" >
+			<CheckBoxPreference
+				android:defaultValue="false"
+				android:key="sync_notifications"
+				android:title="@string/pref_sync_notifications" />
+			<CheckBoxPreference
+				android:defaultValue="false"
+				android:key="sync_only_charging"
+				android:title="@string/pref_sync_only_charging" />
+			<CheckBoxPreference
+				android:defaultValue="false"
+				android:key="sync_only_wifi"
+				android:title="@string/pref_sync_only_wifi" />
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/pref_sync_group_tasks" >
+			<com.boardgamegeek.pref.ClearDialogPreference
+				android:negativeButtonText="@string/cancel"
+				android:positiveButtonText="@string/pref_sync_clear_pos"
+				android:title="@string/pref_sync_clear" />
 
-		<com.boardgamegeek.pref.ClearDialogPreference
-			android:negativeButtonText="@string/cancel"
-			android:positiveButtonText="@string/pref_sync_clear_pos"
-			android:title="@string/pref_sync_clear" />
+			<com.boardgamegeek.pref.ResetCollectionDialogPreference
+				android:negativeButtonText="@string/cancel"
+				android:positiveButtonText="@string/pref_sync_reset_pos"
+				android:title="@string/pref_sync_reset_collection" />
 
-		<com.boardgamegeek.pref.ResetCollectionDialogPreference
-			android:negativeButtonText="@string/cancel"
-			android:positiveButtonText="@string/pref_sync_reset_pos"
-			android:title="@string/pref_sync_reset_collection" />
-
-		<com.boardgamegeek.pref.ResetPlaysDialogPreference
-			android:negativeButtonText="@string/cancel"
-			android:positiveButtonText="@string/pref_sync_reset_pos"
-			android:title="@string/pref_sync_reset_plays" />
+			<com.boardgamegeek.pref.ResetPlaysDialogPreference
+				android:negativeButtonText="@string/cancel"
+				android:positiveButtonText="@string/pref_sync_reset_pos"
+				android:title="@string/pref_sync_reset_plays" />
+		</PreferenceCategory>
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/pref_advanced" >
 		<CheckBoxPreference
