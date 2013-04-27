@@ -44,8 +44,12 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 			}
 
 			final long startTime = System.currentTimeMillis();
-
+			boolean cancelled = false;
 			for (int i = 0; i < statuses.length; i++) {
+				if (isCancelled()) {
+					cancelled = true;
+					break;
+				}
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 				try {
 					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false);
@@ -61,8 +65,10 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 					syncResult.stats.numIoExceptions++;
 				}
 			}
-
-			accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
+			if (!cancelled) {
+				accountManager
+					.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
+			}
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

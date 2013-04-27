@@ -35,6 +35,9 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 			LOGI(TAG, "...found " + gameIds.size() + " games to update");
 			if (gameIds.size() > 0) {
 				for (int i = 0; i < gameIds.size(); i += GAMES_PER_FETCH) {
+					if (isCancelled()) {
+						break;
+					}
 					if (i <= gameIds.size()) {
 						List<String> ids = gameIds.subList(i, Math.min(i + GAMES_PER_FETCH, gameIds.size()));
 						LOGI(TAG, "...updating " + ids.size() + " games");

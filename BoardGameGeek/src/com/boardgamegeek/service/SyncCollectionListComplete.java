@@ -47,6 +47,10 @@ public class SyncCollectionListComplete extends SyncTask {
 			final long startTime = System.currentTimeMillis();
 
 			for (int i = 0; i < statuses.length; i++) {
+				if (isCancelled()) {
+					success = false;
+					break;
+				}
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 				try {
 					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false);

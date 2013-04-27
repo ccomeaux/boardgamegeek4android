@@ -46,20 +46,9 @@ public class SyncPlays extends SyncTask {
 			mStartTime = System.currentTimeMillis();
 
 			AccountManager accountManager = AccountManager.get(executor.getContext());
-			long newestDate = 0;
-			try {
-				newestDate = Long.parseLong(accountManager
-					.getUserData(account, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE));
-			} catch (NumberFormatException e) {
-				// swallow
-			}
-			long oldestDate = Long.MAX_VALUE;
-			try {
-				oldestDate = Long.parseLong(accountManager
-					.getUserData(account, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE));
-			} catch (NumberFormatException e) {
-				// swallow
-			}
+			long newestDate = parseLong(account, accountManager, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			long oldestDate = parseLong(account, accountManager, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE,
+				Long.MAX_VALUE);
 
 			RemotePlaysHandler handler = new RemotePlaysHandler();
 			PlaysUrlBuilder builder = new PlaysUrlBuilder(account.name);
@@ -96,6 +85,16 @@ public class SyncPlays extends SyncTask {
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	private long parseLong(Account account, AccountManager accountManager, String key, long defaultValue) {
+		long l = defaultValue;
+		try {
+			l = Long.parseLong(accountManager.getUserData(account, key));
+		} catch (NumberFormatException e) {
+			// swallow
+		}
+		return l;
 	}
 
 	public void handlePage(RemotePlaysHandler handler, PlaysUrlBuilder builder, SyncResult syncResult)

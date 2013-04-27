@@ -33,6 +33,9 @@ public class SyncBuddiesDetailUnupdated extends SyncTask {
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				for (String name : names) {
+					if (isCancelled()) {
+						break;
+					}
 					RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
 					String url = new UserUrlBuilder(name).build();
 					executor.executeGet(url, handler);
