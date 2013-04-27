@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
@@ -33,7 +34,9 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		view.setBackgroundColor(Color.WHITE);
-		getListView().setCacheColorHint(Color.WHITE);
+		final ListView listView = getListView();
+		listView.setCacheColorHint(Color.WHITE);
+		listView.setFastScrollEnabled(true);
 	}
 
 	@Override

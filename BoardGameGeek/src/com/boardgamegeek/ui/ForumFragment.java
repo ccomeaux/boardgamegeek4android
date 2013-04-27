@@ -63,9 +63,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
-		listView.setFastScrollEnabled(true);
+		getListView().setOnScrollListener(this);
 	}
 
 	@Override

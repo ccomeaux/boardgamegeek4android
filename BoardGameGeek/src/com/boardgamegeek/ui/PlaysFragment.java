@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -29,7 +28,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
@@ -45,7 +43,7 @@ import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlaysFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlaysFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	private static final int MENU_PLAY_EDIT = Menu.FIRST;
 	private static final int MENU_PLAY_DELETE = Menu.FIRST + 1;
@@ -67,22 +65,9 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-		final ListView listView = getListView();
-		listView.setSelector(android.R.color.transparent);
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setFastScrollEnabled(true);
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		registerForContextMenu(getListView());
-		setEmptyText(getString(R.string.empty_plays));
-		setListShown(false);
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
@@ -101,6 +86,11 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			}
 		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+	}
+
+	@Override
+	protected int getEmptyStringResoure() {
+		return R.string.empty_plays;
 	}
 
 	@Override
@@ -269,6 +259,7 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 			} else {
 				setListShownNoAnimation(true);
 			}
+			restoreScrollState();
 		}
 	}
 
@@ -339,10 +330,8 @@ public class PlaysFragment extends SherlockListFragment implements LoaderManager
 				}
 				holder.status.setText(messageId);
 				holder.status.setVisibility(View.VISIBLE);
-				view.setBackgroundResource(R.color.background_light);
 			} else {
 				holder.status.setVisibility(View.GONE);
-				view.setBackgroundResource(R.color.background);
 			}
 		}
 	}

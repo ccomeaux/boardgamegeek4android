@@ -55,7 +55,6 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
 		listView.setSmoothScrollbarEnabled(false);
-		listView.setFastScrollEnabled(true);
 		listView.setSelector(android.R.color.transparent);
 	}
 
