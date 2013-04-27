@@ -36,7 +36,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyCollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
@@ -65,14 +64,6 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(BUDDY_GAMES_LOADER_ID, null, this);
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setFastScrollEnabled(true);
-		listView.setSelector(android.R.color.transparent);
 	}
 
 	@Override
@@ -193,21 +184,27 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 	}
 
 	public static class BuddyGamesAdapter extends ArrayAdapter<BuddyGame> implements SectionIndexer {
+		private static final int STATE_UNKNOWN = 0;
+		private static final int STATE_SECTIONED_CELL = 1;
+		private static final int STATE_REGULAR_CELL = 2;
+
 		private List<BuddyGame> mBuddyGames;
 		private LayoutInflater mInflater;
 		private String[] mSections;
 		HashMap<String, Integer> mIndexer;
+		private int[] mCellStates;
 
 		public BuddyGamesAdapter(Activity activity, List<BuddyGame> games) {
 			super(activity, R.layout.row_collection, games);
 			mInflater = activity.getLayoutInflater();
 			mBuddyGames = games;
+			mCellStates = games == null ? null : new int[games.size()];
 
 			// Create indexer
 			mIndexer = new HashMap<String, Integer>();
 			int size = games.size();
 			for (int i = size - 1; i >= 0; i--) {
-				String index = getIndexForPosition(games, i);
+				String index = getIndexForPosition(i);
 				mIndexer.put(index, i);
 			}
 			// Create sections from indexer
@@ -217,17 +214,33 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 			sections.toArray(mSections);
 		}
 
-		private String getIndexForPosition(List<BuddyGame> games, int position) {
-			BuddyGame game = games.get(position);
-			String index = game.Name.substring(0, 1).toUpperCase(Locale.getDefault());
-			if (StringUtils.isInteger(index)) {
-				index = "#";
-			}
-			return index;
-		}
-
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			String currentIndex = getIndexForPosition(position);
+
+			boolean needSeparator = false;
+
+			switch (mCellStates[position]) {
+				case STATE_SECTIONED_CELL:
+					needSeparator = true;
+					break;
+				case STATE_REGULAR_CELL:
+					needSeparator = false;
+					break;
+				case STATE_UNKNOWN:
+				default:
+					if (position == 0) {
+						needSeparator = true;
+					} else {
+						String previousIndex = getIndexForPosition(position - 1);
+						if (!currentIndex.equals(previousIndex)) {
+							needSeparator = true;
+						}
+					}
+					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
+					break;
+			}
+
 			BuddyGameViewHolder holder;
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.row_collection, parent, false);
@@ -248,6 +261,12 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 				holder.name.setText(game.Name);
 				holder.year.setText(game.Year);
 				holder.id = game.Id;
+				if (needSeparator) {
+					holder.separator.setText(currentIndex);
+					holder.separator.setVisibility(View.VISIBLE);
+				} else {
+					holder.separator.setVisibility(View.GONE);
+				}
 			}
 			return convertView;
 		}
@@ -260,7 +279,7 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 
 		@Override
 		public int getSectionForPosition(int position) {
-			String index = getIndexForPosition(mBuddyGames, position);
+			String index = getIndexForPosition(position);
 			for (int i = 0; i < mSections.length; i++) {
 				if (index.equals(mSections[i])) {
 					return i;
@@ -273,14 +292,21 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		public Object[] getSections() {
 			return mSections;
 		}
+
+		private String getIndexForPosition(int position) {
+			BuddyGame game = mBuddyGames.get(position);
+			return game.Name.substring(0, 1).toUpperCase(Locale.getDefault());
+		}
 	}
 
 	public static class BuddyGameViewHolder {
+		public TextView separator;
 		public TextView name;
 		public TextView year;
 		public String id;
 
 		public BuddyGameViewHolder(View view) {
+			separator = (TextView) view.findViewById(R.id.separator);
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 		}

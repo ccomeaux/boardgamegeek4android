@@ -130,6 +130,14 @@
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
+	<style name="RowSeparator">
+		<item name="android:background">@color/background_dark</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:textColor">#FFF</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+
 	<style name="ImageList">
 		<item name="android:layout_marginRight">@dimen/padding_standard</item>
 		<item name="android:scaleType">centerCrop</item>
@@ -145,7 +153,6 @@
 	</style>
 
 	<style name="Text.Header">
-		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
