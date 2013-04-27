@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.Context;
+import android.database.CharArrayBuffer;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -159,8 +160,14 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	private class BuddiesAdapter extends CursorAdapter implements SectionIndexer {
+		private static final int STATE_UNKNOWN = 0;
+		private static final int STATE_SECTIONED_CELL = 1;
+		private static final int STATE_REGULAR_CELL = 2;
+
 		private LayoutInflater mInflater;
 		private AlphabetIndexer mAlphabetIndexer;
+		private int[] mCellStates;
+		private final CharArrayBuffer mBuffer = new CharArrayBuffer(128);
 
 		public BuddiesAdapter(Context context) {
 			super(context, null, false);
@@ -171,6 +178,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		@Override
 		public Cursor swapCursor(Cursor newCursor) {
 			mAlphabetIndexer.setCursor(newCursor);
+			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
 			return super.swapCursor(newCursor);
 		}
 
@@ -185,6 +193,44 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
+			// String currentIndex = getIndexForPosition(position);
+
+			boolean needSeparator = false;
+			final int position = cursor.getPosition();
+			cursor.copyStringToBuffer(BuddiesQuery.LASTNAME, holder.nameBuffer);
+			switch (mCellStates[position]) {
+				case STATE_SECTIONED_CELL:
+					needSeparator = true;
+					break;
+				case STATE_REGULAR_CELL:
+					needSeparator = false;
+					break;
+				case STATE_UNKNOWN:
+				default:
+					if (position == 0) {
+						needSeparator = true;
+					} else {
+						cursor.moveToPosition(position - 1);
+						cursor.copyStringToBuffer(BuddiesQuery.LASTNAME, mBuffer);
+						if ((mBuffer.sizeCopied > 0 && holder.nameBuffer.sizeCopied > 0 && Character
+							.toUpperCase(mBuffer.data[0]) != Character.toUpperCase(holder.nameBuffer.data[0]))
+							|| (mBuffer.sizeCopied == 0 && holder.nameBuffer.sizeCopied > 0)) {
+							needSeparator = true;
+						}
+						cursor.moveToPosition(position);
+					}
+					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
+					break;
+			}
+
+			if (needSeparator) {
+				String text = holder.nameBuffer.sizeCopied == 0 ? "" : String.valueOf(Character
+					.toUpperCase(holder.nameBuffer.data[0]));
+				holder.separator.setText(text);
+				holder.separator.setVisibility(View.VISIBLE);
+			} else {
+				holder.separator.setVisibility(View.GONE);
+			}
 
 			int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
@@ -240,11 +286,14 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		TextView fullname;
 		TextView name;
 		BezelImageView avatar;
+		TextView separator;
+		CharArrayBuffer nameBuffer = new CharArrayBuffer(128);
 
 		public ViewHolder(View view) {
 			fullname = (TextView) view.findViewById(R.id.list_fullname);
 			name = (TextView) view.findViewById(R.id.list_name);
 			avatar = (BezelImageView) view.findViewById(R.id.list_avatar);
+			separator = (TextView) view.findViewById(R.id.separator);
 		}
 	}
 
