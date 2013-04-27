@@ -2,13 +2,11 @@ package com.boardgamegeek.ui;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -63,7 +61,6 @@ public class HomeActivity extends SherlockFragmentActivity {
 		return true;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
@@ -80,6 +77,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 		AccountManager am = AccountManager.get(this);
 		Account account = Authenticator.getAccount(am);
 		menu.findItem(R.id.menu_sign_out).setVisible(account != null && !TextUtils.isEmpty(am.getPassword(account)));
+		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -88,6 +86,9 @@ public class HomeActivity extends SherlockFragmentActivity {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				triggerRefresh();
+				return true;
+			case R.id.menu_cancel_sync:
+				SyncService.cancelSync(this);
 				return true;
 			case R.id.menu_sign_out:
 				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_sign_out,

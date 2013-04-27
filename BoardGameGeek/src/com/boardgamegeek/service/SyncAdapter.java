@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
@@ -30,6 +31,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
@@ -39,6 +41,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final Context mContext;
 	private final boolean mUseGzip = true;
 	private boolean mShowNotifications = true;
+	private SyncTask mCurrentTask;
+	private boolean mIsCancelled;
 
 	public SyncAdapter(Context context, boolean autoInitialize) {
 		super(context, autoInitialize);
@@ -59,6 +63,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	@Override
 	public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider,
 		SyncResult syncResult) {
+		mIsCancelled = false;
 		final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
 		final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
@@ -79,7 +84,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			ContentResolver.addPeriodicSync(account, authority, b, 8 * 60 * 60); // 8 hours
 		}
 
-		if (!HttpUtils.isOnline(mContext)) {
+		if (!NetworkUtils.isOnline(mContext)) {
 			LOGI(TAG, "Skipping sync; offline");
 			return;
 		}
@@ -117,11 +122,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		NotificationCompat.Builder builder = createNotificationBuilder();
 		for (int i = 0; i < tasks.size(); i++) {
-			SyncTask task = tasks.get(i);
+			if (mIsCancelled) {
+				showError(getContext().getString(R.string.sync_notification_error_cancel), null);
+				break;
+			}
+			mCurrentTask = tasks.get(i);
 			try {
 				if (mShowNotifications) {
 					builder.setProgress(tasks.size(), i, true);
-					builder.setContentText(mContext.getString(task.getNotification()));
+					builder.setContentText(mContext.getString(mCurrentTask.getNotification()));
 					NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
 					detail.setSummaryText(String.format(mContext.getString(R.string.sync_notification_step_summary),
 						i + 1, tasks.size()));
@@ -130,22 +139,31 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 					}
 					NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
 				}
-				task.execute(mRemoteExecutor, account, syncResult);
+				mCurrentTask.execute(mRemoteExecutor, account, syncResult);
 			} catch (IOException e) {
-				LOGE(TAG, "Syncing " + task, e);
+				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				syncResult.stats.numIoExceptions++;
 				showError(e);
 				break;
 			} catch (XmlPullParserException e) {
-				LOGE(TAG, "Syncing " + task, e);
+				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				syncResult.stats.numParseExceptions++;
 				showError(e);
 			} catch (Exception e) {
-				LOGE(TAG, "Syncing " + task, e);
+				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				showError(e);
 			}
 
 			NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
+		}
+	}
+
+	@Override
+	public void onSyncCanceled() {
+		super.onSyncCanceled();
+		mIsCancelled = true;
+		if (mCurrentTask != null) {
+			mCurrentTask.cancel();
 		}
 	}
 
@@ -187,8 +205,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 
 		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
-		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text)).setPriority(
-			NotificationCompat.PRIORITY_DEFAULT);
+		if (!TextUtils.isEmpty(message)) {
+			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
+		}
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }

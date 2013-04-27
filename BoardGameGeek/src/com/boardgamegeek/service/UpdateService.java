@@ -22,6 +22,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.NetworkUtils;
 
 public class UpdateService extends IntentService {
 	private static final String TAG = makeLogTag(UpdateService.class);
@@ -88,7 +89,7 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (!HttpUtils.isOnline(getApplicationContext())) {
+		if (!NetworkUtils.isOnline(getApplicationContext())) {
 			sendResultToReceiver(STATUS_ERROR, "Offline.");
 			return;
 		}
@@ -134,7 +135,6 @@ public class UpdateService extends IntentService {
 
 		final long startTime = System.currentTimeMillis();
 		sendResultToReceiver(STATUS_RUNNING);
-		// TODO: show notification
 		try {
 			task.execute(mRemoteExecutor, this);
 			String message = task.getErrorMessage();

@@ -44,13 +44,20 @@ public class SyncService extends Service {
 		return sSyncAdapter.getSyncAdapterBinder();
 	}
 
-	public static void sync(Context content, int syncType) {
-		Account account = Authenticator.getAccount(content);
+	public static void sync(Context context, int syncType) {
+		Account account = Authenticator.getAccount(context);
 		if (account != null) {
 			Bundle extras = new Bundle();
 			extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 			extras.putInt(EXTRA_SYNC_TYPE, syncType);
 			ContentResolver.requestSync(account, BggContract.CONTENT_AUTHORITY, extras);
+		}
+	}
+
+	public static void cancelSync(Context context) {
+		Account account = Authenticator.getAccount(context);
+		if (account != null) {
+			ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY);
 		}
 	}
 

@@ -5,6 +5,7 @@
 	<string name="sync_notification_title_play_upload">Uploaded Plays</string>
 	<string name="sync_notification_error">Error</string>
 	<string name="sync_notification_error_auth">Error getting auth token</string>
+	<string name="sync_notification_error_cancel">Cancelled</string>
 	<string name="sync_notification_collection_full">Entire collection</string>
 	<string name="sync_notification_collection_partial">Latest changes to collection</string>
 	<string name="sync_notification_collection_oldest">Oldest games in collection</string>
