@@ -16,11 +16,15 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -83,6 +87,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 		}
 
+		toggleReceiver(true);
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 
 		AccountManager accountManager = AccountManager.get(mContext);
@@ -90,8 +95,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 		}
 
-		HttpClient httpClient = HttpUtils.createHttpClient(mContext, account.name,
-			accountManager.getPassword(account),
+		HttpClient httpClient = HttpUtils.createHttpClient(mContext, account.name, accountManager.getPassword(account),
 			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
 		RemoteExecutor remoteExecutor = new RemoteExecutor(httpClient, mContext);
 
@@ -130,9 +134,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				showError(e);
 			}
-
-			NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
 		}
+		toggleReceiver(false);
+		NotificationUtils.cancel(mContext, NotificationUtils.ID_SYNC);
 	}
 
 	@Override
@@ -215,9 +219,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return tasks;
 	}
 
+	private void toggleReceiver(boolean enable) {
+		ComponentName receiver = new ComponentName(mContext, CancelReceiver.class);
+		PackageManager pm = mContext.getPackageManager();
+		pm.setComponentEnabledSetting(receiver, enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+			: PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+	}
+
 	private NotificationCompat.Builder createNotificationBuilder() {
-		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title).setPriority(
-			NotificationCompat.PRIORITY_LOW);
+		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
+		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title)
+			.setPriority(NotificationCompat.PRIORITY_LOW)
+			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 	}
 
 	private void showError(Throwable t) {
@@ -232,7 +245,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!mShowNotifications)
 			return;
 
-		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(text);
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
+			R.string.sync_notification_title).setContentText(text);
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		}

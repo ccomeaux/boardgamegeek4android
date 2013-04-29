@@ -20,6 +20,7 @@ public class SyncService extends Service {
 	public static final int FLAG_SYNC_PLAYS_UPLOAD = 0x00000008;
 	public static final int FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD | FLAG_SYNC_PLAYS_UPLOAD;
 	public static final int FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION | FLAG_SYNC_BUDDIES | FLAG_SYNC_PLAYS;
+	public static final String ACTION_CANCEL_SYNC = "com.boardgamegeek.ACTION_SYNC_CANCEL";
 
 	public static final String TIMESTAMP_COLLECTION_COMPLETE = "com.boardgamegeek.TIMESTAMP_COLLECTION_COMPLETE";
 	public static final String TIMESTAMP_COLLECTION_PARTIAL = "com.boardgamegeek.TIMESTAMP_COLLECTION_PARTIAL";

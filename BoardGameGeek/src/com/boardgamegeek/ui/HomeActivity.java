@@ -19,6 +19,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class HomeActivity extends SherlockFragmentActivity {
@@ -88,6 +89,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 				triggerRefresh();
 				return true;
 			case R.id.menu_cancel_sync:
+				NotificationUtils.cancel(this, NotificationUtils.ID_SYNC);
 				SyncService.cancelSync(this);
 				return true;
 			case R.id.menu_sign_out:

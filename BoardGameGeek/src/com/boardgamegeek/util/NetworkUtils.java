@@ -34,7 +34,7 @@ public class NetworkUtils {
 	}
 
 	public static boolean isBatteryLow(Context context) {
-		return getBatteryLevel(context) < 0.15;
+		return getBatteryLevel(context) < 0.15; // 15% matches system low battery level
 	}
 
 	private static Intent getBatteryStatus(Context context) {
