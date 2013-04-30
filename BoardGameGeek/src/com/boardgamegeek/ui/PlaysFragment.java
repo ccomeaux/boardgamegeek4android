@@ -3,6 +3,12 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,6 +21,8 @@ import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -23,7 +31,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,12 +92,20 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				mUri = Plays.buildPlayersUri();
 			}
 		}
+		setEmptyText(getString(getEmptyStringResoure()));
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	@Override
 	protected int getEmptyStringResoure() {
-		return R.string.empty_plays;
+		switch (mMode) {
+			case MODE_BUDDY:
+				return R.string.empty_plays_buddy;
+			case MODE_GAME:
+				return R.string.empty_plays_game;
+			default:
+				return R.string.empty_plays;
+		}
 	}
 
 	@Override
@@ -291,8 +306,17 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	private class PlayAdapter extends CursorAdapter {
+		private static final int STATE_UNKNOWN = 0;
+		private static final int STATE_SECTIONED_CELL = 1;
+		private static final int STATE_REGULAR_CELL = 2;
+
+		SimpleDateFormat mFormatter = new SimpleDateFormat("MMMMM", Locale.getDefault());
+		GregorianCalendar mCalendar = new GregorianCalendar();
 		private LayoutInflater mInflater;
 		private int mRowResId = R.layout.row_play;
+		private int[] mCellStates;
+		private String mPreviousSection;
+		private String mCurrentSection;
 
 		public PlayAdapter(Context context) {
 			super(context, null, false);
@@ -312,8 +336,51 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		}
 
 		@Override
+		public Cursor swapCursor(Cursor newCursor) {
+			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
+			return super.swapCursor(newCursor);
+		}
+
+		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
+
+			boolean needSeparator = false;
+			final int position = cursor.getPosition();
+			mCurrentSection = getSection(cursor);
+			switch (mCellStates[position]) {
+				case STATE_SECTIONED_CELL:
+					needSeparator = true;
+					break;
+				case STATE_REGULAR_CELL:
+					needSeparator = false;
+					break;
+				case STATE_UNKNOWN:
+				default:
+					if (position == 0) {
+						needSeparator = true;
+					} else {
+						cursor.moveToPosition(position - 1);
+						mPreviousSection = getSection(cursor);
+						if (!mPreviousSection.equals(mCurrentSection)) {
+							needSeparator = true;
+						}
+						cursor.moveToPosition(position);
+					}
+					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
+					break;
+			}
+
+			if (needSeparator) {
+				int month = Integer.parseInt(mCurrentSection.substring(5, 7));
+				mCalendar.set(Calendar.MONTH, month - 1);
+				String date = mFormatter.format(mCalendar.getTime()) + " " + mCurrentSection.substring(0, 4);
+				holder.separator.setText(date);
+				holder.separator.setVisibility(View.VISIBLE);
+			} else {
+				holder.separator.setVisibility(View.GONE);
+			}
+
 			holder.date.setText(cursor.getString(PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
 			holder.location.setText(cursor.getString(PlaysQuery.LOCATION));
@@ -334,6 +401,14 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				holder.status.setVisibility(View.GONE);
 			}
 		}
+
+		private String getSection(Cursor cursor) {
+			String date = cursor.getString(PlaysQuery.DATE);
+			if (TextUtils.isEmpty(date)) {
+				return "1969-01";
+			}
+			return date.substring(0, 7);
+		}
 	}
 
 	static class ViewHolder {
@@ -341,12 +416,14 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		TextView date;
 		TextView location;
 		TextView status;
+		TextView separator;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.list_name);
 			date = (TextView) view.findViewById(R.id.list_date);
 			location = (TextView) view.findViewById(R.id.list_location);
 			status = (TextView) view.findViewById(R.id.list_status);
+			separator = (TextView) view.findViewById(R.id.separator);
 		}
 	}
 

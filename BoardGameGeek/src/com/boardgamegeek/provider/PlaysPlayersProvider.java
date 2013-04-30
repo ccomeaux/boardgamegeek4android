@@ -28,7 +28,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 
 	@Override
 	protected String getDefaultSortOrder() {
-		return PlayPlayers.DEFAULT_SORT;
+		return Plays.DATE + " DESC, " + PlayPlayers.DEFAULT_SORT;
 	}
 
 	@Override
