@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 public class CancelReceiver extends BroadcastReceiver {
@@ -24,7 +23,6 @@ public class CancelReceiver extends BroadcastReceiver {
 	}
 
 	private void cancel(Context context) {
-		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
 		SyncService.cancelSync(context);
 	}
 }

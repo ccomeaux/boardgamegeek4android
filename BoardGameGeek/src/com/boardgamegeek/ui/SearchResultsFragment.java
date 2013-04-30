@@ -14,7 +14,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -31,7 +30,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteSearchHandler;
@@ -41,8 +39,7 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class SearchResultsFragment extends SherlockListFragment implements
-	LoaderManager.LoaderCallbacks<List<SearchResult>> {
+public class SearchResultsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<SearchResult>> {
 	private static final String TAG = makeLogTag(SearchResultsFragment.class);
 	private static final int LOADER_ID = 0;
 
@@ -70,20 +67,13 @@ public class SearchResultsFragment extends SherlockListFragment implements
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-		final ListView listView = getListView();
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setFastScrollEnabled(true);
-		listView.setOnCreateContextMenuListener(this);
+		getListView().setOnCreateContextMenuListener(this);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		registerForContextMenu(getListView());
-		setEmptyText(getString(R.string.empty_search));
-		setListShown(false);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mSearchText = intent.getStringExtra(SearchManager.QUERY);
@@ -106,6 +96,11 @@ public class SearchResultsFragment extends SherlockListFragment implements
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
+	}
+
+	@Override
+	protected int getEmptyStringResoure() {
+		return R.string.empty_search;
 	}
 
 	@Override
@@ -191,6 +186,7 @@ public class SearchResultsFragment extends SherlockListFragment implements
 			} else {
 				setListShownNoAnimation(true);
 			}
+			restoreScrollState();
 			mCallbacks.onResultCount(results.size());
 		}
 	}

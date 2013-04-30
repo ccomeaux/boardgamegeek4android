@@ -132,8 +132,11 @@
 
 	<style name="RowSeparator">
 		<item name="android:background">@color/background_dark</item>
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:textColor">#FFF</item>
 		<item name="android:textStyle">bold</item>
 	</style>

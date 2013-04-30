@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.NotificationUtils;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -56,6 +57,7 @@ public class SyncService extends Service {
 	}
 
 	public static void cancelSync(Context context) {
+		NotificationUtils.cancel(context, NotificationUtils.ID_SYNC);
 		Account account = Authenticator.getAccount(context);
 		if (account != null) {
 			ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY);
