@@ -321,6 +321,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		public PlayAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
+			// account for leap years
+			mCalendar.set(Calendar.YEAR, 2012);
+			mCalendar.set(Calendar.DAY_OF_MONTH, 1);
 		}
 
 		public void setRowResId(int resId) {
