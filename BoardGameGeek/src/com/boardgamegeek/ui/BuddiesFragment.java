@@ -2,9 +2,11 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.text.Collator;
+
 import android.app.Activity;
 import android.content.Context;
-import android.database.CharArrayBuffer;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -163,16 +165,21 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		private static final int STATE_UNKNOWN = 0;
 		private static final int STATE_SECTIONED_CELL = 1;
 		private static final int STATE_REGULAR_CELL = 2;
+		String alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		private LayoutInflater mInflater;
 		private AlphabetIndexer mAlphabetIndexer;
+		private Collator mCollator;
 		private int[] mCellStates;
-		private final CharArrayBuffer mBuffer = new CharArrayBuffer(128);
+		private String mPreviousSection;
+		private String mCurrentSection;
 
 		public BuddiesAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
-			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, " ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+			mCollator = java.text.Collator.getInstance();
+			mCollator.setStrength(java.text.Collator.PRIMARY);
+			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, alphabet);
 		}
 
 		@Override
@@ -193,11 +200,10 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
-			// String currentIndex = getIndexForPosition(position);
 
 			boolean needSeparator = false;
 			final int position = cursor.getPosition();
-			cursor.copyStringToBuffer(BuddiesQuery.LASTNAME, holder.nameBuffer);
+			mCurrentSection = getSection(cursor);
 			switch (mCellStates[position]) {
 				case STATE_SECTIONED_CELL:
 					needSeparator = true;
@@ -211,10 +217,8 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 						needSeparator = true;
 					} else {
 						cursor.moveToPosition(position - 1);
-						cursor.copyStringToBuffer(BuddiesQuery.LASTNAME, mBuffer);
-						if ((mBuffer.sizeCopied > 0 && holder.nameBuffer.sizeCopied > 0 && Character
-							.toUpperCase(mBuffer.data[0]) != Character.toUpperCase(holder.nameBuffer.data[0]))
-							|| (mBuffer.sizeCopied == 0 && holder.nameBuffer.sizeCopied > 0)) {
+						mPreviousSection = getSection(cursor);
+						if (!mPreviousSection.equals(mCurrentSection)) {
 							needSeparator = true;
 						}
 						cursor.moveToPosition(position);
@@ -224,9 +228,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			}
 
 			if (needSeparator) {
-				String text = holder.nameBuffer.sizeCopied == 0 ? "" : String.valueOf(Character
-					.toUpperCase(holder.nameBuffer.data[0]));
-				holder.separator.setText(text);
+				holder.separator.setText(mCurrentSection);
 				holder.separator.setVisibility(View.VISIBLE);
 			} else {
 				holder.separator.setVisibility(View.GONE);
@@ -244,6 +246,18 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			holder.name.setText(buildName(firstName, lastName, name).trim());
 			holder.avatar.setImageResource(R.drawable.person_image_empty);
 			getImageFetcher().loadAvatarImage(url, Buddies.buildAvatarUri(buddyId), holder.avatar);
+		}
+
+		private String getSection(Cursor cursor) {
+			String name = cursor.getString(BuddiesQuery.LASTNAME);
+			String targetLetter = TextUtils.isEmpty(name) ? " " : name.substring(0, 1);
+			for (int i = 0; i < alphabet.length(); i++) {
+				String letter = Character.toString(alphabet.charAt(i));
+				if (mCollator.compare(targetLetter, letter) == 0) {
+					return letter;
+				}
+			}
+			return " ";
 		}
 
 		private String buildFullName(String firstName, String lastName, String name) {
@@ -287,7 +301,6 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		TextView name;
 		BezelImageView avatar;
 		TextView separator;
-		CharArrayBuffer nameBuffer = new CharArrayBuffer(128);
 
 		public ViewHolder(View view) {
 			fullname = (TextView) view.findViewById(R.id.list_fullname);

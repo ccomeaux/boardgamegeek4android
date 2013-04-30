@@ -688,12 +688,25 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	}
 
 	private class CollectionAdapter extends CursorAdapter {
+		private static final int STATE_UNKNOWN = 0;
+		private static final int STATE_SECTIONED_CELL = 1;
+		private static final int STATE_REGULAR_CELL = 2;
+
 		private LayoutInflater mInflater;
-		String mUnknownYear = getResources().getString(R.string.text_unknown);
+		private int[] mCellStates;
+		private String previousSection = "";
+		private String mCurrentSection = "";
+		private final String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
+		}
+
+		@Override
+		public Cursor swapCursor(Cursor newCursor) {
+			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
+			return super.swapCursor(newCursor);
 		}
 
 		@Override
@@ -707,6 +720,39 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
+
+			boolean needSeparator = false;
+			final int position = cursor.getPosition();
+			mCurrentSection = mSort.getScrollText(cursor);
+			switch (mCellStates[position]) {
+				case STATE_SECTIONED_CELL:
+					needSeparator = true;
+					break;
+				case STATE_REGULAR_CELL:
+					needSeparator = false;
+					break;
+				case STATE_UNKNOWN:
+				default:
+					if (position == 0) {
+						needSeparator = true;
+					} else {
+						cursor.moveToPosition(position - 1);
+						previousSection = mSort.getScrollText(cursor);
+						if (!previousSection.equals(mCurrentSection)) {
+							needSeparator = true;
+						}
+						cursor.moveToPosition(position);
+					}
+					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
+					break;
+			}
+
+			if (needSeparator) {
+				holder.separator.setText(mCurrentSection);
+				holder.separator.setVisibility(View.VISIBLE);
+			} else {
+				holder.separator.setVisibility(View.GONE);
+			}
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
 			int gameId = cursor.getInt(Query.GAME_ID);
@@ -734,12 +780,14 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		TextView info;
 		BezelImageView thumbnail;
 		Uri thumbnailUrl;
+		TextView separator;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			info = (TextView) view.findViewById(R.id.info);
 			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
+			separator = (TextView) view.findViewById(R.id.separator);
 		}
 	}
 
