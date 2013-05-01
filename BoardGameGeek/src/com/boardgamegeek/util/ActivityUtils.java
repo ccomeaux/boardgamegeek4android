@@ -26,7 +26,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.GameActivity;
@@ -171,6 +174,16 @@ public class ActivityUtils {
 
 	private static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+	}
+
+	public static void setActionBarText(Menu menu, int id, String text) {
+		MenuItem item = menu.findItem(id);
+		if (item != null) {
+			TextView tv = (TextView) item.getActionView().findViewById(R.id.actionbar_text);
+			if (tv != null) {
+				tv.setText(text);
+			}
+		}
 	}
 
 	public static Intent createShortcut(Context context, int gameId, String gameName) {

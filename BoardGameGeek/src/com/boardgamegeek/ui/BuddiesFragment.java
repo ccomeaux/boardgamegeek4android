@@ -39,12 +39,18 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 
 	public interface Callbacks {
 		public boolean onBuddySelected(int buddyId, String name, String fullName);
+
+		public void onBuddyCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public boolean onBuddySelected(int buddyId, String name, String fullName) {
 			return true;
+		}
+
+		@Override
+		public void onBuddyCountChanged(int count) {
 		}
 	};
 
@@ -148,6 +154,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			cursor.close();
 		}
 
+		mCallbacks.onBuddyCountChanged(cursor.getCount());
 		if (isResumed()) {
 			setListShown(true);
 		} else {

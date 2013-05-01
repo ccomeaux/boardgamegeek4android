@@ -15,5 +15,6 @@
 	<color name="accent_light_2">#ffeceff6</color>
 	<color name="accent_light_3">#ffe5e5e5</color>
 	<color name="accent">#ff336699</color>
+	<color name="actionbar_text">#99333333</color>
 
 </resources>

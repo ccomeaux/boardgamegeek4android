@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<dimen name="action_button_min_width">56dp</dimen>
 	<dimen name="avatar_size">64dp</dimen>
 	<dimen name="padding_small">2dp</dimen>
 	<dimen name="padding_half">4dp</dimen>
@@ -12,5 +11,7 @@
 	<dimen name="text_size">14sp</dimen>
 	<dimen name="thumbnail_list_size">48dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
+	<dimen name="actionbar_view">32dp</dimen>
+	<dimen name="actionbar_text">24sp</dimen>
 
 </resources>

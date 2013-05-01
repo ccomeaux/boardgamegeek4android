@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.actionbarsherlock.view.Menu;
@@ -10,11 +11,28 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 
 public class BuddiesActivity extends SimpleSinglePaneActivity implements BuddiesFragment.Callbacks {
+	private static final String KEY_COUNT = "KEY_COUNT";
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
+	private int mCount = -1;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			mCount = savedInstanceState.getInt(KEY_COUNT);
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(KEY_COUNT, mCount);
+	}
 
 	@Override
 	protected void onPause() {
@@ -46,6 +64,12 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
@@ -57,7 +81,7 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.refresh_only;
+		return R.menu.buddies;
 	}
 
 	@Override
@@ -67,6 +91,12 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 		intent.putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, fullName);
 		startActivity(intent);
 		return false;
+	}
+
+	@Override
+	public void onBuddyCountChanged(int count) {
+		mCount = count;
+		supportInvalidateOptionsMenu();
 	}
 
 	private void triggerRefresh() {
