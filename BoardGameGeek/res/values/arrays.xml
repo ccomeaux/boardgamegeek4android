@@ -65,8 +65,7 @@
 		<item>Don\'t buy this</item>
 	</string-array>
 	<string-array name="plays_filter">
-		<item>All Plays</item>
-		<item>Synced</item>
+		<item>Plays</item>
 		<item>Drafts</item>
 		<item>Pending Update</item>
 		<item>Pending Delete</item>

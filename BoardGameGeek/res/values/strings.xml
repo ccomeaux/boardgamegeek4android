@@ -143,9 +143,12 @@
 	<string name="empty_game_collection">This game isn\'t in your collection. Want to add it? That\'s coming later…</string>
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game</string>
-	<string name="empty_plays">No plays. Check your sync settings and synchronize again.</string>
+	<string name="empty_plays">No plays. Do you even like games?</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
+	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
+	<string name="empty_plays_update">No plays are waiting to be updated.</string>
+	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_forums">No forums</string>
 	<string name="empty_forum">No threads in this forum</string>

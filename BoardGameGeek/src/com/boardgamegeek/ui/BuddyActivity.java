@@ -23,12 +23,13 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener, BuddyFragment.Callbacks {
+	ViewPager.OnPageChangeListener, BuddyFragment.Callbacks, PlaysFragment.Callbacks {
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -166,6 +167,16 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 	@Override
 	public void onNameChanged(String name) {
 		changeName(name);
+	}
+
+	@Override
+	public boolean onPlaySelected(int playId, int gameId, String gameName) {
+		ActivityUtils.launchPlay(this, playId, gameId, gameName);
+		return false;
+	}
+
+	@Override
+	public void onPlayCountChanged(int count) {
 	}
 
 	@Override

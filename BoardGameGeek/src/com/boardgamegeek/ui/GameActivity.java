@@ -32,7 +32,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class GameActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks {
+	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 
@@ -285,5 +285,15 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 			intent.putExtra(ImageActivity.KEY_TITLE, (String) v.getTag(R.id.name));
 			startActivity(intent);
 		}
+	}
+
+	@Override
+	public boolean onPlaySelected(int playId, int gameId, String gameName) {
+		ActivityUtils.launchPlay(this, playId, gameId, gameName);
+		return false;
+	}
+
+	@Override
+	public void onPlayCountChanged(int count) {
 	}
 }

@@ -32,8 +32,10 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
+import com.boardgamegeek.ui.PlayActivity;
 
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
@@ -124,6 +126,14 @@ public class ActivityUtils {
 			String.format(r.getString(R.string.share_subject), gameName),
 			String.format(r.getString(R.string.share_text), gameName, "http://www.boardgamegeek.com/boardgame/"
 				+ gameId), R.string.share_title);
+	}
+
+	public static void launchPlay(Context context, int playId, int gameId, String gameName) {
+		Uri playUri = Plays.buildPlayUri(playId);
+		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
+		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
+		context.startActivity(intent);
 	}
 
 	public static void logPlay(Context context, int playId, int gameId, String gameName) {

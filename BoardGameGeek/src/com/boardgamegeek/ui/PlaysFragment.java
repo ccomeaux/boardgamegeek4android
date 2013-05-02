@@ -9,11 +9,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,6 +64,26 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private int mFilter;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
+	private int mSelectedPlayId;
+
+	public interface Callbacks {
+		public boolean onPlaySelected(int playId, int gameId, String gameName);
+
+		public void onPlayCountChanged(int count);
+	}
+
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override
+		public boolean onPlaySelected(int playId, int gameId, String gameName) {
+			return true;
+		}
+
+		@Override
+		public void onPlayCountChanged(int count) {
+		}
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,30 +117,54 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
+	}
+
+	@Override
 	protected int getEmptyStringResoure() {
 		switch (mMode) {
 			case MODE_BUDDY:
 				return R.string.empty_plays_buddy;
 			case MODE_GAME:
 				return R.string.empty_plays_game;
+			case MODE_ALL:
 			default:
-				return R.string.empty_plays;
+				switch (mFilter) {
+					case Play.SYNC_STATUS_IN_PROGRESS:
+						return R.string.empty_plays_draft;
+					case Play.SYNC_STATUS_PENDING_UPDATE:
+						return R.string.empty_plays_update;
+					case Play.SYNC_STATUS_PENDING_DELETE:
+						return R.string.empty_plays_delete;
+					case Play.SYNC_STATUS_ALL:
+					default:
+						return R.string.empty_plays;
+				}
 		}
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
-		launchPlay(cursor);
-	}
-
-	private void launchPlay(Cursor cursor) {
-		int playId = cursor.getInt(PlaysQuery.PLAY_ID);
-		Uri playUri = Plays.buildPlayUri(playId);
-		Intent i = new Intent(Intent.ACTION_VIEW, playUri);
-		i.putExtra(PlayActivity.KEY_GAME_ID, cursor.getInt(PlaysQuery.GAME_ID));
-		i.putExtra(PlayActivity.KEY_GAME_NAME, cursor.getString(PlaysQuery.GAME_NAME));
-		startActivity(i);
+		if (cursor != null) {
+			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
+			int gameId = cursor.getInt(PlaysQuery.GAME_ID);
+			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
+			if (mCallbacks.onPlaySelected(playId, gameId, gameName)) {
+				setSelectedPlayId(playId);
+			}
+		}
 	}
 
 	@Override
@@ -134,6 +178,13 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void setSelectedPlayId(int playId) {
+		mSelectedPlayId = playId;
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
 	@Override
@@ -268,6 +319,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			cursor.close();
 		}
 
+		mCallbacks.onPlayCountChanged(cursor.getCount());
 		if (token != GameQuery._TOKEN) {
 			if (isResumed()) {
 				setListShown(true);
@@ -298,9 +350,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	public void filter(int filter) {
-		mFilter = filter;
-		// right now, filters can't be applied while viewing by game
 		if (mMode == MODE_ALL) {
+			mFilter = filter;
+			setEmptyText(getString(getEmptyStringResoure()));
 			getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 		}
 	}
@@ -383,6 +435,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			} else {
 				holder.separator.setVisibility(View.GONE);
 			}
+
+			UIUtils.setActivatedCompat(view, cursor.getInt(PlaysQuery.PLAY_ID) == mSelectedPlayId);
 
 			holder.date.setText(cursor.getString(PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));

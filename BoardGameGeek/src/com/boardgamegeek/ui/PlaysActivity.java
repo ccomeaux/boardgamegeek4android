@@ -12,21 +12,36 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.ActivityUtils;
 
-public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar.OnNavigationListener {
+public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar.OnNavigationListener,
+	PlaysFragment.Callbacks {
+	private static final String KEY_COUNT = "KEY_COUNT";
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
+	private int mCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		if (savedInstanceState != null) {
+			mCount = savedInstanceState.getInt(KEY_COUNT);
+		}
+
 		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		ArrayAdapter<CharSequence> mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.plays_filter,
 			R.layout.sherlock_spinner_item);
 		mSpinnerAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 		actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putInt(KEY_COUNT, mCount);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -51,15 +66,12 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 		int filter = Play.SYNC_STATUS_ALL;
 		switch (itemPosition) {
 			case 1:
-				filter = Play.SYNC_STATUS_SYNCED;
-				break;
-			case 2:
 				filter = Play.SYNC_STATUS_IN_PROGRESS;
 				break;
-			case 3:
+			case 2:
 				filter = Play.SYNC_STATUS_PENDING_UPDATE;
 				break;
-			case 4:
+			case 3:
 				filter = Play.SYNC_STATUS_PENDING_DELETE;
 				break;
 		}
@@ -73,6 +85,11 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 	}
 
 	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.plays;
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		mOptionsMenu = menu;
 		mSyncStatusObserver.onStatusChanged(0);
@@ -80,8 +97,9 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 	}
 
 	@Override
-	protected int getOptionsMenuId() {
-		return R.menu.plays;
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -120,4 +138,16 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 			});
 		}
 	};
+
+	@Override
+	public boolean onPlaySelected(int playId, int gameId, String gameName) {
+		ActivityUtils.launchPlay(this, playId, gameId, gameName);
+		return false;
+	}
+
+	@Override
+	public void onPlayCountChanged(int count) {
+		mCount = count;
+		supportInvalidateOptionsMenu();
+	}
 }
