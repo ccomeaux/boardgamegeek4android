@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -136,13 +137,13 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
-	public static void logPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = new Intent(context, LogPlayActivity.class);
+	public static void editPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {
+		Intent intent = new Intent(activity, LogPlayActivity.class);
 		intent.setAction(Intent.ACTION_EDIT);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		context.startActivity(intent);
+		activity.startActivityForResult(intent, requestCode);
 	}
 
 	public static void logPlay(Context context, boolean quick, int gameId, String gameName) {
@@ -190,6 +191,15 @@ public class ActivityUtils {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
 			TextView tv = (TextView) item.getActionView().findViewById(R.id.actionbar_text);
+			if (tv != null) {
+				tv.setText(text);
+			}
+		}
+	}
+
+	public static void setCustomActionBarText(ActionBar actionBar, int id, String text) {
+		if (actionBar != null) {
+			TextView tv = (TextView) actionBar.getCustomView().findViewById(R.id.actionbar_text);
 			if (tv != null) {
 				tv.setText(text);
 			}

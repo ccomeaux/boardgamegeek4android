@@ -63,6 +63,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final int HELP_VERSION = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
 
+	public static final int RESULT_UPDATED = RESULT_FIRST_USER;
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -151,7 +152,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 			// TODO: refactor to quick log without this activity (probably need to use AccountManager)
 			logPlay();
-			finish();
 		} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
@@ -228,7 +228,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				logPlay();
-				finish();
 				return true;
 			case R.id.menu_save:
 				saveDraft(true);
@@ -350,6 +349,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+		setResult(RESULT_UPDATED);
+		finish();
 	}
 
 	private void triggerUpload() {
@@ -403,7 +404,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				save(Play.SYNC_STATUS_PENDING_DELETE);
 			}
 			triggerUpload();
-			setResult(RESULT_CANCELED);
+			setResult(RESULT_UPDATED);
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
@@ -412,7 +413,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 						public void onClick(DialogInterface dialog, int id) {
 							save(Play.SYNC_STATUS_PENDING_DELETE);
 							triggerUpload();
-							setResult(RESULT_CANCELED);
+							setResult(RESULT_UPDATED);
 							finish();
 						}
 					}).show();

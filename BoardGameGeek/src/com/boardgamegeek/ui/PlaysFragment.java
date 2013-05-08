@@ -236,8 +236,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		final int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 		switch (itemId) {
 			case MENU_PLAY_EDIT: {
-				ActivityUtils.logPlay(getActivity(), playId, cursor.getInt(PlaysQuery.GAME_ID),
-					cursor.getString(PlaysQuery.GAME_NAME));
+				ActivityUtils.editPlay(getActivity(), playId, cursor.getInt(PlaysQuery.GAME_ID),
+					cursor.getString(PlaysQuery.GAME_NAME), 0);
 				return true;
 			}
 			case MENU_PLAY_DELETE: {

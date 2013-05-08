@@ -1,9 +1,11 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
@@ -15,6 +17,13 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		super.onCreate(savedInstanceState);
 
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == Play.SYNC_STATUS_IN_PROGRESS && resultCode == LogPlayActivity.RESULT_UPDATED) {
+			finish();
+		}
 	}
 
 	@Override

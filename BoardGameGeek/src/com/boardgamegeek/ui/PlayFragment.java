@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -192,7 +191,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				return true;
 			}
 			case R.id.menu_edit:
-				ActivityUtils.logPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -222,11 +221,14 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == PlayQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mPlayUri, PlayQuery.PROJECTION, null, null, null);
-		} else if (id == PlayerQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(Plays.getPlayId(mPlayUri)),
-				PlayerQuery.PROJECTION, null, null, null);
+		switch (id) {
+			case PlayQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), mPlayUri, PlayQuery.PROJECTION, null, null, null);
+				break;
+			case PlayerQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayerUri(Plays.getPlayId(mPlayUri)),
+					PlayerQuery.PROJECTION, null, null, null);
+				break;
 		}
 		return loader;
 	}
@@ -320,7 +322,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			mSavedTimeStamp.setVisibility(View.GONE);
 		}
 
-		ActivityCompat.invalidateOptionsMenu(getActivity());
+		getActivity().supportInvalidateOptionsMenu();
 
 		mViewToLoad = mScroll;
 		mViewToHide = mMessage;
