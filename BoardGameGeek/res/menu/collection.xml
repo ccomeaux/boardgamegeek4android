@@ -2,108 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<item
-		android:id="@+id/collection_filter_add"
-		android:icon="?attr/ic_action_filter_on"
-		android:title="@string/menu_collection_filter_add">
-		<menu>
-			<item
-				android:id="@+id/menu_collection_status"
-				android:title="@string/menu_collection_status"/>
-			<item
-				android:id="@+id/menu_expansion_status"
-				android:title="@string/menu_expansion_status"/>
-			<item
-				android:id="@+id/menu_number_of_players"
-				android:title="@string/menu_number_of_players"/>
-			<item
-				android:id="@+id/menu_play_time"
-				android:title="@string/menu_play_time"/>
-			<item
-				android:id="@+id/menu_suggested_age"
-				android:title="@string/menu_suggested_age"/>
-			<item
-				android:id="@+id/menu_year_published"
-				android:title="@string/menu_year_published"/>
-			<item
-				android:id="@+id/menu_geek_ranking"
-				android:title="@string/menu_geek_ranking"/>
-			<item
-				android:id="@+id/menu_geek_rating"
-				android:title="@string/menu_geek_rating"/>
-			<item
-				android:id="@+id/menu_average_rating"
-				android:title="@string/menu_average_rating"/>
-			<item
-				android:id="@+id/menu_average_weight"
-				android:title="@string/menu_average_weight"/>
-		</menu>
-	</item>
+		android:id="@+id/menu_list_count"
+		android:actionLayout="@layout/actionbar_text"
+		android:showAsAction="always"
+		android:title=""/>
 	<item
-		android:id="@+id/menu_collection_filter_clear"
-		android:icon="?attr/ic_action_filter_off"
-		android:title="@string/menu_collection_filter_clear"/>
-	<item
-		android:id="@+id/menu_collection_sort"
-		android:icon="?attr/ic_action_sort"
-		android:title="Sort">
-		<menu>
-			<item
-				android:id="@+id/menu_collection_sort_name"
-				android:title="@string/menu_collection_sort_name"/>
-			<item
-				android:id="@+id/menu_collection_sort_rating"
-				android:title="@string/menu_collection_sort_rating"/>
-			<item
-				android:id="@+id/menu_collection_sort_wishlist_priority"
-				android:title="@string/menu_collection_sort_wishlist_priority"/>
-
-			<!-- <item -->
-			<!-- android:id="@+id/menu_collection_sort_played_most" -->
-			<!-- android:title="@string/menu_collection_sort_played_most"/> -->
-			<!-- <item -->
-			<!-- android:id="@+id/menu_collection_sort_played_least" -->
-			<!-- android:title="@string/menu_collection_sort_played_least"/> -->
-			<item
-				android:id="@+id/menu_collection_sort_published_newest"
-				android:title="@string/menu_collection_sort_published_newest"/>
-			<item
-				android:id="@+id/menu_collection_sort_published_oldest"
-				android:title="@string/menu_collection_sort_published_oldest"/>
-			<item
-				android:id="@+id/menu_collection_sort_playtime_shortest"
-				android:title="@string/menu_collection_sort_playtime_shortest"/>
-			<item
-				android:id="@+id/menu_collection_sort_playtime_longest"
-				android:title="@string/menu_collection_sort_playtime_longest"/>
-			<item
-				android:id="@+id/menu_collection_sort_age_youngest"
-				android:title="@string/menu_collection_sort_age_youngest"/>
-			<item
-				android:id="@+id/menu_collection_sort_age_oldest"
-				android:title="@string/menu_collection_sort_age_oldest"/>
-			<item
-				android:id="@+id/menu_collection_sort_weight_lighest"
-				android:title="@string/menu_collection_sort_weight_lightest"/>
-			<item
-				android:id="@+id/menu_collection_sort_weight_heaviest"
-				android:title="@string/menu_collection_sort_weight_heaviest"/>
-		</menu>
-	</item>
-	<item
-		android:id="@+id/menu_collection_view_save"
-		android:icon="?attr/ic_action_save"
-		android:title="@string/menu_collection_view_save"/>
-	<item
-		android:id="@+id/menu_collection_view_load"
-		android:icon="?attr/ic_action_open"
-		android:title="@string/menu_collection_view_load"/>
-	<item
-		android:id="@+id/menu_collection_view_delete"
-		android:icon="?attr/ic_action_delete"
-		android:title="@string/menu_collection_view_delete"/>
-	<item
-		android:id="@+id/menu_collection_random_game"
-		android:icon="?attr/ic_action_help"
-		android:title="@string/menu_collection_random_game"/>
+		android:id="@+id/menu_search"
+		android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+		android:icon="?attr/ic_action_search"
+		android:showAsAction="always|collapseActionView"
+		android:title="@string/menu_search"/>
 
 </menu>

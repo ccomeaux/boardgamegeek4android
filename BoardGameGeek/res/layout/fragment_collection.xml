@@ -57,38 +57,20 @@
 				android:background="@color/background_dark" />
 
 			<TextView
-				android:id="@+id/collection_count"
-				style="@style/Text.Primary3"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_below="@id/collection_info_header"
-				android:paddingRight="@dimen/padding_extra" />
-
-			<TextView
 				android:id="@+id/collection_sort"
 				style="@style/Text.Primary3"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@id/collection_count"
-				android:paddingRight="@dimen/padding_extra" />
-
-			<TextView
-				android:id="@+id/filter_name"
-				style="@style/Text.Primary2"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignBottom="@id/collection_sort"
-				android:layout_alignTop="@id/collection_count"
-				android:gravity="center_vertical"
-				android:paddingLeft="@dimen/padding_extra" />
+				android:layout_alignParentTop="true"
+				android:paddingRight="@dimen/padding_extra"
+				android:textIsSelectable="false" />
 
 			<HorizontalScrollView
 				android:id="@+id/filter_scroll_view"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/filter_name"
+				android:layout_below="@id/collection_sort"
 				android:scrollbars="none" >
 
 				<LinearLayout

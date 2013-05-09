@@ -117,7 +117,7 @@ public class SaveFilters {
 
 				private void updateDisplay(final Context context, String name) {
 					Toast.makeText(context, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-					view.setFilterName(name, false);
+					view.setViewName(name);
 				}
 			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
 

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	style="?attr/actionButtonStyle"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent" >
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	android:layout_gravity="right" >
 
 	<TextView
 		android:id="@+id/actionbar_text"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/actionbar_view"
 		android:layout_gravity="center"
-		android:gravity="center"
 		android:textColor="@color/actionbar_text"
 		android:textIsSelectable="false"
 		android:textSize="@dimen/actionbar_text" />

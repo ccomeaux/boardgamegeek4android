@@ -1,41 +1,76 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class CollectionActivity extends SimpleSinglePaneActivity implements CollectionFragment.Callbacks {
+public class CollectionActivity extends SimpleSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+	CollectionFragment.Callbacks, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
+	private static final String KEY_COUNT = "KEY_COUNT";
+	private static final String KEY_SELECTED_INDEX = "KEY_NAVIGATION_INDEX";
 
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private boolean mShortcut;
+	private int mCount;
+	private int mSelectedIndex = -1;
+	private CollectionViewAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mShortcut = "android.intent.action.CREATE_SHORTCUT".equals(getIntent().getAction());
+		mShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 
+		if (savedInstanceState != null) {
+			mCount = savedInstanceState.getInt(KEY_COUNT);
+			mSelectedIndex = savedInstanceState.getInt(KEY_SELECTED_INDEX);
+		}
+
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionBar.setCustomView(R.layout.actionbar_text);
 		if (mShortcut) {
-			final ActionBar actionBar = getSupportActionBar();
 			actionBar.setHomeButtonEnabled(false);
 			actionBar.setDisplayHomeAsUpEnabled(false);
 			actionBar.setTitle(R.string.menu_create_shortcut);
+		} else {
+			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putInt(KEY_COUNT, mCount);
+		outState.putInt(KEY_SELECTED_INDEX, getSupportActionBar().getSelectedNavigationIndex());
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -63,6 +98,13 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		ActivityUtils.setCustomActionBarText(getSupportActionBar(), R.id.menu_list_count,
+			mCount <= 0 ? "" : String.valueOf(mCount));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	protected Fragment onCreatePane() {
 		return new CollectionFragment();
 	}
@@ -75,13 +117,64 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 	@Override
 	public boolean onGameSelected(int gameId, String gameName) {
 		ActivityUtils.launchGame(this, gameId, gameName);
-		return true;
+		return false;
 	}
 
 	@Override
 	public void onSetShortcut(Intent intent) {
 		setResult(RESULT_OK, intent);
 		finish();
+	}
+
+	@Override
+	public void onCollectionCountChanged(int count) {
+		mCount = count;
+		supportInvalidateOptionsMenu();
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		CursorLoader loader = null;
+		if (id == Query._TOKEN) {
+			loader = new CursorLoader(this, CollectionViews.CONTENT_URI, Query.PROJECTION, null, null, null);
+		}
+		return loader;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		if (loader.getId() == Query._TOKEN) {
+			if (mAdapter == null) {
+				mAdapter = new CollectionViewAdapter(this, cursor);
+			} else {
+				mAdapter.changeCursor(cursor);
+			}
+			final ActionBar actionBar = getSupportActionBar();
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+			actionBar.setListNavigationCallbacks(mAdapter, this);
+			if (mSelectedIndex > -1) {
+				actionBar.setSelectedNavigationItem(mSelectedIndex);
+			}
+		} else {
+			cursor.close();
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.changeCursor(null);
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		CollectionFragment fragment = (CollectionFragment) getFragment();
+		if (itemId < 0) {
+			fragment.clearView();
+		} else {
+			fragment.setView(itemId);
+		}
+		return true;
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
@@ -110,4 +203,70 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Coll
 			});
 		}
 	};
+
+	private static class CollectionViewAdapter extends SimpleCursorAdapter {
+		private LayoutInflater mInflater;
+
+		public CollectionViewAdapter(Context context, Cursor cursor) {
+			super(context, R.layout.sherlock_spinner_item, cursor, new String[] { CollectionViews._ID,
+				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
+			setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+
+		@Override
+		public int getCount() {
+			return super.getCount() + 1;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (position == 0) {
+				return createDefaultItem(convertView, parent, R.layout.sherlock_spinner_item);
+			} else {
+				return super.getView(position - 1, convertView, parent);
+			}
+		}
+
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			if (position == 0) {
+				return createDefaultItem(convertView, parent, R.layout.sherlock_spinner_dropdown_item);
+			} else {
+				return super.getDropDownView(position - 1, convertView, parent);
+			}
+		}
+
+		private View createDefaultItem(View convertView, ViewGroup parent, int layout) {
+			View v;
+			if (convertView == null) {
+				v = mInflater.inflate(layout, parent, false);
+			} else {
+				v = convertView;
+			}
+			((TextView) v).setText(R.string.title_collection);
+			return v;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			if (position == 0) {
+				return null;
+			}
+			return super.getItem(position - 1);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			if (position == 0) {
+				return -1;
+			}
+			return super.getItemId(position - 1);
+		}
+	}
+
+	private interface Query {
+		int _TOKEN = 0x01;
+		String[] PROJECTION = { BaseColumns._ID, CollectionViews.NAME, CollectionViews.SORT_TYPE, };
+	}
 }

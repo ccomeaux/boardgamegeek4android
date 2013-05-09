@@ -49,6 +49,7 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 	private SelectionBuilder buildSelection(Uri uri, String table) {
 		long filterId = CollectionViews.getViewId(uri);
 		return new SelectionBuilder().table(table)
+			.mapToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS)
 			.where(CollectionViewFilters.VIEW_ID + "=?", String.valueOf(filterId));
 	}
 }

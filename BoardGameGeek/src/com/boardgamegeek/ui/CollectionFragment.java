@@ -17,7 +17,6 @@ import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -58,6 +57,7 @@ import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
@@ -67,7 +67,6 @@ import com.boardgamegeek.ui.dialog.DeleteFilters;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
-import com.boardgamegeek.ui.dialog.LoadFilters;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveFilters;
@@ -83,26 +82,26 @@ import com.boardgamegeek.util.UIUtils;
 public class CollectionFragment extends SherlockListFragment implements AbsListView.OnScrollListener,
 	LoaderManager.LoaderCallbacks<Cursor>, CollectionView {
 	private static final String TAG = makeLogTag(CollectionFragment.class);
-	private static final String KEY_FILTERS = "FILTERS";
-	private static final String KEY_FILTER_NAME = "FILTER_NAME";
-	private static final String KEY_FILTER_NAME_PRIOR = "FILTER_NAME_PRIOR";
-	private static final String KEY_SORT_TYPE = "SORT";
-	private static final String STATE_SELECTED_ID = "selectedId";
+	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
+	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
+	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
+	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
+	private static final String STATE_FILTERS = "STATE_FILTERS";
+	private static final String STATE_VIEW_MODIFIED = "STATE_VIEW_MODIFIED";
 
 	private ImageFetcher mImageFetcher;
 	private int mSelectedCollectionId;
 	private boolean mFastScrollLetterEnabled;
 	private CollectionAdapter mAdapter;
+	private long mViewId;
+	private String mViewName = "";
 	private CollectionSortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
-	private String mFilterName = "";
-	private String mFilterNamePrior = "";
+	private boolean mViewModified = false;
 
 	private View mProgressView;
 	private View mListContainer;
-	private TextView mCollectionCountView;
 	private TextView mCollectionSortView;
-	private TextView mFilterNameView;
 	private LinearLayout mFilterLinearLayout;
 	private TextView mFastScrollLetter;
 	private boolean mShortcut;
@@ -111,6 +110,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		public boolean onGameSelected(int gameId, String gameName);
 
 		public void onSetShortcut(Intent intent);
+
+		public void onCollectionCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -121,6 +122,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 		@Override
 		public void onSetShortcut(Intent intent) {
+		}
+
+		@Override
+		public void onCollectionCountChanged(int count) {
 		}
 	};
 
@@ -136,6 +141,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 		if (savedInstanceState != null) {
 			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
+			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
+			mViewName = savedInstanceState.getString(STATE_VIEW_NAME);
+			mFilters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
+			mViewModified = savedInstanceState.getBoolean(STATE_VIEW_MODIFIED);
 		}
 		setHasOptionsMenu(true);
 
@@ -156,9 +165,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 		mProgressView = rootView.findViewById(R.id.progress);
 		mListContainer = rootView.findViewById(R.id.list_container);
-		mCollectionCountView = (TextView) rootView.findViewById(R.id.collection_count);
 		mCollectionSortView = (TextView) rootView.findViewById(R.id.collection_sort);
-		mFilterNameView = (TextView) rootView.findViewById(R.id.filter_name);
 		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
 
@@ -180,16 +187,13 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		mSort = new CollectionNameSortData(getActivity());
-		if (savedInstanceState != null) {
-			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
-			mFilters = savedInstanceState.getParcelableArrayList(KEY_FILTERS);
-			mFilterName = savedInstanceState.getString(KEY_FILTER_NAME);
-			mFilterNamePrior = savedInstanceState.getString(KEY_FILTER_NAME_PRIOR);
-			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(KEY_SORT_TYPE), getActivity());
+		if (savedInstanceState == null) {
+			mSort = new CollectionNameSortData(getActivity());
+		} else {
+			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(STATE_SORT_TYPE), getActivity());
 		}
+		// This is handled by the activity I think
 		requery();
-		bindFilterName();
 	}
 
 	private void requery() {
@@ -216,10 +220,11 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putParcelableArrayList(KEY_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
-		outState.putString(KEY_FILTER_NAME, mFilterName);
-		outState.putString(KEY_FILTER_NAME_PRIOR, mFilterNamePrior);
-		outState.putInt(KEY_SORT_TYPE, mSort == null ? CollectionSortDataFactory.TYPE_UNKNOWN : mSort.getType());
+		outState.putLong(STATE_VIEW_ID, mViewId);
+		outState.putString(STATE_VIEW_NAME, mViewName);
+		outState.putInt(STATE_SORT_TYPE, mSort == null ? CollectionSortDataFactory.TYPE_UNKNOWN : mSort.getType());
+		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
+		outState.putBoolean(STATE_VIEW_MODIFIED, mViewModified);
 		if (mSelectedCollectionId > 0) {
 			outState.putInt(STATE_SELECTED_ID, mSelectedCollectionId);
 		}
@@ -263,19 +268,16 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.collection, menu);
+		inflater.inflate(R.menu.collection_fragment, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-		menu.findItem(R.id.menu_collection_view_load).setEnabled(hasViews);
 		menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 
-		boolean hasFilters = mFilters != null && mFilters.size() > 0;
-		menu.findItem(R.id.menu_collection_view_save).setEnabled(hasFilters);
-		menu.findItem(R.id.menu_collection_filter_clear).setEnabled(hasFilters);
+		menu.findItem(R.id.menu_collection_view_save).setEnabled(mViewModified);
 
 		final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
 		item.setVisible(!mShortcut);
@@ -291,16 +293,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
 					cursor.getString(Query.COLLECTION_NAME));
 				return true;
-			case R.id.menu_collection_filter_clear:
-				mFilters.clear();
-				setFilterName("", false);
-				getLoaderManager().restartLoader(Query._TOKEN, null, this);
-				return true;
 			case R.id.menu_collection_view_save:
-				SaveFilters.createDialog(getActivity(), this, mFilterNamePrior, mSort.getType(), mFilters);
-				return true;
-			case R.id.menu_collection_view_load:
-				LoadFilters.createDialog(getActivity(), this);
+				SaveFilters.createDialog(getActivity(), this, mViewName, mSort.getType(), mFilters);
 				return true;
 			case R.id.menu_collection_view_delete:
 				DeleteFilters.createDialog(getActivity());
@@ -467,6 +461,11 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			loader = new CursorLoader(getActivity(), mUri, mSort == null ? Query.PROJECTION : StringUtils.unionArrays(
 				Query.PROJECTION, mSort.getColumns()), where.toString(), args, mSort == null ? null
 				: mSort.getOrderByClause());
+		} else if (id == ViewQuery._TOKEN) {
+			if (mViewId > 0) {
+				loader = new CursorLoader(getActivity(), CollectionViews.buildViewFilterUri(mViewId),
+					ViewQuery.PROJECTION, null, null, null);
+			}
 		}
 		return loader;
 	}
@@ -485,13 +484,26 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			mAdapter.changeCursor(cursor);
-			bindCountAndSortText(cursor);
+			bindSortText();
 			bindFilterButtons();
+		} else if (token == ViewQuery._TOKEN) {
+			if (cursor.moveToFirst()) {
+				mViewName = cursor.getString(ViewQuery.NAME);
+				mSort = CollectionSortDataFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
+				mFilters.clear();
+				do {
+					CollectionFilterData filter = CollectionFilterDataFactory.create(getActivity(),
+						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
+					mFilters.add(filter);
+				} while (cursor.moveToNext());
+				mViewModified = false;
+				requery();
+			}
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
-
+		mCallbacks.onCollectionCountChanged(cursor.getCount());
 		AnimationUtils.fadeOut(getActivity(), mProgressView, isResumed());
 		AnimationUtils.fadeIn(getActivity(), mListContainer, isResumed());
 	}
@@ -510,7 +522,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	@Override
 	public void setSort(int sortType) {
-		setFilterName("", true);
+		mViewModified = true;
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}
@@ -519,29 +531,9 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	}
 
 	@Override
-	public void setFilterName(String name, boolean saveName) {
-		if (saveName && TextUtils.isEmpty(name) && !TextUtils.isEmpty(mFilterName)) {
-			mFilterNamePrior = mFilterName;
-		} else if (!saveName) {
-			mFilterNamePrior = "";
-		}
-		mFilterName = name;
-		bindFilterName();
-	}
-
-	/**
-	 * Display the name of the filter in the UI
-	 */
-	private void bindFilterName() {
-		if (TextUtils.isEmpty(mFilterName)) {
-			if (TextUtils.isEmpty(mFilterNamePrior)) {
-				mFilterNameView.setText("");
-			} else {
-				mFilterNameView.setText(mFilterNamePrior + "*");
-			}
-		} else {
-			mFilterNameView.setText(mFilterName);
-		}
+	public void setViewName(String name) {
+		mViewName = name;
+		mViewModified = false;
 	}
 
 	private CollectionFilterData findFilter(int type) {
@@ -555,14 +547,14 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	@Override
 	public void removeFilter(CollectionFilterData filter) {
-		setFilterName("", true);
+		mViewModified = true;
 		mFilters.remove(filter);
 		requery();
 	}
 
 	@Override
 	public void addFilter(CollectionFilterData filter) {
-		setFilterName("", true);
+		mViewModified = true;
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -570,15 +562,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		requery();
 	}
 
-	@Override
-	public void setFilters(List<CollectionFilterData> filters) {
-		mFilters = filters;
-		requery();
-	}
-
-	private void bindCountAndSortText(Cursor cursor) {
-		String info = String.format(getResources().getString(R.string.msg_collection_info), cursor.getCount());
-		mCollectionCountView.setText(info);
+	private void bindSortText() {
 		if (mSort != null) {
 			mCollectionSortView.setText("by " + getResources().getString(mSort.getDescriptionId()));
 		}
@@ -687,6 +671,24 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		return false;
 	}
 
+	public void setView(long viewId) {
+		if (mViewId != viewId) {
+			mViewId = viewId;
+			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
+		}
+	}
+
+	public void clearView() {
+		if (mViewId != 0) {
+			mViewId = 0;
+			mViewName = "";
+			mFilters.clear();
+			mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
+			mViewModified = false;
+			requery();
+		}
+	}
+
 	private class CollectionAdapter extends CursorAdapter {
 		private static final int STATE_UNKNOWN = 0;
 		private static final int STATE_SECTIONED_CELL = 1;
@@ -793,7 +795,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	private interface Query {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { BaseColumns._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
+		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
 			Collection.THUMBNAIL_URL };
 
@@ -805,5 +807,17 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		int GAME_ID = 5;
 		int COLLECTION_THUMBNAIL_URL = 6;
 		int THUMBNAIL_URL = 7;
+	}
+
+	private interface ViewQuery {
+		int _TOKEN = 0x02;
+		String[] PROJECTION = { CollectionViewFilters._ID, CollectionViewFilters.NAME, CollectionViewFilters.SORT_TYPE,
+			CollectionViewFilters.TYPE, CollectionViewFilters.DATA, };
+
+		// int _ID = 0;
+		int NAME = 1;
+		int SORT_TYPE = 2;
+		int TYPE = 3;
+		int DATA = 4;
 	}
 }

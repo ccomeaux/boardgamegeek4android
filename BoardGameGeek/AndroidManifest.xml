@@ -40,7 +40,8 @@
 		<activity
 			android:name=".ui.CollectionActivity"
 			android:exported="false"
-			android:label="@string/title_collection" >
+			android:label="@string/title_collection"
+			android:uiOptions="splitActionBarWhenNarrow" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
