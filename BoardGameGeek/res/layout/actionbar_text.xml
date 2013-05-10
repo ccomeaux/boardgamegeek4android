@@ -6,10 +6,11 @@
 	android:layout_gravity="right" >
 
 	<TextView
-		android:id="@+id/actionbar_text"
+		android:id="@android:id/text1"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/actionbar_view"
 		android:layout_gravity="center"
+		android:singleLine="true"
 		android:textColor="@color/actionbar_text"
 		android:textIsSelectable="false"
 		android:textSize="@dimen/actionbar_text" />

@@ -190,7 +190,7 @@ public class ActivityUtils {
 	public static void setActionBarText(Menu menu, int id, String text) {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
-			TextView tv = (TextView) item.getActionView().findViewById(R.id.actionbar_text);
+			TextView tv = (TextView) item.getActionView().findViewById(android.R.id.text1);
 			if (tv != null) {
 				tv.setText(text);
 			}
@@ -199,10 +199,21 @@ public class ActivityUtils {
 
 	public static void setCustomActionBarText(ActionBar actionBar, int id, String text) {
 		if (actionBar != null) {
-			TextView tv = (TextView) actionBar.getCustomView().findViewById(R.id.actionbar_text);
-			if (tv != null) {
-				tv.setText(text);
-			}
+			setCustomTextView(actionBar, android.R.id.text1, text);
+		}
+	}
+
+	public static void setCustomActionBarText(ActionBar actionBar, int id, String text1, String text2) {
+		if (actionBar != null) {
+			setCustomTextView(actionBar, android.R.id.text1, text1);
+			setCustomTextView(actionBar, android.R.id.text2, text2);
+		}
+	}
+
+	private static void setCustomTextView(ActionBar actionBar, int id, String text) {
+		TextView tv = (TextView) actionBar.getCustomView().findViewById(id);
+		if (tv != null) {
+			tv.setText(text);
 		}
 	}
 
