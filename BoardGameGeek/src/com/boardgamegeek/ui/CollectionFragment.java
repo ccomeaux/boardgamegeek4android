@@ -33,6 +33,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -101,7 +102,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	private View mProgressView;
 	private View mListContainer;
-	private TextView mCollectionSortView;
 	private LinearLayout mFilterLinearLayout;
 	private TextView mFastScrollLetter;
 	private boolean mShortcut;
@@ -112,6 +112,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		public void onSetShortcut(Intent intent);
 
 		public void onCollectionCountChanged(int count);
+
+		public void onSortChanged(String sortName);
+
+		public void onViewRequested(long viewId);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -127,6 +131,14 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		@Override
 		public void onCollectionCountChanged(int count) {
 		}
+
+		@Override
+		public void onSortChanged(String sortName) {
+		}
+
+		@Override
+		public void onViewRequested(long viewId) {
+		};
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -165,7 +177,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 		mProgressView = rootView.findViewById(R.id.progress);
 		mListContainer = rootView.findViewById(R.id.list_container);
-		mCollectionSortView = (TextView) rootView.findViewById(R.id.collection_sort);
 		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
 
@@ -277,11 +288,15 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
 		menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 
-		menu.findItem(R.id.menu_collection_view_save).setEnabled(mViewModified);
+		menu.findItem(R.id.menu_collection_view_save).setEnabled(
+			mViewModified && mFilters != null && mFilters.size() > 0);
 
 		final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
 		item.setVisible(!mShortcut);
 		item.setEnabled(mAdapter == null ? false : mAdapter.getCount() > 0);
+
+		menu.findItem(R.id.menu_collection_view_save).setVisible(!mShortcut);
+		menu.findItem(R.id.menu_collection_view_delete).setVisible(!mShortcut);
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -294,10 +309,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 					cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
-				SaveFilters.createDialog(getActivity(), this, mViewName, mSort.getType(), mFilters);
+				SaveFilters.createDialog(getActivity(), this, mViewName, mSort, mFilters);
 				return true;
 			case R.id.menu_collection_view_delete:
-				DeleteFilters.createDialog(getActivity());
+				DeleteFilters.createDialog(getActivity(), this);
 				return true;
 			case R.id.menu_collection_sort_name:
 				setSort(CollectionSortDataFactory.TYPE_COLLECTION_NAME);
@@ -480,11 +495,11 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			mAdapter = new CollectionAdapter(getActivity());
 			setListAdapter(mAdapter);
 		}
-
+		boolean load = true;
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			mAdapter.changeCursor(cursor);
-			bindSortText();
+			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 			bindFilterButtons();
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
@@ -498,14 +513,17 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 				} while (cursor.moveToNext());
 				mViewModified = false;
 				requery();
+				load = false;
 			}
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
-		mCallbacks.onCollectionCountChanged(cursor.getCount());
-		AnimationUtils.fadeOut(getActivity(), mProgressView, isResumed());
-		AnimationUtils.fadeIn(getActivity(), mListContainer, isResumed());
+		if (load) {
+			mCallbacks.onCollectionCountChanged(cursor.getCount());
+			AnimationUtils.fadeOut(getActivity(), mProgressView, isResumed());
+			AnimationUtils.fadeIn(getActivity(), mListContainer, isResumed());
+		}
 	}
 
 	@Override
@@ -518,31 +536,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
-	}
-
-	@Override
-	public void setSort(int sortType) {
-		mViewModified = true;
-		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
-			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
-		}
-		mSort = CollectionSortDataFactory.create(sortType, getActivity());
-		requery();
-	}
-
-	@Override
-	public void setViewName(String name) {
-		mViewName = name;
-		mViewModified = false;
-	}
-
-	private CollectionFilterData findFilter(int type) {
-		for (CollectionFilterData filter : mFilters) {
-			if (filter.getType() == type) {
-				return filter;
-			}
-		}
-		return null;
 	}
 
 	@Override
@@ -562,10 +555,37 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		requery();
 	}
 
-	private void bindSortText() {
-		if (mSort != null) {
-			mCollectionSortView.setText("by " + getResources().getString(mSort.getDescriptionId()));
+	@Override
+	public void setSort(int sortType) {
+		mViewModified = true;
+		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
+			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}
+		mSort = CollectionSortDataFactory.create(sortType, getActivity());
+		requery();
+	}
+
+	@Override
+	public void createView(long id, String name) {
+		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
+		mCallbacks.onViewRequested(id);
+	}
+
+	@Override
+	public void deleteView(long id) {
+		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
+		if (mViewId == id) {
+			mCallbacks.onViewRequested(0);
+		}
+	}
+
+	private CollectionFilterData findFilter(int type) {
+		for (CollectionFilterData filter : mFilters) {
+			if (filter.getType() == type) {
+				return filter;
+			}
+		}
+		return null;
 	}
 
 	private void bindFilterButtons() {

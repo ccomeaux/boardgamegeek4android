@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,15 +30,17 @@ import com.boardgamegeek.util.UIUtils;
 public class CollectionActivity extends SimpleSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
 	CollectionFragment.Callbacks, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
-	private static final String KEY_COUNT = "KEY_COUNT";
-	private static final String KEY_SELECTED_INDEX = "KEY_NAVIGATION_INDEX";
+	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
+	private static final String STATE_COUNT = "STATE_COUNT";
+	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
 
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private boolean mShortcut;
-	private int mCount;
-	private int mSelectedIndex = -1;
 	private CollectionViewAdapter mAdapter;
+	private long mViewId;
+	private int mCount;
+	private String mSortName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +49,14 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 		mShortcut = Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction());
 
 		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
-			mSelectedIndex = savedInstanceState.getInt(KEY_SELECTED_INDEX);
+			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
+			mCount = savedInstanceState.getInt(STATE_COUNT);
+			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
 		}
 
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-		actionBar.setCustomView(R.layout.actionbar_text);
+		actionBar.setCustomView(R.layout.actionbar_text_2line);
 		if (mShortcut) {
 			actionBar.setHomeButtonEnabled(false);
 			actionBar.setDisplayHomeAsUpEnabled(false);
@@ -68,8 +70,9 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(KEY_COUNT, mCount);
-		outState.putInt(KEY_SELECTED_INDEX, getSupportActionBar().getSelectedNavigationIndex());
+		outState.putLong(STATE_VIEW_ID, mAdapter.getItemId(getSupportActionBar().getSelectedNavigationIndex()));
+		outState.putInt(STATE_COUNT, mCount);
+		outState.putString(STATE_SORT_NAME, mSortName);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -100,7 +103,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		ActivityUtils.setCustomActionBarText(getSupportActionBar(), R.id.menu_list_count,
-			mCount <= 0 ? "" : String.valueOf(mCount));
+			mCount <= 0 ? "" : String.valueOf(mCount), mSortName);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -133,6 +136,17 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	}
 
 	@Override
+	public void onSortChanged(String sortName) {
+		mSortName = sortName;
+		supportInvalidateOptionsMenu();
+	}
+
+	@Override
+	public void onViewRequested(long viewId) {
+		mViewId = viewId;
+	}
+
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
@@ -153,9 +167,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 			actionBar.setDisplayShowTitleEnabled(false);
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			actionBar.setListNavigationCallbacks(mAdapter, this);
-			if (mSelectedIndex > -1) {
-				actionBar.setSelectedNavigationItem(mSelectedIndex);
-			}
+			actionBar.setSelectedNavigationItem(findViewIndex(mViewId));
 		} else {
 			cursor.close();
 		}
@@ -175,6 +187,21 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 			fragment.setView(itemId);
 		}
 		return true;
+	}
+
+	private int findViewIndex(long viewId) {
+		int index = 0;
+		if (viewId > 0) {
+			Cursor c = mAdapter.getCursor();
+			if (c != null && c.moveToFirst()) {
+				do {
+					if (viewId == c.getLong(Query._ID)) {
+						return c.getPosition() + 1;
+					}
+				} while (c.moveToNext());
+			}
+		}
+		return index;
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
@@ -267,6 +294,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 
 	private interface Query {
 		int _TOKEN = 0x01;
-		String[] PROJECTION = { BaseColumns._ID, CollectionViews.NAME, CollectionViews.SORT_TYPE, };
+		String[] PROJECTION = { CollectionViews._ID, CollectionViews.NAME, CollectionViews.SORT_TYPE, };
+		int _ID = 0;
 	}
 }

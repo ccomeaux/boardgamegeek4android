@@ -1,10 +1,12 @@
 package com.boardgamegeek.data;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import android.content.Context;
 import android.database.Cursor;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public abstract class CollectionSortData {
@@ -19,6 +21,10 @@ public abstract class CollectionSortData {
 
 	public int getDescriptionId() {
 		return mDescriptionId;
+	}
+
+	public String getDescription() {
+		return String.format(mContext.getString(R.string.sort_description), mContext.getString(mDescriptionId));
 	}
 
 	public String[] getColumns() {
@@ -80,7 +86,7 @@ public abstract class CollectionSortData {
 	}
 
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
-			DecimalFormat format) {
+		DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1) {
 			return defaultValue;
@@ -109,7 +115,7 @@ public abstract class CollectionSortData {
 	protected String getFirstChar(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index != -1) {
-			char firstLetter = cursor.getString(index).toUpperCase().charAt(0);
+			char firstLetter = cursor.getString(index).toUpperCase(Locale.getDefault()).charAt(0);
 			return String.valueOf(firstLetter);
 		}
 		return null;

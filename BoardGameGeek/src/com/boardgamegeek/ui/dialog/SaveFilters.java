@@ -8,36 +8,39 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.data.CollectionSortData;
 import com.boardgamegeek.data.CollectionView;
+import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 
 public class SaveFilters {
 
 	public static void createDialog(final Context context, final CollectionView view, String name,
-		final int sortType, final List<CollectionFilterData> filters) {
+		final CollectionSortData sort, final List<CollectionFilterData> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_save_filters, null);
 
 		final EditText nameView = (EditText) layout.findViewById(R.id.name);
 		nameView.setText(name);
-		setDescription(filters, layout);
+		if (!TextUtils.isEmpty(name)) {
+			nameView.setSelection(0, name.length());
+		}
+		setDescription(context, layout, sort, filters);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.menu_collection_view_save)
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(R.string.title_save_view)
 			.setView(layout).setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 
 				@Override
@@ -45,59 +48,55 @@ public class SaveFilters {
 					final String name = nameView.getText().toString().trim();
 					final ContentResolver resolver = context.getContentResolver();
 
-					final int filterId = findFilterId(resolver, name);
-					if (filterId > 0) {
+					final long viewId = findViewId(resolver, name);
+					if (viewId > 0) {
 						new AlertDialog.Builder(context).setTitle(R.string.title_collection_view_name_in_use)
 							.setMessage(R.string.msg_collection_view_name_in_use)
 							.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									update(resolver, filterId, sortType, filters);
-									updateDisplay(context, name);
+									update(resolver, viewId, sort.getType(), filters);
+									view.createView(viewId, name);
 								}
 							}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									insert(resolver, name, sortType, filters);
-									updateDisplay(context, name);
+									long id = insert(resolver, name, sort.getType(), filters);
+									view.createView(id, name);
 								}
 							}).create().show();
 
 					} else {
-						insert(resolver, name, sortType, filters);
-						updateDisplay(context, name);
+						long id = insert(resolver, name, sort.getType(), filters);
+						view.createView(id, name);
 					}
 				}
 
-				private int findFilterId(ContentResolver resolver, String name) {
-					Cursor c = resolver.query(CollectionViews.CONTENT_URI, new String[] { BaseColumns._ID },
-						CollectionViews.NAME + "=?", new String[] { name }, null);
-					if (c != null) {
-						try {
-							if (c.moveToFirst()) {
-								return c.getInt(0);
-							}
-						} finally {
-							c.close();
-						}
-					}
-					return -1;
+				private long findViewId(ContentResolver resolver, String name) {
+					return ResolverUtils.queryLong(resolver, CollectionViews.CONTENT_URI, CollectionViews._ID, 0,
+						CollectionViews.NAME + "=?", new String[] { name });
 				}
 
-				private void insert(ContentResolver resolver, String name, int sortType,
+				private long insert(ContentResolver resolver, String name, int sortType,
 					final List<CollectionFilterData> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.NAME, name);
 					values.put(CollectionViews.STARRED, false);
 					values.put(CollectionViews.SORT_TYPE, sortType);
 					Uri filterUri = resolver.insert(CollectionViews.CONTENT_URI, values);
+
 					int filterId = CollectionViews.getViewId(filterUri);
 					Uri uri = CollectionViews.buildViewFilterUri(filterId);
 					insertDetails(resolver, uri, filters);
+					return Long.valueOf(filterUri.getLastPathSegment());
 				}
 
-				private void update(ContentResolver resolver, int viewId, int sortType,
+				private void update(ContentResolver resolver, long viewId, int sortType,
 					final List<CollectionFilterData> filters) {
+					ContentValues values = new ContentValues();
+					values.put(CollectionViews.SORT_TYPE, sortType);
+					resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
+
 					Uri uri = CollectionViews.buildViewFilterUri(viewId);
 					resolver.delete(uri, null, null);
 					insertDetails(resolver, uri, filters);
@@ -113,11 +112,6 @@ public class SaveFilters {
 						cvs.add(cv);
 					}
 					resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
-				}
-
-				private void updateDisplay(final Context context, String name) {
-					Toast.makeText(context, R.string.msg_saved, Toast.LENGTH_SHORT).show();
-					view.setViewName(name);
 				}
 			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
 
@@ -137,7 +131,8 @@ public class SaveFilters {
 		});
 	}
 
-	private static void setDescription(List<CollectionFilterData> filters, View layout) {
+	private static void setDescription(Context context, View layout, CollectionSortData sort,
+		List<CollectionFilterData> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterData filter : filters) {
@@ -146,6 +141,10 @@ public class SaveFilters {
 			}
 			text.append(filter.getDisplayText());
 		}
+		if (text.length() > 0) {
+			text.append("\n");
+		}
+		text.append(sort.getDescription());
 		description.setText(text.toString());
 	}
 }

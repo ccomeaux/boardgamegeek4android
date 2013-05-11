@@ -44,42 +44,25 @@
 				android:text="@string/empty_collection" />
 		</FrameLayout>
 
-		<RelativeLayout
-			android:id="@+id/view_detail"
+		<View
+			android:id="@+id/collection_info_header"
+			android:layout_width="match_parent"
+			android:layout_height="2dp"
+			android:background="@color/background_dark" />
+
+		<HorizontalScrollView
+			android:id="@+id/filter_scroll_view"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/accent_light" >
+			android:background="@color/accent_light"
+			android:scrollbars="none" >
 
-			<View
-				android:id="@+id/collection_info_header"
-				android:layout_width="match_parent"
-				android:layout_height="2dp"
-				android:background="@color/background_dark" />
-
-			<TextView
-				android:id="@+id/collection_sort"
-				style="@style/Text.Primary3"
+			<LinearLayout
+				android:id="@+id/filter_linear_layout"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_alignParentTop="true"
-				android:paddingRight="@dimen/padding_extra"
-				android:textIsSelectable="false" />
-
-			<HorizontalScrollView
-				android:id="@+id/filter_scroll_view"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/collection_sort"
-				android:scrollbars="none" >
-
-				<LinearLayout
-					android:id="@+id/filter_linear_layout"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal" />
-			</HorizontalScrollView>
-		</RelativeLayout>
+				android:orientation="horizontal" />
+		</HorizontalScrollView>
 	</LinearLayout>
 
 	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->

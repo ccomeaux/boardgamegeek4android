@@ -120,6 +120,8 @@
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
 	<string name="title_error">Error!</string>
+	<string name="title_save_view">Save View</string>
+	<string name="title_delete_view">Delete View</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="home_btn_collection">Collection</string>
@@ -166,8 +168,8 @@
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
-	<string name="menu_log_play">Log Play</string>
-	<string name="menu_log_play_quick">Quick Log Play</string>
+	<string name="menu_log_play">Log play</string>
+	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_links">Links</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -176,9 +178,9 @@
 	<string name="menu_link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
 	<string name="menu_sort">Sort</string>
-	<string name="menu_collection_filter_add">Add Filter…</string>
-	<string name="menu_collection_view_save">Save View</string>
-	<string name="menu_collection_view_delete">Delete View</string>
+	<string name="menu_collection_filter_add">Add filter…</string>
+	<string name="menu_collection_view_save">Save view…</string>
+	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_expansion_status">Expansion Status</string>
 	<string name="menu_number_of_players">Number of Players</string>
@@ -195,6 +197,7 @@
 	<string name="menu_collection_sort_age_oldest">Suggested Age - Oldest</string>
 	<string name="menu_collection_sort_weight_heaviest">Average Weight - Heaviest</string>
 	<string name="menu_collection_sort_weight_lightest">Average Weight - Lightest</string>
+	<string name="sort_description">by %s</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_geek_ranking">Geek Ranking</string>
@@ -202,14 +205,14 @@
 	<string name="menu_average_rating">Average Rating</string>
 	<string name="menu_average_weight">Average Weight</string>
 	<string name="menu_year_published">Year Published</string>
-	<string name="menu_collection_random_game">Random Game</string>
+	<string name="menu_collection_random_game">Random game</string>
 	<string name="menu_display_game">Display</string>
 	<string name="menu_comments">Comments</string>
 	<string name="menu_back">Back</string>
 	<string name="menu_forward">Forward</string>
 	<string name="menu_color">Teams/Colors</string>
 	<string name="menu_forums">Forums</string>
-	<string name="menu_create_shortcut">Create Shortcut</string>
+	<string name="menu_create_shortcut">Create shortcut</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_plays">Plays</string>
 	<string name="menu_delete">Delete</string>

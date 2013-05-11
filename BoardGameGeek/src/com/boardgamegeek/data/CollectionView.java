@@ -8,5 +8,7 @@ public interface CollectionView {
 
 	public abstract void setSort(int sortType);
 
-	public abstract void setViewName(String name);
+	public abstract void createView(long id, String name);
+	
+	public abstract void deleteView(long id);
 }

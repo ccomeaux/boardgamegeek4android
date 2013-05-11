@@ -71,7 +71,16 @@ public class ResolverUtils {
 	 * not exactly one row at the URI.
 	 */
 	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue) {
-		Cursor cursor = resolver.query(uri, new String[] { columnName }, null, null, null);
+		return queryInt(resolver, uri, columnName, defaultValue, null, null);
+	}
+
+	/*
+	 * Use the content resolver to get an integer from the specified column at the URI. Returns deafultValue if there's
+	 * not exactly one row at the URI.
+	 */
+	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
+		String selection, String[] selectionArgs) {
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
 			int count = cursor.getCount();
 			if (count != 1) {
@@ -79,6 +88,41 @@ public class ResolverUtils {
 			}
 			cursor.moveToFirst();
 			return cursor.getInt(0);
+		} finally {
+			closeCursor(cursor);
+		}
+	}
+
+	/*
+	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * exactly one row at the URI.
+	 */
+	public static long queryLong(ContentResolver resolver, Uri uri, String columnName) {
+		return queryLong(resolver, uri, columnName, 0);
+	}
+
+	/*
+	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * exactly one row at the URI.
+	 */
+	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue) {
+		return queryLong(resolver, uri, columnName, defaultValue, null, null);
+	}
+
+	/*
+	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * exactly one row at the URI.
+	 */
+	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
+		String selection, String[] selectionArgs) {
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
+		try {
+			int count = cursor.getCount();
+			if (count != 1) {
+				return defaultValue;
+			}
+			cursor.moveToFirst();
+			return cursor.getLong(0);
 		} finally {
 			closeCursor(cursor);
 		}
