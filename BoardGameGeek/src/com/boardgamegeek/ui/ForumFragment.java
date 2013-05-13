@@ -67,15 +67,16 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_forum));
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_forum;
 	}
 
 	public void refresh(boolean forceRefresh) {

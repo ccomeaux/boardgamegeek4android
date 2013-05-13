@@ -63,12 +63,8 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_buddy_collection));
 		getLoaderManager().initLoader(BUDDY_GAMES_LOADER_ID, null, this);
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_buddy_collection;
 	}
 
 	@Override

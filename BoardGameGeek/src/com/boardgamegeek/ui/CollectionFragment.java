@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
@@ -35,7 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -76,11 +74,10 @@ import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class CollectionFragment extends SherlockListFragment implements AbsListView.OnScrollListener,
+public class CollectionFragment extends BggListFragment implements AbsListView.OnScrollListener,
 	LoaderManager.LoaderCallbacks<Cursor>, CollectionView {
 	private static final String TAG = makeLogTag(CollectionFragment.class);
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
@@ -90,7 +87,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	private static final String STATE_FILTERS = "STATE_FILTERS";
 	private static final String STATE_VIEW_MODIFIED = "STATE_VIEW_MODIFIED";
 
-	private ImageFetcher mImageFetcher;
 	private int mSelectedCollectionId;
 	private boolean mFastScrollLetterEnabled;
 	private CollectionAdapter mAdapter;
@@ -147,10 +143,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
-
 		if (savedInstanceState != null) {
 			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
 			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
@@ -172,6 +164,11 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	}
 
 	@Override
+	protected int getLoadingImage() {
+		return R.drawable.thumbnail_image_empty;
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_collection, null);
 
@@ -186,10 +183,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
 		final ListView listView = getListView();
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setFastScrollEnabled(true);
 		listView.setOnScrollListener(this);
 		registerForContextMenu(listView);
 	}
@@ -250,16 +244,8 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 	@Override
 	public void onPause() {
 		super.onPause();
-		mImageFetcher.setPauseWork(false);
-		mImageFetcher.flushCache();
 		mFastScrollLetter.setVisibility(View.INVISIBLE);
 		mFastScrollLetterEnabled = false;
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
 	}
 
 	@Override
@@ -438,14 +424,6 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 
 	@Override
 	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		// Pause disk cache access to ensure smoother scrolling
-		if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING
-			|| scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-			mImageFetcher.setPauseWork(true);
-		} else {
-			mImageFetcher.setPauseWork(false);
-		}
-
 		if (scrollState == SCROLL_STATE_IDLE) {
 			mFastScrollLetter.setVisibility(View.GONE);
 		} else {
@@ -499,6 +477,7 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
 			mAdapter.changeCursor(cursor);
+			restoreScrollState();
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 			bindFilterButtons();
 		} else if (token == ViewQuery._TOKEN) {
@@ -788,10 +767,10 @@ public class CollectionFragment extends SherlockListFragment implements AbsListV
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			if (!TextUtils.isEmpty(collectionThumbnailUrl)) {
-				mImageFetcher.loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
+				getImageFetcher().loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
 					holder.thumbnail);
 			} else {
-				mImageFetcher.loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId), holder.thumbnail);
+				getImageFetcher().loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId), holder.thumbnail);
 			}
 		}
 	}

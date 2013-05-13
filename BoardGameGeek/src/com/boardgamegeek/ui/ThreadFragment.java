@@ -59,15 +59,16 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_thread));
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(THREAD_LOADER_ID, null, this);
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_thread;
 	}
 
 	@Override

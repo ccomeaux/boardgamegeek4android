@@ -132,29 +132,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
-	protected int getEmptyStringResoure() {
-		switch (mMode) {
-			case MODE_BUDDY:
-				return R.string.empty_plays_buddy;
-			case MODE_GAME:
-				return R.string.empty_plays_game;
-			case MODE_ALL:
-			default:
-				switch (mFilter) {
-					case Play.SYNC_STATUS_IN_PROGRESS:
-						return R.string.empty_plays_draft;
-					case Play.SYNC_STATUS_PENDING_UPDATE:
-						return R.string.empty_plays_update;
-					case Play.SYNC_STATUS_PENDING_DELETE:
-						return R.string.empty_plays_delete;
-					case Play.SYNC_STATUS_ALL:
-					default:
-						return R.string.empty_plays;
-				}
-		}
-	}
-
-	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (cursor != null) {
@@ -255,6 +232,28 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			}
 		}
 		return false;
+	}
+
+	private int getEmptyStringResoure() {
+		switch (mMode) {
+			case MODE_BUDDY:
+				return R.string.empty_plays_buddy;
+			case MODE_GAME:
+				return R.string.empty_plays_game;
+			case MODE_ALL:
+			default:
+				switch (mFilter) {
+					case Play.SYNC_STATUS_IN_PROGRESS:
+						return R.string.empty_plays_draft;
+					case Play.SYNC_STATUS_PENDING_UPDATE:
+						return R.string.empty_plays_update;
+					case Play.SYNC_STATUS_PENDING_DELETE:
+						return R.string.empty_plays_delete;
+					case Play.SYNC_STATUS_ALL:
+					default:
+						return R.string.empty_plays;
+				}
+		}
 	}
 
 	@Override

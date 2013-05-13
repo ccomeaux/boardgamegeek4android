@@ -42,7 +42,6 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(getEmptyStringResoure()));
 		if (savedInstanceState != null) {
 			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, -1);
 			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, 0);
@@ -117,6 +116,4 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	protected int getLoadingImage() {
 		return 0;
 	}
-
-	protected abstract int getEmptyStringResoure();
 }

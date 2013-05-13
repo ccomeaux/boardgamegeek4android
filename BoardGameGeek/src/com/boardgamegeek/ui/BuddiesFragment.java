@@ -69,6 +69,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_buddies));
 		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
 	}
 
@@ -93,11 +94,6 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_buddies;
 	}
 
 	@Override

@@ -78,6 +78,7 @@ public class SearchResultsFragment extends BggListFragment implements LoaderMana
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mSearchText = intent.getStringExtra(SearchManager.QUERY);
 
+		setEmptyText(getString(R.string.empty_search));
 		getLoaderManager().restartLoader(LOADER_ID, null, this);
 	}
 
@@ -96,11 +97,6 @@ public class SearchResultsFragment extends BggListFragment implements LoaderMana
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_search;
 	}
 
 	@Override

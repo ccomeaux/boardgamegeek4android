@@ -61,15 +61,16 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_forums));
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
-	}
-
-	@Override
-	protected int getEmptyStringResoure() {
-		return R.string.empty_forums;
 	}
 
 	@Override
