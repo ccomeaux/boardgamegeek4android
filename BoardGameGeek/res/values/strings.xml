@@ -335,6 +335,14 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<string name="want_parts">Want Parts</string>
 	<string name="has_parts">Has Parts</string>
 
+	<plurals name="msg_colors_deleted">
+		<item quantity="one">Deleted %s color</item>
+		<item quantity="other">Deleted %s colors</item>
+	</plurals>
+	<plurals name="msg_colors_selected">
+		<item quantity="one">Selected %s color</item>
+		<item quantity="other">Selected %s colors</item>
+	</plurals>
 	<plurals name="forum_threads">
 		<item quantity="one">%s thread</item>
 		<item quantity="other">%s threads</item>

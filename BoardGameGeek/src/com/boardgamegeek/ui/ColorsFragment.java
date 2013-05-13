@@ -1,40 +1,40 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.content.Context;
+
+import java.util.LinkedHashSet;
+
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.actionmodecompat.ActionMode;
+import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class ColorsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ColorsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(ColorsFragment.class);
-	public static final int MENU_COLOR_DELETE = Menu.FIRST + 100;
 	private int mGameId;
 	private CursorAdapter mAdapter;
+	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<Integer>();
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -48,73 +48,18 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		registerForContextMenu(getListView());
 		setEmptyText(getString(R.string.empty_colors));
-		setListShown(false);
 
-		Uri colorsUri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		mGameId = Games.getGameId(colorsUri);
+		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
+		mGameId = Games.getGameId(uri);
 
 		getLoaderManager().restartLoader(ColorsQuery._TOKEN, getArguments(), this);
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return;
-		}
-
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		if (cursor == null) {
-			return;
-		}
-		final String color = cursor.getString(ColorsQuery.COLOR);
-
-		menu.setHeaderTitle(color);
-		menu.add(0, MENU_COLOR_DELETE, 0, R.string.delete);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		final int itemId = item.getItemId();
-		if (itemId != MENU_COLOR_DELETE) {
-			return false;
-		}
-
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return false;
-		}
-
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		if (cursor == null) {
-			return false;
-		}
-		final String color = cursor.getString(ColorsQuery.COLOR);
-
-		switch (itemId) {
-			case MENU_COLOR_DELETE: {
-				getActivity().getContentResolver().delete(Games.buildColorsUri(mGameId, color), null, null);
-				return true;
-			}
-		}
-		return false;
+		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = new CursorLoader(getActivity(), Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION,
-			null, null, null);
-		loader.setUpdateThrottle(2000);
-		return loader;
+		return new CursorLoader(getActivity(), Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, null, null, null);
 	}
 
 	@Override
@@ -124,7 +69,8 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		}
 
 		if (mAdapter == null) {
-			mAdapter = new ColorAdapter(getActivity());
+			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_color, null,
+				new String[] { GameColors.COLOR }, new int[] { R.id.color }, 0);
 			setListAdapter(mAdapter);
 		}
 
@@ -148,40 +94,58 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		mAdapter.changeCursor(null);
 	}
 
-	private class ColorAdapter extends CursorAdapter {
-		private LayoutInflater mInflater;
-
-		public ColorAdapter(Context context) {
-			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_color, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
-			holder.color.setText(cursor.getString(ColorsQuery.COLOR));
-		}
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		MenuInflater inflater = mode.getMenuInflater();
+		inflater.inflate(R.menu.colors_context, menu);
+		mSelectedColorPositions.clear();
+		return true;
 	}
 
-	static class ViewHolder {
-		TextView color;
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		return false;
+	}
 
-		public ViewHolder(View view) {
-			color = (TextView) view.findViewById(R.id.color);
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+	}
+
+	@Override
+	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+		if (checked) {
+			mSelectedColorPositions.add(position);
+		} else {
+			mSelectedColorPositions.remove(position);
 		}
+
+		int count = mSelectedColorPositions.size();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		mode.finish();
+		switch (item.getItemId()) {
+			case R.id.menu_delete:
+				int count = 0;
+				for (int position : mSelectedColorPositions) {
+					Cursor cursor = (Cursor) mAdapter.getItem(position);
+					String color = cursor.getString(ColorsQuery.COLOR);
+					count += getActivity().getContentResolver()
+						.delete(Games.buildColorsUri(mGameId, color), null, null);
+				}
+				Toast.makeText(getActivity(),
+					getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Toast.LENGTH_SHORT)
+					.show();
+				return true;
+		}
+		return false;
 	}
 
 	private interface ColorsQuery {
 		int _TOKEN = 0x20;
-		String[] PROJECTION = { BaseColumns._ID, GameColors.COLOR, };
+		String[] PROJECTION = { GameColors._ID, GameColors.COLOR, };
 		int COLOR = 1;
 	}
 }
