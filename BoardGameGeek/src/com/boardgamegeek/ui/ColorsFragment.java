@@ -3,17 +3,22 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +30,9 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -35,6 +43,12 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 	private int mGameId;
 	private CursorAdapter mAdapter;
 	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<Integer>();
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -55,6 +69,23 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 
 		getLoaderManager().restartLoader(ColorsQuery._TOKEN, getArguments(), this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu,
+		com.actionbarsherlock.view.MenuInflater inflater) {
+		inflater.inflate(R.menu.game_colors, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_colors_generate:
+				new Task().execute();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -147,5 +178,46 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		int _TOKEN = 0x20;
 		String[] PROJECTION = { GameColors._ID, GameColors.COLOR, };
 		int COLOR = 1;
+	}
+
+	protected class Task extends AsyncTask<Void, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Void... params) {
+			Integer count = 0;
+			Cursor cursor = null;
+			try {
+				cursor = getActivity().getContentResolver().query(Plays.buildPlayersUri(),
+					new String[] { PlayPlayers.COLOR }, PlayItems.OBJECT_ID + "=?",
+					new String[] { String.valueOf(mGameId) }, null);
+				if (cursor != null && cursor.moveToFirst()) {
+					List<ContentValues> values = new ArrayList<ContentValues>();
+					do {
+						String color = cursor.getString(0);
+						if (!TextUtils.isEmpty(color)) {
+							ContentValues cv = new ContentValues();
+							cv.put(GameColors.COLOR, color);
+							values.add(cv);
+						}
+					} while (cursor.moveToNext());
+					if (values.size() > 0) {
+						ContentValues[] array = {};
+						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId),
+							values.toArray(array));
+					}
+				}
+			} finally {
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+			return count;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			if (result > 0) {
+				Toast.makeText(getActivity(), R.string.msg_colors_generated, Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
 }

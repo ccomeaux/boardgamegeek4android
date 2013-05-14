@@ -310,7 +310,7 @@ public class PlayPersister {
 				String color = player.TeamColor;
 				if (!TextUtils.isEmpty(color)) {
 					ContentValues cv = new ContentValues();
-					cv.put(GameColors.COLOR, player.TeamColor);
+					cv.put(GameColors.COLOR, color);
 					values.add(cv);
 				}
 			}

@@ -55,7 +55,7 @@ public class ActivityUtils {
 	}
 
 	public static Dialog createCancelDialog(final Activity activity) {
-		return ActivityUtils.createConfirmationDialog(activity, R.string.are_you_sure_message,
+		return ActivityUtils.createConfirmationDialog(activity, R.string.are_you_sure_cancel,
 			new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					activity.setResult(Activity.RESULT_CANCELED);

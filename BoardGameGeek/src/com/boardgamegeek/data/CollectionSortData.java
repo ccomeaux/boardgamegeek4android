@@ -3,6 +3,7 @@ package com.boardgamegeek.data;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 
@@ -112,6 +113,7 @@ public abstract class CollectionSortData {
 		return null;
 	}
 
+	@SuppressLint("DefaultLocale")
 	protected String getFirstChar(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index != -1) {

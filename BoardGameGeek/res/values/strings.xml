@@ -84,7 +84,7 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
-	<string name="are_you_sure_message">Are you sure you want to cancel? You will lose all of your changes.</string>
+	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
@@ -221,6 +221,7 @@
 	<string name="menu_sort_comments_user">User</string>
 	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
+	<string name="menu_colors_generate">Generate colors</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
@@ -289,10 +290,10 @@
 <![CDATA[
 <b>What\'s New?</b><br/>
 - NEW: Collection tab in the game view<br/>
-- NEW: Sort comments by rating instead of user<br/>
+- MOD: Improved usability in lists, especially the Collection<br/>
 - NEW: Options to sync only when charging or on Wifi<br/>
+- NEW: Sort comments by rating instead of user<br/>
 - NEW: Now you can cancel a sync (through the notification or a menu option on the home screen)<br/>
-- MOD: Improved usability in lists<br/>
 - MOD: Collection list now shows collection thumbnail (not the game thumbnail)<br/>
 <i>GeekBuddy enhancements</i><br/>
 - NEW: Show plays you\'ve logged with them<br/>
@@ -334,6 +335,7 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<string name="condition">Trade Condition</string>
 	<string name="want_parts">Want Parts</string>
 	<string name="has_parts">Has Parts</string>
+	<string name="msg_colors_generated">Colors generated!</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

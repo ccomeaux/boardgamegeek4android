@@ -408,7 +408,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_message,
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							save(Play.SYNC_STATUS_PENDING_DELETE);
