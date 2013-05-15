@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -17,20 +17,17 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,11 +46,12 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.actionmodecompat.ActionMode;
+import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class PlaysFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PlaysFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
-	private static final int MENU_PLAY_EDIT = Menu.FIRST;
-	private static final int MENU_PLAY_DELETE = Menu.FIRST + 1;
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	private static final int MODE_BUDDY = 2;
@@ -65,6 +63,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
+	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<Integer>();
+	private MenuItem mSendMenuItem;
+	private MenuItem mEditMenuItem;
 
 	public interface Callbacks {
 		public boolean onPlaySelected(int playId, int gameId, String gameName);
@@ -94,7 +95,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		registerForContextMenu(getListView());
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
@@ -114,6 +114,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		}
 		setEmptyText(getString(getEmptyStringResoure()));
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+
+		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	@Override
@@ -162,76 +164,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return;
-		}
-
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		if (cursor == null) {
-			return;
-		}
-		final String gameName = cursor.getString(PlaysQuery.GAME_NAME);
-
-		menu.setHeaderTitle(gameName);
-		menu.add(0, MENU_PLAY_EDIT, 0, R.string.menu_edit);
-		menu.add(0, MENU_PLAY_DELETE, 0, R.string.menu_delete);
-		// TODO: add Send and Share menu items
-	}
-
-	private boolean isPlayMenuItem(int itemId) {
-		return itemId == MENU_PLAY_EDIT || itemId == MENU_PLAY_DELETE;
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		final int itemId = item.getItemId();
-		if (!isPlayMenuItem(itemId)) {
-			return false;
-		}
-
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return false;
-		}
-
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
-		if (cursor == null) {
-			return false;
-		}
-
-		final int playId = cursor.getInt(PlaysQuery.PLAY_ID);
-		switch (itemId) {
-			case MENU_PLAY_EDIT: {
-				ActivityUtils.editPlay(getActivity(), playId, cursor.getInt(PlaysQuery.GAME_ID),
-					cursor.getString(PlaysQuery.GAME_NAME), 0);
-				return true;
-			}
-			case MENU_PLAY_DELETE: {
-				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							ContentValues values = new ContentValues();
-							values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_DELETE);
-							ContentResolver resolver = getActivity().getContentResolver();
-							resolver.update(Plays.buildPlayUri(playId), values, null, null);
-							SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-						}
-					}).show();
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private int getEmptyStringResoure() {
@@ -491,7 +423,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
-		String[] PROJECTION = { BaseColumns._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
+		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, };
 		int PLAY_ID = 1;
 		int DATE = 2;
@@ -499,5 +431,95 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int GAME_ID = 4;
 		int LOCATION = 5;
 		int SYNC_STATUS = 8;
+	}
+
+	// TODO Add support for share option
+
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		MenuInflater inflater = mode.getMenuInflater();
+		inflater.inflate(R.menu.plays_context, menu);
+		mSendMenuItem = menu.findItem(R.id.menu_send);
+		mEditMenuItem = menu.findItem(R.id.menu_edit);
+		mSelectedPlaysPositions.clear();
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		return false;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+	}
+
+	@Override
+	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+		if (checked) {
+			mSelectedPlaysPositions.add(position);
+		} else {
+			mSelectedPlaysPositions.remove(position);
+		}
+
+		int count = mSelectedPlaysPositions.size();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_plays_selected, count, count));
+
+		boolean allPending = true;
+		for (int pos : mSelectedPlaysPositions) {
+			Cursor cursor = (Cursor) mAdapter.getItem(pos);
+			boolean pending = cursor.getInt(PlaysQuery.SYNC_STATUS) == Play.SYNC_STATUS_IN_PROGRESS;
+			allPending = allPending && pending;
+		}
+
+		mSendMenuItem.setVisible(allPending);
+		mEditMenuItem.setVisible(count == 1);
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_send:
+				mode.finish();
+				ActivityUtils.createConfirmationDialog(getActivity(),
+					getResources().getQuantityString(R.plurals.are_you_sure_send_play, mSelectedPlaysPositions.size()),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							updateSyncStatus(Play.SYNC_STATUS_PENDING_UPDATE);
+						}
+					}).show();
+				return true;
+			case R.id.menu_edit:
+				mode.finish();
+				Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPlaysPositions.iterator().next());
+				ActivityUtils.editPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
+					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME), 0);
+				return true;
+			case R.id.menu_delete:
+				mode.finish();
+				ActivityUtils.createConfirmationDialog(
+					getActivity(),
+					getResources()
+						.getQuantityString(R.plurals.are_you_sure_delete_play, mSelectedPlaysPositions.size()),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							updateSyncStatus(Play.SYNC_STATUS_PENDING_DELETE);
+						}
+					}).show();
+				return true;
+		}
+		return false;
+	}
+
+	private void updateSyncStatus(int status) {
+		ContentResolver resolver = getActivity().getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(Plays.SYNC_STATUS, status);
+		for (int position : mSelectedPlaysPositions) {
+			Cursor cursor = (Cursor) mAdapter.getItem(position);
+			resolver.update(Plays.buildPlayUri(cursor.getInt(PlaysQuery.PLAY_ID)), values, null, null);
+		}
+		mSelectedPlaysPositions.clear();
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 }

@@ -176,7 +176,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_refresh: {
+			case R.id.menu_refresh:
 				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
 					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 						new DialogInterface.OnClickListener() {
@@ -189,7 +189,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 					triggerRefresh();
 				}
 				return true;
-			}
 			case R.id.menu_edit:
 				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
 				return true;

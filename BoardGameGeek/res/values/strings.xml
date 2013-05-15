@@ -345,6 +345,18 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 		<item quantity="one">Selected %s color</item>
 		<item quantity="other">Selected %s colors</item>
 	</plurals>
+	<plurals name="msg_plays_selected">
+		<item quantity="one">Selected %s play</item>
+		<item quantity="other">Selected %s plays</item>
+	</plurals>
+	<plurals name="are_you_sure_delete_play">
+		<item quantity="one">Are you sure you want to delete this play?</item>
+		<item quantity="other">Are you sure you want to delete these plays?</item>
+	</plurals>
+	<plurals name="are_you_sure_send_play">
+		<item quantity="one">Are you sure you want to send this play?</item>
+		<item quantity="other">Are you sure you want to send these plays?</item>
+	</plurals>
 	<plurals name="forum_threads">
 		<item quantity="one">%s thread</item>
 		<item quantity="other">%s threads</item>

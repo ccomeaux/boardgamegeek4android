@@ -64,12 +64,17 @@ public class ActivityUtils {
 			});
 	}
 
-	public static Dialog createConfirmationDialog(Context context, int messageId,
+	public static Dialog createConfirmationDialog(Context context, String message,
 		DialogInterface.OnClickListener okListener) {
-		return createConfirmationDialog(context, messageId, null, okListener, null);
+		return createConfirmationDialog(context, -1, message, null, okListener, null);
 	}
 
-	public static Dialog createConfirmationDialog(Context context, int messageId, View view,
+	public static Dialog createConfirmationDialog(Context context, int messageId,
+		DialogInterface.OnClickListener okListener) {
+		return createConfirmationDialog(context, messageId, null, null, okListener, null);
+	}
+
+	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view,
 		DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
@@ -77,6 +82,8 @@ public class ActivityUtils {
 		builder = addIcon(builder);
 		if (messageId != -1) {
 			builder.setMessage(messageId);
+		} else {
+			builder.setMessage(message);
 		}
 		if (view != null) {
 			builder.setView(view);
