@@ -1,5 +1,7 @@
 package com.boardgamegeek.util;
 
+import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -25,6 +27,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,6 +43,7 @@ import com.boardgamegeek.ui.PlayActivity;
 
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
+	private static final String BOARDGAME_URL_PREFIX = "http://www.boardgamegeek.com/boardgame/";
 
 	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -122,18 +126,30 @@ public class ActivityUtils {
 	public static void share(Context context, String subject, String text, int titleResId) {
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType("text/plain");
-		intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-		intent.putExtra(Intent.EXTRA_TEXT, text);
+		intent.putExtra(Intent.EXTRA_SUBJECT, subject.trim());
+		intent.putExtra(Intent.EXTRA_TEXT, text.trim());
 		context.startActivity(Intent.createChooser(intent, context.getResources().getString(titleResId)));
 	}
 
 	public static void shareGame(Context context, int gameId, String gameName) {
 		Resources r = context.getResources();
-		share(
-			context,
-			String.format(r.getString(R.string.share_subject), gameName),
-			String.format(r.getString(R.string.share_text), gameName, "http://www.boardgamegeek.com/boardgame/"
-				+ gameId), R.string.share_title);
+		String subject = String.format(r.getString(R.string.share_game_subject), gameName);
+		String text = r.getString(R.string.share_game_text) + "\n\n" + formatGameLink(gameId, gameName);
+		share(context, subject, text, R.string.title_share_game);
+	}
+
+	public static void shareGames(Context context, List<Pair<Integer, String>> games) {
+		Resources r = context.getResources();
+		StringBuilder text = new StringBuilder(r.getString(R.string.share_games_text));
+		text.append("\n").append("\n");
+		for (Pair<Integer, String> game : games) {
+			text.append(formatGameLink(game.first, game.second));
+		}
+		share(context, r.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games);
+	}
+
+	private static String formatGameLink(int id, String name) {
+		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
 	public static void launchPlay(Context context, int playId, int gameId, String gameName) {
@@ -165,7 +181,7 @@ public class ActivityUtils {
 		if (gameId <= 0) {
 			return;
 		}
-		link(context, "http://www.boardgamegeek.com/boardgame/" + gameId);
+		link(context, BOARDGAME_URL_PREFIX + gameId);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {

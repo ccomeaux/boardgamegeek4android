@@ -238,9 +238,12 @@
 	<string name="msg_play_update_bad_id">Play was already deleted.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
-	<string name="share_title">Share Game</string>
-	<string name="share_subject">%s on BoardGameGeek</string>
-	<string name="share_text">I found this game using BoardGameGeek on Android that I thought you might like:\n\n%1$s (%2$s)</string>
+	<string name="title_share_game">Share Game</string>
+	<string name="title_share_games">Share Games</string>
+	<string name="share_game_subject">%s on BoardGameGeek</string>
+	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
+	<string name="share_games_subject">Games on BoardGameGeek</string>
+	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_play_played">Played</string>
 	<string name="times">times</string>
@@ -348,6 +351,10 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<plurals name="msg_plays_selected">
 		<item quantity="one">Selected %s play</item>
 		<item quantity="other">Selected %s plays</item>
+	</plurals>
+	<plurals name="msg_games_selected">
+		<item quantity="one">Selected %s game</item>
+		<item quantity="other">Selected %s games</item>
 	</plurals>
 	<plurals name="are_you_sure_delete_play">
 		<item quantity="one">Are you sure you want to delete this play?</item>
