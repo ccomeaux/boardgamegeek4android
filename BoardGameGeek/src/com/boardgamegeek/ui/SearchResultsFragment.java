@@ -48,7 +48,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	private String mSearchText;
 	private SearchResultsAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedGamePositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
@@ -306,7 +306,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
 		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
 		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
-		mSelectedGamePositions.clear();
+		mSelectedPositions.clear();
 		return true;
 	}
 
@@ -322,22 +322,22 @@ public class SearchResultsFragment extends BggListFragment implements
 	@Override
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
-			mSelectedGamePositions.add(position);
+			mSelectedPositions.add(position);
 		} else {
-			mSelectedGamePositions.remove(position);
+			mSelectedPositions.remove(position);
 		}
 
-		int count = mSelectedGamePositions.size();
+		int count = mSelectedPositions.size();
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
-		mLogPlayMenuItem.setVisible(count == 1);
-		mLogPlayQuickMenuItem.setVisible(count == 1);
+		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		mLogPlayQuickMenuItem.setVisible(count == 1 && PreferencesUtils.showQuickLogPlay(getActivity()));
 		mBggLinkMenuItem.setVisible(count == 1);
 	}
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		SearchResult game = (SearchResult) mAdapter.getItem(mSelectedGamePositions.iterator().next());
+		SearchResult game = (SearchResult) mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -349,12 +349,11 @@ public class SearchResultsFragment extends BggListFragment implements
 				return true;
 			case R.id.menu_share:
 				mode.finish();
-				if (mSelectedGamePositions.size() == 1) {
+				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.Id, game.Name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(
-						mSelectedGamePositions.size());
-					for (int position : mSelectedGamePositions) {
+					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					for (int position : mSelectedPositions) {
 						SearchResult g = (SearchResult) mAdapter.getItem(position);
 						games.add(new Pair<Integer, String>(g.Id, g.Name));
 					}

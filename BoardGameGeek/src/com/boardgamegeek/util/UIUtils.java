@@ -16,9 +16,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -28,12 +25,6 @@ import com.boardgamegeek.R;
 public class UIUtils {
 	public static final String HELP_GAME_KEY = "help.game";
 
-	public static final int MENU_ITEM_VIEW = Menu.FIRST;
-	public static final int MENU_ITEM_LOG_PLAY = Menu.FIRST + 1;
-	public static final int MENU_ITEM_QUICK_LOG_PLAY = Menu.FIRST + 2;
-	public static final int MENU_ITEM_SHARE = Menu.FIRST + 3;
-	public static final int MENU_ITEM_LINK_BGG = Menu.FIRST + 4;
-
 	private static Random mRandom;
 
 	public static Random getRandom() {
@@ -41,22 +32,6 @@ public class UIUtils {
 			mRandom = new Random();
 		}
 		return mRandom;
-	}
-
-	public static void createBoardgameContextMenu(Context context, ContextMenu menu, ContextMenuInfo menuInfo,
-		String gameName) {
-		// Setup the menu header
-		menu.setHeaderTitle(gameName);
-
-		menu.add(0, MENU_ITEM_VIEW, 0, R.string.menu_display_game);
-		if (PreferencesUtils.showLogPlay(context)) {
-			menu.add(0, MENU_ITEM_LOG_PLAY, 0, R.string.menu_log_play);
-		}
-		if (PreferencesUtils.showQuickLogPlay(context)) {
-			menu.add(0, MENU_ITEM_QUICK_LOG_PLAY, 0, R.string.menu_log_play_quick);
-		}
-		menu.add(0, MENU_ITEM_SHARE, 0, R.string.menu_share);
-		menu.add(0, MENU_ITEM_LINK_BGG, 0, R.string.menu_link_bgg);
 	}
 
 	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {

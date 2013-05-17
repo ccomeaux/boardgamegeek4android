@@ -18,7 +18,8 @@
 		android:title="@string/menu_share"/>
 	<item
 		android:id="@+id/menu_link"
-		android:showAsAction="never"
+		android:icon="?attr/ic_action_web_site"
+		android:showAsAction="ifRoom"
 		android:title="@string/menu_link_bgg"/>
 
 </menu>

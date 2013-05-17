@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
@@ -8,7 +9,11 @@ import org.apache.http.client.HttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -16,7 +21,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteHotnessHandler;
@@ -24,32 +28,31 @@ import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ImageFetcher;
-import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.actionmodecompat.ActionMode;
+import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class HotnessFragment extends SherlockListFragment implements AbsListView.OnScrollListener {
+public class HotnessFragment extends BggListFragment implements AbsListView.OnScrollListener, MultiChoiceModeListener {
 	// private static final String TAG = makeLogTag(HotnessActivity.class);
 	private static final String KEY_HOT_GAMES = "HOT_GAMES";
 
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 	private BoardGameAdapter mAdapter;
-	private ImageFetcher mImageFetcher;
 	private String mEmptyMessage;
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private MenuItem mLogPlayMenuItem;
+	private MenuItem mLogPlayQuickMenuItem;
+	private MenuItem mBggLinkMenuItem;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
 		mEmptyMessage = getString(R.string.empty_hotness);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		setListShown(false);
 
 		if (savedInstanceState != null) {
@@ -61,19 +64,8 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 		} else {
 			showList();
 		}
-	}
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.setPauseWork(false);
-		mImageFetcher.flushCache();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
+		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	@Override
@@ -85,18 +77,12 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 	}
 
 	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	protected int getLoadingImage() {
+		return R.drawable.thumbnail_image_empty;
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		// Pause disk cache access to ensure smoother scrolling
-		if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING
-			|| scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-			mImageFetcher.setPauseWork(true);
-		} else {
-			mImageFetcher.setPauseWork(false);
-		}
+	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
 	@Override
@@ -188,7 +174,7 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 					holder.year.setText(String.valueOf(game.YearPublished));
 				}
 				holder.rank.setText(String.valueOf(game.Rank));
-				mImageFetcher.loadAvatarImage(game.ThumbnailUrl, null, holder.thumbnail);
+				getImageFetcher().loadAvatarImage(game.ThumbnailUrl, null, holder.thumbnail);
 			}
 
 			return convertView;
@@ -207,5 +193,74 @@ public class HotnessFragment extends SherlockListFragment implements AbsListView
 			rank = (TextView) view.findViewById(R.id.rank);
 			thumbnail = (BezelImageView) view.findViewById(R.id.thumbnail);
 		}
+	}
+
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		MenuInflater inflater = mode.getMenuInflater();
+		inflater.inflate(R.menu.game_context, menu);
+		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
+		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
+		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
+		mSelectedPositions.clear();
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		return false;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+	}
+
+	@Override
+	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+		if (checked) {
+			mSelectedPositions.add(position);
+		} else {
+			mSelectedPositions.remove(position);
+		}
+
+		int count = mSelectedPositions.size();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+
+		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		mLogPlayQuickMenuItem.setVisible(count == 1 && PreferencesUtils.showQuickLogPlay(getActivity()));
+		mBggLinkMenuItem.setVisible(count == 1);
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		HotGame game = (HotGame) mAdapter.getItem(mSelectedPositions.iterator().next());
+		switch (item.getItemId()) {
+			case R.id.menu_log_play:
+				mode.finish();
+				ActivityUtils.logPlay(getActivity(), false, game.Id, game.Name);
+				return true;
+			case R.id.menu_log_play_quick:
+				mode.finish();
+				ActivityUtils.logPlay(getActivity(), true, game.Id, game.Name);
+				return true;
+			case R.id.menu_share:
+				mode.finish();
+				if (mSelectedPositions.size() == 1) {
+					ActivityUtils.shareGame(getActivity(), game.Id, game.Name);
+				} else {
+					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					for (int position : mSelectedPositions) {
+						HotGame g = (HotGame) mAdapter.getItem(position);
+						games.add(new Pair<Integer, String>(g.Id, g.Name));
+					}
+					ActivityUtils.shareGames(getActivity(), games);
+				}
+				return true;
+			case R.id.menu_link:
+				mode.finish();
+				ActivityUtils.linkBgg(getActivity(), game.Id);
+				return true;
+		}
+		return false;
 	}
 }

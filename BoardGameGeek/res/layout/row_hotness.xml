@@ -1,44 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/LinearLayout1"
+<com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="horizontal" >
-
-	<TextView
-		android:id="@+id/rank"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:gravity="right"
-		android:minWidth="32dp"
-		android:paddingRight="@dimen/padding_standard"
-		android:textSize="22sp" />
-
-	<com.boardgamegeek.ui.widget.BezelImageView
-		android:id="@+id/thumbnail"
-		style="@style/ImageList"
-		android:layout_width="@dimen/thumbnail_list_size"
-		android:layout_height="@dimen/thumbnail_list_size"
-		android:src="@drawable/thumbnail_image_empty" />
+	android:background="@drawable/checkable_background" >
 
 	<LinearLayout
-		android:layout_width="0dp"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:orientation="vertical" >
+		android:orientation="horizontal" >
 
 		<TextView
-			android:id="@+id/name"
-			style="@style/Text.Primary"
+			android:id="@+id/rank"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:minWidth="32dp"
+			android:paddingRight="@dimen/padding_standard"
+			android:textIsSelectable="false"
+			android:textSize="22sp" />
 
-		<TextView
-			android:id="@+id/year"
-			style="@style/Text.Secondary"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+		<com.boardgamegeek.ui.widget.BezelImageView
+			android:id="@+id/thumbnail"
+			style="@style/ImageList"
+			android:layout_width="@dimen/thumbnail_list_size"
+			android:layout_height="@dimen/thumbnail_list_size"
+			android:src="@drawable/thumbnail_image_empty" />
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:orientation="vertical" >
+
+			<TextView
+				android:id="@+id/name"
+				style="@style/Text.Primary"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textIsSelectable="false" />
+
+			<TextView
+				android:id="@+id/year"
+				style="@style/Text.Secondary"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textIsSelectable="false" />
+		</LinearLayout>
 	</LinearLayout>
 
-</LinearLayout>
+</com.boardgamegeek.ui.widget.CheckableFrameLayout>

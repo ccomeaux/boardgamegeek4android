@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import android.app.Activity;
@@ -21,13 +21,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -74,11 +72,14 @@ import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.actionmodecompat.ActionMode;
+import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
 public class CollectionFragment extends BggListFragment implements AbsListView.OnScrollListener,
-	LoaderManager.LoaderCallbacks<Cursor>, CollectionView {
+	LoaderManager.LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(CollectionFragment.class);
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
@@ -101,6 +102,11 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private LinearLayout mFilterLinearLayout;
 	private TextView mFastScrollLetter;
 	private boolean mShortcut;
+
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private android.view.MenuItem mLogPlayMenuItem;
+	private android.view.MenuItem mLogPlayQuickMenuItem;
+	private android.view.MenuItem mBggLinkMenuItem;
 
 	public interface Callbacks {
 		public boolean onGameSelected(int gameId, String gameName);
@@ -185,7 +191,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
 		listView.setOnScrollListener(this);
-		registerForContextMenu(listView);
 	}
 
 	@Override
@@ -197,8 +202,9 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		} else {
 			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(STATE_SORT_TYPE), getActivity());
 		}
-		// This is handled by the activity I think
-		requery();
+		requery(); // This should be handled by the activity (I think)
+
+		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	private void requery() {
@@ -346,70 +352,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if (mShortcut) {
-			return;
-		}
-
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return;
-		}
-
-		Cursor cursor = (Cursor) mAdapter.getItem(info.position);
-		if (cursor == null) {
-			return;
-		}
-		final String gameName = cursor.getString(Query.COLLECTION_NAME);
-		UIUtils.createBoardgameContextMenu(getActivity(), menu, menuInfo, gameName);
-	}
-
-	@Override
-	public boolean onContextItemSelected(android.view.MenuItem item) {
-		AdapterView.AdapterContextMenuInfo info;
-		try {
-			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		} catch (ClassCastException e) {
-			LOGE(TAG, "bad menuInfo", e);
-			return false;
-		}
-
-		Cursor cursor = (Cursor) mAdapter.getItem(info.position);
-		if (cursor == null) {
-			return false;
-		}
-
-		int gameId = cursor.getInt(Query.GAME_ID);
-		String gameName = cursor.getString(Query.COLLECTION_NAME);
-
-		switch (item.getItemId()) {
-			case UIUtils.MENU_ITEM_VIEW:
-				ActivityUtils.launchGame(getActivity(), gameId, gameName);
-				return true;
-			case UIUtils.MENU_ITEM_LOG_PLAY: {
-				ActivityUtils.logPlay(getActivity(), false, gameId, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_QUICK_LOG_PLAY: {
-				ActivityUtils.logPlay(getActivity(), true, gameId, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_SHARE: {
-				ActivityUtils.shareGame(getActivity(), gameId, gameName);
-				return true;
-			}
-			case UIUtils.MENU_ITEM_LINK_BGG: {
-				ActivityUtils.linkBgg(getActivity(), gameId);
-				return true;
-			}
-		}
-		return super.onContextItemSelected(item);
 	}
 
 	@Override
@@ -802,7 +744,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int YEAR_PUBLISHED = 3;
-		// int GAME_NAME = 4;
+		int GAME_NAME = 4;
 		int GAME_ID = 5;
 		int COLLECTION_THUMBNAIL_URL = 6;
 		int THUMBNAIL_URL = 7;
@@ -818,5 +760,76 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		int SORT_TYPE = 2;
 		int TYPE = 3;
 		int DATA = 4;
+	}
+
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
+		android.view.MenuInflater inflater = mode.getMenuInflater();
+		inflater.inflate(R.menu.game_context, menu);
+		mLogPlayMenuItem = menu.findItem(R.id.menu_log_play);
+		mLogPlayQuickMenuItem = menu.findItem(R.id.menu_log_play_quick);
+		mBggLinkMenuItem = menu.findItem(R.id.menu_link);
+		mSelectedPositions.clear();
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
+		return false;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+	}
+
+	@Override
+	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+		if (checked) {
+			mSelectedPositions.add(position);
+		} else {
+			mSelectedPositions.remove(position);
+		}
+
+		int count = mSelectedPositions.size();
+		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
+
+		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
+		mLogPlayQuickMenuItem.setVisible(count == 1 && PreferencesUtils.showQuickLogPlay(getActivity()));
+		mBggLinkMenuItem.setVisible(count == 1);
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
+		int gameId = cursor.getInt(Query.GAME_ID);
+		String gameName = cursor.getString(Query.GAME_NAME);
+		switch (item.getItemId()) {
+			case R.id.menu_log_play:
+				mode.finish();
+				ActivityUtils.logPlay(getActivity(), false, gameId, gameName);
+				return true;
+			case R.id.menu_log_play_quick:
+				mode.finish();
+				ActivityUtils.logPlay(getActivity(), true, gameId, gameName);
+				return true;
+			case R.id.menu_share:
+				mode.finish();
+				if (mSelectedPositions.size() == 1) {
+					ActivityUtils.shareGame(getActivity(), gameId, gameName);
+				} else {
+					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					for (int position : mSelectedPositions) {
+						Cursor c = (Cursor) mAdapter.getItem(position);
+						games.add(new Pair<Integer, String>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
+					}
+					ActivityUtils.shareGames(getActivity(), games);
+				}
+				return true;
+			case R.id.menu_link:
+				mode.finish();
+				ActivityUtils.linkBgg(getActivity(), gameId);
+				return true;
+		}
+		return false;
 	}
 }
