@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
@@ -18,10 +16,8 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -31,7 +27,7 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class GameActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
+public class GameActivity extends BaseActivity implements ActionBar.TabListener,
 	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -75,36 +71,25 @@ public class GameActivity extends SherlockFragmentActivity implements ActionBar.
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
 	}
+	
+	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.game;
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
 		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
-		getSupportMenuInflater().inflate(R.menu.game, menu);
 		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
-		setupSearchMenuItem(menu);
 		return true;
-	}
-
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null) {
-			SearchView searchView = (SearchView) searchItem.getActionView();
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case android.R.id.home:
-				NavUtils.navigateUpFromSameTask(this);
-				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;

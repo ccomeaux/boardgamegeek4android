@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,17 +9,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -28,8 +24,8 @@ import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddyActivity extends SherlockFragmentActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener, BuddyFragment.Callbacks, PlaysFragment.Callbacks {
+public class BuddyActivity extends BaseActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
+	BuddyFragment.Callbacks, PlaysFragment.Callbacks {
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -65,38 +61,26 @@ public class BuddyActivity extends SherlockFragmentActivity implements ActionBar
 	}
 
 	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.refresh_only;
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
 		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
-		getSupportMenuInflater().inflate(R.menu.refresh_only, menu);
-		setupSearchMenuItem(menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		switch (id) {
-			case android.R.id.home:
-				NavUtils.navigateUpFromSameTask(this);
-				return true;
+		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY, mName, getReceiver());
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null) {
-			SearchView searchView = (SearchView) searchItem.getActionView();
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
 	}
 
 	@Override

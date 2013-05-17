@@ -1,27 +1,17 @@
 package com.boardgamegeek.ui;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.SearchManager;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.os.Bundle;
-import android.text.TextUtils;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class HomeActivity extends SherlockFragmentActivity {
+public class HomeActivity extends BaseActivity {
 	private static final int HELP_VERSION = 2;
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
@@ -52,31 +42,20 @@ public class HomeActivity extends SherlockFragmentActivity {
 	}
 
 	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.home;
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		getSupportMenuInflater().inflate(R.menu.home, menu);
-		setupSearchMenuItem(menu);
 		mSyncStatusObserver.onStatusChanged(0);
 		return true;
 	}
 
-	private void setupSearchMenuItem(Menu menu) {
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		if (searchItem != null) {
-			SearchView searchView = (SearchView) searchItem.getActionView();
-			if (searchView != null) {
-				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-			}
-		}
-	}
-
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		AccountManager am = AccountManager.get(this);
-		Account account = Authenticator.getAccount(am);
-		menu.findItem(R.id.menu_sign_out).setVisible(account != null && !TextUtils.isEmpty(am.getPassword(account)));
 		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -90,26 +69,8 @@ public class HomeActivity extends SherlockFragmentActivity {
 			case R.id.menu_cancel_sync:
 				SyncService.cancelSync(this);
 				return true;
-			case R.id.menu_sign_out:
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_sign_out,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							Authenticator.signOut(HomeActivity.this);
-						}
-					}).show();
-				return true;
-			case R.id.menu_contact_us:
-				Intent emailIntent = new Intent(Intent.ACTION_SEND);
-				emailIntent.setType("text/plain");
-				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "bgg4android@gmail.com" });
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-				startActivity(emailIntent);
-				return true;
-			case R.id.menu_about:
-				HelpUtils.showAboutDialog(this);
-				return true;
 		}
-		return false;
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void triggerRefresh() {
