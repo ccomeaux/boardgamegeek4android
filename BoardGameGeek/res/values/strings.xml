@@ -100,8 +100,8 @@
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_game">Game</string>
 	<string name="title_image">Image</string>
-	<string name="title_buddies">Geek Buddies</string>
-	<string name="title_buddy">Geek Buddy</string>
+	<string name="title_buddies">GeekBuddies</string>
+	<string name="title_buddy">GeekBuddy</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
 	<string name="title_info">Info</string>
@@ -127,7 +127,7 @@
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>
-	<string name="home_btn_buddies">Geek Buddies</string>
+	<string name="home_btn_buddies">GeekBuddies</string>
 	<string name="home_btn_sync">Sync</string>
 	<string name="home_btn_plays">Games Played</string>
 	<string name="home_btn_settings">Settings</string>
@@ -339,6 +339,8 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<string name="want_parts">Want Parts</string>
 	<string name="has_parts">Has Parts</string>
 	<string name="msg_colors_generated">Colors generated!</string>
+	<string name="drawer_open">Open navigation drawer</string>
+	<string name="drawer_close">Close navigation drawer</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

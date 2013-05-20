@@ -46,11 +46,6 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected int getOptionsMenuId() {
-		return 0;
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:

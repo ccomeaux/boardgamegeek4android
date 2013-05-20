@@ -32,11 +32,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	}
 
 	@Override
-	protected int getOptionsMenuId() {
-		return 0;
-	}
-
-	@Override
 	public void onNameChanged(String gameName) {
 		changeName(gameName);
 	}

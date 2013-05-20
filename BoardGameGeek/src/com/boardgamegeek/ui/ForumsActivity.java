@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui;
 
-import com.boardgamegeek.R;
-
 import android.support.v4.app.Fragment;
 
-public class ForumsActivity extends SimpleSinglePaneActivity {
+import com.boardgamegeek.R;
+
+public class ForumsActivity extends TopLevelSinglePaneActivity {
 
 	@Override
 	protected Fragment onCreatePane() {

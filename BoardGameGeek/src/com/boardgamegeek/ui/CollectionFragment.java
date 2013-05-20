@@ -118,6 +118,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		public void onSortChanged(String sortName);
 
 		public void onViewRequested(long viewId);
+
+		public boolean isNavigationDrawerOpen();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -140,7 +142,12 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 		@Override
 		public void onViewRequested(long viewId) {
-		};
+		}
+
+		@Override
+		public boolean isNavigationDrawerOpen() {
+			return false;
+		}
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -277,18 +284,29 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-		menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+		if (mCallbacks.isNavigationDrawerOpen()) {
+			menu.findItem(R.id.menu_collection_sort).setVisible(false);
+			menu.findItem(R.id.menu_collection_filter).setVisible(false);
+			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+			menu.findItem(R.id.menu_collection_view_save).setVisible(false);
+			menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
+		} else {
+			menu.findItem(R.id.menu_collection_sort).setVisible(true);
+			menu.findItem(R.id.menu_collection_filter).setVisible(true);
 
-		menu.findItem(R.id.menu_collection_view_save).setEnabled(
-			mViewModified && mFilters != null && mFilters.size() > 0);
+			boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
+			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 
-		final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
-		item.setVisible(!mShortcut);
-		item.setEnabled(mAdapter == null ? false : mAdapter.getCount() > 0);
+			menu.findItem(R.id.menu_collection_view_save).setEnabled(
+				mViewModified && mFilters != null && mFilters.size() > 0);
 
-		menu.findItem(R.id.menu_collection_view_save).setVisible(!mShortcut);
-		menu.findItem(R.id.menu_collection_view_delete).setVisible(!mShortcut);
+			final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
+			item.setVisible(!mShortcut);
+			item.setEnabled(mAdapter == null ? false : mAdapter.getCount() > 0);
+
+			menu.findItem(R.id.menu_collection_view_save).setVisible(!mShortcut);
+			menu.findItem(R.id.menu_collection_view_delete).setVisible(!mShortcut);
+		}
 		super.onPrepareOptionsMenu(menu);
 	}
 

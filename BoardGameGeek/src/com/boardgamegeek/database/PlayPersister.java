@@ -322,7 +322,7 @@ public class PlayPersister {
 	}
 
 	/**
-	 * Update Geek buddies' nicknames with the names used here.
+	 * Update GeekBuddies' nicknames with the names used here.
 	 */
 	private static void updateBuddyNicknames(ContentResolver resolver, Play play) {
 		if (play.getPlayers().size() > 0) {

@@ -11,7 +11,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class HomeActivity extends BaseActivity {
+public class HomeActivity extends TopLevelActivity {
 	private static final int HELP_VERSION = 2;
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
@@ -19,9 +19,13 @@ public class HomeActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_home);
 		setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_HOME_KEY, HELP_VERSION, R.string.help_home);
+	}
+	
+	@Override
+	protected int getContentViewId() {
+		return R.layout.activity_home;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 
-public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar.OnNavigationListener,
+public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener,
 	PlaysFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
 	private Menu mOptionsMenu;
@@ -62,6 +62,11 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 	}
 
 	@Override
+	protected boolean isTitleHidden() {
+		return true;
+	}
+
+	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		int filter = Play.SYNC_STATUS_ALL;
 		switch (itemPosition) {
@@ -98,7 +103,9 @@ public class PlaysActivity extends SimpleSinglePaneActivity implements ActionBar
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
+		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen());
 		return super.onPrepareOptionsMenu(menu);
 	}
 

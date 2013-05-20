@@ -21,7 +21,9 @@ import com.boardgamegeek.util.HelpUtils;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
 
-	protected abstract int getOptionsMenuId();
+	protected int getOptionsMenuId() {
+		return 0;
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,7 +49,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (this instanceof HomeActivity) {
+				if (this instanceof TopLevelActivity) {
+					// bug in ActionBarDrawerToggle
 					return false;
 				}
 				NavUtils.navigateUpFromSameTask(this);

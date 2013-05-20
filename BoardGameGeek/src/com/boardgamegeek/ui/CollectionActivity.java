@@ -27,7 +27,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class CollectionActivity extends SimpleSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
 	CollectionFragment.Callbacks, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
@@ -41,6 +41,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	private long mViewId;
 	private int mCount;
 	private String mSortName;
+	private boolean mIsTitleHidden;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +95,11 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	}
 
 	@Override
+	protected boolean isTitleHidden() {
+		return mIsTitleHidden;
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		mOptionsMenu = menu;
 		mSyncStatusObserver.onStatusChanged(0);
@@ -103,7 +109,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		ActivityUtils.setCustomActionBarText(getSupportActionBar(), R.id.menu_list_count,
-			mCount <= 0 ? "" : String.valueOf(mCount), mSortName);
+			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount), isDrawerOpen() ? "" : mSortName);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -147,6 +153,11 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 	}
 
 	@Override
+	public boolean isNavigationDrawerOpen() {
+		return isDrawerOpen();
+	}
+
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
@@ -168,6 +179,7 @@ public class CollectionActivity extends SimpleSinglePaneActivity implements Load
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			actionBar.setListNavigationCallbacks(mAdapter, this);
 			actionBar.setSelectedNavigationItem(findViewIndex(mViewId));
+			mIsTitleHidden = true;
 		} else {
 			cursor.close();
 		}

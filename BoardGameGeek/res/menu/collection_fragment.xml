@@ -50,7 +50,7 @@
 		</menu>
 	</item>
 	<item
-		android:id="@+id/collection_filter_add"
+		android:id="@+id/menu_collection_filter"
 		android:icon="?attr/ic_action_filter_on"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_collection_filter_add">
@@ -88,6 +88,11 @@
 		</menu>
 	</item>
 	<item
+		android:id="@+id/menu_collection_random_game"
+		android:icon="?attr/ic_action_help"
+		android:showAsAction="ifRoom"
+		android:title="@string/menu_collection_random_game"/>
+	<item
 		android:id="@+id/menu_collection_view_save"
 		android:icon="?attr/ic_action_save"
 		android:showAsAction="never"
@@ -97,10 +102,5 @@
 		android:icon="?attr/ic_action_delete"
 		android:showAsAction="never"
 		android:title="@string/menu_collection_view_delete"/>
-	<item
-		android:id="@+id/menu_collection_random_game"
-		android:icon="?attr/ic_action_help"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_collection_random_game"/>
 
 </menu>

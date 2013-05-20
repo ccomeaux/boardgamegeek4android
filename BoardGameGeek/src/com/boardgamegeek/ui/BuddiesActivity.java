@@ -14,7 +14,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 
-public class BuddiesActivity extends SimpleSinglePaneActivity implements BuddiesFragment.Callbacks {
+public class BuddiesActivity extends TopLevelSinglePaneActivity implements BuddiesFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
@@ -65,7 +65,9 @@ public class BuddiesActivity extends SimpleSinglePaneActivity implements Buddies
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
+		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen());
 		return super.onPrepareOptionsMenu(menu);
 	}
 
