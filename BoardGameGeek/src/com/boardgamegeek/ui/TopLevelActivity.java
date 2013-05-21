@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Pair;
 import android.view.ActionProvider;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -52,6 +54,8 @@ public abstract class TopLevelActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getContentViewId());
+
+		mPosition = getIntent().getIntExtra(EXTRA_NAVIGATION_POSITION, -1);
 
 		mDrawerTitle = getString(R.string.app_name);
 		mTitle = getTitle();
@@ -92,21 +96,18 @@ public abstract class TopLevelActivity extends BaseActivity {
 		getSupportActionBar().setHomeButtonEnabled(true);
 
 		// TODO open the drawer upon launch until user opens it themselves
-
-		mPosition = getIntent().getIntExtra(EXTRA_NAVIGATION_POSITION, -1);
-		if (mPosition > -1) {
-			View view = mAdapter.getView(mPosition, null, mDrawerList);
-			if (view != null) {
-				// TODO change background to be activate-able
-				UIUtils.setActivatedCompat(view, true);
-			}
-		}
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		mDrawerToggle.syncState();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -121,7 +122,7 @@ public abstract class TopLevelActivity extends BaseActivity {
 		getSupportActionBar().setTitle(mTitle);
 	}
 
-	protected boolean isDrawerOpen() {
+	public boolean isDrawerOpen() {
 		return mDrawerLayout.isDrawerOpen(mDrawerList);
 	}
 
@@ -149,7 +150,7 @@ public abstract class TopLevelActivity extends BaseActivity {
 	private void selectItem(int position) {
 		if (position != mPosition) {
 			Intent intent = null;
-			switch (mAdapter.getItem(position)) {
+			switch (mAdapter.getItem(position).first) {
 				case R.string.title_collection:
 					intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
 					break;
@@ -179,29 +180,36 @@ public abstract class TopLevelActivity extends BaseActivity {
 
 	private class NavigationAdapter extends BaseAdapter {
 		private LayoutInflater mInflater;
-		private List<Integer> mTitles;
+		private List<Pair<Integer, Integer>> mTitles;
 
 		public NavigationAdapter() {
 			mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			init();
 		}
 
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+			init();
+		}
+
 		public void init() {
-			mTitles = new ArrayList<Integer>();
-			if (hasCollection()) {
-				mTitles.add(R.string.title_collection);
+			mTitles = new ArrayList<Pair<Integer, Integer>>();
+			if (!Authenticator.isSignedIn(TopLevelActivity.this)) {
+				mTitles.add(new Pair<Integer, Integer>(R.string.home_btn_signin, R.drawable.home_btn_signin));
+			} else {
+				if (hasCollection()) {
+					mTitles.add(new Pair<Integer, Integer>(R.string.title_collection, R.drawable.home_btn_collection));
+				}
+				if (hasPlays()) {
+					mTitles.add(new Pair<Integer, Integer>(R.string.title_plays, R.drawable.home_btn_plays));
+				}
+				if (hasBuddies()) {
+					mTitles.add(new Pair<Integer, Integer>(R.string.title_buddies, R.drawable.home_btn_buddies));
+				}
 			}
-			mTitles.add(R.string.title_hotness);
-			if (hasPlays()) {
-				mTitles.add(R.string.title_plays);
-			}
-			if (hasBuddies()) {
-				mTitles.add(R.string.title_buddies);
-			}
-			mTitles.add(R.string.title_forums);
-			if (notSignedIn()) {
-				mTitles.add(R.string.home_btn_signin);
-			}
+			mTitles.add(new Pair<Integer, Integer>(R.string.title_hotness, R.drawable.home_btn_hotness));
+			mTitles.add(new Pair<Integer, Integer>(R.string.title_forums, R.drawable.home_btn_forums));
 		}
 
 		private boolean hasCollection() {
@@ -217,35 +225,54 @@ public abstract class TopLevelActivity extends BaseActivity {
 			return PreferencesUtils.getSyncBuddies(TopLevelActivity.this);
 		}
 
-		private boolean notSignedIn() {
-			return Authenticator.getAccount(TopLevelActivity.this) == null;
-		}
-
 		@Override
 		public int getCount() {
 			return mTitles.size();
 		}
 
 		@Override
-		public Integer getItem(int position) {
+		public Pair<Integer, Integer> getItem(int position) {
 			return mTitles.get(position);
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return getItem(position);
+			return getItem(position).first;
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			TextView text;
+			View view;
 			if (convertView == null) {
-				text = (TextView) mInflater.inflate(R.layout.row_drawer, parent, false);
+				view = mInflater.inflate(R.layout.row_drawer, parent, false);
 			} else {
-				text = (TextView) convertView;
+				view = convertView;
 			}
-			text.setText(getString(getItem(position)));
-			return text;
+
+			Pair<Integer, Integer> item = getItem(position);
+
+			TextView text = (TextView) view.findViewById(android.R.id.text1);
+			ImageView image = (ImageView) view.findViewById(android.R.id.icon);
+			TextView separator = (TextView) view.findViewById(R.id.separator);
+
+			text.setText(item.first);
+			image.setImageResource(item.second);
+			if (item.first == R.string.title_hotness) {
+				separator.setVisibility(View.VISIBLE);
+				separator.setText(R.string.title_browse);
+			} else if (position == 0) {
+				separator.setVisibility(View.VISIBLE);
+				separator.setText(R.string.title_my_geek);
+			} else {
+				separator.setVisibility(View.GONE);
+			}
+
+			if (position == mPosition) {
+				// TODO change background to be activate-able
+				UIUtils.setActivatedCompat(view, true);
+			}
+
+			return view;
 		}
 	}
 

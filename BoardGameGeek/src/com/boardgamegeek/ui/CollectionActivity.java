@@ -153,11 +153,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	public boolean isNavigationDrawerOpen() {
-		return isDrawerOpen();
-	}
-
-	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {

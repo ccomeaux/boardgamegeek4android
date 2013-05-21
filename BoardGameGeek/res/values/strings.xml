@@ -124,6 +124,8 @@
 	<string name="title_delete_view">Delete View</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
+	<string name="title_my_geek">My Geek</string>
+	<string name="title_browse">Browse</string>
 	<string name="home_btn_collection">Collection</string>
 	<string name="home_btn_hotness">The Hotness</string>
 	<string name="home_btn_forums">Forums</string>

@@ -1,11 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@android:id/text1"
-	style="@style/RowContainer"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/activatedBackgroundIndicator"
-	android:gravity="center_vertical"
-	android:textIsSelectable="false"
-	android:textSize="18sp"
-	android:textStyle="bold" />
+	android:orientation="vertical" >
+
+	<TextView
+		android:id="@+id/separator"
+		style="@style/RowSeparator"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:textIsSelectable="false"
+		android:visibility="gone" />
+
+	<LinearLayout
+		style="@style/RowContainer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal" >
+
+		<ImageView
+			android:id="@android:id/icon"
+			android:layout_width="@dimen/thumbnail_list_size"
+			android:layout_height="@dimen/thumbnail_list_size"
+			android:paddingRight="@dimen/padding_extra"
+			android:scaleType="fitCenter" />
+
+		<TextView
+			android:id="@android:id/text1"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center_vertical"
+			android:textIsSelectable="false"
+			android:textSize="18sp"
+			android:textStyle="bold" />
+	</LinearLayout>
+
+</LinearLayout>

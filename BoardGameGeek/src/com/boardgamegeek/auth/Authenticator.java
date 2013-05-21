@@ -156,6 +156,15 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return accounts[0];
 	}
 
+	public static boolean isSignedIn(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		if (account != null) {
+			return !TextUtils.isEmpty(accountManager.getPassword(account));
+		}
+		return false;
+	}
+
 	public static void signOut(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);

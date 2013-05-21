@@ -119,7 +119,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 		public void onViewRequested(long viewId);
 
-		public boolean isNavigationDrawerOpen();
+		public boolean isDrawerOpen();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -145,7 +145,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 
 		@Override
-		public boolean isNavigationDrawerOpen() {
+		public boolean isDrawerOpen() {
 			return false;
 		}
 	};
@@ -284,7 +284,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (mCallbacks.isNavigationDrawerOpen()) {
+		if (mCallbacks.isDrawerOpen()) {
 			menu.findItem(R.id.menu_collection_sort).setVisible(false);
 			menu.findItem(R.id.menu_collection_filter).setVisible(false);
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
