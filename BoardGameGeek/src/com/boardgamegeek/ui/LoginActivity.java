@@ -73,7 +73,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		mUsernameView.setText(mUsername);
 		mUsernameView.setEnabled(mRequestNewAccount);
-		if (!mRequestNewAccount){
+		if (!mRequestNewAccount) {
 			mPasswordView.requestFocus();
 		}
 
@@ -238,8 +238,15 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		if (mRequestNewAccount) {
 			if (!mAccountManager.addAccountExplicitly(account, password, userData)) {
-				mPasswordView.setError(getString(R.string.error_account_not_added));
-				return;
+				Account existingAccount = Authenticator.getAccount(mAccountManager);
+				if (existingAccount != null && existingAccount.name.equals(account.name)) {
+					mAccountManager.setPassword(account, password);
+					mAccountManager.setUserData(account, Authenticator.KEY_PASSWORD_EXPIRY,
+						userData.getString(Authenticator.KEY_PASSWORD_EXPIRY));
+				} else {
+					mPasswordView.setError(getString(R.string.error_account_not_added));
+					return;
+				}
 			}
 		} else {
 			mAccountManager.setPassword(account, password);
