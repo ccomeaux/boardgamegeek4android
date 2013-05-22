@@ -16,6 +16,7 @@ import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
@@ -42,6 +43,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 		AccountManager am = AccountManager.get(this);
 		Account account = Authenticator.getAccount(am);
 		menu.findItem(R.id.menu_sign_out).setVisible(account != null && !TextUtils.isEmpty(am.getPassword(account)));
+		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -75,6 +77,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 							Authenticator.signOut(BaseActivity.this);
 						}
 					}).show();
+				return true;
+			case R.id.menu_cancel_sync:
+				SyncService.cancelSync(this);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

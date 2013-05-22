@@ -35,7 +35,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public abstract class TopLevelActivity extends BaseActivity {
-	private static final String EXTRA_NAVIGATION_POSITION = null;
+	private static final String EXTRA_NAVIGATION_POSITION = "EXTRA_NAVIGATION_POSITION";
 	private CharSequence mTitle;
 	private CharSequence mDrawerTitle;
 	private DrawerLayout mDrawerLayout;
@@ -166,7 +166,7 @@ public abstract class TopLevelActivity extends BaseActivity {
 				case R.string.title_forums:
 					intent = new Intent(this, ForumsActivity.class);
 					break;
-				case R.string.home_btn_signin:
+				case R.string.title_signin:
 					startActivityForResult(new Intent(this, LoginActivity.class), 0);
 					break;
 			}
@@ -196,7 +196,7 @@ public abstract class TopLevelActivity extends BaseActivity {
 		public void init() {
 			mTitles = new ArrayList<Pair<Integer, Integer>>();
 			if (!Authenticator.isSignedIn(TopLevelActivity.this)) {
-				mTitles.add(new Pair<Integer, Integer>(R.string.home_btn_signin, R.drawable.home_btn_signin));
+				mTitles.add(new Pair<Integer, Integer>(R.string.title_signin, R.drawable.home_btn_signin));
 			} else {
 				if (hasCollection()) {
 					mTitles.add(new Pair<Integer, Integer>(R.string.title_collection, R.drawable.home_btn_collection));

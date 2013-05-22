@@ -9,12 +9,14 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" >
 
-		<fragment
-			android:id="@+id/fragment_dashboard"
-			android:name="com.boardgamegeek.ui.DashboardFragment"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			tools:layout="@layout/fragment_dashboard" />
+		<TextView
+			style="@style/Text"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:padding="@dimen/padding_extra"
+			android:text="@string/welcome_text" />
 	</FrameLayout>
 
 	<ListView

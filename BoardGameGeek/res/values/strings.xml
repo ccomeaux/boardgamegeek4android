@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<string name="welcome_text">Welcome to the new BoardGameGeek for Android. Access the navigation menu by clicking on Ernie in the top left or by dragging from the left edge of the screen.</string>
 	<string name="average_meter_text">Average = %s</string>
 	<string name="bayes_meter_text">Bayes Average = %s</string>
 	<string name="median_meter_text">Median = %s</string>
@@ -126,18 +127,7 @@
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_my_geek">My Geek</string>
 	<string name="title_browse">Browse</string>
-	<string name="home_btn_collection">Collection</string>
-	<string name="home_btn_hotness">The Hotness</string>
-	<string name="home_btn_forums">Forums</string>
-	<string name="home_btn_buddies">GeekBuddies</string>
-	<string name="home_btn_sync">Sync</string>
-	<string name="home_btn_plays">Games Played</string>
-	<string name="home_btn_settings">Settings</string>
-	<string name="home_btn_about">About</string>
-	<string name="home_btn_cancel_sync">Cancel sync</string>
-	<string name="home_btn_sign_out">Sign out</string>
-	<string name="home_btn_contact_us">Contact us</string>
-	<string name="home_btn_signin">Sign In</string>
+	<string name="title_signin">Sign In</string>
 	<string name="notification_playing">Playing</string>
 	<string name="notification_playing_game">Playing "%s"</string>
 	<string name="pref_warning_username">Please sign in first.</string>
@@ -199,7 +189,6 @@
 	<string name="menu_collection_sort_age_oldest">Suggested Age - Oldest</string>
 	<string name="menu_collection_sort_weight_heaviest">Average Weight - Heaviest</string>
 	<string name="menu_collection_sort_weight_lightest">Average Weight - Lightest</string>
-	<string name="sort_description">by %s</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_geek_ranking">Geek Ranking</string>
@@ -224,6 +213,13 @@
 	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="menu_colors_generate">Generate colors</string>
+	<string name="menu_sync">Sync</string>
+	<string name="menu_settings">Settings</string>
+	<string name="menu_about">About</string>
+	<string name="menu_cancel_sync">Cancel sync</string>
+	<string name="menu_sign_out">Sign out</string>
+	<string name="menu_contact_us">Contact us</string>
+	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
 	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
@@ -294,6 +290,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- NEW: Navigation drawer replaces the dashboard<br/>
 - NEW: Collection tab in the game view<br/>
 - MOD: Improved usability in lists, especially the Collection<br/>
 - NEW: Options to sync only when charging or on Wifi<br/>

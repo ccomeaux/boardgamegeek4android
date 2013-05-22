@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<style name="HomeButton">
-		<item name="android:layout_gravity">center</item>
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:layout_weight">1</item>
-		<item name="android:gravity">center</item>
-		<item name="android:drawablePadding">2dp</item>
-		<item name="android:textSize">@dimen/text_size</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:background">@null</item>
-	</style>
-
 	<style name="StatRow">
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
