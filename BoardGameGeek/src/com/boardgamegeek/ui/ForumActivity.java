@@ -37,7 +37,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new ForumFragment();
 	}
 

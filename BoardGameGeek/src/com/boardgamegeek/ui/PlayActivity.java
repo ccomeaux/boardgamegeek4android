@@ -27,7 +27,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new PlayFragment();
 	}
 

@@ -33,7 +33,7 @@ public class ImageActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new ImageFragment();
 	}
 

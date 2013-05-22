@@ -37,14 +37,14 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 	 * Called in <code>onCreate</code> when the fragment constituting this activity is needed. The returned fragment's
 	 * arguments will be set to the intent used to invoke this activity.
 	 */
-	protected abstract Fragment onCreatePane();
+	protected abstract Fragment onCreatePane(Intent intent);
 
 	public Fragment getFragment() {
 		return mFragment;
 	}
 
 	private void parseIntent(Intent intent) {
-		mFragment = onCreatePane();
+		mFragment = onCreatePane(intent);
 		mFragment.setArguments(UIUtils.intentToFragmentArguments(intent));
 		getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE).commit();
 	}

@@ -13,25 +13,17 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class SearchResultsActivity extends DrawerActivity implements SearchResultsFragment.Callbacks {
-	private static final String TAG_SINGLE_PANE = "single_pane";
+public class SearchResultsActivity extends SimpleSinglePaneActivity implements SearchResultsFragment.Callbacks {
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
-
-	private Fragment mFragment;
 	private String mSearchText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 		setTitle(R.string.title_search_results);
 
-		if (savedInstanceState == null) {
-			parseIntent(getIntent());
-		} else {
-			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
+		if (savedInstanceState != null) {
 			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
 
@@ -39,19 +31,9 @@ public class SearchResultsActivity extends DrawerActivity implements SearchResul
 	}
 
 	@Override
-	protected int getContentViewId() {
-		return R.layout.activity_singlepane_empty;
-	}
-
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putString(SEARCH_TEXT, mSearchText);
 		super.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public void onNewIntent(Intent intent) {
-		parseIntent(intent);
 	}
 
 	@Override
@@ -70,38 +52,36 @@ public class SearchResultsActivity extends DrawerActivity implements SearchResul
 		finish();
 	}
 
-	public Fragment getFragment() {
-		return mFragment;
-	}
-
-	private void parseIntent(Intent intent) {
+	@Override
+	protected Fragment onCreatePane(Intent intent) {
+		Fragment fragment = null;
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			mSearchText = intent.getExtras().getString(SearchManager.QUERY);
 			if (TextUtils.isEmpty(mSearchText)) {
-				buildTextFragment(getString(R.string.search_error_no_text));
+				fragment = buildTextFragment(getString(R.string.search_error_no_text));
 			} else {
 				getSupportActionBar().setSubtitle(
 					String.format(getResources().getString(R.string.search_searching), mSearchText));
-				mFragment = new SearchResultsFragment();
+				fragment = new SearchResultsFragment();
 			}
 		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 			Uri uri = intent.getData();
 			if (uri == null) {
-				buildTextFragment(getString(R.string.search_error_no_data));
+				fragment = buildTextFragment(getString(R.string.search_error_no_data));
 			} else {
 				ActivityUtils.launchGame(this, Games.getGameId(uri), "");
 				finish();
-				return;
+				return null;
 			}
 		} else {
-			buildTextFragment(getString(R.string.search_error_bad_intent) + intent.getAction());
+			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + intent.getAction());
 		}
-		mFragment.setArguments(UIUtils.intentToFragmentArguments(intent));
-		getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE).commit();
+		return fragment;
 	}
 
-	private void buildTextFragment(String text) {
+	private Fragment buildTextFragment(String text) {
 		mFragment = new TextFragment();
 		getIntent().putExtra(TextFragment.KEY_TEXT, text);
+		return mFragment;
 	}
 }

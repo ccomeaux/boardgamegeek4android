@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,7 +34,7 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new ProducerFragment();
 	}
 

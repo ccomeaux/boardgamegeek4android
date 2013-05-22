@@ -43,7 +43,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
-	protected Fragment onCreatePane() {
+	protected Fragment onCreatePane(Intent intent) {
 		return new ThreadFragment();
 	}
 
