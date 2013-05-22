@@ -27,8 +27,8 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class GameActivity extends BaseActivity implements ActionBar.TabListener,
-	ViewPager.OnPageChangeListener, GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
+public class GameActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
+	GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 
@@ -41,7 +41,6 @@ public class GameActivity extends BaseActivity implements ActionBar.TabListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_game);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mGameId = Games.getGameId(getIntent().getData());
@@ -71,7 +70,12 @@ public class GameActivity extends BaseActivity implements ActionBar.TabListener,
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
 	}
-	
+
+	@Override
+	protected int getContentViewId() {
+		return R.layout.activity_viewpager;
+	}
+
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.game;

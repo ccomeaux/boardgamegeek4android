@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.UIUtils;
 
-public abstract class SimpleSinglePaneActivity extends BaseActivity {
+public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	protected Fragment mFragment;
 
@@ -15,13 +15,17 @@ public abstract class SimpleSinglePaneActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		setContentView(R.layout.activity_singlepane_empty);
 
 		if (savedInstanceState == null) {
 			parseIntent(getIntent());
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
+	}
+
+	@Override
+	protected int getContentViewId() {
+		return R.layout.activity_singlepane_empty;
 	}
 
 	@Override

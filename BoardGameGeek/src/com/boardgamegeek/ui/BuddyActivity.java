@@ -24,7 +24,7 @@ import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddyActivity extends BaseActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
+public class BuddyActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
 	BuddyFragment.Callbacks, PlaysFragment.Callbacks {
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
@@ -34,7 +34,6 @@ public class BuddyActivity extends BaseActivity implements ActionBar.TabListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_game);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mName = getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
@@ -58,6 +57,11 @@ public class BuddyActivity extends BaseActivity implements ActionBar.TabListener
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+	}
+
+	@Override
+	protected int getContentViewId() {
+		return R.layout.activity_viewpager;
 	}
 
 	@Override

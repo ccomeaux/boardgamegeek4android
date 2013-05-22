@@ -11,7 +11,7 @@ public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 
 	@Override
 	protected int getContentViewId() {
-		return R.layout.activity_toplevel_singlepane_empty;
+		return R.layout.activity_singlepane_empty;
 	}
 
 	private static final String TAG_SINGLE_PANE = "single_pane";

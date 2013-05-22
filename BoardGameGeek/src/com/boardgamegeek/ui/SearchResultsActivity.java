@@ -13,7 +13,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class SearchResultsActivity extends BaseActivity implements SearchResultsFragment.Callbacks {
+public class SearchResultsActivity extends DrawerActivity implements SearchResultsFragment.Callbacks {
 	private static final String TAG_SINGLE_PANE = "single_pane";
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
@@ -25,7 +25,7 @@ public class SearchResultsActivity extends BaseActivity implements SearchResults
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		setContentView(R.layout.activity_singlepane_empty);
+
 		setTitle(R.string.title_search_results);
 
 		if (savedInstanceState == null) {
@@ -37,7 +37,12 @@ public class SearchResultsActivity extends BaseActivity implements SearchResults
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
-	
+
+	@Override
+	protected int getContentViewId() {
+		return R.layout.activity_singlepane_empty;
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putString(SEARCH_TEXT, mSearchText);
