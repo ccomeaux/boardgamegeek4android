@@ -55,7 +55,7 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		if (mUndefined) {
 			displayText(getDisplayText() + " (+?)");
 		}
-		displayText(getDisplayText() + " " + r.getString(R.string.time_suffix));
+		displayText(getDisplayText() + " " + r.getString(R.string.minutes_abbr));
 	}
 
 	private void setSelection() {

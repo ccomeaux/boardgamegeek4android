@@ -18,13 +18,13 @@ public class CollectionNameSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_BAYES_AVERAGE };
+	public int getType() {
+		return CollectionSortDataFactory.TYPE_COLLECTION_NAME;
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, "?", true, mDisplayFormat);
+	public String[] getColumns() {
+		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_BAYES_AVERAGE };
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class CollectionNameSortData extends CollectionSortData {
 	}
 
 	@Override
-	public int getType() {
-		return CollectionSortDataFactory.TYPE_COLLECTION_NAME;
+	public String getDisplayInfo(Cursor cursor) {
+		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, "?", true, mDisplayFormat);
 	}
 }

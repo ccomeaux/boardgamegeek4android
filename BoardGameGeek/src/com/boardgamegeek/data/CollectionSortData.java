@@ -28,20 +28,36 @@ public abstract class CollectionSortData {
 		return String.format(mContext.getString(R.string.sort_description), mContext.getString(mDescriptionId));
 	}
 
-	public String[] getColumns() {
-		return null;
-	}
-
-	public String getDisplayInfo(Cursor cursor) {
-		return null;
-	}
-
 	public String getOrderByClause() {
 		return mOrderByClause;
 	}
 
-	public String getScrollText(Cursor cursor) {
+	/**
+	 * Get the names of the columns to add to the select projection.
+	 */
+	public String[] getColumns() {
 		return null;
+	}
+
+	/**
+	 * Get the text to display in a popup while scrolling.
+	 */
+	public String getScrollText(Cursor cursor) {
+		return "";
+	}
+
+	/**
+	 * Get the text to display in the section header.
+	 */
+	public String getSectionText(Cursor cursor) {
+		return getScrollText(cursor);
+	}
+
+	/**
+	 * Gets the text to display on each row.
+	 */
+	public String getDisplayInfo(Cursor cursor) {
+		return getSectionText(cursor);
 	}
 
 	public int getType() {

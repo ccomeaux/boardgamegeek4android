@@ -16,11 +16,6 @@ public abstract class YearPublishedSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getScrollText(cursor);
-	}
-
-	@Override
 	public String getScrollText(Cursor cursor) {
 		return getIntAsString(cursor, Collection.YEAR_PUBLISHED, "?");
 	}

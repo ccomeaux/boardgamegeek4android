@@ -19,13 +19,13 @@ public class GeekRatingSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String[] getColumns() {
-		return new String[] { Collection.STATS_BAYES_AVERAGE };
+	public int getType() {
+		return CollectionSortDataFactory.TYPE_GEEK_RATING;
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getInfo(cursor, mDisplayFormat);
+	public String[] getColumns() {
+		return new String[] { Collection.STATS_BAYES_AVERAGE };
 	}
 
 	@Override
@@ -33,12 +33,12 @@ public class GeekRatingSortData extends CollectionSortData {
 		return getInfo(cursor, null);
 	}
 
-	private String getInfo(Cursor cursor, DecimalFormat format) {
-		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, DEFAULT_VALUE, true, format);
+	@Override
+	public String getDisplayInfo(Cursor cursor) {
+		return getInfo(cursor, mDisplayFormat);
 	}
 
-	@Override
-	public int getType() {
-		return CollectionSortDataFactory.TYPE_GEEK_RATING;
+	private String getInfo(Cursor cursor, DecimalFormat format) {
+		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, DEFAULT_VALUE, true, format);
 	}
 }

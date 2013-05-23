@@ -17,12 +17,12 @@ public abstract class PlayCountSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getDisplayInfo(Cursor cursor) {
-		return getScrollText(cursor) + " " + mContext.getString(R.string.plays);
+	public String getScrollText(Cursor cursor) {
+		return getIntAsString(cursor, Collection.NUM_PLAYS, "0");
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
-		return getIntAsString(cursor, Collection.NUM_PLAYS, "0");
+	public String getDisplayInfo(Cursor cursor) {
+		return getScrollText(cursor) + " " + mContext.getString(R.string.plays);
 	}
 }

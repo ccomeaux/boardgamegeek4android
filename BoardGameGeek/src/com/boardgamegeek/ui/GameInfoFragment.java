@@ -819,7 +819,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		private String getPlayingTimeDescription() {
 			if (PlayingTime > 0) {
-				return PlayingTime + " " + getResources().getString(R.string.time_suffix);
+				return PlayingTime + " " + getResources().getString(R.string.minutes_abbr);
 			}
 			return getResources().getString(R.string.text_unknown);
 		}

@@ -19,16 +19,16 @@ public class SuggestedAgeSortData extends CollectionSortData {
 	}
 
 	@Override
+	public String getScrollText(Cursor cursor) {
+		return getIntAsString(cursor, Collection.MINIMUM_AGE, DEFAULT_VALUE, true);
+	}
+
+	@Override
 	public String getDisplayInfo(Cursor cursor) {
 		String info = getScrollText(cursor);
 		if (!DEFAULT_VALUE.equals(info)) {
 			info += "+";
 		}
 		return mContext.getString(R.string.ages) + " " + info;
-	}
-
-	@Override
-	public String getScrollText(Cursor cursor) {
-		return getIntAsString(cursor, Collection.MINIMUM_AGE, DEFAULT_VALUE, true);
 	}
 }

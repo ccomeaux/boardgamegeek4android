@@ -251,9 +251,13 @@
 	<string name="at">at</string>
 	<string name="for_">for</string>
 	<string name="minutes">minutes</string>
+	<string name="minutes_abbr">mins</string>
+	<string name="minutes_i">m</string>
+	<string name="hours">hours</string>
+	<string name="hours_abbr">hrs</string>
+	<string name="hours_i">h</string>
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
-	<string name="time_suffix">mins</string>
 	<string name="ages">Ages</string>
 	<string name="language_dependence">Language Dependence</string>
 	<string name="suggested_playerage">Suggested Ages</string>
