@@ -168,4 +168,14 @@
 		<item name="android:padding">16dp</item>
 	</style>
 
+	<style name="TextLabel" parent="@style/Text.Secondary">
+		<item name="android:gravity">right</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+	</style>
+
+	<style name="TextLabel.Right" parent="@style/Text.Secondary">
+		<item name="android:gravity">left</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+	</style>
+
 </resources>

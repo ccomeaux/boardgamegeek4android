@@ -312,7 +312,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantityRoot.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
 
-		mLength.setText(String.valueOf(mPlay.Length) + " " + getString(R.string.minutes));
+		mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
 		mLengthRoot.setVisibility(mPlay.Length > 0 ? View.VISIBLE : View.GONE);
 
 		mLocation.setText(mPlay.Location);

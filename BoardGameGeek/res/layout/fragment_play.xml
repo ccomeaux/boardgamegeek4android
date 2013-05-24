@@ -31,37 +31,19 @@
 		<TableLayout
 			android:id="@+id/details"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content" >
+			android:layout_height="wrap_content"
+			android:stretchColumns="1" >
 
 			<TableRow
 				android:paddingBottom="@dimen/padding_small"
 				android:paddingTop="@dimen/padding_small" >
 
 				<TextView
-					style="@style/Text.Secondary"
-					android:gravity="right"
-					android:paddingRight="@dimen/padding_extra"
+					style="@style/TextLabel"
 					android:text="@string/on" />
 
 				<TextView
 					android:id="@+id/play_date"
-					style="@style/Text.Big"
-					android:textIsSelectable="false" />
-			</TableRow>
-
-			<TableRow
-				android:id="@+id/length_root"
-				android:paddingBottom="@dimen/padding_small"
-				android:paddingTop="@dimen/padding_small" >
-
-				<TextView
-					style="@style/Text.Secondary"
-					android:gravity="right"
-					android:paddingRight="@dimen/padding_extra"
-					android:text="@string/for_" />
-
-				<TextView
-					android:id="@+id/play_length"
 					style="@style/Text.Big"
 					android:textIsSelectable="false" />
 			</TableRow>
@@ -72,13 +54,26 @@
 				android:paddingTop="@dimen/padding_small" >
 
 				<TextView
-					style="@style/Text.Secondary"
-					android:gravity="right"
-					android:paddingRight="@dimen/padding_extra"
+					style="@style/TextLabel"
 					android:text="@string/at" />
 
 				<TextView
 					android:id="@+id/play_location"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/length_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/for_" />
+
+				<TextView
+					android:id="@+id/play_length"
 					style="@style/Text.Big"
 					android:textIsSelectable="false" />
 			</TableRow>
