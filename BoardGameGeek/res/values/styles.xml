@@ -147,6 +147,10 @@
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
+	<style name="Text.Header.Underline">
+		<item name="android:background">@drawable/underline</item>
+	</style>
+
 	<style name="Text.Header.Expandable">
 		<item name="android:drawableRight">@drawable/expander_open</item>
 		<item name="android:paddingRight">0dp</item>

@@ -25,7 +25,8 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/color_swatch" />
+			android:layout_toRightOf="@id/color_swatch"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/username"
@@ -33,7 +34,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/name"
-			android:layout_toRightOf="@id/color_swatch" />
+			android:layout_toRightOf="@id/color_swatch"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/team_color"
@@ -41,14 +43,16 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/username"
-			android:layout_toRightOf="@id/color_swatch" />
+			android:layout_toRightOf="@id/color_swatch"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/score"
 			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true" />
+			android:layout_alignParentRight="true"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/starting_position"
@@ -56,7 +60,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/score" />
+			android:layout_below="@id/score"
+			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/rating"
@@ -64,7 +69,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/starting_position" />
+			android:layout_below="@id/starting_position"
+			android:textIsSelectable="false" />
 	</RelativeLayout>
 
 	<ImageView

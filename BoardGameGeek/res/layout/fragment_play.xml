@@ -22,95 +22,152 @@
 		android:layout_gravity="center"
 		android:visibility="gone" />
 
-	<ScrollView
+	<RelativeLayout
 		android:id="@+id/play_scroll"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:fillViewport="true"
 		android:visibility="gone" >
 
-		<RelativeLayout
+		<TableLayout
+			android:id="@+id/details"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content" >
 
-			<TextView
-				android:id="@+id/play_date"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentTop="true"
-				android:paddingBottom="@dimen/padding_half"
-				android:textIsSelectable="true" />
+			<TableRow
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<TextView
-				android:id="@+id/play_quantity"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_date"
-				android:paddingBottom="@dimen/padding_half"
-				android:textIsSelectable="true" />
+				<TextView
+					style="@style/Text.Secondary"
+					android:gravity="right"
+					android:paddingRight="@dimen/padding_extra"
+					android:text="@string/on" />
 
-			<TextView
-				android:id="@+id/play_length"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_quantity"
-				android:paddingBottom="@dimen/padding_half"
-				android:textIsSelectable="true" />
+				<TextView
+					android:id="@+id/play_date"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
 
-			<TextView
-				android:id="@+id/play_location"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_length"
-				android:paddingBottom="@dimen/padding_half"
-				android:textIsSelectable="true" />
+			<TableRow
+				android:id="@+id/length_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<TextView
+				<TextView
+					style="@style/Text.Secondary"
+					android:gravity="right"
+					android:paddingRight="@dimen/padding_extra"
+					android:text="@string/for_" />
+
+				<TextView
+					android:id="@+id/play_length"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/location_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/Text.Secondary"
+					android:gravity="right"
+					android:paddingRight="@dimen/padding_extra"
+					android:text="@string/at" />
+
+				<TextView
+					android:id="@+id/play_location"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/quantity_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					android:id="@+id/play_quantity"
+					style="@style/Text.Big"
+					android:layout_column="1"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
 				android:id="@+id/play_incomplete"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_location"
-				android:paddingBottom="@dimen/padding_half"
-				android:text="@string/incomplete" />
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<TextView
+				<TextView
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_column="1"
+					android:text="@string/incomplete" />
+			</TableRow>
+
+			<TableRow
 				android:id="@+id/play_no_win_stats"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_incomplete"
-				android:paddingBottom="@dimen/padding_half"
-				android:text="@string/noWinStats" />
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<View
-				android:id="@+id/play_comments_label"
-				style="@style/BodySeparator"
-				android:layout_width="match_parent"
-				android:layout_height="1dp"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_no_win_stats" />
+				<TextView
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_column="1"
+					android:text="@string/noWinStats" />
+			</TableRow>
+		</TableLayout>
 
-			<TextView
-				android:id="@+id/play_comments"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_comments_label"
-				android:paddingBottom="@dimen/padding_half"
-				android:textIsSelectable="true" />
+		<TextView
+			android:id="@+id/play_comments_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_below="@+id/details"
+			android:paddingTop="@dimen/padding_standard"
+			android:text="@string/comments"
+			android:textIsSelectable="false" />
 
-			<LinearLayout
-				android:id="@+id/play_player_list"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_comments"
-				android:orientation="vertical" />
+		<TextView
+			android:id="@+id/play_comments"
+			style="@style/Text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_below="@+id/play_comments_label"
+			android:paddingBottom="@dimen/padding_half"
+			android:textIsSelectable="true" />
+
+		<TextView
+			android:id="@+id/play_players_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_below="@+id/play_comments"
+			android:paddingTop="@dimen/padding_standard"
+			android:text="@string/title_players"
+			android:textIsSelectable="false" />
+
+		<ListView
+			android:id="@+id/play_player_list"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_above="@+id/footer"
+			android:layout_alignParentLeft="true"
+			android:layout_below="@+id/play_players_label" />
+
+		<RelativeLayout
+			android:id="@+id/footer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentLeft="true" >
 
 			<TextView
 				android:id="@+id/play_unsynced_message"
@@ -148,6 +205,6 @@
 				android:layout_below="@+id/play_id"
 				android:textIsSelectable="true" />
 		</RelativeLayout>
-	</ScrollView>
+	</RelativeLayout>
 
 </FrameLayout>
