@@ -684,7 +684,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 			boolean needSeparator = false;
 			final int position = cursor.getPosition();
-			mCurrentSection = mSort.getScrollText(cursor);
+			mCurrentSection = mSort.getSectionText(cursor);
 			switch (mCellStates[position]) {
 				case STATE_SECTIONED_CELL:
 					needSeparator = true;
@@ -698,7 +698,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 						needSeparator = true;
 					} else {
 						cursor.moveToPosition(position - 1);
-						previousSection = mSort.getScrollText(cursor);
+						previousSection = mSort.getSectionText(cursor);
 						if (!previousSection.equals(mCurrentSection)) {
 							needSeparator = true;
 						}
