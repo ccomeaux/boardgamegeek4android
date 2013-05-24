@@ -79,6 +79,6 @@
 		android:layout_height="match_parent"
 		android:layout_gravity="right"
 		android:contentDescription="@string/delete"
-		android:src="@drawable/delete" />
+		android:src="@drawable/ic_action_delete_light" />
 
 </LinearLayout>

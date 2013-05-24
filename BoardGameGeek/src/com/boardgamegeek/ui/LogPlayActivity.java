@@ -79,7 +79,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private Play mPlay;
 	private Play mOriginalPlay;
-	private int mNextPlayerTag = 1;
 	private boolean mLaunchingActivity;
 	private long mStartTime;
 	private Random mRandom = new Random();
@@ -467,7 +466,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (PreferencesUtils.editPlayer(this)) {
 			addPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
-			addPlayer(new Player());
+			mPlay.addPlayer(new Player());
+			bindUiPlayers();
 		}
 	}
 
@@ -478,10 +478,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (resultCode == RESULT_OK) {
 			Player player = new Player(data);
 			if (requestCode == REQUEST_ADD_PLAYER) {
-				addPlayer(player);
+				mPlay.addPlayer(player);
 			} else {
-				((PlayerRow) mPlayerList.findViewWithTag(requestCode)).setPlayer(player);
+				mPlay.replacePlayer(player, requestCode - 1);
 			}
+			bindUiPlayers();
 		}
 	}
 
@@ -503,25 +504,23 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void bindUiPlayers() {
 		mPlayerList.removeAllViews();
-		for (Player player : mPlay.getPlayers()) {
-			addPlayer(player);
+		calculatePlayerCount();
+		int position = 1;
+		for (Player p : mPlay.getPlayers()) {
+			PlayerRow row = new PlayerRow(LogPlayActivity.this);
+			row.setPlayer(p);
+			row.setOnEditListener(onPlayerEdit());
+			row.setOnDeleteListener(onPlayerDelete());
+			row.setTag(position);
+			position++;
+			mPlayerList.addView(row);
 		}
 		hideFields();
 	}
 
-	private void addPlayer(Player p) {
-		PlayerRow row = new PlayerRow(this);
-		row.setPlayer(p);
-		row.setTag(mNextPlayerTag++);
-		row.setOnEditListener(onPlayerEdit());
-		row.setOnDeleteListener(onPlayerDelete());
-		mPlayerList.addView(row);
-		calculatePlayerCount();
-	}
-
 	private void calculatePlayerCount() {
 		Resources r = getResources();
-		int playerCount = mPlayerList.getChildCount();
+		int playerCount = mPlay.getPlayers().size();
 		if (playerCount <= 0) {
 			mPlayerLabel.setText(r.getString(R.string.title_players));
 		} else {
@@ -545,8 +544,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-				mPlayerList.removeView(v);
-				calculatePlayerCount();
+				mPlay.removePlayer(((PlayerRow) v).getPlayer());
+				bindUiPlayers();
 			}
 		};
 	}
@@ -572,14 +571,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_play_quantity_container).setVisibility(shouldHideQuantity() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_length_container).setVisibility(shouldHideLength() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_location_label).setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_length_label).setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
+		findViewById(R.id.log_play_length).setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
+
+		findViewById(R.id.log_play_quantity_label).setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
+		findViewById(R.id.log_play_quantity).setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
+
+		findViewById(R.id.log_play_length_quantity_root).setVisibility(
+			shouldHideLength() && shouldHideQuantity() ? View.GONE : View.VISIBLE);
+
+		findViewById(R.id.log_play_location_root).setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
 		mLocationView.setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
+
 		mIncompleteView.setVisibility(shouldHideIncomplete() ? View.GONE : View.VISIBLE);
 		mNoWinStatsView.setVisibility(shouldHideNoWinStats() ? View.GONE : View.VISIBLE);
+
 		findViewById(R.id.log_play_comments_label).setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
 		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
+
 		mPlayerLabel.setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_play_players_add).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 	}
@@ -637,15 +646,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlay.Incomplete = mIncompleteView.isChecked();
 		mPlay.NoWinStats = mNoWinStatsView.isChecked();
 		mPlay.Comments = mCommentsView.getText().toString().trim();
-		mPlay.clearPlayers();
-		for (int i = 0; i < mPlayerList.getChildCount(); i++) {
-			View view = mPlayerList.getChildAt(i);
-			if (view instanceof PlayerRow) {
-				PlayerRow pr = (PlayerRow) view;
-				Player p = pr.getPlayer();
-				mPlay.addPlayer(p);
-			}
-		}
+		// player info already captured
 	}
 
 	@Override

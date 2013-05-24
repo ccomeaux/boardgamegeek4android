@@ -7,158 +7,142 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="top"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/padding_standard"
 		android:paddingLeft="@dimen/padding_extra"
 		android:paddingRight="@dimen/padding_extra"
 		android:paddingTop="@dimen/padding_standard" >
 
-		<TextView
-			style="@style/Text.Label"
+		<TableLayout
+			android:id="@+id/details"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/username" />
+			android:stretchColumns="1" >
 
-		<AutoCompleteTextView
-			android:id="@+id/log_player_username"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:completionThreshold="1"
-			android:dropDownHeight="wrap_content"
-			android:hint="@string/username"
-			android:imeOptions="actionNext"
-			android:inputType="text"
-			android:maxLength="63"
-			android:textColor="#000" />
+			<TableRow
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-		<TextView
-			style="@style/Text.Label"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/player_name" />
+				<TextView
+					style="@style/TextLabel.Edit"
+					android:text="@string/user" />
 
-		<AutoCompleteTextView
-			android:id="@+id/log_player_name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:completionThreshold="1"
-			android:dropDownHeight="wrap_content"
-			android:hint="@string/player_name"
-			android:imeOptions="actionNext"
-			android:inputType="textPersonName|textCapWords"
-			android:maxLength="255"
-			android:textColor="#000" />
+				<AutoCompleteTextView
+					android:id="@+id/log_player_username"
+					android:layout_span="2"
+					android:completionThreshold="1"
+					android:dropDownHeight="wrap_content"
+					android:hint="@string/username"
+					android:imeOptions="actionNext"
+					android:inputType="text"
+					android:maxLength="63"
+					android:textColor="#000" />
+			</TableRow>
 
-		<TextView
-			android:id="@+id/log_player_team_color_label"
-			style="@style/Text.Label"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/team_color" />
+			<TableRow
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-		<AutoCompleteTextView
-			android:id="@+id/log_player_team_color"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:completionThreshold="1"
-			android:dropDownHeight="wrap_content"
-			android:hint="@string/team_color"
-			android:imeOptions="actionNext"
-			android:inputType="textCapSentences"
-			android:maxLength="32"
-			android:textColor="#000" />
+				<TextView
+					style="@style/TextLabel.Edit"
+					android:text="@string/name" />
 
-		<RelativeLayout
-			android:id="@+id/log_player_position_container"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content" >
+				<AutoCompleteTextView
+					android:id="@+id/log_player_name"
+					android:layout_span="2"
+					android:completionThreshold="1"
+					android:dropDownHeight="wrap_content"
+					android:hint="@string/player_name"
+					android:imeOptions="actionNext"
+					android:inputType="textPersonName|textCapWords"
+					android:maxLength="255"
+					android:textColor="#000" />
+			</TableRow>
 
-			<TextView
-				android:id="@+id/log_player_position_label"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentTop="true"
-				android:layout_toLeftOf="@+id/log_player_position_button"
-				android:text="@string/starting_position" />
+			<TableRow
+				android:id="@+id/log_player_team_color_label"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<EditText
-				android:id="@+id/log_player_position"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/log_player_position_label"
-				android:layout_toLeftOf="@+id/log_player_position_button"
-				android:hint="@string/starting_position"
-				android:imeOptions="flagNoExtractUi"
-				android:inputType="numberDecimal|numberSigned"
-				android:maxLength="32" />
+				<TextView
+					style="@style/TextLabel.Edit"
+					android:text="@string/team" />
 
-			<Button
-				android:id="@+id/log_player_position_button"
-				style="@style/Text.Footnote"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentBottom="true"
-				android:layout_alignParentRight="true"
-				android:layout_alignParentTop="true"
-				android:text="@string/number_to_text" />
-		</RelativeLayout>
+				<AutoCompleteTextView
+					android:id="@+id/log_player_team_color"
+					android:layout_span="2"
+					android:completionThreshold="1"
+					android:dropDownHeight="wrap_content"
+					android:hint="@string/team_color"
+					android:imeOptions="actionNext"
+					android:inputType="textCapSentences"
+					android:maxLength="32"
+					android:textColor="#000" />
+			</TableRow>
 
-		<RelativeLayout
-			android:id="@+id/log_player_score_container"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content" >
+			<TableRow
+				android:id="@+id/log_player_position_container"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<TextView
-				android:id="@+id/log_player_score_label"
-				style="@style/Text.Label"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentTop="true"
-				android:layout_toLeftOf="@+id/log_player_score_button"
-				android:text="@string/score" />
+				<TextView
+					android:id="@+id/log_player_position_label"
+					style="@style/TextLabel.Edit"
+					android:text="@string/starting_pos" />
 
-			<EditText
-				android:id="@+id/log_player_score"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/log_player_score_label"
-				android:layout_toLeftOf="@+id/log_player_score_button"
-				android:hint="@string/score"
-				android:imeOptions="flagNoExtractUi"
-				android:inputType="numberDecimal|numberSigned"
-				android:maxLength="32" />
+				<EditText
+					android:id="@+id/log_player_position"
+					android:hint="@string/starting_position"
+					android:imeOptions="flagNoExtractUi"
+					android:inputType="numberDecimal|numberSigned"
+					android:maxLength="32" />
 
-			<Button
-				android:id="@+id/log_player_score_button"
-				style="@style/Text.Footnote"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentBottom="true"
-				android:layout_alignParentRight="true"
-				android:layout_alignParentTop="true"
-				android:text="@string/number_to_text" />
-		</RelativeLayout>
+				<Button
+					android:id="@+id/log_player_position_button"
+					style="@style/Text.Footnote"
+					android:text="@string/number_to_text" />
+			</TableRow>
 
-		<TextView
-			android:id="@+id/log_player_rating_label"
-			style="@style/Text.Label"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/rating" />
+			<TableRow
+				android:id="@+id/log_player_score_container"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-		<EditText
-			android:id="@+id/log_player_rating"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/rating_hint"
-			android:inputType="numberDecimal"
-			android:maxLength="8" />
+				<TextView
+					android:id="@+id/log_player_score_label"
+					style="@style/TextLabel.Edit"
+					android:text="@string/score" />
+
+				<EditText
+					android:id="@+id/log_player_score"
+					android:hint="@string/score"
+					android:imeOptions="flagNoExtractUi"
+					android:inputType="numberDecimal|numberSigned"
+					android:maxLength="32" />
+
+				<Button
+					android:id="@+id/log_player_score_button"
+					style="@style/Text.Footnote"
+					android:text="@string/number_to_text" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/log_player_rating_container"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					android:id="@+id/log_player_rating_label"
+					style="@style/TextLabel.Edit"
+					android:text="@string/rating" />
+
+				<EditText
+					android:id="@+id/log_player_rating"
+					android:hint="@string/rating_hint"
+					android:inputType="numberDecimal"
+					android:maxLength="8" />
+			</TableRow>
+		</TableLayout>
 
 		<LinearLayout
 			android:layout_width="match_parent"

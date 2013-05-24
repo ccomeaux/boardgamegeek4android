@@ -271,6 +271,14 @@ public class Play {
 		mPlayers.add(player);
 	}
 
+	public void removePlayer(Player player) {
+		mPlayers.remove(player);
+	}
+
+	public void replacePlayer(Player player, int position) {
+		mPlayers.set(position, player);
+	}
+
 	public List<NameValuePair> toNameValuePairs() {
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("ajax", "1"));

@@ -14,115 +14,104 @@
 		android:paddingRight="@dimen/padding_extra"
 		android:paddingTop="@dimen/padding_standard" >
 
-		<TextView
-			style="@style/Text.Label"
+		<TableLayout
+			android:id="@+id/details"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/date" />
+			android:stretchColumns="1,2" >
 
-		<Button
-			android:id="@+id/log_play_date"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="left|center_vertical"
-			android:onClick="onDateClick" />
-
-		<TextView
-			android:id="@+id/log_play_location_label"
-			style="@style/Text.Label"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/location" />
-
-		<AutoCompleteTextView
-			android:id="@+id/log_play_location"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:completionThreshold="1"
-			android:hint="@string/location_hint"
-			android:imeOptions="actionNext"
-			android:inputType="textCapWords"
-			android:textColor="#000" />
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:baselineAligned="false"
-			android:orientation="horizontal" >
-
-			<LinearLayout
-				android:id="@+id/log_play_quantity_container"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:orientation="vertical" >
+			<TableRow
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
 				<TextView
-					android:id="@+id/log_play_quantity_label"
-					style="@style/Text.Label"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/quantity" />
+					style="@style/TextLabel.Edit"
+					android:text="@string/on" />
 
-				<EditText
-					android:id="@+id/log_play_quantity"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:hint="@string/quantity_hint"
-					android:inputType="number" />
-			</LinearLayout>
+				<Button
+					android:id="@+id/log_play_date"
+					android:layout_span="3"
+					android:gravity="left|center_vertical"
+					android:onClick="onDateClick" />
+			</TableRow>
 
-			<LinearLayout
-				android:id="@+id/log_play_length_container"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:orientation="vertical" >
+			<TableRow
+				android:id="@+id/log_play_location_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/TextLabel.Edit"
+					android:text="@string/at" />
+
+				<AutoCompleteTextView
+					android:id="@+id/log_play_location"
+					android:layout_span="3"
+					android:completionThreshold="1"
+					android:hint="@string/location_hint"
+					android:imeOptions="actionNext"
+					android:inputType="textCapWords"
+					android:textColor="#000" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/log_play_length_quantity_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
 				<TextView
 					android:id="@+id/log_play_length_label"
-					style="@style/Text.Label"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/length" />
+					style="@style/TextLabel.Edit"
+					android:text="@string/for_" />
 
 				<EditText
 					android:id="@+id/log_play_length"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
 					android:hint="@string/length_hint"
 					android:inputType="number" />
-			</LinearLayout>
-		</LinearLayout>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_vertical"
-			android:orientation="horizontal" >
+				<EditText
+					android:id="@+id/log_play_quantity"
+					android:hint="@string/quantity_hint"
+					android:inputType="number" />
 
-			<CheckBox
-				android:id="@+id/log_play_incomplete"
-				style="@style/Text.CheckboxLabel"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:checked="false"
-				android:text="@string/incomplete" />
+				<TextView
+					android:id="@+id/log_play_quantity_label"
+					style="@style/TextLabel.Edit.Right"
+					android:text="@string/times" />
+			</TableRow>
 
-			<CheckBox
-				android:id="@+id/log_play_no_win_stats"
-				style="@style/Text.CheckboxLabel"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:checked="false"
-				android:text="@string/noWinStats" />
-		</LinearLayout>
+			<TableRow
+				android:id="@+id/log_play_incomplete_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<CheckBox
+					android:id="@+id/log_play_incomplete"
+					style="@style/Text.CheckboxLabel"
+					android:layout_column="1"
+					android:layout_span="3"
+					android:checked="false"
+					android:text="@string/incomplete" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/log_play_no_win_stats_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<CheckBox
+					android:id="@+id/log_play_no_win_stats"
+					style="@style/Text.CheckboxLabel"
+					android:layout_column="1"
+					android:layout_span="3"
+					android:checked="false"
+					android:text="@string/noWinStats" />
+			</TableRow>
+		</TableLayout>
 
 		<TextView
 			android:id="@+id/log_play_comments_label"
-			style="@style/Text.Label"
+			style="@style/Text.Header.Underline"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/comments" />
@@ -143,7 +132,7 @@
 
 			<TextView
 				android:id="@+id/log_play_players_label"
-				style="@style/Text.Label"
+				style="@style/Text.Header.Underline"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -157,7 +146,7 @@
 				android:layout_gravity="right"
 				android:clickable="true"
 				android:contentDescription="@string/add"
-				android:drawableRight="@drawable/add"
+				android:drawableRight="@drawable/ic_action_add_light"
 				android:gravity="center_vertical"
 				android:onClick="onAddPlayerClick"
 				android:textIsSelectable="false" />

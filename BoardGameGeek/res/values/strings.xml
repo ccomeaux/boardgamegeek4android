@@ -45,7 +45,7 @@
 	<string name="length">Length</string>
 	<string name="length_hint">0 minutes</string>
 	<string name="location">Location</string>
-	<string name="location_hint">Game play location</string>
+	<string name="location_hint">Location</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -71,8 +71,11 @@
 	<string name="delete">Delete</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
+	<string name="user">User</string>
 	<string name="team_color">Team/Color</string>
+	<string name="team">Team</string>
 	<string name="starting_position">Starting Position</string>
+	<string name="starting_pos">#</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
 	<string name="rating_hint">0.0</string>
