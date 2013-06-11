@@ -140,6 +140,11 @@ public class SelectionBuilder {
 		return this;
 	}
 
+	public SelectionBuilder mapToTable(String column, String table, String fromColumn, String nullDefault) {
+		mProjectionMap.put(column, "IFNULL(" + table + "." + column + "," + nullDefault + ") AS " + fromColumn);
+		return this;
+	}
+
 	public SelectionBuilder map(String fromColumn, String toClause) {
 		mProjectionMap.put(fromColumn, toClause + " AS " + fromColumn);
 		return this;

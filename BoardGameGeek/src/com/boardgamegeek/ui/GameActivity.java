@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,6 +46,15 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+
+		new Handler().post(new Runnable() {
+			@Override
+			public void run() {
+				ContentValues values = new ContentValues();
+				values.put(Games.LAST_VIEWED, System.currentTimeMillis());
+				getContentResolver().update(getIntent().getData(), values, null, null);
+			}
+		});
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);

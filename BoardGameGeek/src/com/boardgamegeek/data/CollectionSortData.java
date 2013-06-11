@@ -68,6 +68,14 @@ public abstract class CollectionSortData {
 		return columnName + (isDescending ? " DESC, " : " ASC, ") + Collection.DEFAULT_SORT;
 	}
 
+	protected long getLong(Cursor cursor, String columnName) {
+		int index = cursor.getColumnIndex(columnName);
+		if (index == -1) {
+			return 0;
+		}
+		return cursor.getLong(index);
+	}
+
 	protected int getInt(Cursor cursor, String columnName) {
 		return getInt(cursor, columnName, 0);
 	}
@@ -99,7 +107,7 @@ public abstract class CollectionSortData {
 	}
 
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue) {
-		return getIntAsString(cursor, columnName, defaultValue, false);
+		return getDoubleAsString(cursor, columnName, defaultValue, false, mDoubleFormat);
 	}
 
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
