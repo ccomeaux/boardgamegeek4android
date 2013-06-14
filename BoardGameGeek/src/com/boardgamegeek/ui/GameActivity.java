@@ -71,11 +71,25 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		setupActionBarTabs(actionBar);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setupActionBarTabs(getSupportActionBar());
+		mViewPager.getAdapter().notifyDataSetChanged();
+	}
+
+	private void setupActionBarTabs(final ActionBar actionBar) {
+		actionBar.removeAllTabs();
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
-		if (isSignedIn()) {
+		if (showCollection()) {
 			actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
 		}
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+		if (showPlays()) {
+			actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+		}
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
@@ -156,8 +170,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		@Override
 		public Fragment getItem(int position) {
 			Fragment fragment = null;
-			if (position > 0 && !isSignedIn()) {
-				position--;
+			if (position > 1 && !showPlays()) {
+				position++;
+			}
+			if (position > 0 && !showCollection()) {
+				position++;
 			}
 			switch (position) {
 				case 0:
@@ -187,7 +204,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		@Override
 		public int getCount() {
-			return 5 + (isSignedIn() ? 1 : 0);
+			return 4 + (showCollection() ? 1 : 0) + (showPlays() ? 1 : 0);
 		}
 	}
 
@@ -269,8 +286,12 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		}
 	}
 
-	private boolean isSignedIn() {
+	private boolean showCollection() {
 		return Authenticator.getAccount(this) != null;
+	}
+
+	private boolean showPlays() {
+		return PreferencesUtils.getSyncPlays(this);
 	}
 
 	public void onThumbnailClick(View v) {
