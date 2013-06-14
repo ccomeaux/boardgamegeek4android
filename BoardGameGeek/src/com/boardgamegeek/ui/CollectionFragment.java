@@ -86,7 +86,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private static final String STATE_FILTERS = "STATE_FILTERS";
-	private static final String STATE_VIEW_MODIFIED = "STATE_VIEW_MODIFIED";
 
 	private int mSelectedCollectionId;
 	private boolean mFastScrollLetterEnabled;
@@ -95,7 +94,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private String mViewName = "";
 	private CollectionSortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
-	private boolean mViewModified = false;
 
 	private View mProgressView;
 	private View mListContainer;
@@ -161,7 +159,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
 			mViewName = savedInstanceState.getString(STATE_VIEW_NAME);
 			mFilters = savedInstanceState.getParcelableArrayList(STATE_FILTERS);
-			mViewModified = savedInstanceState.getBoolean(STATE_VIEW_MODIFIED);
 		}
 		setHasOptionsMenu(true);
 
@@ -242,7 +239,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		outState.putString(STATE_VIEW_NAME, mViewName);
 		outState.putInt(STATE_SORT_TYPE, mSort == null ? CollectionSortDataFactory.TYPE_UNKNOWN : mSort.getType());
 		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
-		outState.putBoolean(STATE_VIEW_MODIFIED, mViewModified);
 		if (mSelectedCollectionId > 0) {
 			outState.putInt(STATE_SELECTED_ID, mSelectedCollectionId);
 		}
@@ -298,7 +294,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
 
 			menu.findItem(R.id.menu_collection_view_save).setEnabled(
-				mViewModified && mFilters != null && mFilters.size() > 0);
+				(mFilters != null && mFilters.size() > 0)
+					|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
 
 			final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
 			item.setVisible(!mShortcut);
@@ -386,6 +383,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void onScrollStateChanged(AbsListView listView, int scrollState) {
 		if (scrollState == SCROLL_STATE_IDLE) {
 			mFastScrollLetter.setVisibility(View.GONE);
+		} else if (TextUtils.isEmpty(mFastScrollLetter.getText())) {
+			mFastScrollLetter.setVisibility(View.GONE);
 		} else {
 			mFastScrollLetter.setVisibility(View.VISIBLE);
 		}
@@ -399,15 +398,17 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			for (CollectionFilterData filter : mFilters) {
-				if (!TextUtils.isEmpty(filter.getSelection())) {
-					if (where.length() > 0) {
-						where.append(" AND ");
+				if (filter != null) {
+					if (!TextUtils.isEmpty(filter.getSelection())) {
+						if (where.length() > 0) {
+							where.append(" AND ");
+						}
+						where.append("(").append(filter.getSelection()).append(")");
+						args = StringUtils.concat(args, filter.getSelectionArgs());
 					}
-					where.append("(").append(filter.getSelection()).append(")");
-					args = StringUtils.concat(args, filter.getSelectionArgs());
-				}
-				if (!TextUtils.isEmpty(filter.getPath())) {
-					uriBuilder.appendPath(filter.getPath());
+					if (!TextUtils.isEmpty(filter.getPath())) {
+						uriBuilder.appendPath(filter.getPath());
+					}
 				}
 			}
 			Uri mUri = uriBuilder.build();
@@ -450,7 +451,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
 					mFilters.add(filter);
 				} while (cursor.moveToNext());
-				mViewModified = false;
 				requery();
 				load = false;
 			}
@@ -479,14 +479,12 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 	@Override
 	public void removeFilter(CollectionFilterData filter) {
-		mViewModified = true;
 		mFilters.remove(filter);
 		requery();
 	}
 
 	@Override
 	public void addFilter(CollectionFilterData filter) {
-		mViewModified = true;
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -496,7 +494,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 	@Override
 	public void setSort(int sortType) {
-		mViewModified = true;
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}
@@ -530,12 +527,14 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private void bindFilterButtons() {
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
 		for (CollectionFilterData filter : mFilters) {
-			Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
-			if (button == null) {
-				mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(),
-					filter.getDisplayText()));
-			} else {
-				button.setText(filter.getDisplayText());
+			if (filter != null) {
+				Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
+				if (button == null) {
+					mFilterLinearLayout.addView(createFilterButton(layoutInflater, filter.getType(),
+						filter.getDisplayText()));
+				} else {
+					button.setText(filter.getDisplayText());
+				}
 			}
 		}
 
@@ -643,7 +642,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			mViewName = "";
 			mFilters.clear();
 			mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
-			mViewModified = false;
 			requery();
 		}
 	}

@@ -14,12 +14,13 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS);
+		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS, Tables.COLLECTION_VIEWS + "."
+			+ CollectionViews._ID);
 	}
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS);
+		return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS, CollectionViewFilters.VIEW_ID);
 	}
 
 	@Override
@@ -46,10 +47,10 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 		return newUri;
 	}
 
-	private SelectionBuilder buildSelection(Uri uri, String table) {
+	private SelectionBuilder buildSelection(Uri uri, String table, String idColumnName) {
 		long filterId = CollectionViews.getViewId(uri);
 		return new SelectionBuilder().table(table)
-			.mapToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS)
-			.where(CollectionViewFilters.VIEW_ID + "=?", String.valueOf(filterId));
+			.mapToTable(CollectionViewFilters._ID, Tables.COLLECTION_VIEW_FILTERS, CollectionViewFilters._ID, "0")
+			.where(idColumnName + "=?", String.valueOf(filterId));
 	}
 }

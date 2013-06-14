@@ -106,12 +106,16 @@ public class SaveFilters {
 					final List<CollectionFilterData> filters) {
 					List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
 					for (CollectionFilterData filter : filters) {
-						ContentValues cv = new ContentValues();
-						cv.put(CollectionViewFilters.TYPE, filter.getType());
-						cv.put(CollectionViewFilters.DATA, filter.flatten());
-						cvs.add(cv);
+						if (filter != null) {
+							ContentValues cv = new ContentValues();
+							cv.put(CollectionViewFilters.TYPE, filter.getType());
+							cv.put(CollectionViewFilters.DATA, filter.flatten());
+							cvs.add(cv);
+						}
 					}
-					resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+					if (cvs.size() > 0) {
+						resolver.bulkInsert(viewFiltersUri, cvs.toArray(new ContentValues[cvs.size()]));
+					}
 				}
 			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
 
@@ -136,10 +140,12 @@ public class SaveFilters {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterData filter : filters) {
-			if (text.length() > 0) {
-				text.append("\n");
+			if (filter != null) {
+				if (text.length() > 0) {
+					text.append("\n");
+				}
+				text.append(filter.getDisplayText());
 			}
-			text.append(filter.getDisplayText());
 		}
 		if (text.length() > 0) {
 			text.append("\n");
