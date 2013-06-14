@@ -327,6 +327,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			case R.id.menu_collection_sort_rating:
 				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
+			case R.id.menu_collection_sort_last_viewed:
+				setSort(CollectionSortDataFactory.TYPE_LAST_VIEWED);
 			case R.id.menu_collection_sort_wishlist_priority:
 				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
