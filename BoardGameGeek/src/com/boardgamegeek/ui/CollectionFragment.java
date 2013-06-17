@@ -519,7 +519,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 	private CollectionFilterData findFilter(int type) {
 		for (CollectionFilterData filter : mFilters) {
-			if (filter.getType() == type) {
+			if (filter != null && filter.getType() == type) {
 				return filter;
 			}
 		}
