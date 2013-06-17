@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,10 +25,9 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 public abstract class DrawerActivity extends BaseActivity {
-	private static final String EXTRA_NAVIGATION_POSITION = "EXTRA_NAVIGATION_POSITION";
+	protected static final String EXTRA_NAVIGATION_POSITION = "EXTRA_NAVIGATION_POSITION";
 	protected DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private int mPosition;
@@ -209,8 +209,11 @@ public abstract class DrawerActivity extends BaseActivity {
 			}
 
 			if (position == mPosition) {
-				// TODO change background to be activate-able
-				UIUtils.setActivatedCompat(view, true);
+				// TODO fix this for real
+				// UIUtils.setActivatedCompat(view, true);
+				view.setBackgroundResource(R.color.accent_light_3);
+			} else {
+				view.setBackgroundColor(Color.TRANSPARENT);
 			}
 
 			return view;
