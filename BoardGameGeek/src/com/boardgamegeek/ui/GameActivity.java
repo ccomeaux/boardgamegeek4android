@@ -89,8 +89,8 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		}
 		if (showPlays()) {
 			actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+			actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
 		}
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
 	}
@@ -170,11 +170,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		@Override
 		public Fragment getItem(int position) {
 			Fragment fragment = null;
-			if (position > 1 && !showPlays()) {
-				position++;
-			}
 			if (position > 0 && !showCollection()) {
 				position++;
+			}
+			if (position > 1 && !showPlays()) {
+				position += 2;
 			}
 			switch (position) {
 				case 0:
@@ -204,7 +204,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		@Override
 		public int getCount() {
-			return 4 + (showCollection() ? 1 : 0) + (showPlays() ? 1 : 0);
+			return 3 + (showCollection() ? 1 : 0) + (showPlays() ? 2 : 0);
 		}
 	}
 
@@ -287,11 +287,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	private boolean showCollection() {
-		return Authenticator.getAccount(this) != null;
+		return Authenticator.isSignedIn(this);
 	}
 
 	private boolean showPlays() {
-		return PreferencesUtils.getSyncPlays(this);
+		return Authenticator.isSignedIn(this) && PreferencesUtils.getSyncPlays(this);
 	}
 
 	public void onThumbnailClick(View v) {
