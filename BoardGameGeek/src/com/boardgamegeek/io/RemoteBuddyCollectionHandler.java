@@ -58,7 +58,7 @@ public class RemoteBuddyCollectionHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG) {
 				tag = mParser.getName();
-				if (Tags.SORT_INDEX.equals(tag)) {
+				if (Tags.NAME.equals(tag)) {
 					sortIndex = parseIntegerAttribute(Tags.SORT_INDEX, 1);
 				}
 			} else if (type == END_TAG) {
