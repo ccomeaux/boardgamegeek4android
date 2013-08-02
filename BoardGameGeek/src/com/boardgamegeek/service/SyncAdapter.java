@@ -96,7 +96,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		HttpClient httpClient = HttpUtils.createHttpClient(mContext, account.name, accountManager.getPassword(account),
-			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
+			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY)), mUseGzip);
 		RemoteExecutor remoteExecutor = new RemoteExecutor(httpClient, mContext);
 
 		List<SyncTask> tasks = createTasks(type);

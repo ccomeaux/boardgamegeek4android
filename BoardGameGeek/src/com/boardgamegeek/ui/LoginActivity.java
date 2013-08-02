@@ -4,7 +4,6 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -29,6 +28,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AuthProfile;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.VersionUtils;
@@ -221,37 +221,26 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private void createAccount(CookieStore cs) {
 		LOGI(TAG, "Creating account");
 		final Account account = new Account(mUsername, BggApplication.ACCOUNT_TYPE);
-
-		String password = null;
+		AuthProfile ap = new AuthProfile(cs);
+		
+		mAccountManager.setAuthToken(account, BggApplication.AUTHTOKEN_TYPE, ap.authToken);
 		Bundle userData = new Bundle();
-		for (Cookie cookie : cs.getCookies()) {
-			String name = cookie.getName();
-			if (name.equals("bggpassword")) {
-				password = cookie.getValue();
-				userData.putString(Authenticator.KEY_PASSWORD_EXPIRY, String.valueOf(cookie.getExpiryDate().getTime()));
-			} else if (name.equals("SessionID")) {
-				userData.putString(Authenticator.KEY_SESSION_ID, cookie.getValue());
-				userData.putString(Authenticator.KEY_SESSION_ID_EXPIRY,
-					String.valueOf(cookie.getExpiryDate().getTime()));
-			}
-		}
+		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
+		userData.putString(Authenticator.KEY_SESSION_ID, ap.sessionId);
+		userData.putString(Authenticator.KEY_SESSION_ID_EXPIRY, String.valueOf(ap.sessionIdExpiry));
 
 		if (mRequestNewAccount) {
-			if (!mAccountManager.addAccountExplicitly(account, password, userData)) {
+			if (!mAccountManager.addAccountExplicitly(account, mPassword, userData)) {
 				Account existingAccount = Authenticator.getAccount(mAccountManager);
 				if (existingAccount != null && existingAccount.name.equals(account.name)) {
-					mAccountManager.setPassword(account, password);
-					mAccountManager.setUserData(account, Authenticator.KEY_PASSWORD_EXPIRY,
-						userData.getString(Authenticator.KEY_PASSWORD_EXPIRY));
+					mAccountManager.setPassword(account, mPassword);
 				} else {
 					mPasswordView.setError(getString(R.string.error_account_not_added));
 					return;
 				}
 			}
 		} else {
-			mAccountManager.setPassword(account, password);
-			mAccountManager.setUserData(account, Authenticator.KEY_PASSWORD_EXPIRY,
-				userData.getString(Authenticator.KEY_PASSWORD_EXPIRY));
+			mAccountManager.setPassword(account, mPassword);
 		}
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mUsername);

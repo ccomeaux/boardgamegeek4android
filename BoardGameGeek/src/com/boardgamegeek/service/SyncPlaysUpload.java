@@ -93,7 +93,7 @@ public class SyncPlaysUpload extends SyncTask {
 					}
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
-					Authenticator.signOut(mContext);
+					Authenticator.clearPassword(mContext);
 					break;
 				} else if (response.hasBadIdError()) {
 					PlayPersister.delete(mContext.getContentResolver(), play);

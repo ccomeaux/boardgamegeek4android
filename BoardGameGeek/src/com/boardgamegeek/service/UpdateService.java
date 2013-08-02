@@ -159,7 +159,7 @@ public class UpdateService extends IntentService {
 			httpClient = HttpUtils.createHttpClient(this, mUseGzip);
 		} else {
 			httpClient = HttpUtils.createHttpClient(this, account.name, accountManager.getPassword(account),
-				Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_PASSWORD_EXPIRY)), mUseGzip);
+				Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY)), mUseGzip);
 		}
 		return new RemoteExecutor(httpClient, this);
 	}

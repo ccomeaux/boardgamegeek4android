@@ -4,6 +4,9 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGV;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import org.apache.http.client.CookieStore;
+
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -16,11 +19,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.ui.LoginActivity;
+import com.boardgamegeek.util.HttpUtils;
 
 public class Authenticator extends AbstractAccountAuthenticator {
 	private static final String TAG = makeLogTag(Authenticator.class);
 
-	public static final String KEY_PASSWORD_EXPIRY = "PASSWORD_EXPIRY";
+	public static final String KEY_AUTHTOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
 	public static final String KEY_SESSION_ID = "SESSION_ID";
 	public static final String KEY_SESSION_ID_EXPIRY = "SESSION_ID_EXPIRY";
 
@@ -35,11 +39,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
 		String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 		LOGV(TAG, "Adding account: accountType=" + accountType + ", authTokenType=" + authTokenType);
-		final Intent intent = new Intent(mContext, LoginActivity.class);
-		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-		final Bundle bundle = new Bundle();
-		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-		return bundle;
+		return createLoginIntent(response, null);
 	}
 
 	@Override
@@ -68,40 +68,50 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			return result;
 		}
 
-		// Ensure the password is valid an not expired, then return the stored AuthToken
 		final AccountManager am = AccountManager.get(mContext);
+
+		// Return the cached auth token (unless expired)
+		String authToken = am.peekAuthToken(account, authTokenType);
+		if (!TextUtils.isEmpty(authToken)) {
+			if (!isKeyExpired(am, account, KEY_AUTHTOKEN_EXPIRY)) {
+				return createAuthTokenBundle(account, authToken);
+			}
+			am.invalidateAuthToken(authTokenType, authToken);
+		}
+
+		// Ensure the password is valid and not expired, then return the stored AuthToken
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			if (!isPasswordExpired(am, account)) {
-				final String authToken = am.getUserData(account, KEY_SESSION_ID);
-				if (!TextUtils.isEmpty(authToken)) {
-					final Bundle result = new Bundle();
-					result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-					result.putString(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
-					result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-					return result;
-				}
-			}
+			CookieStore cs = HttpUtils.authenticate(account.name, password);
+			AuthProfile ap = new AuthProfile(cs);
+			am.setAuthToken(account, authTokenType, ap.authToken);
+			return createAuthTokenBundle(account, ap.authToken);
 		}
 
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
 		// credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
 		LOGI(TAG, "Expired credentials...");
+		return createLoginIntent(response, account.name);
+	}
+
+	private Bundle createAuthTokenBundle(Account account, String authToken) {
+		final Bundle result = new Bundle();
+		result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+		result.putString(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
+		result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+		return result;
+	}
+
+	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
 		final Intent intent = new Intent(mContext, LoginActivity.class);
-		intent.putExtra(LoginActivity.EXTRA_USERNAME, account.name);
+		if (!TextUtils.isEmpty(accountName)) {
+			intent.putExtra(LoginActivity.EXTRA_USERNAME, accountName);
+		}
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 		final Bundle bundle = new Bundle();
 		bundle.putParcelable(AccountManager.KEY_INTENT, intent);
 		return bundle;
 	}
-
-	private boolean isPasswordExpired(final AccountManager am, Account account) {
-		return isKeyExpired(am, account, Authenticator.KEY_PASSWORD_EXPIRY);
-	}
-
-	// private boolean isSessionExpired(final AccountManager am, Account account) {
-	// return isKeyExpired(am, account, Authenticator.KEY_SESSION_ID_EXPIRY);
-	// }
 
 	private boolean isKeyExpired(final AccountManager am, Account account, String key) {
 		String expiration = am.getUserData(account, key);
@@ -165,7 +175,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return false;
 	}
 
-	public static void signOut(Context context) {
+	public static void clearPassword(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
 		accountManager.clearPassword(account);
