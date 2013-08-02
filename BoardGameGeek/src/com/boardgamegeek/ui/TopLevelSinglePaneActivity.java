@@ -49,4 +49,9 @@ public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 		getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE).commit();
 	}
 
+	protected void startHomeActivity() {
+		Intent intent = new Intent(this, HomeActivity.class);
+		startActivity(intent);
+		finish();
+	}
 }
