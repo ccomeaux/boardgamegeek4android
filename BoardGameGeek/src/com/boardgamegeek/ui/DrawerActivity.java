@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class DrawerActivity extends BaseActivity {
+	private static final int REQUEST_SIGNIN = 1;
 	protected static final String EXTRA_NAVIGATION_POSITION = "EXTRA_NAVIGATION_POSITION";
 	protected DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -79,6 +80,12 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+		if (requestCode == REQUEST_SIGNIN && resultCode == RESULT_OK) {
+			onSignInSuccess();
+		}
+	}
+
+	protected void onSignInSuccess() {
 	}
 
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -108,7 +115,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					intent = new Intent(this, ForumsActivity.class);
 					break;
 				case R.string.title_signin:
-					startActivityForResult(new Intent(this, LoginActivity.class), 0);
+					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGNIN);
 					break;
 			}
 			if (intent != null) {

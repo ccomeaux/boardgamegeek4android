@@ -20,19 +20,8 @@ public class HomeActivity extends TopLevelActivity {
 		super.onCreate(savedInstanceState);
 
 		if (Authenticator.isSignedIn(this)) {
-			Intent intent = null;
-			String[] statuses = PreferencesUtils.getSyncStatuses(this);
-			if (statuses != null && statuses.length > 0) {
-				intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
-			} else if (PreferencesUtils.getSyncPlays(this)) {
-				intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
-			} else if (PreferencesUtils.getSyncBuddies(this)) {
-				intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
-			}
-			if (intent != null) {
-				intent.putExtra(EXTRA_NAVIGATION_POSITION, 0);
-				startActivity(intent);
-				finish();
+			if (startUserActivity()) {
+				return;
 			}
 		}
 
@@ -48,5 +37,29 @@ public class HomeActivity extends TopLevelActivity {
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.search_only;
+	}
+
+	@Override
+	protected void onSignInSuccess() {
+		startUserActivity();
+	}
+
+	private boolean startUserActivity() {
+		Intent intent = null;
+		String[] statuses = PreferencesUtils.getSyncStatuses(this);
+		if (statuses != null && statuses.length > 0) {
+			intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+		} else if (PreferencesUtils.getSyncPlays(this)) {
+			intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
+		} else if (PreferencesUtils.getSyncBuddies(this)) {
+			intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
+		}
+		if (intent != null) {
+			intent.putExtra(EXTRA_NAVIGATION_POSITION, 0);
+			startActivity(intent);
+			finish();
+			return true;
+		}
+		return false;
 	}
 }
