@@ -95,7 +95,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void signOut() {
+	protected void signOut() {
 		AccountManager am = AccountManager.get(BaseActivity.this);
 		final Account account = Authenticator.getAccount(am);
 		am.removeAccount(account, new AccountManagerCallback<Boolean>() {

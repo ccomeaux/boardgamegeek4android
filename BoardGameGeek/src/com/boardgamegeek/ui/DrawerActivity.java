@@ -65,9 +65,13 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
-		}
+		refreshDrawer();
+	}
+
+	@Override
+	protected void onSignoutSuccess() {
+		super.onSignoutSuccess();
+		refreshDrawer();
 	}
 
 	public boolean isDrawerOpen() {
@@ -77,15 +81,19 @@ public abstract class DrawerActivity extends BaseActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
-		}
 		if (requestCode == REQUEST_SIGNIN && resultCode == RESULT_OK) {
 			onSignInSuccess();
 		}
 	}
 
 	protected void onSignInSuccess() {
+		refreshDrawer();
+	}
+
+	private void refreshDrawer() {
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {

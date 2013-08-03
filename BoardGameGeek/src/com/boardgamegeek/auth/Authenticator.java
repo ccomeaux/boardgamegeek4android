@@ -181,6 +181,13 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		accountManager.clearPassword(account);
 	}
 
+	public static boolean isOldAuth(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		String data = accountManager.getUserData(account, "PASSWORD_EXPIRY");
+		return data != null;
+	}
+
 	// StringBuilder sb = new StringBuilder();
 	// sb.append("ACCOUNT").append("\n");
 	// sb.append("Name:       ").append(account.name).append("\n");

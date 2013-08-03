@@ -20,7 +20,9 @@ public class HomeActivity extends TopLevelActivity {
 		super.onCreate(savedInstanceState);
 
 		if (Authenticator.isSignedIn(this)) {
-			if (startUserActivity()) {
+			if (Authenticator.isOldAuth(this)) {
+				signOut();
+			} else if (startUserActivity()) {
 				return;
 			}
 		}
@@ -41,6 +43,7 @@ public class HomeActivity extends TopLevelActivity {
 
 	@Override
 	protected void onSignInSuccess() {
+		super.onSignInSuccess();
 		startUserActivity();
 	}
 
