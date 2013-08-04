@@ -293,7 +293,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		private static final int STATE_SECTIONED_CELL = 1;
 		private static final int STATE_REGULAR_CELL = 2;
 
-		SimpleDateFormat mFormatter = new SimpleDateFormat("MMMMM", Locale.getDefault());
+		SimpleDateFormat mFormatter = new SimpleDateFormat("MMMM", Locale.getDefault());
 		GregorianCalendar mCalendar = new GregorianCalendar();
 		private LayoutInflater mInflater;
 		private int mRowResId = R.layout.row_play;

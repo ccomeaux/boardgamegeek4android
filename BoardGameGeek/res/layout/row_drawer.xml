@@ -30,12 +30,12 @@
 
 		<TextView
 			android:id="@android:id/text1"
+			style="@style/Text.Primary"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:fontFamily="sans-serif"
 			android:gravity="center_vertical"
-			android:textIsSelectable="false"
-			android:textSize="18sp"
-			android:textStyle="bold" />
+			android:textIsSelectable="false" />
 	</LinearLayout>
 
 </LinearLayout>
