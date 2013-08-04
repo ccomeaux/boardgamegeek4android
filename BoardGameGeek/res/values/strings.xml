@@ -299,6 +299,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- MOD: New authentication; you will be logged out
 - NEW: Navigation drawer replaces the dashboard<br/>
 - NEW: Collection tab in the game view<br/>
 - MOD: Improved usability in lists, especially the Collection<br/>
@@ -309,6 +310,7 @@
 - MOD: Collection list now shows collection thumbnail (not the game thumbnail)<br/>
 <i>GeekBuddy enhancements</i><br/>
 - NEW: Show plays you\'ve logged with them<br/>
+- MOD: View collection statuses other than owned<br/>
 - NEW: Refresh<br/>
 - NEW: Change nickname used while logging plays<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
@@ -326,7 +328,7 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<string name="help_title">Help</string>
 	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
-	<string name="help_collection">Got lots of games? Click the Menu button to filter your collection and choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
+	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Too many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_colors">As you log plays, the teams and colors you enter appear here and will be available the next time you log a game. Long press on an entry here to delete it.</string>

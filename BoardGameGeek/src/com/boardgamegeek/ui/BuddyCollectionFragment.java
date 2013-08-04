@@ -28,6 +28,10 @@ import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -41,30 +45,77 @@ import com.boardgamegeek.util.UIUtils;
 public class BuddyCollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
 	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
+	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
+	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
 	private BuddyGamesAdapter mGamesAdapter;
+	private SubMenu mSubMenu;
 	private String mUrl;
+	private String mName;
+	private String mStatusValue;
+	private String mStatusLabel;
+	private String[] mStatusValues;
+	private String[] mStatusEntries;
+
+	public interface Callbacks {
+		public void onCollectionStatusChanged(String status);
+	}
+
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override
+		public void onCollectionStatusChanged(String status) {
+		}
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		String name = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		mName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
 
-		if (TextUtils.isEmpty(name)) {
+		if (TextUtils.isEmpty(mName)) {
 			LOGW(TAG, "Missing buddy name.");
 			return;
 		}
 
-		mUrl = new CollectionUrlBuilder(name).status("own").build();
+		mStatusEntries = getResources().getStringArray(R.array.pref_sync_status_entries);
+		mStatusValues = getResources().getStringArray(R.array.pref_sync_status_values);
+
+		setHasOptionsMenu(true);
+		if (savedInstanceState == null) {
+			mStatusValue = mStatusValues[0];
+			mStatusLabel = mStatusEntries[0];
+		} else {
+			mStatusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
+			mStatusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
+		}
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_buddy_collection));
-		getLoaderManager().initLoader(BUDDY_GAMES_LOADER_ID, null, this);
+		reload();
 	}
 
 	@Override
@@ -74,6 +125,64 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		if (holder != null) {
 			ActivityUtils.launchGame(getActivity(), Integer.parseInt(holder.id), holder.name.getText().toString());
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putString(STATE_STATUS_VALUE, mStatusValue);
+		outState.putString(STATE_STATUS_LABEL, mStatusLabel);
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		mSubMenu = menu.addSubMenu(1, Menu.FIRST + 99, 0, R.string.menu_collection_status);
+		for (int i = 0; i < mStatusEntries.length; i++) {
+			mSubMenu.add(1, Menu.FIRST + i, i, mStatusEntries[i]);
+		}
+		mSubMenu.setGroupCheckable(1, true, true);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		// check the proper submenu item
+		if (mSubMenu != null) {
+			for (int i = 0; i < mSubMenu.size(); i++) {
+				MenuItem mi = mSubMenu.getItem(i);
+				if (mi.getTitle().equals(mStatusLabel)) {
+					mi.setChecked(true);
+					break;
+				}
+			}
+		}
+		super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		String status = "";
+		int i = id - Menu.FIRST;
+		if (i >= 0 && i < mStatusValues.length) {
+			status = mStatusValues[i];
+		}
+
+		if (!TextUtils.isEmpty(status) && !status.equals(mStatusValue)) {
+			mStatusValue = status;
+			mStatusLabel = mStatusEntries[i];
+
+			reload();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void reload() {
+		mCallbacks.onCollectionStatusChanged(mStatusLabel);
+		mUrl = new CollectionUrlBuilder(mName).status(mStatusValue).build();
+		setListShown(false);
+		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
 	@Override
@@ -87,8 +196,12 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 			return;
 		}
 
-		mGamesAdapter = new BuddyGamesAdapter(getActivity(), games);
-		setListAdapter(mGamesAdapter);
+		if (mGamesAdapter == null) {
+			mGamesAdapter = new BuddyGamesAdapter(getActivity(), games);
+			setListAdapter(mGamesAdapter);
+		} else {
+			mGamesAdapter.setGames(games);
+		}
 
 		if (loaderHasError()) {
 			setEmptyText(loaderErrorMessage());
@@ -140,10 +253,13 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
 			RemoteBuddyCollectionHandler handler = new RemoteBuddyCollectionHandler();
 
-			LOGI(TAG, "Loading buddy collection from " + mUrl);
-			executor.safelyExecuteGet(mUrl, handler);
-			mErrorMessage = handler.getErrorMessage();
-
+			if (TextUtils.isEmpty(mUrl)) {
+				LOGW(TAG, "No URL set for buddy collection");
+			} else {
+				LOGI(TAG, "Loading buddy collection from " + mUrl);
+				executor.safelyExecuteGet(mUrl, handler);
+				mErrorMessage = handler.getErrorMessage();
+			}
 			return handler.getResults();
 		}
 
@@ -193,12 +309,25 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		public BuddyGamesAdapter(Activity activity, List<BuddyGame> games) {
 			super(activity, R.layout.row_collection, games);
 			mInflater = activity.getLayoutInflater();
-			mBuddyGames = games;
-			mCellStates = games == null ? null : new int[games.size()];
+			setGames(games);
+		}
 
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+			updateIndex();
+		}
+
+		public void setGames(List<BuddyGame> games) {
+			mBuddyGames = games;
+			mCellStates = mBuddyGames == null ? null : new int[mBuddyGames.size()];
+			notifyDataSetChanged();
+		}
+
+		private void updateIndex() {
 			// Create indexer
 			mIndexer = new HashMap<String, Integer>();
-			int size = games.size();
+			int size = mBuddyGames.size();
 			for (int i = size - 1; i >= 0; i--) {
 				String index = getIndexForPosition(i);
 				mIndexer.put(index, i);
@@ -208,6 +337,11 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 			Collections.sort(sections);
 			mSections = new String[sections.size()];
 			sections.toArray(mSections);
+		}
+		
+		@Override
+		public int getCount() {
+			return mBuddyGames.size();
 		}
 
 		@Override
@@ -290,8 +424,11 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		}
 
 		private String getIndexForPosition(int position) {
-			BuddyGame game = mBuddyGames.get(position);
-			return game.Name.substring(0, 1).toUpperCase(Locale.getDefault());
+			if (position < mBuddyGames.size()) {
+				BuddyGame game = mBuddyGames.get(position);
+				return game.SortName.substring(0, 1).toUpperCase(Locale.getDefault());
+			}
+			return "";
 		}
 	}
 

@@ -25,7 +25,7 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
-	BuddyFragment.Callbacks, PlaysFragment.Callbacks {
+	BuddyFragment.Callbacks, BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -155,6 +155,15 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	@Override
 	public void onNameChanged(String name) {
 		changeName(name);
+	}
+
+	@Override
+	public void onCollectionStatusChanged(String status) {
+		String text = getString(R.string.title_collection);
+		if (!TextUtils.isEmpty(status)) {
+			text += " - " + status;
+		}
+		getSupportActionBar().getTabAt(1).setText(text);
 	}
 
 	@Override
