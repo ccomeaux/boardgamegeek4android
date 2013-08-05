@@ -44,17 +44,11 @@
 				android:text="@string/empty_collection" />
 		</FrameLayout>
 
-		<View
-			android:id="@+id/collection_info_header"
-			android:layout_width="match_parent"
-			android:layout_height="2dp"
-			android:background="@color/background_dark" />
-
 		<HorizontalScrollView
 			android:id="@+id/filter_scroll_view"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/accent_light"
+			android:background="@color/background_dark"
 			android:scrollbars="none" >
 
 			<LinearLayout
