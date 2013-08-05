@@ -1,5 +1,7 @@
 package com.boardgamegeek.auth;
 
+import java.util.Date;
+
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 
@@ -9,12 +11,20 @@ public class AuthProfile {
 			String name = cookie.getName();
 			if (name.equals("bggpassword")) {
 				authToken = cookie.getValue();
-				authTokenExpiry = cookie.getExpiryDate().getTime();
+				authTokenExpiry = getExpiryTime(cookie);
 			} else if (name.equals("SessionID")) {
 				sessionId = cookie.getValue();
-				sessionIdExpiry = cookie.getExpiryDate().getTime();
+				sessionIdExpiry = getExpiryTime(cookie);
 			}
 		}
+	}
+
+	private long getExpiryTime(Cookie cookie) {
+		Date date = cookie.getExpiryDate();
+		if (date == null) {
+			return 0;
+		}
+		return date.getTime();
 	}
 
 	public String authToken;

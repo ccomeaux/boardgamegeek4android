@@ -171,4 +171,6 @@
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
+	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Dialog" />
+
 </resources>

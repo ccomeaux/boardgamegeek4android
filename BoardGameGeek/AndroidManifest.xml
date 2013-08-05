@@ -246,7 +246,7 @@
 			android:configChanges="orientation|screenSize"
 			android:excludeFromRecents="true"
 			android:label="@string/title_login"
-			android:theme="@android:style/Theme.Dialog"
+			android:theme="@style/Theme.bgglight.Dialog"
 			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<service
