@@ -9,7 +9,7 @@ public class AverageWeightDescendingSortData extends AverageWeightSortData {
 	public AverageWeightDescendingSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.STATS_AVERAGE_WEIGHT, true);
-		mDescriptionId = R.string.menu_collection_sort_weight_heaviest;
+		mSubDescriptionId = R.string.heaviest;
 	}
 
 	@Override

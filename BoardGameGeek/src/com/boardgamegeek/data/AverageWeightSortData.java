@@ -14,6 +14,7 @@ public class AverageWeightSortData extends CollectionSortData {
 
 	public AverageWeightSortData(Context context) {
 		super(context);
+		mDescriptionId = R.string.menu_collection_sort_weight;
 	}
 
 	@Override

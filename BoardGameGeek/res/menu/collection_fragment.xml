@@ -19,37 +19,23 @@
 			<item
 				android:id="@+id/menu_collection_sort_wishlist_priority"
 				android:title="@string/menu_collection_sort_wishlist_priority"/>
-
-			<!-- <item -->
-			<!-- android:id="@+id/menu_collection_sort_played_most" -->
-			<!-- android:title="@string/menu_collection_sort_played_most"/> -->
-			<!-- <item -->
-			<!-- android:id="@+id/menu_collection_sort_played_least" -->
-			<!-- android:title="@string/menu_collection_sort_played_least"/> -->
+			<!--
+				<item
+				android:id="@+id/menu_collection_sort_plays"
+				android:title="@string/menu_collection_sort_plays"/>
+			-->
 			<item
-				android:id="@+id/menu_collection_sort_published_newest"
-				android:title="@string/menu_collection_sort_published_newest"/>
+				android:id="@+id/menu_collection_sort_published"
+				android:title="@string/menu_collection_sort_published"/>
 			<item
-				android:id="@+id/menu_collection_sort_published_oldest"
-				android:title="@string/menu_collection_sort_published_oldest"/>
+				android:id="@+id/menu_collection_sort_playtime"
+				android:title="@string/menu_collection_sort_playtime"/>
 			<item
-				android:id="@+id/menu_collection_sort_playtime_shortest"
-				android:title="@string/menu_collection_sort_playtime_shortest"/>
+				android:id="@+id/menu_collection_sort_age"
+				android:title="@string/menu_collection_sort_age"/>
 			<item
-				android:id="@+id/menu_collection_sort_playtime_longest"
-				android:title="@string/menu_collection_sort_playtime_longest"/>
-			<item
-				android:id="@+id/menu_collection_sort_age_youngest"
-				android:title="@string/menu_collection_sort_age_youngest"/>
-			<item
-				android:id="@+id/menu_collection_sort_age_oldest"
-				android:title="@string/menu_collection_sort_age_oldest"/>
-			<item
-				android:id="@+id/menu_collection_sort_weight_lighest"
-				android:title="@string/menu_collection_sort_weight_lightest"/>
-			<item
-				android:id="@+id/menu_collection_sort_weight_heaviest"
-				android:title="@string/menu_collection_sort_weight_heaviest"/>
+				android:id="@+id/menu_collection_sort_weight"
+				android:title="@string/menu_collection_sort_weight"/>
 		</menu>
 	</item>
 	<item

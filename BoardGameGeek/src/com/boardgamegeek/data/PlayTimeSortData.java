@@ -9,6 +9,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 public class PlayTimeSortData extends CollectionSortData {
 	public PlayTimeSortData(Context context) {
 		super(context);
+		mDescriptionId = R.string.menu_collection_sort_playtime;
 	}
 
 	@Override

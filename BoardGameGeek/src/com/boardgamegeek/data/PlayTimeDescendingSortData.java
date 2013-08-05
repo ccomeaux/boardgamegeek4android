@@ -9,7 +9,7 @@ public class PlayTimeDescendingSortData extends PlayTimeSortData {
 	public PlayTimeDescendingSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.PLAYING_TIME, true);
-		mDescriptionId = R.string.menu_collection_sort_playtime_longest;
+		mSubDescriptionId = R.string.longest;
 	}
 
 	@Override

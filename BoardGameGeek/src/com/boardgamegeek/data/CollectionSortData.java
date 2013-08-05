@@ -14,18 +14,19 @@ public abstract class CollectionSortData {
 	protected Context mContext;
 	protected String mOrderByClause;
 	protected int mDescriptionId;
+	protected int mSubDescriptionId;
 	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
 
 	public CollectionSortData(Context context) {
 		mContext = context;
 	}
 
-	public int getDescriptionId() {
-		return mDescriptionId;
-	}
-
 	public String getDescription() {
-		return String.format(mContext.getString(R.string.sort_description), mContext.getString(mDescriptionId));
+		String decription = String.format(mContext.getString(R.string.sort_description), mContext.getString(mDescriptionId));
+		if (mSubDescriptionId > 0) {
+			decription += " - " + mContext.getString(mSubDescriptionId);
+		}
+		return decription;
 	}
 
 	public String getOrderByClause() {

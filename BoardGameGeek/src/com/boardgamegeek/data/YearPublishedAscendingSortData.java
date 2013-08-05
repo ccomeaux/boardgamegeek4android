@@ -9,7 +9,7 @@ public class YearPublishedAscendingSortData extends YearPublishedSortData {
 	public YearPublishedAscendingSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.YEAR_PUBLISHED, false);
-		mDescriptionId = R.string.menu_collection_sort_published_oldest;
+		mSubDescriptionId = R.string.oldest;
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public class SuggestedAgeAscendingSortData extends SuggestedAgeSortData {
 	public SuggestedAgeAscendingSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.MINIMUM_AGE, false);
-		mDescriptionId = R.string.menu_collection_sort_age_youngest;
+		mSubDescriptionId = R.string.youngest;
 	}
 
 	@Override

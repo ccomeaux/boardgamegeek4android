@@ -3,11 +3,13 @@ package com.boardgamegeek.data;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public abstract class YearPublishedSortData extends CollectionSortData {
 	public YearPublishedSortData(Context context) {
 		super(context);
+		mDescriptionId = R.string.menu_collection_sort_published;
 	}
 
 	@Override

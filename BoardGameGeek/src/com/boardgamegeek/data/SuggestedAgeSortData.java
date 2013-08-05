@@ -11,6 +11,7 @@ public class SuggestedAgeSortData extends CollectionSortData {
 
 	public SuggestedAgeSortData(Context context) {
 		super(context);
+		mDescriptionId = R.string.menu_collection_sort_age;
 	}
 
 	@Override

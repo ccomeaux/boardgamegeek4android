@@ -329,38 +329,26 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				return true;
 			case R.id.menu_collection_sort_last_viewed:
 				setSort(CollectionSortDataFactory.TYPE_LAST_VIEWED);
+				return true;
 			case R.id.menu_collection_sort_wishlist_priority:
 				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
-			case R.id.menu_collection_sort_published_newest:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC);
+			case R.id.menu_collection_sort_published:
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC,
+					CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
-			case R.id.menu_collection_sort_published_oldest:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+			case R.id.menu_collection_sort_playtime:
+				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC, CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
 				return true;
-			case R.id.menu_collection_sort_playtime_shortest:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC);
+			case R.id.menu_collection_sort_age:
+				setSort(CollectionSortDataFactory.TYPE_AGE_ASC, CollectionSortDataFactory.TYPE_AGE_DESC);
 				return true;
-			case R.id.menu_collection_sort_playtime_longest:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
+			case R.id.menu_collection_sort_weight:
+				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
-			case R.id.menu_collection_sort_age_youngest:
-				setSort(CollectionSortDataFactory.TYPE_AGE_ASC);
-				return true;
-			case R.id.menu_collection_sort_age_oldest:
-				setSort(CollectionSortDataFactory.TYPE_AGE_DESC);
-				return true;
-			case R.id.menu_collection_sort_weight_lighest:
-				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC);
-				return true;
-			case R.id.menu_collection_sort_weight_heaviest:
-				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
-				return true;
-				// case R.id.menu_collection_sort_played_most:
-				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC);
-				// return true;
-				// case R.id.menu_collection_sort_played_least:
-				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				// case R.id.menu_collection_sort_plays:
+				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC,
+				// CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
 				// return true;
 		}
 
@@ -501,6 +489,14 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
 		requery();
+	}
+
+	private void setSort(int sortType, int sortType2) {
+		if (mSort.getType() == sortType) {
+			setSort(sortType2);
+		} else {
+			setSort(sortType);
+		}
 	}
 
 	@Override
