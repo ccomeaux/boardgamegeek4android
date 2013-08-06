@@ -206,6 +206,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					collectionValues.put(Collection.LAST_MODIFIED, parseDateAttribute(Tags.LAST_MODIFIED));
 				} else if (Tags.RATING.equals(tag)) {
 					collectionValues.put(Collection.RATING, parseDoubleAttribute(Tags.VALUE));
+				} else if (Tags.NUM_PLAYS.equals(tag)) {
+					gameValues.put(Games.NUM_PLAYS, parseIntegerAttribute(Tags.NUM_PLAYS));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 						parseStringAttribute(Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
@@ -245,8 +247,6 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				} else if (Tags.THUMBNAIL.equals(tag)) {
 					collectionValues.put(Collection.COLLECTION_THUMBNAIL_URL, text);
 					gameValues.put(Games.THUMBNAIL_URL, text);
-				} else if (Tags.NUM_PLAYS.equals(tag)) {
-					gameValues.put(Games.NUM_PLAYS, parseIntegerAttribute(Tags.NUM_PLAYS));
 				} else if (Tags.COMMENT.equals(tag)) {
 					collectionValues.put(Collection.COMMENT, text);
 				} else if (Tags.CONDITION.equals(tag)) {
