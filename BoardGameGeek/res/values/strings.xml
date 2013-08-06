@@ -304,20 +304,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
-- MOD: New authentication; you will be logged out
-- NEW: Navigation drawer replaces the dashboard<br/>
-- NEW: Collection tab in the game view<br/>
-- MOD: Improved usability in lists, especially the Collection<br/>
-- NEW: Options to sync only when charging or on Wifi<br/>
-- NEW: Sort games by last viewed date/time<br/>
-- NEW: Sort comments by rating instead of user<br/>
-- NEW: Now you can cancel a sync (through the notification or a menu option on the home screen)<br/>
-- MOD: Collection list now shows collection thumbnail (not the game thumbnail)<br/>
-<i>GeekBuddy enhancements</i><br/>
-- NEW: Show plays you\'ve logged with them<br/>
-- MOD: View collection statuses other than owned<br/>
-- NEW: Refresh<br/>
-- NEW: Change nickname used while logging plays<br/>
+- Not much yet...<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
