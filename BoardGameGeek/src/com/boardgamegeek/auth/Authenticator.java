@@ -169,16 +169,18 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static boolean isSignedIn(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		if (account != null) {
-			return !TextUtils.isEmpty(accountManager.getPassword(account));
-		}
-		return false;
+		return account != null;
 	}
 
 	public static void clearPassword(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		accountManager.clearPassword(account);
+		String authToken = accountManager.peekAuthToken(account, BggApplication.AUTHTOKEN_TYPE);
+		if (authToken != null) {
+			accountManager.invalidateAuthToken(BggApplication.AUTHTOKEN_TYPE, authToken);
+		} else {
+			accountManager.clearPassword(account);
+		}
 	}
 
 	public static boolean isOldAuth(Context context) {
