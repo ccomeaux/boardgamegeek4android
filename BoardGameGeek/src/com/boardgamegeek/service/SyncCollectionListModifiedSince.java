@@ -52,7 +52,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				}
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 				try {
-					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false);
+					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false, true);
 					String url = new CollectionUrlBuilder(account.name).status(statuses[i])
 						.modifiedSince(modifiedSince).stats().build();
 					executor.executeGet(url, handler);

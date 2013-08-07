@@ -32,7 +32,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	// TODO: Parse Version Info
 
 	private long mStartTime;
-	private boolean mUpdate;
+	private boolean mComplete;
+	private boolean mUpdateGame;
 	private int mUpdateGameCount = 0;
 	private int mInsertGameCount = 0;
 	private int mSkipGameCount = 0;
@@ -41,10 +42,21 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	private int mSkipCollectionCount = 0;
 	private List<Integer> mInsertedGameIds;
 
-	public RemoteCollectionHandler(long startTime, boolean update) {
+	/**
+	 * 
+	 * @param startTime
+	 * @param complete
+	 *            True if the data is complete and the record can be marked as
+	 *            updated
+	 * @param updateGame
+	 *            True to update the game record (false saves time, especially
+	 *            when sync a large portion of the collection
+	 */
+	public RemoteCollectionHandler(long startTime, boolean complete, boolean updateGame) {
 		super();
 		mStartTime = startTime;
-		mUpdate = update;
+		mComplete = complete;
+		mUpdateGame = updateGame;
 	}
 
 	@Override
@@ -86,12 +98,11 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				int collectionId = parseIntegerAttribute(Tags.COLLECTION_ID);
 
 				gameValues.clear();
-				gameValues.put(Games.GAME_ID, gameId);
 				gameValues.put(Games.UPDATED_LIST, mStartTime);
 
 				collectionValues.clear();
 				collectionValues.put(Collection.GAME_ID, gameId);
-				if (mUpdate) {
+				if (mComplete) {
 					collectionValues.put(Collection.UPDATED, mStartTime);
 				}
 				collectionValues.put(Collection.UPDATED_LIST, mStartTime);
@@ -104,7 +115,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 
 				parseItem(gameValues, collectionValues);
 
-				boolean yield = maybeInsertGame(gameId, gameValues);
+				boolean yield = insertOrUpdateGame(gameId, gameValues);
 				insertOrUpdateCollectionItem(collectionId, collectionValues, !yield);
 
 				batchCount++;
@@ -117,18 +128,24 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			}
 		}
 		LOGI(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
-			+ " games");
+				+ " games");
 		LOGI(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
 			+ mSkipCollectionCount + " collection items");
 	}
 
-	private boolean maybeInsertGame(int gameId, ContentValues values) {
+	private boolean insertOrUpdateGame(int gameId, ContentValues values) {
 		if (mInsertedGameIds.contains(gameId)) {
 			mSkipGameCount++;
 		} else if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(gameId))) {
-			mSkipGameCount++;
+			if (mUpdateGame) {
+				addUpdate(Games.buildGameUri(gameId), values);
+				mUpdateGameCount++;
+			} else {
+				mSkipGameCount++;
+			}
 		} else {
 			mInsertGameCount++;
+			values.put(Games.GAME_ID, gameId);
 			addInsert(Games.CONTENT_URI, values, true);
 			mInsertedGameIds.add(gameId);
 			return true;
@@ -206,8 +223,6 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					collectionValues.put(Collection.LAST_MODIFIED, parseDateAttribute(Tags.LAST_MODIFIED));
 				} else if (Tags.RATING.equals(tag)) {
 					collectionValues.put(Collection.RATING, parseDoubleAttribute(Tags.VALUE));
-				} else if (Tags.NUM_PLAYS.equals(tag)) {
-					gameValues.put(Games.NUM_PLAYS, parseIntegerAttribute(Tags.NUM_PLAYS));
 				} else if (Tags.PRIVATE_INFO.equals(tag)) {
 					collectionValues.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY,
 						parseStringAttribute(Tags.PRIVATE_INFO_PRICE_PAID_CURRENCY));
@@ -247,6 +262,8 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				} else if (Tags.THUMBNAIL.equals(tag)) {
 					collectionValues.put(Collection.COLLECTION_THUMBNAIL_URL, text);
 					gameValues.put(Games.THUMBNAIL_URL, text);
+				} else if (Tags.NUM_PLAYS.equals(tag)) {
+					gameValues.put(Games.NUM_PLAYS, StringUtils.parseInt(text));
 				} else if (Tags.COMMENT.equals(tag)) {
 					collectionValues.put(Collection.COMMENT, text);
 				} else if (Tags.CONDITION.equals(tag)) {
