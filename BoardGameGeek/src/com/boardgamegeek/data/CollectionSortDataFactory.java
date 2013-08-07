@@ -18,6 +18,7 @@ public class CollectionSortDataFactory {
 	public static final int TYPE_AVERAGE_WEIGHT_DESC = 12;
 	public static final int TYPE_WISHLIST_PRIORITY = 13;
 	public static final int TYPE_LAST_VIEWED = 14;
+	public static final int TYPE_MY_RATING = 15;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
 	public static CollectionSortData create(int type, Context context) {
@@ -50,6 +51,8 @@ public class CollectionSortDataFactory {
 				return new WishlistPrioritySortData(context);
 			case TYPE_LAST_VIEWED:
 				return new LastViewedSortData(context);
+			case TYPE_MY_RATING:
+				return new MyRatingSortData(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

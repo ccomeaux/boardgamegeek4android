@@ -312,8 +312,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
-				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
-					cursor.getString(Query.COLLECTION_NAME));
+				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
 				SaveFilters.createDialog(getActivity(), this, mViewName, mSort, mFilters);
@@ -327,6 +326,9 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			case R.id.menu_collection_sort_rating:
 				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
 				return true;
+			case R.id.menu_collection_sort_myrating:
+				setSort(CollectionSortDataFactory.TYPE_MY_RATING);
+				return true;
 			case R.id.menu_collection_sort_last_viewed:
 				setSort(CollectionSortDataFactory.TYPE_LAST_VIEWED);
 				return true;
@@ -334,8 +336,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
 			case R.id.menu_collection_sort_published:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC,
-					CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime:
 				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC, CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
@@ -346,10 +347,10 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			case R.id.menu_collection_sort_weight:
 				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
-				// case R.id.menu_collection_sort_plays:
-				// setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC,
-				// CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
-				// return true;
+			case R.id.menu_collection_sort_plays:
+				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC,
+				CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				return true;
 		}
 
 		if (launchFilterDialog(item.getItemId())) {

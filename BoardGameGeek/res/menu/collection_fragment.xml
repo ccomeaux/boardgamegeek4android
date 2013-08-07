@@ -14,16 +14,17 @@
 				android:id="@+id/menu_collection_sort_rating"
 				android:title="@string/menu_collection_sort_rating"/>
 			<item
+				android:id="@+id/menu_collection_sort_myrating"
+				android:title="@string/menu_collection_sort_myrating"/>
+			<item
 				android:id="@+id/menu_collection_sort_last_viewed"
 				android:title="@string/menu_collection_sort_last_viewed"/>
 			<item
 				android:id="@+id/menu_collection_sort_wishlist_priority"
 				android:title="@string/menu_collection_sort_wishlist_priority"/>
-			<!--
-				<item
+			<item
 				android:id="@+id/menu_collection_sort_plays"
 				android:title="@string/menu_collection_sort_plays"/>
-			-->
 			<item
 				android:id="@+id/menu_collection_sort_published"
 				android:title="@string/menu_collection_sort_published"/>
