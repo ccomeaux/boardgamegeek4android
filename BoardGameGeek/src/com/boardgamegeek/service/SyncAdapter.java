@@ -13,7 +13,6 @@ import org.apache.http.client.HttpClient;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.PendingIntent;
@@ -29,10 +28,8 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
@@ -90,13 +87,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		toggleReceiver(true);
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 
-		AccountManager accountManager = AccountManager.get(mContext);
-		if (getAuthToken(accountManager, account, syncResult) == null) {
+		HttpClient httpClient = getHttpClient(syncResult);
+		if (httpClient == null) {
 			return;
 		}
-
-		HttpClient httpClient = HttpUtils.createHttpClient(mContext, account.name, accountManager.getPassword(account),
-			Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY)), mUseGzip);
 		RemoteExecutor remoteExecutor = new RemoteExecutor(httpClient, mContext);
 
 		List<SyncTask> tasks = createTasks(type);
@@ -177,10 +171,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return true;
 	}
 
-	private String getAuthToken(AccountManager accountManager, Account account, SyncResult syncResult) {
-		String token = null;
+	private HttpClient getHttpClient(SyncResult syncResult) {
+		HttpClient httpClient = null;
 		try {
-			token = accountManager.blockingGetAuthToken(account, BggApplication.AUTHTOKEN_TYPE, true);
+			httpClient = HttpUtils.createHttpClientWithAuth(mContext, mUseGzip, true);
 		} catch (OperationCanceledException e) {
 			LOGE(TAG, "Getting auth token", e);
 			syncResult.stats.numIoExceptions++;
@@ -194,7 +188,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			syncResult.stats.numIoExceptions++;
 			showAuthError(e);
 		}
-		return token;
+		return httpClient;
 	}
 
 	private List<SyncTask> createTasks(final int type) {

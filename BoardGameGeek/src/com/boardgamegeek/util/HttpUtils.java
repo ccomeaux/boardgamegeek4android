@@ -43,13 +43,19 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.auth.Authenticator;
 
 public class HttpUtils {
 	private static final String TAG = makeLogTag(HttpUtils.class);
@@ -105,11 +111,11 @@ public class HttpUtils {
 		return BASE_URL_2 + "thread?id=" + mThreadId;
 	}
 
-	public static HttpClient createHttpClient(Context context, String username, String password,
-		long passwordExpiration, boolean useGzip) {
+	public static HttpClient createHttpClient(Context context, String username, String authToken,
+		long authTokenExpiration, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);
 		final DefaultHttpClient client = new DefaultHttpClient(params);
-		client.setCookieStore(createCookieStore(username, password, passwordExpiration));
+		client.setCookieStore(createCookieStore(username, authToken, authTokenExpiration));
 		if (useGzip) {
 			addGzipInterceptors(client);
 		}
@@ -141,6 +147,37 @@ public class HttpUtils {
 			addGzipInterceptors(client);
 		}
 		return client;
+	}
+
+	public static HttpClient createHttpClientWithAuth(Context context, boolean useGzip, boolean requireAuth)
+		throws OperationCanceledException, AuthenticatorException, IOException {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = Authenticator.getAccount(accountManager);
+		String authToken = accountManager.blockingGetAuthToken(account, BggApplication.AUTHTOKEN_TYPE, true);
+
+		HttpClient httpClient = null;
+		if (account == null || (TextUtils.isEmpty(authToken))) {
+			if (!requireAuth) {
+				httpClient = HttpUtils.createHttpClient(context, useGzip);
+			}
+		} else {
+			long expiry = Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY));
+			httpClient = HttpUtils.createHttpClient(context, account.name, authToken, expiry, useGzip);
+		}
+		return httpClient;
+	}
+
+	public static HttpClient createHttpClientWithAuthSafely(Context context, boolean useGzip, boolean requireAuth) {
+		try {
+			return createHttpClientWithAuth(context, useGzip, requireAuth);
+		} catch (OperationCanceledException e) {
+			LOGE(TAG, "Couldn't create an HTTP client", e);
+		} catch (AuthenticatorException e) {
+			LOGE(TAG, "Couldn't create an HTTP client", e);
+		} catch (IOException e) {
+			LOGE(TAG, "Couldn't create an HTTP client", e);
+		}
+		return null;
 	}
 
 	private static HttpParams createHttpParams(Context context, boolean useGzip) {

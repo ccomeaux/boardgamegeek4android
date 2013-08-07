@@ -8,8 +8,6 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import org.apache.http.client.HttpClient;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +15,6 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 
-import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
@@ -151,17 +148,11 @@ public class UpdateService extends IntentService {
 	}
 
 	private RemoteExecutor createExecutor() {
-		HttpClient httpClient = null;
-
-		AccountManager accountManager = AccountManager.get(getApplicationContext());
-		Account account = Authenticator.getAccount(accountManager);
-		if (account == null) {
-			httpClient = HttpUtils.createHttpClient(this, mUseGzip);
-		} else {
-			httpClient = HttpUtils.createHttpClient(this, account.name, accountManager.getPassword(account),
-				Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY)), mUseGzip);
+		HttpClient httpClient = HttpUtils.createHttpClientWithAuthSafely(this, true, true);
+		if (httpClient != null) {
+			return new RemoteExecutor(httpClient, this);
 		}
-		return new RemoteExecutor(httpClient, this);
+		return null;
 	}
 
 	private void sendResultToReceiver(int resultCode) {
