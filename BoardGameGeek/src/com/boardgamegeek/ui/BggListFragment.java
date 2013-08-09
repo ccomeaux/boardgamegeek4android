@@ -12,6 +12,8 @@ import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
 
 public abstract class BggListFragment extends SherlockListFragment implements AbsListView.OnScrollListener {
+	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
+	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
 
@@ -43,11 +45,11 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, -1);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, 0);
+			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, LIST_VIEW_STATE_POSITION_DEFAULT);
+			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, LIST_VIEW_STATE_TOP_DEFAULT);
 		} else {
-			mListViewStatePosition = -1;
-			mListViewStateTop = 0;
+			mListViewStatePosition = LIST_VIEW_STATE_POSITION_DEFAULT;
+			mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 		}
 	}
 
@@ -104,9 +106,13 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	}
 
 	protected void restoreScrollState() {
-		if (mListViewStatePosition != -1 && isAdded()) {
+		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
 			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
 		}
+	}
+
+	protected void resetScrollState() {
+		getListView().setSelectionFromTop(LIST_VIEW_STATE_TOP_DEFAULT, LIST_VIEW_STATE_POSITION_DEFAULT);
 	}
 
 	protected ImageFetcher getImageFetcher() {

@@ -471,6 +471,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	@Override
 	public void removeFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
+		resetScrollState();
 		requery();
 	}
 
@@ -480,6 +481,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		if (filter.isValid()) {
 			mFilters.add(filter);
 		}
+		resetScrollState();
 		requery();
 	}
 
@@ -489,6 +491,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
+		resetScrollState();
 		requery();
 	}
 
@@ -631,6 +634,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void setView(long viewId) {
 		if (mViewId != viewId) {
 			mViewId = viewId;
+			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
 		}
 	}
@@ -639,6 +643,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		if (mViewId != 0) {
 			mViewId = 0;
 			mViewName = "";
+			resetScrollState();
 			mFilters.clear();
 			mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
 			requery();
