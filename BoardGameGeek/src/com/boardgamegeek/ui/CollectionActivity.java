@@ -71,7 +71,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putLong(STATE_VIEW_ID, mAdapter.getItemId(getSupportActionBar().getSelectedNavigationIndex()));
+		if (mAdapter != null) {
+			outState.putLong(STATE_VIEW_ID, mAdapter.getItemId(getSupportActionBar().getSelectedNavigationIndex()));
+		}
 		outState.putInt(STATE_COUNT, mCount);
 		outState.putString(STATE_SORT_NAME, mSortName);
 		super.onSaveInstanceState(outState);
