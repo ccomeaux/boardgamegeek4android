@@ -148,7 +148,7 @@ public class UpdateService extends IntentService {
 	}
 
 	private RemoteExecutor createExecutor() {
-		HttpClient httpClient = HttpUtils.createHttpClientWithAuthSafely(this, true, true);
+		HttpClient httpClient = HttpUtils.createHttpClient(this, true);
 		if (httpClient != null) {
 			return new RemoteExecutor(httpClient, this);
 		}
