@@ -182,6 +182,7 @@
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_collection_sort_name">Name</string>
 	<string name="menu_collection_sort_rating">Rating</string>
+	<string name="menu_collection_sort_rank">Rank</string>
 	<string name="menu_collection_sort_myrating">My Rating</string>
 	<string name="menu_collection_sort_last_viewed">Last Viewed</string>
 	<string name="menu_collection_sort_wishlist_priority">Wishlist Priority</string>
@@ -307,6 +308,7 @@
 <b>What\'s New?</b><br/>
 <i>4.4.1</i><br/>
 - MOD: Fixed the login problem for real<br/>
+- MOD: Add sorting by my rating and play count<br/> 
 <i>4.4</i><br/>
 - MOD: New authentication; you will be logged out<br/>
 - NEW: Navigation drawer replaces the dashboard<br/>
