@@ -307,7 +307,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		mCallbacks.onNameChanged(mPlay.GameName);
 
-		mDate.setText(mPlay.getDateForDisplay());
+		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantityRoot.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);

@@ -632,7 +632,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	};
 
 	private void setDateButtonText() {
-		mDateButton.setText(mPlay.getDateForDisplay());
+		mDateButton.setText(mPlay.getDateForDisplay(this));
 	}
 
 	/**

@@ -3,7 +3,6 @@ package com.boardgamegeek.model;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -19,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -74,7 +74,6 @@ public class Play {
 	private static final String KEY_SYNC_STATUS = "SYNC_STATUS";
 	private static final String KEY_SAVED = "SAVED";
 
-	private DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
@@ -239,10 +238,10 @@ public class Play {
 	 * 
 	 * @return a localized date.
 	 */
-	public CharSequence getDateForDisplay() {
+	public CharSequence getDateForDisplay(Context context) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Year, Month, Day);
-		return df.format(calendar.getTime());
+		return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public void setDate(int year, int month, int day) {
