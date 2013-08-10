@@ -74,25 +74,23 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		setupActionBarTabs(actionBar);
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		setupActionBarTabs(getSupportActionBar());
-		mViewPager.getAdapter().notifyDataSetChanged();
-	}
-
 	private void setupActionBarTabs(final ActionBar actionBar) {
 		actionBar.removeAllTabs();
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
+		createTab(actionBar, R.string.title_info);
 		if (showCollection()) {
-			actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
+			createTab(actionBar, R.string.title_collection);
 		}
 		if (showPlays()) {
-			actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
-			actionBar.addTab(actionBar.newTab().setText(R.string.title_colors).setTabListener(this));
+			createTab(actionBar, R.string.title_plays);
+			createTab(actionBar, R.string.title_colors);
 		}
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_forums).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_comments).setTabListener(this));
+		createTab(actionBar, R.string.title_forums);
+		createTab(actionBar, R.string.title_comments);
+	}
+
+	private void createTab(final ActionBar actionBar, int textId) {
+		Tab tab = actionBar.newTab().setText(textId).setTabListener(this);
+		actionBar.addTab(tab);
 	}
 
 	@Override
