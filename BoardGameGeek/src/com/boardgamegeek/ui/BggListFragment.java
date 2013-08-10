@@ -112,7 +112,8 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	}
 
 	protected void resetScrollState() {
-		getListView().setSelectionFromTop(LIST_VIEW_STATE_TOP_DEFAULT, LIST_VIEW_STATE_POSITION_DEFAULT);
+		mListViewStatePosition = 0;
+		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 	}
 
 	protected ImageFetcher getImageFetcher() {
