@@ -1,14 +1,16 @@
 package com.boardgamegeek.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import android.text.TextUtils;
 
 public class CollectionUrlBuilder extends UrlBuilder {
 	private final String mUsername;
-	private int mGameId;
+	private List<Integer> mGameIds;
 	private String mStatus;
 	private long mModifiedSince;
 	private boolean mBrief;
@@ -17,10 +19,17 @@ public class CollectionUrlBuilder extends UrlBuilder {
 
 	public CollectionUrlBuilder(String username) {
 		mUsername = username;
+		mGameIds = new ArrayList<Integer>();
 	}
 
 	public CollectionUrlBuilder gameId(int gameId) {
-		mGameId = gameId;
+		mGameIds.clear();
+		mGameIds.add(gameId);
+		return this;
+	}
+
+	public CollectionUrlBuilder addGameId(int gameId) {
+		mGameIds.add(gameId);
 		return this;
 	}
 
@@ -51,8 +60,16 @@ public class CollectionUrlBuilder extends UrlBuilder {
 
 	public String build() {
 		String url = BASE_URL_2 + "collection?username=" + encode(mUsername);
-		if (mGameId > 0){
-			url += "&id=" + mGameId;
+		if (mGameIds != null && mGameIds.size() > 0) {
+			url += "&id=";
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < mGameIds.size(); i++) {
+				sb.append(mGameIds.get(i));
+				if (i < mGameIds.size() - 1) {
+					sb.append(",");
+				}
+			}
+			url += sb.toString();
 		}
 		if (!TextUtils.isEmpty(mStatus)) {
 			url += "&" + mStatus.trim() + "=1";

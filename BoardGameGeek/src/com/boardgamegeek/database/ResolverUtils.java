@@ -140,8 +140,16 @@ public class ResolverUtils {
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
 		String[] selectionArgs) {
+		return queryInts(resolver, uri, columnName, selection, selectionArgs, null);
+	}
+
+	/*
+	 * Use the content resolver to get a list of integers from the specified column at the URI
+	 */
+	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
+		String[] selectionArgs, String sortOrder) {
 		List<Integer> list = new ArrayList<Integer>();
-		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
 			while (cursor.moveToNext()) {
 				list.add(cursor.getInt(0));

@@ -9,7 +9,8 @@
 	<string name="sync_notification_collection_full">Entire collection</string>
 	<string name="sync_notification_collection_partial">Latest changes to collection</string>
 	<string name="sync_notification_collection_oldest">Oldest games in collection</string>
-	<string name="sync_notification_collection_unupdated">New games added to collection</string>
+	<string name="sync_notification_games_unupdated">New games added to collection</string>
+	<string name="sync_notification_collection_unupdated">Unupdated collection items</string>
 	<string name="sync_notification_buddies_list">List of buddies</string>
 	<string name="sync_notification_buddies_oldest">Oldest buddies</string>
 	<string name="sync_notification_buddies_unupdated">Newest buddies</string>
