@@ -826,11 +826,12 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), false, gameId, gameName);
+				ActivityUtils.logPlay(getActivity(), gameId, gameName);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), true, gameId, gameName);
+				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				ActivityUtils.logQuickPlay(getActivity(), gameId, gameName);
 				return true;
 			case R.id.menu_share:
 				mode.finish();

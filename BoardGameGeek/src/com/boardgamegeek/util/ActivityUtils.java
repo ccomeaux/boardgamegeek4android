@@ -35,8 +35,11 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.database.PlayPersister;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
@@ -169,12 +172,19 @@ public class ActivityUtils {
 		activity.startActivityForResult(intent, requestCode);
 	}
 
-	public static void logPlay(Context context, boolean quick, int gameId, String gameName) {
+	public static void logPlay(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.setAction(quick ? Intent.ACTION_VIEW : Intent.ACTION_EDIT);
+		intent.setAction(Intent.ACTION_EDIT);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
 		context.startActivity(intent);
+	}
+
+	public static void logQuickPlay(Context context, int gameId, String gameName) {
+		Play play = new Play(gameId, gameName);
+		play.SyncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
+		PlayPersister.save(context.getContentResolver(), play);
+		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
 	public static void linkBgg(Context context, int gameId) {

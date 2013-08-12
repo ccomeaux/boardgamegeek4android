@@ -124,10 +124,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				sendBroadcast(shortcut);
 				return true;
 			case R.id.menu_log_play:
-				ActivityUtils.logPlay(this, false, mGameId, mGameName);
+				ActivityUtils.logPlay(this, mGameId, mGameName);
 				return true;
 			case R.id.menu_log_play_quick:
-				ActivityUtils.logPlay(this, true, mGameId, mGameName);
+				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -147,11 +148,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public void onPageScrollStateChanged(int arg0) {
+	public void onPageScrollStateChanged(int state) {
 	}
 
 	@Override
-	public void onPageScrolled(int arg0, float arg1, int arg2) {
+	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 	}
 
 	@Override

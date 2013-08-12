@@ -77,7 +77,11 @@ public class Play {
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
-		init(0, BggContract.INVALID_ID, "");
+		init(BggContract.INVALID_ID, BggContract.INVALID_ID, "");
+	}
+
+	public Play(int gameId, String gameName) {
+		init(BggContract.INVALID_ID, gameId, gameName);
 	}
 
 	public Play(int playId, int gameId, String gameName) {
@@ -190,7 +194,7 @@ public class Play {
 	}
 
 	public Play fromCursor(Cursor cursor, Context context, boolean includePlayers) {
-		PlayId = CursorUtils.getInt(cursor, Plays.PLAY_ID, 0);
+		PlayId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
 		GameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
 		GameName = CursorUtils.getString(cursor, PlayItems.NAME);
 		setDate(CursorUtils.getString(cursor, Plays.DATE));

@@ -93,7 +93,7 @@ public class PlayPersister {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as draft
 				if (play.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE
-					|| play.SyncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
+					&& play.SyncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 					play.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
 			} else {

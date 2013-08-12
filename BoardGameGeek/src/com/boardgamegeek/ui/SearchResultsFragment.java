@@ -341,11 +341,12 @@ public class SearchResultsFragment extends BggListFragment implements
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), false, game.Id, game.Name);
+				ActivityUtils.logPlay(getActivity(), game.Id, game.Name);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), true, game.Id, game.Name);
+				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				ActivityUtils.logQuickPlay(getActivity(), game.Id, game.Name);
 				return true;
 			case R.id.menu_share:
 				mode.finish();
