@@ -830,7 +830,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(getActivity(), gameId, gameName);
 				return true;
 			case R.id.menu_share:

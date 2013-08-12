@@ -20,6 +20,7 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -241,7 +242,7 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(getActivity(), game.Id, game.Name);
 				return true;
 			case R.id.menu_share:
