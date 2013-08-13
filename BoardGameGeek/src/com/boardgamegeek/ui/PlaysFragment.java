@@ -371,7 +371,25 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 			holder.date.setText(cursor.getString(PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
-			holder.location.setText(cursor.getString(PlaysQuery.LOCATION));
+			String location = cursor.getString(PlaysQuery.LOCATION);
+			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
+			int length = cursor.getInt(PlaysQuery.LENGTH);
+
+			String info = "";
+			if (quantity == 2) {
+				info += "twice ";
+			} else if (quantity > 2) {
+				info += quantity + "times ";
+			}
+			if (!TextUtils.isEmpty(location)) {
+				info += "at " + location + " ";
+			}
+			if (length > 0) {
+				int hours = length / 60;
+				int minutes = length % 60;
+				info += "for " + String.format("%d:%02d", hours, minutes) + " ";
+			}
+			holder.location.setText(info.trim());
 
 			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
 			if (status != Play.SYNC_STATUS_SYNCED) {
@@ -424,12 +442,14 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
 		int GAME_ID = 4;
 		int LOCATION = 5;
+		int QUANTITY = 6;
+		int LENGTH = 7;
 		int SYNC_STATUS = 8;
 	}
 
