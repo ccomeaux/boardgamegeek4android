@@ -156,11 +156,16 @@ public class ActivityUtils {
 	}
 
 	public static void launchPlay(Context context, int playId, int gameId, String gameName) {
+		Intent intent = createPlayIntent(playId, gameId, gameName);
+		context.startActivity(intent);
+	}
+
+	public static Intent createPlayIntent(int playId, int gameId, String gameName) {
 		Uri playUri = Plays.buildPlayUri(playId);
 		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
-		context.startActivity(intent);
+		return intent;
 	}
 
 	public static void editPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {

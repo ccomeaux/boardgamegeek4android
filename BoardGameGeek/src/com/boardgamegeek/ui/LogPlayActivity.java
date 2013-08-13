@@ -370,13 +370,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void startPlay() {
 		saveDraft(false);
-
-		Intent intent = new Intent(this, LogPlayActivity.class);
-		intent.setAction(Intent.ACTION_EDIT);
+		Intent intent = ActivityUtils.createPlayIntent(mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra(KEY_PLAY_ID, mPlay.PlayId);
-		intent.putExtra(KEY_GAME_ID, mPlay.GameId);
-		intent.putExtra(KEY_GAME_NAME, mPlay.GameName);
 		intent.putExtra(KEY_START_TIME, System.currentTimeMillis());
 
 		launchStartNotification(intent);
