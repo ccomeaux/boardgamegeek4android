@@ -110,6 +110,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setUiVariables();
 
 		final Intent intent = getIntent();
+		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
+			LOGW(TAG, "Received bad intent action: " + intent.getAction());
+			finish();
+		}
+
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
@@ -146,14 +151,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				saveDraft(false);
 			}
 			mOriginalPlay = new Play(mPlay);
-		}
-
-		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-			// TODO: refactor to quick log without this activity (probably need to use AccountManager)
-			logPlay();
-		} else if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
-			LOGW(TAG, "Received bad intent action: " + intent.getAction());
-			finish();
 		}
 
 		bindUi();
