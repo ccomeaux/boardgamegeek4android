@@ -306,6 +306,7 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- MOD: Play count is now more accurate<br/>
 - MOD: Update collection items more completely during a sync<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
 <br/>

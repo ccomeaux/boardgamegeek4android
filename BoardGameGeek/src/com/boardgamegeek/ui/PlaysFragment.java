@@ -113,6 +113,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			}
 		}
 		setEmptyText(getString(getEmptyStringResoure()));
+		getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
@@ -192,32 +193,50 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
-			switch (mMode) {
-				case MODE_ALL:
-					if (mFilter == Play.SYNC_STATUS_ALL) {
-						loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, null, null, null);
-					} else {
-						loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, Plays.SYNC_STATUS + "=?",
-							new String[] { String.valueOf(mFilter) }, null);
-					}
-					break;
-				case MODE_GAME:
-					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayItems.OBJECT_ID + "=?",
-						new String[] { String.valueOf(mGameId) }, null);
-					break;
-				case MODE_BUDDY:
-					loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, PlayPlayers.USER_NAME + "=?",
-						new String[] { mBuddyName }, null);
-					break;
-			}
+			loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, selection(), selectionArgs(), null);
 			if (loader != null) {
 				loader.setUpdateThrottle(2000);
 			}
 		} else if (id == GameQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
 				null);
+		} else if (id == SumQuery._TOKEN) {
+			loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, SumQuery.PROJECTION, selection(),
+				selectionArgs(), null);
 		}
 		return loader;
+	}
+
+	private String selection() {
+		switch (mMode) {
+			case MODE_ALL:
+				if (mFilter == Play.SYNC_STATUS_ALL) {
+					return null;
+				} else {
+					return Plays.SYNC_STATUS + "=?";
+				}
+			case MODE_GAME:
+				return PlayItems.OBJECT_ID + "=?";
+			case MODE_BUDDY:
+				return PlayPlayers.USER_NAME + "=?";
+		}
+		return null;
+	}
+
+	private String[] selectionArgs() {
+		switch (mMode) {
+			case MODE_ALL:
+				if (mFilter == Play.SYNC_STATUS_ALL) {
+					return null;
+				} else {
+					return new String[] { String.valueOf(mFilter) };
+				}
+			case MODE_GAME:
+				return new String[] { String.valueOf(mGameId) };
+			case MODE_BUDDY:
+				return new String[] { mBuddyName };
+		}
+		return null;
 	}
 
 	@Override
@@ -237,6 +256,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int token = loader.getId();
 		if (token == PlaysQuery._TOKEN) {
 			mAdapter.changeCursor(cursor);
+			if (isResumed()) {
+				setListShown(true);
+			} else {
+				setListShownNoAnimation(true);
+			}
+			restoreScrollState();
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;
@@ -245,19 +270,15 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 					triggerRefresh();
 				}
 			}
+		} else if (token == SumQuery._TOKEN) {
+			int count = 0;
+			if (cursor != null && cursor.moveToFirst()) {
+				count = cursor.getInt(SumQuery.TOTAL_COUNT);
+			}
+			mCallbacks.onPlayCountChanged(count);
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
-		}
-
-		mCallbacks.onPlayCountChanged(cursor.getCount());
-		if (token != GameQuery._TOKEN) {
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
-			restoreScrollState();
 		}
 	}
 
@@ -284,6 +305,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		if (mMode == MODE_ALL) {
 			mFilter = filter;
 			setEmptyText(getString(getEmptyStringResoure()));
+			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
 			getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 		}
 	}
@@ -433,12 +455,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		}
 	}
 
-	private interface GameQuery {
-		int _TOKEN = 0x22;
-		String[] PROJECTION = { Games.UPDATED_PLAYS };
-		int UPDATED_PLAYS = 0;
-	}
-
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
@@ -451,6 +467,18 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int SYNC_STATUS = 8;
+	}
+
+	private interface GameQuery {
+		int _TOKEN = 0x22;
+		String[] PROJECTION = { Games.UPDATED_PLAYS };
+		int UPDATED_PLAYS = 0;
+	}
+
+	private interface SumQuery {
+		int _TOKEN = 0x23;
+		String[] PROJECTION = { "SUM(" + Plays.QUANTITY + ")" };
+		int TOTAL_COUNT = 0;
 	}
 
 	// TODO Add support for share option
