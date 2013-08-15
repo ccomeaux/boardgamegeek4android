@@ -25,6 +25,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.CursorUtils;
+import com.boardgamegeek.util.DateTimeUtils;
 
 public class Play {
 	/**
@@ -73,6 +74,7 @@ public class Play {
 	private static final String KEY_UPDATED = "UPDATED";
 	private static final String KEY_SYNC_STATUS = "SYNC_STATUS";
 	private static final String KEY_SAVED = "SAVED";
+	private static final String KEY_START_TIME = "START_TIME";
 
 	private List<Player> mPlayers = new ArrayList<Player>();
 
@@ -101,6 +103,7 @@ public class Play {
 		Day = c.get(Calendar.DAY_OF_MONTH);
 		Location = "";
 		Comments = "";
+		StartTime = 0;
 	}
 
 	/**
@@ -122,6 +125,7 @@ public class Play {
 		Updated = play.Updated;
 		SyncStatus = play.SyncStatus;
 		Saved = play.Saved;
+		StartTime = play.StartTime;
 		for (Player player : play.getPlayers()) {
 			mPlayers.add(new Player(player));
 		}
@@ -143,6 +147,7 @@ public class Play {
 		Updated = bundle.getLong(prefix + KEY_UPDATED);
 		SyncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
 		Saved = bundle.getLong(prefix + KEY_SAVED);
+		StartTime = bundle.getLong(prefix + KEY_START_TIME);
 		mPlayers = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
 	}
 
@@ -188,6 +193,7 @@ public class Play {
 	public long Updated;
 	public int SyncStatus;
 	public long Saved;
+	public long StartTime;
 
 	public Play fromCursor(Cursor cursor) {
 		return fromCursor(cursor, null, false);
@@ -207,6 +213,7 @@ public class Play {
 		Updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
 		SyncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
 		Saved = CursorUtils.getLong(cursor, Plays.UPDATED);
+		StartTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		if (includePlayers && context != null) {
 			Cursor c = null;
 			try {
@@ -391,6 +398,16 @@ public class Play {
 		return false;
 	}
 
+	public int getCalculatedLength() {
+		if (Length > 0) {
+			return Length;
+		}
+		if (StartTime == 0) {
+			return 0;
+		}
+		return DateTimeUtils.howManyMinutesOld(StartTime);
+	}
+
 	/**
 	 * Sets the start player based on the index, keeping the other players in order, assigns seats, then sorts
 	 * 
@@ -460,7 +477,8 @@ public class Play {
 			&& (Location == p.Location || (Location != null && Location.equals(p.Location)))
 			&& (Incomplete == p.Incomplete) && (NoWinStats == p.NoWinStats)
 			&& (Comments == p.Comments || (Comments != null && Comments.equals(p.Comments))) && (Updated == p.Updated)
-			&& (SyncStatus == p.SyncStatus) && (Saved == p.Saved) && (mPlayers.size() == p.mPlayers.size());
+			&& (SyncStatus == p.SyncStatus) && (Saved == p.Saved) && (StartTime == p.StartTime)
+			&& (mPlayers.size() == p.mPlayers.size());
 		if (eq) {
 			for (int i = 0; i < mPlayers.size(); i++) {
 				if (!mPlayers.get(i).equals(p.getPlayers().get(i))) {
@@ -492,6 +510,8 @@ public class Play {
 		result = prime * result + SyncStatus;
 		long s = Double.doubleToLongBits(Saved);
 		result = prime * result + (int) (s ^ (s >>> 32));
+		long t = Double.doubleToLongBits(StartTime);
+		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;
 	}
 }

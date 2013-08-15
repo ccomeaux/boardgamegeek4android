@@ -50,7 +50,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -67,7 +66,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final String KEY_START_TIME = "START_TIME";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -80,7 +78,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private Play mPlay;
 	private Play mOriginalPlay;
 	private boolean mLaunchingActivity;
-	private long mStartTime;
 	private Random mRandom = new Random();
 
 	private Button mDateButton;
@@ -118,7 +115,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
-		mStartTime = intent.getLongExtra(KEY_START_TIME, 0);
 
 		if (gameId <= 0) {
 			LOGW(TAG, "Can't log a play without a game ID.");
@@ -369,10 +365,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void startPlay() {
+		mPlay.StartTime = System.currentTimeMillis();
 		saveDraft(false);
 		Intent intent = ActivityUtils.createPlayIntent(mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra(KEY_START_TIME, System.currentTimeMillis());
 
 		launchStartNotification(intent);
 	}
@@ -486,7 +482,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void bindUiPlay() {
 		setDateButtonText();
 		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
-		mLengthView.setText((mPlay.Length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.Length));
+		mLengthView.setText((mPlay.getCalculatedLength() == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay
+			.getCalculatedLength()));
 		mLocationView.setText(mPlay.Location);
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
@@ -590,7 +587,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private boolean shouldHideLength() {
-		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.Length > 0);
+		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.getCalculatedLength() > 0);
 	}
 
 	private boolean shouldHideLocation() {
@@ -666,9 +663,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 				mPlay.fromCursor(cursor);
 				mOriginalPlay = new Play(mPlay);
-				if (mStartTime > 0) {
-					mPlay.Length = DateTimeUtils.howManyMinutesOld(mStartTime);
-				}
 				changeName(mPlay.GameName);
 				bindUiPlay();
 				break;
@@ -702,7 +696,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private interface PlayQuery {
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, };
+			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.START_TIME };
 	}
 
 	private interface PlayerQuery {

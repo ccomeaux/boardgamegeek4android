@@ -60,7 +60,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAMES_UPDATED_PLAYS = 13;
 	private static final int VER_COLLECTION = 14;
 	private static final int VER_GAME_COLLECTION_CONFLICT = 15;
-	private static final int DATABASE_VERSION = VER_GAME_COLLECTION_CONFLICT;
+	private static final int VER_PLAYS_START_TIME = 16;
+	private static final int DATABASE_VERSION = VER_PLAYS_START_TIME;
 
 	private Context mContext;
 
@@ -419,7 +420,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true).addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
 			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT).addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
+			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER).addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPlayItemsTable() {
@@ -546,6 +547,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 				SyncService.clearCollection(mContext);
 				SyncService.sync(mContext, SyncService.FLAG_SYNC_COLLECTION);
 				version = VER_GAME_COLLECTION_CONFLICT;
+			case VER_GAME_COLLECTION_CONFLICT:
+				addColumn(db, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER);
+				version = VER_PLAYS_START_TIME;
 		}
 
 		if (version != DATABASE_VERSION) {

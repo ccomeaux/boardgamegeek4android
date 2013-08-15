@@ -173,6 +173,7 @@ public class BggContract {
 		String LOCATION = "location";
 		String COMMENTS = "comments";
 		String SYNC_STATUS = "sync_status";
+		String START_TIME = "start_time";
 	}
 
 	interface PlayItemsColumns {

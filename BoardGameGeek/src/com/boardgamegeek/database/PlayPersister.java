@@ -202,6 +202,8 @@ public class PlayPersister {
 			values.put(Plays.UPDATED_LIST, play.Updated);
 		}
 		values.put(Plays.SYNC_STATUS, play.SyncStatus);
+		// only store start time if there's no length
+		values.put(Plays.START_TIME, play.Length > 0 ? 0 : play.StartTime);
 		values.put(Plays.UPDATED, System.currentTimeMillis());
 		return values;
 	}
