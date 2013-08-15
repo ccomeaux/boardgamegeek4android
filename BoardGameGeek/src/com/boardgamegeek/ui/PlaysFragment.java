@@ -323,12 +323,20 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		private String mPreviousSection;
 		private String mCurrentSection;
 
+		private String mTimes;
+		private String mAt;
+		private String mFor;
+
 		public PlayAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
 			// account for leap years
 			mCalendar.set(Calendar.YEAR, 2012);
 			mCalendar.set(Calendar.DAY_OF_MONTH, 1);
+
+			mTimes = context.getString(R.string.times);
+			mAt = context.getString(R.string.at);
+			mFor = context.getString(R.string.for_);
 		}
 
 		public void setRowResId(int resId) {
@@ -398,18 +406,16 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			int length = cursor.getInt(PlaysQuery.LENGTH);
 
 			String info = "";
-			if (quantity == 2) {
-				info += "twice ";
-			} else if (quantity > 2) {
-				info += quantity + "times ";
+			if (quantity > 1) {
+				info += quantity + " " + mTimes + " ";
 			}
 			if (!TextUtils.isEmpty(location)) {
-				info += "at " + location + " ";
+				info += mAt + " " + location + " ";
 			}
 			if (length > 0) {
 				int hours = length / 60;
 				int minutes = length % 60;
-				info += "for " + String.format("%d:%02d", hours, minutes) + " ";
+				info += mFor + " " + String.format("%d:%02d", hours, minutes);
 			}
 			holder.location.setText(info.trim());
 
