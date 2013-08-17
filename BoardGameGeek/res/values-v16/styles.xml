@@ -18,6 +18,10 @@
 		<item name="android:textSize">22sp</item>
 	</style>
 
+	<style name="Text.Title2" parent="Text.Title">
+		<item name="android:fontFamily">sans-serif</item>
+	</style>
+
 	<style name="Text.Subtitle" parent="Text.Big">
 		<item name="android:fontFamily">sans-serif-light</item>
 	</style>

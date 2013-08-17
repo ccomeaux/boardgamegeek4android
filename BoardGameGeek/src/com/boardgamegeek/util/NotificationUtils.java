@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
 
 public class NotificationUtils {
@@ -44,5 +45,31 @@ public class NotificationUtils {
 	public static void cancel(Context context, int id) {
 		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.cancel(id);
+	}
+
+	public static void launchStartNotification(Context context, Play play) {
+		launchStartNotification(context, play, false);
+	}
+
+	public static void launchStartNotificationWithTicker(Context context, Play play) {
+		launchStartNotification(context, play, true);
+	}
+
+	private static void launchStartNotification(Context context, Play play, boolean includeTicker) {
+		Intent intent = ActivityUtils.createPlayIntent(play.PlayId, play.GameId, play.GameName);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
+			R.string.notification_playing);
+
+		builder.setContentText(play.GameName).setOnlyAlertOnce(true)
+			.setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+		if (includeTicker) {
+			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.GameName));
+		}
+		if (play.StartTime > 0) {
+			builder.setWhen(play.StartTime).setUsesChronometer(true);
+		}
+		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
+		// TODO - set large icon with game thumbnail
 	}
 }

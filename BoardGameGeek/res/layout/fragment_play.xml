@@ -34,6 +34,16 @@
 			android:layout_height="wrap_content"
 			android:stretchColumns="1" >
 
+			<TextView
+				android:id="@+id/game_name"
+				style="@style/Text.Title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:gravity="center_vertical"
+				android:maxLines="2"
+				android:textIsSelectable="false" />
+
 			<TableRow
 				android:paddingBottom="@dimen/padding_small"
 				android:paddingTop="@dimen/padding_small" >
@@ -115,6 +125,15 @@
 					android:layout_column="1"
 					android:text="@string/noWinStats" />
 			</TableRow>
+
+			<Chronometer
+				android:id="@+id/timer"
+				style="@style/Text.Title2"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:maxLines="1"
+				android:textIsSelectable="false" />
 		</TableLayout>
 
 		<TextView
@@ -170,7 +189,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/play_player_list"
 				android:textIsSelectable="true" />
 
 			<TextView
@@ -188,7 +206,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
-				android:layout_below="@+id/play_player_list"
 				android:textIsSelectable="true" />
 
 			<TextView

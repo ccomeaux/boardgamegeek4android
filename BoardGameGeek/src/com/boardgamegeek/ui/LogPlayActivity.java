@@ -12,7 +12,6 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -20,7 +19,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -203,7 +201,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasEnded());
+		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
 		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
 		captureForm();
 		menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
@@ -227,7 +225,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				return true;
 			case R.id.menu_start:
 				startPlay();
-				item.setVisible(false);
+				supportInvalidateOptionsMenu();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -367,21 +365,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void startPlay() {
 		mPlay.StartTime = System.currentTimeMillis();
 		saveDraft(false);
-		Intent intent = ActivityUtils.createPlayIntent(mPlay.PlayId, mPlay.GameId, mPlay.GameName);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-		launchStartNotification(intent);
-	}
-
-	private void launchStartNotification(Intent intent) {
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(this,
-			R.string.notification_playing);
-		builder.setContentText(mPlay.GameName)
-			.setTicker(String.format(getString(R.string.notification_playing_game), mPlay.GameName))
-			.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
-		NotificationUtils.notify(this, NotificationUtils.ID_PLAY_TIMER, builder);
-		// TODO - set large icon with game thumbnail
+		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 	}
 
 	private void cancel() {
@@ -664,6 +648,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.fromCursor(cursor);
 				mOriginalPlay = new Play(mPlay);
 				changeName(mPlay.GameName);
+				supportInvalidateOptionsMenu();
 				bindUiPlay();
 				break;
 			case PlayerQuery._TOKEN:

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Chronometer;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +40,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -52,11 +55,13 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	private View mScroll;
 	private TextView mUpdated;
 	private TextView mPlayId;
+	private TextView mGameName;
 	private TextView mDate;
 	private View mQuantityRoot;
 	private TextView mQuantity;
 	private View mLengthRoot;
 	private TextView mLength;
+	private Chronometer mTimer;
 	private View mLocationRoot;
 	private TextView mLocation;
 	private View mIncomplete;
@@ -119,12 +124,28 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+		}
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
 
 		mProgress = rootView.findViewById(R.id.progress);
 		mMessage = (TextView) rootView.findViewById(R.id.message);
 		mScroll = rootView.findViewById(R.id.play_scroll);
+
+		mGameName = (TextView) rootView.findViewById(R.id.game_name);
 
 		mDate = (TextView) rootView.findViewById(R.id.play_date);
 
@@ -133,6 +154,8 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		mLengthRoot = rootView.findViewById(R.id.length_root);
 		mLength = (TextView) rootView.findViewById(R.id.play_length);
+
+		mTimer = (Chronometer) rootView.findViewById(R.id.timer);
 
 		mLocationRoot = rootView.findViewById(R.id.location_root);
 		mLocation = (TextView) rootView.findViewById(R.id.play_location);
@@ -307,6 +330,8 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		mCallbacks.onNameChanged(mPlay.GameName);
 
+		mGameName.setText(mPlay.GameName);
+
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
@@ -314,6 +339,15 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
 		mLengthRoot.setVisibility(mPlay.Length > 0 ? View.VISIBLE : View.GONE);
+
+		if (mPlay.StartTime > 0) {
+			mTimer.setBase(mPlay.StartTime - System.currentTimeMillis() + SystemClock.elapsedRealtime());
+			mTimer.setVisibility(View.VISIBLE);
+			mTimer.start();
+		} else {
+			mTimer.setVisibility(View.GONE);
+			mTimer.stop();
+		}
 
 		mLocation.setText(mPlay.Location);
 		mLocationRoot.setVisibility(TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
@@ -426,7 +460,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
 			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.UPDATED_LIST,
-			Plays.SYNC_STATUS, Plays.UPDATED };
+			Plays.SYNC_STATUS, Plays.UPDATED, Plays.START_TIME };
 	}
 
 	private interface PlayerQuery {
