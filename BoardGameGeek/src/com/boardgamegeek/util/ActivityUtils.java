@@ -185,6 +185,15 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
+	public static void logPlayAgain(Context context, int playId, int gameId, String gameName) {
+		Intent intent = new Intent(context, LogPlayActivity.class);
+		intent.setAction(LogPlayActivity.ACTION_PLAY_AGAIN);
+		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
+		context.startActivity(intent);
+	}
+
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
 		play.SyncStatus = Play.SYNC_STATUS_PENDING_UPDATE;

@@ -96,14 +96,17 @@ public class Play {
 		GameName = gameName;
 		Quantity = QUANTITY_DEFAULT;
 		Length = LENGTH_DEFAULT;
-		// set current date
+		setCurrentDate();
+		Location = "";
+		Comments = "";
+		StartTime = 0;
+	}
+
+	private void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
 		Year = c.get(Calendar.YEAR);
 		Month = c.get(Calendar.MONTH);
 		Day = c.get(Calendar.DAY_OF_MONTH);
-		Location = "";
-		Comments = "";
-		StartTime = 0;
 	}
 
 	/**
@@ -228,6 +231,23 @@ public class Play {
 			}
 		}
 		return this;
+	}
+
+	public void resetForCopy() {
+		PlayId = BggContract.INVALID_ID;
+		setCurrentDate();
+		Quantity = QUANTITY_DEFAULT;
+		Length = LENGTH_DEFAULT;
+		Incomplete = false;
+		Comments = ""; // ?
+		Updated = 0;
+		SyncStatus = SYNC_STATUS_NOT_STORED;
+		Saved = 0;
+		for (Player player : mPlayers) {
+			player.Score = "";
+			player.New = false;
+			player.Win = false;
+		}
 	}
 
 	public List<Player> getPlayers() {

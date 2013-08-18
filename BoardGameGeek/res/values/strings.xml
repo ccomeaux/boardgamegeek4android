@@ -62,6 +62,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="play_again">Play again</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
 	<string name="num_of_players"># of players</string>
@@ -306,6 +307,8 @@
 	<string name="about_body">
 <![CDATA[
 <b>What\'s New?</b><br/>
+- NEW: Show a play timer<br/>
+- NEW: Option to play a game again<br/>
 - MOD: Play count is now more accurate<br/>
 - MOD: Update collection items more completely during a sync<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>

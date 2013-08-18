@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -61,6 +62,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final int REQUEST_ADD_PLAYER = 0;
 
 	public static final int RESULT_UPDATED = RESULT_FIRST_USER;
+	public static final String ACTION_PLAY_AGAIN = "com.boardgamegeek.intent.action.PLAY_AGAIN";
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -88,6 +90,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
 
+	private boolean mPlayLoaded;
+	private boolean mPlayersLoaded;
 	private boolean mQuantityShown;
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -105,7 +109,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setUiVariables();
 
 		final Intent intent = getIntent();
-		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
+		if (!Intent.ACTION_EDIT.equals(intent.getAction()) && !ACTION_PLAY_AGAIN.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
@@ -202,15 +206,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
-		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
-		captureForm();
+		menu.findItem(R.id.menu_add_field).setVisible(
+			shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
+				|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
 		menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
 		return super.onPrepareOptionsMenu(menu);
-	}
-
-	public void hideAddFieldMenuItem(MenuItem menuItem) {
-		menuItem.setVisible(shouldHideQuantity() || shouldHideLength() || shouldHideLocation()
-			|| shouldHideNoWinStats() || shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
 	}
 
 	@Override
@@ -325,7 +325,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					} else if (selection == r.getString(R.string.players)) {
 						mPlayersShown = true;
 					}
-					hideAddFieldMenuItem(menuItem);
+					supportInvalidateOptionsMenu();
 					hideFields();
 					if (viewToFocus != null) {
 						viewToFocus.requestFocus();
@@ -464,6 +464,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void bindUiPlay() {
+		changeName(mPlay.GameName);
 		setDateButtonText();
 		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
 		mLengthView.setText((mPlay.getCalculatedLength() == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay
@@ -473,6 +474,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
 		mCommentsView.setText(mPlay.Comments);
 		hideFields();
+		supportInvalidateOptionsMenu();
 	}
 
 	private void bindUiPlayers() {
@@ -645,13 +647,21 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return;
 				}
 
+				if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
+					loader.abandon();
+				}
 				mPlay.fromCursor(cursor);
 				mOriginalPlay = new Play(mPlay);
-				changeName(mPlay.GameName);
-				supportInvalidateOptionsMenu();
 				bindUiPlay();
+				mPlayLoaded = true;
+				if (mPlayersLoaded) {
+					createCopy();
+				}
 				break;
 			case PlayerQuery._TOKEN:
+				if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
+					loader.abandon();
+				}
 				mPlay.clearPlayers();
 				while (cursor.moveToNext()) {
 					Player player = new Player(cursor);
@@ -659,6 +669,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 				mOriginalPlay = new Play(mPlay);
 				bindUiPlayers();
+				mPlayersLoaded = true;
+				if (mPlayLoaded) {
+					createCopy();
+				}
 				break;
 			default:
 				if (cursor != null && !cursor.isClosed()) {
@@ -672,9 +686,23 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	private void createCopy() {
+		if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
+			mPlay.resetForCopy();
+			mOriginalPlay = new Play(mPlay);
+			bindUi();
+			saveDraft(false);
+			mDeleteOnCancel = true;
+			getIntent().setAction(Intent.ACTION_EDIT);
+		}
+	}
+
 	private void changeName(String gameName) {
 		if (!TextUtils.isEmpty(gameName)) {
-			getSupportActionBar().setSubtitle(gameName);
+			ActionBar ab = getSupportActionBar();
+			if (!gameName.equals(ab.getSubtitle())) {
+				ab.setSubtitle(gameName);
+			}
 		}
 	}
 

@@ -250,6 +250,9 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 					}).show();
 				return true;
 			}
+			case R.id.menu_play_again:
+				ActivityUtils.logPlayAgain(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
 					mPlay.toLongDescription(getActivity()), R.string.share_play_title);
