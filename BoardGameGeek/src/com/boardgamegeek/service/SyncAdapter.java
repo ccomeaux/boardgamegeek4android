@@ -225,6 +225,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title)
 			.setPriority(NotificationCompat.PRIORITY_LOW)
+			.setOngoing(true)
 			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 	}
 
