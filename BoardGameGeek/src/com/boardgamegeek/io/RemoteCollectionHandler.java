@@ -46,11 +46,10 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 	 * 
 	 * @param startTime
 	 * @param complete
-	 *            True if the data is complete and the record can be marked as
-	 *            updated
+	 *            True if the data is complete and the record can be marked as updated
 	 * @param updateGame
-	 *            True to update the game record (false saves time, especially
-	 *            when sync a large portion of the collection
+	 *            True to update the game record (false saves time, especially when sync a large portion of the
+	 *            collection
 	 */
 	public RemoteCollectionHandler(long startTime, boolean complete, boolean updateGame) {
 		super();
@@ -128,7 +127,7 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 			}
 		}
 		LOGI(TAG, "Updated " + mUpdateGameCount + ", inserted " + mInsertGameCount + ", skipped " + mSkipGameCount
-				+ " games");
+			+ " games");
 		LOGI(TAG, "Updated " + mUpdateCollectionCount + ", inserted " + mInsertCollectionCount + ", skipped "
 			+ mSkipCollectionCount + " collection items");
 	}
@@ -241,7 +240,6 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 				}
 			} else if (type == END_TAG) {
 				tag = null;
-				sortIndex = 1;
 			} else if (type == TEXT) {
 				String text = mParser.getText();
 				if (Tags.NAME.equals(tag)) {
@@ -251,7 +249,12 @@ public class RemoteCollectionHandler extends RemoteBggHandler {
 					gameValues.put(Games.GAME_NAME, text);
 					gameValues.put(Games.GAME_SORT_NAME, sortName);
 				} else if (Tags.ORIGINAL_NAME.equals(tag)) {
+					String sortName = StringUtils.createSortName(text, sortIndex);
 					gameValues.put(Games.GAME_NAME, text);
+					gameValues.put(Games.GAME_NAME, sortName);
+					// if there's an original name, the sort name isn't reliable
+					collectionValues.put(Collection.COLLECTION_SORT_NAME,
+						collectionValues.getAsString(Collection.COLLECTION_NAME));
 				} else if (Tags.YEAR_PUBLISHED.equals(tag)) {
 					int year = StringUtils.parseInt(text);
 					collectionValues.put(Collection.COLLECTION_YEAR_PUBLISHED, year);
