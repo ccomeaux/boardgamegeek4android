@@ -201,8 +201,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
 				null);
 		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, SumQuery.PROJECTION, selection(),
-				selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), mUri, SumQuery.PROJECTION, selection(), selectionArgs(), null);
 		}
 		return loader;
 	}
