@@ -126,10 +126,7 @@
 	<style name="InfoSection">
 		<item name="android:background">@drawable/grey_frame_on_white_b</item>
 		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:paddingBottom">@dimen/padding_standard</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
-		<item name="android:paddingTop">@dimen/padding_standard</item>
+		<item name="android:padding">@dimen/padding_standard</item>
 	</style>
 
 	<style name="Text.Header">
