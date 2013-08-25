@@ -138,6 +138,7 @@
 
 	<style name="Text.Header.Underline">
 		<item name="android:background">@drawable/underline</item>
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
 	</style>
 
 	<style name="Text.Header.Expandable">

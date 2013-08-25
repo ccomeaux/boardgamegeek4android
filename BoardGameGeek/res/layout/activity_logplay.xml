@@ -2,17 +2,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:fillViewport="true" >
+	android:fillViewport="true"
+	android:padding="@dimen/padding_standard" >
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="top"
-		android:orientation="vertical"
-		android:paddingBottom="@dimen/padding_standard"
-		android:paddingLeft="@dimen/padding_extra"
-		android:paddingRight="@dimen/padding_extra"
-		android:paddingTop="@dimen/padding_standard" >
+		android:orientation="vertical" >
 
 		<TableLayout
 			android:id="@+id/details"
