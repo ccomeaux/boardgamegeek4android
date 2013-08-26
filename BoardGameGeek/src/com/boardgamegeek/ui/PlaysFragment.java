@@ -44,6 +44,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -398,7 +399,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 			UIUtils.setActivatedCompat(view, cursor.getInt(PlaysQuery.PLAY_ID) == mSelectedPlayId);
 
-			holder.date.setText(cursor.getString(PlaysQuery.DATE));
+			holder.date.setText(CursorUtils.getFormettedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
 			String location = cursor.getString(PlaysQuery.LOCATION);
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);

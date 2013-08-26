@@ -1,6 +1,11 @@
 package com.boardgamegeek.util;
 
+import java.util.Calendar;
+
+import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 public class CursorUtils {
 
@@ -77,5 +82,26 @@ public class CursorUtils {
 			array[i++] = cursor.getString(columnIndex);
 		}
 		return array;
+	}
+
+	public static String getFormettedDate(Cursor cursor, Context context, int columnIndex) {
+		return getFormettedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
+	}
+
+	public static String getFormettedDateAbbreviated(Cursor cursor, Context context, int columnIndex) {
+		return getFormettedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+	}
+
+	private static String getFormettedDate(Cursor cursor, Context context, int columnIndex, int flags) {
+		String date = cursor.getString(columnIndex);
+		if (!TextUtils.isEmpty(date)) {
+			int year = Integer.parseInt(date.substring(0, 4));
+			int month = Integer.parseInt(date.substring(5, 7)) - 1;
+			int day = Integer.parseInt(date.substring(8, 10));
+			Calendar c = Calendar.getInstance();
+			c.set(year, month, day);
+			return DateUtils.formatDateTime(context, c.getTimeInMillis(), flags);
+		}
+		return null;
 	}
 }

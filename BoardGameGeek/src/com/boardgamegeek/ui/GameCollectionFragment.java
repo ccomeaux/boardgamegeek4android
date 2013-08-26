@@ -34,6 +34,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.BezelImageView;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.StringUtils;
@@ -65,11 +66,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-	}
-
-	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		mImageFetcher.closeCache();
@@ -91,12 +87,13 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_game_collection));
-		setListShown(false);
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
 		if (uri != null && Games.isGameUri(uri)) {
 			mMightNeedRefreshing = true;
 			mGameId = Games.getGameId(uri);
 			getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
+		} else {
+			setListShown(true);
 		}
 	}
 
@@ -412,8 +409,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			// TODO format this; is currently YYYY-MM-DD
-			acquisitionDate = cursor.getString(PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = CursorUtils.getFormettedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
 			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
