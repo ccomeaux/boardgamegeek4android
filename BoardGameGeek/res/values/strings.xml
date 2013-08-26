@@ -246,6 +246,7 @@
 	<string name="msg_play_added">Logged your %1$s play of \"%2$s\"</string>
 	<string name="msg_play_updated">Updated a play of \"%2$s\"</string>
 	<string name="msg_play_deleted">Deleted a play of \"%s\"</string>
+	<string name="msg_play_deleted_draft">Deleted a draft of \"%s\"</string>
 	<string name="msg_play_update_bad_id">Play was already deleted.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
