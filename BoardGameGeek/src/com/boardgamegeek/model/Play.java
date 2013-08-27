@@ -402,13 +402,23 @@ public class Play {
 	/**
 	 * Determines if this play appears to have started.
 	 * 
-	 * @return true, if the start time has been set.
+	 * @return true, if it's not ended and the start time has been set.
 	 */
 	public boolean hasStarted() {
-		if (StartTime > 0) {
+		if (!hasEnded() && StartTime > 0) {
 			return true;
 		}
 		return false;
+	}
+
+	public void start() {
+		Length = 0;
+		StartTime = System.currentTimeMillis();
+	}
+
+	public void end() {
+		Length = DateTimeUtils.howManyMinutesOld(StartTime);
+		StartTime = 0;
 	}
 
 	/**
@@ -428,19 +438,6 @@ public class Play {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * The calculated length, based on either the actual length, or the time since it started
-	 */
-	public int getCalculatedLength() {
-		if (Length > 0) {
-			return Length;
-		}
-		if (StartTime == 0) {
-			return 0;
-		}
-		return DateTimeUtils.howManyMinutesOld(StartTime);
 	}
 
 	/**

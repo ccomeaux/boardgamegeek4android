@@ -105,6 +105,32 @@
 			</TableRow>
 		</TableLayout>
 
+		<LinearLayout
+			android:id="@+id/timer_root"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/background_light" >
+
+			<Chronometer
+				android:id="@+id/timer"
+				style="@style/Text.Title2"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center"
+				android:maxLines="1"
+				android:textIsSelectable="false" />
+
+			<Button
+				android:id="@+id/timer_end"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center"
+				android:onClick="onTimerEnd"
+				android:text="@string/end_play" />
+		</LinearLayout>
+
 		<TextView
 			android:id="@+id/log_play_comments_label"
 			style="@style/Text.Header.Underline"

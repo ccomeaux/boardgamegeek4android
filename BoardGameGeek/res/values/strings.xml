@@ -56,6 +56,7 @@
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="start">Start</string>
+	<string name="end_play">End play</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
 	<string name="include_missing_values">Include games with missing values</string>

@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -27,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -86,6 +88,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private AutoCompleteTextView mLocationView;
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
+	private Chronometer mTimer;
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
 	private LinearLayout mPlayerList;
@@ -136,6 +139,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
+			signalDataLoaded();
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
 			if (playId > 0) {
@@ -147,8 +151,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				// Starting a new play
 				mDeleteOnCancel = true;
 				saveDraft(false);
+				mOriginalPlay = new Play(mPlay);
+				signalDataLoaded();
 			}
-			mOriginalPlay = new Play(mPlay);
 		}
 
 		bindUi();
@@ -205,11 +210,23 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
-		menu.findItem(R.id.menu_add_field).setVisible(
-			shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
-				|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
-		menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
+		if (mPlayLoaded && mPlayersLoaded) {
+			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
+			menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
+			menu.findItem(R.id.menu_add_field).setVisible(
+				shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
+					|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
+			menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
+			menu.findItem(R.id.menu_save).setVisible(true);
+			menu.findItem(R.id.menu_cancel).setVisible(true);
+		} else {
+			menu.findItem(R.id.menu_send).setVisible(false);
+			menu.findItem(R.id.menu_start).setVisible(false);
+			menu.findItem(R.id.menu_add_field).setVisible(false);
+			menu.findItem(R.id.menu_player_order).setVisible(false);
+			menu.findItem(R.id.menu_save).setVisible(false);
+			menu.findItem(R.id.menu_cancel).setVisible(false);
+		}
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -224,8 +241,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				finish();
 				return true;
 			case R.id.menu_start:
-				startPlay();
-				supportInvalidateOptionsMenu();
+				mPlay.start();
+				saveDraft(false);
+				NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
+				bindUiPlay();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -362,12 +381,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		PlayPersister.save(getContentResolver(), mPlay);
 	}
 
-	private void startPlay() {
-		mPlay.StartTime = System.currentTimeMillis();
-		saveDraft(false);
-		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
-	}
-
 	private void cancel() {
 		captureForm();
 		if (mPlay.equals(mOriginalPlay)) {
@@ -458,6 +471,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
+	public void onTimerEnd(final View view) {
+		mPlay.end();
+		bindUi();
+	}
+
 	private void bindUi() {
 		bindUiPlay();
 		bindUiPlayers();
@@ -467,8 +485,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		changeName(mPlay.GameName);
 		setDateButtonText();
 		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
-		mLengthView.setText((mPlay.getCalculatedLength() == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay
-			.getCalculatedLength()));
+		mLengthView.setText((mPlay.Length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.Length));
+		mTimer.setBase(mPlay.StartTime - System.currentTimeMillis() + SystemClock.elapsedRealtime());
+		mTimer.start();
 		mLocationView.setText(mPlay.Location);
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
@@ -540,6 +559,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mLocationView = (AutoCompleteTextView) findViewById(R.id.log_play_location);
 		mIncompleteView = (CheckBox) findViewById(R.id.log_play_incomplete);
 		mNoWinStatsView = (CheckBox) findViewById(R.id.log_play_no_win_stats);
+		mTimer = (Chronometer) findViewById(R.id.timer);
 		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
 		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
@@ -547,10 +567,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void hideFields() {
 		findViewById(R.id.log_play_length_label).setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
-		findViewById(R.id.log_play_length).setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
+		mLengthView.setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
 
 		findViewById(R.id.log_play_quantity_label).setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
-		findViewById(R.id.log_play_quantity).setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
+		mQuantityView.setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
 
 		findViewById(R.id.log_play_length_quantity_root).setVisibility(
 			shouldHideLength() && shouldHideQuantity() ? View.GONE : View.VISIBLE);
@@ -560,6 +580,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 		mIncompleteView.setVisibility(shouldHideIncomplete() ? View.GONE : View.VISIBLE);
 		mNoWinStatsView.setVisibility(shouldHideNoWinStats() ? View.GONE : View.VISIBLE);
+
+		findViewById(R.id.timer_root).setVisibility(mPlay.hasStarted() ? View.VISIBLE : View.GONE);
 
 		findViewById(R.id.log_play_comments_label).setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
 		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
@@ -573,7 +595,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private boolean shouldHideLength() {
-		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.getCalculatedLength() > 0);
+		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.Length > 0);
 	}
 
 	private boolean shouldHideLocation() {
@@ -647,31 +669,25 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return;
 				}
 
-				if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
-					loader.abandon();
-				}
+				loader.abandon();
 				mPlay.fromCursor(cursor);
-				mOriginalPlay = new Play(mPlay);
 				bindUiPlay();
 				mPlayLoaded = true;
 				if (mPlayersLoaded) {
-					createCopy();
+					onQueriesComplete();
 				}
 				break;
 			case PlayerQuery._TOKEN:
-				if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
-					loader.abandon();
-				}
+				loader.abandon();
 				mPlay.clearPlayers();
 				while (cursor.moveToNext()) {
 					Player player = new Player(cursor);
 					mPlay.addPlayer(player);
 				}
-				mOriginalPlay = new Play(mPlay);
 				bindUiPlayers();
 				mPlayersLoaded = true;
 				if (mPlayLoaded) {
-					createCopy();
+					onQueriesComplete();
 				}
 				break;
 			default:
@@ -686,7 +702,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
-	private void createCopy() {
+	private void onQueriesComplete() {
+		mOriginalPlay = new Play(mPlay);
+		signalDataLoaded();
+		maybeCreateCopy();
+	}
+
+	private void maybeCreateCopy() {
 		if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
 			mPlay.resetForCopy();
 			mOriginalPlay = new Play(mPlay);
@@ -695,6 +717,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mDeleteOnCancel = true;
 			getIntent().setAction(Intent.ACTION_EDIT);
 		}
+	}
+
+	private void signalDataLoaded() {
+		mPlayLoaded = true;
+		mPlayersLoaded = true;
+		supportInvalidateOptionsMenu();
 	}
 
 	private void changeName(String gameName) {
