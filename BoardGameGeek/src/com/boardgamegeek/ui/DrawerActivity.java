@@ -75,7 +75,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	public boolean isDrawerOpen() {
-		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerList);
+		return mDrawerLayout != null && mDrawerList != null && mDrawerLayout.isDrawerOpen(mDrawerList);
 	}
 
 	@Override
