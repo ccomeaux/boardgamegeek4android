@@ -169,12 +169,23 @@ public class ActivityUtils {
 	}
 
 	public static void editPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {
+		Intent intent = createEditPlayIntent(activity, playId, gameId, gameName);
+		activity.startActivityForResult(intent, requestCode);
+	}
+
+	public static void endPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {
+		Intent intent = createEditPlayIntent(activity, playId, gameId, gameName);
+		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
+		activity.startActivityForResult(intent, requestCode);
+	}
+
+	private static Intent createEditPlayIntent(Activity activity, int playId, int gameId, String gameName) {
 		Intent intent = new Intent(activity, LogPlayActivity.class);
 		intent.setAction(Intent.ACTION_EDIT);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		activity.startActivityForResult(intent, requestCode);
+		return intent;
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName) {

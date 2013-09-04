@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spanned;
@@ -18,6 +19,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.Chronometer;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -149,5 +151,10 @@ public class UIUtils {
 
 	public static void setWebViewText(WebView view, String text) {
 		view.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
+	}
+
+	public static void startTimerWithSystemTime(Chronometer timer, long time) {
+		timer.setBase(time - System.currentTimeMillis() + SystemClock.elapsedRealtime());
+		timer.start();
 	}
 }

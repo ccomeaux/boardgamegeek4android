@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -17,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -61,6 +61,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	private TextView mQuantity;
 	private View mLengthRoot;
 	private TextView mLength;
+	private View mTimerRoot;
 	private Chronometer mTimer;
 	private View mLocationRoot;
 	private TextView mLocation;
@@ -155,7 +156,15 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mLengthRoot = rootView.findViewById(R.id.length_root);
 		mLength = (TextView) rootView.findViewById(R.id.play_length);
 
+		mTimerRoot = rootView.findViewById(R.id.timer_root);
 		mTimer = (Chronometer) rootView.findViewById(R.id.timer);
+		Button b = (Button) rootView.findViewById(R.id.timer_end);
+		b.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
+			}
+		});
 
 		mLocationRoot = rootView.findViewById(R.id.location_root);
 		mLocation = (TextView) rootView.findViewById(R.id.play_location);
@@ -343,12 +352,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
 		mLengthRoot.setVisibility(mPlay.Length > 0 ? View.VISIBLE : View.GONE);
 
-		if (mPlay.StartTime > 0) {
-			mTimer.setBase(mPlay.StartTime - System.currentTimeMillis() + SystemClock.elapsedRealtime());
-			mTimer.setVisibility(View.VISIBLE);
-			mTimer.start();
+		if (mPlay.hasStarted()) {
+			mTimerRoot.setVisibility(View.VISIBLE);
+			UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
 		} else {
-			mTimer.setVisibility(View.GONE);
+			mTimerRoot.setVisibility(View.GONE);
 			mTimer.stop();
 		}
 

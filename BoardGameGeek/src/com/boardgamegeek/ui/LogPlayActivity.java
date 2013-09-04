@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -68,6 +67,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_END_PLAY = "END_PLAY";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -103,6 +103,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mCommentsShown;
 	private boolean mPlayersShown;
 	private boolean mDeleteOnCancel;
+	private boolean mEndPlay;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
+		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
 
 		if (gameId <= 0) {
 			LOGW(TAG, "Can't log a play without a game ID.");
@@ -171,6 +173,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
+		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(this, mPlay);
+		}
 	}
 
 	@Override
@@ -243,7 +254,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			case R.id.menu_start:
 				mPlay.start();
 				saveDraft(false);
-				NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 				bindUiPlay();
 				return true;
 			case R.id.menu_cancel:
@@ -473,7 +483,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	public void onTimerEnd(final View view) {
 		mPlay.end();
-		bindUi();
+		bindUiPlay();
+		mLengthView.requestFocus();
 	}
 
 	private void bindUi() {
@@ -486,8 +497,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setDateButtonText();
 		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
 		mLengthView.setText((mPlay.Length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.Length));
-		mTimer.setBase(mPlay.StartTime - System.currentTimeMillis() + SystemClock.elapsedRealtime());
-		mTimer.start();
+		UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
 		mLocationView.setText(mPlay.Location);
 		mIncompleteView.setChecked(mPlay.Incomplete);
 		mNoWinStatsView.setChecked(mPlay.NoWinStats);
@@ -671,6 +681,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 				loader.abandon();
 				mPlay.fromCursor(cursor);
+				if (mEndPlay) {
+					mPlay.end();
+				}
 				bindUiPlay();
 				mPlayLoaded = true;
 				if (mPlayersLoaded) {
