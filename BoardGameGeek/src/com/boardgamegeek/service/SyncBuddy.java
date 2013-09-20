@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.UserUrlBuilder;
+import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class SyncBuddy extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncBuddy.class);

@@ -38,9 +38,9 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
-import com.boardgamegeek.util.CollectionUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class BuddyCollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
 	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);

@@ -8,7 +8,7 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.CollectionUrlBuilder;
+import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class SyncGameCollection extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGameCollection.class);

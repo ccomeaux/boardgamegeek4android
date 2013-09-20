@@ -1,4 +1,4 @@
-package com.boardgamegeek.util;
+package com.boardgamegeek.util.url;
 
 public class UserUrlBuilder extends UrlBuilder {
 	private final String mUsername;

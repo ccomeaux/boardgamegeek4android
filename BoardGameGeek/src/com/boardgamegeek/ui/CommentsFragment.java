@@ -35,10 +35,10 @@ import com.boardgamegeek.io.RemoteCommentsHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.GameUrlBuilder;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.url.GameUrlBuilder;
 
 public class CommentsFragment extends SherlockListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<Comment>> {
