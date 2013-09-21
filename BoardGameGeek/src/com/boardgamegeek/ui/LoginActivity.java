@@ -222,12 +222,10 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		LOGI(TAG, "Creating account");
 		final Account account = new Account(mUsername, BggApplication.ACCOUNT_TYPE);
 		AuthProfile ap = new AuthProfile(cs);
-		
+
 		mAccountManager.setAuthToken(account, BggApplication.AUTHTOKEN_TYPE, ap.authToken);
 		Bundle userData = new Bundle();
 		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
-		userData.putString(Authenticator.KEY_SESSION_ID, ap.sessionId);
-		userData.putString(Authenticator.KEY_SESSION_ID_EXPIRY, String.valueOf(ap.sessionIdExpiry));
 
 		if (mRequestNewAccount) {
 			if (!mAccountManager.addAccountExplicitly(account, mPassword, userData)) {

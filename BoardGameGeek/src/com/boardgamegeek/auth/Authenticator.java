@@ -85,6 +85,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			CookieStore cs = HttpUtils.authenticate(account.name, password);
 			AuthProfile ap = new AuthProfile(cs);
 			am.setAuthToken(account, authTokenType, ap.authToken);
+			am.setUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
 			return createAuthTokenBundle(account, ap.authToken);
 		}
 
