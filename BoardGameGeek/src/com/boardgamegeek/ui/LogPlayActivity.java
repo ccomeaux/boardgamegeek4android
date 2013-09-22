@@ -175,15 +175,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
-		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(this, mPlay);
-		}
 	}
 
 	@Override
@@ -256,6 +247,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			case R.id.menu_start:
 				mPlay.start();
 				saveDraft(false);
+				NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 				bindUiPlay();
 				return true;
 			case R.id.menu_cancel:

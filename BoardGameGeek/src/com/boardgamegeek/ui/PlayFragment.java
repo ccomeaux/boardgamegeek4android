@@ -125,20 +125,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay);
-		}
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
 
@@ -339,6 +325,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		}
 
 		mPlay.fromCursor(cursor);
+
+		if (mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+		}
 
 		mCallbacks.onNameChanged(mPlay.GameName);
 
