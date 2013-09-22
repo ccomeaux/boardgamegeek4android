@@ -198,7 +198,8 @@ public class ActivityUtils {
 
 	public static void logPlayAgain(Context context, int playId, int gameId, String gameName) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.setAction(LogPlayActivity.ACTION_PLAY_AGAIN);
+		intent.setAction(Intent.ACTION_EDIT);
+		intent.putExtra(LogPlayActivity.KEY_PLAY_AGAIN, true);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);

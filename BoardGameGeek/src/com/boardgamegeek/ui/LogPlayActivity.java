@@ -63,11 +63,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final int REQUEST_ADD_PLAYER = 0;
 
 	public static final int RESULT_UPDATED = RESULT_FIRST_USER;
-	public static final String ACTION_PLAY_AGAIN = "com.boardgamegeek.intent.action.PLAY_AGAIN";
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_END_PLAY = "END_PLAY";
+	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -104,6 +104,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mPlayersShown;
 	private boolean mDeleteOnCancel;
 	private boolean mEndPlay;
+	private boolean mPlayAgain;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setUiVariables();
 
 		final Intent intent = getIntent();
-		if (!Intent.ACTION_EDIT.equals(intent.getAction()) && !ACTION_PLAY_AGAIN.equals(intent.getAction())) {
+		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
@@ -122,6 +123,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
+		mPlayAgain = intent.getBooleanExtra(KEY_PLAY_AGAIN, false);
 
 		if (gameId <= 0) {
 			LOGW(TAG, "Can't log a play without a game ID.");
@@ -722,13 +724,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void maybeCreateCopy() {
-		if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
+		if (mPlayAgain) {
+			mPlayAgain = false;
 			mPlay.resetForCopy();
 			mOriginalPlay = new Play(mPlay);
 			bindUi();
 			saveDraft(false);
 			mDeleteOnCancel = true;
-			getIntent().setAction(Intent.ACTION_EDIT);
 		}
 	}
 
