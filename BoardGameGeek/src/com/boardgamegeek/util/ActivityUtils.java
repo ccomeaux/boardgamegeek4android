@@ -37,7 +37,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -187,16 +186,13 @@ public class ActivityUtils {
 	}
 
 	public static void logPlay(Context context, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, BggContract.INVALID_ID, gameId, gameName);
+		Intent intent = createEditPlayIntent(context, 0, gameId, gameName);
 		context.startActivity(intent);
 	}
 
 	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName) {
-		Intent intent = new Intent(context, LogPlayActivity.class);
+		Intent intent = createPlayIntent(playId, gameId, gameName);
 		intent.setAction(Intent.ACTION_EDIT);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
 		return intent;
 	}
 

@@ -153,6 +153,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
 				// Starting a new play
+				mPlay.PlayId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
 				saveDraft(false);
 				mOriginalPlay = new Play(mPlay);
@@ -362,7 +363,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-		setResult(RESULT_UPDATED);
 		finish();
 	}
 

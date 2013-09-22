@@ -169,9 +169,17 @@
 		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
-			android:label="@string/title_play" >
+			android:label="@string/title_play"
+			android:launchMode="singleTop" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
+
+				<category android:name="android.intent.category.DEFAULT" />
+
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.play" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.EDIT" />
 
 				<category android:name="android.intent.category.DEFAULT" />
 
