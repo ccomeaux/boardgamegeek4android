@@ -417,8 +417,10 @@ public class Play {
 	}
 
 	public void end() {
-		Length = DateTimeUtils.howManyMinutesOld(StartTime);
-		StartTime = 0;
+		if (StartTime > 0) {
+			Length = DateTimeUtils.howManyMinutesOld(StartTime);
+			StartTime = 0;
+		}
 	}
 
 	/**
