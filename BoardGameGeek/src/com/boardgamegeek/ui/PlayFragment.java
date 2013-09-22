@@ -148,7 +148,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
+				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 			}
 		});
 
@@ -229,7 +229,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				}
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
+				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);

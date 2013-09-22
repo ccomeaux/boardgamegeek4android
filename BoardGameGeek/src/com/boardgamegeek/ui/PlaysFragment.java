@@ -547,7 +547,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				mode.finish();
 				Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPlaysPositions.iterator().next());
 				ActivityUtils.editPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
-					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME), 0);
+					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME));
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
