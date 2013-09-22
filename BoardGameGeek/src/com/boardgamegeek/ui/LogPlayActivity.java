@@ -390,7 +390,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (mPlay.equals(mOriginalPlay)) {
 			if (mDeleteOnCancel) {
 				save(Play.SYNC_STATUS_PENDING_DELETE);
-				setResult(RESULT_CANCELED);
+				setResult(RESULT_OK);
 			}
 			triggerUpload();
 			finish();
@@ -400,7 +400,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							save(Play.SYNC_STATUS_PENDING_DELETE);
-							setResult(RESULT_CANCELED);
+							setResult(RESULT_OK);
 							triggerUpload();
 							finish();
 						}
