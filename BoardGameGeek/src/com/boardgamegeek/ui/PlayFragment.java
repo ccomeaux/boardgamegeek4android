@@ -239,6 +239,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							if (mPlay.hasStarted()) {
+								NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+							}
+							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
 							mCallbacks.onDeleted();
 						}
@@ -314,6 +318,12 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	public void setNewPlayId(int playId) {
+		mPlayUri = Plays.buildPlayUri(playId);
+		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 	}
 
 	private void onPlayQueryComplete(Cursor cursor) {

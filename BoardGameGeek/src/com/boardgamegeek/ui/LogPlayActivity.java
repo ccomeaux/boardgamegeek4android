@@ -62,7 +62,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final int HELP_VERSION = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
 
-	public static final int RESULT_UPDATED = RESULT_FIRST_USER;
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
@@ -156,6 +155,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.PlayId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
 				saveDraft(false);
+				setResult(mPlay.PlayId);
 				mOriginalPlay = new Play(mPlay);
 				signalDataLoaded();
 			}
@@ -390,9 +390,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (mPlay.equals(mOriginalPlay)) {
 			if (mDeleteOnCancel) {
 				save(Play.SYNC_STATUS_PENDING_DELETE);
+				setResult(RESULT_CANCELED);
 			}
 			triggerUpload();
-			setResult(RESULT_UPDATED);
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
@@ -400,8 +400,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							save(Play.SYNC_STATUS_PENDING_DELETE);
+							setResult(RESULT_CANCELED);
 							triggerUpload();
-							setResult(RESULT_UPDATED);
 							finish();
 						}
 					}).show();
