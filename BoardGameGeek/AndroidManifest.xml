@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="30"
-	android:versionName="develop" >
+	android:versionName="4.5" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
@@ -194,8 +194,7 @@
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="true"
-			android:label="@string/search_label"
-			android:launchMode="singleTop" >
+			android:label="@string/search_label" >
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 

@@ -35,11 +35,11 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		if (requestCode == REQUEST_EDIT_PLAY) {
 			switch (resultCode) {
 				case RESULT_OK:
-					// do nothing
-					break;
-				case RESULT_CANCELED:
 					// new play was deleted
 					finish();
+					break;
+				case RESULT_CANCELED:
+					// do nothing
 					break;
 				default:
 					// resultCode is a new playId
