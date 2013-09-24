@@ -722,6 +722,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mOriginalPlay = new Play(mPlay);
 			bindUi();
 			saveDraft(false);
+			setResult(mPlay.PlayId);
 			mDeleteOnCancel = true;
 		}
 	}
