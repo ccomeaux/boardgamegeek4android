@@ -62,12 +62,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final int HELP_VERSION = 1;
 	private static final int REQUEST_ADD_PLAYER = 0;
 
-	public static final int RESULT_UPDATED = RESULT_FIRST_USER;
-	public static final String ACTION_PLAY_AGAIN = "com.boardgamegeek.intent.action.PLAY_AGAIN";
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_END_PLAY = "END_PLAY";
+	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -104,6 +103,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mPlayersShown;
 	private boolean mDeleteOnCancel;
 	private boolean mEndPlay;
+	private boolean mPlayAgain;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,7 +113,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		setUiVariables();
 
 		final Intent intent = getIntent();
-		if (!Intent.ACTION_EDIT.equals(intent.getAction()) && !ACTION_PLAY_AGAIN.equals(intent.getAction())) {
+		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
@@ -122,6 +122,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
+		mPlayAgain = intent.getBooleanExtra(KEY_PLAY_AGAIN, false);
 
 		if (gameId <= 0) {
 			LOGW(TAG, "Can't log a play without a game ID.");
@@ -151,8 +152,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
 				// Starting a new play
+				mPlay.PlayId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
 				saveDraft(false);
+				setResult(mPlay.PlayId);
 				mOriginalPlay = new Play(mPlay);
 				signalDataLoaded();
 			}
@@ -173,15 +176,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
-		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(this, mPlay);
-		}
 	}
 
 	@Override
@@ -254,6 +248,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			case R.id.menu_start:
 				mPlay.start();
 				saveDraft(false);
+				NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 				bindUiPlay();
 				return true;
 			case R.id.menu_cancel:
@@ -368,7 +363,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-		setResult(RESULT_UPDATED);
 		finish();
 	}
 
@@ -396,9 +390,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (mPlay.equals(mOriginalPlay)) {
 			if (mDeleteOnCancel) {
 				save(Play.SYNC_STATUS_PENDING_DELETE);
+				setResult(RESULT_OK);
 			}
 			triggerUpload();
-			setResult(RESULT_UPDATED);
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
@@ -406,8 +400,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							save(Play.SYNC_STATUS_PENDING_DELETE);
+							setResult(RESULT_OK);
 							triggerUpload();
-							setResult(RESULT_UPDATED);
 							finish();
 						}
 					}).show();
@@ -722,13 +716,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void maybeCreateCopy() {
-		if (ACTION_PLAY_AGAIN.equals(getIntent().getAction())) {
+		if (mPlayAgain) {
+			mPlayAgain = false;
 			mPlay.resetForCopy();
 			mOriginalPlay = new Play(mPlay);
 			bindUi();
 			saveDraft(false);
+			setResult(mPlay.PlayId);
 			mDeleteOnCancel = true;
-			getIntent().setAction(Intent.ACTION_EDIT);
 		}
 	}
 

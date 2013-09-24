@@ -168,41 +168,32 @@ public class ActivityUtils {
 		return intent;
 	}
 
-	public static void editPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {
-		Intent intent = createEditPlayIntent(activity, playId, gameId, gameName);
-		activity.startActivityForResult(intent, requestCode);
+	public static void editPlay(Context context, int playId, int gameId, String gameName) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
+		context.startActivity(intent);
 	}
 
-	public static void endPlay(Activity activity, int playId, int gameId, String gameName, int requestCode) {
-		Intent intent = createEditPlayIntent(activity, playId, gameId, gameName);
+	public static void endPlay(Context context, int playId, int gameId, String gameName) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
-		activity.startActivityForResult(intent, requestCode);
-	}
-
-	private static Intent createEditPlayIntent(Activity activity, int playId, int gameId, String gameName) {
-		Intent intent = new Intent(activity, LogPlayActivity.class);
-		intent.setAction(Intent.ACTION_EDIT);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
-		return intent;
-	}
-
-	public static void logPlay(Context context, int gameId, String gameName) {
-		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.setAction(Intent.ACTION_EDIT);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
 		context.startActivity(intent);
 	}
 
 	public static void logPlayAgain(Context context, int playId, int gameId, String gameName) {
-		Intent intent = new Intent(context, LogPlayActivity.class);
-		intent.setAction(LogPlayActivity.ACTION_PLAY_AGAIN);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
-		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
+		intent.putExtra(LogPlayActivity.KEY_PLAY_AGAIN, true);
 		context.startActivity(intent);
+	}
+
+	public static void logPlay(Context context, int gameId, String gameName) {
+		Intent intent = createEditPlayIntent(context, 0, gameId, gameName);
+		context.startActivity(intent);
+	}
+
+	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName) {
+		Intent intent = createPlayIntent(playId, gameId, gameName);
+		intent.setAction(Intent.ACTION_EDIT);
+		return intent;
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {

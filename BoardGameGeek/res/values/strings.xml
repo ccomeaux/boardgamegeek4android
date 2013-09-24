@@ -313,7 +313,8 @@
 - NEW: Option to play a game again<br/>
 - MOD: Play count is now more accurate<br/>
 - MOD: Update collection items more completely during a sync<br/>
-- <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous version</a><br/>
+- BUG: Fix yet another auth problem<br/>
+- <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous versions</a><br/>
 <br/>
 <b>Designed and developed by</b><br/>
 Dennis Bond (<a href="http://boardgamegeek.com/user/rjnfc">rjnfc</a>), Chris Comeaux (<a href="http://boardgamegeek.com/user/ccomeaux">ccomeaux</a>), Marek Jeszka (<a href="http://boardgamegeek.com/user/Marc6">Marc6</a>), Gareth McSorley (<a href="http://boardgamegeek.com/user/Capoeirista">Capoeirista</a>), Leif Norcott (<a href="http://boardgamegeek.com/user/nibuen">nibuen</a>)<br/>

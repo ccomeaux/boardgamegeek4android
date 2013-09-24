@@ -125,20 +125,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay);
-		}
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
 
@@ -162,7 +148,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
+				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 			}
 		});
 
@@ -243,7 +229,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				}
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName, mPlay.SyncStatus);
+				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -253,6 +239,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							if (mPlay.hasStarted()) {
+								NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+							}
+							mPlay.end(); // this prevents the timer from reappearing
 							save(Play.SYNC_STATUS_PENDING_DELETE);
 							mCallbacks.onDeleted();
 						}
@@ -330,6 +320,12 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	public void setNewPlayId(int playId) {
+		mPlayUri = Plays.buildPlayUri(playId);
+		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+	}
+
 	private void onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
@@ -339,6 +335,10 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		}
 
 		mPlay.fromCursor(cursor);
+
+		if (mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+		}
 
 		mCallbacks.onNameChanged(mPlay.GameName);
 
