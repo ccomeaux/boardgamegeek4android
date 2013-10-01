@@ -25,9 +25,9 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggHandler {

@@ -1,4 +1,4 @@
-package com.boardgamegeek.database;
+package com.boardgamegeek.util;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;

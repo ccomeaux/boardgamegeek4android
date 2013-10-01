@@ -1,4 +1,4 @@
-package com.boardgamegeek.database;
+package com.boardgamegeek.model.persister;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
@@ -21,6 +21,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.ResolverUtils;
 
 public class PlayPersister {
 	private static final String TAG = makeLogTag(PlayPersister.class);

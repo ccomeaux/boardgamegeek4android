@@ -12,12 +12,12 @@ import android.accounts.Account;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.GameUrlBuilder;
+import com.boardgamegeek.util.ResolverUtils;
 
 public class SyncCollectionDetailUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailUnupdated.class);

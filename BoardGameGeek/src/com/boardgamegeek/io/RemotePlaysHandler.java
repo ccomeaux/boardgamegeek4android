@@ -19,9 +19,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.database.Cursor;
 import android.text.TextUtils;
 
-import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.persister.PlayPersister;
 
 public class RemotePlaysHandler extends RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemotePlaysHandler.class);

@@ -33,7 +33,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -42,6 +41,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ImageFetcher;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {

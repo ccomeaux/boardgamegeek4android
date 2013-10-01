@@ -14,7 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentValues;
 import android.net.Uri;
 
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -31,6 +30,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteGameHandler extends RemoteBggHandler {
