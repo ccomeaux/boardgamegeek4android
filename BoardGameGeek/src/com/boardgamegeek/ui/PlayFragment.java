@@ -30,6 +30,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -334,7 +335,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			return;
 		}
 
-		mPlay.fromCursor(cursor);
+		mPlay = PlayBuilder.fromCursor(cursor);
 
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(getActivity(), mPlay);

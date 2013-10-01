@@ -1,5 +1,6 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
@@ -35,6 +36,8 @@ import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
@@ -75,7 +78,7 @@ public class SyncPlaysUpload extends SyncTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = new Play().fromCursor(cursor, mContext, true);
+				Play play = PlayBuilder.fromCursor(cursor, mContext, true);
 
 				PlayUpdateResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
@@ -120,7 +123,7 @@ public class SyncPlaysUpload extends SyncTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = new Play().fromCursor(cursor);
+				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId, syncResult);
 					if (TextUtils.isEmpty(error)) {
@@ -144,7 +147,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayUpdateResponse postPlayUpdate(Play play) {
-		List<NameValuePair> nvps = play.toNameValuePairs();
+		List<NameValuePair> nvps = toNameValuePairs(play);
 		UrlEncodedFormEntity entity;
 		try {
 			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
@@ -256,6 +259,34 @@ public class SyncPlaysUpload extends SyncTask {
 			return e.toString();
 		}
 		return "";
+	}
+
+	public List<NameValuePair> toNameValuePairs(Play play) {
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		nvps.add(new BasicNameValuePair("ajax", "1"));
+		nvps.add(new BasicNameValuePair("action", "save"));
+		nvps.add(new BasicNameValuePair("version", "2"));
+		nvps.add(new BasicNameValuePair("objecttype", "thing"));
+		if (play.hasBeenSynced()) {
+			nvps.add(new BasicNameValuePair("playid", String.valueOf(play.PlayId)));
+		}
+		nvps.add(new BasicNameValuePair("objectid", String.valueOf(play.GameId)));
+		nvps.add(new BasicNameValuePair("playdate", play.getDate()));
+		nvps.add(new BasicNameValuePair("dateinput", play.getDate())); // TODO: ask Aldie what this is
+		nvps.add(new BasicNameValuePair("length", String.valueOf(play.Length)));
+		nvps.add(new BasicNameValuePair("location", play.Location));
+		nvps.add(new BasicNameValuePair("quantity", String.valueOf(play.Quantity)));
+		nvps.add(new BasicNameValuePair("incomplete", play.Incomplete ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("nowinstats", play.NoWinStats ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("comments", play.Comments));
+
+		List<Player> players = play.getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			nvps.addAll(players.get(i).toNameValuePairs(i));
+		}
+
+		LOGD(TAG, nvps.toString());
+		return nvps;
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {

@@ -42,6 +42,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -132,8 +133,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		changeName(gameName);
 
 		if (savedInstanceState != null) {
-			mPlay = new Play(savedInstanceState, "P");
-			mOriginalPlay = new Play(savedInstanceState, "O");
+			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
+			mOriginalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
 			mQuantityShown = savedInstanceState.getBoolean(KEY_QUANTITY_SHOWN);
 			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
 			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
@@ -156,7 +157,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mDeleteOnCancel = true;
 				saveDraft(false);
 				setResult(mPlay.PlayId);
-				mOriginalPlay = new Play(mPlay);
+				mOriginalPlay = PlayBuilder.copy(mPlay);
 				signalDataLoaded();
 			}
 		}
@@ -181,8 +182,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		mPlay.saveState(outState, "P");
-		mOriginalPlay.saveState(outState, "O");
+		PlayBuilder.toBundle(mPlay, outState, "P");
+		PlayBuilder.toBundle(mOriginalPlay, outState, "O");
 		outState.putBoolean(KEY_QUANTITY_SHOWN, mQuantityShown);
 		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
@@ -674,7 +675,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 
 				loader.abandon();
-				mPlay.fromCursor(cursor);
+				mPlay = PlayBuilder.fromCursor(cursor);
 				if (mEndPlay) {
 					mPlay.end();
 				}
@@ -710,7 +711,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void onQueriesComplete() {
-		mOriginalPlay = new Play(mPlay);
+		mOriginalPlay = PlayBuilder.copy(mPlay);
 		signalDataLoaded();
 		maybeCreateCopy();
 	}
@@ -718,8 +719,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void maybeCreateCopy() {
 		if (mPlayAgain) {
 			mPlayAgain = false;
-			mPlay.resetForCopy();
-			mOriginalPlay = new Play(mPlay);
+			mPlay = PlayBuilder.playAgain(mPlay);
+			mOriginalPlay = PlayBuilder.copy(mPlay);
 			bindUi();
 			saveDraft(false);
 			mDeleteOnCancel = true;
