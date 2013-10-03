@@ -64,7 +64,18 @@ public class RemoteExecutor {
 		return execute(request, handler);
 	}
 
-	public boolean execute(HttpUriRequest request, RemoteBggHandler handler) throws IOException, XmlPullParserException {
+	/**
+	 * Executes the given request on the current HTTP client, passing the entity content of the response to the given
+	 * handler.
+	 * 
+	 * @param request
+	 * @param handler
+	 * @return true if there are more pages to execute in a paged get.
+	 * @throws IOException
+	 * @throws XmlPullParserException
+	 */
+	private boolean execute(HttpUriRequest request, RemoteBggHandler handler) throws IOException,
+		XmlPullParserException {
 		LOGI(TAG, request.getURI().toString());
 
 		HttpResponse response;

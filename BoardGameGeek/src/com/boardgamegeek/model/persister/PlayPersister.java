@@ -62,6 +62,48 @@ public class PlayPersister {
 		return resolver.delete(play.uri(), null, null) > 0;
 	}
 
+	public static void save(ContentResolver resolver, List<Play> plays) {
+		int updateCount = 0;
+		int insertCount = 0;
+		int pendingUpdateCount = 0;
+		int pendingDeleteCount = 0;
+		int inProgressCount = 0;
+		int errorCount = 0;
+
+		for (Play play : plays) {
+			int status = PlayPersister.save(resolver, play, true);
+			switch (status) {
+				case PlayPersister.STATUS_UPDATE:
+					updateCount++;
+					break;
+				case PlayPersister.STATUS_INSERT:
+					insertCount++;
+					break;
+				case PlayPersister.STATUS_PENDING_UPDATE:
+					pendingUpdateCount++;
+					break;
+				case PlayPersister.STATUS_PENDING_DELETE:
+					pendingDeleteCount++;
+					break;
+				case PlayPersister.STATUS_IN_PROGRESS:
+					inProgressCount++;
+					break;
+				case PlayPersister.STATUS_ERROR:
+				case PlayPersister.STATUS_UNKNOWN:
+					errorCount++;
+					break;
+				default:
+					break;
+			}
+		}
+		String msg = String
+			.format(
+				"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
+				updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
+				pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount);
+		LOGI(TAG, msg);
+	}
+
 	/*
 	 * Save the play while not syncing.
 	 */

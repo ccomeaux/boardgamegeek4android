@@ -94,7 +94,7 @@ public abstract class RemoteBggHandler {
 		return parse(parser, mContext == null ? null : mContext.getContentResolver(), mAuthority);
 	}
 
-	public boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
+	private boolean parse(XmlPullParser parser, ContentResolver resolver, String authority)
 		throws XmlPullParserException, IOException {
 
 		mErrorMessage = "";
@@ -133,7 +133,7 @@ public abstract class RemoteBggHandler {
 		return mCount > (mPageNumber * getPageSize());
 	}
 
-	public void setBggDown() throws IOException {
+	private void setBggDown() throws IOException {
 		clearResults();
 		String message = "";
 		if (mContext != null) {
