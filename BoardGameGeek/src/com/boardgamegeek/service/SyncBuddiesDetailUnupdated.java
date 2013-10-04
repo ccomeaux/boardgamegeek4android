@@ -17,7 +17,7 @@ import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.SyncColumns;
-import com.boardgamegeek.util.UserUrlBuilder;
+import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class SyncBuddiesDetailUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesDetailUnupdated.class);

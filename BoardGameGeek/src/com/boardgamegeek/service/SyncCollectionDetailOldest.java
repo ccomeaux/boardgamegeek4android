@@ -17,7 +17,7 @@ import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteGameHandler;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.GameUrlBuilder;
+import com.boardgamegeek.util.url.GameUrlBuilder;
 
 public class SyncCollectionDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);

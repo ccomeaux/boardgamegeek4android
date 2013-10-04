@@ -22,7 +22,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UserUrlBuilder;
+import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class SyncBuddiesList extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesList.class);
