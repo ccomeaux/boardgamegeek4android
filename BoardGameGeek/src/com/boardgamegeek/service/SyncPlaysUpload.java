@@ -38,11 +38,13 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PlaysUrlBuilder;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
@@ -250,7 +252,15 @@ public class SyncPlaysUpload extends SyncTask {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
 			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
-			re.executeGet(url, new RemotePlaysHandler());
+			RemotePlaysHandler parser = new RemotePlaysHandler();
+			re.executeGet(url, parser);
+
+			if (!play.hasBeenSynced()) {
+				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
+				PreferencesUtils.putNewPlayId(mContext, play.PlayId, newPlayId);
+			}
+
+			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
 		} catch (IOException e) {
 			syncResult.stats.numIoExceptions++;
 			return e.toString();
@@ -261,7 +271,22 @@ public class SyncPlaysUpload extends SyncTask {
 		return "";
 	}
 
-	public List<NameValuePair> toNameValuePairs(Play play) {
+	private int getTranslatedPlayId(Play play, List<Play> parsedPlays) {
+		if (parsedPlays == null || parsedPlays.size() != 1) {
+			return BggContract.INVALID_ID;
+		}
+
+		Play parsedPlay = parsedPlays.get(0);
+
+		if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId) && (play.Year == parsedPlay.Year)
+			&& (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
+			&& (play.Incomplete && parsedPlay.Incomplete) && (play.NoWinStats && parsedPlay.NoWinStats)) {
+			return parsedPlay.PlayId;
+		}
+		return BggContract.INVALID_ID;
+	}
+
+	private List<NameValuePair> toNameValuePairs(Play play) {
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		nvps.add(new BasicNameValuePair("ajax", "1"));
 		nvps.add(new BasicNameValuePair("action", "save"));

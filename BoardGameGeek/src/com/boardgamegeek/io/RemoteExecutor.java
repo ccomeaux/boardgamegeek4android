@@ -64,12 +64,47 @@ public class RemoteExecutor {
 		return execute(request, handler);
 	}
 
+	public boolean executeGet(String url, RemoteBggParser handler) throws IOException, XmlPullParserException {
+		final HttpUriRequest request = new HttpGet(url);
+		return execute(request, handler);
+	}
+
 	/**
 	 * Executes the given request on the current HTTP client, passing the entity content of the response to the given
 	 * handler.
 	 * 
-	 * @param request
-	 * @param handler
+	 * @return true if there are more pages to execute in a paged get.
+	 * @throws IOException
+	 * @throws XmlPullParserException
+	 */
+	private boolean execute(HttpUriRequest request, RemoteBggParser handler) throws IOException,
+		XmlPullParserException {
+		LOGI(TAG, request.getURI().toString());
+
+		HttpResponse response;
+		response = mHttpClient.execute(request);
+		final int status = response.getStatusLine().getStatusCode();
+
+		if (status != HttpStatus.SC_OK) {
+			throw new IOException("Unexpected server response " + response.getStatusLine() + " for "
+				+ request.getRequestLine());
+		}
+
+		final InputStream input = response.getEntity().getContent();
+		try {
+			XmlPullParser parser = createPullParser(input);
+			return handler.parse(parser, mContext);
+		} finally {
+			if (input != null) {
+				input.close();
+			}
+		}
+	}
+
+	/**
+	 * Executes the given request on the current HTTP client, passing the entity content of the response to the given
+	 * handler.
+	 * 
 	 * @return true if there are more pages to execute in a paged get.
 	 * @throws IOException
 	 * @throws XmlPullParserException
