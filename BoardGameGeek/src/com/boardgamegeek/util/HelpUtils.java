@@ -82,7 +82,7 @@ public class HelpUtils {
 		}
 	}
 
-	private static String getVersionName(Context context) {
+	public static String getVersionName(Context context) {
 		try {
 			PackageManager pm = context.getPackageManager();
 			PackageInfo pInfo = pm.getPackageInfo(context.getPackageName(), 0);

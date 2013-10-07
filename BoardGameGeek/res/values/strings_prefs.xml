@@ -72,6 +72,7 @@
     <string name="pref_advanced_notify_errors_off">Leave this off if you\'re not crashing</string>
     <string name="pref_advanced_notify_errors_on">You will see the details of a crash in the notification bar - send this info to the developers!</string>
     <string name="pref_about">About</string>
+    <string name="pref_about_version">Version</string>
     <string name="pref_about_contact_us">Contact Us</string>
     <string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
 
