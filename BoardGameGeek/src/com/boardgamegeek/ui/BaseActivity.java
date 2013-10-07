@@ -64,13 +64,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 				}
 				NavUtils.navigateUpFromSameTask(this);
 				return true;
-			case R.id.menu_contact_us:
-				Intent emailIntent = new Intent(Intent.ACTION_SEND);
-				emailIntent.setType("text/email");
-				emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "bgg4android@gmail.com" });
-				emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-				startActivity(emailIntent);
-				return true;
 			case R.id.menu_settings:
 				startActivity(new Intent(this, Preferences.class));
 				return true;

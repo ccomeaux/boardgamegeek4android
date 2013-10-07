@@ -184,5 +184,10 @@
 			android:summaryOn="@string/pref_advanced_notify_errors_on"
 			android:title="@string/pref_advanced_notify_errors" />
 	</PreferenceScreen>
+    <PreferenceScreen android:title="@string/pref_about" >
+        <com.boardgamegeek.pref.ContactUsPreference
+            android:summary="@string/pref_about_contact_us_summary"
+            android:title="@string/pref_about_contact_us" />
+    </PreferenceScreen>
 
 </PreferenceScreen>

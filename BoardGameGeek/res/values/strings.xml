@@ -232,7 +232,6 @@
 	<string name="menu_about">About</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_sign_out">Sign out</string>
-	<string name="menu_contact_us">Contact us</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
