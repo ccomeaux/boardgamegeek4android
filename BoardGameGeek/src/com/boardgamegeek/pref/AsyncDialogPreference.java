@@ -53,8 +53,8 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
 			getTask().execute();
+			notifyChanged();
 		}
-		notifyChanged();
 	}
 
 	protected abstract class Task extends AsyncTask<Void, Void, Boolean> {

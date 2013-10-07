@@ -1,18 +1,6 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.SearchManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.NavUtils;
 
@@ -25,12 +13,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
-	private static final String TAG = makeLogTag(BaseActivity.class);
-
 	protected int getOptionsMenuId() {
 		return 0;
 	}
@@ -49,7 +34,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_sign_out).setVisible(Authenticator.isSignedIn(this));
 		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -70,14 +54,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 			case R.id.menu_about:
 				HelpUtils.showAboutDialog(this);
 				return true;
-			case R.id.menu_sign_out:
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_sign_out,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							signOut();
-						}
-					}).show();
-				return true;
 			case R.id.menu_cancel_sync:
 				SyncService.cancelSync(this);
 				return true;
@@ -86,29 +62,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 	}
 
 	protected void signOut() {
-		AccountManager am = AccountManager.get(BaseActivity.this);
-		final Account account = Authenticator.getAccount(am);
-		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
-			@Override
-			public void run(AccountManagerFuture<Boolean> future) {
-				if (future.isDone()) {
-					try {
-						if (future.getResult()) {
-							onSignoutSuccess();
-						}
-					} catch (OperationCanceledException e) {
-						LOGE(TAG, "removeAccount", e);
-					} catch (IOException e) {
-						LOGE(TAG, "removeAccount", e);
-					} catch (AuthenticatorException e) {
-						LOGE(TAG, "removeAccount", e);
-					}
-				}
-			}
-		}, null);
-	}
-
-	protected void onSignoutSuccess() {
+		Authenticator.signOut(this);
 	}
 
 	private void setupSearchMenuItem(Menu menu) {

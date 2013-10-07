@@ -146,6 +146,11 @@
 				android:title="@string/pref_sync_only_wifi" />
 		</PreferenceCategory>
 		<PreferenceCategory android:title="@string/pref_sync_group_tasks" >
+			<com.boardgamegeek.pref.SignOutPreference
+				android:negativeButtonText="@string/cancel"
+				android:positiveButtonText="@string/pref_sync_sign_out_pos"
+				android:title="@string/pref_sync_sign_out" />
+
 			<com.boardgamegeek.pref.ClearDialogPreference
 				android:negativeButtonText="@string/cancel"
 				android:positiveButtonText="@string/pref_sync_clear_pos"
