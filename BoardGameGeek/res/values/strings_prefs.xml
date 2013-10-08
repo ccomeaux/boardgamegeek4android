@@ -82,11 +82,10 @@
 <br/>
 Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.<br/>
 <br/>
-Icons by <a href="http://dryicons.com">DryIcons</a> and <a href="http://www.androidicons.com">Android Icons</a>.<br/>
-<br/>
 We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
 ]]>
 	</string>
+	<string name="pref_about_icons">Icons</string>
 	<string name="pref_about_contact_us">Contact Us</string>
 	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
 

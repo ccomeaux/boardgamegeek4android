@@ -209,8 +209,15 @@
 				android:summary="nibuen"
 				android:title="Leif Norcott" />
 		</PreferenceScreen>
-
-		<com.boardgamegeek.pref.ContactUsPreference
+		<PreferenceScreen android:title="@string/pref_about_icons" >
+			<com.boardgamegeek.pref.LinkPreference
+				android:summary="http://www.androidicons.com"
+				android:title="Android Icons" />
+			<com.boardgamegeek.pref.LinkPreference
+				android:summary="http://dryicons.com"
+				android:title="DryIcons" />
+		</PreferenceScreen>
+		<com.boardgamegeek.pref.ContactUsPreference
 			android:summary="@string/pref_about_contact_us_summary"
 			android:title="@string/pref_about_contact_us" />
 	</PreferenceScreen>
