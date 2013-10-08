@@ -152,17 +152,17 @@
 				android:title="@string/pref_sync_sign_out" />
 
 			<com.boardgamegeek.pref.ClearDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_clear_info_message"
 				android:positiveButtonText="@string/pref_sync_clear_pos"
 				android:title="@string/pref_sync_clear" />
 
 			<com.boardgamegeek.pref.ResetCollectionDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_reset_collection_info_message"
 				android:positiveButtonText="@string/pref_sync_reset_pos"
 				android:title="@string/pref_sync_reset_collection" />
 
 			<com.boardgamegeek.pref.ResetPlaysDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_reset_plays_info_message"
 				android:positiveButtonText="@string/pref_sync_reset_pos"
 				android:title="@string/pref_sync_reset_plays" />
 		</PreferenceCategory>
@@ -189,12 +189,12 @@
 			android:summaryOn="@string/pref_advanced_notify_errors_on"
 			android:title="@string/pref_advanced_notify_errors" />
 	</PreferenceScreen>
-    <PreferenceScreen android:title="@string/pref_about" >
-        <com.boardgamegeek.pref.VersionPreference
-            android:title="@string/pref_about_version" />
-        <com.boardgamegeek.pref.ContactUsPreference
-            android:summary="@string/pref_about_contact_us_summary"
-            android:title="@string/pref_about_contact_us" />
-    </PreferenceScreen>
+	<PreferenceScreen android:title="@string/pref_about" >
+		<com.boardgamegeek.pref.VersionPreference android:title="@string/pref_about_version" />
+
+		<com.boardgamegeek.pref.ContactUsPreference
+			android:summary="@string/pref_about_contact_us_summary"
+			android:title="@string/pref_about_contact_us" />
+	</PreferenceScreen>
 
 </PreferenceScreen>

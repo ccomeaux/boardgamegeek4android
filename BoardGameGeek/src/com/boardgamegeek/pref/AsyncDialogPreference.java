@@ -1,20 +1,20 @@
 package com.boardgamegeek.pref;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.TextView;
+import android.util.TypedValue;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.VersionUtils;
 
 public abstract class AsyncDialogPreference extends DialogPreference {
 
 	protected abstract Task getTask();
-
-	protected abstract int getInfoMessageResource();
 
 	protected abstract int getSuccessMessageResource();
 
@@ -22,31 +22,29 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 
 	public AsyncDialogPreference(Context context) {
 		super(context, null);
-		init(context);
+		init();
 	}
 
 	public AsyncDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
+		init();
 	}
 
-	// @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void init(Context context) {
-		// This caused the PreferencesActivity to crash on 4.2.1 (not sure why)
-		// if (VersionUtils.hasHoneycomb()) {
-		// setDialogIcon(android.R.attr.alertDialogIcon);
-		// } else {
-		setDialogIcon(android.R.drawable.ic_dialog_alert);
-		// }
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void init() {
+		int dialogResourceId = android.R.drawable.ic_dialog_alert;
+		if (VersionUtils.hasHoneycomb()) {
+			TypedValue typedValue = new TypedValue();
+			getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
+			dialogResourceId = typedValue.resourceId;
+		}
+		setDialogIcon(dialogResourceId);
+		setNegativeButtonText(R.string.cancel);
 	}
 
 	@Override
-	protected View onCreateDialogView() {
-		TextView tw = new TextView(getContext());
-		tw.setText(getInfoMessageResource());
-		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
-		tw.setPadding(padding, padding, padding, padding);
-		return tw;
+	public int getDialogLayoutResource() {
+		return R.layout.textview_dialogpreference;
 	}
 
 	@Override

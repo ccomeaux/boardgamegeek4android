@@ -1,25 +1,40 @@
 package com.boardgamegeek.pref;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.util.VersionUtils;
 
 public class SignOutPreference extends DialogPreference {
-	private Context mContext;
 
 	public SignOutPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mContext = context;
+		init();
 	}
 
 	public SignOutPreference(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		mContext = context;
+		init();
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void init() {
+		int dialogResourceId = android.R.drawable.ic_dialog_alert;
+		if (VersionUtils.hasHoneycomb()) {
+			TypedValue typedValue = new TypedValue();
+			getContext().getTheme().resolveAttribute(android.R.attr.alertDialogIcon, typedValue, true);
+			dialogResourceId = typedValue.resourceId;
+		}
+		setDialogIcon(dialogResourceId);
+		setNegativeButtonText(R.string.cancel);
 	}
 
 	@Override
@@ -30,16 +45,16 @@ public class SignOutPreference extends DialogPreference {
 		tw.setPadding(padding, padding, padding, padding);
 		return tw;
 	}
-	
+
 	@Override
 	public boolean isEnabled() {
-		return Authenticator.isSignedIn(mContext);
+		return Authenticator.isSignedIn(getContext());
 	}
 
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-			Authenticator.signOut(mContext);
+			Authenticator.signOut(getContext());
 			notifyChanged();
 		}
 	}
