@@ -147,22 +147,22 @@
 		</PreferenceCategory>
 		<PreferenceCategory android:title="@string/pref_sync_group_tasks" >
 			<com.boardgamegeek.pref.SignOutPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_sign_out_are_you_sure"
 				android:positiveButtonText="@string/pref_sync_sign_out_pos"
 				android:title="@string/pref_sync_sign_out" />
 
 			<com.boardgamegeek.pref.ClearDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_clear_info_message"
 				android:positiveButtonText="@string/pref_sync_clear_pos"
 				android:title="@string/pref_sync_clear" />
 
 			<com.boardgamegeek.pref.ResetCollectionDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_reset_collection_info_message"
 				android:positiveButtonText="@string/pref_sync_reset_pos"
 				android:title="@string/pref_sync_reset_collection" />
 
 			<com.boardgamegeek.pref.ResetPlaysDialogPreference
-				android:negativeButtonText="@string/cancel"
+				android:dialogMessage="@string/pref_sync_reset_plays_info_message"
 				android:positiveButtonText="@string/pref_sync_reset_pos"
 				android:title="@string/pref_sync_reset_plays" />
 		</PreferenceCategory>
