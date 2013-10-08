@@ -7,14 +7,8 @@
 		android:showAsAction="never"
 		android:title="@string/menu_settings"/>
 	<item
-		android:id="@+id/menu_about"
-		android:icon="?attr/ic_action_info"
-		android:orderInCategory="102"
-		android:showAsAction="never"
-		android:title="@string/menu_about"/>
-	<item
 		android:id="@+id/menu_cancel_sync"
-		android:orderInCategory="104"
+		android:orderInCategory="102"
 		android:showAsAction="never"
 		android:title="@string/menu_cancel_sync"/>
 

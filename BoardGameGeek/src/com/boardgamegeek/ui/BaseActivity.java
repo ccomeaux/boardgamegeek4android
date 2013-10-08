@@ -13,7 +13,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.util.HelpUtils;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
 	protected int getOptionsMenuId() {
@@ -50,9 +49,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 				return true;
 			case R.id.menu_settings:
 				startActivity(new Intent(this, Preferences.class));
-				return true;
-			case R.id.menu_about:
-				HelpUtils.showAboutDialog(this);
 				return true;
 			case R.id.menu_cancel_sync:
 				SyncService.cancelSync(this);
