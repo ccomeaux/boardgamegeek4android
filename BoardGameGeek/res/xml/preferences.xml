@@ -189,12 +189,30 @@
 			android:summaryOn="@string/pref_advanced_notify_errors_on"
 			android:title="@string/pref_advanced_notify_errors" />
 	</PreferenceScreen>
-    <PreferenceScreen android:title="@string/pref_about" >
-        <com.boardgamegeek.pref.VersionPreference
-            android:title="@string/pref_about_version" />
-        <com.boardgamegeek.pref.ContactUsPreference
-            android:summary="@string/pref_about_contact_us_summary"
-            android:title="@string/pref_about_contact_us" />
-    </PreferenceScreen>
+	<PreferenceScreen android:title="@string/pref_about" >
+		<com.boardgamegeek.pref.VersionPreference android:title="@string/pref_about_version" />
+
+		<PreferenceScreen android:title="Authors" >
+			<com.boardgamegeek.pref.BuddyPreference
+				android:summary="rjnfc"
+				android:title="Dennis Bond" />
+			<com.boardgamegeek.pref.BuddyPreference
+				android:summary="ccomeaux"
+				android:title="Chris Comeaux" />
+			<com.boardgamegeek.pref.BuddyPreference
+				android:summary="Marc6"
+				android:title="Marek Jeszka" />
+			<com.boardgamegeek.pref.BuddyPreference
+				android:summary="Capoeirista"
+				android:title="Gareth McSorley" />
+			<com.boardgamegeek.pref.BuddyPreference
+				android:summary="nibuen"
+				android:title="Leif Norcott" />
+		</PreferenceScreen>
+
+		<com.boardgamegeek.pref.ContactUsPreference
+			android:summary="@string/pref_about_contact_us_summary"
+			android:title="@string/pref_about_contact_us" />
+	</PreferenceScreen>
 
 </PreferenceScreen>
