@@ -39,7 +39,6 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 			dialogResourceId = typedValue.resourceId;
 		}
 		setDialogIcon(dialogResourceId);
-		setNegativeButtonText(R.string.cancel);
 	}
 
 	@Override

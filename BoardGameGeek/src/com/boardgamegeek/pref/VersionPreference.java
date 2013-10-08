@@ -8,16 +8,12 @@ import com.boardgamegeek.util.HelpUtils;
 
 public class VersionPreference extends Preference {
 
-	private Context mContext;
-
 	public VersionPreference(Context context) {
 		super(context);
-		mContext = context;
 	}
 
 	public VersionPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mContext = context;
 	}
 
 	public VersionPreference(Context context, AttributeSet attrs, int defStyle) {
@@ -26,6 +22,6 @@ public class VersionPreference extends Preference {
 
 	@Override
 	public CharSequence getSummary() {
-		return HelpUtils.getVersionName(mContext);
+		return HelpUtils.getVersionName(getContext());
 	}
 }

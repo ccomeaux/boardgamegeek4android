@@ -6,8 +6,6 @@ import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -34,16 +32,16 @@ public class SignOutPreference extends DialogPreference {
 			dialogResourceId = typedValue.resourceId;
 		}
 		setDialogIcon(dialogResourceId);
-		setNegativeButtonText(R.string.cancel);
 	}
 
 	@Override
-	protected View onCreateDialogView() {
-		TextView tw = new TextView(getContext());
-		tw.setText(R.string.pref_sync_sign_out_are_you_sure);
-		int padding = (int) getContext().getResources().getDimension(R.dimen.padding_extra);
-		tw.setPadding(padding, padding, padding, padding);
-		return tw;
+	public int getDialogLayoutResource() {
+		return R.layout.textview_dialogpreference;
+	}
+
+	@Override
+	public CharSequence getDialogMessage() {
+		return getContext().getString(R.string.pref_sync_sign_out_are_you_sure);
 	}
 
 	@Override
