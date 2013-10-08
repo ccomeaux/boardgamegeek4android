@@ -232,7 +232,7 @@ public class ActivityUtils {
 		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
 	}
 
-	private static void link(Context context, String link) {
+	public static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
 
