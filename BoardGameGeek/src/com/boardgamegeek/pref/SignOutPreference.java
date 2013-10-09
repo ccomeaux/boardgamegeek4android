@@ -32,11 +32,7 @@ public class SignOutPreference extends DialogPreference {
 			dialogResourceId = typedValue.resourceId;
 		}
 		setDialogIcon(dialogResourceId);
-	}
-
-	@Override
-	public int getDialogLayoutResource() {
-		return R.layout.textview_dialogpreference;
+		setDialogLayoutResource(R.layout.textview_dialogpreference);
 	}
 
 	@Override
