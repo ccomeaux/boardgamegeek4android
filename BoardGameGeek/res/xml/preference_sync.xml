@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<PreferenceCategory android:title="@string/pref_sync_group_what" >
+		<com.boardgamegeek.pref.ListPreferenceMultiSelect
+			android:defaultValue="own"
+			android:dialogTitle="@string/pref_sync_statuses"
+			android:entries="@array/pref_sync_status_entries"
+			android:entryValues="@array/pref_sync_status_values"
+			android:key="syncStatuses"
+			android:title="@string/pref_sync_statuses" />
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="syncPlays"
+			android:title="@string/pref_sync_plays" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="syncBuddies"
+			android:title="@string/pref_sync_buddies" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_sync_group_how" >
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="sync_notifications"
+			android:title="@string/pref_sync_notifications" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="sync_only_charging"
+			android:title="@string/pref_sync_only_charging" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="sync_only_wifi"
+			android:title="@string/pref_sync_only_wifi" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_sync_group_tasks" >
+		<com.boardgamegeek.pref.SignOutPreference
+			android:dialogMessage="@string/pref_sync_sign_out_are_you_sure"
+			android:positiveButtonText="@string/pref_sync_sign_out_pos"
+			android:title="@string/pref_sync_sign_out" />
+
+		<com.boardgamegeek.pref.ClearDialogPreference
+			android:dialogMessage="@string/pref_sync_clear_info_message"
+			android:positiveButtonText="@string/pref_sync_clear_pos"
+			android:title="@string/pref_sync_clear" />
+
+		<com.boardgamegeek.pref.ResetCollectionDialogPreference
+			android:dialogMessage="@string/pref_sync_reset_collection_info_message"
+			android:positiveButtonText="@string/pref_sync_reset_pos"
+			android:title="@string/pref_sync_reset_collection" />
+
+		<com.boardgamegeek.pref.ResetPlaysDialogPreference
+			android:dialogMessage="@string/pref_sync_reset_plays_info_message"
+			android:positiveButtonText="@string/pref_sync_reset_pos"
+			android:title="@string/pref_sync_reset_plays" />
+	</PreferenceCategory>
+
+</PreferenceScreen>

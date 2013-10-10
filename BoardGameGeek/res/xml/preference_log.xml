@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="logPlay"
+		android:title="@string/pref_log_play" />
+	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="quickLogPlay"
+		android:title="@string/pref_log_play_quick" />
+	<CheckBoxPreference
+		android:key="logEditPlayer"
+		android:summaryOff="@string/pref_edit_player_off"
+		android:summaryOn="@string/pref_edit_player_on"
+		android:title="@string/pref_edit_player" />
+
+	<PreferenceCategory android:title="@string/pref_general" >
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayQuantity"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_quantity" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayLength"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_length" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayLocation"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_location" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayIncomplete"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_incomplete" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayNoWinStats"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_no_win_stats" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="logPlayComments"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_comments" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="logPlayPlayerList"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_play_players" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_player_settings" >
+		<CheckBoxPreference
+			android:key="logPlayerTeamColor"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_team_color" />
+		<CheckBoxPreference
+			android:key="logPlayerPosition"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_position" />
+		<CheckBoxPreference
+			android:key="logPlayerScore"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_score" />
+		<CheckBoxPreference
+			android:key="logPlayerRating"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_rating" />
+		<CheckBoxPreference
+			android:key="logPlayerNew"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_new" />
+		<CheckBoxPreference
+			android:key="logPlayerWin"
+			android:summaryOff="@string/pref_log_off"
+			android:summaryOn="@string/pref_log_on"
+			android:title="@string/pref_log_player_win" />
+	</PreferenceCategory>
+
+</PreferenceScreen>

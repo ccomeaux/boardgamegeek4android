@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<Preference android:title="@string/pref_search" >
+		<intent
+			android:action="com.boardgamegeek.prefs.SEARCH"
+			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetPackage="com.boardgamegeek" />
+	</Preference>
+	<Preference android:title="@string/pref_sync" >
+		<intent
+			android:action="com.boardgamegeek.prefs.SYNC"
+			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetPackage="com.boardgamegeek" />
+	</Preference>
+	<Preference android:title="@string/pref_log" >
+		<intent
+			android:action="com.boardgamegeek.prefs.LOG"
+			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetPackage="com.boardgamegeek" />
+	</Preference>
+	<Preference android:title="@string/pref_advanced" >
+		<intent
+			android:action="com.boardgamegeek.prefs.ADVANCED"
+			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetPackage="com.boardgamegeek" />
+	</Preference>
+	<Preference android:title="@string/pref_about" >
+		<intent
+			android:action="com.boardgamegeek.prefs.ABOUT"
+			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetPackage="com.boardgamegeek" />
+	</Preference>
+
+</PreferenceScreen>
