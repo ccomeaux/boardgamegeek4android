@@ -76,7 +76,7 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
-- MOD: Improve settings and move the standard menu options there<br/>
+- MOD: Improve the settings screen and move some of the standard menu options there<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous versions</a><br/>
 <br/>
 Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.]]>
