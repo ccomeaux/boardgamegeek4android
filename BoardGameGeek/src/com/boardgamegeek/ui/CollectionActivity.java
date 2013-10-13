@@ -120,11 +120,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	protected void onSignoutSuccess() {
-		startHomeActivity();
-	}
-
-	@Override
 	protected Fragment onCreatePane() {
 		return new CollectionFragment();
 	}

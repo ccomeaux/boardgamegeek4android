@@ -24,21 +24,12 @@ import com.boardgamegeek.service.SyncService;
 public class ClearDialogPreference extends AsyncDialogPreference {
 	private static final String TAG = makeLogTag(ClearDialogPreference.class);
 
-	private Context mContext;
-
 	public ClearDialogPreference(Context context) {
 		super(context);
-		mContext = context;
 	}
 
 	public ClearDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mContext = context;
-	}
-
-	@Override
-	protected int getInfoMessageResource() {
-		return R.string.pref_sync_clear_info_message;
 	}
 
 	@Override
@@ -57,19 +48,18 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 	}
 
 	private class ClearTask extends AsyncDialogPreference.Task {
-
 		private ContentResolver mResolver;
 
 		@Override
 		protected void onPreExecute() {
-			mResolver = mContext.getContentResolver();
+			mResolver = getContext().getContentResolver();
 		}
 
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			boolean success = SyncService.clearCollection(mContext);
-			success &= SyncService.clearBuddies(mContext);
-			success &= SyncService.clearPlays(mContext);
+			boolean success = SyncService.clearCollection(getContext());
+			success &= SyncService.clearBuddies(getContext());
+			success &= SyncService.clearPlays(getContext());
 
 			int count = 0;
 			count += delete(Games.CONTENT_URI);

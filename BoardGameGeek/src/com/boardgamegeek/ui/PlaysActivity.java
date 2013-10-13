@@ -90,11 +90,6 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 	}
 
 	@Override
-	protected void onSignoutSuccess() {
-		startHomeActivity();
-	}
-
-	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.plays;
 	}

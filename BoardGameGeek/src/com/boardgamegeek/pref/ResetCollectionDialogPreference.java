@@ -22,11 +22,6 @@ public class ResetCollectionDialogPreference extends AsyncDialogPreference {
 	}
 
 	@Override
-	protected int getInfoMessageResource() {
-		return R.string.pref_sync_reset_collection_info_message;
-	}
-
-	@Override
 	protected int getSuccessMessageResource() {
 		return R.string.pref_sync_reset_success;
 	}
