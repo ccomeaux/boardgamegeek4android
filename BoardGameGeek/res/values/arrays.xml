@@ -31,6 +31,9 @@
 		<item>hasparts</item>
 		<item>wantparts</item>
 	</string-array>
+	<string-array name="pref_sync_status_default">
+		<item>own</item>
+	</string-array>
 	<string-array name="collection_status_filter_entries">
 		<item>Own</item>
 		<item>Previously Owned</item>

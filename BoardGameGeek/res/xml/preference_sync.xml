@@ -2,8 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<PreferenceCategory android:title="@string/pref_sync_group_what" >
-		<com.boardgamegeek.pref.ListPreferenceMultiSelect
-			android:defaultValue="own"
+		<com.boardgamegeek.pref.MultiSelectListPreference
+			android:defaultValue="@array/pref_sync_status_default"
 			android:dialogTitle="@string/pref_sync_statuses"
 			android:entries="@array/pref_sync_status_entries"
 			android:entryValues="@array/pref_sync_status_values"
