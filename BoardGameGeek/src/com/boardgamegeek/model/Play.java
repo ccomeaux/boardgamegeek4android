@@ -298,16 +298,6 @@ public class Play {
 		return false;
 	}
 
-	public void start() {
-		Length = 0;
-		StartTime = System.currentTimeMillis();
-	}
-
-	public void end() {
-		Length = DateTimeUtils.howManyMinutesOld(StartTime);
-		StartTime = 0;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {

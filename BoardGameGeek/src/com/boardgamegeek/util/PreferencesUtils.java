@@ -1,14 +1,12 @@
 package com.boardgamegeek.util;
 
-import com.boardgamegeek.pref.ListPreferenceMultiSelect;
-import com.boardgamegeek.provider.BggContract;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 import com.boardgamegeek.pref.MultiSelectListPreference;
+import com.boardgamegeek.provider.BggContract;
 
 public class PreferencesUtils {
 	private PreferencesUtils() {
