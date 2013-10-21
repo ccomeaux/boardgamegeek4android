@@ -1,4 +1,4 @@
-package com.boardgamegeek.util;
+package com.boardgamegeek.util.url;
 
 import java.util.ArrayList;
 import java.util.List;

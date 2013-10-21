@@ -22,11 +22,6 @@ public class ResetPlaysDialogPreference extends AsyncDialogPreference {
 	}
 
 	@Override
-	protected int getInfoMessageResource() {
-		return R.string.pref_sync_reset_plays_info_message;
-	}
-
-	@Override
 	protected int getSuccessMessageResource() {
 		return R.string.pref_sync_reset_success;
 	}

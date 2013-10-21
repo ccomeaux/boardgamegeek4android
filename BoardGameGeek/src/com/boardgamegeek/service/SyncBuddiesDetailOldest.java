@@ -16,7 +16,6 @@ import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UserUrlBuilder;
 
 public class SyncBuddiesDetailOldest extends SyncTask {

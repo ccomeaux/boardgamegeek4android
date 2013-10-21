@@ -17,7 +17,12 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		if (savedInstanceState == null) {
-			parseIntent(getIntent());
+			mFragment = onCreatePane(getIntent());
+			if (mFragment != null) {
+				mFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+				getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
+					.commit();
+			}
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
@@ -28,11 +33,6 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		return R.layout.activity_singlepane_empty;
 	}
 
-	@Override
-	public void onNewIntent(Intent intent) {
-		parseIntent(intent);
-	}
-
 	/**
 	 * Called in <code>onCreate</code> when the fragment constituting this activity is needed. The returned fragment's
 	 * arguments will be set to the intent used to invoke this activity.
@@ -41,14 +41,5 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 
 	public Fragment getFragment() {
 		return mFragment;
-	}
-
-	private void parseIntent(Intent intent) {
-		mFragment = onCreatePane(intent);
-		if (mFragment != null) {
-			mFragment.setArguments(UIUtils.intentToFragmentArguments(intent));
-			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
-				.commit();
-		}
 	}
 }

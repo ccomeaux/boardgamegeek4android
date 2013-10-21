@@ -15,8 +15,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteCollectionHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.util.CollectionUrlBuilder;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class SyncCollectionListUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListUnupdated.class);

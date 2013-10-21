@@ -44,8 +44,8 @@ import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PlaysUrlBuilder;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);

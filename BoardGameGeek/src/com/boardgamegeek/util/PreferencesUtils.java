@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
+import com.boardgamegeek.pref.MultiSelectListPreference;
+
 public class PreferencesUtils {
 	private PreferencesUtils() {
 	}
@@ -151,6 +153,6 @@ public class PreferencesUtils {
 	}
 
 	private static String[] getStringArray(Context context, String key, String defaultValue) {
-		return ListPreferenceMultiSelect.parseStoredValue(getString(context, key, defaultValue));
+		return MultiSelectListPreference.parseStoredValue(getString(context, key, defaultValue));
 	}
 }

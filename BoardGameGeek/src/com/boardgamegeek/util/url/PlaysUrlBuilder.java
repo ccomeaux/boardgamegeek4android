@@ -1,4 +1,4 @@
-package com.boardgamegeek.util;
+package com.boardgamegeek.util.url;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

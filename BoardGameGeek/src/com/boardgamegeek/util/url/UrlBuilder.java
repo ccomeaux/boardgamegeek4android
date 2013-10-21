@@ -1,4 +1,4 @@
-package com.boardgamegeek.util;
+package com.boardgamegeek.util.url;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;

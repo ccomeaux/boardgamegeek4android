@@ -10,7 +10,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.PlaysUrlBuilder;
+import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class SyncGamePlays extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGamePlays.class);
