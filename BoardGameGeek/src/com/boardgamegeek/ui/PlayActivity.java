@@ -5,13 +5,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.UIUtils;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final int REQUEST_EDIT_PLAY = 0;
+	private int mPlayId = BggContract.INVALID_ID;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +25,15 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 
 		if (savedInstanceState == null) {
 			maybeEditPlay(getIntent());
+		} else {
+			newPlayId(savedInstanceState.getInt(KEY_PLAY_ID, BggContract.INVALID_ID));
 		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(KEY_PLAY_ID, mPlayId);
 	}
 
 	@Override
@@ -43,9 +55,24 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 					break;
 				default:
 					// resultCode is a new playId
-					((PlayFragment) getFragment()).setNewPlayId(resultCode);
+					newPlayId(resultCode);
 					break;
 			}
+		}
+	}
+
+	@Override
+	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
+		if (mPlayId != BggContract.INVALID_ID) {
+			arguments = UIUtils.replaceData(arguments, Plays.buildPlayUri(mPlayId));
+		}
+		return arguments;
+	}
+
+	private void newPlayId(int playId) {
+		if (playId != BggContract.INVALID_ID) {
+			mPlayId = playId;
+			((PlayFragment) getFragment()).setNewPlayId(playId);
 		}
 	}
 
