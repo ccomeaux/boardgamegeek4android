@@ -23,10 +23,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -53,6 +55,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private Context mContext;
 	private HttpClient mClient;
 	private List<String> mMessages;
+	private LocalBroadcastManager mBroadcaster;
 
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
@@ -60,6 +63,7 @@ public class SyncPlaysUpload extends SyncTask {
 		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
 		mMessages = new ArrayList<String>();
+		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
@@ -84,10 +88,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 				PlayUpdateResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
-					updateContentProvider(play, syncResult);
+					setStatusToSynced(play);
 					String error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
+						if (!play.hasBeenSynced()) {
+							deletePlay(play, syncResult);
+						}
+
 						Resources r = mContext.getResources();
 						String message = String.format(
 							r.getString(play.hasBeenSynced() ? R.string.msg_play_updated : R.string.msg_play_added),
@@ -212,6 +220,8 @@ public class SyncPlaysUpload extends SyncTask {
 			} else {
 				String message = HttpUtils.parseResponse(response);
 				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
+					// TODO: only needed if play is a draft
+					PreferencesUtils.removeNewPlayId(mContext, playId);
 					return "";
 				} else {
 					return "Bad response:\n" + message;
@@ -230,17 +240,20 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	/**
-	 * Marks the specified play as synced or deleted in the content provider
+	 * Marks the specified play as synced in the content provider
 	 */
-	private void updateContentProvider(Play play, SyncResult syncResult) {
-		if (play.hasBeenSynced()) {
-			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
-			PlayPersister.save(mContext.getContentResolver(), play);
-			// syncResult.stats.numUpdates++;
-		} else {
-			PlayPersister.delete(mContext.getContentResolver(), play);
-			// syncResult.stats.numDeletes++;
-		}
+	private void setStatusToSynced(Play play) {
+		play.SyncStatus = Play.SYNC_STATUS_SYNCED;
+		PlayPersister.save(mContext.getContentResolver(), play);
+		// syncResult.stats.numUpdates++;
+	}
+
+	/**
+	 * Deletes the specified play from the content provider
+	 */
+	private void deletePlay(Play play, SyncResult syncResult) {
+		PlayPersister.delete(mContext.getContentResolver(), play);
+		// syncResult.stats.numDeletes++;
 	}
 
 	/**
@@ -258,6 +271,8 @@ public class SyncPlaysUpload extends SyncTask {
 			if (!play.hasBeenSynced()) {
 				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
 				PreferencesUtils.putNewPlayId(mContext, play.PlayId, newPlayId);
+				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
+				mBroadcaster.sendBroadcast(intent);
 			}
 
 			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
@@ -272,18 +287,24 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private int getTranslatedPlayId(Play play, List<Play> parsedPlays) {
-		if (parsedPlays == null || parsedPlays.size() != 1) {
+		if (parsedPlays == null || parsedPlays.size() == 0) {
 			return BggContract.INVALID_ID;
 		}
 
-		Play parsedPlay = parsedPlays.get(0);
+		int latestPlayId = BggContract.INVALID_ID;
 
-		if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId) && (play.Year == parsedPlay.Year)
-			&& (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
-			&& (play.Incomplete && parsedPlay.Incomplete) && (play.NoWinStats && parsedPlay.NoWinStats)) {
-			return parsedPlay.PlayId;
+		for (Play parsedPlay : parsedPlays) {
+			if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId)
+				&& (play.Year == parsedPlay.Year) && (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
+				&& (play.Incomplete == parsedPlay.Incomplete) && (play.NoWinStats == parsedPlay.NoWinStats)
+				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
+				if (parsedPlay.PlayId > latestPlayId) {
+					latestPlayId = parsedPlay.PlayId;
+				}
+			}
 		}
-		return BggContract.INVALID_ID;
+
+		return latestPlayId;
 	}
 
 	private List<NameValuePair> toNameValuePairs(Play play) {

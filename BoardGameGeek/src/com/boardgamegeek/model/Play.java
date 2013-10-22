@@ -172,6 +172,13 @@ public class Play {
 		return mPlayers;
 	}
 
+	public int getPlayerCount() {
+		if (mPlayers == null) {
+			return 0;
+		}
+		return mPlayers.size();
+	}
+
 	public void setPlayers(List<Player> players) {
 		mPlayers = players;
 	}

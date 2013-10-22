@@ -135,6 +135,10 @@ public class PreferencesUtils {
 		editor.commit();
 	}
 
+	public static void removeNewPlayId(Context context, int oldPlayId) {
+		putNewPlayId(context, oldPlayId, BggContract.INVALID_ID);
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
