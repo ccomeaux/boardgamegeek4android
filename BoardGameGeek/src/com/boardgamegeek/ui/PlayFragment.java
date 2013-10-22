@@ -42,6 +42,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -329,6 +330,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private void onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
+			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), Plays.getPlayId(mPlayUri));
+			if (newPlayId != BggContract.INVALID_ID) {
+				setNewPlayId(newPlayId);
+				return;
+			}
 			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
 			mViewToLoad = mMessage;
 			mViewToHide = mScroll;
