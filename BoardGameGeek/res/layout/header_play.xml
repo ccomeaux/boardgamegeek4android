@@ -134,8 +134,6 @@
 		style="@style/Text.Header.Underline"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/details"
 		android:paddingTop="@dimen/padding_standard"
 		android:text="@string/comments"
 		android:textIsSelectable="false" />
@@ -145,8 +143,6 @@
 		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/play_comments_label"
 		android:paddingBottom="@dimen/padding_half"
 		android:textIsSelectable="true" />
 
@@ -155,8 +151,6 @@
 		style="@style/Text.Header.Underline"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@+id/play_comments"
 		android:paddingTop="@dimen/padding_standard"
 		android:text="@string/title_players"
 		android:textIsSelectable="false" />

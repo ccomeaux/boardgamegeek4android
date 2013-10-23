@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -40,22 +40,19 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class PlayFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private Uri mPlayUri;
 	private Play mPlay = new Play();
 
-	private View mProgress;
-	private TextView mMessage;
 	private TextView mUpdated;
 	private TextView mPlayId;
 	private TextView mGameName;
@@ -76,8 +73,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	private ListView mPlayers;
 	private TextView mSavedTimeStamp;
 	private TextView mUnsyncedMessage;
-	private View mViewToLoad;
-	private View mViewToHide;
+	private boolean mPlaysLoaded;
 	private boolean mPlayersLoaded;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
@@ -129,11 +125,15 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
+		ViewGroup rootView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		rootView.setPadding(padding, padding, padding, padding);
 
-		mProgress = rootView.findViewById(R.id.progress);
-		mMessage = (TextView) rootView.findViewById(R.id.message);
-		mPlayers = (ListView) rootView.findViewById(R.id.play_player_list);
+		mPlayers = (ListView) rootView.findViewById(android.R.id.list);
+		mPlayers.setDivider(null);
+		mPlayers.setDividerHeight(0);
+		mPlayers.setHeaderDividersEnabled(false);
+		mPlayers.setFooterDividersEnabled(false);
 
 		View header = View.inflate(getActivity(), R.layout.header_play, null);
 		mPlayers.addHeaderView(header);
@@ -180,8 +180,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mAdapter = new PlayerAdapter();
 		mPlayers.setAdapter(mAdapter);
 
-		mViewToLoad = null;
-		mViewToHide = null;
+		mPlaysLoaded = true;
 		mPlayersLoaded = false;
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
@@ -315,12 +314,8 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				break;
 		}
 
-		if (mViewToLoad != null && mPlayersLoaded) {
-			if (mViewToHide != null) {
-				mViewToHide.setVisibility(View.GONE);
-			}
-			AnimationUtils.fadeIn(getActivity(), mViewToLoad, true);
-			AnimationUtils.fadeOut(getActivity(), mProgress, true);
+		if (mPlaysLoaded && mPlayersLoaded) {
+			setListShown(true);
 		}
 	}
 
@@ -341,11 +336,12 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				setNewPlayId(newPlayId);
 				return;
 			}
-			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
-			mViewToLoad = mMessage;
-			mViewToHide = mPlayers;
+			setEmptyText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
+			mPlaysLoaded = true;
 			return;
 		}
+
+		mPlaysLoaded = true;
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
@@ -411,9 +407,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
-
-		mViewToLoad = mPlayers;
-		mViewToHide = mMessage;
 
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
