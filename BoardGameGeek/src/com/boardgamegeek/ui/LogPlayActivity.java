@@ -24,13 +24,15 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,6 +83,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private Play mOriginalPlay;
 	private boolean mLaunchingActivity;
 	private Random mRandom = new Random();
+	private PlayAdapter mPlayAdapter;
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -91,7 +94,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private Chronometer mTimer;
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
-	private LinearLayout mPlayerList;
+	private ListView mPlayerList;
 
 	private boolean mPlayLoaded;
 	private boolean mPlayersLoaded;
@@ -111,6 +114,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
 		getSupportActionBar().setHomeButtonEnabled(false);
+		mPlayAdapter = new PlayAdapter();
 		setUiVariables();
 
 		final Intent intent = getIntent();
@@ -502,19 +506,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void bindUiPlayers() {
-		mPlayerList.removeAllViews();
 		calculatePlayerCount();
-		int position = 1;
-		for (Player p : mPlay.getPlayers()) {
-			PlayerRow row = new PlayerRow(LogPlayActivity.this);
-			row.setPlayer(p);
-			row.setOnEditListener(onPlayerEdit());
-			row.setOnDeleteListener(onPlayerDelete());
-			row.setTag(position);
-			position++;
-			mPlayerList.addView(row);
-		}
 		hideFields();
+		mPlayAdapter.notifyDataSetChanged();
 	}
 
 	private void calculatePlayerCount() {
@@ -558,16 +552,20 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void setUiVariables() {
-		mDateButton = (Button) findViewById(R.id.log_play_date);
-		mQuantityView = (EditText) findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) findViewById(R.id.log_play_location);
-		mIncompleteView = (CheckBox) findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) findViewById(R.id.timer);
-		mCommentsView = (EditText) findViewById(R.id.log_play_comments);
-		mPlayerLabel = (TextView) findViewById(R.id.log_play_players_label);
-		mPlayerList = (LinearLayout) findViewById(R.id.log_play_player_list);
+		mPlayerList = (ListView) findViewById(android.R.id.list);
+		View header = View.inflate(this, R.layout.header_logplay, null);
+		mPlayerList.addHeaderView(header);
+		mPlayerList.setAdapter(mPlayAdapter);
+
+		mDateButton = (Button) header.findViewById(R.id.log_play_date);
+		mQuantityView = (EditText) header.findViewById(R.id.log_play_quantity);
+		mLengthView = (EditText) header.findViewById(R.id.log_play_length);
+		mLocationView = (AutoCompleteTextView) header.findViewById(R.id.log_play_location);
+		mIncompleteView = (CheckBox) header.findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (CheckBox) header.findViewById(R.id.log_play_no_win_stats);
+		mTimer = (Chronometer) header.findViewById(R.id.timer);
+		mCommentsView = (EditText) header.findViewById(R.id.log_play_comments);
+		mPlayerLabel = (TextView) header.findViewById(R.id.log_play_players_label);
 	}
 
 	private void hideFields() {
@@ -620,7 +618,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private boolean shouldHidePlayers() {
-		return !PreferencesUtils.showLogPlayPlayerList(this) && !mPlayersShown && (mPlay.getPlayers().size() == 0);
+		return !PreferencesUtils.showLogPlayPlayerList(this) && !mPlayersShown && (mPlay.getPlayerCount() == 0);
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -675,7 +673,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 
 				loader.abandon();
+				List<Player> players = mPlay.getPlayers();
 				mPlay = PlayBuilder.fromCursor(cursor);
+				mPlay.setPlayers(players);
 				if (mEndPlay) {
 					mPlay.end();
 				}
@@ -687,11 +687,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				break;
 			case PlayerQuery._TOKEN:
 				loader.abandon();
-				mPlay.clearPlayers();
-				while (cursor.moveToNext()) {
-					Player player = new Player(cursor);
-					mPlay.addPlayer(player);
-				}
+				mPlay.setPlayers(cursor);
 				bindUiPlayers();
 				mPlayersLoaded = true;
 				if (mPlayLoaded) {
@@ -777,6 +773,36 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			int month = b.getInt(KEY_MONTH);
 			int day = b.getInt(KEY_DAY);
 			return new DatePickerDialog(getActivity(), mListener, year, month, day);
+		}
+	}
+
+	public class PlayAdapter extends BaseAdapter {
+		@Override
+		public int getCount() {
+			return mPlay == null ? 0 : mPlay.getPlayerCount();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mPlay == null ? null : mPlay.getPlayers().get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (convertView == null) {
+				convertView = new PlayerRow(LogPlayActivity.this);
+			}
+			PlayerRow row = (PlayerRow) convertView;
+			row.setPlayer((Player) getItem(position));
+			row.setOnEditListener(onPlayerEdit());
+			row.setOnDeleteListener(onPlayerDelete());
+			row.setTag(position);
+			return convertView;
 		}
 	}
 }
