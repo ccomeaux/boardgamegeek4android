@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -181,6 +182,14 @@ public class Play {
 
 	public void setPlayers(List<Player> players) {
 		mPlayers = players;
+	}
+	
+	public void setPlayers(Cursor cursor){
+		clearPlayers();
+		while (cursor.moveToNext()) {
+			Player player = new Player(cursor);
+			addPlayer(player);
+		}
 	}
 
 	public void clearPlayers() {

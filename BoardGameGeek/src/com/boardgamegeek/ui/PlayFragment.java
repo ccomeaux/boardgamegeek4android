@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,7 +56,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private View mProgress;
 	private TextView mMessage;
-	private View mScroll;
 	private TextView mUpdated;
 	private TextView mPlayId;
 	private TextView mGameName;
@@ -132,21 +133,27 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		mProgress = rootView.findViewById(R.id.progress);
 		mMessage = (TextView) rootView.findViewById(R.id.message);
-		mScroll = rootView.findViewById(R.id.play_scroll);
+		mPlayers = (ListView) rootView.findViewById(R.id.play_player_list);
 
-		mGameName = (TextView) rootView.findViewById(R.id.game_name);
+		View header = View.inflate(getActivity(), R.layout.header_play, null);
+		mPlayers.addHeaderView(header);
 
-		mDate = (TextView) rootView.findViewById(R.id.play_date);
+		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
+		mPlayers.addFooterView(footer);
 
-		mQuantityRoot = rootView.findViewById(R.id.quantity_root);
-		mQuantity = (TextView) rootView.findViewById(R.id.play_quantity);
+		mGameName = (TextView) header.findViewById(R.id.game_name);
 
-		mLengthRoot = rootView.findViewById(R.id.length_root);
-		mLength = (TextView) rootView.findViewById(R.id.play_length);
+		mDate = (TextView) header.findViewById(R.id.play_date);
 
-		mTimerRoot = rootView.findViewById(R.id.timer_root);
-		mTimer = (Chronometer) rootView.findViewById(R.id.timer);
-		Button b = (Button) rootView.findViewById(R.id.timer_end);
+		mQuantityRoot = header.findViewById(R.id.quantity_root);
+		mQuantity = (TextView) header.findViewById(R.id.play_quantity);
+
+		mLengthRoot = header.findViewById(R.id.length_root);
+		mLength = (TextView) header.findViewById(R.id.play_length);
+
+		mTimerRoot = header.findViewById(R.id.timer_root);
+		mTimer = (Chronometer) header.findViewById(R.id.timer);
+		Button b = (Button) header.findViewById(R.id.timer_end);
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -154,22 +161,21 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			}
 		});
 
-		mLocationRoot = rootView.findViewById(R.id.location_root);
-		mLocation = (TextView) rootView.findViewById(R.id.play_location);
+		mLocationRoot = header.findViewById(R.id.location_root);
+		mLocation = (TextView) header.findViewById(R.id.play_location);
 
-		mIncomplete = rootView.findViewById(R.id.play_incomplete);
-		mNoWinStats = rootView.findViewById(R.id.play_no_win_stats);
+		mIncomplete = header.findViewById(R.id.play_incomplete);
+		mNoWinStats = header.findViewById(R.id.play_no_win_stats);
 
-		mCommentsLabel = rootView.findViewById(R.id.play_comments_label);
-		mComments = (TextView) rootView.findViewById(R.id.play_comments);
+		mCommentsLabel = header.findViewById(R.id.play_comments_label);
+		mComments = (TextView) header.findViewById(R.id.play_comments);
 
-		mPlayersLabel = rootView.findViewById(R.id.play_players_label);
-		mPlayers = (ListView) rootView.findViewById(R.id.play_player_list);
+		mPlayersLabel = header.findViewById(R.id.play_players_label);
 
-		mUpdated = (TextView) rootView.findViewById(R.id.updated);
-		mPlayId = (TextView) rootView.findViewById(R.id.play_id);
-		mSavedTimeStamp = (TextView) rootView.findViewById(R.id.play_saved);
-		mUnsyncedMessage = (TextView) rootView.findViewById(R.id.play_unsynced_message);
+		mUpdated = (TextView) footer.findViewById(R.id.updated);
+		mPlayId = (TextView) footer.findViewById(R.id.play_id);
+		mSavedTimeStamp = (TextView) footer.findViewById(R.id.play_saved);
+		mUnsyncedMessage = (TextView) footer.findViewById(R.id.play_unsynced_message);
 
 		mAdapter = new PlayerAdapter();
 		mPlayers.setAdapter(mAdapter);
@@ -337,11 +343,13 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			}
 			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
 			mViewToLoad = mMessage;
-			mViewToHide = mScroll;
+			mViewToHide = mPlayers;
 			return;
 		}
 
+		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
+		mPlay.setPlayers(players);
 
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(getActivity(), mPlay);
@@ -404,7 +412,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		getActivity().supportInvalidateOptionsMenu();
 
-		mViewToLoad = mScroll;
+		mViewToLoad = mPlayers;
 		mViewToHide = mMessage;
 
 		if (mPlay.hasBeenSynced()
@@ -414,11 +422,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	private void onPlayerQueryComplete(Cursor cursor) {
-		mPlay.clearPlayers();
-		while (cursor.moveToNext()) {
-			Player player = new Player(cursor);
-			mPlay.addPlayer(player);
-		}
+		mPlay.setPlayers(cursor);
 		mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 		mAdapter.notifyDataSetChanged();
 		mPlayersLoaded = true;
@@ -452,7 +456,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		@Override
 		public int getCount() {
-			return mPlay.getPlayers().size();
+			return mPlay.getPlayerCount();
 		}
 
 		@Override
@@ -469,7 +473,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		public View getView(int position, View convertView, ViewGroup parent) {
 			PlayerRow row = new PlayerRow(getActivity());
 			row.hideButtons();
-			row.setPlayer(mPlay.getPlayers().get(position));
+			row.setPlayer((Player) getItem(position));
 			return row;
 		}
 	}
