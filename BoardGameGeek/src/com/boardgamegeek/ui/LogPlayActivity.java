@@ -63,7 +63,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 1;
-	private static final int REQUEST_ADD_PLAYER = 0;
+	private static final int REQUEST_ADD_PLAYER = -1;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -474,7 +474,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			if (requestCode == REQUEST_ADD_PLAYER) {
 				mPlay.addPlayer(player);
 			} else {
-				mPlay.replacePlayer(player, requestCode - 1);
+				mPlay.replacePlayer(player, requestCode);
 			}
 			bindUiPlayers();
 		}
