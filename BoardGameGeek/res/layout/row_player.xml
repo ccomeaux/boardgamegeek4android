@@ -8,24 +8,37 @@
 
 	<RelativeLayout
 		android:id="@+id/log_player_edit"
-		style="?android:attr/buttonStyle"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_weight="1" >
+		android:layout_weight="1"
+		android:background="?attr/selectableItemBackground"
+		android:paddingRight="@dimen/padding_extra" >
 
-		<View
-			android:id="@+id/color_swatch"
-			android:layout_width="@dimen/padding_half"
+		<FrameLayout
+			android:id="@+id/color_swatch_container"
+			android:layout_width="@dimen/padding_standard"
 			android:layout_height="36dp"
 			android:layout_centerVertical="true"
-			android:layout_marginRight="@dimen/padding_half" />
+			android:layout_marginRight="@dimen/padding_half" >
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="#ff000000" />
+
+			<View
+				android:id="@+id/color_swatch"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_margin="1dp" />
+		</FrameLayout>
 
 		<TextView
 			android:id="@+id/name"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/color_swatch"
+			android:layout_toRightOf="@id/color_swatch_container"
 			android:textIsSelectable="false" />
 
 		<TextView
@@ -34,7 +47,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/name"
-			android:layout_toRightOf="@id/color_swatch"
+			android:layout_toRightOf="@id/color_swatch_container"
 			android:textIsSelectable="false" />
 
 		<TextView
@@ -43,7 +56,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@id/username"
-			android:layout_toRightOf="@id/color_swatch"
+			android:layout_toRightOf="@id/color_swatch_container"
 			android:textIsSelectable="false" />
 
 		<TextView
@@ -73,12 +86,14 @@
 			android:textIsSelectable="false" />
 	</RelativeLayout>
 
-	<ImageView
+	<ImageButton
 		android:id="@+id/log_player_delete"
 		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_gravity="right"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/delete"
-		android:src="@drawable/ic_action_delete_light" />
+		android:src="@drawable/ic_action_delete_light"
+		android:visibility="gone" />
 
 </LinearLayout>

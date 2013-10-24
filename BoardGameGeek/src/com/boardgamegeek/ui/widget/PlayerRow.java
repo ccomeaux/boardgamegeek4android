@@ -26,6 +26,7 @@ public class PlayerRow extends LinearLayout {
 
 	private TextView mName;
 	private TextView mUsername;
+	private View mColorSwatchContainer;
 	private View mColorSwatch;
 	private TextView mTeamColor;
 	private TextView mScore;
@@ -50,6 +51,7 @@ public class PlayerRow extends LinearLayout {
 	private void initializeUi() {
 		mName = (TextView) findViewById(R.id.name);
 		mUsername = (TextView) findViewById(R.id.username);
+		mColorSwatchContainer = findViewById(R.id.color_swatch_container);
 		mColorSwatch = findViewById(R.id.color_swatch);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
 		mScore = (TextView) findViewById(R.id.score);
@@ -86,16 +88,13 @@ public class PlayerRow extends LinearLayout {
 		});
 	}
 
-	public void hideButtons() {
-		mDeleteButton.setVisibility(View.GONE);
-		mEditButton.setEnabled(false);
-	}
-
 	public void setOnEditListener(OnClickListener l) {
+		setEnabled(true);
 		mEditClickListener = l;
 	}
 
 	public void setOnDeleteListener(OnClickListener l) {
+		mDeleteButton.setVisibility(View.VISIBLE);
 		mDeleteClickListener = l;
 	}
 
@@ -133,10 +132,11 @@ public class PlayerRow extends LinearLayout {
 			int color = ColorUtils.parseColor(mPlayer.TeamColor);
 			if (color != ColorUtils.TRANSPARENT) {
 				mColorSwatch.setBackgroundColor(color);
-				mColorSwatch.setVisibility(View.VISIBLE);
+				mColorSwatchContainer.setVisibility(View.VISIBLE);
 				mTeamColor.setVisibility(View.GONE);
 			} else {
-				mColorSwatch.setVisibility(View.GONE);
+				mColorSwatchContainer.setVisibility(View.INVISIBLE);
+				mTeamColor.setVisibility(View.VISIBLE);
 			}
 
 			setText(mScore, mPlayer.Score);
@@ -147,15 +147,11 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	private void setText(TextView textView, String text) {
-		setText(textView, text, "");
-	}
-
-	private void setText(TextView textView, String text, String prefix) {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setVisibility(View.VISIBLE);
-			textView.setText(prefix + text);
+			textView.setText(text);
 		}
 	}
 }

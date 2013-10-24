@@ -130,8 +130,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		rootView.setPadding(padding, padding, padding, padding);
 
 		mPlayers = (ListView) rootView.findViewById(android.R.id.list);
-		mPlayers.setDivider(null);
-		mPlayers.setDividerHeight(0);
 		mPlayers.setHeaderDividersEnabled(false);
 		mPlayers.setFooterDividersEnabled(false);
 
@@ -433,17 +431,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 	private class PlayerAdapter extends BaseAdapter {
 		@Override
-		public boolean areAllItemsEnabled() {
-			return false;
-		}
-
-		@Override
 		public boolean isEnabled(int position) {
-			return false;
-		}
-
-		@Override
-		public boolean hasStableIds() {
 			return false;
 		}
 
@@ -465,7 +453,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			PlayerRow row = new PlayerRow(getActivity());
-			row.hideButtons();
 			row.setPlayer((Player) getItem(position));
 			return row;
 		}
