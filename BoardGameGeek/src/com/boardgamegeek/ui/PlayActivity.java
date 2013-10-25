@@ -108,9 +108,9 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 
 	private void newPlayId(int playId) {
 		if (playId != BggContract.INVALID_ID) {
-		mPlayId = playId;
-		((PlayFragment) getFragment()).setNewPlayId(playId);
-	}
+			mPlayId = playId;
+			((PlayFragment) getFragment()).setNewPlayId(playId);
+		}
 	}
 
 	@Override

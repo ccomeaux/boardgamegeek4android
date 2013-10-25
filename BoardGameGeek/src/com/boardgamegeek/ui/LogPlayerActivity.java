@@ -41,15 +41,16 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
-	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
 	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
+	private static final String KEY_PLAYER = "PLAYER";
 
 	private int mGameId;
 	private String mGameName;
@@ -75,6 +76,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private boolean mRatingShown;
 	private boolean mNewShown;
 	private boolean mWinShown;
+	private boolean mCancelOnBack;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +89,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
 		if (!TextUtils.isEmpty(mGameName)) {
 			getSupportActionBar().setSubtitle(mGameName);
 		}
@@ -140,7 +143,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	@Override
 	public void onBackPressed() {
-		save();
+		if (mCancelOnBack) {
+			cancel();
+		} else {
+			save();
+		}
 	}
 
 	private void setUiVariables() {
