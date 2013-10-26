@@ -351,7 +351,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					} else if (selection == r.getString(R.string.comments)) {
 						mCommentsShown = true;
 						viewToFocus = mCommentsView;
-					} else if (selection == r.getString(R.string.players)) {
+					} else if (selection == r.getString(R.string.title_players)) {
 						mPlayersShown = true;
 					}
 					supportInvalidateOptionsMenu();
@@ -438,7 +438,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			list.add(r.getString(R.string.comments));
 		}
 		if (shouldHidePlayers()) {
-			list.add(r.getString(R.string.players));
+			list.add(r.getString(R.string.title_players));
 		}
 
 		CharSequence[] array = {};
@@ -560,6 +560,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		View header = View.inflate(this, R.layout.header_logplay, null);
 		mPlayerList.addHeaderView(header);
 		mPlayerList.setAdapter(mPlayAdapter);
+		mPlayerList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
 		mDateButton = (Button) header.findViewById(R.id.log_play_date);
 		mQuantityView = (EditText) header.findViewById(R.id.log_play_quantity);
@@ -594,7 +595,22 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
 
 		mPlayerLabel.setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_play_players_add).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
+		addFooter(!shouldHidePlayers());
+	}
+	
+	private void addFooter(boolean add) {
+		View footer = View.inflate(this, R.layout.footer_logplay, null);
+		if (add && mPlayerList.getFooterViewsCount() == 0) {
+			mPlayerList.addFooterView(footer);
+			footer.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onAddPlayerClick(v);
+				}
+			});
+		} else if (!add && mPlayerList.getFooterViewsCount() > 0) {
+			mPlayerList.removeFooterView(footer);
+		}
 	}
 
 	private boolean shouldHideQuantity() {

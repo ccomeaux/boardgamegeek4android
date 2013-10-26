@@ -147,11 +147,7 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	private void setText(TextView textView, String text) {
-		if (TextUtils.isEmpty(text)) {
-			textView.setVisibility(View.GONE);
-		} else {
-			textView.setVisibility(View.VISIBLE);
-			textView.setText(text);
-		}
+		textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		textView.setText(text);
 	}
 }
