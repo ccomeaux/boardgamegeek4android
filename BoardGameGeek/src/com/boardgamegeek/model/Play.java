@@ -283,18 +283,6 @@ public class Play {
 		return false;
 	}
 
-	public void start() {
-		Length = 0;
-		StartTime = System.currentTimeMillis();
-	}
-
-	public void end() {
-		if (StartTime > 0) {
-			Length = DateTimeUtils.howManyMinutesOld(StartTime);
-			StartTime = 0;
-		}
-	}
-
 	/**
 	 * Determines if this play appears to have ended.
 	 * 
@@ -312,6 +300,18 @@ public class Play {
 			}
 		}
 		return false;
+	}
+
+	public void start() {
+		Length = 0;
+		StartTime = System.currentTimeMillis();
+	}
+
+	public void end() {
+		if (StartTime > 0) {
+			Length = DateTimeUtils.howManyMinutesOld(StartTime);
+			StartTime = 0;
+		}
 	}
 
 	@Override

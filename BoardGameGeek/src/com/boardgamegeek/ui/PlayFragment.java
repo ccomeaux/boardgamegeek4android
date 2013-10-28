@@ -358,15 +358,19 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantityRoot.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
 
-		mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
-		mLengthRoot.setVisibility(mPlay.Length > 0 ? View.VISIBLE : View.GONE);
-
-		if (mPlay.hasStarted()) {
+		if (mPlay.Length > 0) {
+			mLengthRoot.setVisibility(View.VISIBLE);
+			mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
+			mLength.setVisibility(View.VISIBLE);
+			mTimerRoot.setVisibility(View.GONE);
+			mTimer.stop();
+		} else if (mPlay.hasStarted()) {
+			mLengthRoot.setVisibility(View.VISIBLE);
+			mLength.setVisibility(View.GONE);
 			mTimerRoot.setVisibility(View.VISIBLE);
 			UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
 		} else {
-			mTimerRoot.setVisibility(View.GONE);
-			mTimer.stop();
+			mLengthRoot.setVisibility(View.GONE);
 		}
 
 		mLocation.setText(mPlay.Location);

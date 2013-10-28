@@ -62,6 +62,33 @@
 				android:id="@+id/play_length"
 				style="@style/Text.Big"
 				android:textIsSelectable="false" />
+
+			<LinearLayout
+				android:id="@+id/timer_root"
+				android:background="@color/background_light"
+				android:gravity="center_vertical" >
+
+				<Chronometer
+					android:id="@+id/timer"
+					style="@style/Text.Title2"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:gravity="center"
+					android:maxLines="1"
+					android:paddingLeft="@dimen/padding_extra"
+					android:paddingRight="@dimen/padding_extra"
+					android:textIsSelectable="false" />
+
+				<Button
+					android:id="@+id/timer_end"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:paddingLeft="@dimen/padding_extra"
+					android:paddingRight="@dimen/padding_extra"
+					android:text="@string/end_play" />
+			</LinearLayout>
 		</TableRow>
 
 		<TableRow
@@ -101,32 +128,6 @@
 				android:layout_column="1"
 				android:text="@string/noWinStats" />
 		</TableRow>
-
-		<LinearLayout
-			android:id="@+id/timer_root"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="@color/background_light"
-			android:gravity="center_vertical" >
-
-			<Chronometer
-				android:id="@+id/timer"
-				style="@style/Text.Title2"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="center"
-				android:maxLines="1"
-				android:textIsSelectable="false" />
-
-			<Button
-				android:id="@+id/timer_end"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="center"
-				android:text="@string/end_play" />
-		</LinearLayout>
 	</TableLayout>
 
 	<TextView
