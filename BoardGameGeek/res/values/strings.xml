@@ -41,7 +41,7 @@
 	<string name="sync_in_process">Draft</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint">1 play</string>
+	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
 	<string name="length_hint">0 minutes</string>
 	<string name="location">Location</string>
@@ -258,6 +258,7 @@
 	<string name="share_play_title">Share Play</string>
 	<string name="share_play_played">Played</string>
 	<string name="times">times</string>
+	<string name="times_abbr">x</string>
 	<string name="on">on</string>
 	<string name="with">with</string>
 	<string name="players">players</string>

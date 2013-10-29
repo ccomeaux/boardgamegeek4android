@@ -8,7 +8,9 @@
 		android:id="@+id/details"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:stretchColumns="1,2" >
+		android:gravity="center_vertical"
+		android:orientation="vertical"
+		android:stretchColumns="1" >
 
 		<TableRow
 			android:paddingBottom="@dimen/padding_small"
@@ -16,11 +18,11 @@
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_date"
 				android:text="@string/on" />
 
 			<Button
 				android:id="@+id/log_play_date"
-				android:layout_span="3"
 				android:gravity="left|center_vertical"
 				android:onClick="onDateClick" />
 		</TableRow>
@@ -32,11 +34,11 @@
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_location"
 				android:text="@string/at" />
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
-				android:layout_span="3"
 				android:completionThreshold="1"
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
@@ -45,29 +47,68 @@
 		</TableRow>
 
 		<TableRow
-			android:id="@+id/log_play_length_quantity_root"
+			android:id="@+id/log_play_length_root"
+			android:gravity="center_vertical"
 			android:paddingBottom="@dimen/padding_small"
 			android:paddingTop="@dimen/padding_small" >
 
 			<TextView
-				android:id="@+id/log_play_length_label"
 				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_length_container_inner"
 				android:text="@string/for_" />
 
-			<EditText
-				android:id="@+id/log_play_length"
-				android:hint="@string/length_hint"
-				android:inputType="number" />
+			<FrameLayout android:id="@+id/log_play_length_container_inner" >
+
+				<EditText
+					android:id="@+id/log_play_length"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/length_hint"
+					android:inputType="number" />
+
+				<LinearLayout
+					android:id="@+id/timer_root"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="@color/background_light"
+					android:gravity="center_vertical" >
+
+					<Chronometer
+						android:id="@+id/timer"
+						style="@style/Text.Title2"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center"
+						android:maxLines="1"
+						android:textIsSelectable="false" />
+
+					<Button
+						android:id="@+id/timer_end"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center"
+						android:onClick="onTimerEnd"
+						android:text="@string/end_play" />
+				</LinearLayout>
+			</FrameLayout>
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_quantity_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_quantity"
+				android:text="@string/times_abbr" />
 
 			<EditText
 				android:id="@+id/log_play_quantity"
 				android:hint="@string/quantity_hint"
 				android:inputType="number" />
-
-			<TextView
-				android:id="@+id/log_play_quantity_label"
-				style="@style/TextLabel.Edit.Right"
-				android:text="@string/times" />
 		</TableRow>
 
 		<TableRow
@@ -79,7 +120,6 @@
 				android:id="@+id/log_play_incomplete"
 				style="@style/Text.CheckboxLabel"
 				android:layout_column="1"
-				android:layout_span="3"
 				android:checked="false"
 				android:text="@string/incomplete" />
 		</TableRow>
@@ -93,44 +133,17 @@
 				android:id="@+id/log_play_no_win_stats"
 				style="@style/Text.CheckboxLabel"
 				android:layout_column="1"
-				android:layout_span="3"
 				android:checked="false"
 				android:text="@string/noWinStats" />
 		</TableRow>
 	</TableLayout>
-
-	<LinearLayout
-		android:id="@+id/timer_root"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/background_light"
-		android:gravity="center_vertical" >
-
-		<Chronometer
-			android:id="@+id/timer"
-			style="@style/Text.Title2"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="center"
-			android:maxLines="1"
-			android:textIsSelectable="false" />
-
-		<Button
-			android:id="@+id/timer_end"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:gravity="center"
-			android:onClick="onTimerEnd"
-			android:text="@string/end_play" />
-	</LinearLayout>
 
 	<TextView
 		android:id="@+id/log_play_comments_label"
 		style="@style/Text.Header.Underline"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:labelFor="@+id/log_play_comments"
 		android:text="@string/comments" />
 
 	<EditText

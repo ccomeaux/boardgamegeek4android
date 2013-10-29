@@ -574,14 +574,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void hideFields() {
-		findViewById(R.id.log_play_length_label).setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
+		findViewById(R.id.log_play_length_root).setVisibility(
+			shouldHideLength() && !mPlay.hasStarted() ? View.GONE : View.VISIBLE);
 		mLengthView.setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
+		findViewById(R.id.timer_root).setVisibility(mPlay.hasStarted() ? View.VISIBLE : View.GONE);
 
-		findViewById(R.id.log_play_quantity_label).setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
-		mQuantityView.setVisibility(shouldHideQuantity() ? View.INVISIBLE : View.VISIBLE);
-
-		findViewById(R.id.log_play_length_quantity_root).setVisibility(
-			shouldHideLength() && shouldHideQuantity() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_play_quantity_root).setVisibility(shouldHideQuantity() ? View.GONE : View.VISIBLE);
 
 		findViewById(R.id.log_play_location_root).setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
 		mLocationView.setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
@@ -589,15 +587,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mIncompleteView.setVisibility(shouldHideIncomplete() ? View.GONE : View.VISIBLE);
 		mNoWinStatsView.setVisibility(shouldHideNoWinStats() ? View.GONE : View.VISIBLE);
 
-		findViewById(R.id.timer_root).setVisibility(mPlay.hasStarted() ? View.VISIBLE : View.GONE);
-
 		findViewById(R.id.log_play_comments_label).setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
 		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
 
 		mPlayerLabel.setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 		addFooter(!shouldHidePlayers());
 	}
-	
+
 	private void addFooter(boolean add) {
 		View footer = View.inflate(this, R.layout.footer_logplay, null);
 		if (add && mPlayerList.getFooterViewsCount() == 0) {

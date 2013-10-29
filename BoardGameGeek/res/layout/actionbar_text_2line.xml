@@ -13,7 +13,6 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
 		android:singleLine="true"
-		android:text="@string/times"
 		android:textColor="@color/actionbar_text"
 		android:textIsSelectable="false"
 		android:textSize="18sp" />
@@ -24,7 +23,6 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
 		android:singleLine="true"
-		android:text="@string/with"
 		android:textColor="@color/actionbar_text"
 		android:textIsSelectable="false"
 		android:textSize="@dimen/actionbar_text_small" />
