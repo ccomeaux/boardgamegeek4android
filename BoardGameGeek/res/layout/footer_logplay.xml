@@ -6,5 +6,7 @@
 	android:background="?attr/selectableItemBackground"
 	android:gravity="center_vertical"
 	android:minHeight="@dimen/player_row_height"
-	android:paddingLeft="@dimen/padding_standard"
-	android:text="@string/add_player" />
+	android:paddingLeft="@dimen/padding_extra"
+	android:text="@string/add_player"
+	android:textColor="@color/light_text"
+	android:textStyle="italic" />

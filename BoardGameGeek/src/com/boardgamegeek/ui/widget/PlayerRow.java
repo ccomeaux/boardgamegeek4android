@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -33,7 +32,7 @@ public class PlayerRow extends LinearLayout {
 	private TextView mStartingPosition;
 	private TextView mRating;
 	private ImageView mDeleteButton;
-	private RelativeLayout mEditButton;
+	private View mEditButton;
 
 	private OnClickListener mEditClickListener;
 	private OnClickListener mDeleteClickListener;
@@ -77,7 +76,7 @@ public class PlayerRow extends LinearLayout {
 			}
 		});
 
-		mEditButton = (RelativeLayout) findViewById(R.id.log_player_edit);
+		mEditButton = findViewById(R.id.log_player_edit);
 		mEditButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -117,18 +116,22 @@ public class PlayerRow extends LinearLayout {
 			setText(mStartingPosition, "");
 		} else {
 			setText(mUsername, mPlayer.Username);
-			mName.setText(mPlayer.Name);
-			if (mPlayer.New && mPlayer.Win) {
-				mName.setTypeface(mTypeface, Typeface.BOLD_ITALIC);
-			} else if (mPlayer.New) {
-				mName.setTypeface(mTypeface, Typeface.ITALIC);
-			} else if (mPlayer.Win) {
-				mName.setTypeface(mTypeface, Typeface.BOLD);
+			if (TextUtils.isEmpty(mPlayer.Name)) {
+				mName.setVisibility(View.GONE);
 			} else {
-				mName.setTypeface(mTypeface, Typeface.NORMAL);
+				mName.setVisibility(View.VISIBLE);
+				mName.setText(mPlayer.Name);
+				if (mPlayer.New && mPlayer.Win) {
+					mName.setTypeface(mTypeface, Typeface.BOLD_ITALIC);
+				} else if (mPlayer.New) {
+					mName.setTypeface(mTypeface, Typeface.ITALIC);
+				} else if (mPlayer.Win) {
+					mName.setTypeface(mTypeface, Typeface.BOLD);
+				} else {
+					mName.setTypeface(mTypeface, Typeface.NORMAL);
+				}
 			}
 
-			setText(mTeamColor, mPlayer.TeamColor);
 			int color = ColorUtils.parseColor(mPlayer.TeamColor);
 			if (color != ColorUtils.TRANSPARENT) {
 				mColorSwatch.setBackgroundColor(color);
@@ -136,7 +139,7 @@ public class PlayerRow extends LinearLayout {
 				mTeamColor.setVisibility(View.GONE);
 			} else {
 				mColorSwatchContainer.setVisibility(View.INVISIBLE);
-				mTeamColor.setVisibility(View.VISIBLE);
+				setText(mTeamColor, mPlayer.TeamColor);
 			}
 
 			setText(mScore, mPlayer.Score);
