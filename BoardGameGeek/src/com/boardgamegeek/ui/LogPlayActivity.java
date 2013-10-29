@@ -226,7 +226,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_add_field).setVisible(
 				shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
 					|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
-			menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayers().size() > 0);
+			menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayerCount() > 0);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
@@ -270,7 +270,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				promptPickStartPlayer();
 				return true;
 			case R.id.menu_random_start_player:
-				int newSeat = mRandom.nextInt(mPlay.getPlayers().size());
+				int newSeat = mRandom.nextInt(mPlay.getPlayerCount());
 				mPlay.pickStartPlayer(newSeat);
 				notifyStartPlayer();
 				bindUiPlayers();
@@ -312,7 +312,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
 		List<CharSequence> list = new ArrayList<CharSequence>();
-		for (int i = 0; i < mPlay.getPlayers().size(); i++) {
+		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
 			Player p = mPlay.getPlayers().get(i);
 			String name = p.getDescsription();
 			if (TextUtils.isEmpty(name)) {
@@ -517,7 +517,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void calculatePlayerCount() {
 		Resources r = getResources();
-		int playerCount = mPlay.getPlayers().size();
+		int playerCount = mPlay.getPlayerCount();
 		if (playerCount <= 0) {
 			mPlayerLabel.setText(r.getString(R.string.title_players));
 		} else {
@@ -688,7 +688,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return;
 				}
 
-				loader.abandon();
+				if (mPlayLoaded) {
+					return;
+				}
 				List<Player> players = mPlay.getPlayers();
 				mPlay = PlayBuilder.fromCursor(cursor);
 				mPlay.setPlayers(players);
@@ -702,7 +704,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				}
 				break;
 			case PlayerQuery._TOKEN:
-				loader.abandon();
+				if (mPlayersLoaded) {
+					return;
+				}
 				mPlay.setPlayers(cursor);
 				bindUiPlayers();
 				mPlayersLoaded = true;
