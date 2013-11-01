@@ -50,6 +50,7 @@ public class ActionBarContainer extends NineFrameLayout {
         this(context, null);
     }
 
+    @SuppressWarnings("deprecation")
     public ActionBarContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
 

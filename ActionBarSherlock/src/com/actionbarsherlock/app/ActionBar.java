@@ -939,6 +939,7 @@ public abstract class ActionBar {
             this.gravity = gravity;
         }
 
+        @SuppressWarnings("deprecation")
         public LayoutParams(int gravity) {
             this(WRAP_CONTENT, FILL_PARENT, gravity);
         }
