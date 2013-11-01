@@ -213,8 +213,6 @@
 	<string name="menu_collection_random_game">Random game</string>
 	<string name="menu_display_game">Display</string>
 	<string name="menu_comments">Comments</string>
-	<string name="menu_back">Back</string>
-	<string name="menu_forward">Forward</string>
 	<string name="menu_color">Teams/Colors</string>
 	<string name="menu_forums">Forums</string>
 	<string name="menu_create_shortcut">Create shortcut</string>
@@ -286,6 +284,7 @@
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_player_order">Player order&#8230;</string>
+	<string name="menu_custom_player_order">Custom</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>

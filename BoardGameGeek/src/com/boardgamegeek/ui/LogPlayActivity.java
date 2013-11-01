@@ -78,6 +78,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
+	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 
 	private Play mPlay;
 	private Play mOriginalPlay;
@@ -108,6 +109,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mDeleteOnCancel;
 	private boolean mEndPlay;
 	private boolean mPlayAgain;
+	private boolean mCustomPlayerSort;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -147,6 +149,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
 			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
+			mCustomPlayerSort = savedInstanceState.getBoolean(KEY_CUSTOM_PLAYER_SORT);
 			signalDataLoaded();
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
@@ -196,6 +199,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		outState.putBoolean(KEY_COMMENTS_SHOWN, mCommentsShown);
 		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
 		outState.putBoolean(KEY_DELETE_ON_CANCEL, mDeleteOnCancel);
+		outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 	}
 
 	@Override
@@ -215,6 +219,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getSupportMenuInflater().inflate(R.menu.logplay, menu);
+		menu.findItem(R.id.menu_custom_player_order).setChecked(mCustomPlayerSort);
 		return true;
 	}
 
@@ -226,7 +231,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_add_field).setVisible(
 				shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
 					|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
-			menu.findItem(R.id.menu_player_order).setVisible(mPlay.getPlayerCount() > 0);
+			menu.findItem(R.id.menu_player_order).setVisible(true);
+			menu.findItem(R.id.menu_custom_player_order).setVisible(true);
+			menu.findItem(R.id.menu_pick_start_player).setVisible(mPlay.getPlayerCount() > 1);
+			menu.findItem(R.id.menu_pick_start_player).setEnabled(!mCustomPlayerSort);
+			menu.findItem(R.id.menu_random_start_player).setVisible(mPlay.getPlayerCount() > 1);
+			menu.findItem(R.id.menu_random_start_player).setEnabled(!mCustomPlayerSort);
+			menu.findItem(R.id.menu_random_player_order).setVisible(mPlay.getPlayerCount() > 1);
+			menu.findItem(R.id.menu_random_player_order).setEnabled(!mCustomPlayerSort);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
@@ -265,6 +277,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return false;
 				}
 				promptAddField(array, item);
+				return true;
+			case R.id.menu_custom_player_order:
+				mCustomPlayerSort = !mCustomPlayerSort;
+				item.setChecked(mCustomPlayerSort);
 				return true;
 			case R.id.menu_pick_start_player:
 				promptPickStartPlayer();
@@ -531,7 +547,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			public void onClick(View v) {
 				PlayerRow row = (PlayerRow) v;
 				Player player = row.getPlayer();
-				addPlayer(player.toIntent(), (Integer) row.getTag());
+				Intent intent = player.toIntent();
+				if (!mCustomPlayerSort) {
+					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+				}
+				addPlayer(intent, (Integer) row.getTag());
 			}
 		};
 	}
@@ -552,6 +572,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
+		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
+			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
+		}
 		startActivityForResult(intent, requestCode);
 	}
 
