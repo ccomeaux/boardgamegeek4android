@@ -109,6 +109,9 @@ public class PlayBuilder {
 	}
 
 	public static void toBundle(Play play, Bundle bundle, String prefix) {
+		if (play == null) {
+			return;
+		}
 		bundle.putInt(prefix + KEY_PLAY_ID, play.PlayId);
 		bundle.putInt(prefix + KEY_GAME_ID, play.GameId);
 		bundle.putString(prefix + KEY_GAME_NAME, play.GameName);
