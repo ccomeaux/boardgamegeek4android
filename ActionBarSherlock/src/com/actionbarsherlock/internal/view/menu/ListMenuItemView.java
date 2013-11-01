@@ -79,6 +79,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         this(context, attrs, 0);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
