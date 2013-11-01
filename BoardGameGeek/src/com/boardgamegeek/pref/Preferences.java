@@ -106,4 +106,9 @@ public class Preferences extends PreferenceActivity {
 			}
 		}
 	}
+
+	@Override
+	protected boolean isValidFragment(String fragmentName) {
+		return "com.boardgamegeek.pref.Preferences$PrefFragment".equals(fragmentName);
+	}
 }
