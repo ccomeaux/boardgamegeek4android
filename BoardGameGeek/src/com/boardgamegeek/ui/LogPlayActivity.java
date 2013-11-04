@@ -279,8 +279,21 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				promptAddField(array, item);
 				return true;
 			case R.id.menu_custom_player_order:
-				mCustomPlayerSort = !mCustomPlayerSort;
-				item.setChecked(mCustomPlayerSort);
+				if (mCustomPlayerSort && mPlay.arePlayersCustomSorted()) {
+					final MenuItem finalItem = item;
+					Dialog dialog = ActivityUtils.createConfirmationDialog(this,
+						R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								mPlay.pickStartPlayer(0);
+								bindUiPlayers();
+								toggleCustomSort(finalItem);
+							}
+						});
+					dialog.show();
+				} else {
+					toggleCustomSort(item);
+				}
 				return true;
 			case R.id.menu_pick_start_player:
 				promptPickStartPlayer();
@@ -298,6 +311,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				return true;
 		}
 		return false;
+	}
+
+	private void toggleCustomSort(MenuItem item) {
+		mCustomPlayerSort = !mCustomPlayerSort;
+		item.setChecked(mCustomPlayerSort);
 	}
 
 	private void notifyStartPlayer() {
@@ -753,6 +771,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mOriginalPlay = PlayBuilder.copy(mPlay);
 		signalDataLoaded();
 		maybeCreateCopy();
+		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
 	}
 
 	private void maybeCreateCopy() {

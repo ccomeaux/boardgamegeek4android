@@ -183,8 +183,8 @@ public class Play {
 	public void setPlayers(List<Player> players) {
 		mPlayers = players;
 	}
-	
-	public void setPlayers(Cursor cursor){
+
+	public void setPlayers(Cursor cursor) {
 		clearPlayers();
 		while (cursor.moveToNext()) {
 			Player player = new Player(cursor);
@@ -260,6 +260,34 @@ public class Play {
 				index++;
 			}
 		}
+	}
+
+	/**
+	 * Determine if the starting positions indicate the players are custom sorted. 
+	 */
+	public boolean arePlayersCustomSorted() {
+		if (getPlayerCount() == 0) {
+			return false;
+		}
+
+		int seat = 1;
+		do {
+			boolean foundSeat = false;
+			for (Player player : mPlayers) {
+				if (player.getSeat() == seat) {
+					foundSeat = true;
+					break;
+				}
+			}
+			if (!foundSeat) {
+				return true;
+			}
+			seat++;
+			if (seat > getPlayerCount()) {
+				return false;
+			}
+		} while (seat < 100);
+		return true;
 	}
 
 	// MISC
