@@ -286,7 +286,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								mPlay.pickStartPlayer(0);
-								bindUiPlayers();
 								toggleCustomSort(finalItem);
 							}
 						});
@@ -316,6 +315,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void toggleCustomSort(MenuItem item) {
 		mCustomPlayerSort = !mCustomPlayerSort;
 		item.setChecked(mCustomPlayerSort);
+		bindUiPlayers();
 	}
 
 	private void notifyStartPlayer() {
@@ -860,6 +860,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				convertView = new PlayerRow(LogPlayActivity.this);
 			}
 			PlayerRow row = (PlayerRow) convertView;
+			row.setAutoSort(!mCustomPlayerSort);
 			row.setPlayer((Player) getItem(position));
 			row.setOnEditListener(onPlayerEdit());
 			row.setOnDeleteListener(onPlayerDelete());

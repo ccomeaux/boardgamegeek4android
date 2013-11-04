@@ -21,7 +21,10 @@ import com.boardgamegeek.util.ColorUtils;
 public class PlayerRow extends LinearLayout {
 	private Player mPlayer;
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
-	private Typeface mTypeface;
+	private Typeface mNameTypeface;
+	private int mLightTextColor;
+	private int mDefaultTextColor;
+	private boolean mAutoSort;
 
 	private TextView mName;
 	private TextView mUsername;
@@ -57,7 +60,9 @@ public class PlayerRow extends LinearLayout {
 		mRating = (TextView) findViewById(R.id.rating);
 		mStartingPosition = (TextView) findViewById(R.id.starting_position);
 
-		mTypeface = mName.getTypeface();
+		mNameTypeface = mName.getTypeface();
+		mDefaultTextColor = mScore.getTextColors().getDefaultColor();
+		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 		mDeleteButton.setOnClickListener(new OnClickListener() {
@@ -106,6 +111,10 @@ public class PlayerRow extends LinearLayout {
 		return mPlayer;
 	}
 
+	public void setAutoSort(boolean value) {
+		mAutoSort = value;
+	}
+
 	private void bindUi() {
 		if (mPlayer == null) {
 			setText(mName, "");
@@ -122,13 +131,13 @@ public class PlayerRow extends LinearLayout {
 				mName.setVisibility(View.VISIBLE);
 				mName.setText(mPlayer.Name);
 				if (mPlayer.New && mPlayer.Win) {
-					mName.setTypeface(mTypeface, Typeface.BOLD_ITALIC);
+					mName.setTypeface(mNameTypeface, Typeface.BOLD_ITALIC);
 				} else if (mPlayer.New) {
-					mName.setTypeface(mTypeface, Typeface.ITALIC);
+					mName.setTypeface(mNameTypeface, Typeface.ITALIC);
 				} else if (mPlayer.Win) {
-					mName.setTypeface(mTypeface, Typeface.BOLD);
+					mName.setTypeface(mNameTypeface, Typeface.BOLD);
 				} else {
-					mName.setTypeface(mTypeface, Typeface.NORMAL);
+					mName.setTypeface(mNameTypeface, Typeface.NORMAL);
 				}
 			}
 
@@ -143,8 +152,11 @@ public class PlayerRow extends LinearLayout {
 			}
 
 			setText(mScore, mPlayer.Score);
+
 			setText(mStartingPosition, (mPlayer.getSeat() == Player.SEAT_UNKNOWN) ? mPlayer.getStartingPosition() : "#"
 				+ mPlayer.getSeat());
+			mStartingPosition.setTextColor(mAutoSort ? mLightTextColor : mDefaultTextColor);
+
 			setText(mRating, (mPlayer.Rating > 0) ? mFormat.format(mPlayer.Rating) : "");
 		}
 	}

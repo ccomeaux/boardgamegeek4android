@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +45,8 @@ import com.boardgamegeek.util.UIUtils;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private Uri mBuddyUri;
+	private int mDefaultTextColor;
+	private int mLightTextColor;
 
 	private TextView mFullName;
 	private TextView mName;
@@ -103,6 +104,9 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
 		mNickname = (TextView) rootView.findViewById(R.id.nickname);
 		mUpdated = (TextView) rootView.findViewById(R.id.updated);
+
+		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
+		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
@@ -202,10 +206,10 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mName.setText(name);
 		mId.setText(String.valueOf(id));
 		if (TextUtils.isEmpty(nickname)) {
-			mNickname.setTextColor(Color.GRAY);
+			mNickname.setTextColor(mLightTextColor);
 			mNickname.setText(fullName);
 		} else {
-			mNickname.setTextColor(mFullName.getTextColors().getDefaultColor());
+			mNickname.setTextColor(mDefaultTextColor);
 			mNickname.setText(nickname);
 		}
 		mUpdated.setText(getResources().getString(R.string.updated)
