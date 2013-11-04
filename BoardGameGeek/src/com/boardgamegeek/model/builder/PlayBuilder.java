@@ -94,10 +94,14 @@ public class PlayBuilder {
 		Play copy = new Play(play.GameId, play.GameName);
 		copy.Location = play.Location;
 		copy.NoWinStats = play.NoWinStats;
+		boolean copyStartingPosition = !play.arePlayersCustomSorted();
 		for (Player player : play.getPlayers()) {
 			Player p = new Player();
 			p.UserId = player.UserId;
 			p.Name = player.Name;
+			if (copyStartingPosition) {
+				p.setStartingPosition(player.getStartingPosition());
+			}
 			p.TeamColor = player.TeamColor;
 			p.Rating = player.Rating;
 			p.Score = "";
