@@ -231,7 +231,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_add_field).setVisible(
 				shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
 					|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
-			menu.findItem(R.id.menu_player_order).setVisible(true);
+			menu.findItem(R.id.menu_player_order).setVisible(!shouldHidePlayers());
 			menu.findItem(R.id.menu_custom_player_order).setVisible(true);
 			menu.findItem(R.id.menu_pick_start_player).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_pick_start_player).setEnabled(!mCustomPlayerSort);

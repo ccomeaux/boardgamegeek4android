@@ -42,6 +42,10 @@ public class Play {
 	 * The play is ready to be deleted
 	 */
 	public static final int SYNC_STATUS_PENDING_DELETE = 3;
+	/**
+	 * The play is ready to be updated or deleted
+	 */
+	public static final int SYNC_STATUS_PENDING = 4;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;

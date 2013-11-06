@@ -183,6 +183,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 						return R.string.empty_plays_update;
 					case Play.SYNC_STATUS_PENDING_DELETE:
 						return R.string.empty_plays_delete;
+					case Play.SYNC_STATUS_PENDING:
+						return R.string.empty_plays_pending;
 					case Play.SYNC_STATUS_ALL:
 					default:
 						return R.string.empty_plays;
@@ -212,6 +214,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			case MODE_ALL:
 				if (mFilter == Play.SYNC_STATUS_ALL) {
 					return null;
+				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+					return Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?";
 				} else {
 					return Plays.SYNC_STATUS + "=?";
 				}
@@ -228,6 +232,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			case MODE_ALL:
 				if (mFilter == Play.SYNC_STATUS_ALL) {
 					return null;
+				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
+						String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) };
 				} else {
 					return new String[] { String.valueOf(mFilter) };
 				}
