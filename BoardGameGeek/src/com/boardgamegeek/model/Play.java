@@ -263,7 +263,7 @@ public class Play {
 	}
 
 	/**
-	 * Determine if the starting positions indicate the players are custom sorted. 
+	 * Determine if the starting positions indicate the players are custom sorted.
 	 */
 	public boolean arePlayersCustomSorted() {
 		if (getPlayerCount() == 0) {
@@ -296,7 +296,11 @@ public class Play {
 	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
 	 */
 	public boolean hasBeenSynced() {
-		return (PlayId > 0 && PlayId < UNSYNCED_PLAY_ID);
+		return Play.hasBeenSynced(PlayId);
+	}
+
+	public static boolean hasBeenSynced(int playId) {
+		return (playId > 0 && playId < UNSYNCED_PLAY_ID);
 	}
 
 	/**

@@ -397,7 +397,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				holder.separator.setVisibility(View.GONE);
 			}
 
-			UIUtils.setActivatedCompat(view, cursor.getInt(PlaysQuery.PLAY_ID) == mSelectedPlayId);
+			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
+			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
 
 			holder.date.setText(CursorUtils.getFormettedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
@@ -423,7 +424,11 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			if (status != Play.SYNC_STATUS_SYNCED) {
 				int messageId = 0;
 				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
-					messageId = R.string.sync_in_process;
+					if (Play.hasBeenSynced(playId)) {
+						messageId = R.string.sync_editing;
+					} else {
+						messageId = R.string.sync_draft;
+					}
 				} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
 					messageId = R.string.sync_pending_update;
 				} else if (status == Play.SYNC_STATUS_PENDING_DELETE) {

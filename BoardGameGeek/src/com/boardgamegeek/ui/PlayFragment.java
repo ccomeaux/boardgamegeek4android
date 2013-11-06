@@ -211,7 +211,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		menu.findItem(R.id.menu_refresh).setEnabled(mPlay.hasBeenSynced());
+		MenuItem refreshMenuItem = menu.findItem(R.id.menu_refresh);
+		refreshMenuItem.setEnabled(mPlay.hasBeenSynced());
+		if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+			refreshMenuItem.setTitle(R.string.menu_discard_changes);
+		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
@@ -397,7 +401,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			mSavedTimeStamp.setText(getResources().getString(R.string.saved) + " "
 				+ DateUtils.getRelativeTimeSpanString(mPlay.Saved));
 			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-				mUnsyncedMessage.setText(R.string.sync_in_process);
+				if (mPlay.hasBeenSynced()) {
+					mUnsyncedMessage.setText(R.string.sync_editing);
+				} else {
+					mUnsyncedMessage.setText(R.string.sync_draft);
+				}
 			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 				mUnsyncedMessage.setText(R.string.sync_pending_update);
 			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
