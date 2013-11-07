@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -492,7 +493,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	public void onAddPlayerClick(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
-			addPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
 			mPlay.addPlayer(new Player());
 			bindUiPlayers();
@@ -510,7 +511,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				// prompt for another player
 				Intent intent = new Intent();
 				intent.putExtra(LogPlayerActivity.KEY_CANCEL_ON_BACK, true);
-				addPlayer(intent, REQUEST_ADD_PLAYER);
+				editPlayer(intent, REQUEST_ADD_PLAYER);
 			} else {
 				mPlay.replacePlayer(player, requestCode);
 			}
@@ -559,21 +560,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private OnClickListener onPlayerEdit() {
-		return new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				PlayerRow row = (PlayerRow) v;
-				Player player = row.getPlayer();
-				Intent intent = player.toIntent();
-				if (!mCustomPlayerSort) {
-					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-				}
-				addPlayer(intent, (Integer) row.getTag());
-			}
-		};
-	}
-
 	private OnClickListener onPlayerDelete() {
 		return new OnClickListener() {
 			@Override
@@ -585,7 +571,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		};
 	}
 
-	private void addPlayer(Intent intent, int requestCode) {
+	private void editPlayer(Intent intent, int requestCode) {
 		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
@@ -612,6 +598,19 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mTimer = (Chronometer) header.findViewById(R.id.timer);
 		mCommentsView = (EditText) header.findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) header.findViewById(R.id.log_play_players_label);
+		
+		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				PlayerRow row = (PlayerRow) view;
+				Player player = row.getPlayer();
+				Intent intent = player.toIntent();
+				if (!mCustomPlayerSort) {
+					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+				}
+				editPlayer(intent, (Integer) row.getTag());				
+			}
+		});
 	}
 
 	private void hideFields() {
@@ -862,7 +861,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			PlayerRow row = (PlayerRow) convertView;
 			row.setAutoSort(!mCustomPlayerSort);
 			row.setPlayer((Player) getItem(position));
-			row.setOnEditListener(onPlayerEdit());
 			row.setOnDeleteListener(onPlayerDelete());
 			row.setTag(position);
 			return convertView;

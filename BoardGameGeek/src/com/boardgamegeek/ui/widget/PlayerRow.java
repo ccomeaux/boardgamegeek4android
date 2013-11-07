@@ -35,9 +35,7 @@ public class PlayerRow extends LinearLayout {
 	private TextView mStartingPosition;
 	private TextView mRating;
 	private ImageView mDeleteButton;
-	private View mEditButton;
 
-	private OnClickListener mEditClickListener;
 	private OnClickListener mDeleteClickListener;
 
 	public PlayerRow(Context context) {
@@ -80,25 +78,11 @@ public class PlayerRow extends LinearLayout {
 				builder.create().show();
 			}
 		});
-
-		mEditButton = findViewById(R.id.log_player_edit);
-		mEditButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (mEditClickListener != null) {
-					mEditClickListener.onClick(PlayerRow.this);
-				}
-			}
-		});
-	}
-
-	public void setOnEditListener(OnClickListener l) {
-		setEnabled(true);
-		mEditClickListener = l;
 	}
 
 	public void setOnDeleteListener(OnClickListener l) {
 		mDeleteButton.setVisibility(View.VISIBLE);
+		mDeleteButton.setFocusable(false); // necessary to allow the row to receive click events
 		mDeleteClickListener = l;
 	}
 
