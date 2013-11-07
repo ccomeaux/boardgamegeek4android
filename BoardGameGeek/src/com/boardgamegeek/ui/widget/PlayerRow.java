@@ -19,7 +19,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.ColorUtils;
 
 public class PlayerRow extends LinearLayout {
-	private Player mPlayer;
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
 	private Typeface mNameTypeface;
 	private int mLightTextColor;
@@ -86,21 +85,12 @@ public class PlayerRow extends LinearLayout {
 		mDeleteClickListener = l;
 	}
 
-	public void setPlayer(Player player) {
-		mPlayer = player;
-		bindUi();
-	}
-
-	public Player getPlayer() {
-		return mPlayer;
-	}
-
 	public void setAutoSort(boolean value) {
 		mAutoSort = value;
 	}
 
-	private void bindUi() {
-		if (mPlayer == null) {
+	public void setPlayer(Player player) {
+		if (player == null) {
 			setText(mName, "");
 			setText(mUsername, "");
 			setText(mTeamColor, "");
@@ -108,40 +98,40 @@ public class PlayerRow extends LinearLayout {
 			setText(mRating, "");
 			setText(mStartingPosition, "");
 		} else {
-			setText(mUsername, mPlayer.Username);
-			if (TextUtils.isEmpty(mPlayer.Name)) {
+			setText(mUsername, player.Username);
+			if (TextUtils.isEmpty(player.Name)) {
 				mName.setVisibility(View.GONE);
 			} else {
 				mName.setVisibility(View.VISIBLE);
-				mName.setText(mPlayer.Name);
-				if (mPlayer.New && mPlayer.Win) {
+				mName.setText(player.Name);
+				if (player.New && player.Win) {
 					mName.setTypeface(mNameTypeface, Typeface.BOLD_ITALIC);
-				} else if (mPlayer.New) {
+				} else if (player.New) {
 					mName.setTypeface(mNameTypeface, Typeface.ITALIC);
-				} else if (mPlayer.Win) {
+				} else if (player.Win) {
 					mName.setTypeface(mNameTypeface, Typeface.BOLD);
 				} else {
 					mName.setTypeface(mNameTypeface, Typeface.NORMAL);
 				}
 			}
 
-			int color = ColorUtils.parseColor(mPlayer.TeamColor);
+			int color = ColorUtils.parseColor(player.TeamColor);
 			if (color != ColorUtils.TRANSPARENT) {
 				mColorSwatch.setBackgroundColor(color);
 				mColorSwatchContainer.setVisibility(View.VISIBLE);
 				mTeamColor.setVisibility(View.GONE);
 			} else {
 				mColorSwatchContainer.setVisibility(View.INVISIBLE);
-				setText(mTeamColor, mPlayer.TeamColor);
+				setText(mTeamColor, player.TeamColor);
 			}
 
-			setText(mScore, mPlayer.Score);
+			setText(mScore, player.Score);
 
-			setText(mStartingPosition, (mPlayer.getSeat() == Player.SEAT_UNKNOWN) ? mPlayer.getStartingPosition() : "#"
-				+ mPlayer.getSeat());
+			setText(mStartingPosition, (player.getSeat() == Player.SEAT_UNKNOWN) ? player.getStartingPosition() : "#"
+				+ player.getSeat());
 			mStartingPosition.setTextColor(mAutoSort ? mLightTextColor : mDefaultTextColor);
 
-			setText(mRating, (mPlayer.Rating > 0) ? mFormat.format(mPlayer.Rating) : "");
+			setText(mRating, (player.Rating > 0) ? mFormat.format(player.Rating) : "");
 		}
 	}
 

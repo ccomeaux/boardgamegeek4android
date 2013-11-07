@@ -565,7 +565,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-				mPlay.removePlayer(((PlayerRow) v).getPlayer());
+				mPlay.removePlayer((Player) v.getTag());
 				bindUiPlayers();
 			}
 		};
@@ -598,17 +598,16 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mTimer = (Chronometer) header.findViewById(R.id.timer);
 		mCommentsView = (EditText) header.findViewById(R.id.log_play_comments);
 		mPlayerLabel = (TextView) header.findViewById(R.id.log_play_players_label);
-		
+
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				PlayerRow row = (PlayerRow) view;
-				Player player = row.getPlayer();
+				Player player = (Player) view.getTag();
 				Intent intent = player.toIntent();
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
-				editPlayer(intent, (Integer) row.getTag());				
+				editPlayer(intent, position - 1); // offset by the list header
 			}
 		});
 	}
@@ -862,7 +861,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			row.setAutoSort(!mCustomPlayerSort);
 			row.setPlayer((Player) getItem(position));
 			row.setOnDeleteListener(onPlayerDelete());
-			row.setTag(position);
+			row.setTag((Player) getItem(position));
 			return convertView;
 		}
 	}
