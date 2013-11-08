@@ -61,6 +61,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
+import com.mobeta.android.dslv.DragSortListView.DragSortListener;
 
 public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -827,7 +828,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private class PlayAdapter extends BaseAdapter {
+	private class PlayAdapter extends BaseAdapter implements DragSortListener {
 		@Override
 		public int getCount() {
 			return mPlay == null ? 0 : mPlay.getPlayerCount();
@@ -856,6 +857,22 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			row.setPlayer((Player) getItem(position));
 			row.setOnDeleteListener(new PlayerDeleteClickListener(position));
 			return convertView;
+		}
+
+		@Override
+		public void drop(int from, int to) {
+			mPlay.reorderPlayers(from + 1, to + 1);
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public void drag(int from, int to) {
+			// nothing to do
+		}
+
+		@Override
+		public void remove(int which) {
+			// remove not supported
 		}
 	}
 

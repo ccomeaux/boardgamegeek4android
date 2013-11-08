@@ -227,6 +227,25 @@ public class Play {
 		return null;
 	}
 
+	public void reorderPlayers(int fromSeat, int toSeat) {
+		if (arePlayersCustomSorted()) {
+			return;
+		}
+		Player player = getPlayerAtSeat(fromSeat);
+		player.setSeat(Player.SEAT_UNKNOWN);
+		if (fromSeat > toSeat) {
+			for (int i = fromSeat - 1; i >= toSeat; i--) {
+				getPlayerAtSeat(i).setSeat(i + 1);
+			}
+		} else {
+			for (int i = fromSeat + 1; i <= toSeat; i++) {
+				getPlayerAtSeat(i).setSeat(i - 1);
+			}
+		}
+		player.setSeat(toSeat);
+		sortPlayers();
+	}
+
 	/**
 	 * Sets the start player based on the index, keeping the other players in order, assigns seats, then sorts
 	 * 
