@@ -2,9 +2,7 @@ package com.boardgamegeek.ui.widget;
 
 import java.text.DecimalFormat;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -35,8 +33,6 @@ public class PlayerRow extends LinearLayout {
 	private TextView mRating;
 	private ImageView mDeleteButton;
 
-	private OnClickListener mDeleteClickListener;
-
 	public PlayerRow(Context context) {
 		this(context, null);
 	}
@@ -62,27 +58,12 @@ public class PlayerRow extends LinearLayout {
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
-		mDeleteButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(PlayerRow.this.getContext());
-				builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
-					.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (mDeleteClickListener != null) {
-								mDeleteClickListener.onClick(PlayerRow.this);
-							}
-						}
-					}).setNegativeButton(R.string.no, null);
-				builder.create().show();
-			}
-		});
 	}
 
 	public void setOnDeleteListener(OnClickListener l) {
 		mDeleteButton.setVisibility(View.VISIBLE);
 		mDeleteButton.setFocusable(false); // necessary to allow the row to receive click events
-		mDeleteClickListener = l;
+		mDeleteButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {

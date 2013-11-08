@@ -560,17 +560,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private OnClickListener onPlayerDelete() {
-		return new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-				mPlay.removePlayer((Player) v.getTag());
-				bindUiPlayers();
-			}
-		};
-	}
-
 	private void editPlayer(Intent intent, int requestCode) {
 		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -602,14 +591,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Player player = (Player) view.getTag();
+				int offsetPosition = position - 1; // offset by the list header
+				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
 				Intent intent = player.toIntent();
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
-				editPlayer(intent, position - 1); // offset by the list header
+				editPlayer(intent, offsetPosition);
 			}
 		});
+
+		mPlayerList.setItemsCanFocus(true);
 	}
 
 	private void hideFields() {
@@ -812,15 +804,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	@SuppressLint("ValidFragment")
-	public static class DatePickerFragment extends DialogFragment {
+	private static class DatePickerFragment extends DialogFragment {
 		public static final String KEY_YEAR = "YEAR";
 		public static final String KEY_MONTH = "MONTH";
 		public static final String KEY_DAY = "DAY";
 
 		private OnDateSetListener mListener;
-
-		public DatePickerFragment() {
-		}
 
 		public DatePickerFragment(DatePickerDialog.OnDateSetListener listener) {
 			mListener = listener;
@@ -836,7 +825,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	public class PlayAdapter extends BaseAdapter {
+	private class PlayAdapter extends BaseAdapter {
 		@Override
 		public int getCount() {
 			return mPlay == null ? 0 : mPlay.getPlayerCount();
@@ -860,9 +849,31 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			PlayerRow row = (PlayerRow) convertView;
 			row.setAutoSort(!mCustomPlayerSort);
 			row.setPlayer((Player) getItem(position));
-			row.setOnDeleteListener(onPlayerDelete());
-			row.setTag((Player) getItem(position));
+			row.setOnDeleteListener(new PlayerDeleteClickListener(position));
 			return convertView;
+		}
+	}
+
+	private class PlayerDeleteClickListener implements View.OnClickListener {
+		private int mPosition;
+
+		public PlayerDeleteClickListener(int position) {
+			mPosition = position;
+		}
+
+		@Override
+		public void onClick(View v) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
+			builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
+				.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						Player player = (Player) mPlayAdapter.getItem(mPosition);
+						Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+						mPlay.removePlayer(player);
+						bindUiPlayers();
+					}
+				}).setNegativeButton(R.string.no, null);
+			builder.create().show();
 		}
 	}
 }
