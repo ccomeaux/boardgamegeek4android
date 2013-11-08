@@ -869,7 +869,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					public void onClick(DialogInterface dialog, int id) {
 						Player player = (Player) mPlayAdapter.getItem(mPosition);
 						Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-						mPlay.removePlayer(player);
+						mPlay.removePlayer(player, !mCustomPlayerSort);
 						bindUiPlayers();
 					}
 				}).setNegativeButton(R.string.no, null);
