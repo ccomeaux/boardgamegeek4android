@@ -33,6 +33,7 @@ import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +60,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.mobeta.android.dslv.DragSortListView;
 
 public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -96,7 +98,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private Chronometer mTimer;
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
-	private ListView mPlayerList;
+	private DragSortListView mPlayerList;
 
 	private boolean mPlayLoaded;
 	private boolean mPlayersLoaded;
@@ -572,7 +574,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void setUiVariables() {
-		mPlayerList = (ListView) findViewById(android.R.id.list);
+		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		View header = View.inflate(this, R.layout.header_logplay, null);
 		mPlayerList.addHeaderView(header);
 		mPlayerList.setAdapter(mPlayAdapter);
@@ -845,6 +847,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = new PlayerRow(LogPlayActivity.this);
+				// HACK workaround to make row take up full width
+				convertView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.WRAP_CONTENT));
 			}
 			PlayerRow row = (PlayerRow) convertView;
 			row.setAutoSort(!mCustomPlayerSort);

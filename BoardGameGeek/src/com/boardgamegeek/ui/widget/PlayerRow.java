@@ -23,6 +23,7 @@ public class PlayerRow extends LinearLayout {
 	private int mDefaultTextColor;
 	private boolean mAutoSort;
 
+	private View mDragHandle;
 	private TextView mName;
 	private TextView mUsername;
 	private View mColorSwatchContainer;
@@ -44,6 +45,7 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	private void initializeUi() {
+		mDragHandle = findViewById(R.id.drag_handle);
 		mName = (TextView) findViewById(R.id.name);
 		mUsername = (TextView) findViewById(R.id.username);
 		mColorSwatchContainer = findViewById(R.id.color_swatch_container);
@@ -68,6 +70,7 @@ public class PlayerRow extends LinearLayout {
 
 	public void setAutoSort(boolean value) {
 		mAutoSort = value;
+		mDragHandle.setVisibility(value ? View.VISIBLE : View.GONE);
 	}
 
 	public void setPlayer(Player player) {

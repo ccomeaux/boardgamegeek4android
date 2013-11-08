@@ -8,6 +8,18 @@
 	android:orientation="horizontal"
 	android:padding="@dimen/padding_half" >
 
+	<ImageView
+		android:id="@+id/drag_handle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:paddingBottom="@dimen/padding_half"
+		android:paddingLeft="@dimen/padding_half"
+		android:paddingRight="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_half"
+		android:src="@drawable/drag_grip"
+		android:visibility="gone" />
+
 	<FrameLayout
 		android:id="@+id/color_swatch_container"
 		android:layout_width="@dimen/padding_standard"
