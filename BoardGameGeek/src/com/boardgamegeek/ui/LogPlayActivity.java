@@ -34,7 +34,6 @@ import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,7 +65,7 @@ import com.mobeta.android.dslv.DragSortListView.DropListener;
 public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
-	private static final int HELP_VERSION = 1;
+	private static final int HELP_VERSION = 2;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -500,6 +499,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		} else {
 			mPlay.addPlayer(new Player());
 			bindUiPlayers();
+			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
 	}
 
@@ -579,7 +579,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		View header = View.inflate(this, R.layout.header_logplay, null);
 		mPlayerList.addHeaderView(header);
 		mPlayerList.setAdapter(mPlayAdapter);
-		mPlayerList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
 		mDateButton = (Button) header.findViewById(R.id.log_play_date);
 		mQuantityView = (EditText) header.findViewById(R.id.log_play_quantity);

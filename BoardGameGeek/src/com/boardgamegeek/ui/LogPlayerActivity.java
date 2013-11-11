@@ -37,8 +37,10 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -53,6 +55,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
 	private static final String KEY_PLAYER = "PLAYER";
 	private static final int INVALID_AUTO_POSITION = 0;
+
+	private static final int HELP_VERSION = 1;
 
 	private int mGameId;
 	private String mGameName;
@@ -127,6 +131,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersUniqueUri(),
 			PlayPlayers.NAME));
 		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
+
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
 
 	@Override

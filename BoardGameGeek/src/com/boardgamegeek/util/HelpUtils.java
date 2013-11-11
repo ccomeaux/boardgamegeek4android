@@ -12,6 +12,7 @@ public class HelpUtils {
 	public static final String HELP_COLLECTION_KEY = "help.collection";
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";
+	public static final String HELP_LOGPLAYER_KEY = "help.logplayer";
 	public static final String HELP_COLORS_KEY = "help.colors";
 
 	public static boolean showHelp(Context context, String key, int version) {
