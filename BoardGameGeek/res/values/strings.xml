@@ -169,6 +169,7 @@
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
+	<string name="menu_view">View</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
@@ -259,6 +260,9 @@
 	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_play_played">Played</string>
+	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
+	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
 	<string name="times_abbr">x</string>
 	<string name="on">on</string>
@@ -314,6 +318,7 @@
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_thread">Missing images? Click the right arrow in an article\'s header to see the entire article.</string>
 	<string name="help_colors">As you log plays, the teams and colors you enter appear here and will be available the next time you log a game. Long press on an entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>

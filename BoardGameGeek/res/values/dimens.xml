@@ -16,5 +16,6 @@
 	<dimen name="actionbar_text">24sp</dimen>
 	<dimen name="actionbar_text_medium">18sp</dimen>
 	<dimen name="actionbar_text_small">12sp</dimen>
+	<dimen name="icon_width">48dp</dimen>
 
 </resources>

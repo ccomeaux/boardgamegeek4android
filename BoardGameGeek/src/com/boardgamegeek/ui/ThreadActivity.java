@@ -10,9 +10,14 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ForumsUtils;
+import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.UIUtils;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
+	private static final int HELP_VERSION = 1;
+
 	private String mThreadId;
 	private String mThreadSubject;
 	private String mForumId;
@@ -40,6 +45,8 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
 			actionBar.setSubtitle(mGameName);
 		}
+
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
 	}
 
 	@Override
@@ -49,7 +56,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_only;
+		return R.menu.search_view_share;
 	}
 
 	@Override
@@ -64,6 +71,16 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
+				return true;
+			case R.id.menu_view:
+				ActivityUtils.linkToBgg(this, "thread/" + mThreadId);
+				return true;
+			case R.id.menu_share:
+				String description = String.format(getString(R.string.share_thread_text), mThreadSubject, mForumTitle,
+					mGameName);
+				String link = ActivityUtils.createBggUri("thread/" + mThreadId).toString();
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link,
+					R.string.title_share_game);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

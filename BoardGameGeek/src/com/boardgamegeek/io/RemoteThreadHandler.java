@@ -12,8 +12,6 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ThreadArticle;
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.StringUtils;
 
 public class RemoteThreadHandler extends RemoteBggHandler {
 
@@ -45,13 +43,17 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ARTICLE.equals(mParser.getName())) {
-				final String userName = mParser.getAttributeValue(null, Tags.USERNAME);
-				final long postDate = DateTimeUtils.parseDate(mParser.getAttributeValue(null, Tags.POST_DATE));
-				final long editDate = DateTimeUtils.parseDate(mParser.getAttributeValue(null, Tags.EDIT_DATE));
-				final int numEdits = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_EDITS));
+				int id = parseIntegerAttribute(Tags.ID);
+				String userName = parseStringAttribute(Tags.USERNAME);
+				String link = parseStringAttribute(Tags.LINK);
+				long postDate = parseDateAttribute(Tags.POST_DATE);
+				long editDate = parseDateAttribute(Tags.EDIT_DATE);
+				int numEdits = parseIntegerAttribute(Tags.NUM_EDITS);
 
-				final ThreadArticle article = parseItem();
+				ThreadArticle article = parseItem();
+				article.id = id;
 				article.username = userName;
+				article.link = link;
 				article.postDate = postDate;
 				article.editDate = editDate;
 				article.numberOfEdits = numEdits;
@@ -89,7 +91,9 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 	private interface Tags {
 		String THREAD = "thread";
 		String ARTICLE = "article";
+		String ID = "id";
 		String USERNAME = "username";
+		String LINK = "link";
 		String POST_DATE = "postdate";
 		String EDIT_DATE = "editdate";
 		String NUM_EDITS = "numedits";
