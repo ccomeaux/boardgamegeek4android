@@ -12,8 +12,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ForumsUtils;
+import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.UIUtils;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
+	private static final int HELP_VERSION = 1;
+
 	private String mThreadId;
 	private String mThreadSubject;
 	private String mForumId;
@@ -41,6 +45,8 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 			actionBar.setTitle(mThreadSubject + " - " + mForumTitle);
 			actionBar.setSubtitle(mGameName);
 		}
+
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
 	}
 
 	@Override

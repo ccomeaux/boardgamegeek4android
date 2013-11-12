@@ -13,6 +13,7 @@ public class HelpUtils {
 	public static final String HELP_SEARCHRESULTS_KEY = "help.searchresults";
 	public static final String HELP_LOGPLAY_KEY = "help.logplay";
 	public static final String HELP_COLORS_KEY = "help.colors";
+	public static final String HELP_THREAD_KEY = "help.thread";
 
 	public static boolean showHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

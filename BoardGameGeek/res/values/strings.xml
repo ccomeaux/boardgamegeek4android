@@ -309,6 +309,7 @@
     <string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
     <string name="help_searchresults">Long-click on a game for more options.</string>
     <string name="help_logplay">Too many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_thread">Missing images? Click the right arrow in an article\'s header to see the entire article.</string>
     <string name="help_colors">As you log plays, the teams and colors you enter appear here and will be available the next time you log a game. Long press on an entry here to delete it.</string>
     <string name="help_button_close">Close</string>
     <string name="help_button_hide">Don\'t show again</string>
