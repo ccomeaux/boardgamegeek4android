@@ -10,6 +10,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ForumsUtils;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
@@ -49,7 +50,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_only;
+		return R.menu.search_view;
 	}
 
 	@Override
@@ -64,6 +65,9 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
+				return true;
+			case R.id.view:
+				ActivityUtils.linkToBgg(this, "thread/" + mThreadId);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

@@ -15,6 +15,7 @@ import com.boardgamegeek.util.ForumsUtils;
 public class ForumActivity extends SimpleSinglePaneActivity {
 	private int mGameId;
 	private String mGameName;
+	private String mForumId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		String forumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
 		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mForumId = intent.getStringExtra(ForumsUtils.KEY_FORUM_ID);
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
@@ -43,7 +45,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_only;
+		return R.menu.search_view;
 	}
 
 	@Override
@@ -58,6 +60,9 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
 				}
 				finish();
+				return true;
+			case R.id.view:
+				ActivityUtils.linkToBgg(this, "forum/" + mForumId);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
