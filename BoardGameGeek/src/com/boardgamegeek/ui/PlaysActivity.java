@@ -74,10 +74,7 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 				filter = Play.SYNC_STATUS_IN_PROGRESS;
 				break;
 			case 2:
-				filter = Play.SYNC_STATUS_PENDING_UPDATE;
-				break;
-			case 3:
-				filter = Play.SYNC_STATUS_PENDING_DELETE;
+				filter = Play.SYNC_STATUS_PENDING;
 				break;
 		}
 		((PlaysFragment) mFragment).filter(filter);

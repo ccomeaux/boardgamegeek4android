@@ -211,12 +211,10 @@
 		<activity
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
-			android:launchMode="singleTop"
-			android:windowSoftInputMode="stateHidden" />
+			android:launchMode="singleTop" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
-			android:label="@string/title_log_player"
-			android:windowSoftInputMode="stateHidden" />
+			android:label="@string/title_log_player" />
 		<activity
 			android:name=".ui.ForumsActivity"
 			android:exported="false"

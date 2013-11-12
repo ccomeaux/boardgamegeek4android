@@ -2,56 +2,84 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
 	android:gravity="center_vertical"
-	android:minHeight="48dp"
-	android:orientation="horizontal" >
+	android:minHeight="@dimen/player_row_height"
+	android:orientation="horizontal"
+	android:padding="@dimen/padding_half" >
 
-	<RelativeLayout
-		android:id="@+id/log_player_edit"
-		style="?android:attr/buttonStyle"
-		android:layout_width="0dp"
+	<ImageView
+		android:id="@+id/drag_handle"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_weight="1" >
+		android:background="?attr/selectableItemBackground"
+		android:paddingBottom="@dimen/padding_half"
+		android:paddingLeft="@dimen/padding_half"
+		android:paddingRight="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_half"
+		android:src="@drawable/drag_grip"
+		android:visibility="gone" />
+
+	<FrameLayout
+		android:id="@+id/color_swatch_container"
+		android:layout_width="@dimen/padding_standard"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_vertical"
+		android:layout_marginRight="@dimen/padding_half"
+		android:paddingBottom="@dimen/padding_half"
+		android:paddingTop="@dimen/padding_half" >
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="#ff000000" />
 
 		<View
 			android:id="@+id/color_swatch"
-			android:layout_width="@dimen/padding_half"
-			android:layout_height="36dp"
-			android:layout_centerVertical="true"
-			android:layout_marginRight="@dimen/padding_half" />
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_margin="1dp" />
+	</FrameLayout>
+
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:orientation="vertical" >
 
 		<TextView
 			android:id="@+id/name"
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/color_swatch"
 			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/username"
 			style="@style/Text.Footnote"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/name"
-			android:layout_toRightOf="@id/color_swatch"
 			android:textIsSelectable="false" />
 
 		<TextView
 			android:id="@+id/team_color"
 			style="@style/Text.Footnote"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/username"
-			android:layout_toRightOf="@id/color_swatch"
 			android:textIsSelectable="false" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="right"
+		android:orientation="vertical" >
 
 		<TextView
 			android:id="@+id/score"
 			style="@style/Text.Big"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
 			android:textIsSelectable="false" />
 
 		<TextView
@@ -59,8 +87,6 @@
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/score"
 			android:textIsSelectable="false" />
 
 		<TextView
@@ -68,17 +94,19 @@
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/starting_position"
 			android:textIsSelectable="false" />
-	</RelativeLayout>
+	</LinearLayout>
 
-	<ImageView
+	<ImageButton
 		android:id="@+id/log_player_delete"
 		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_gravity="right"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/delete"
-		android:src="@drawable/ic_action_delete_light" />
+		android:focusable="false"
+		android:padding="@dimen/padding_half"
+		android:src="@drawable/ic_action_delete_light"
+		android:visibility="gone" />
 
 </LinearLayout>

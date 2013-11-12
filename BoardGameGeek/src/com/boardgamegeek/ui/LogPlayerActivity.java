@@ -37,19 +37,26 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.UIUtils;
 
 public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
-	private static final String KEY_PLAYER = "PLAYER";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
+	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
 	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
+	private static final String KEY_PLAYER = "PLAYER";
+	private static final int INVALID_AUTO_POSITION = 0;
+
+	private static final int HELP_VERSION = 1;
 
 	private int mGameId;
 	private String mGameName;
@@ -75,6 +82,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private boolean mRatingShown;
 	private boolean mNewShown;
 	private boolean mWinShown;
+	private boolean mCancelOnBack;
+	private int mAutoPosition;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +96,22 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
+		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, INVALID_AUTO_POSITION);
+
+		if (hasAutoPosition()) {
+			setTitle(getTitle() + " #" + mAutoPosition);
+		}
+
 		if (!TextUtils.isEmpty(mGameName)) {
 			getSupportActionBar().setSubtitle(mGameName);
 		}
 
 		if (savedInstanceState == null) {
 			mPlayer = new Player(intent);
+			if (hasAutoPosition()) {
+				mPlayer.setSeat(mAutoPosition);
+			}
 			mOriginalPlayer = new Player(mPlayer);
 		} else {
 			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
@@ -112,6 +131,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersUniqueUri(),
 			PlayPlayers.NAME));
 		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
+
+		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
 
 	@Override
@@ -140,7 +161,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	@Override
 	public void onBackPressed() {
-		save();
+		if (mCancelOnBack) {
+			cancel();
+		} else {
+			save();
+		}
 	}
 
 	private void setUiVariables() {
@@ -201,7 +226,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private void hideFields() {
 		findViewById(R.id.log_player_team_color_label).setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
 		mTeamColor.setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_position_container).setVisibility(shouldHidePosition() ? View.GONE : View.VISIBLE);
+		findViewById(R.id.log_player_position_container).setVisibility(
+			hasAutoPosition() || shouldHidePosition() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_player_score_container).setVisibility(shouldHideScore() ? View.GONE : View.VISIBLE);
 		findViewById(R.id.log_player_rating_label).setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
 		mRating.setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
@@ -210,8 +236,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	public void hideAddFieldMenuItem(MenuItem mi) {
-		mi.setVisible(shouldHideTeamColor() || shouldHidePosition() || shouldHideScore() || shouldHideRating()
-			|| shouldHideNew() || shouldHideWin());
+		mi.setVisible(shouldHideTeamColor() || (shouldHidePosition() && !hasAutoPosition()) || shouldHideScore()
+			|| shouldHideRating() || shouldHideNew() || shouldHideWin());
 	}
 
 	private boolean shouldHideTeamColor() {
@@ -222,6 +248,10 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private boolean shouldHidePosition() {
 		return !PreferencesUtils.showLogPlayerPosition(this) && !mPositionShown
 			&& TextUtils.isEmpty(mPlayer.getStartingPosition());
+	}
+
+	private boolean hasAutoPosition() {
+		return mAutoPosition != INVALID_AUTO_POSITION;
 	}
 
 	private boolean shouldHideScore() {
@@ -300,7 +330,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		if (shouldHideTeamColor()) {
 			list.add(r.getString(R.string.team_color));
 		}
-		if (shouldHidePosition()) {
+		if (!hasAutoPosition() && shouldHidePosition()) {
 			list.add(r.getString(R.string.starting_position));
 		}
 		if (shouldHideScore()) {

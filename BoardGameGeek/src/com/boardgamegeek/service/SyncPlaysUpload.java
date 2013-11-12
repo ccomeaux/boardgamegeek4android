@@ -1,5 +1,6 @@
 package com.boardgamegeek.service;
 
+import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
@@ -22,23 +23,29 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemotePlaysHandler;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.builder.PlayBuilder;
+import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
@@ -48,6 +55,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private Context mContext;
 	private HttpClient mClient;
 	private List<String> mMessages;
+	private LocalBroadcastManager mBroadcaster;
 
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
@@ -55,6 +63,7 @@ public class SyncPlaysUpload extends SyncTask {
 		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
 		mMessages = new ArrayList<String>();
+		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
@@ -75,14 +84,18 @@ public class SyncPlaysUpload extends SyncTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = new Play().fromCursor(cursor, mContext, true);
+				Play play = PlayBuilder.fromCursor(cursor, mContext, true);
 
 				PlayUpdateResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
-					updateContentProvider(play, syncResult);
+					setStatusToSynced(play);
 					String error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
+						if (!play.hasBeenSynced()) {
+							deletePlay(play, syncResult);
+						}
+
 						Resources r = mContext.getResources();
 						String message = String.format(
 							r.getString(play.hasBeenSynced() ? R.string.msg_play_updated : R.string.msg_play_added),
@@ -120,7 +133,7 @@ public class SyncPlaysUpload extends SyncTask {
 				if (isCancelled()) {
 					break;
 				}
-				Play play = new Play().fromCursor(cursor);
+				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId, syncResult);
 					if (TextUtils.isEmpty(error)) {
@@ -144,7 +157,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayUpdateResponse postPlayUpdate(Play play) {
-		List<NameValuePair> nvps = play.toNameValuePairs();
+		List<NameValuePair> nvps = toNameValuePairs(play);
 		UrlEncodedFormEntity entity;
 		try {
 			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
@@ -207,6 +220,8 @@ public class SyncPlaysUpload extends SyncTask {
 			} else {
 				String message = HttpUtils.parseResponse(response);
 				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
+					// TODO: only needed if play is a draft
+					PreferencesUtils.removeNewPlayId(mContext, playId);
 					return "";
 				} else {
 					return "Bad response:\n" + message;
@@ -225,17 +240,20 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	/**
-	 * Marks the specified play as synced or deleted in the content provider
+	 * Marks the specified play as synced in the content provider
 	 */
-	private void updateContentProvider(Play play, SyncResult syncResult) {
-		if (play.hasBeenSynced()) {
-			play.SyncStatus = Play.SYNC_STATUS_SYNCED;
-			PlayPersister.save(mContext.getContentResolver(), play);
-			// syncResult.stats.numUpdates++;
-		} else {
-			PlayPersister.delete(mContext.getContentResolver(), play);
-			// syncResult.stats.numDeletes++;
-		}
+	private void setStatusToSynced(Play play) {
+		play.SyncStatus = Play.SYNC_STATUS_SYNCED;
+		PlayPersister.save(mContext.getContentResolver(), play);
+		// syncResult.stats.numUpdates++;
+	}
+
+	/**
+	 * Deletes the specified play from the content provider
+	 */
+	private void deletePlay(Play play, SyncResult syncResult) {
+		PlayPersister.delete(mContext.getContentResolver(), play);
+		// syncResult.stats.numDeletes++;
 	}
 
 	/**
@@ -247,7 +265,17 @@ public class SyncPlaysUpload extends SyncTask {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
 			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
-			re.executeGet(url, new RemotePlaysHandler());
+			RemotePlaysHandler parser = new RemotePlaysHandler();
+			re.executeGet(url, parser);
+
+			if (!play.hasBeenSynced()) {
+				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
+				PreferencesUtils.putNewPlayId(mContext, play.PlayId, newPlayId);
+				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
+				mBroadcaster.sendBroadcast(intent);
+			}
+
+			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
 		} catch (IOException e) {
 			syncResult.stats.numIoExceptions++;
 			return e.toString();
@@ -256,6 +284,55 @@ public class SyncPlaysUpload extends SyncTask {
 			return e.toString();
 		}
 		return "";
+	}
+
+	private int getTranslatedPlayId(Play play, List<Play> parsedPlays) {
+		if (parsedPlays == null || parsedPlays.size() == 0) {
+			return BggContract.INVALID_ID;
+		}
+
+		int latestPlayId = BggContract.INVALID_ID;
+
+		for (Play parsedPlay : parsedPlays) {
+			if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId)
+				&& (play.Year == parsedPlay.Year) && (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
+				&& (play.Incomplete == parsedPlay.Incomplete) && (play.NoWinStats == parsedPlay.NoWinStats)
+				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
+				if (parsedPlay.PlayId > latestPlayId) {
+					latestPlayId = parsedPlay.PlayId;
+				}
+			}
+		}
+
+		return latestPlayId;
+	}
+
+	private List<NameValuePair> toNameValuePairs(Play play) {
+		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		nvps.add(new BasicNameValuePair("ajax", "1"));
+		nvps.add(new BasicNameValuePair("action", "save"));
+		nvps.add(new BasicNameValuePair("version", "2"));
+		nvps.add(new BasicNameValuePair("objecttype", "thing"));
+		if (play.hasBeenSynced()) {
+			nvps.add(new BasicNameValuePair("playid", String.valueOf(play.PlayId)));
+		}
+		nvps.add(new BasicNameValuePair("objectid", String.valueOf(play.GameId)));
+		nvps.add(new BasicNameValuePair("playdate", play.getDate()));
+		nvps.add(new BasicNameValuePair("dateinput", play.getDate())); // TODO: ask Aldie what this is
+		nvps.add(new BasicNameValuePair("length", String.valueOf(play.Length)));
+		nvps.add(new BasicNameValuePair("location", play.Location));
+		nvps.add(new BasicNameValuePair("quantity", String.valueOf(play.Quantity)));
+		nvps.add(new BasicNameValuePair("incomplete", play.Incomplete ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("nowinstats", play.NoWinStats ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("comments", play.Comments));
+
+		List<Player> players = play.getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			nvps.addAll(players.get(i).toNameValuePairs(i));
+		}
+
+		LOGD(TAG, nvps.toString());
+		return nvps;
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {

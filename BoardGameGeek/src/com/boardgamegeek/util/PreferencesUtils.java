@@ -2,9 +2,11 @@ package com.boardgamegeek.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 import com.boardgamegeek.pref.MultiSelectListPreference;
+import com.boardgamegeek.provider.BggContract;
 
 public class PreferencesUtils {
 	private PreferencesUtils() {
@@ -118,9 +120,33 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedNotifyErrors", false);
 	}
 
+	public static int getNewPlayId(Context context, int oldPlayId) {
+		return getInt(context, "playId" + oldPlayId, BggContract.INVALID_ID);
+	}
+
+	public static void putNewPlayId(Context context, int oldPlayId, int newPlayId) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		if (newPlayId == BggContract.INVALID_ID) {
+			editor.remove("playId" + oldPlayId);
+		} else {
+			editor.putInt("playId" + oldPlayId, newPlayId);
+		}
+		editor.commit();
+	}
+
+	public static void removeNewPlayId(Context context, int oldPlayId) {
+		putNewPlayId(context, oldPlayId, BggContract.INVALID_ID);
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
+	}
+
+	private static int getInt(Context context, String key, int defaultValue) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPreferences.getInt(key, defaultValue);
 	}
 
 	private static String getString(Context context, String key, String defaultValue) {

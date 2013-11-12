@@ -12,11 +12,11 @@ import android.accounts.Account;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class SyncBuddiesDetailOldest extends SyncTask {

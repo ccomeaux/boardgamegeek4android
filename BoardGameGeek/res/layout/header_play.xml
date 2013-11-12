@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical" >
+
+	<TableLayout
+		android:id="@+id/details"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:stretchColumns="1" >
+
+		<TextView
+			android:id="@+id/game_name"
+			style="@style/Text.Title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:gravity="center_vertical"
+			android:maxLines="2"
+			android:textIsSelectable="false" />
+
+		<TableRow
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel"
+				android:text="@string/on" />
+
+			<TextView
+				android:id="@+id/play_date"
+				style="@style/Text.Big"
+				android:textIsSelectable="false" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/location_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel"
+				android:text="@string/at" />
+
+			<TextView
+				android:id="@+id/play_location"
+				style="@style/Text.Big"
+				android:textIsSelectable="false" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/length_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel"
+				android:text="@string/for_" />
+
+			<TextView
+				android:id="@+id/play_length"
+				style="@style/Text.Big"
+				android:textIsSelectable="false" />
+
+			<LinearLayout
+				android:id="@+id/timer_root"
+				android:background="@color/background_light"
+				android:gravity="center_vertical" >
+
+				<Chronometer
+					android:id="@+id/timer"
+					style="@style/Text.Title2"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:gravity="center"
+					android:maxLines="1"
+					android:paddingLeft="@dimen/padding_extra"
+					android:paddingRight="@dimen/padding_extra"
+					android:textIsSelectable="false" />
+
+				<Button
+					android:id="@+id/timer_end"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:paddingLeft="@dimen/padding_extra"
+					android:paddingRight="@dimen/padding_extra"
+					android:text="@string/end_play" />
+			</LinearLayout>
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/quantity_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				android:id="@+id/play_quantity"
+				style="@style/Text.Big"
+				android:layout_column="1"
+				android:textIsSelectable="false" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/play_incomplete"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/Text.Big"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_column="1"
+				android:text="@string/incomplete" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/play_no_win_stats"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/Text.Big"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_column="1"
+				android:text="@string/noWinStats" />
+		</TableRow>
+	</TableLayout>
+
+	<TextView
+		android:id="@+id/play_comments_label"
+		style="@style/Text.Header.Underline"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/padding_standard"
+		android:text="@string/comments"
+		android:textIsSelectable="false" />
+
+	<TextView
+		android:id="@+id/play_comments"
+		style="@style/Text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/padding_half"
+		android:textIsSelectable="true" />
+
+	<TextView
+		android:id="@+id/play_players_label"
+		style="@style/Text.Header.Underline"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/padding_standard"
+		android:text="@string/title_players"
+		android:textIsSelectable="false" />
+
+</LinearLayout>

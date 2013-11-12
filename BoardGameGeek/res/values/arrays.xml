@@ -69,9 +69,8 @@
 	</string-array>
 	<string-array name="plays_filter">
 		<item>Plays</item>
-		<item>Drafts</item>
-		<item>Pending Update</item>
-		<item>Pending Delete</item>
+		<item>Edits and Drafts</item>
+		<item>Pending Upload</item>
 	</string-array>
 
 </resources>
