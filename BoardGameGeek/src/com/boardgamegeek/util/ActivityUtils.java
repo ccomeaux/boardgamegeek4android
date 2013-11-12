@@ -238,9 +238,12 @@ public class ActivityUtils {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
 
-	public static void linkToBgg(Context context, String link) {
-		Uri uri = Uri.withAppendedPath(BGG_URI, link);
-		context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+	public static void linkToBgg(Context context, String path) {
+		context.startActivity(new Intent(Intent.ACTION_VIEW, createBggUri(path)));
+	}
+
+	public static Uri createBggUri(String path) {
+		return Uri.withAppendedPath(BGG_URI, path);
 	}
 
 	public static void setActionBarText(Menu menu, int id, String text) {

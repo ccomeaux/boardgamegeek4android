@@ -257,6 +257,9 @@
     <string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
     <string name="share_play_title">Share Play</string>
     <string name="share_play_played">Played</string>
+	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
+	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
     <string name="times">times</string>
     <string name="on">on</string>
     <string name="with">with</string>

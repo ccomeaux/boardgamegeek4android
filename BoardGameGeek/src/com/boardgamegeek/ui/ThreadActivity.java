@@ -56,7 +56,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view;
+		return R.menu.search_view_share;
 	}
 
 	@Override
@@ -72,8 +72,15 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 				startActivity(intent);
 				finish();
 				return true;
-			case R.id.view:
+			case R.id.menu_view:
 				ActivityUtils.linkToBgg(this, "thread/" + mThreadId);
+				return true;
+			case R.id.menu_share:
+				String description = String.format(getString(R.string.share_thread_text), mThreadSubject, mForumTitle,
+					mGameName);
+				String link = ActivityUtils.createBggUri("thread/" + mThreadId).toString();
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + link,
+					R.string.title_share_game);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

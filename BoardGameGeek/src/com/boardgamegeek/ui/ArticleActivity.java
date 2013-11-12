@@ -51,7 +51,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view;
+		return R.menu.search_view_share;
 	}
 
 	@Override
@@ -69,8 +69,14 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				startActivity(intent);
 				finish();
 				return true;
-			case R.id.view:
+			case R.id.menu_view:
 				ActivityUtils.link(this, mLink);
+				return true;
+			case R.id.menu_share:
+				String description = String.format(getString(R.string.share_thread_article_text), mThreadSubject,
+					mForumTitle, mGameName);
+				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + mLink,
+					R.string.title_share_game);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

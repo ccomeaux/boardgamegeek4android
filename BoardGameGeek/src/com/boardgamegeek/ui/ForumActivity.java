@@ -61,7 +61,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 				}
 				finish();
 				return true;
-			case R.id.view:
+			case R.id.menu_view:
 				ActivityUtils.linkToBgg(this, "forum/" + mForumId);
 				return true;
 		}

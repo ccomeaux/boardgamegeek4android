@@ -14,5 +14,11 @@
 		android:orderInCategory="1"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_view"/>
+	<item
+		android:id="@+id/menu_share"
+		android:icon="?attr/ic_action_share"
+		android:orderInCategory="2"
+		android:showAsAction="ifRoom"
+		android:title="@string/menu_share"/>
 
 </menu>
