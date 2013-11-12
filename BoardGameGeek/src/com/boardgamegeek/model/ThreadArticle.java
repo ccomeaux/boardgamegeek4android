@@ -4,8 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class ThreadArticle implements Parcelable {
-
+	public int id;
 	public String username;
+	public String link;
 	public String subject;
 	public String body;
 	public long postDate;
@@ -16,7 +17,9 @@ public class ThreadArticle implements Parcelable {
 	}
 
 	public ThreadArticle(Parcel in) {
+		id = in.readInt();
 		username = in.readString();
+		link = in.readString();
 		subject = in.readString();
 		body = in.readString();
 		postDate = in.readLong();
@@ -31,7 +34,9 @@ public class ThreadArticle implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
 		dest.writeString(username);
+		dest.writeString(link);
 		dest.writeString(subject);
 		dest.writeString(body);
 		dest.writeLong(postDate);

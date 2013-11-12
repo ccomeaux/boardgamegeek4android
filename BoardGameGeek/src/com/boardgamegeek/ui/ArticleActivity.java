@@ -7,7 +7,9 @@ import android.text.TextUtils;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ForumsUtils;
 
 public class ArticleActivity extends SimpleSinglePaneActivity {
@@ -17,6 +19,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	private String mForumTitle;
 	private int mGameId;
 	private String mGameName;
+	private String mLink;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
 		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mLink = intent.getStringExtra(ForumsUtils.KEY_LINK);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (TextUtils.isEmpty(mGameName)) {
@@ -46,6 +50,11 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 	}
 
 	@Override
+	protected int getOptionsMenuId() {
+		return R.menu.search_view;
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -59,6 +68,9 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
+				return true;
+			case R.id.view:
+				ActivityUtils.link(this, mLink);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
