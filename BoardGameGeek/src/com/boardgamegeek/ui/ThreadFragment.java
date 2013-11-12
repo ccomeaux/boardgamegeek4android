@@ -207,6 +207,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				bundle.putString(ForumsUtils.KEY_USER, article.username);
 				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate);
 				bundle.putString(ForumsUtils.KEY_BODY, article.body);
+				bundle.putString(ForumsUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);
 			}
 			return convertView;

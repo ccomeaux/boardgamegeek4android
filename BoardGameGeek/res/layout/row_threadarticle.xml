@@ -24,12 +24,13 @@
 
 	<ImageView
 		android:id="@+id/article_view"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="@dimen/icon_width"
+		android:layout_height="@dimen/icon_width"
 		android:layout_alignBottom="@+id/article_editdate"
 		android:layout_alignParentRight="true"
 		android:layout_alignTop="@+id/article_username"
 		android:layout_marginBottom="@dimen/padding_small"
+		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/view"
 		android:onClick="onButtonClick"
 		android:src="@drawable/view_thread" />

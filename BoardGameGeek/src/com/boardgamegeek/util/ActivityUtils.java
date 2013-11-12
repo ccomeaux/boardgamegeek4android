@@ -46,7 +46,9 @@ import com.boardgamegeek.ui.PlayActivity;
 
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
-	private static final String BOARDGAME_URL_PREFIX = "http://www.boardgamegeek.com/boardgame/";
+	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
+	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
+	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
 
 	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -234,6 +236,14 @@ public class ActivityUtils {
 
 	public static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+	}
+
+	public static void linkToBgg(Context context, String path) {
+		context.startActivity(new Intent(Intent.ACTION_VIEW, createBggUri(path)));
+	}
+
+	public static Uri createBggUri(String path) {
+		return Uri.withAppendedPath(BGG_URI, path);
 	}
 
 	public static void setActionBarText(Menu menu, int id, String text) {
