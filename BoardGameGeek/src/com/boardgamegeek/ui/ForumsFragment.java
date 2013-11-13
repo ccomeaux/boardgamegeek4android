@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumsHandler;
+import com.boardgamegeek.io.RemoteForumsParser;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -149,7 +149,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public List<Forum> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteForumsHandler handler = new RemoteForumsHandler();
+			RemoteForumsParser handler = new RemoteForumsParser();
 
 			LOGI(TAG, "Loading forums from " + mUrl);
 			executor.safelyExecuteGet(mUrl, handler);

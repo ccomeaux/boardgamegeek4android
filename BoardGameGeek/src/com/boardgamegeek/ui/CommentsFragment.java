@@ -31,7 +31,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCommentsHandler;
+import com.boardgamegeek.io.RemoteCommentsParser;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -242,7 +242,7 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteCommentsHandler handler = new RemoteCommentsHandler();
+			RemoteCommentsParser handler = new RemoteCommentsParser();
 
 			GameUrlBuilder builder = new GameUrlBuilder(mGameId).useNewApi();
 			if (mByRating) {

@@ -33,7 +33,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteBuddyCollectionHandler;
+import com.boardgamegeek.io.RemoteBuddyCollectionParser;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
@@ -251,7 +251,7 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		public List<BuddyGame> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteBuddyCollectionHandler handler = new RemoteBuddyCollectionHandler();
+			RemoteBuddyCollectionParser handler = new RemoteBuddyCollectionParser();
 
 			if (TextUtils.isEmpty(mUrl)) {
 				LOGW(TAG, "No URL set for buddy collection");

@@ -13,7 +13,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ThreadArticle;
 
-public class RemoteThreadHandler extends RemoteBggParser {
+public class RemoteThreadParser extends RemoteBggParser {
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 

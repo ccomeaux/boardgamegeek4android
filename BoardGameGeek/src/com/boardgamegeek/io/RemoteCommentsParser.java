@@ -14,8 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Comment;
 
-public class RemoteCommentsHandler extends RemoteBggParser {
-	private static final String TAG = makeLogTag(RemoteCommentsHandler.class);
+public class RemoteCommentsParser extends RemoteBggParser {
+	private static final String TAG = makeLogTag(RemoteCommentsParser.class);
 
 	private List<Comment> mComments = new ArrayList<Comment>();
 	private int mCommentsCount;

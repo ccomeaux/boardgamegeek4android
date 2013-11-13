@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteHotnessHandler;
+import com.boardgamegeek.io.RemoteHotnessParser;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
@@ -92,11 +92,11 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 		ActivityUtils.launchGame(getActivity(), game.Id, game.Name);
 	}
 
-	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessHandler> {
+	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessParser> {
 
 		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
-		private RemoteHotnessHandler mHandler = new RemoteHotnessHandler();
+		private RemoteHotnessParser mHandler = new RemoteHotnessParser();
 
 		@Override
 		protected void onPreExecute() {
@@ -110,14 +110,14 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 		}
 
 		@Override
-		protected RemoteHotnessHandler doInBackground(Void... params) {
+		protected RemoteHotnessParser doInBackground(Void... params) {
 			String url = HttpUtils.constructHotnessUrl();
 			mExecutor.safelyExecuteGet(url, mHandler);
 			return mHandler;
 		}
 
 		@Override
-		protected void onPostExecute(RemoteHotnessHandler result) {
+		protected void onPostExecute(RemoteHotnessParser result) {
 			if (isAdded()) {
 				mHotGames = result.getResults();
 				if (result.hasError()) {

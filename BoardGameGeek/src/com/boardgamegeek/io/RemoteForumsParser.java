@@ -12,7 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Forum;
 
-public class RemoteForumsHandler extends RemoteBggParser {
+public class RemoteForumsParser extends RemoteBggParser {
 	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
 
 	private List<Forum> mForums = new ArrayList<Forum>();

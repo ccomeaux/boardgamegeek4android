@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteThreadHandler;
+import com.boardgamegeek.io.RemoteThreadParser;
 import com.boardgamegeek.model.ThreadArticle;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -133,7 +133,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		public List<ThreadArticle> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteThreadHandler handler = new RemoteThreadHandler();
+			RemoteThreadParser handler = new RemoteThreadParser();
 
 			final String url = HttpUtils.constructThreadUrl(mThreadId);
 			LOGI(TAG, "Loading threads from " + url);

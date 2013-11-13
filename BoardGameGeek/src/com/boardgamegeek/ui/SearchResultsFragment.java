@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteSearchHandler;
+import com.boardgamegeek.io.RemoteSearchParser;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
@@ -184,7 +184,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		public List<SearchResult> loadInBackground() {
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteSearchHandler handler = new RemoteSearchHandler();
+			RemoteSearchParser handler = new RemoteSearchParser();
 			mErrorMessage = "";
 
 			LOGI(TAG, "Searching for " + mQuery);

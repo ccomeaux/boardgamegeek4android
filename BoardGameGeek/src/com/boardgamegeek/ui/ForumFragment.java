@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumHandler;
+import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ForumsUtils;
@@ -211,7 +211,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
 			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteForumHandler handler = new RemoteForumHandler();
+			RemoteForumParser handler = new RemoteForumParser();
 
 			final String url = HttpUtils.constructForumUrl(mForumId, mNextPage);
 			LOGI(TAG, "Loading threads from " + url);
