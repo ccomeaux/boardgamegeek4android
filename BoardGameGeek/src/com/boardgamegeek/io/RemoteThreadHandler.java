@@ -46,8 +46,8 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 				int id = parseIntegerAttribute(Tags.ID);
 				String userName = parseStringAttribute(Tags.USERNAME);
 				String link = parseStringAttribute(Tags.LINK);
-				long postDate = parseDateAttribute(Tags.POST_DATE);
-				long editDate = parseDateAttribute(Tags.EDIT_DATE);
+				long postDate = parseDateAttributeWithTimeZone(Tags.POST_DATE);
+				long editDate = parseDateAttributeWithTimeZone(Tags.EDIT_DATE);
 				int numEdits = parseIntegerAttribute(Tags.NUM_EDITS);
 
 				ThreadArticle article = parseItem();

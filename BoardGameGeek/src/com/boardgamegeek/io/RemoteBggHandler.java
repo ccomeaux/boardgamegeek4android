@@ -33,6 +33,7 @@ import com.boardgamegeek.util.StringUtils;
 public abstract class RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteBggHandler.class);
 	private static final DateFormat FORMATER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	private static final DateFormat FORMATER_TIMEZONE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 
 	private final String mAuthority;
 	private Context mContext;
@@ -173,6 +174,27 @@ public abstract class RemoteBggHandler {
 			LOGE(TAG, "Couldn't parse date", e);
 			return 0;
 		}
+	}
+
+	public long parseDateAttributeWithTimeZone(String tag) {
+		String dateText = parseStringAttribute(tag);
+		dateText = fixupTimeZone(dateText);
+		try {
+			final Date date = FORMATER_TIMEZONE.parse(dateText);
+			return date.getTime();
+		} catch (ParseException e) {
+			LOGE(TAG, "Couldn't parse date", e);
+			return 0;
+		}
+	}
+
+	private static String fixupTimeZone(String dateText) {
+		int index = dateText.lastIndexOf("-");
+
+		if (index > 0) {
+			dateText = dateText.substring(0, index).concat("GMT").concat(dateText.substring(index));
+		}
+		return dateText;
 	}
 
 	protected boolean parseBooleanAttribute(String tag) {
