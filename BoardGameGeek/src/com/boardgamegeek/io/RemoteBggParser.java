@@ -165,7 +165,8 @@ public abstract class RemoteBggParser {
 	}
 
 	protected boolean parseBooleanAttribute(String tag) {
-		return "1".equals(parseStringAttribute(tag));
+		String attribute = parseStringAttribute(tag);
+		return "1".equals(attribute) || "true".equals(attribute);
 	}
 
 	protected int parseBooleanAttributeAsInteger(String tag) {

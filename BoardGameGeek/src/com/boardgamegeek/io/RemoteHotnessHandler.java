@@ -11,11 +11,8 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.HotGame;
-import com.boardgamegeek.util.StringUtils;
 
-public class RemoteHotnessHandler extends RemoteBggHandler {
-	// private static final String TAG = "RemoteHotnessHandler";
-
+public class RemoteHotnessHandler extends RemoteBggParser {
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 
 	public List<HotGame> getResults() {
@@ -45,8 +42,8 @@ public class RemoteHotnessHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.ITEM.equals(mParser.getName())) {
 
-				int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.ID));
-				int rank = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.RANK));
+				int id = parseIntegerAttribute(Tags.ID);
+				int rank = parseIntegerAttribute(Tags.RANK);
 
 				HotGame game = parseItem();
 				game.Id = id;
@@ -68,11 +65,11 @@ public class RemoteHotnessHandler extends RemoteBggHandler {
 			if (type == START_TAG) {
 				tag = mParser.getName();
 				if (Tags.THUMBNAIL.equals(tag)) {
-					game.ThumbnailUrl = mParser.getAttributeValue(null, Tags.VALUE);
+					game.ThumbnailUrl = parseStringAttribute(Tags.VALUE);
 				} else if (Tags.NAME.equals(tag)) {
-					game.Name = mParser.getAttributeValue(null, Tags.VALUE);
+					game.Name = parseStringAttribute(Tags.VALUE);
 				} else if (Tags.YEAR_PUBLISHED.equals(tag))
-					game.YearPublished = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.VALUE));
+					game.YearPublished = parseIntegerAttribute(Tags.VALUE);
 			} else if (type == END_TAG) {
 				tag = null;
 			}

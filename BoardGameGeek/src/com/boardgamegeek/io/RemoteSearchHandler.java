@@ -14,9 +14,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.StringUtils;
 
-public class RemoteSearchHandler extends RemoteBggHandler {
-	// private static final String TAG = "RemoteSearchHandler";
-
+public class RemoteSearchHandler extends RemoteBggParser {
 	// <boardgames termsofuse="http://boardgamegeek.com/xmlapi/termsofuse">
 	// <boardgame objectid="30928">
 	// <name primary="true">Age of Steam Expansion: Jamaica / Puerto Rico</name>
@@ -52,8 +50,7 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.BOARDGAME.equals(mParser.getName())) {
 
-				int id = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.OBJECT_ID));
-
+				int id = parseIntegerAttribute(Tags.OBJECT_ID);
 				SearchResult result = parseItem();
 				result.Id = id;
 				mSearchResults.add(result);
@@ -73,7 +70,7 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 			if (type == START_TAG) {
 				tag = mParser.getName();
 				if (Tags.NAME.equals(tag)) {
-					searchResult.IsNamePrimary = Tags.TRUE.equals(mParser.getAttributeValue(null, Tags.PRIMARY));
+					searchResult.IsNamePrimary = parseBooleanAttribute(Tags.PRIMARY);
 				}
 			} else if (type == END_TAG) {
 				tag = null;
@@ -96,7 +93,6 @@ public class RemoteSearchHandler extends RemoteBggHandler {
 		String OBJECT_ID = "objectid";
 		String NAME = "name";
 		String PRIMARY = "primary";
-		String TRUE = "true";
 		String YEAR_PUBLISHED = "yearpublished";
 	}
 

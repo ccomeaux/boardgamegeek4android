@@ -13,9 +13,8 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Comment;
-import com.boardgamegeek.util.StringUtils;
 
-public class RemoteCommentsHandler extends RemoteBggHandler {
+public class RemoteCommentsHandler extends RemoteBggParser {
 	private static final String TAG = makeLogTag(RemoteCommentsHandler.class);
 
 	private List<Comment> mComments = new ArrayList<Comment>();
@@ -47,7 +46,7 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.COMMENTS.equals(mParser.getName())) {
 
-				mCommentsCount = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.TOTAL_ITEMS));
+				mCommentsCount = parseIntegerAttribute(Tags.TOTAL_ITEMS);
 				LOGI(TAG, "Expecting " + mCommentsCount + " comments");
 
 				parseComments();
@@ -66,9 +65,9 @@ public class RemoteCommentsHandler extends RemoteBggHandler {
 				tag = mParser.getName();
 				if (Tags.COMMENT.equals(tag)) {
 					Comment comment = new Comment();
-					comment.Username = mParser.getAttributeValue(null, Tags.USERNAME);
-					comment.Rating = mParser.getAttributeValue(null, Tags.RATING);
-					comment.Value = mParser.getAttributeValue(null, Tags.VALUE);
+					comment.Username = parseStringAttribute(Tags.USERNAME);
+					comment.Rating = parseStringAttribute(Tags.RATING);
+					comment.Value = parseStringAttribute(Tags.VALUE);
 					mComments.add(comment);
 				}
 			}
