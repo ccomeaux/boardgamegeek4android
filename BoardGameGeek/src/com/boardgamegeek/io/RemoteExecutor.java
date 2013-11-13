@@ -59,6 +59,20 @@ public class RemoteExecutor {
 		return false;
 	}
 
+	public boolean safelyExecuteGet(String url, RemoteBggParser parser) {
+		final HttpUriRequest request = new HttpGet(url);
+		try {
+			return execute(request, parser);
+		} catch (IOException e) {
+			LOGE(TAG, "Getting " + url, e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		} catch (XmlPullParserException e) {
+			LOGE(TAG, "Getting " + url, e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		}
+		return false;
+	}
+
 	public boolean executeGet(String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		final HttpUriRequest request = new HttpGet(url);
 		return execute(request, handler);

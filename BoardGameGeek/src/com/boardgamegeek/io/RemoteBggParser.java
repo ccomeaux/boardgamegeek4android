@@ -24,7 +24,6 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggParser {
 	private static final String TAG = makeLogTag(RemoteBggParser.class);
-	private static final DateFormat FORMATER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	private Context mContext;
 	protected XmlPullParser mParser;
@@ -141,15 +140,28 @@ public abstract class RemoteBggParser {
 		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
 	}
 
-	public long parseDateAttribute(String tag) {
+	protected long parseDateAttribute(String tag, String format, boolean includesTimeZone) {
 		String dateText = parseStringAttribute(tag);
+		if (includesTimeZone) {
+			dateText = fixupTimeZone(dateText);
+		}
+		DateFormat sdf = new SimpleDateFormat(format, Locale.US);
 		try {
-			final Date date = FORMATER.parse(dateText);
+			final Date date = sdf.parse(dateText);
 			return date.getTime();
 		} catch (ParseException e) {
 			LOGE(TAG, "Couldn't parse date", e);
 			return 0;
 		}
+	}
+
+	private static String fixupTimeZone(String dateText) {
+		int index = dateText.lastIndexOf("-");
+
+		if (index > 0) {
+			dateText = dateText.substring(0, index).concat("GMT").concat(dateText.substring(index));
+		}
+		return dateText;
 	}
 
 	protected boolean parseBooleanAttribute(String tag) {

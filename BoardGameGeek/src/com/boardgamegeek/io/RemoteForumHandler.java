@@ -1,28 +1,20 @@
 package com.boardgamegeek.io;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ForumThread;
-import com.boardgamegeek.util.StringUtils;
 
-public class RemoteForumHandler extends RemoteBggHandler {
-	private static final String TAG = makeLogTag(RemoteForumHandler.class);
-
+public class RemoteForumHandler extends RemoteBggParser {
+	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
-	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
 	public List<ForumThread> getResults() {
 		return mThreads;
@@ -61,16 +53,12 @@ public class RemoteForumHandler extends RemoteBggHandler {
 			if (type == START_TAG && Tags.THREAD.equals(mParser.getName())) {
 
 				ForumThread thread = new ForumThread();
-				thread.id = mParser.getAttributeValue(null, Tags.ID);
-				thread.subject = mParser.getAttributeValue(null, Tags.SUBJECT);
-				thread.author = mParser.getAttributeValue(null, Tags.AUTHOR);
-				thread.numberOfArticles = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_ARTICLES));
-				try {
-					thread.postPate = mFormat.parse(mParser.getAttributeValue(null, Tags.POST_DATE)).getTime();
-					thread.lastPostDate = mFormat.parse(mParser.getAttributeValue(null, Tags.LAST_POST_DATE)).getTime();
-				} catch (ParseException e) {
-					LOGE(TAG, "Parsing forum thread", e);
-				}
+				thread.id = parseStringAttribute(Tags.ID);
+				thread.subject = parseStringAttribute(Tags.SUBJECT);
+				thread.author = parseStringAttribute(Tags.AUTHOR);
+				thread.numberOfArticles = parseIntegerAttribute(Tags.NUM_ARTICLES);
+				thread.postPate = parseDateAttribute(Tags.POST_DATE, DATE_FORMAT, false);
+				thread.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, DATE_FORMAT, false);
 				mThreads.add(thread);
 			}
 		}
