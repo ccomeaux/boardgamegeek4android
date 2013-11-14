@@ -66,29 +66,26 @@ public class RemoteExecutor {
 		return false;
 	}
 
-	public boolean safelyExecuteGet(RemoteBggParser parser) {
-		return safelyExecuteGet(parser.getUrl(), parser);
-	}
-
-	public boolean safelyExecuteGet(String url, RemoteBggParser parser) {
-		try {
-			return executeGet(url, parser);
-		} catch (IOException e) {
-			LOGE(TAG, "Getting " + url, e);
-			parser.setErrorMessage(e.getLocalizedMessage());
-		} catch (XmlPullParserException e) {
-			LOGE(TAG, "Getting " + url, e);
-			parser.setErrorMessage(e.getLocalizedMessage());
-		}
-		return false;
-	}
-
 	public boolean executeGet(String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
 		final HttpUriRequest request = new HttpGet(url);
 		return execute(request, handler);
 	}
 
-	public boolean executeGet(String url, RemoteBggParser parser) throws IOException, XmlPullParserException {
+	public boolean safelyExecuteGet(RemoteBggParser parser) {
+		try {
+			return executeGet(parser);
+		} catch (IOException e) {
+			LOGE(TAG, "Getting " + parser.getUrl(), e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		} catch (XmlPullParserException e) {
+			LOGE(TAG, "Getting " + parser.getUrl(), e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		}
+		return false;
+	}
+
+	public boolean executeGet(RemoteBggParser parser) throws IOException, XmlPullParserException {
+		String url = parser.getUrl();
 		if (TextUtils.isEmpty(url)) {
 			LOGI(TAG, "URL is empty");
 			return false;

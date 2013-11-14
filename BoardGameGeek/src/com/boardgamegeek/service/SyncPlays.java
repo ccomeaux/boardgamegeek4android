@@ -18,11 +18,11 @@ import android.content.SyncResult;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysHandler;
+import com.boardgamegeek.io.RemotePlaysParser;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
@@ -53,34 +53,33 @@ public class SyncPlays extends SyncTask {
 			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 
 			boolean success = false;
-			RemotePlaysHandler handler = new RemotePlaysHandler();
-			PlaysUrlBuilder builder = new PlaysUrlBuilder(account.name);
+			RemotePlaysParser parser = new RemotePlaysParser(account.name);
 			if (newestDate == 0 && oldestDate == Long.MAX_VALUE) {
 				// attempt to get all plays
 				LOGI(TAG, "...syncing all plays");
 
-				if (handlePage(handler, builder, syncResult)) {
-					setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, handler.getNewestDate());
-					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, handler.getOldestDate());
+				if (parseAndSave(parser, syncResult)) {
+					setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, parser.getNewestDate());
+					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, parser.getOldestDate());
 					success = true;
-					// TODO: delete all unupdated}
+					// TODO: delete all unupdated
 				}
 			} else {
 				if (newestDate > 0) {
 					LOGI(TAG, "...syncing plays since " + newestDate);
-					builder = builder.minDate(newestDate);
-					if (handlePage(handler, builder, syncResult)) {
-						setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, handler.getNewestDate());
-						deleteMissingPlays(handler.getNewestDate(), true, syncResult);
+					parser.setMinDate(newestDate);
+					if (parseAndSave(parser, syncResult)) {
+						setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, parser.getNewestDate());
+						deleteMissingPlays(parser.getNewestDate(), true, syncResult);
 					}
 				}
 
 				if (oldestDate > 0 && oldestDate < Long.MAX_VALUE) {
 					LOGI(TAG, "...syncing plays before " + oldestDate);
-					builder = builder.maxDate(oldestDate);
-					if (handlePage(handler, builder, syncResult)) {
-						setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, handler.getOldestDate());
-						deleteMissingPlays(handler.getOldestDate(), false, syncResult);
+					parser.setMaxDate(oldestDate);
+					if (parseAndSave(parser, syncResult)) {
+						setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, parser.getOldestDate());
+						deleteMissingPlays(parser.getOldestDate(), false, syncResult);
 						success = true;
 					}
 				}
@@ -108,15 +107,19 @@ public class SyncPlays extends SyncTask {
 		return l;
 	}
 
-	public boolean handlePage(RemotePlaysHandler handler, PlaysUrlBuilder builder, SyncResult syncResult)
-		throws IOException, XmlPullParserException {
-		int page = 1;
-		while (mExecutor.executeGet(builder.page(page).build(), handler)) {
+	/**
+	 * 
+	 * @return <code>true</code>, if completed successfully; <code>false</code> otherwise
+	 */
+	public boolean parseAndSave(RemotePlaysParser parser, SyncResult syncResult) throws IOException,
+		XmlPullParserException {
+		while (mExecutor.executeGet(parser)) {
 			if (isCancelled()) {
 				return false;
 			}
+			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
 			// syncResult.stats.numEntries += handler.getCount();
-			page++;
+			parser.nextPage();
 		}
 		return true;
 	}
