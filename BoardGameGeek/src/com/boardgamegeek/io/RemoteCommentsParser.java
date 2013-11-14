@@ -13,15 +13,32 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Comment;
+import com.boardgamegeek.util.url.GameUrlBuilder;
 
 public class RemoteCommentsParser extends RemoteBggParser {
 	private static final String TAG = makeLogTag(RemoteCommentsParser.class);
 
 	private List<Comment> mComments = new ArrayList<Comment>();
 	private int mCommentsCount;
+	private String mUrl;
+
+	public RemoteCommentsParser(int gameId, boolean byRating, int page) {
+		GameUrlBuilder builder = new GameUrlBuilder(gameId).useNewApi();
+		if (byRating) {
+			builder.ratings(page);
+		} else {
+			builder.comments(page);
+		}
+		mUrl = builder.build();
+	}
 
 	public List<Comment> getResults() {
 		return mComments;
+	}
+
+	@Override
+	public String getUrl() {
+		return mUrl;
 	}
 
 	@Override

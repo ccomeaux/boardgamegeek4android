@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -9,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
 import android.content.Context;
@@ -38,9 +35,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class BuddyCollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<BuddyGame>> {
 	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);
@@ -50,7 +45,6 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 
 	private BuddyGamesAdapter mGamesAdapter;
 	private SubMenu mSubMenu;
-	private String mUrl;
 	private String mName;
 	private String mStatusValue;
 	private String mStatusLabel;
@@ -180,14 +174,13 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 
 	private void reload() {
 		mCallbacks.onCollectionStatusChanged(mStatusLabel);
-		mUrl = new CollectionUrlBuilder(mName).status(mStatusValue).build();
 		setListShown(false);
 		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
 
 	@Override
 	public Loader<List<BuddyGame>> onCreateLoader(int id, Bundle data) {
-		return new BuddyGamesLoader(getActivity(), mUrl);
+		return new BuddyGamesLoader(getActivity(), mName, mStatusValue);
 	}
 
 	@Override
@@ -238,29 +231,24 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 	}
 
 	private static class BuddyGamesLoader extends AsyncTaskLoader<List<BuddyGame>> {
-		private String mUrl;
+		private String mUsername;
 		private String mErrorMessage;
+		private String mStatus;
 
-		public BuddyGamesLoader(Context context, String url) {
+		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
-			mUrl = url;
+			mUsername = username;
+			mStatus = status;
 			mErrorMessage = "";
 		}
 
 		@Override
 		public List<BuddyGame> loadInBackground() {
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteBuddyCollectionParser handler = new RemoteBuddyCollectionParser();
-
-			if (TextUtils.isEmpty(mUrl)) {
-				LOGW(TAG, "No URL set for buddy collection");
-			} else {
-				LOGI(TAG, "Loading buddy collection from " + mUrl);
-				executor.safelyExecuteGet(mUrl, handler);
-				mErrorMessage = handler.getErrorMessage();
-			}
-			return handler.getResults();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteBuddyCollectionParser parser = new RemoteBuddyCollectionParser(mUsername, mStatus);
+			executor.safelyExecuteGet(parser);
+			mErrorMessage = parser.getErrorMessage();
+			return parser.getResults();
 		}
 
 		@Override
@@ -338,7 +326,7 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 			mSections = new String[sections.size()];
 			sections.toArray(mSections);
 		}
-		
+
 		@Override
 		public int getCount() {
 			return mBuddyGames.size();

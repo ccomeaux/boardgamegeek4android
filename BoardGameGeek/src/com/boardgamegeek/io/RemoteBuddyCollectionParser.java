@@ -13,13 +13,23 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.BuddyGame;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
-public class RemoteBuddyCollectionParser extends RemoteBggHandler {
-
+public class RemoteBuddyCollectionParser extends RemoteBggParser {
 	private List<BuddyGame> mBuddyGames = new ArrayList<BuddyGame>();
+	private String mUrl;
+
+	public RemoteBuddyCollectionParser(String username, String status) {
+		mUrl = new CollectionUrlBuilder(username).status(status).build();
+	}
 
 	public List<BuddyGame> getResults() {
 		return mBuddyGames;
+	}
+	
+	@Override
+	public String getUrl() {
+		return mUrl;
 	}
 
 	@Override

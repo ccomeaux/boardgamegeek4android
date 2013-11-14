@@ -290,7 +290,12 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 
 		@Override
 		public int getSectionForPosition(int position) {
-			return mAlphabetIndexer.getSectionForPosition(position);
+			try {
+				// this throws an exception when the buddies haven't been completely retrieved
+				return mAlphabetIndexer.getSectionForPosition(position);
+			} catch (NullPointerException e) {
+				return 0;
+			}
 		}
 
 		@Override

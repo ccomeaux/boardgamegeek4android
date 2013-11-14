@@ -17,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.boardgamegeek.util.HttpUtils;
 
@@ -34,8 +35,8 @@ public class RemoteExecutor {
 	public Context getContext() {
 		return mContext;
 	}
-	
-	public RemoteExecutor(Context context){
+
+	public RemoteExecutor(Context context) {
 		mContext = context;
 		mHttpClient = HttpUtils.createHttpClient(context, true);
 	}
@@ -68,7 +69,7 @@ public class RemoteExecutor {
 	public boolean safelyExecuteGet(RemoteBggParser parser) {
 		return safelyExecuteGet(parser.getUrl(), parser);
 	}
-	
+
 	public boolean safelyExecuteGet(String url, RemoteBggParser parser) {
 		try {
 			return executeGet(url, parser);
@@ -88,6 +89,10 @@ public class RemoteExecutor {
 	}
 
 	public boolean executeGet(String url, RemoteBggParser parser) throws IOException, XmlPullParserException {
+		if (TextUtils.isEmpty(url)) {
+			LOGI(TAG, "URL is empty");
+			return false;
+		}
 		final HttpUriRequest request = new HttpGet(url);
 		return execute(request, parser);
 	}
@@ -100,8 +105,7 @@ public class RemoteExecutor {
 	 * @throws IOException
 	 * @throws XmlPullParserException
 	 */
-	private boolean execute(HttpUriRequest request, RemoteBggParser parser) throws IOException,
-		XmlPullParserException {
+	private boolean execute(HttpUriRequest request, RemoteBggParser parser) throws IOException, XmlPullParserException {
 		LOGI(TAG, request.getURI().toString());
 
 		HttpResponse response;
