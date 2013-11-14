@@ -12,10 +12,21 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteThreadParser extends RemoteBggParser {
-	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
+	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
+	private String mUrl;
+
+	public RemoteThreadParser(String threadId) {
+		mUrl = HttpUtils.constructThreadUrl(threadId);
+	}
+
+	@Override
+	public String getUrl() {
+		return mUrl;
+	}
 
 	public List<ThreadArticle> getResults() {
 		return mArticles;

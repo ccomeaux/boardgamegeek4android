@@ -34,6 +34,11 @@ public abstract class RemoteBggParser {
 	public RemoteBggParser() {
 	}
 
+	public String getUrl() {
+		// TODO: make abstract
+		return null;
+	}
+
 	public void setParser(XmlPullParser parser) {
 		mParser = parser;
 	}
