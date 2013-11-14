@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.http.client.HttpClient;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -28,7 +26,6 @@ import com.boardgamegeek.io.RemoteHotnessParser;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -93,10 +90,7 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 	}
 
 	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessParser> {
-
-		private HttpClient mHttpClient;
 		private RemoteExecutor mExecutor;
-		private RemoteHotnessParser mHandler = new RemoteHotnessParser();
 
 		@Override
 		protected void onPreExecute() {
@@ -105,15 +99,14 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 			} else {
 				mHotGames.clear();
 			}
-			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
-			mExecutor = new RemoteExecutor(mHttpClient, getActivity());
+			mExecutor = new RemoteExecutor(getActivity());
 		}
 
 		@Override
 		protected RemoteHotnessParser doInBackground(Void... params) {
-			String url = HttpUtils.constructHotnessUrl();
-			mExecutor.safelyExecuteGet(url, mHandler);
-			return mHandler;
+			RemoteHotnessParser parser = new RemoteHotnessParser();
+			mExecutor.safelyExecuteGet(parser);
+			return parser;
 		}
 
 		@Override

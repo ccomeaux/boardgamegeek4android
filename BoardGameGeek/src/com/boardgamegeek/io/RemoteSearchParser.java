@@ -12,6 +12,7 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.SearchResult;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteSearchParser extends RemoteBggParser {
@@ -21,7 +22,23 @@ public class RemoteSearchParser extends RemoteBggParser {
 	// </boardgame>
 	// </boardgames>
 
-	List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
+	private List<SearchResult> mSearchResults = new ArrayList<SearchResult>();
+	private String mSearchText;
+	private boolean mUseExact =  true;
+
+	public RemoteSearchParser(String searchText) {
+		mSearchText = searchText;
+	}
+
+	public RemoteSearchParser setUseExact(boolean useExact) {
+		mUseExact = useExact;
+		return this;
+	}
+
+	@Override
+	public String getUrl() {
+		return HttpUtils.constructSearchUrl(mSearchText, mUseExact);
+	}
 
 	public List<SearchResult> getResults() {
 		return mSearchResults;

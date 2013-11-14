@@ -11,12 +11,18 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.HotGame;
+import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteHotnessParser extends RemoteBggParser {
 	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 
 	public List<HotGame> getResults() {
 		return mHotGames;
+	}
+
+	@Override
+	public String getUrl() {
+		return HttpUtils.constructHotnessUrl();
 	}
 
 	@Override
