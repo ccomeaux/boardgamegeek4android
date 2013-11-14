@@ -11,11 +11,23 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteForumsParser extends RemoteBggParser {
+	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
 	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
 
 	private List<Forum> mForums = new ArrayList<Forum>();
+	private String mUrl;
+
+	public RemoteForumsParser(int gameId) {
+		mUrl = (gameId != BggContract.INVALID_ID) ? HttpUtils.constructForumlistUrl(gameId) : GENERAL_FORUMS_URL;
+	}
+
+	public String getUrl() {
+		return mUrl;
+	}
 
 	public List<Forum> getResults() {
 		return mForums;

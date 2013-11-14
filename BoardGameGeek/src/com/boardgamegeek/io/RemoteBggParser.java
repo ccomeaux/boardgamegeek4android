@@ -2,6 +2,7 @@ package com.boardgamegeek.io;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -147,6 +148,10 @@ public abstract class RemoteBggParser {
 
 	protected long parseDateAttribute(String tag, String format, boolean includesTimeZone) {
 		String dateText = parseStringAttribute(tag);
+		if (TextUtils.isEmpty(dateText)) {
+			LOGW(TAG, "Missing date");
+			return 0;
+		}
 		if (includesTimeZone) {
 			dateText = fixupTimeZone(dateText);
 		}

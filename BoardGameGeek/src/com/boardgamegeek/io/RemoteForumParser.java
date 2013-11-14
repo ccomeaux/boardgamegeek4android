@@ -11,10 +11,21 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ForumThread;
+import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteForumParser extends RemoteBggParser {
 	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
+	private String mUrl;
+
+	public RemoteForumParser(String forumId, int page) {
+		mUrl = HttpUtils.constructForumUrl(forumId, page);
+	}
+
+	@Override
+	public String getUrl() {
+		return mUrl;
+	}
 
 	public List<ForumThread> getResults() {
 		return mThreads;

@@ -1,13 +1,8 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,18 +26,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumsParser;
 import com.boardgamegeek.model.Forum;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
-	private static final String TAG = makeLogTag(ForumsFragment.class);
 	private static final int FORUMS_LOADER_ID = 0;
-	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
 
-	private String mUrl;
 	private int mGameId;
 	private String mGameName;
 	private ForumsAdapter mForumsAdapter = null;
@@ -54,7 +44,6 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
 		mGameId = Games.getGameId(uri);
-		mUrl = (mGameId != BggContract.INVALID_ID) ? HttpUtils.constructForumlistUrl(mGameId) : GENERAL_FORUMS_URL;
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
 
 		setListAdapter(mForumsAdapter);
@@ -75,7 +64,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	public Loader<List<Forum>> onCreateLoader(int id, Bundle data) {
-		return new ForumsLoader(getActivity(), mUrl);
+		return new ForumsLoader(getActivity(), mGameId);
 	}
 
 	@Override
@@ -136,25 +125,23 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	private static class ForumsLoader extends AsyncTaskLoader<List<Forum>> {
 		private List<Forum> mData;
-		private String mUrl;
+		private int mGameId;
 		private String mErrorMessage;
 
-		public ForumsLoader(Context context, String url) {
+		public ForumsLoader(Context context, int gameId) {
 			super(context);
-			mUrl = url;
+			mGameId = gameId;
 			mErrorMessage = "";
 		}
 
 		@Override
 		public List<Forum> loadInBackground() {
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteForumsParser handler = new RemoteForumsParser();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteForumsParser parser = new RemoteForumsParser(mGameId);
 
-			LOGI(TAG, "Loading forums from " + mUrl);
-			executor.safelyExecuteGet(mUrl, handler);
-			mErrorMessage = handler.getErrorMessage();
-			return handler.getResults();
+			executor.safelyExecuteGet(parser);
+			mErrorMessage = parser.getErrorMessage();
+			return parser.getResults();
 		}
 
 		@Override
