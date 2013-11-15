@@ -76,9 +76,10 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
-- MOD: When logging a play, players are automatically placed in seating order with the ability to drag and drop<br/>
+- NEW: When logging a play, players are automatically placed in seating order with the ability to drag and drop<br/>
+- NEW: Ability to refresh plays for a specific day<br/>
 - MOD: When adding a player, keep adding them until the user cancels<br/>
-- MOD: Menu options to share and view forums in a browser<br/>
+- NEW: Menu options to share and view forums in a browser<br/>
 - MOD: Improve the settings screen and move some of the standard menu options there<br/>
 - <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous versions</a><br/>
 <br/>
