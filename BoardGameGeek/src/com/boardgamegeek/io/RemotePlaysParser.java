@@ -145,9 +145,10 @@ public class RemotePlaysParser extends RemoteBggParser {
 					String tag = mParser.getName();
 
 					if (Tags.PLAY.equals(tag)) {
+						date = parseStringAttribute(Tags.DATE);
 						mPlay = new Play();
 						mPlay.PlayId = parseIntegerAttribute(Tags.ID);
-						mPlay.setDate(parseStringAttribute(Tags.DATE));
+						mPlay.setDate(date);
 						mPlay.Quantity = parseIntegerAttribute(Tags.QUANTITY);
 						mPlay.Length = parseIntegerAttribute(Tags.LENGTH);
 						mPlay.Incomplete = parseBooleanAttribute(Tags.INCOMPLETE);
