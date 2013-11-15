@@ -132,7 +132,7 @@ public class Play {
 	 * @return
 	 */
 	public String getDate() {
-		return String.format("%04d", Year) + "-" + String.format("%02d", Month + 1) + "-" + String.format("%02d", Day);
+		return DateTimeUtils.formatDateForApi(Year, Month, Day);
 	}
 
 	/**

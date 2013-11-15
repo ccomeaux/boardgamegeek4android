@@ -10,6 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +19,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -28,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -150,15 +154,41 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 	@Override
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-		if (item.getItemId() == R.id.menu_refresh) {
-			if (mAutoSyncTriggered) {
-				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-			} else {
-				triggerRefresh();
-			}
-			return true;
+		switch (item.getItemId()) {
+			case R.id.menu_refresh:
+				if (mAutoSyncTriggered) {
+					Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
+				} else {
+					triggerRefresh();
+				}
+				return true;
+			case R.id.menu_refresh_on:
+				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+		// HACK prevent onDateSet from firing twice
+		private boolean alreadyCalled = false;
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			final Calendar calendar = Calendar.getInstance();
+			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DAY_OF_MONTH));
+		}
+
+		public void onDateSet(DatePicker view, int year, int month, int day) {
+			if (alreadyCalled) {
+				return;
+			}
+			alreadyCalled = true;
+
+			String date = DateTimeUtils.formatDateForApi(year, month, day);
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date, null);
+		}
 	}
 
 	private void setSelectedPlayId(int playId) {
