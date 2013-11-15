@@ -22,18 +22,29 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class RemotePlaysParser extends RemoteBggParser {
-	private static final String TAG = makeLogTag(RemotePlaysHandler.class);
+	private static final String TAG = makeLogTag(RemotePlaysParser.class);
 	private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private List<Play> mPlays = new ArrayList<Play>();
 	private Play mPlay;
 	private long mNewestDate;
 	private long mOldestDate;
+	private PlaysUrlBuilder mBuilder;
+	private int mPage;
 
 	public RemotePlaysParser() {
 		super();
+		mNewestDate = 0;
+		mOldestDate = Long.MAX_VALUE;
+	}
+
+	public RemotePlaysParser(String username) {
+		super();
+		mBuilder = new PlaysUrlBuilder(username);
+		mPage = 1;
 		mNewestDate = 0;
 		mOldestDate = Long.MAX_VALUE;
 	}
@@ -67,6 +78,37 @@ public class RemotePlaysParser extends RemoteBggParser {
 		} catch (ParseException e) {
 			LOGE(TAG, "Bad date: " + date);
 		}
+	}
+
+	public RemotePlaysParser setGameId(int gameId) {
+		mBuilder.gameId(gameId);
+		return this;
+	}
+
+	public RemotePlaysParser setDate(String date) {
+		mBuilder.date(date);
+		return this;
+	}
+
+	public RemotePlaysParser setMinDate(long date) {
+		mBuilder.minDate(date);
+		return this;
+	}
+
+	public RemotePlaysParser setMaxDate(long date) {
+		mBuilder.maxDate(date);
+		return this;
+	}
+
+	public RemotePlaysParser nextPage() {
+		mPage++;
+		mBuilder.page(mPage);
+		return this;
+	}
+
+	@Override
+	public String getUrl() {
+		return mBuilder.build();
 	}
 
 	@Override

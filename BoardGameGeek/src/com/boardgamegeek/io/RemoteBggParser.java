@@ -2,6 +2,7 @@ package com.boardgamegeek.io;
 
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -24,7 +25,6 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggParser {
 	private static final String TAG = makeLogTag(RemoteBggParser.class);
-	private static final DateFormat FORMATER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	private Context mContext;
 	protected XmlPullParser mParser;
@@ -34,6 +34,8 @@ public abstract class RemoteBggParser {
 
 	public RemoteBggParser() {
 	}
+
+	public abstract String getUrl();
 
 	public void setParser(XmlPullParser parser) {
 		mParser = parser;
@@ -141,10 +143,18 @@ public abstract class RemoteBggParser {
 		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
 	}
 
-	public long parseDateAttribute(String tag) {
+	protected long parseDateAttribute(String tag, String format, boolean includesTimeZone) {
 		String dateText = parseStringAttribute(tag);
+		if (TextUtils.isEmpty(dateText)) {
+			LOGW(TAG, "Missing date");
+			return 0;
+		}
+		if (includesTimeZone) {
+			dateText = fixupTimeZone(dateText);
+		}
+		DateFormat sdf = new SimpleDateFormat(format, Locale.US);
 		try {
-			final Date date = FORMATER.parse(dateText);
+			final Date date = sdf.parse(dateText);
 			return date.getTime();
 		} catch (ParseException e) {
 			LOGE(TAG, "Couldn't parse date", e);
@@ -152,8 +162,18 @@ public abstract class RemoteBggParser {
 		}
 	}
 
+	private static String fixupTimeZone(String dateText) {
+		int index = dateText.lastIndexOf("-");
+
+		if (index > 0) {
+			dateText = dateText.substring(0, index).concat("GMT").concat(dateText.substring(index));
+		}
+		return dateText;
+	}
+
 	protected boolean parseBooleanAttribute(String tag) {
-		return "1".equals(parseStringAttribute(tag));
+		String attribute = parseStringAttribute(tag);
+		return "1".equals(attribute) || "true".equals(attribute);
 	}
 
 	protected int parseBooleanAttributeAsInteger(String tag) {

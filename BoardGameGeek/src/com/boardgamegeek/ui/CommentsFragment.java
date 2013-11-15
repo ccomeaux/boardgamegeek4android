@@ -1,13 +1,8 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.client.HttpClient;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,18 +26,15 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCommentsHandler;
+import com.boardgamegeek.io.RemoteCommentsParser;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Comment;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.boardgamegeek.util.url.GameUrlBuilder;
 
 public class CommentsFragment extends SherlockListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<Comment>> {
-	private static final String TAG = makeLogTag(CommentsFragment.class);
 	private static final int COMMENTS_LOADER_ID = 0;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
@@ -240,30 +232,19 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		public List<Comment> loadInBackground() {
 			mIsLoading = true;
 
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteCommentsHandler handler = new RemoteCommentsHandler();
-
-			GameUrlBuilder builder = new GameUrlBuilder(mGameId).useNewApi();
-			if (mByRating) {
-				builder.ratings(mNextPage);
-			} else {
-				builder.comments(mNextPage);
-			}
-			String url = builder.build();
-			LOGI(TAG, "Loading comments from " + url);
-
-			executor.safelyExecuteGet(url, handler);
-			if (handler.hasError()) {
-				mErrorMessage = handler.getErrorMessage();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteCommentsParser parser = new RemoteCommentsParser(mGameId, mByRating, mNextPage);
+			executor.safelyExecuteGet(parser);
+			if (parser.hasError()) {
+				mErrorMessage = parser.getErrorMessage();
 				mNextPage = 1;
 				mCommentCount = 0;
 			} else {
 				mErrorMessage = "";
 				mNextPage++;
-				mCommentCount = handler.getCount();
+				mCommentCount = parser.getCount();
 			}
-			return handler.getResults();
+			return parser.getResults();
 		}
 
 		@Override

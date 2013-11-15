@@ -17,6 +17,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
+import android.text.TextUtils;
+
+import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteExecutor {
 	private static final String TAG = makeLogTag(RemoteExecutor.class);
@@ -33,9 +36,14 @@ public class RemoteExecutor {
 		return mContext;
 	}
 
-	public RemoteExecutor(HttpClient httpClient, Context context) {
-		mHttpClient = httpClient;
+	public RemoteExecutor(Context context) {
 		mContext = context;
+		mHttpClient = HttpUtils.createHttpClient(context, true);
+	}
+
+	public RemoteExecutor(HttpClient httpClient, Context context) {
+		mContext = context;
+		mHttpClient = httpClient;
 	}
 
 	public void executePagedGet(String url, RemoteBggHandler handler) throws IOException, XmlPullParserException {
@@ -46,9 +54,8 @@ public class RemoteExecutor {
 	}
 
 	public boolean safelyExecuteGet(String url, RemoteBggHandler handler) {
-		final HttpUriRequest request = new HttpGet(url);
 		try {
-			return execute(request, handler);
+			return executeGet(url, handler);
 		} catch (IOException e) {
 			LOGE(TAG, "Getting " + url, e);
 			handler.setErrorMessage(e.getLocalizedMessage());
@@ -64,21 +71,38 @@ public class RemoteExecutor {
 		return execute(request, handler);
 	}
 
-	public boolean executeGet(String url, RemoteBggParser handler) throws IOException, XmlPullParserException {
+	public boolean safelyExecuteGet(RemoteBggParser parser) {
+		try {
+			return executeGet(parser);
+		} catch (IOException e) {
+			LOGE(TAG, "Getting " + parser.getUrl(), e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		} catch (XmlPullParserException e) {
+			LOGE(TAG, "Getting " + parser.getUrl(), e);
+			parser.setErrorMessage(e.getLocalizedMessage());
+		}
+		return false;
+	}
+
+	public boolean executeGet(RemoteBggParser parser) throws IOException, XmlPullParserException {
+		String url = parser.getUrl();
+		if (TextUtils.isEmpty(url)) {
+			LOGI(TAG, "URL is empty");
+			return false;
+		}
 		final HttpUriRequest request = new HttpGet(url);
-		return execute(request, handler);
+		return execute(request, parser);
 	}
 
 	/**
 	 * Executes the given request on the current HTTP client, passing the entity content of the response to the given
-	 * handler.
+	 * parser.
 	 * 
 	 * @return true if there are more pages to execute in a paged get.
 	 * @throws IOException
 	 * @throws XmlPullParserException
 	 */
-	private boolean execute(HttpUriRequest request, RemoteBggParser handler) throws IOException,
-		XmlPullParserException {
+	private boolean execute(HttpUriRequest request, RemoteBggParser parser) throws IOException, XmlPullParserException {
 		LOGI(TAG, request.getURI().toString());
 
 		HttpResponse response;
@@ -92,8 +116,8 @@ public class RemoteExecutor {
 
 		final InputStream input = response.getEntity().getContent();
 		try {
-			XmlPullParser parser = createPullParser(input);
-			return handler.parse(parser, mContext);
+			XmlPullParser pullParser = createPullParser(input);
+			return parser.parse(pullParser, mContext);
 		} finally {
 			if (input != null) {
 				input.close();
@@ -124,8 +148,8 @@ public class RemoteExecutor {
 
 		final InputStream input = response.getEntity().getContent();
 		try {
-			XmlPullParser parser = createPullParser(input);
-			return handler.parseAndHandle(parser, mContext);
+			XmlPullParser pullParser = createPullParser(input);
+			return handler.parseAndHandle(pullParser, mContext);
 		} finally {
 			if (input != null) {
 				input.close();

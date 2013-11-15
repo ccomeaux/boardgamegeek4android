@@ -35,7 +35,7 @@ import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysHandler;
+import com.boardgamegeek.io.RemotePlaysParser;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -47,7 +47,6 @@ import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
@@ -264,9 +263,8 @@ public class SyncPlaysUpload extends SyncTask {
 	private String syncGame(String username, Play play, SyncResult syncResult) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			String url = new PlaysUrlBuilder(username).gameId(play.GameId).date(play.getDate()).build();
-			RemotePlaysHandler parser = new RemotePlaysHandler();
-			re.executeGet(url, parser);
+			RemotePlaysParser parser = new RemotePlaysParser(username).setGameId(play.GameId).setDate(play.getDate());
+			re.executeGet(parser);
 
 			if (!play.hasBeenSynced()) {
 				int newPlayId = getTranslatedPlayId(play, parser.getPlays());

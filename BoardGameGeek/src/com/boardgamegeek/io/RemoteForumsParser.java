@@ -1,28 +1,33 @@
 package com.boardgamegeek.io;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.Forum;
-import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.HttpUtils;
 
-public class RemoteForumsHandler extends RemoteBggHandler {
-	private static final String TAG = makeLogTag(RemoteForumsHandler.class);
+public class RemoteForumsParser extends RemoteBggParser {
+	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
+	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
 
 	private List<Forum> mForums = new ArrayList<Forum>();
-	private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+	private String mUrl;
+
+	public RemoteForumsParser(int gameId) {
+		mUrl = (gameId != BggContract.INVALID_ID) ? HttpUtils.constructForumlistUrl(gameId) : GENERAL_FORUMS_URL;
+	}
+
+	public String getUrl() {
+		return mUrl;
+	}
 
 	public List<Forum> getResults() {
 		return mForums;
@@ -56,18 +61,10 @@ public class RemoteForumsHandler extends RemoteBggHandler {
 				}
 
 				final Forum forum = new Forum();
-				forum.id = mParser.getAttributeValue(null, Tags.ID);
-				forum.title = mParser.getAttributeValue(null, Tags.TITLE);
-				forum.numberOfThreads = StringUtils.parseInt(mParser.getAttributeValue(null, Tags.NUM_THREADS));
-				String date = mParser.getAttributeValue(null, Tags.LAST_POST_DATE);
-				if (date.length() > 0) {
-					// Mon, 03 Dec 2012 15:37:15 +0000
-					try {
-						forum.lastPostDate = mFormat.parse(date).getTime();
-					} catch (ParseException e) {
-						LOGE(TAG, "Parsing forum", e);
-					}
-				}
+				forum.id = parseStringAttribute(Tags.ID);
+				forum.title = parseStringAttribute(Tags.TITLE);
+				forum.numberOfThreads = parseIntegerAttribute(Tags.NUM_THREADS);
+				forum.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, DATE_FORMAT, false);
 				mForums.add(forum);
 			}
 		}

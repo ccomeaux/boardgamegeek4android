@@ -12,10 +12,21 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.util.HttpUtils;
 
-public class RemoteThreadHandler extends RemoteBggHandler {
-
+public class RemoteThreadParser extends RemoteBggParser {
+	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
+	private String mUrl;
+
+	public RemoteThreadParser(String threadId) {
+		mUrl = HttpUtils.constructThreadUrl(threadId);
+	}
+
+	@Override
+	public String getUrl() {
+		return mUrl;
+	}
 
 	public List<ThreadArticle> getResults() {
 		return mArticles;
@@ -46,8 +57,8 @@ public class RemoteThreadHandler extends RemoteBggHandler {
 				int id = parseIntegerAttribute(Tags.ID);
 				String userName = parseStringAttribute(Tags.USERNAME);
 				String link = parseStringAttribute(Tags.LINK);
-				long postDate = parseDateAttribute(Tags.POST_DATE);
-				long editDate = parseDateAttribute(Tags.EDIT_DATE);
+				long postDate = parseDateAttribute(Tags.POST_DATE, DATE_FORMAT, true);
+				long editDate = parseDateAttribute(Tags.EDIT_DATE, DATE_FORMAT, true);
 				int numEdits = parseIntegerAttribute(Tags.NUM_EDITS);
 
 				ThreadArticle article = parseItem();

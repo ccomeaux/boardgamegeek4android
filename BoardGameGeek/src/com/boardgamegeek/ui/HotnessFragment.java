@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.http.client.HttpClient;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -24,11 +22,10 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteHotnessHandler;
+import com.boardgamegeek.io.RemoteHotnessParser;
 import com.boardgamegeek.model.HotGame;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -92,11 +89,8 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 		ActivityUtils.launchGame(getActivity(), game.Id, game.Name);
 	}
 
-	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessHandler> {
-
-		private HttpClient mHttpClient;
+	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessParser> {
 		private RemoteExecutor mExecutor;
-		private RemoteHotnessHandler mHandler = new RemoteHotnessHandler();
 
 		@Override
 		protected void onPreExecute() {
@@ -105,19 +99,18 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 			} else {
 				mHotGames.clear();
 			}
-			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
-			mExecutor = new RemoteExecutor(mHttpClient, getActivity());
+			mExecutor = new RemoteExecutor(getActivity());
 		}
 
 		@Override
-		protected RemoteHotnessHandler doInBackground(Void... params) {
-			String url = HttpUtils.constructHotnessUrl();
-			mExecutor.safelyExecuteGet(url, mHandler);
-			return mHandler;
+		protected RemoteHotnessParser doInBackground(Void... params) {
+			RemoteHotnessParser parser = new RemoteHotnessParser();
+			mExecutor.safelyExecuteGet(parser);
+			return parser;
 		}
 
 		@Override
-		protected void onPostExecute(RemoteHotnessHandler result) {
+		protected void onPostExecute(RemoteHotnessParser result) {
 			if (isAdded()) {
 				mHotGames = result.getResults();
 				if (result.hasError()) {

@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.http.client.HttpClient;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -33,10 +31,9 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteSearchHandler;
+import com.boardgamegeek.io.RemoteSearchParser;
 import com.boardgamegeek.model.SearchResult;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -182,24 +179,22 @@ public class SearchResultsFragment extends BggListFragment implements
 
 		@Override
 		public List<SearchResult> loadInBackground() {
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteSearchHandler handler = new RemoteSearchHandler();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteSearchParser parser = new RemoteSearchParser(mQuery);
 			mErrorMessage = "";
 
 			LOGI(TAG, "Searching for " + mQuery);
 			if (PreferencesUtils.getExactSearch(getContext())) {
-				String url = HttpUtils.constructSearchUrl(mQuery, true);
-				executor.safelyExecuteGet(url, handler);
-				mErrorMessage = handler.getErrorMessage();
+				executor.safelyExecuteGet(parser);
+				mErrorMessage = parser.getErrorMessage();
 			}
 
-			if (TextUtils.isEmpty(mErrorMessage) && handler.getCount() == 0) {
-				String url = HttpUtils.constructSearchUrl(mQuery, false);
-				executor.safelyExecuteGet(url, handler);
-				mErrorMessage = handler.getErrorMessage();
+			if (TextUtils.isEmpty(mErrorMessage) && parser.getCount() == 0) {
+				parser.setUseExact(false);
+				executor.safelyExecuteGet(parser);
+				mErrorMessage = parser.getErrorMessage();
 			}
-			return handler.getResults();
+			return parser.getResults();
 		}
 
 		@Override
