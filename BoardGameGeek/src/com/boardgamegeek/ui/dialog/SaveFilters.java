@@ -19,8 +19,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.CollectionSortData;
 import com.boardgamegeek.data.CollectionView;
+import com.boardgamegeek.data.sort.CollectionSortData;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.ResolverUtils;

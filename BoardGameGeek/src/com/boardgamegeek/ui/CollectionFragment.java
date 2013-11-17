@@ -40,9 +40,6 @@ import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
-import com.boardgamegeek.data.CollectionNameSortData;
-import com.boardgamegeek.data.CollectionSortData;
-import com.boardgamegeek.data.CollectionSortDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
@@ -52,6 +49,8 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
+import com.boardgamegeek.data.sort.CollectionSortData;
+import com.boardgamegeek.data.sort.CollectionSortDataFactory;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -201,11 +200,11 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (savedInstanceState == null) {
-			mSort = new CollectionNameSortData(getActivity());
-		} else {
-			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(STATE_SORT_TYPE), getActivity());
+		int sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
+		mSort = CollectionSortDataFactory.create(sortType, getActivity());
 		requery(); // This should be handled by the activity (I think)
 
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
@@ -485,7 +484,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		requery();
 	}
 
-	@Override
 	public void setSort(int sortType) {
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
