@@ -10,17 +10,20 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public abstract class CollectionSortData {
+public abstract class SortData {
 	protected Context mContext;
 	protected String mOrderByClause;
 	protected int mDescriptionId;
 	protected int mSubDescriptionId;
 	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
 
-	public CollectionSortData(Context context) {
+	public SortData(Context context) {
 		mContext = context;
 	}
 
+	/**
+	 * Gets the description to display in the UI when this sort is applied
+	 */
 	public String getDescription() {
 		String decription = String.format(mContext.getString(R.string.sort_description),
 			mContext.getString(mDescriptionId));
@@ -30,6 +33,9 @@ public abstract class CollectionSortData {
 		return decription;
 	}
 
+	/**
+	 * Gets the sort order clause to use in the query. 
+	 */
 	public String getOrderByClause() {
 		return mOrderByClause;
 	}
@@ -62,6 +68,9 @@ public abstract class CollectionSortData {
 		return getSectionText(cursor);
 	}
 
+	/**
+	 * Get the unique type
+	 */
 	public int getType() {
 		return CollectionSortDataFactory.TYPE_UNKNOWN;
 	}

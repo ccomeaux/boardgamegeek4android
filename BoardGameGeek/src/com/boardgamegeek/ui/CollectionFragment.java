@@ -49,7 +49,7 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
-import com.boardgamegeek.data.sort.CollectionSortData;
+import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.data.sort.CollectionSortDataFactory;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
@@ -91,7 +91,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
-	private CollectionSortData mSort;
+	private SortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 
 	private View mProgressView;

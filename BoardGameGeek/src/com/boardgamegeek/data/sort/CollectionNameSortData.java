@@ -8,7 +8,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class CollectionNameSortData extends CollectionSortData {
+public class CollectionNameSortData extends SortData {
 	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 
 	public CollectionNameSortData(Context context) {

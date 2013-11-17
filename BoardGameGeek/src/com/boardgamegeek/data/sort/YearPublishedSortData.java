@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public abstract class YearPublishedSortData extends CollectionSortData {
+public abstract class YearPublishedSortData extends SortData {
 	public YearPublishedSortData(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_published;

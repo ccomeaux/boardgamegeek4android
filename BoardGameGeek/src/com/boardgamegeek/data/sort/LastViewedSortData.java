@@ -7,7 +7,7 @@ import android.text.format.DateUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class LastViewedSortData extends CollectionSortData {
+public class LastViewedSortData extends SortData {
 	private String mNever;
 	
 	public LastViewedSortData(Context context) {
