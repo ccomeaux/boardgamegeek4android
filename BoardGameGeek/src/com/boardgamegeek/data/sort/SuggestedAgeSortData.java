@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class SuggestedAgeSortData extends SortData {
+public class SuggestedAgeSortData extends CollectionSortData {
 	private static final String DEFAULT_VALUE = "?";
 
 	public SuggestedAgeSortData(Context context) {

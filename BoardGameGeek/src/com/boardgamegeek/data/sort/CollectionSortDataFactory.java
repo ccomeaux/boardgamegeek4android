@@ -1,11 +1,8 @@
 package com.boardgamegeek.data.sort;
 
-
-
 import android.content.Context;
 
-public class CollectionSortDataFactory {
-	public static final int TYPE_UNKNOWN = 0;
+public class CollectionSortDataFactory extends SortDataFactory {
 	public static final int TYPE_COLLECTION_NAME = 1;
 	public static final int TYPE_GEEK_RATING = 2;
 	public static final int TYPE_PLAY_COUNT_ASC = 3;

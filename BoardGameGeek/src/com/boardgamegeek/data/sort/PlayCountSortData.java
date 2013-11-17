@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public abstract class PlayCountSortData extends SortData {
+public abstract class PlayCountSortData extends CollectionSortData {
 	public PlayCountSortData(Context context) {
 		super(context);
 	}

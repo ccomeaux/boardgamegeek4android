@@ -49,8 +49,8 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
-import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.data.sort.CollectionSortDataFactory;
+import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -484,7 +484,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		requery();
 	}
 
-	public void setSort(int sortType) {
+	private void setSort(int sortType) {
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}

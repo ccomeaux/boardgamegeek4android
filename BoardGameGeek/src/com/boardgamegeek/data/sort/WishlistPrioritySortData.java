@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class WishlistPrioritySortData extends SortData {
+public class WishlistPrioritySortData extends CollectionSortData {
 	String[] mPriorityText;
 
 	public WishlistPrioritySortData(Context context) {

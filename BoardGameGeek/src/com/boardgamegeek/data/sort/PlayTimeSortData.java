@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class PlayTimeSortData extends SortData {
+public class PlayTimeSortData extends CollectionSortData {
 	public PlayTimeSortData(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_playtime;

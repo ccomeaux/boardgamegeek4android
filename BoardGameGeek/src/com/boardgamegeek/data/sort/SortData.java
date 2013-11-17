@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Collection;
 
 public abstract class SortData {
 	protected Context mContext;
@@ -34,7 +33,7 @@ public abstract class SortData {
 	}
 
 	/**
-	 * Gets the sort order clause to use in the query. 
+	 * Gets the sort order clause to use in the query.
 	 */
 	public String getOrderByClause() {
 		return mOrderByClause;
@@ -72,12 +71,14 @@ public abstract class SortData {
 	 * Get the unique type
 	 */
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_UNKNOWN;
+		return SortDataFactory.TYPE_UNKNOWN;
 	}
 
 	protected String getClause(String columnName, boolean isDescending) {
-		return columnName + (isDescending ? " DESC, " : " ASC, ") + Collection.DEFAULT_SORT;
+		return columnName + (isDescending ? " DESC, " : " ASC, ") + getDefaultSort();
 	}
+
+	protected abstract String getDefaultSort();
 
 	protected long getLong(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
@@ -154,6 +155,14 @@ public abstract class SortData {
 		if (index != -1) {
 			char firstLetter = cursor.getString(index).toUpperCase(Locale.getDefault()).charAt(0);
 			return String.valueOf(firstLetter);
+		}
+		return null;
+	}
+
+	protected String getString(Cursor cursor, String columnName) {
+		int index = cursor.getColumnIndex(columnName);
+		if (index != -1) {
+			return cursor.getString(index);
 		}
 		return null;
 	}
