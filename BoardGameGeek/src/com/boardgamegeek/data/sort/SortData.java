@@ -6,6 +6,7 @@ import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 
@@ -160,10 +161,18 @@ public abstract class SortData {
 	}
 
 	protected String getString(Cursor cursor, String columnName) {
+		return getString(cursor, columnName, null);
+	}
+
+	protected String getString(Cursor cursor, String columnName, String defaultValue) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index != -1) {
-			return cursor.getString(index);
+			String s = cursor.getString(index);
+			if (TextUtils.isEmpty(s)) {
+				return defaultValue;
+			}
+			return s;
 		}
-		return null;
+		return defaultValue;
 	}
 }
