@@ -410,6 +410,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		private String mTimes;
 		private String mAt;
 		private String mFor;
+		private String mWith;
+		private String mPlayers;
 
 		public PlayAdapter(Context context) {
 			super(context, null, false);
@@ -418,6 +420,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			mTimes = context.getString(R.string.times);
 			mAt = context.getString(R.string.at);
 			mFor = context.getString(R.string.for_);
+			mWith = context.getString(R.string.with);
+			mPlayers = context.getString(R.string.players);
 		}
 
 		public void setRowResId(int resId) {
@@ -483,6 +487,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			String location = cursor.getString(PlaysQuery.LOCATION);
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
 			int length = cursor.getInt(PlaysQuery.LENGTH);
+			int playerCount = cursor.getInt(PlaysQuery.PLAYER_COUNT);
 
 			String info = "";
 			if (quantity > 1) {
@@ -494,7 +499,10 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			if (length > 0) {
 				int hours = length / 60;
 				int minutes = length % 60;
-				info += mFor + " " + String.format("%d:%02d", hours, minutes);
+				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
+			}
+			if (playerCount > 0) {
+				info += mWith + " " + playerCount + " " + mPlayers + " ";
 			}
 			holder.location.setText(info.trim());
 
@@ -539,7 +547,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")" };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
@@ -548,6 +556,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int SYNC_STATUS = 8;
+		int PLAYER_COUNT = 9;
 	}
 
 	private interface GameQuery {
@@ -556,6 +565,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int UPDATED_PLAYS = 0;
 	}
 
+	// TODO this query doesn't work with the new Group By clause
 	private interface SumQuery {
 		int _TOKEN = 0x23;
 		String[] PROJECTION = { "SUM(" + Plays.QUANTITY + ")" };
