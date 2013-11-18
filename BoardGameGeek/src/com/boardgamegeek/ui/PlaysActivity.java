@@ -16,17 +16,20 @@ import com.boardgamegeek.util.ActivityUtils;
 
 public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener,
 	PlaysFragment.Callbacks {
-	private static final String KEY_COUNT = "KEY_COUNT";
+	private static final String STATE_COUNT = "STATE_COUNT";
+	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private int mCount;
+	private String mSortName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
+			mCount = savedInstanceState.getInt(STATE_COUNT);
+			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
 		}
 
 		final ActionBar actionBar = getSupportActionBar();
@@ -40,7 +43,8 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(KEY_COUNT, mCount);
+		outState.putInt(STATE_COUNT, mCount);
+		outState.putString(STATE_SORT_NAME, mSortName);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -101,7 +105,7 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
-			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
+			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount), mSortName);
 		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen());
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -152,6 +156,12 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 	@Override
 	public void onPlayCountChanged(int count) {
 		mCount = count;
+		supportInvalidateOptionsMenu();
+	}
+
+	@Override
+	public void onSortChanged(String sortName) {
+		mSortName = sortName;
 		supportInvalidateOptionsMenu();
 	}
 }

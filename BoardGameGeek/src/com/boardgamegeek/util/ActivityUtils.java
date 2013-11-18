@@ -247,22 +247,30 @@ public class ActivityUtils {
 	}
 
 	public static void setActionBarText(Menu menu, int id, String text) {
+		setActionBarText(menu, id, text, null);
+	}
+
+	public static void setActionBarText(Menu menu, int id, String text1, String text2) {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
-			TextView tv = (TextView) item.getActionView().findViewById(android.R.id.text1);
-			if (tv != null) {
-				tv.setText(text);
+			TextView tv1 = (TextView) item.getActionView().findViewById(android.R.id.text1);
+			if (tv1 != null) {
+				tv1.setText(text1);
+			}
+			TextView tv2 = (TextView) item.getActionView().findViewById(android.R.id.text2);
+			if (tv2 != null) {
+				tv2.setText(text2);
 			}
 		}
 	}
 
-	public static void setCustomActionBarText(ActionBar actionBar, int id, String text) {
+	public static void setCustomActionBarText(ActionBar actionBar, String text) {
 		if (actionBar != null) {
 			setCustomTextView(actionBar, android.R.id.text1, text);
 		}
 	}
 
-	public static void setCustomActionBarText(ActionBar actionBar, int id, String text1, String text2) {
+	public static void setCustomActionBarText(ActionBar actionBar, String text1, String text2) {
 		if (actionBar != null) {
 			setCustomTextView(actionBar, android.R.id.text1, text1);
 			setCustomTextView(actionBar, android.R.id.text2, text2);

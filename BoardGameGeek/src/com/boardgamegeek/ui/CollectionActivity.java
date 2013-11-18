@@ -110,7 +110,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setCustomActionBarText(getSupportActionBar(), R.id.menu_list_count,
+		ActivityUtils.setCustomActionBarText(getSupportActionBar(),
 			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount), isDrawerOpen() ? "" : mSortName);
 		MenuItem mi = menu.findItem(R.id.menu_search);
 		if (mi != null) {

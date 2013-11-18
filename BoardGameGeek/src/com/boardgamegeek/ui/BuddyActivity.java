@@ -177,6 +177,11 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	}
 
 	@Override
+	public void onSortChanged(String sortName) {
+		// sorting not supported yet
+	}
+
+	@Override
 	public DetachableResultReceiver getReceiver() {
 		return mSyncStatusUpdaterFragment.mReceiver;
 	}

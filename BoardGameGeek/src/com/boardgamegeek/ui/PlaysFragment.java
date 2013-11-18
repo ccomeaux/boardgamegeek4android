@@ -78,6 +78,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		public boolean onPlaySelected(int playId, int gameId, String gameName);
 
 		public void onPlayCountChanged(int count);
+
+		public void onSortChanged(String sortName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -88,6 +90,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 		@Override
 		public void onPlayCountChanged(int count) {
+		}
+
+		public void onSortChanged(String sortName) {
 		}
 	};
 
@@ -343,6 +348,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				setListShownNoAnimation(true);
 			}
 			restoreScrollState();
+			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;

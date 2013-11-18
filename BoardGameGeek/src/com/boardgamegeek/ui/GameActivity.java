@@ -315,4 +315,9 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	@Override
 	public void onPlayCountChanged(int count) {
 	}
+
+	@Override
+	public void onSortChanged(String sortName) {
+		// sorting not supported yet
+	}
 }
