@@ -280,7 +280,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				loader.setUpdateThrottle(0);
 			}
 		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, SumQuery.PROJECTION, selection(), selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), mUri.buildUpon().fragment(BggContract.FRAGMENT_SIMPLE).build(),
+				SumQuery.PROJECTION, selection(), selectionArgs(), null);
 			if (loader != null) {
 				loader.setUpdateThrottle(0);
 			}
@@ -565,7 +566,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int UPDATED_PLAYS = 0;
 	}
 
-	// TODO this query doesn't work with the new Group By clause
 	private interface SumQuery {
 		int _TOKEN = 0x23;
 		String[] PROJECTION = { "SUM(" + Plays.QUANTITY + ")" };

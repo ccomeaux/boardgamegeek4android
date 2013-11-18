@@ -233,6 +233,7 @@ public class BggContract {
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String FRAGMENT_NAME = "name";
+	public static final String FRAGMENT_SIMPLE = "simple";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
