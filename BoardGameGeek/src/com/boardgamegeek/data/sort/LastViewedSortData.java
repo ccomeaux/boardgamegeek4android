@@ -9,7 +9,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 
 public class LastViewedSortData extends CollectionSortData {
 	private String mNever;
-	
+
 	public LastViewedSortData(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_last_viewed;
@@ -33,7 +33,17 @@ public class LastViewedSortData extends CollectionSortData {
 		if (time == 0) {
 			return mNever;
 		}
-		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS)
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS)
+			.toString();
+	}
+
+	@Override
+	public String getDisplayInfo(Cursor cursor) {
+		long time = getLong(cursor, Games.LAST_VIEWED);
+		if (time == 0) {
+			return mNever;
+		}
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
 			.toString();
 	}
 }
