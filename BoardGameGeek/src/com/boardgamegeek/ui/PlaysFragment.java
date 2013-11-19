@@ -280,8 +280,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				loader.setUpdateThrottle(0);
 			}
 		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri.buildUpon().fragment(BggContract.FRAGMENT_SIMPLE).build(),
-				SumQuery.PROJECTION, selection(), selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(),
+				selectionArgs(), null);
 			if (loader != null) {
 				loader.setUpdateThrottle(0);
 			}

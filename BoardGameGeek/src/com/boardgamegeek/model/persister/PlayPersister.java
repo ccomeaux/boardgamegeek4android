@@ -173,7 +173,7 @@ public class PlayPersister {
 	 */
 	private static int getTemporaryId(ContentResolver resolver) {
 		int id = Play.UNSYNCED_PLAY_ID;
-		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_URI, "MAX(plays." + Plays.PLAY_ID + ")");
+		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
 		if (lastId >= id) {
 			id = lastId + 1;
 		}
