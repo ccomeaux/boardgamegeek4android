@@ -104,20 +104,10 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
-			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount), mSortName);
-		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen());
+		boolean hide = (isDrawerOpen() || mCount <= 0);
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, hide ? "" : String.valueOf(mCount), hide ? ""
+			: mSortName);
 		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_refresh:
-				((PlaysFragment) mFragment).triggerRefresh();
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {
