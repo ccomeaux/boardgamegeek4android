@@ -137,7 +137,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	private void requery() {
-		getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		if (mMode == MODE_ALL) {
+			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
