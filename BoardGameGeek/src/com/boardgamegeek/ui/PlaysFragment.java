@@ -502,7 +502,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				int minutes = length % 60;
 				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
 			}
-			if (playerCount > 0) {
+			if (playerCount > 0 && mMode != MODE_BUDDY) {
+				// TODO make this work for budddies
 				info += mWith + " " + playerCount + " " + mPlayers + " ";
 			}
 			holder.location.setText(info.trim());

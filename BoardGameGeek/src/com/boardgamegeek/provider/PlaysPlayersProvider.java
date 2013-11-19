@@ -20,9 +20,9 @@ public class PlaysPlayersProvider extends BaseProvider {
 		if (BggContract.FRAGMENT_NAME.equals(uri.getFragment())) {
 			return new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME);
 		} else {
-			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS)
 				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS);
+				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
 		}
 	}
 
