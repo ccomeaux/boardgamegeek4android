@@ -45,6 +45,7 @@
 	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
 	<string name="length_hint">0 minutes</string>
+	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
 	<string name="no_location">No location</string>
@@ -199,6 +200,10 @@
 	<string name="menu_collection_sort_played_most">Most Played</string>
 	<string name="menu_collection_sort_played_least">Least Played</string>
 	<string name="menu_collection_sort_published">Year Published</string>
+	<string name="menu_plays_sort_date">Date</string>
+	<string name="menu_plays_sort_location">Location</string>
+	<string name="menu_plays_sort_game">Game</string>
+	<string name="menu_plays_sort_length">Length</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_playtime">Play Time</string>

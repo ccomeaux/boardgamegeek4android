@@ -19,7 +19,7 @@ public class PlaysDateSortData extends PlaysSortData {
 	public PlaysDateSortData(Context context) {
 		super(context);
 		mOrderByClause = Plays.DEFAULT_SORT;
-		mDescriptionId = R.string.date;
+		mDescriptionId = R.string.menu_plays_sort_date;
 
 		// account for leap years
 		mCalendar.set(Calendar.YEAR, 2012);

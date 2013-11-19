@@ -196,6 +196,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			case R.id.menu_sort_location:
 				setSort(PlaysSortDataFactory.TYPE_PLAY_LOCATION);
 				return true;
+			case R.id.menu_sort_game:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_GAME);
+				return true;
+			case R.id.menu_sort_length:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_LENGTH);
+				return true;
 			case R.id.menu_refresh:
 				if (mAutoSyncTriggered) {
 					Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();

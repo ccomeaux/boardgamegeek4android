@@ -12,7 +12,7 @@ public class PlaysLocationSortData extends PlaysSortData {
 	public PlaysLocationSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Plays.LOCATION, false);
-		mDescriptionId = R.string.location;
+		mDescriptionId = R.string.menu_plays_sort_location;
 		mNoLocation = "<" + context.getString(R.string.no_location) + ">";
 	}
 
