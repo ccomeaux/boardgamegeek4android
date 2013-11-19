@@ -378,5 +378,9 @@
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
+	<plurals name="player_description">
+		<item quantity="one">with %s player </item>
+		<item quantity="other">with %s players </item>
+	</plurals>
 
 </resources>

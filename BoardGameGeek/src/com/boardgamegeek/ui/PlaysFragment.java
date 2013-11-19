@@ -411,8 +411,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		private String mTimes;
 		private String mAt;
 		private String mFor;
-		private String mWith;
-		private String mPlayers;
 
 		public PlayAdapter(Context context) {
 			super(context, null, false);
@@ -421,8 +419,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			mTimes = context.getString(R.string.times);
 			mAt = context.getString(R.string.at);
 			mFor = context.getString(R.string.for_);
-			mWith = context.getString(R.string.with);
-			mPlayers = context.getString(R.string.players);
 		}
 
 		public void setRowResId(int resId) {
@@ -504,7 +500,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			}
 			if (playerCount > 0 && mMode != MODE_BUDDY) {
 				// TODO make this work for budddies
-				info += mWith + " " + playerCount + " " + mPlayers + " ";
+				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
 			holder.location.setText(info.trim());
 
