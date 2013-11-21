@@ -7,8 +7,9 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
 public class PlaysLengthSortData extends PlaysSortData {
+	private static final String AND_MORE_SUFFIX = "+ ";
 	private final String mNoLength;
-	private final String mHourrsSuffix;
+	private final String mHoursSuffix;
 	private final String mMinutesSuffix;
 
 	public PlaysLengthSortData(Context context) {
@@ -16,8 +17,8 @@ public class PlaysLengthSortData extends PlaysSortData {
 		mOrderByClause = getClause(Plays.LENGTH, true);
 		mDescriptionId = R.string.menu_plays_sort_length;
 		mNoLength = context.getString(R.string.no_length);
-		mHourrsSuffix = "+ " + mContext.getString(R.string.hours_abbr);
-		mMinutesSuffix = "+ " + mContext.getString(R.string.minutes_abbr);
+		mHoursSuffix = mContext.getString(R.string.hours_abbr);
+		mMinutesSuffix = mContext.getString(R.string.minutes_abbr);
 	}
 
 	@Override
@@ -37,9 +38,13 @@ public class PlaysLengthSortData extends PlaysSortData {
 			return mNoLength;
 		}
 		if (minutes >= 120) {
-			return (minutes / 60) + mHourrsSuffix;
+			return (minutes / 60) + AND_MORE_SUFFIX + mHoursSuffix;
+		} else if (minutes >= 60) {
+			return (minutes / 10) * 10 + AND_MORE_SUFFIX + mMinutesSuffix;
+		} else if (minutes >= 30) {
+			return (minutes / 5) * 5 + AND_MORE_SUFFIX + mMinutesSuffix;
 		} else {
-			return getScrollText(cursor) + mMinutesSuffix;
+			return minutes + mMinutesSuffix;
 		}
 	}
 }
