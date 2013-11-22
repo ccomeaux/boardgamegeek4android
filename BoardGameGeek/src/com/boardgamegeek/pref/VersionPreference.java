@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.ListTagHandler;
 
 public class VersionPreference extends DialogPreference {
 
@@ -43,6 +44,7 @@ public class VersionPreference extends DialogPreference {
 		nameAndVersionView.setText(Html.fromHtml(getContext().getString(R.string.pref_about_app_name_and_version,
 			HelpUtils.getVersionName(getContext()))));
 		aboutBodyView.setMovementMethod(new LinkMovementMethod());
-		aboutBodyView.setText(Html.fromHtml(getContext().getString(R.string.pref_about_body)));
+		aboutBodyView.setText(Html.fromHtml(getContext().getString(R.string.pref_about_body), null,
+			new ListTagHandler()));
 	}
 }

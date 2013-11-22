@@ -76,11 +76,13 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
-- MOD: When logging a play, players are automatically placed in seating order with the ability to drag and drop<br/>
-- MOD: When adding a player, keep adding them until the user cancels<br/>
-- MOD: Menu options to share and view forums in a browser<br/>
-- MOD: Improve the settings screen and move some of the standard menu options there<br/>
-- <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous versions</a><br/>
+<ul>
+<li>When logging a play, players are automatically placed in seating order with the ability to drag and drop</li>
+<li>When adding a player, keep adding them until the user cancels</li>
+<li>Menu options to share and view forums in a browser</li>
+<li>Improve the settings screen and move some of the standard menu options there</li>
+</ul>
+<a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a><br/>
 <br/>
 Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.]]>
 	</string>
