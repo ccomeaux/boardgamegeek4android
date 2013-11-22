@@ -181,10 +181,17 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	public void onPrepareOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 		DrawerActivity activity = (DrawerActivity) getActivity();
 		boolean isDrawerOpen = activity.isDrawerOpen();
-		menu.findItem(R.id.menu_sort).setVisible(!isDrawerOpen);
-		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen);
-		menu.findItem(R.id.menu_refresh_on).setVisible(!isDrawerOpen);
+		showMenuItemsSafely(menu, R.id.menu_sort, !isDrawerOpen);
+		showMenuItemsSafely(menu, R.id.menu_refresh, !isDrawerOpen);
+		showMenuItemsSafely(menu, R.id.menu_refresh_on, !isDrawerOpen);
 		super.onPrepareOptionsMenu(menu);
+	}
+
+	private void showMenuItemsSafely(com.actionbarsherlock.view.Menu menu, int resourceId, boolean visible) {
+		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
+		if (menuItem != null) {
+			menuItem.setVisible(visible);
+		}
 	}
 
 	@Override
