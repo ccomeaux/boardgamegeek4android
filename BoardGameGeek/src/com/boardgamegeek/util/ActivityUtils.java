@@ -157,16 +157,21 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void launchPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createPlayIntent(playId, gameId, gameName);
+	public static void launchPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
 	public static Intent createPlayIntent(int playId, int gameId, String gameName) {
+		return createPlayIntent(playId, gameId, gameName, null);
+	}
+
+	public static Intent createPlayIntent(int playId, int gameId, String gameName, String thumbnailUrl) {
 		Uri playUri = Plays.buildPlayUri(playId);
 		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		return intent;
 	}
 
@@ -193,7 +198,12 @@ public class ActivityUtils {
 	}
 
 	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createPlayIntent(playId, gameId, gameName);
+		return createEditPlayIntent(context, playId, gameId, gameName, null);
+	}
+
+	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
+		String thumbnailUrl) {
+		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
 		intent.setAction(Intent.ACTION_EDIT);
 		return intent;
 	}

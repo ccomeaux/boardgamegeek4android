@@ -75,7 +75,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private MenuItem mEditMenuItem;
 
 	public interface Callbacks {
-		public boolean onPlaySelected(int playId, int gameId, String gameName);
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl);
 
 		public void onPlayCountChanged(int count);
 
@@ -84,7 +84,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onPlaySelected(int playId, int gameId, String gameName) {
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
 			return true;
 		}
 
@@ -171,7 +171,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 			int gameId = cursor.getInt(PlaysQuery.GAME_ID);
 			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
-			if (mCallbacks.onPlaySelected(playId, gameId, gameName)) {
+			String thumbnailUrl = cursor.getString(PlaysQuery.THUMBNAIL_URL);
+			if (mCallbacks.onPlaySelected(playId, gameId, gameName, thumbnailUrl)) {
 				setSelectedPlayId(playId);
 			}
 		}
@@ -570,7 +571,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")" };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")",
+			Games.THUMBNAIL_URL };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
@@ -580,6 +582,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int LENGTH = 7;
 		int SYNC_STATUS = 8;
 		int PLAYER_COUNT = 9;
+		int THUMBNAIL_URL = 10;
 	}
 
 	private interface GameQuery {

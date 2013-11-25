@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -42,6 +44,7 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -52,9 +55,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 	private Uri mPlayUri;
 	private Play mPlay = new Play();
+	private String mThumbnailUrl;
 
 	private TextView mUpdated;
 	private TextView mPlayId;
+	private ImageView mThumbnailView;
 	private TextView mGameName;
 	private TextView mDate;
 	private View mQuantityRoot;
@@ -77,6 +82,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private boolean mPlayersLoaded;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
+	private ImageFetcher mImageFetcher;
 
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
@@ -121,6 +127,13 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		mPlay = new Play(Plays.getPlayId(mPlayUri),
 			intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
+
+		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+
+		mImageFetcher = UIUtils.getImageFetcher(getActivity());
+		mImageFetcher.setImageFadeIn(false);
+		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
+		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
 	}
 
 	@Override
@@ -139,8 +152,8 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
 		mPlayers.addFooterView(footer);
 
+		mThumbnailView = (ImageView) rootView.findViewById(R.id.game_info_thumbnail);
 		mGameName = (TextView) header.findViewById(R.id.game_name);
-
 		mDate = (TextView) header.findViewById(R.id.play_date);
 
 		mQuantityRoot = header.findViewById(R.id.quantity_root);
@@ -195,6 +208,18 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		}
 
 		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		mImageFetcher.flushCache();
+	}
+
+	@Override
+	public void onDestroy() {
+		mImageFetcher.closeCache();
+		super.onDestroy();
 	}
 
 	@Override
@@ -344,6 +369,13 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		}
 
 		mPlaysLoaded = true;
+
+		if (TextUtils.isEmpty(mThumbnailUrl)) {
+			mThumbnailView.setVisibility(View.GONE);
+		} else {
+			mThumbnailView.setVisibility(View.VISIBLE);
+			mImageFetcher.loadThumnailImage(mThumbnailUrl, Games.buildThumbnailUri(mPlay.GameId), mThumbnailView);
+		}
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
