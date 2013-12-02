@@ -551,7 +551,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 		} else {
-			// LOGW(TAG, "Found " + cursor.getCount() + " records!");
 			view.setVisibility(View.VISIBLE);
 			do {
 				String name = cursor.getString(nameColumnIndex);
