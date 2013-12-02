@@ -44,6 +44,7 @@ public class SelectionBuilder {
 	private ArrayList<String> mSelectionArgs = new ArrayList<String>();
 	private String mGroupBy = null;
 	private String mHaving = null;
+	private String mLimit = null;
 
 	/**
 	 * Reset any internal state, allowing this builder to be recycled.
@@ -111,6 +112,16 @@ public class SelectionBuilder {
 
 	public SelectionBuilder table(String table) {
 		mTable = table;
+		return this;
+	}
+
+	public SelectionBuilder limit(String rowCount) {
+		int count = StringUtils.parseInt(rowCount, 0);
+		if (count > 0) {
+			mLimit = rowCount;
+		} else {
+			mLimit = null;
+		}
 		return this;
 	}
 
@@ -207,7 +218,7 @@ public class SelectionBuilder {
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
 		assertHaving();
-		return query(db, columns, mGroupBy, mHaving, orderBy, null);
+		return query(db, columns, mGroupBy, mHaving, orderBy, mLimit);
 	}
 
 	/**
