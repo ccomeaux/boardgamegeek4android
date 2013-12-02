@@ -291,19 +291,30 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			menu.findItem(R.id.menu_collection_sort).setVisible(true);
 			menu.findItem(R.id.menu_collection_filter).setVisible(true);
 
-			boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+			if (mShortcut) {
+				menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+				menu.findItem(R.id.menu_collection_view_save).setVisible(false);
+				menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
+			} else {
+				menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+				menu.findItem(R.id.menu_collection_view_save).setVisible(true);
+				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
-			menu.findItem(R.id.menu_collection_view_save).setEnabled(
-				(mFilters != null && mFilters.size() > 0)
-					|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
+				menu.findItem(R.id.menu_collection_random_game).setEnabled(
+					mAdapter == null ? false : mAdapter.getCount() > 0);
 
-			final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
-			item.setVisible(!mShortcut);
-			item.setEnabled(mAdapter == null ? false : mAdapter.getCount() > 0);
+				menu.findItem(R.id.menu_collection_view_save).setEnabled(
+					(mFilters != null && mFilters.size() > 0)
+						|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
 
-			menu.findItem(R.id.menu_collection_view_save).setVisible(!mShortcut);
-			menu.findItem(R.id.menu_collection_view_delete).setVisible(!mShortcut);
+				boolean hasViews = false;
+				Activity activity = getActivity();
+				if (activity != null) {
+					hasViews = ResolverUtils.getCount(activity.getContentResolver(), CollectionViews.CONTENT_URI) > 0;
+				}
+				menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+
+			}
 		}
 		super.onPrepareOptionsMenu(menu);
 	}
