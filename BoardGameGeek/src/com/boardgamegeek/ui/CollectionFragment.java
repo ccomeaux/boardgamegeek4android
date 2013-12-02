@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
@@ -348,8 +349,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC,
-				CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC, CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
 				return true;
 		}
 
@@ -579,8 +579,14 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				new CollectionStatusFilter().createDialog(getActivity(), this,
-					(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
+				CollectionStatusFilterData filter = null;
+				try {
+					filter = (CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
+				} catch (ClassCastException e) {
+					// Getting reports of this, but don't know why
+					LOGI(TAG, "ClassCastException when attempting to display the CollectionStatusFilter dialog.");
+				}
+				new CollectionStatusFilter().createDialog(getActivity(), this, filter);
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
