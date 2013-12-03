@@ -69,9 +69,7 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (mHotGames != null && mHotGames.size() > 0) {
-			outState.putParcelableArrayList(KEY_HOT_GAMES, (ArrayList<? extends Parcelable>) mHotGames);
-		}
+		outState.putParcelableArrayList(KEY_HOT_GAMES, (ArrayList<? extends Parcelable>) mHotGames);
 	}
 
 	@Override
