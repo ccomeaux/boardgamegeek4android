@@ -1,39 +1,42 @@
 package com.boardgamegeek.ui.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.widget.CursorAdapter;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract;
 
 public class ExpandableListView extends RelativeLayout {
 
 	private TextView mLabelView;
 	private TextView mSummaryView;
 	private ImageView mToggleView;
-	private LinearLayout mDetailView;
+	private ListView mDetailView;
 	private boolean mClickable;
 	private boolean mExpanded;
 	private String mOneMore;
 	private String mSomeMore;
-	private List<Pair<String, Uri>> mData;
+	private CursorAdapter mAdapter;
+	private int mNameColumnIndex;
+	private int mIdColumnIndex;
+	private String mPath;
 
 	public ExpandableListView(Context context) {
 		super(context);
@@ -81,7 +84,10 @@ public class ExpandableListView extends RelativeLayout {
 		mLabelView = (TextView) findViewById(R.id.label);
 		mSummaryView = (TextView) findViewById(R.id.summary);
 		mToggleView = (ImageView) findViewById(R.id.toggle);
-		mDetailView = (LinearLayout) findViewById(R.id.detail);
+		mDetailView = (ListView) findViewById(R.id.detail);
+
+		mAdapter = new Adapter(context);
+		mDetailView.setAdapter(mAdapter);
 
 		mExpanded = false;
 		expandOrCollapse();
@@ -107,7 +113,7 @@ public class ExpandableListView extends RelativeLayout {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		updateSummary();
+		updateSummary(mAdapter.getCursor());
 	}
 
 	public void setLabel(CharSequence label) {
@@ -115,55 +121,43 @@ public class ExpandableListView extends RelativeLayout {
 	}
 
 	public void clear() {
-		if (mData != null) {
-			mData.clear();
-		}
-		updateData();
+		mAdapter.swapCursor(null);
+		updateData(mAdapter.getCursor());
 	}
 
-	public void addItem(String label, Uri uri) {
-		if (mData == null) {
-			mData = new ArrayList<Pair<String, Uri>>();
-		}
-		mData.add(new Pair<String, Uri>(label, uri));
-		updateData();
+	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, String path) {
+		mNameColumnIndex = nameColumnIndex;
+		mIdColumnIndex = idColumnIndex;
+		mPath = path;
+		mAdapter.swapCursor(cursor);
+		updateData(cursor);
 	}
 
-	private void updateData() {
-		updateSummary();
+	private void updateData(Cursor cursor) {
+		updateSummary(cursor);
 		updateDetail();
 	}
 
-	private void updateSummary() {
+	private void updateSummary(Cursor cursor) {
 		CharSequence summary = null;
-		if (mData != null) {
+		if (cursor != null) {
 			TextPaint paint = new TextPaint();
 			paint.setTextSize(mSummaryView.getTextSize());
-			summary = TextUtils.commaEllipsize(joinFirsts(), paint,
+			summary = TextUtils.commaEllipsize(joinFirsts(cursor), paint,
 				mSummaryView.getWidth() - mSummaryView.getPaddingLeft() - mSummaryView.getPaddingRight(), mOneMore,
 				mSomeMore);
 			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(mSomeMore, mData.size());
+				summary = String.format(mSomeMore, cursor.getCount());
 			}
 		}
 		mSummaryView.setText(summary);
 	}
 
 	private void updateDetail() {
-		mDetailView.removeAllViews();
-		if (mData != null) {
-			List<Pair<String, Uri>> data = mData;
-			for (final Pair<String, Uri> item : data) {
-				Button button = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
-				button.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT));
-				button.setText(item.first);
-				button.setTag(item.second);
-				button.setEnabled(mClickable && item.second != null);
-				button.setOnClickListener(onClick());
-				mDetailView.addView(button);
-			}
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
 		}
+		requestLayout();
 	}
 
 	private OnClickListener onClick() {
@@ -185,16 +179,18 @@ public class ExpandableListView extends RelativeLayout {
 		requestLayout();
 	}
 
-	private String joinFirsts() {
+	private String joinFirsts(Cursor cursor) {
 		StringBuilder sb = new StringBuilder();
-		boolean firstTime = true;
-		for (Pair<String, Uri> item : mData) {
-			if (firstTime) {
-				firstTime = false;
-			} else {
-				sb.append(", ");
-			}
-			sb.append(item.first);
+		if (cursor != null && cursor.moveToFirst()) {
+			boolean firstTime = true;
+			do {
+				if (firstTime) {
+					firstTime = false;
+				} else {
+					sb.append(", ");
+				}
+				sb.append(cursor.getString(mNameColumnIndex));
+			} while (cursor.moveToNext());
 		}
 		return sb.toString();
 	}
@@ -232,5 +228,51 @@ public class ExpandableListView extends RelativeLayout {
 				return new SavedState[size];
 			}
 		};
+	}
+
+	private class Adapter extends CursorAdapter {
+		private LayoutInflater mInflater;
+
+		public Adapter(Context context) {
+			super(context, null, false);
+			mInflater = LayoutInflater.from(context);
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			View row = mInflater.inflate(R.layout.row_expanded_list, parent, false);
+			ViewHolder holder = new ViewHolder(row);
+			row.setTag(holder);
+			return row;
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			ViewHolder holder = (ViewHolder) view.getTag();
+
+			String name = cursor.getString(mNameColumnIndex);
+			int id = cursor.getInt(mIdColumnIndex);
+			Uri uri = (mPath != null ? BggContract.buildBasicUri(mPath, id) : null);
+
+			if (mClickable && uri != null) {
+				holder.button.setClickable(true);
+				holder.button.setOnClickListener(onClick());
+				holder.button.setTag(null);
+			} else {
+				holder.button.setClickable(false);
+				holder.button.setOnClickListener(null);
+				holder.button.setTag(uri);
+			}
+
+			holder.button.setText(name);
+		}
+	}
+
+	static class ViewHolder {
+		Button button;
+
+		public ViewHolder(View view) {
+			button = (Button) view.findViewById(R.id.button);
+		}
 	}
 }

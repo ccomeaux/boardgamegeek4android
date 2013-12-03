@@ -547,16 +547,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex, int idColumnIndex,
 		String path) {
-		view.clear();
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
+			view.clear();
 		} else {
 			view.setVisibility(View.VISIBLE);
-			do {
-				String name = cursor.getString(nameColumnIndex);
-				int id = cursor.getInt(idColumnIndex);
-				view.addItem(name, path != null ? BggContract.buildBasicUri(path, id) : null);
-			} while (cursor.moveToNext());
+			view.bind(cursor, nameColumnIndex, idColumnIndex, path);
 		}
 	}
 
@@ -684,49 +680,49 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private interface DesignerQuery {
 		int _TOKEN = 0x12;
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME };
+		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
 		int DESIGNER_ID = 0;
 		int DESIGNER_NAME = 1;
 	}
 
 	private interface ArtistQuery {
 		int _TOKEN = 0x13;
-		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME };
+		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
 		int ARTIST_ID = 0;
 		int ARTIST_NAME = 1;
 	}
 
 	private interface PublisherQuery {
 		int _TOKEN = 0x14;
-		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME };
+		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
 		int PUBLISHER_ID = 0;
 		int PUBLISHER_NAME = 1;
 	}
 
 	private interface CategoryQuery {
 		int _TOKEN = 0x15;
-		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME };
+		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
 		int CATEGORY_ID = 0;
 		int CATEGORY_NAME = 1;
 	}
 
 	private interface MechanicQuery {
 		int _TOKEN = 0x16;
-		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME };
+		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
 		int MECHANIC_ID = 0;
 		int MECHANIC_NAME = 1;
 	}
 
 	private interface ExpansionQuery {
 		int _TOKEN = 0x17;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME };
+		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
 		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}
 
 	private interface BaseGameQuery {
 		int _TOKEN = 0x18;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME };
+		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
 		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}

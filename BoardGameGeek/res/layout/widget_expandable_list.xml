@@ -35,7 +35,7 @@
 		android:padding="0dp"
 		android:src="@drawable/expander_open" />
 
-	<LinearLayout
+	<ListView
 		android:id="@+id/detail"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
