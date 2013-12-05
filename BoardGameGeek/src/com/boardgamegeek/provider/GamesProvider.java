@@ -5,6 +5,7 @@ import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.SelectionBuilder;
 
 public class GamesProvider extends BasicProvider {
 
@@ -31,5 +32,11 @@ public class GamesProvider extends BasicProvider {
 	@Override
 	protected String getType(Uri uri) {
 		return Games.CONTENT_TYPE;
+	}
+
+	@Override
+	protected SelectionBuilder buildExpandedSelection(Uri uri) {
+		return new SelectionBuilder().table(Tables.GAMES_JOIN_COLLECTION).mapToTable(Games.GAME_ID, Tables.GAMES)
+			.mapToTable(Games.UPDATED, Tables.GAMES);
 	}
 }
