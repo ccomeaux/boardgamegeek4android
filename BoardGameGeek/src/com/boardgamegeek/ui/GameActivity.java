@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class GameActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
@@ -46,6 +48,19 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+
+		Uri mGameUri = getIntent().getData();
+		if ("http".equals(mGameUri.getScheme())) {
+			boolean b = false;
+			for (String path : mGameUri.getPathSegments()) {
+				if (b) {
+					mGameUri = Games.buildGameUri(StringUtils.parseInt(path));
+					break;
+				} else if ("boardgame".equals(path)) {
+					b = true;
+				}
+			}
+		}
 
 		new Handler().post(new Runnable() {
 			@Override

@@ -10,6 +10,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -235,7 +237,14 @@ public class ActivityUtils {
 	}
 
 	public static void link(Context context, String link) {
-		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+		i.addCategory("android.intent.category.BROWSABLE");
+		PackageManager pm = context.getPackageManager();
+		List<ResolveInfo> activities = pm.queryIntentActivities(i, 0);
+		for (int j = 0; j < activities.size(); j++) {
+			String s = activities.get(j).toString();
+		}
+		context.startActivity(i);
 	}
 
 	public static void linkToBgg(Context context, String path) {
