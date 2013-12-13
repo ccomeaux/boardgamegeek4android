@@ -1,6 +1,10 @@
 package com.boardgamegeek.ui;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.apache.http.client.HttpClient;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +36,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.RemoteBuddyUserHandler;
+import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
@@ -39,9 +45,11 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private Uri mBuddyUri;
@@ -90,8 +98,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mImageFetcher.setImageFadeIn(false);
 		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
-
-		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -154,6 +160,9 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		switch (id) {
 			case R.id.menu_edit:
 				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
+				return true;
+			case R.id.menu_refresh:
+				triggerRefresh();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -250,14 +259,57 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String newNickname = mEditText.getText().toString();
-					new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
+					new UpdateTask(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		dialog.show();
 	}
 
-	private class Task extends AsyncTask<String, Void, Void> {
+	private void triggerRefresh() {
+		new RefreshTask().execute(mName.getText().toString());
+	}
+
+	private class RefreshTask extends AsyncTask<String, Void, String> {
+
+		private HttpClient mHttpClient;
+		private RemoteExecutor mExecutor;
+
+		@Override
+		protected void onPreExecute() {
+			Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
+			mHttpClient = HttpUtils.createHttpClient(getActivity(), true);
+			mExecutor = new RemoteExecutor(mHttpClient, getActivity());
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			String username = params[0];
+			String url = new UserUrlBuilder(username).build();
+			RemoteBuddyUserHandler rgh = new RemoteBuddyUserHandler(0);
+			try {
+				mExecutor.executeGet(url, rgh);
+			} catch (IOException e) {
+				return e.toString();
+			} catch (XmlPullParserException e) {
+				return e.toString();
+			}
+			return "";
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			String message;
+			if (TextUtils.isEmpty(result)) {
+				message = "Success!";
+			} else {
+				message = getString(R.string.msg_update_error) + "\n" + result;
+			}
+			Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private class UpdateTask extends AsyncTask<String, Void, Void> {
 		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME
 			+ "!=?";
 		Context mContext;
@@ -265,7 +317,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		String mUsername;
 		boolean mUpdatePlays;
 
-		public Task(Context context, Uri uri, String username, boolean updatePlays) {
+		public UpdateTask(Context context, Uri uri, String username, boolean updatePlays) {
 			mContext = context;
 			mUri = uri;
 			mUsername = username;
