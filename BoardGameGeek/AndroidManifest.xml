@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="30"
-	android:versionName="develop" >
+	android:versionName="feature/developer-console" >
 
 	<uses-sdk
 		android:minSdkVersion="8"

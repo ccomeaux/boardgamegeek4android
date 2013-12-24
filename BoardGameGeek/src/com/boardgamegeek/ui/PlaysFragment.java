@@ -92,6 +92,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setFastScrollEnabled(true);
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
