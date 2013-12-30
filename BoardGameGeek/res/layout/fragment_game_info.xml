@@ -277,21 +277,19 @@
 				android:layout_height="wrap_content"
 				bgg:label="@string/publishers" />
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.ExpandableReadOnlyListView
 				android:id="@+id/game_info_categories"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:clickable="false"
-				bgg:label="@string/categories" />
+				bgg:xlabel="@string/categories" />
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.ExpandableReadOnlyListView
 				android:id="@+id/game_info_mechanics"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:clickable="false"
-				bgg:label="@string/mechanics" />
+				bgg:xlabel="@string/mechanics" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_expansions"
