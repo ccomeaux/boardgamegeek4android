@@ -32,6 +32,9 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 	public RemoteBuddyUserHandler(long startTime) {
 		super();
 		mStartTime = startTime;
+		if (mStartTime == 0) {
+			mStartTime = System.currentTimeMillis();
+		}
 	}
 
 	@Override
