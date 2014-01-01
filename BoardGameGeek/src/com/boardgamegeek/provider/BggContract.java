@@ -233,6 +233,8 @@ public class BggContract {
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
 	public static final String FRAGMENT_NAME = "name";
+	public static final String FRAGMENT_SIMPLE = "simple";
+	public static final String PARAM_LIMIT = "limit";
 
 	public static class Thumbnails {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build();
@@ -285,7 +287,11 @@ public class BggContract {
 		}
 
 		public static Uri buildDesignersUri(int gameId) {
-			return getUriBuilder(gameId, PATH_DESIGNERS).build();
+			return buildLimitedDesignersUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedDesignersUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_DESIGNERS, limitCount).build();
 		}
 
 		public static Uri buildDesignersUri(int gameId, int designerId) {
@@ -297,7 +303,11 @@ public class BggContract {
 		}
 
 		public static Uri buildArtistsUri(int gameId) {
-			return getUriBuilder(gameId, PATH_ARTISTS).build();
+			return buildLimitedArtistsUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedArtistsUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_ARTISTS, limitCount).build();
 		}
 
 		public static Uri buildArtistsUri(int gameId, int artistId) {
@@ -309,7 +319,11 @@ public class BggContract {
 		}
 
 		public static Uri buildPublishersUri(int gameId) {
-			return getUriBuilder(gameId, PATH_PUBLISHERS).build();
+			return buildLimitedPublishersUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedPublishersUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_PUBLISHERS, limitCount).build();
 		}
 
 		public static Uri buildPublishersUri(int gameId, int publisherId) {
@@ -321,7 +335,11 @@ public class BggContract {
 		}
 
 		public static Uri buildMechanicsUri(int gameId) {
-			return getUriBuilder(gameId, PATH_MECHANICS).build();
+			return buildLimitedMechanicsUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedMechanicsUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_MECHANICS, limitCount).build();
 		}
 
 		public static Uri buildMechanicsUri(int gameId, int mechanicId) {
@@ -333,7 +351,11 @@ public class BggContract {
 		}
 
 		public static Uri buildCategoriesUri(int gameId) {
-			return getUriBuilder(gameId, PATH_CATEGORIES).build();
+			return buildLimitedCategoriesUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedCategoriesUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_CATEGORIES, limitCount).build();
 		}
 
 		public static Uri buildCategoriesUri(int gameId, int categoryId) {
@@ -345,7 +367,11 @@ public class BggContract {
 		}
 
 		public static Uri buildExpansionsUri(int gameId) {
-			return getUriBuilder(gameId, PATH_EXPANSIONS).build();
+			return buildLimitedExpansionsUri(gameId, 0);
+		}
+
+		public static Uri buildLimitedExpansionsUri(int gameId, int limitCount) {
+			return getLimitedUriBuilder(gameId, PATH_EXPANSIONS, limitCount).build();
 		}
 
 		public static Uri buildExpansionsUri(int gameId, int expansionId) {
@@ -409,12 +435,19 @@ public class BggContract {
 		}
 
 		private static Builder getUriBuilder(int gameId, String path) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
+			return getLimitedUriBuilder(gameId, path, 0);
+		}
+
+		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
+			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
+			if (limit > 0) {
+				builder.appendQueryParameter(PARAM_LIMIT, String.valueOf(limit));
+			}
+			return builder;
 		}
 
 		private static Builder getUriBuilder(int gameId, String path, int id) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
-				.appendPath(String.valueOf(id));
+			return getUriBuilder(gameId, path).appendPath(String.valueOf(id));
 		}
 
 		public static int getGameId(Uri uri) {
@@ -685,6 +718,7 @@ public class BggContract {
 
 	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
+		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play";

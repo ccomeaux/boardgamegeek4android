@@ -18,6 +18,7 @@ import com.boardgamegeek.util.UIUtils;
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final int REQUEST_EDIT_PLAY = 0;
 	private BroadcastReceiver mReceiver;
