@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,8 +42,8 @@ public class SelectionBuilder {
 	private String mTable = null;
 	private Map<String, String> mProjectionMap = new HashMap<String, String>();
 	private StringBuilder mSelection = new StringBuilder();
-	private ArrayList<String> mSelectionArgs = new ArrayList<String>();
-	private String mGroupBy = null;
+	private List<String> mSelectionArgs = new ArrayList<String>();
+	private List<String> mGroupBy = new ArrayList<String>();
 	private String mHaving = null;
 	private String mLimit = null;
 
@@ -53,7 +54,7 @@ public class SelectionBuilder {
 		mTable = null;
 		mSelection.setLength(0);
 		mSelectionArgs.clear();
-		mGroupBy = null;
+		mGroupBy.clear();
 		return this;
 	}
 
@@ -132,7 +133,7 @@ public class SelectionBuilder {
 	}
 
 	private void assertHaving() {
-		if (!TextUtils.isEmpty(mHaving) && TextUtils.isEmpty(mGroupBy)) {
+		if (!TextUtils.isEmpty(mHaving) && (mGroupBy == null || mGroupBy.size() == 0)) {
 			throw new IllegalStateException("Group by must be specified for Having clause");
 		}
 	}
@@ -162,16 +163,12 @@ public class SelectionBuilder {
 	}
 
 	public SelectionBuilder groupBy(String... groupArgs) {
+		mGroupBy.clear();
 		if (groupArgs != null) {
-			mGroupBy = new String();
 			for (String arg : groupArgs) {
-				if (mGroupBy.length() > 0) {
-					mGroupBy += ", ";
-				}
-				mGroupBy += arg;
+				mGroupBy.add(arg);
 			}
 		}
-
 		return this;
 	}
 
@@ -198,6 +195,24 @@ public class SelectionBuilder {
 		return mSelectionArgs.toArray(new String[mSelectionArgs.size()]);
 	}
 
+	public String getGroupByClause() {
+		if (mGroupBy == null || mGroupBy.size() == 0) {
+			return "";
+		}
+		StringBuilder clause = new StringBuilder();
+		for (String arg : mGroupBy) {
+			if (clause.length() > 0) {
+				clause.append(", ");
+			}
+			final String target = mProjectionMap.get(arg);
+			if (target != null) {
+				arg = target;
+			}
+			clause.append(arg);
+		}
+		return clause.toString();
+	}
+
 	private void mapColumns(String[] columns) {
 		for (int i = 0; i < columns.length; i++) {
 			final String target = mProjectionMap.get(columns[i]);
@@ -210,7 +225,7 @@ public class SelectionBuilder {
 	@Override
 	public String toString() {
 		return "table=[" + mTable + "], selection=[" + getSelection() + "], selectionArgs="
-			+ Arrays.toString(getSelectionArgs()) + ", groupBy=[" + mGroupBy + "], having=[" + mHaving + "]";
+			+ Arrays.toString(getSelectionArgs()) + ", groupBy=[" + getGroupByClause() + "], having=[" + mHaving + "]";
 	}
 
 	/**
@@ -218,7 +233,7 @@ public class SelectionBuilder {
 	 */
 	public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
 		assertHaving();
-		return query(db, columns, mGroupBy, mHaving, orderBy, mLimit);
+		return query(db, columns, getGroupByClause(), mHaving, orderBy, mLimit);
 	}
 
 	/**
