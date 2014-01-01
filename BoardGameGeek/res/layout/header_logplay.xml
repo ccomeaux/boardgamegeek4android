@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical" >
+
+	<TableLayout
+		android:id="@+id/details"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="vertical"
+		android:stretchColumns="1" >
+
+		<TableRow
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_date"
+				android:text="@string/on" />
+
+			<Button
+				android:id="@+id/log_play_date"
+				android:gravity="left|center_vertical"
+				android:onClick="onDateClick" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_location_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_location"
+				android:text="@string/at" />
+
+			<AutoCompleteTextView
+				android:id="@+id/log_play_location"
+				android:completionThreshold="1"
+				android:hint="@string/location_hint"
+				android:imeOptions="actionNext"
+				android:inputType="textCapWords"
+				android:textColor="#000" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_length_root"
+			android:gravity="center_vertical"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_length_container_inner"
+				android:text="@string/for_" />
+
+			<FrameLayout android:id="@+id/log_play_length_container_inner" >
+
+				<EditText
+					android:id="@+id/log_play_length"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/length_hint"
+					android:inputType="number" />
+
+				<LinearLayout
+					android:id="@+id/timer_root"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="@color/background_light"
+					android:gravity="center_vertical" >
+
+					<Chronometer
+						android:id="@+id/timer"
+						style="@style/Text.Title2"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center"
+						android:maxLines="1"
+						android:textIsSelectable="false" />
+
+					<Button
+						android:id="@+id/timer_end"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center"
+						android:onClick="onTimerEnd"
+						android:text="@string/end_play" />
+				</LinearLayout>
+			</FrameLayout>
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_quantity_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<TextView
+				style="@style/TextLabel.Edit"
+				android:labelFor="@+id/log_play_quantity"
+				android:text="@string/times_abbr" />
+
+			<EditText
+				android:id="@+id/log_play_quantity"
+				android:hint="@string/quantity_hint"
+				android:inputType="number" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_incomplete_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<CheckBox
+				android:id="@+id/log_play_incomplete"
+				style="@style/Text.CheckboxLabel"
+				android:layout_column="1"
+				android:checked="false"
+				android:text="@string/incomplete" />
+		</TableRow>
+
+		<TableRow
+			android:id="@+id/log_play_no_win_stats_root"
+			android:paddingBottom="@dimen/padding_small"
+			android:paddingTop="@dimen/padding_small" >
+
+			<CheckBox
+				android:id="@+id/log_play_no_win_stats"
+				style="@style/Text.CheckboxLabel"
+				android:layout_column="1"
+				android:checked="false"
+				android:text="@string/noWinStats" />
+		</TableRow>
+	</TableLayout>
+
+	<TextView
+		android:id="@+id/log_play_comments_label"
+		style="@style/Text.Header.Underline"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:labelFor="@+id/log_play_comments"
+		android:text="@string/comments" />
+
+	<EditText
+		android:id="@+id/log_play_comments"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:hint="@string/comments_hint"
+		android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+
+	<TextView
+		android:id="@+id/log_play_players_label"
+		style="@style/Text.Header.Underline"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/padding_standard"
+		android:text="@string/title_players" />
+
+</LinearLayout>

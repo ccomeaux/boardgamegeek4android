@@ -1,30 +1,20 @@
 package com.boardgamegeek.model;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 
 public class Play {
@@ -52,30 +42,31 @@ public class Play {
 	 * The play is ready to be deleted
 	 */
 	public static final int SYNC_STATUS_PENDING_DELETE = 3;
+	/**
+	 * The play is ready to be updated or deleted
+	 */
+	public static final int SYNC_STATUS_PENDING = 4;
 
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
 
-	private static final String TAG = makeLogTag(Play.class);
-	private static final String KEY_PLAY_ID = "PLAY_ID";
-	private static final String KEY_GAME_ID = "GAME_ID";
-	private static final String KEY_GAME_NAME = "GAME_NAME";
-	private static final String KEY_YEAR = "YEAR";
-	private static final String KEY_MONTH = "MONTH";
-	private static final String KEY_DAY = "DAY";
-	private static final String KEY_QUANTITY = "QUANTITY";
-	private static final String KEY_LENGTH = "LENGTH";
-	private static final String KEY_LOCATION = "LOCATION";
-	private static final String KEY_INCOMPLETE = "INCOMPLETE";
-	private static final String KEY_NOWINSTATS = "NO_WIN_STATS";
-	private static final String KEY_COMMENTS = "COMMENTS";
-	private static final String KEY_PLAYERS = "PLAYERS";
-	private static final String KEY_UPDATED = "UPDATED";
-	private static final String KEY_SYNC_STATUS = "SYNC_STATUS";
-	private static final String KEY_SAVED = "SAVED";
-	private static final String KEY_START_TIME = "START_TIME";
-
+	public int PlayId;
+	public int GameId;
+	public String GameName;
+	public int Year;
+	public int Month;
+	public int Day;
+	public int Quantity;
+	public int Length;
+	public String Location;
+	public boolean Incomplete;
+	public boolean NoWinStats;
+	public String Comments;
+	public long Updated;
+	public int SyncStatus;
+	public long Saved;
+	public long StartTime;
 	private List<Player> mPlayers = new ArrayList<Player>();
 
 	public Play() {
@@ -102,157 +93,37 @@ public class Play {
 		StartTime = 0;
 	}
 
-	private void setCurrentDate() {
-		final Calendar c = Calendar.getInstance();
-		Year = c.get(Calendar.YEAR);
-		Month = c.get(Calendar.MONTH);
-		Day = c.get(Calendar.DAY_OF_MONTH);
+	// URI
+
+	/**
+	 * @return plays/#
+	 */
+	public Uri uri() {
+		return Plays.buildPlayUri(PlayId);
 	}
 
 	/**
-	 * Deep copy constructor.
+	 * @return plays/#/items
 	 */
-	public Play(Play play) {
-		PlayId = play.PlayId;
-		GameId = play.GameId;
-		GameName = play.GameName;
-		Year = play.Year;
-		Month = play.Month;
-		Day = play.Day;
-		Quantity = play.Quantity;
-		Length = play.Length;
-		Location = play.Location;
-		Incomplete = play.Incomplete;
-		NoWinStats = play.NoWinStats;
-		Comments = play.Comments;
-		Updated = play.Updated;
-		SyncStatus = play.SyncStatus;
-		Saved = play.Saved;
-		StartTime = play.StartTime;
-		for (Player player : play.getPlayers()) {
-			mPlayers.add(new Player(player));
-		}
+	public Uri itemUri() {
+		return Plays.buildItemUri(PlayId);
 	}
 
-	public Play(Bundle bundle, String prefix) {
-		PlayId = bundle.getInt(prefix + KEY_PLAY_ID);
-		GameId = bundle.getInt(prefix + KEY_GAME_ID);
-		GameName = getString(bundle, prefix + KEY_GAME_NAME);
-		Year = bundle.getInt(prefix + KEY_YEAR);
-		Month = bundle.getInt(prefix + KEY_MONTH);
-		Day = bundle.getInt(prefix + KEY_DAY);
-		Quantity = bundle.getInt(prefix + KEY_QUANTITY);
-		Length = bundle.getInt(prefix + KEY_LENGTH);
-		Location = getString(bundle, prefix + KEY_LOCATION);
-		Incomplete = bundle.getBoolean(prefix + KEY_INCOMPLETE);
-		NoWinStats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
-		Comments = getString(bundle, prefix + KEY_COMMENTS);
-		Updated = bundle.getLong(prefix + KEY_UPDATED);
-		SyncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
-		Saved = bundle.getLong(prefix + KEY_SAVED);
-		StartTime = bundle.getLong(prefix + KEY_START_TIME);
-		mPlayers = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
+	/**
+	 * @return plays/#/items/#
+	 */
+	public Uri itemIdUri() {
+		return Plays.buildItemUri(PlayId, GameId);
 	}
 
-	private String getString(final Bundle bundle, String key) {
-		String s = bundle.getString(key);
-		if (s == null) {
-			return "";
-		}
-		return s;
+	/**
+	 * @return plays/#/players
+	 */
+	public Uri playerUri() {
+		return Plays.buildPlayerUri(PlayId);
 	}
 
-	public void saveState(Bundle bundle, String prefix) {
-		bundle.putInt(prefix + KEY_PLAY_ID, PlayId);
-		bundle.putInt(prefix + KEY_GAME_ID, GameId);
-		bundle.putString(prefix + KEY_GAME_NAME, GameName);
-		bundle.putInt(prefix + KEY_YEAR, Year);
-		bundle.putInt(prefix + KEY_MONTH, Month);
-		bundle.putInt(prefix + KEY_DAY, Day);
-		bundle.putInt(prefix + KEY_QUANTITY, Quantity);
-		bundle.putInt(prefix + KEY_LENGTH, Length);
-		bundle.putString(prefix + KEY_LOCATION, Location);
-		bundle.putBoolean(prefix + KEY_INCOMPLETE, Incomplete);
-		bundle.putBoolean(prefix + KEY_NOWINSTATS, NoWinStats);
-		bundle.putString(prefix + KEY_COMMENTS, Comments);
-		bundle.putLong(prefix + KEY_UPDATED, Updated);
-		bundle.putInt(prefix + KEY_SYNC_STATUS, SyncStatus);
-		bundle.putLong(prefix + KEY_SAVED, Saved);
-		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) mPlayers);
-	}
-
-	public int PlayId;
-	public int GameId;
-	public String GameName;
-	public int Year;
-	public int Month;
-	public int Day;
-	public int Quantity;
-	public int Length;
-	public String Location;
-	public boolean Incomplete;
-	public boolean NoWinStats;
-	public String Comments;
-	public long Updated;
-	public int SyncStatus;
-	public long Saved;
-	public long StartTime;
-
-	public Play fromCursor(Cursor cursor) {
-		return fromCursor(cursor, null, false);
-	}
-
-	public Play fromCursor(Cursor cursor, Context context, boolean includePlayers) {
-		PlayId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
-		GameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
-		GameName = CursorUtils.getString(cursor, PlayItems.NAME);
-		setDate(CursorUtils.getString(cursor, Plays.DATE));
-		Quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, QUANTITY_DEFAULT);
-		Length = CursorUtils.getInt(cursor, Plays.LENGTH, LENGTH_DEFAULT);
-		Location = CursorUtils.getString(cursor, Plays.LOCATION);
-		Incomplete = CursorUtils.getBoolean(cursor, Plays.INCOMPLETE);
-		NoWinStats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
-		Comments = CursorUtils.getString(cursor, Plays.COMMENTS);
-		Updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
-		SyncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
-		Saved = CursorUtils.getLong(cursor, Plays.UPDATED);
-		StartTime = CursorUtils.getLong(cursor, Plays.START_TIME);
-		if (includePlayers && context != null) {
-			Cursor c = null;
-			try {
-				c = context.getContentResolver().query(playerUri(), null, null, null, null);
-				while (c.moveToNext()) {
-					addPlayer(new Player(c));
-				}
-			} finally {
-				if (c != null) {
-					c.close();
-				}
-			}
-		}
-		return this;
-	}
-
-	public void resetForCopy() {
-		PlayId = BggContract.INVALID_ID;
-		setCurrentDate();
-		Quantity = QUANTITY_DEFAULT;
-		Length = LENGTH_DEFAULT;
-		Incomplete = false;
-		Comments = ""; // ?
-		Updated = 0;
-		SyncStatus = SYNC_STATUS_NOT_STORED;
-		Saved = 0;
-		for (Player player : mPlayers) {
-			player.Score = "";
-			player.New = false;
-			player.Win = false;
-		}
-	}
-
-	public List<Player> getPlayers() {
-		return mPlayers;
-	}
+	// DATE
 
 	/**
 	 * The date of the play in the yyyy-MM-dd format. This is the format the 'Geek uses and how it's stored in the
@@ -261,7 +132,7 @@ public class Play {
 	 * @return
 	 */
 	public String getDate() {
-		return String.format("%04d", Year) + "-" + String.format("%02d", Month + 1) + "-" + String.format("%02d", Day);
+		return DateTimeUtils.formatDateForApi(Year, Month, Day);
 	}
 
 	/**
@@ -293,6 +164,38 @@ public class Play {
 		Day = Integer.parseInt(date.substring(8, 10));
 	}
 
+	private void setCurrentDate() {
+		final Calendar c = Calendar.getInstance();
+		Year = c.get(Calendar.YEAR);
+		Month = c.get(Calendar.MONTH);
+		Day = c.get(Calendar.DAY_OF_MONTH);
+	}
+
+	// PLAYERS
+
+	public List<Player> getPlayers() {
+		return mPlayers;
+	}
+
+	public int getPlayerCount() {
+		if (mPlayers == null) {
+			return 0;
+		}
+		return mPlayers.size();
+	}
+
+	public void setPlayers(List<Player> players) {
+		mPlayers = players;
+	}
+
+	public void setPlayers(Cursor cursor) {
+		clearPlayers();
+		while (cursor.moveToNext()) {
+			Player player = new Player(cursor);
+			addPlayer(player);
+		}
+	}
+
 	public void clearPlayers() {
 		mPlayers.clear();
 	}
@@ -301,7 +204,13 @@ public class Play {
 		mPlayers.add(player);
 	}
 
-	public void removePlayer(Player player) {
+	public void removePlayer(Player player, boolean resort) {
+		if (resort && !arePlayersCustomSorted()) {
+			for (int i = player.getSeat(); i < mPlayers.size(); i++) {
+				Player p = getPlayerAtSeat(i + 1);
+				p.setSeat(i);
+			}
+		}
 		mPlayers.remove(player);
 	}
 
@@ -309,137 +218,32 @@ public class Play {
 		mPlayers.set(position, player);
 	}
 
-	public List<NameValuePair> toNameValuePairs() {
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("ajax", "1"));
-		nvps.add(new BasicNameValuePair("action", "save"));
-		nvps.add(new BasicNameValuePair("version", "2"));
-		nvps.add(new BasicNameValuePair("objecttype", "thing"));
-		if (hasBeenSynced()) {
-			nvps.add(new BasicNameValuePair("playid", String.valueOf(PlayId)));
-		}
-		nvps.add(new BasicNameValuePair("objectid", String.valueOf(GameId)));
-		nvps.add(new BasicNameValuePair("playdate", getDate()));
-		// TODO: ask Aldie what this is
-		nvps.add(new BasicNameValuePair("dateinput", getDate()));
-		nvps.add(new BasicNameValuePair("length", String.valueOf(Length)));
-		nvps.add(new BasicNameValuePair("location", Location));
-		nvps.add(new BasicNameValuePair("quantity", String.valueOf(Quantity)));
-		nvps.add(new BasicNameValuePair("incomplete", Incomplete ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("nowinstats", NoWinStats ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("comments", Comments));
-
-		for (int i = 0; i < mPlayers.size(); i++) {
-			nvps.addAll(mPlayers.get(i).toNameValuePairs(i));
-		}
-
-		LOGD(TAG, nvps.toString());
-		return nvps;
-	}
-
-	public String toShortDescription(Context context) {
-		Resources r = context.getResources();
-		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
-		return sb.toString();
-	}
-
-	public String toLongDescription(Context context) {
-		Resources r = context.getResources();
-		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
-		if (Quantity > 1) {
-			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.times));
-		}
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
-		if (!TextUtils.isEmpty(Location)) {
-			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(Location);
-		}
-		if (mPlayers.size() > 0) {
-			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(mPlayers.size()).append(" ")
-				.append(r.getString(R.string.players));
-		}
-		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
-		return sb.toString();
-	}
-
-	/**
-	 * @return plays/#
-	 */
-	public Uri uri() {
-		return Plays.buildPlayUri(PlayId);
-	}
-
-	/**
-	 * @return plays/#/items
-	 */
-	public Uri itemUri() {
-		return Plays.buildItemUri(PlayId);
-	}
-
-	/**
-	 * @return plays/#/items/#
-	 */
-	public Uri itemIdUri() {
-		return Plays.buildItemUri(PlayId, GameId);
-	}
-
-	/**
-	 * @return plays/#/players
-	 */
-	public Uri playerUri() {
-		return Plays.buildPlayerUri(PlayId);
-	}
-
-	/**
-	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
-	 */
-	public boolean hasBeenSynced() {
-		return (PlayId > 0 && PlayId < UNSYNCED_PLAY_ID);
-	}
-
-	/**
-	 * Determines if this play appears to have started.
-	 * 
-	 * @return true, if it's not ended and the start time has been set.
-	 */
-	public boolean hasStarted() {
-		if (!hasEnded() && StartTime > 0) {
-			return true;
-		}
-		return false;
-	}
-
-	public void start() {
-		Length = 0;
-		StartTime = System.currentTimeMillis();
-	}
-
-	public void end() {
-		if (StartTime > 0) {
-			Length = DateTimeUtils.howManyMinutesOld(StartTime);
-			StartTime = 0;
-		}
-	}
-
-	/**
-	 * Determines if this play appears to have ended.
-	 * 
-	 * @return true, if the length has been entered or at least one of the players has won.
-	 */
-	public boolean hasEnded() {
-		if (Length > 0) {
-			return true;
-		}
-		if (mPlayers != null && mPlayers.size() > 0) {
-			for (Player player : mPlayers) {
-				if (player.Win) {
-					return true;
-				}
+	public Player getPlayerAtSeat(int seat) {
+		for (Player player : mPlayers) {
+			if (player.getSeat() == seat) {
+				return player;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	public void reorderPlayers(int fromSeat, int toSeat) {
+		if (arePlayersCustomSorted()) {
+			return;
+		}
+		Player player = getPlayerAtSeat(fromSeat);
+		player.setSeat(Player.SEAT_UNKNOWN);
+		if (fromSeat > toSeat) {
+			for (int i = fromSeat - 1; i >= toSeat; i--) {
+				getPlayerAtSeat(i).setSeat(i + 1);
+			}
+		} else {
+			for (int i = fromSeat + 1; i <= toSeat; i++) {
+				getPlayerAtSeat(i).setSeat(i - 1);
+			}
+		}
+		player.setSeat(toSeat);
+		sortPlayers();
 	}
 
 	/**
@@ -487,13 +291,88 @@ public class Play {
 		}
 	}
 
-	public Player getPlayerAtSeat(int seat) {
-		for (Player player : mPlayers) {
-			if (player.getSeat() == seat) {
-				return player;
+	/**
+	 * Determine if the starting positions indicate the players are custom sorted.
+	 */
+	public boolean arePlayersCustomSorted() {
+		if (getPlayerCount() == 0) {
+			return false;
+		}
+
+		int seat = 1;
+		do {
+			boolean foundSeat = false;
+			for (Player player : mPlayers) {
+				if (player.getSeat() == seat) {
+					foundSeat = true;
+					break;
+				}
+			}
+			if (!foundSeat) {
+				return true;
+			}
+			seat++;
+			if (seat > getPlayerCount()) {
+				return false;
+			}
+		} while (seat < 100);
+		return true;
+	}
+
+	// MISC
+
+	/**
+	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
+	 */
+	public boolean hasBeenSynced() {
+		return Play.hasBeenSynced(PlayId);
+	}
+
+	public static boolean hasBeenSynced(int playId) {
+		return (playId > 0 && playId < UNSYNCED_PLAY_ID);
+	}
+
+	/**
+	 * Determines if this play appears to have started.
+	 * 
+	 * @return true, if it's not ended and the start time has been set.
+	 */
+	public boolean hasStarted() {
+		if (!hasEnded() && StartTime > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Determines if this play appears to have ended.
+	 * 
+	 * @return true, if the length has been entered or at least one of the players has won.
+	 */
+	public boolean hasEnded() {
+		if (Length > 0) {
+			return true;
+		}
+		if (mPlayers != null && mPlayers.size() > 0) {
+			for (Player player : mPlayers) {
+				if (player.Win) {
+					return true;
+				}
 			}
 		}
-		return null;
+		return false;
+	}
+
+	public void start() {
+		Length = 0;
+		StartTime = System.currentTimeMillis();
+	}
+
+	public void end() {
+		if (StartTime > 0) {
+			Length = DateTimeUtils.howManyMinutesOld(StartTime);
+			StartTime = 0;
+		}
 	}
 
 	@Override
@@ -547,5 +426,32 @@ public class Play {
 		long t = Double.doubleToLongBits(StartTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;
+	}
+
+	public String toShortDescription(Context context) {
+		Resources r = context.getResources();
+		StringBuilder sb = new StringBuilder();
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
+		return sb.toString();
+	}
+
+	public String toLongDescription(Context context) {
+		Resources r = context.getResources();
+		StringBuilder sb = new StringBuilder();
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
+		if (Quantity > 1) {
+			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.times));
+		}
+		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
+		if (!TextUtils.isEmpty(Location)) {
+			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(Location);
+		}
+		if (mPlayers.size() > 0) {
+			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(mPlayers.size()).append(" ")
+				.append(r.getString(R.string.players));
+		}
+		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
+		return sb.toString();
 	}
 }

@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
@@ -40,9 +41,6 @@ import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
-import com.boardgamegeek.data.CollectionNameSortData;
-import com.boardgamegeek.data.CollectionSortData;
-import com.boardgamegeek.data.CollectionSortDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
@@ -52,7 +50,8 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
-import com.boardgamegeek.database.ResolverUtils;
+import com.boardgamegeek.data.sort.CollectionSortDataFactory;
+import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -73,6 +72,7 @@ import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -92,7 +92,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
-	private CollectionSortData mSort;
+	private SortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 
 	private View mProgressView;
@@ -201,11 +201,11 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (savedInstanceState == null) {
-			mSort = new CollectionNameSortData(getActivity());
-		} else {
-			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(STATE_SORT_TYPE), getActivity());
+		int sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
+		mSort = CollectionSortDataFactory.create(sortType, getActivity());
 		requery(); // This should be handled by the activity (I think)
 
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
@@ -290,19 +290,30 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			menu.findItem(R.id.menu_collection_sort).setVisible(true);
 			menu.findItem(R.id.menu_collection_filter).setVisible(true);
 
-			boolean hasViews = ResolverUtils.getCount(getActivity().getContentResolver(), CollectionViews.CONTENT_URI) > 0;
-			menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+			if (mShortcut) {
+				menu.findItem(R.id.menu_collection_random_game).setVisible(false);
+				menu.findItem(R.id.menu_collection_view_save).setVisible(false);
+				menu.findItem(R.id.menu_collection_view_delete).setVisible(false);
+			} else {
+				menu.findItem(R.id.menu_collection_random_game).setVisible(true);
+				menu.findItem(R.id.menu_collection_view_save).setVisible(true);
+				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
-			menu.findItem(R.id.menu_collection_view_save).setEnabled(
-				(mFilters != null && mFilters.size() > 0)
-					|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
+				menu.findItem(R.id.menu_collection_random_game).setEnabled(
+					mAdapter == null ? false : mAdapter.getCount() > 0);
 
-			final MenuItem item = menu.findItem(R.id.menu_collection_random_game);
-			item.setVisible(!mShortcut);
-			item.setEnabled(mAdapter == null ? false : mAdapter.getCount() > 0);
+				menu.findItem(R.id.menu_collection_view_save).setEnabled(
+					(mFilters != null && mFilters.size() > 0)
+						|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
 
-			menu.findItem(R.id.menu_collection_view_save).setVisible(!mShortcut);
-			menu.findItem(R.id.menu_collection_view_delete).setVisible(!mShortcut);
+				boolean hasViews = false;
+				Activity activity = getActivity();
+				if (activity != null) {
+					hasViews = ResolverUtils.getCount(activity.getContentResolver(), CollectionViews.CONTENT_URI) > 0;
+				}
+				menu.findItem(R.id.menu_collection_view_delete).setEnabled(hasViews);
+
+			}
 		}
 		super.onPrepareOptionsMenu(menu);
 	}
@@ -348,8 +359,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC,
-				CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC, CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
 				return true;
 		}
 
@@ -485,8 +495,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		requery();
 	}
 
-	@Override
-	public void setSort(int sortType) {
+	private void setSort(int sortType) {
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}
@@ -579,8 +588,14 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				new CollectionStatusFilter().createDialog(getActivity(), this,
-					(CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS));
+				CollectionStatusFilterData filter = null;
+				try {
+					filter = (CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
+				} catch (ClassCastException e) {
+					// Getting reports of this, but don't know why
+					LOGI(TAG, "ClassCastException when attempting to display the CollectionStatusFilter dialog.");
+				}
+				new CollectionStatusFilter().createDialog(getActivity(), this, filter);
 				return true;
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:

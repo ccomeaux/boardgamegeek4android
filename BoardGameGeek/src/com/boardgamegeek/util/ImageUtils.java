@@ -19,7 +19,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract;
 
 public class ImageUtils {

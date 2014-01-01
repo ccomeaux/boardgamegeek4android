@@ -56,6 +56,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
+	private static final int CHILD_LIMIT_COUNT = 10;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
 	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
@@ -390,32 +391,34 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(Games.getGameId(mGameUri)),
-					DesignerQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedDesignersUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(Games.getGameId(mGameUri)),
-					ArtistQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedArtistsUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(Games.getGameId(mGameUri)),
-					PublisherQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedPublishersUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(Games.getGameId(mGameUri)),
-					CategoryQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedCategoriesUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(Games.getGameId(mGameUri)),
-					MechanicQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedMechanicsUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
-					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?",
+					new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
-					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
+					CHILD_LIMIT_COUNT), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" },
+					null);
 				break;
 			case RankQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),

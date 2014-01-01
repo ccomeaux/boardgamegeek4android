@@ -1,9 +1,12 @@
 package com.boardgamegeek.auth;
 
+import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGV;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
+import java.io.IOException;
 
 import org.apache.http.client.CookieStore;
 
@@ -11,13 +14,19 @@ import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
 import android.accounts.NetworkErrorException;
+import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
+import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
 import com.boardgamegeek.util.HttpUtils;
 
@@ -189,6 +198,29 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		Account account = getAccount(accountManager);
 		String data = accountManager.getUserData(account, "PASSWORD_EXPIRY");
 		return data != null;
+	}
+
+	public static void signOut(final Context context) {
+		AccountManager am = AccountManager.get(context);
+		final Account account = Authenticator.getAccount(am);
+		am.removeAccount(account, new AccountManagerCallback<Boolean>() {
+			@Override
+			public void run(AccountManagerFuture<Boolean> future) {
+				if (future.isDone()) {
+					try {
+						if (future.getResult()) {
+							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
+						}
+					} catch (OperationCanceledException e) {
+						LOGE(TAG, "removeAccount", e);
+					} catch (IOException e) {
+						LOGE(TAG, "removeAccount", e);
+					} catch (AuthenticatorException e) {
+						LOGE(TAG, "removeAccount", e);
+					}
+				}
+			}
+		}, null);
 	}
 
 	// StringBuilder sb = new StringBuilder();

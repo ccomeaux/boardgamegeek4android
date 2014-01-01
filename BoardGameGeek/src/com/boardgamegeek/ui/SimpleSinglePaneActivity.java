@@ -19,7 +19,9 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		if (savedInstanceState == null) {
 			mFragment = onCreatePane(getIntent());
 			if (mFragment != null) {
-				mFragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+				Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
+				arguments = onBeforeArgumentsSet(arguments);
+				mFragment.setArguments(arguments);
 				getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
 					.commit();
 			}
@@ -41,5 +43,9 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 
 	public Fragment getFragment() {
 		return mFragment;
+	}
+
+	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
+		return arguments;
 	}
 }

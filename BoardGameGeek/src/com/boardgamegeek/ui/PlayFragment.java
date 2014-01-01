@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,43 +20,46 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.builder.PlayBuilder;
+import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class PlayFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private Uri mPlayUri;
 	private Play mPlay = new Play();
+	private String mThumbnailUrl;
 
-	private View mProgress;
-	private TextView mMessage;
-	private View mScroll;
 	private TextView mUpdated;
 	private TextView mPlayId;
+	private ImageView mThumbnailView;
 	private TextView mGameName;
 	private TextView mDate;
 	private View mQuantityRoot;
@@ -73,11 +78,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	private ListView mPlayers;
 	private TextView mSavedTimeStamp;
 	private TextView mUnsyncedMessage;
-	private View mViewToLoad;
-	private View mViewToHide;
+	private boolean mPlaysLoaded;
 	private boolean mPlayersLoaded;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
+	private ImageFetcher mImageFetcher;
 
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
@@ -122,29 +127,44 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mPlay = new Play(Plays.getPlayId(mPlayUri),
 			intent.getIntExtra(PlayActivity.KEY_GAME_ID, BggContract.INVALID_ID),
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
+
+		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+
+		mImageFetcher = UIUtils.getImageFetcher(getActivity());
+		mImageFetcher.setImageFadeIn(false);
+		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
+		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, null);
+		ViewGroup rootView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
+		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		rootView.setPadding(padding, padding, padding, padding);
 
-		mProgress = rootView.findViewById(R.id.progress);
-		mMessage = (TextView) rootView.findViewById(R.id.message);
-		mScroll = rootView.findViewById(R.id.play_scroll);
+		mPlayers = (ListView) rootView.findViewById(android.R.id.list);
+		mPlayers.setHeaderDividersEnabled(false);
+		mPlayers.setFooterDividersEnabled(false);
 
-		mGameName = (TextView) rootView.findViewById(R.id.game_name);
+		View header = View.inflate(getActivity(), R.layout.header_play, null);
+		mPlayers.addHeaderView(header);
 
-		mDate = (TextView) rootView.findViewById(R.id.play_date);
+		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
+		mPlayers.addFooterView(footer);
 
-		mQuantityRoot = rootView.findViewById(R.id.quantity_root);
-		mQuantity = (TextView) rootView.findViewById(R.id.play_quantity);
+		mThumbnailView = (ImageView) rootView.findViewById(R.id.game_info_thumbnail);
+		mGameName = (TextView) header.findViewById(R.id.game_name);
+		mDate = (TextView) header.findViewById(R.id.play_date);
 
-		mLengthRoot = rootView.findViewById(R.id.length_root);
-		mLength = (TextView) rootView.findViewById(R.id.play_length);
+		mQuantityRoot = header.findViewById(R.id.quantity_root);
+		mQuantity = (TextView) header.findViewById(R.id.play_quantity);
 
-		mTimerRoot = rootView.findViewById(R.id.timer_root);
-		mTimer = (Chronometer) rootView.findViewById(R.id.timer);
-		Button b = (Button) rootView.findViewById(R.id.timer_end);
+		mLengthRoot = header.findViewById(R.id.length_root);
+		mLength = (TextView) header.findViewById(R.id.play_length);
+
+		mTimerRoot = header.findViewById(R.id.timer_root);
+		mTimer = (Chronometer) header.findViewById(R.id.timer);
+		Button b = (Button) header.findViewById(R.id.timer_end);
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -152,28 +172,26 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			}
 		});
 
-		mLocationRoot = rootView.findViewById(R.id.location_root);
-		mLocation = (TextView) rootView.findViewById(R.id.play_location);
+		mLocationRoot = header.findViewById(R.id.location_root);
+		mLocation = (TextView) header.findViewById(R.id.play_location);
 
-		mIncomplete = rootView.findViewById(R.id.play_incomplete);
-		mNoWinStats = rootView.findViewById(R.id.play_no_win_stats);
+		mIncomplete = header.findViewById(R.id.play_incomplete);
+		mNoWinStats = header.findViewById(R.id.play_no_win_stats);
 
-		mCommentsLabel = rootView.findViewById(R.id.play_comments_label);
-		mComments = (TextView) rootView.findViewById(R.id.play_comments);
+		mCommentsLabel = header.findViewById(R.id.play_comments_label);
+		mComments = (TextView) header.findViewById(R.id.play_comments);
 
-		mPlayersLabel = rootView.findViewById(R.id.play_players_label);
-		mPlayers = (ListView) rootView.findViewById(R.id.play_player_list);
+		mPlayersLabel = header.findViewById(R.id.play_players_label);
 
-		mUpdated = (TextView) rootView.findViewById(R.id.updated);
-		mPlayId = (TextView) rootView.findViewById(R.id.play_id);
-		mSavedTimeStamp = (TextView) rootView.findViewById(R.id.play_saved);
-		mUnsyncedMessage = (TextView) rootView.findViewById(R.id.play_unsynced_message);
+		mUpdated = (TextView) footer.findViewById(R.id.updated);
+		mPlayId = (TextView) footer.findViewById(R.id.play_id);
+		mSavedTimeStamp = (TextView) footer.findViewById(R.id.play_saved);
+		mUnsyncedMessage = (TextView) footer.findViewById(R.id.play_unsynced_message);
 
 		mAdapter = new PlayerAdapter();
 		mPlayers.setAdapter(mAdapter);
 
-		mViewToLoad = null;
-		mViewToHide = null;
+		mPlaysLoaded = true;
 		mPlayersLoaded = false;
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
@@ -193,6 +211,18 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onPause() {
+		super.onPause();
+		mImageFetcher.flushCache();
+	}
+
+	@Override
+	public void onDestroy() {
+		mImageFetcher.closeCache();
+		super.onDestroy();
+	}
+
+	@Override
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
@@ -206,7 +236,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		menu.findItem(R.id.menu_refresh).setEnabled(mPlay.hasBeenSynced());
+		MenuItem refreshMenuItem = menu.findItem(R.id.menu_refresh);
+		refreshMenuItem.setEnabled(mPlay.hasBeenSynced());
+		if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+			refreshMenuItem.setTitle(R.string.menu_discard_changes);
+		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
@@ -307,12 +341,8 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 				break;
 		}
 
-		if (mViewToLoad != null && mPlayersLoaded) {
-			if (mViewToHide != null) {
-				mViewToHide.setVisibility(View.GONE);
-			}
-			AnimationUtils.fadeIn(getActivity(), mViewToLoad, true);
-			AnimationUtils.fadeOut(getActivity(), mProgress, true);
+		if (mPlaysLoaded && mPlayersLoaded) {
+			setListShown(true);
 		}
 	}
 
@@ -328,13 +358,28 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private void onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			mMessage.setText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
-			mViewToLoad = mMessage;
-			mViewToHide = mScroll;
+			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), Plays.getPlayId(mPlayUri));
+			if (newPlayId != BggContract.INVALID_ID) {
+				setNewPlayId(newPlayId);
+				return;
+			}
+			setEmptyText(String.format(getResources().getString(R.string.empty_play), Plays.getPlayId(mPlayUri)));
+			mPlaysLoaded = true;
 			return;
 		}
 
-		mPlay.fromCursor(cursor);
+		mPlaysLoaded = true;
+
+		if (TextUtils.isEmpty(mThumbnailUrl)) {
+			mThumbnailView.setVisibility(View.GONE);
+		} else {
+			mThumbnailView.setVisibility(View.VISIBLE);
+			mImageFetcher.loadThumnailImage(mThumbnailUrl, Games.buildThumbnailUri(mPlay.GameId), mThumbnailView);
+		}
+
+		List<Player> players = mPlay.getPlayers();
+		mPlay = PlayBuilder.fromCursor(cursor);
+		mPlay.setPlayers(players);
 
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(getActivity(), mPlay);
@@ -349,15 +394,19 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
 		mQuantityRoot.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
 
-		mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
-		mLengthRoot.setVisibility(mPlay.Length > 0 ? View.VISIBLE : View.GONE);
-
-		if (mPlay.hasStarted()) {
+		if (mPlay.Length > 0) {
+			mLengthRoot.setVisibility(View.VISIBLE);
+			mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
+			mLength.setVisibility(View.VISIBLE);
+			mTimerRoot.setVisibility(View.GONE);
+			mTimer.stop();
+		} else if (mPlay.hasStarted()) {
+			mLengthRoot.setVisibility(View.VISIBLE);
+			mLength.setVisibility(View.GONE);
 			mTimerRoot.setVisibility(View.VISIBLE);
 			UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
 		} else {
-			mTimerRoot.setVisibility(View.GONE);
-			mTimer.stop();
+			mLengthRoot.setVisibility(View.GONE);
 		}
 
 		mLocation.setText(mPlay.Location);
@@ -384,7 +433,11 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 			mSavedTimeStamp.setText(getResources().getString(R.string.saved) + " "
 				+ DateUtils.getRelativeTimeSpanString(mPlay.Saved));
 			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-				mUnsyncedMessage.setText(R.string.sync_in_process);
+				if (mPlay.hasBeenSynced()) {
+					mUnsyncedMessage.setText(R.string.sync_editing);
+				} else {
+					mUnsyncedMessage.setText(R.string.sync_draft);
+				}
 			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 				mUnsyncedMessage.setText(R.string.sync_pending_update);
 			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
@@ -397,9 +450,6 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 		getActivity().supportInvalidateOptionsMenu();
 
-		mViewToLoad = mScroll;
-		mViewToHide = mMessage;
-
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
@@ -407,11 +457,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 	}
 
 	private void onPlayerQueryComplete(Cursor cursor) {
-		mPlay.clearPlayers();
-		while (cursor.moveToNext()) {
-			Player player = new Player(cursor);
-			mPlay.addPlayer(player);
-		}
+		mPlay.setPlayers(cursor);
 		mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 		mAdapter.notifyDataSetChanged();
 		mPlayersLoaded = true;
@@ -429,23 +475,13 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 
 	private class PlayerAdapter extends BaseAdapter {
 		@Override
-		public boolean areAllItemsEnabled() {
-			return false;
-		}
-
-		@Override
 		public boolean isEnabled(int position) {
 			return false;
 		}
 
 		@Override
-		public boolean hasStableIds() {
-			return false;
-		}
-
-		@Override
 		public int getCount() {
-			return mPlay.getPlayers().size();
+			return mPlay.getPlayerCount();
 		}
 
 		@Override
@@ -461,8 +497,7 @@ public class PlayFragment extends SherlockFragment implements LoaderManager.Load
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			PlayerRow row = new PlayerRow(getActivity());
-			row.hideButtons();
-			row.setPlayer(mPlay.getPlayers().get(position));
+			row.setPlayer((Player) getItem(position));
 			return row;
 		}
 	}

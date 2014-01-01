@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.boardgamegeek.database.ResolverUtils;
+import com.boardgamegeek.util.ResolverUtils;
 
 public abstract class IndirectFileProvider extends BaseFileProvider {
 	protected abstract Uri getFileUri(Uri uri);

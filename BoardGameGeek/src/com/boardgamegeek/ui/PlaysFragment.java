@@ -3,13 +3,12 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +16,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -28,11 +28,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.data.sort.PlaysSortDataFactory;
+import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -46,6 +49,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -56,11 +60,13 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	private static final int MODE_BUDDY = 2;
+	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
 	private String mBuddyName;
 	private int mFilter;
+	private SortData mSort;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
@@ -69,19 +75,24 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private MenuItem mEditMenuItem;
 
 	public interface Callbacks {
-		public boolean onPlaySelected(int playId, int gameId, String gameName);
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl);
 
 		public void onPlayCountChanged(int count);
+
+		public void onSortChanged(String sortName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onPlaySelected(int playId, int gameId, String gameName) {
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
 			return true;
 		}
 
 		@Override
 		public void onPlayCountChanged(int count) {
+		}
+
+		public void onSortChanged(String sortName) {
 		}
 	};
 
@@ -96,6 +107,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		int sortType = PlaysSortDataFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
+		}
+		mSort = PlaysSortDataFactory.create(sortType, getActivity());
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
@@ -114,10 +131,16 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			}
 		}
 		setEmptyText(getString(getEmptyStringResoure()));
-		getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
-		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+		requery();
 
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+	}
+
+	private void requery() {
+		if (mMode == MODE_ALL) {
+			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		}
+		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	@Override
@@ -136,29 +159,103 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putInt(STATE_SORT_TYPE, mSort == null ? PlaysSortDataFactory.TYPE_UNKNOWN : mSort.getType());
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (cursor != null) {
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 			int gameId = cursor.getInt(PlaysQuery.GAME_ID);
 			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
-			if (mCallbacks.onPlaySelected(playId, gameId, gameName)) {
+			String thumbnailUrl = cursor.getString(PlaysQuery.THUMBNAIL_URL);
+			if (mCallbacks.onPlaySelected(playId, gameId, gameName, thumbnailUrl)) {
 				setSelectedPlayId(playId);
 			}
 		}
 	}
 
 	@Override
+	public void onPrepareOptionsMenu(com.actionbarsherlock.view.Menu menu) {
+		DrawerActivity activity = (DrawerActivity) getActivity();
+		boolean isDrawerOpen = activity.isDrawerOpen();
+		showMenuItemsSafely(menu, R.id.menu_sort, !isDrawerOpen);
+		showMenuItemsSafely(menu, R.id.menu_refresh, !isDrawerOpen);
+		showMenuItemsSafely(menu, R.id.menu_refresh_on, !isDrawerOpen);
+		super.onPrepareOptionsMenu(menu);
+	}
+
+	private void showMenuItemsSafely(com.actionbarsherlock.view.Menu menu, int resourceId, boolean visible) {
+		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
+		if (menuItem != null) {
+			menuItem.setVisible(visible);
+		}
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-		if (item.getItemId() == R.id.menu_refresh) {
-			if (mAutoSyncTriggered) {
-				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-			} else {
-				triggerRefresh();
-			}
-			return true;
+		switch (item.getItemId()) {
+			case R.id.menu_sort_date:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_DATE);
+				return true;
+			case R.id.menu_sort_location:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_LOCATION);
+				return true;
+			case R.id.menu_sort_game:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_GAME);
+				return true;
+			case R.id.menu_sort_length:
+				setSort(PlaysSortDataFactory.TYPE_PLAY_LENGTH);
+				return true;
+			case R.id.menu_refresh:
+				if (mAutoSyncTriggered) {
+					Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
+				} else {
+					triggerRefresh();
+				}
+				return true;
+			case R.id.menu_refresh_on:
+				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void setSort(int sortType) {
+		if (sortType == mSort.getType()) {
+			return;
+		}
+		if (sortType == PlaysSortDataFactory.TYPE_UNKNOWN) {
+			sortType = PlaysSortDataFactory.TYPE_DEFAULT;
+		}
+		mSort = PlaysSortDataFactory.create(sortType, getActivity());
+		resetScrollState();
+		requery();
+	}
+
+	public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+		// HACK prevent onDateSet from firing twice
+		private boolean alreadyCalled = false;
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			final Calendar calendar = Calendar.getInstance();
+			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DAY_OF_MONTH));
+		}
+
+		public void onDateSet(DatePicker view, int year, int month, int day) {
+			if (alreadyCalled) {
+				return;
+			}
+			alreadyCalled = true;
+
+			String date = DateTimeUtils.formatDateForApi(year, month, day);
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date, null);
+		}
 	}
 
 	private void setSelectedPlayId(int playId) {
@@ -183,6 +280,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 						return R.string.empty_plays_update;
 					case Play.SYNC_STATUS_PENDING_DELETE:
 						return R.string.empty_plays_delete;
+					case Play.SYNC_STATUS_PENDING:
+						return R.string.empty_plays_pending;
 					case Play.SYNC_STATUS_ALL:
 					default:
 						return R.string.empty_plays;
@@ -194,15 +293,24 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, PlaysQuery.PROJECTION, selection(), selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), mUri, mSort == null ? PlaysQuery.PROJECTION
+				: StringUtils.unionArrays(PlaysQuery.PROJECTION, mSort.getColumns()), selection(), selectionArgs(),
+				mSort == null ? null : mSort.getOrderByClause());
 			if (loader != null) {
 				loader.setUpdateThrottle(2000);
 			}
 		} else if (id == GameQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
 				null);
+			if (loader != null) {
+				loader.setUpdateThrottle(0);
+			}
 		} else if (id == SumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, SumQuery.PROJECTION, selection(), selectionArgs(), null);
+			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(),
+				selectionArgs(), null);
+			if (loader != null) {
+				loader.setUpdateThrottle(0);
+			}
 		}
 		return loader;
 	}
@@ -212,6 +320,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			case MODE_ALL:
 				if (mFilter == Play.SYNC_STATUS_ALL) {
 					return null;
+				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+					return Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?";
 				} else {
 					return Plays.SYNC_STATUS + "=?";
 				}
@@ -228,6 +338,9 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			case MODE_ALL:
 				if (mFilter == Play.SYNC_STATUS_ALL) {
 					return null;
+				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
+						String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) };
 				} else {
 					return new String[] { String.valueOf(mFilter) };
 				}
@@ -262,6 +375,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				setListShownNoAnimation(true);
 			}
 			restoreScrollState();
+			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;
@@ -305,8 +419,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		if (mMode == MODE_ALL) {
 			mFilter = filter;
 			setEmptyText(getString(getEmptyStringResoure()));
-			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
-			getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
+			requery();
 		}
 	}
 
@@ -315,8 +428,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		private static final int STATE_SECTIONED_CELL = 1;
 		private static final int STATE_REGULAR_CELL = 2;
 
-		SimpleDateFormat mFormatter = new SimpleDateFormat("MMMM", Locale.getDefault());
-		GregorianCalendar mCalendar = new GregorianCalendar();
 		private LayoutInflater mInflater;
 		private int mRowResId = R.layout.row_play;
 		private int[] mCellStates;
@@ -330,9 +441,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		public PlayAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
-			// account for leap years
-			mCalendar.set(Calendar.YEAR, 2012);
-			mCalendar.set(Calendar.DAY_OF_MONTH, 1);
 
 			mTimes = context.getString(R.string.times);
 			mAt = context.getString(R.string.at);
@@ -363,7 +471,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 
 			boolean needSeparator = false;
 			final int position = cursor.getPosition();
-			mCurrentSection = getSection(cursor);
+			mCurrentSection = mSort.getSectionText(cursor);
 			switch (mCellStates[position]) {
 				case STATE_SECTIONED_CELL:
 					needSeparator = true;
@@ -377,7 +485,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 						needSeparator = true;
 					} else {
 						cursor.moveToPosition(position - 1);
-						mPreviousSection = getSection(cursor);
+						mPreviousSection = mSort.getSectionText(cursor);
 						if (!mPreviousSection.equals(mCurrentSection)) {
 							needSeparator = true;
 						}
@@ -388,22 +496,21 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			}
 
 			if (needSeparator) {
-				int month = Integer.parseInt(mCurrentSection.substring(5, 7));
-				mCalendar.set(Calendar.MONTH, month - 1);
-				String date = mFormatter.format(mCalendar.getTime()) + " " + mCurrentSection.substring(0, 4);
-				holder.separator.setText(date);
+				holder.separator.setText(mCurrentSection);
 				holder.separator.setVisibility(View.VISIBLE);
 			} else {
 				holder.separator.setVisibility(View.GONE);
 			}
 
-			UIUtils.setActivatedCompat(view, cursor.getInt(PlaysQuery.PLAY_ID) == mSelectedPlayId);
+			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
+			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
 
 			holder.date.setText(CursorUtils.getFormettedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
 			String location = cursor.getString(PlaysQuery.LOCATION);
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
 			int length = cursor.getInt(PlaysQuery.LENGTH);
+			int playerCount = cursor.getInt(PlaysQuery.PLAYER_COUNT);
 
 			String info = "";
 			if (quantity > 1) {
@@ -415,7 +522,11 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			if (length > 0) {
 				int hours = length / 60;
 				int minutes = length % 60;
-				info += mFor + " " + String.format("%d:%02d", hours, minutes);
+				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
+			}
+			if (playerCount > 0 && mMode != MODE_BUDDY) {
+				// TODO make this work for budddies
+				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
 			holder.location.setText(info.trim());
 
@@ -423,7 +534,11 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			if (status != Play.SYNC_STATUS_SYNCED) {
 				int messageId = 0;
 				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
-					messageId = R.string.sync_in_process;
+					if (Play.hasBeenSynced(playId)) {
+						messageId = R.string.sync_editing;
+					} else {
+						messageId = R.string.sync_draft;
+					}
 				} else if (status == Play.SYNC_STATUS_PENDING_UPDATE) {
 					messageId = R.string.sync_pending_update;
 				} else if (status == Play.SYNC_STATUS_PENDING_DELETE) {
@@ -434,14 +549,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			} else {
 				holder.status.setVisibility(View.GONE);
 			}
-		}
-
-		private String getSection(Cursor cursor) {
-			String date = cursor.getString(PlaysQuery.DATE);
-			if (TextUtils.isEmpty(date)) {
-				return "1969-01";
-			}
-			return date.substring(0, 7);
 		}
 	}
 
@@ -464,7 +571,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")",
+			Games.THUMBNAIL_URL };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
@@ -473,6 +581,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		int QUANTITY = 6;
 		int LENGTH = 7;
 		int SYNC_STATUS = 8;
+		int PLAYER_COUNT = 9;
+		int THUMBNAIL_URL = 10;
 	}
 
 	private interface GameQuery {

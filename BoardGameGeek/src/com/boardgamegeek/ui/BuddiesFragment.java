@@ -168,7 +168,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		private static final int STATE_UNKNOWN = 0;
 		private static final int STATE_SECTIONED_CELL = 1;
 		private static final int STATE_REGULAR_CELL = 2;
-		String alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		private String mAlphabet = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		private LayoutInflater mInflater;
 		private AlphabetIndexer mAlphabetIndexer;
@@ -182,7 +182,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			mInflater = getActivity().getLayoutInflater();
 			mCollator = java.text.Collator.getInstance();
 			mCollator.setStrength(java.text.Collator.PRIMARY);
-			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, alphabet);
+			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, mAlphabet);
 		}
 
 		@Override
@@ -252,15 +252,16 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		}
 
 		private String getSection(Cursor cursor) {
+			String missingLetter = "-";
 			String name = cursor.getString(BuddiesQuery.LASTNAME);
-			String targetLetter = TextUtils.isEmpty(name) ? " " : name.substring(0, 1);
-			for (int i = 0; i < alphabet.length(); i++) {
-				String letter = Character.toString(alphabet.charAt(i));
+			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1);
+			for (int i = 0; i < mAlphabet.length(); i++) {
+				String letter = Character.toString(mAlphabet.charAt(i));
 				if (mCollator.compare(targetLetter, letter) == 0) {
 					return letter;
 				}
 			}
-			return " ";
+			return missingLetter;
 		}
 
 		private String buildFullName(String firstName, String lastName, String name) {
@@ -290,7 +291,12 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 
 		@Override
 		public int getSectionForPosition(int position) {
-			return mAlphabetIndexer.getSectionForPosition(position);
+			try {
+				// this throws an exception when the buddies haven't been completely retrieved
+				return mAlphabetIndexer.getSectionForPosition(position);
+			} catch (NullPointerException e) {
+				return 0;
+			}
 		}
 
 		@Override

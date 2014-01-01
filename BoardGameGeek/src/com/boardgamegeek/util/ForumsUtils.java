@@ -10,4 +10,5 @@ public class ForumsUtils {
 	public static final String KEY_USER = "USER";
 	public static final String KEY_DATE = "DATE";
 	public static final String KEY_BODY = "BODY";
+	public static final String KEY_LINK = "LINK";
 }

@@ -81,6 +81,11 @@ public class UIUtils {
 		return arguments;
 	}
 
+	public static Bundle replaceData(Bundle arguments, Uri data) {
+		arguments.putParcelable(KEY_DATA, data);
+		return arguments;
+	}
+
 	/**
 	 * Converts a fragment arguments bundle into an intent.
 	 */

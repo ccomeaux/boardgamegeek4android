@@ -8,6 +8,7 @@
 	<dimen name="padding_extra">16dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
 	<dimen name="poll_key_height">20dp</dimen>
+	<dimen name="player_row_height">48dp</dimen>
 	<dimen name="text_size">14sp</dimen>
 	<dimen name="thumbnail_list_size">48dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
@@ -15,5 +16,6 @@
 	<dimen name="actionbar_text">24sp</dimen>
 	<dimen name="actionbar_text_medium">18sp</dimen>
 	<dimen name="actionbar_text_small">12sp</dimen>
+	<dimen name="icon_width">48dp</dimen>
 
 </resources>
