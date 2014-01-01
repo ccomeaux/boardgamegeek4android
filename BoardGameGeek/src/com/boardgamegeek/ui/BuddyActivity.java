@@ -88,11 +88,11 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	}
 
 	@Override
-	public void onPageScrollStateChanged(int arg0) {
+	public void onPageScrollStateChanged(int state) {
 	}
 
 	@Override
-	public void onPageScrolled(int arg0, float arg1, int arg2) {
+	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 	}
 
 	@Override
