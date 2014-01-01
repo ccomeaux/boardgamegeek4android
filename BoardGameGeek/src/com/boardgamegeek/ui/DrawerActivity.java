@@ -68,12 +68,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		refreshDrawer();
 	}
 
-	@Override
-	protected void onSignoutSuccess() {
-		super.onSignoutSuccess();
-		refreshDrawer();
-	}
-
 	public boolean isDrawerOpen() {
 		return mDrawerLayout != null && mDrawerList != null && mDrawerLayout.isDrawerOpen(mDrawerList);
 	}

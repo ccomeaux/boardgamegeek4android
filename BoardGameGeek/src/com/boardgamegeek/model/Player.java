@@ -58,6 +58,7 @@ public class Player implements Parcelable {
 	}
 
 	public Player(Intent intent) {
+		this();
 		final Bundle bundle = intent.getExtras();
 		if (bundle.getBoolean(KEY_EXISTS)) {
 			Name = getString(bundle, KEY_NAME);

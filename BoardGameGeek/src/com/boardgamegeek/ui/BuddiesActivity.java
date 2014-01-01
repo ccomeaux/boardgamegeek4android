@@ -57,11 +57,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	}
 
 	@Override
-	protected void onSignoutSuccess() {
-		startHomeActivity();
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		mOptionsMenu = menu;
 		mSyncStatusObserver.onStatusChanged(0);

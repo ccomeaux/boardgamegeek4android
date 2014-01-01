@@ -17,10 +17,10 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.FileUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteBuddyUserHandler extends RemoteBggHandler {
@@ -32,6 +32,9 @@ public class RemoteBuddyUserHandler extends RemoteBggHandler {
 	public RemoteBuddyUserHandler(long startTime) {
 		super();
 		mStartTime = startTime;
+		if (mStartTime == 0) {
+			mStartTime = System.currentTimeMillis();
+		}
 	}
 
 	@Override

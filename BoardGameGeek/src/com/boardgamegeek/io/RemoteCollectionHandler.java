@@ -17,11 +17,11 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.boardgamegeek.database.ResolverUtils;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.FileUtils;
+import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class RemoteCollectionHandler extends RemoteBggHandler {

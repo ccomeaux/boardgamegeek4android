@@ -38,14 +38,17 @@
 	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
-	<string name="sync_in_process">Draft</string>
+	<string name="sync_draft">Draft</string>
+	<string name="sync_editing">Editing</string>
 	<string name="date">Date</string>
 	<string name="quantity">Quantity</string>
-	<string name="quantity_hint">1 play</string>
+	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
 	<string name="length_hint">0 minutes</string>
+	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
+	<string name="no_location">No location</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -71,6 +74,7 @@
 	<string name="and">And</string>
 	<string name="add">Add</string>
 	<string name="delete">Delete</string>
+	<string name="add_player">Add Player…</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
 	<string name="user">User</string>
@@ -95,8 +99,8 @@
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
 	<string name="are_you_sure_delete_play">Are you sure you want to delete this play?</string>
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
+	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
-	<string name="are_you_sure_sign_out">Are you sure you want to sign out?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -149,6 +153,7 @@
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
+	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_forums">No forums</string>
 	<string name="empty_forum">No threads in this forum</string>
@@ -166,9 +171,12 @@
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
+	<string name="menu_view">View</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
+	<string name="menu_refresh_on">Refresh on…</string>
+	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
 	<string name="menu_link_bg_prices">Board Game Prices</string>
@@ -192,6 +200,10 @@
 	<string name="menu_collection_sort_played_most">Most Played</string>
 	<string name="menu_collection_sort_played_least">Least Played</string>
 	<string name="menu_collection_sort_published">Year Published</string>
+	<string name="menu_plays_sort_date">Date</string>
+	<string name="menu_plays_sort_location">Location</string>
+	<string name="menu_plays_sort_game">Game</string>
+	<string name="menu_plays_sort_length">Length</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_playtime">Play Time</string>
@@ -213,8 +225,6 @@
 	<string name="menu_collection_random_game">Random game</string>
 	<string name="menu_display_game">Display</string>
 	<string name="menu_comments">Comments</string>
-	<string name="menu_back">Back</string>
-	<string name="menu_forward">Forward</string>
 	<string name="menu_color">Teams/Colors</string>
 	<string name="menu_forums">Forums</string>
 	<string name="menu_create_shortcut">Create shortcut</string>
@@ -227,12 +237,8 @@
 	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="menu_colors_generate">Generate colors</string>
-	<string name="menu_sync">Sync</string>
 	<string name="menu_settings">Settings</string>
-	<string name="menu_about">About</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
-	<string name="menu_sign_out">Sign out</string>
-	<string name="menu_contact_us">Contact us</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
 	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
@@ -251,6 +257,7 @@
 	<string name="msg_play_update_bad_id">Play was already deleted.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
+	<string name="msg_sign_out_success">Sign out successful!</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
@@ -259,7 +266,11 @@
 	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_play_played">Played</string>
+	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
+	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
+	<string name="times_abbr">x</string>
 	<string name="on">on</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
@@ -287,6 +298,7 @@
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_player_order">Player order&#8230;</string>
+	<string name="menu_custom_player_order">Custom</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>
@@ -305,33 +317,14 @@
 	<string name="nickname">Nickname</string>
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
-	<string name="app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">v%s</font>]]></string>
-	<string name="about_body">
-<![CDATA[
-<b>What\'s New?</b><br/>
-- NEW: Show a play timer<br/>
-- NEW: Option to play a game again<br/>
-- MOD: Play count is now more accurate<br/>
-- MOD: Update collection items more completely during a sync<br/>
-- BUG: Fix yet another auth problem<br/>
-- <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">Previous versions</a><br/>
-<br/>
-<b>Designed and developed by</b><br/>
-Dennis Bond (<a href="http://boardgamegeek.com/user/rjnfc">rjnfc</a>), Chris Comeaux (<a href="http://boardgamegeek.com/user/ccomeaux">ccomeaux</a>), Marek Jeszka (<a href="http://boardgamegeek.com/user/Marc6">Marc6</a>), Gareth McSorley (<a href="http://boardgamegeek.com/user/Capoeirista">Capoeirista</a>), Leif Norcott (<a href="http://boardgamegeek.com/user/nibuen">nibuen</a>)<br/>
-<br/>
-Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.<br/>
-<br/>
-Icons by <a href="http://dryicons.com">DryIcons</a> and <a href="http://www.androidicons.com">Android Icons</a>.<br/>
-<br/>
-We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
-]]>
-	</string>
 	<string name="help_title">Help</string>
 	<string name="help_home">If plays aren\'t uploading, please try signing out and back in.\n\nInstalling this app on the SD card will log you out each time your device is restarted.\n\nIf you are still experiencing crashes when veiwing a game, please disable Polls from the Advanced Settings menu. Polls will no longer work, but the crashes should stop. We are working on a better long term solution.</string>
 	<string name="help_boardgame">Be sure to check out the options available from the menu:\n - Log plays\n - Refresh from the \'Geek\n - Share\n - Create a shortcut on the home screen\n - Edit Teams/Colors\n\nButtons on the Info tab show poll information\n\nThe image thumbnail can be clicked to view a larger version</string>
 	<string name="help_collection">Got lots of games? You can filter and sort your collection, save it as a view, and even choose a random game from this list.\n\nYou can also long-click on a game for more options.</string>
 	<string name="help_searchresults">Long-click on a game for more options.</string>
-	<string name="help_logplay">Too many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
+	<string name="help_thread">Missing images? Click the right arrow in an article\'s header to see the entire article.</string>
 	<string name="help_colors">As you log plays, the teams and colors you enter appear here and will be available the next time you log a game. Long press on an entry here to delete it.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
@@ -389,6 +382,10 @@ We use <a href="http://actionbarsherlock.com">ActionBarSherlock</a> under <a hre
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
+	</plurals>
+	<plurals name="player_description">
+		<item quantity="one">with %s player </item>
+		<item quantity="other">with %s players </item>
 	</plurals>
 
 </resources>

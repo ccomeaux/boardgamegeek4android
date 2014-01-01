@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.boardgamegeek.io.RemoteBuddyUserHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.UserUrlBuilder;
+import com.boardgamegeek.util.url.UserUrlBuilder;
 
 public class SyncBuddy extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncBuddy.class);
@@ -21,6 +21,6 @@ public class SyncBuddy extends UpdateTask {
 		RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
 		String url = new UserUrlBuilder(mName).build();
 		safelyExecuteGet(executor, url, handler);
-		LOGI(TAG, "Synched Buddy " + mName);
+		LOGI(TAG, "Synced Buddy " + mName);
 	}
 }

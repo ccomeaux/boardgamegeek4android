@@ -1,13 +1,8 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.client.HttpClient;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,16 +23,14 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumHandler;
+import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<List<ForumThread>> {
-	private static final String TAG = makeLogTag(ForumFragment.class);
 	private static final int FORUM_LOADER_ID = 0;
 
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
@@ -209,23 +202,19 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		public List<ForumThread> loadInBackground() {
 			mIsLoading = true;
 
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteForumHandler handler = new RemoteForumHandler();
-
-			final String url = HttpUtils.constructForumUrl(mForumId, mNextPage);
-			LOGI(TAG, "Loading threads from " + url);
-			executor.safelyExecuteGet(url, handler);
-			if (handler.hasError()) {
-				mErrorMessage = handler.getErrorMessage();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteForumParser parser = new RemoteForumParser(mForumId, mNextPage);
+			executor.safelyExecuteGet(parser);
+			if (parser.hasError()) {
+				mErrorMessage = parser.getErrorMessage();
 				mNextPage = 1;
 				mThreadCount = 0;
 			} else {
 				mErrorMessage = "";
 				mNextPage++;
-				mThreadCount = handler.getCount();
+				mThreadCount = parser.getCount();
 			}
-			return handler.getResults();
+			return parser.getResults();
 		}
 
 		@Override

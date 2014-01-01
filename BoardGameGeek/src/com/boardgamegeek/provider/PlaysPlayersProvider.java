@@ -22,7 +22,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 		} else {
 			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
 				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS);
+				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
 		}
 	}
 

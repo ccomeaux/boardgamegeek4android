@@ -8,9 +8,9 @@ import android.content.Context;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysHandler;
+import com.boardgamegeek.io.RemotePlaysParser;
+import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.PlaysUrlBuilder;
 
 public class SyncGamePlays extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGamePlays.class);
@@ -27,14 +27,18 @@ public class SyncGamePlays extends UpdateTask {
 			return;
 		}
 
-		RemotePlaysHandler handler = new RemotePlaysHandler();
-		String url = new PlaysUrlBuilder(account.name).gameId(mGameId).build();
-		executor.safelyExecuteGet(url, handler);
-		if (!handler.hasError()) {
-			ContentValues values = new ContentValues(1);
-			values.put(Games.UPDATED_PLAYS, System.currentTimeMillis());
-			context.getContentResolver().update(Games.buildGameUri(mGameId), values, null, null);
+		RemotePlaysParser parser = new RemotePlaysParser(account.name).setGameId(mGameId);
+		executor.safelyExecuteGet(parser);
+		if (!parser.hasError()) {
+			PlayPersister.save(context.getContentResolver(), parser.getPlays());
+			updateGameTimestamp(context);
 		}
 		LOGI(TAG, "Synced plays for game " + mGameId);
+	}
+
+	private void updateGameTimestamp(Context context) {
+		ContentValues values = new ContentValues(1);
+		values.put(Games.UPDATED_PLAYS, System.currentTimeMillis());
+		context.getContentResolver().update(Games.buildGameUri(mGameId), values, null, null);
 	}
 }

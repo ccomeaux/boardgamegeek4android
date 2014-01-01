@@ -10,6 +10,6 @@
 		android:id="@+id/menu_refresh"
 		android:icon="?attr/ic_action_refresh"
 		android:showAsAction="ifRoom"
-		android:title="@string/menu_sync"/>
+		android:title="@string/menu_refresh"/>
 
 </menu>

@@ -1,12 +1,7 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.client.HttpClient;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,15 +21,12 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteThreadHandler;
+import com.boardgamegeek.io.RemoteThreadParser;
 import com.boardgamegeek.model.ThreadArticle;
 import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<ThreadArticle>> {
-	private static final String TAG = makeLogTag(ThreadFragment.class);
-
 	private static final int THREAD_LOADER_ID = 103;
 
 	private ThreadAdapter mThreadAdapter;
@@ -131,15 +123,11 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		public List<ThreadArticle> loadInBackground() {
-			HttpClient httpClient = HttpUtils.createHttpClient(getContext(), true);
-			RemoteExecutor executor = new RemoteExecutor(httpClient, getContext());
-			RemoteThreadHandler handler = new RemoteThreadHandler();
-
-			final String url = HttpUtils.constructThreadUrl(mThreadId);
-			LOGI(TAG, "Loading threads from " + url);
-			executor.safelyExecuteGet(url, handler);
-			mErrorMessage = handler.getErrorMessage();
-			return handler.getResults();
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			RemoteThreadParser parser = new RemoteThreadParser(mThreadId);
+			executor.safelyExecuteGet(parser);
+			mErrorMessage = parser.getErrorMessage();
+			return parser.getResults();
 		}
 
 		@Override
@@ -207,6 +195,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				bundle.putString(ForumsUtils.KEY_USER, article.username);
 				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate);
 				bundle.putString(ForumsUtils.KEY_BODY, article.body);
+				bundle.putString(ForumsUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);
 			}
 			return convertView;

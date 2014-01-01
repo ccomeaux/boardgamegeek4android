@@ -35,8 +35,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.database.PlayPersister;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
@@ -46,7 +46,9 @@ import com.boardgamegeek.ui.PlayActivity;
 
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
-	private static final String BOARDGAME_URL_PREFIX = "http://www.boardgamegeek.com/boardgame/";
+	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
+	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
+	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
 
 	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -155,16 +157,21 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void launchPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createPlayIntent(playId, gameId, gameName);
+	public static void launchPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
 	public static Intent createPlayIntent(int playId, int gameId, String gameName) {
+		return createPlayIntent(playId, gameId, gameName, null);
+	}
+
+	public static Intent createPlayIntent(int playId, int gameId, String gameName, String thumbnailUrl) {
 		Uri playUri = Plays.buildPlayUri(playId);
 		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		return intent;
 	}
 
@@ -191,7 +198,12 @@ public class ActivityUtils {
 	}
 
 	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createPlayIntent(playId, gameId, gameName);
+		return createEditPlayIntent(context, playId, gameId, gameName, null);
+	}
+
+	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
+		String thumbnailUrl) {
+		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
 		intent.setAction(Intent.ACTION_EDIT);
 		return intent;
 	}
@@ -232,27 +244,43 @@ public class ActivityUtils {
 		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
 	}
 
-	private static void link(Context context, String link) {
+	public static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
 
+	public static void linkToBgg(Context context, String path) {
+		context.startActivity(new Intent(Intent.ACTION_VIEW, createBggUri(path)));
+	}
+
+	public static Uri createBggUri(String path) {
+		return Uri.withAppendedPath(BGG_URI, path);
+	}
+
 	public static void setActionBarText(Menu menu, int id, String text) {
+		setActionBarText(menu, id, text, null);
+	}
+
+	public static void setActionBarText(Menu menu, int id, String text1, String text2) {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
-			TextView tv = (TextView) item.getActionView().findViewById(android.R.id.text1);
-			if (tv != null) {
-				tv.setText(text);
+			TextView tv1 = (TextView) item.getActionView().findViewById(android.R.id.text1);
+			if (tv1 != null) {
+				tv1.setText(text1);
+			}
+			TextView tv2 = (TextView) item.getActionView().findViewById(android.R.id.text2);
+			if (tv2 != null) {
+				tv2.setText(text2);
 			}
 		}
 	}
 
-	public static void setCustomActionBarText(ActionBar actionBar, int id, String text) {
+	public static void setCustomActionBarText(ActionBar actionBar, String text) {
 		if (actionBar != null) {
 			setCustomTextView(actionBar, android.R.id.text1, text);
 		}
 	}
 
-	public static void setCustomActionBarText(ActionBar actionBar, int id, String text1, String text2) {
+	public static void setCustomActionBarText(ActionBar actionBar, String text1, String text2) {
 		if (actionBar != null) {
 			setCustomTextView(actionBar, android.R.id.text1, text1);
 			setCustomTextView(actionBar, android.R.id.text2, text2);
