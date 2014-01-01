@@ -49,52 +49,74 @@ public class SyncPlays extends SyncTask {
 			mStartTime = System.currentTimeMillis();
 			mAccountManager = AccountManager.get(executor.getContext());
 
-			long newestDate = parseLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
-			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
-
-			boolean success = false;
 			RemotePlaysParser parser = new RemotePlaysParser(account.name);
-			if (newestDate == 0 && oldestDate == Long.MAX_VALUE) {
-				// attempt to get all plays
-				LOGI(TAG, "...syncing all plays");
 
-				if (parseAndSave(parser, syncResult)) {
-					setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, parser.getNewestDate());
-					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, parser.getOldestDate());
-					success = true;
-					// TODO: delete all unupdated
-				}
-			} else {
-				if (newestDate > 0) {
-					LOGI(TAG, "...syncing plays since " + newestDate);
-					parser.setMinDate(newestDate);
-					if (parseAndSave(parser, syncResult)) {
-						setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, parser.getNewestDate());
-						deleteMissingPlays(parser.getNewestDate(), true, syncResult);
-					}
-				}
-
-				if (oldestDate > 0 && oldestDate < Long.MAX_VALUE) {
-					LOGI(TAG, "...syncing plays before " + oldestDate);
-					parser.setMaxDate(oldestDate);
-					if (parseAndSave(parser, syncResult)) {
-						setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, parser.getOldestDate());
-						deleteMissingPlays(parser.getOldestDate(), false, syncResult);
-						success = true;
-					}
-				}
+			long newestDate = parseLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			LOGI(TAG, "...syncing plays since " + formatDate(newestDate));
+			parser.setMinDate(newestDate);
+			if (parseAndSave(parser)) {
+				deleteUnupdatedPlaysSince(parser.getNewestDate());
 			}
 
-			if (success) {
-				setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+			if (oldestDate > 0) {
+				LOGI(TAG, "...syncing plays before " + formatDate(oldestDate));
+				parser.setMaxDate(oldestDate);
+				if (parseAndSave(parser)) {
+					deleteUnupdatedPlaysBefore(parser.getOldestDate());
+					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+				}
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
 	}
 
-	private void setLong(String key, long l) {
-		mAccountManager.setUserData(mAccount, key, String.valueOf(l));
+	/**
+	 * Parses plays specified by the parser, saving them in the content resolver, updating the account time stamps.
+	 * 
+	 * @return <code>true</code>, if completed successfully; <code>false</code> otherwise
+	 */
+	public boolean parseAndSave(RemotePlaysParser parser) throws IOException, XmlPullParserException {
+		boolean morePages = false;
+		do {
+			morePages = mExecutor.executeGet(parser);
+			if (isCancelled()) {
+				return false;
+			}
+			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
+			// mSyncResult.stats.numEntries += handler.getCount();
+			updateTimeStamps(parser);
+			parser.nextPage();
+		} while (morePages);
+		return true;
+	}
+
+	private void deleteUnupdatedPlaysSince(long time) {
+		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
+			+ Play.SYNC_STATUS_SYNCED, new String[] { String.valueOf(mStartTime), formatDate(time) });
+	}
+
+	private void deleteUnupdatedPlaysBefore(long time) {
+		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
+			+ Play.SYNC_STATUS_SYNCED, new String[] { String.valueOf(mStartTime), formatDate(time) });
+	}
+
+	private void deletePlays(String selection, String[] selectionArgs) {
+		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
+		// mSyncResult.stats.numDeletes += count;
+		LOGI(TAG, "Deleted " + count + " unupdated plays");
+	}
+
+	private void updateTimeStamps(RemotePlaysParser parser) {
+		long newestDate = parseLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+		if (parser.getNewestDate() > newestDate) {
+			setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, parser.getNewestDate());
+		}
+		long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+		if (parser.getOldestDate() < oldestDate) {
+			setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, parser.getOldestDate());
+		}
 	}
 
 	private long parseLong(String key, long defaultValue) {
@@ -102,38 +124,19 @@ public class SyncPlays extends SyncTask {
 		try {
 			l = Long.parseLong(mAccountManager.getUserData(mAccount, key));
 		} catch (NumberFormatException e) {
-			// swallow
+			// swallow and return the default value
 		}
 		return l;
 	}
 
-	/**
-	 * 
-	 * @return <code>true</code>, if completed successfully; <code>false</code> otherwise
-	 */
-	public boolean parseAndSave(RemotePlaysParser parser, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
-		while (mExecutor.executeGet(parser)) {
-			if (isCancelled()) {
-				return false;
-			}
-			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
-			// syncResult.stats.numEntries += handler.getCount();
-			parser.nextPage();
-		}
-		return true;
+	private void setLong(String key, long l) {
+		mAccountManager.setUserData(mAccount, key, String.valueOf(l));
 	}
 
-	private void deleteMissingPlays(long time, boolean greaterThan, SyncResult syncResult) {
+	private String formatDate(long time) {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 		String date = df.format(new Date(time));
-
-		String selection = Plays.UPDATED_LIST + "<? AND " + Plays.DATE + (greaterThan ? ">" : "<") + "=? AND "
-			+ Plays.SYNC_STATUS + "=" + Play.SYNC_STATUS_SYNCED;
-		String[] selectionArgs = new String[] { String.valueOf(mStartTime), date };
-		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
-		// syncResult.stats.numDeletes += count;
-		LOGI(TAG, "Deleted " + count + " plays");
+		return date;
 	}
 
 	@Override

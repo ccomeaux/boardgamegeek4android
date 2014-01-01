@@ -31,6 +31,12 @@ public class PlaysUrlBuilder extends UrlBuilder {
 		return this;
 	}
 
+	public PlaysUrlBuilder date(long date) {
+		mMinDate = mDateFormat.format(new Date(date));
+		mMaxDate = mDateFormat.format(new Date(date));
+		return this;
+	}
+
 	public PlaysUrlBuilder minDate(String date) {
 		mMinDate = date;
 		return this;

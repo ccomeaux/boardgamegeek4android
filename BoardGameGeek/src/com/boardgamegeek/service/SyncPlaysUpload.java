@@ -76,7 +76,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private void updatePendingPlays(String username, SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
+			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
@@ -125,7 +125,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private void deletePendingPlays(SyncResult syncResult) {
 		Cursor cursor = null;
 		try {
-			cursor = mContext.getContentResolver().query(Plays.CONTENT_URI, null, Plays.SYNC_STATUS + "=?",
+			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 			LOGI(TAG, String.format("Deleting %s play(s)", cursor.getCount()));
 			while (cursor.moveToNext()) {
