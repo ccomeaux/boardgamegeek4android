@@ -45,8 +45,10 @@
 	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
 	<string name="length_hint">0 minutes</string>
+	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
+	<string name="no_location">No location</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -173,6 +175,7 @@
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
+	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -197,6 +200,10 @@
 	<string name="menu_collection_sort_played_most">Most Played</string>
 	<string name="menu_collection_sort_played_least">Least Played</string>
 	<string name="menu_collection_sort_published">Year Published</string>
+	<string name="menu_plays_sort_date">Date</string>
+	<string name="menu_plays_sort_location">Location</string>
+	<string name="menu_plays_sort_game">Game</string>
+	<string name="menu_plays_sort_length">Length</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_playtime">Play Time</string>
@@ -230,7 +237,6 @@
 	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="menu_colors_generate">Generate colors</string>
-	<string name="menu_sync">Sync</string>
 	<string name="menu_settings">Settings</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="sort_description">by %s</string>
@@ -376,6 +382,10 @@
 	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
+	</plurals>
+	<plurals name="player_description">
+		<item quantity="one">with %s player </item>
+		<item quantity="other">with %s players </item>
 	</plurals>
 
 </resources>
