@@ -90,6 +90,11 @@ public class RemotePlaysParser extends RemoteBggParser {
 		return this;
 	}
 
+	public RemotePlaysParser setDate(long date) {
+		mBuilder.date(date);
+		return this;
+	}
+
 	public RemotePlaysParser setMinDate(long date) {
 		mBuilder.minDate(date);
 		return this;
@@ -145,9 +150,10 @@ public class RemotePlaysParser extends RemoteBggParser {
 					String tag = mParser.getName();
 
 					if (Tags.PLAY.equals(tag)) {
+						date = parseStringAttribute(Tags.DATE);
 						mPlay = new Play();
 						mPlay.PlayId = parseIntegerAttribute(Tags.ID);
-						mPlay.setDate(parseStringAttribute(Tags.DATE));
+						mPlay.setDate(date);
 						mPlay.Quantity = parseIntegerAttribute(Tags.QUANTITY);
 						mPlay.Length = parseIntegerAttribute(Tags.LENGTH);
 						mPlay.Incomplete = parseBooleanAttribute(Tags.INCOMPLETE);

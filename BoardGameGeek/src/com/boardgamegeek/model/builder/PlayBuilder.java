@@ -97,7 +97,7 @@ public class PlayBuilder {
 		boolean copyStartingPosition = !play.arePlayersCustomSorted();
 		for (Player player : play.getPlayers()) {
 			Player p = new Player();
-			p.UserId = player.UserId;
+			p.Username = player.Username;
 			p.Name = player.Name;
 			if (copyStartingPosition) {
 				p.setStartingPosition(player.getStartingPosition());

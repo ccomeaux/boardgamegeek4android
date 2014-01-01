@@ -33,8 +33,12 @@ public abstract class BaseProvider {
 
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
 		String[] selectionArgs, String sortOrder) {
-		return buildExpandedSelection(uri).where(selection, selectionArgs).query(db, projection,
-			getSortOrder(sortOrder));
+		SelectionBuilder builder = buildExpandedSelection(uri).where(selection, selectionArgs);
+		String fragment = uri.getQueryParameter(BggContract.PARAM_LIMIT);
+		if (fragment != null) {
+			builder.limit(fragment);
+		}
+		return builder.query(db, projection, getSortOrder(sortOrder));
 	}
 
 	protected String getSortOrder(String sortOrder) {
