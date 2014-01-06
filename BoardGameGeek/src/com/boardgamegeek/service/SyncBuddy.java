@@ -21,6 +21,6 @@ public class SyncBuddy extends UpdateTask {
 		RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
 		String url = new UserUrlBuilder(mName).build();
 		safelyExecuteGet(executor, url, handler);
-		LOGI(TAG, "Synched Buddy " + mName);
+		LOGI(TAG, "Synced Buddy " + mName);
 	}
 }

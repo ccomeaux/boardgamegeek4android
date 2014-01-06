@@ -78,6 +78,7 @@
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
 <li>When logging a play, players are automatically placed in seating order with the ability to drag and drop</li>
+<li>Ability to refresh plays for a specific day</li>
 <li>When adding a player, keep adding them until the user cancels</li>
 <li>Menu options to share and view forums in a browser</li>
 <li>Improve the settings screen and move some of the standard menu options there</li>

@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
@@ -54,6 +55,9 @@ public class PlayPersister {
 	 * An unexpected error occurred while trying to sync
 	 */
 	public static final int STATUS_ERROR = -1;
+
+	private static ContentResolver mResolver;
+	private static boolean mBatch = true;
 
 	/*
 	 * Delete the play from the content provider.
@@ -115,6 +119,8 @@ public class PlayPersister {
 	 * Save the play. If syncing, the play will not be saved if it is a draft.
 	 */
 	public static int save(ContentResolver resolver, Play play, boolean isSyncing) {
+		mResolver = resolver;
+
 		int status = determineStatus(resolver, play, isSyncing);
 
 		if (status != STATUS_UPDATE && status != STATUS_INSERT) {
@@ -152,8 +158,7 @@ public class PlayPersister {
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
 				values.put(Plays.UPDATED_LIST, play.Updated);
 			}
-
-			batch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
+			insert(batch, Plays.CONTENT_URI, values);
 		}
 
 		updateOrInsertItem(play, itemObjectIds, batch);
@@ -173,7 +178,7 @@ public class PlayPersister {
 	 */
 	private static int getTemporaryId(ContentResolver resolver) {
 		int id = Play.UNSYNCED_PLAY_ID;
-		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_URI, "MAX(plays." + Plays.PLAY_ID + ")");
+		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
 		if (lastId >= id) {
 			id = lastId + 1;
 		}
@@ -290,7 +295,7 @@ public class PlayPersister {
 			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
 		} else {
 			values.put(PlayItems.OBJECT_ID, objectId);
-			batch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
+			insert(batch, play.itemUri(), values);
 		}
 	}
 
@@ -317,7 +322,7 @@ public class PlayPersister {
 					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
-				batch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
+				insert(batch, play.playerUri(), values);
 			}
 		}
 	}
@@ -381,4 +386,13 @@ public class PlayPersister {
 			}
 		}
 	}
+
+	private static void insert(ArrayList<ContentProviderOperation> batch, Uri uri, ContentValues values) {
+		if (mBatch) {
+			batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+		} else {
+			mResolver.insert(uri, values);
+		}
+	}
+
 }
