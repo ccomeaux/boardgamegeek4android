@@ -4,39 +4,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.widget.CursorAdapter;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.GameDetailActivity;
+import com.boardgamegeek.util.ActivityUtils;
 
 public class ExpandableListView extends RelativeLayout {
 
 	private TextView mLabelView;
 	private TextView mSummaryView;
 	private ImageView mToggleView;
-	private ListView mDetailView;
+	private TextView mDetailView;
 	private boolean mClickable;
+	private int mQueryToken;
 	private boolean mExpanded;
 	private String mOneMore;
 	private String mSomeMore;
-	private CursorAdapter mAdapter;
 	private int mNameColumnIndex;
-	private int mIdColumnIndex;
-	private String mPath;
+	private int mCount;
+	private int mGameId;
+	private String mGameName;
+	private String mLabel;
 
 	public ExpandableListView(Context context) {
 		super(context);
@@ -58,7 +57,8 @@ public class ExpandableListView extends RelativeLayout {
 		Parcelable p = super.onSaveInstanceState();
 		SavedState state = new SavedState(p);
 		state.expanded = mExpanded;
-		return p;
+		state.count = mCount;
+		return state;
 	}
 
 	@Override
@@ -72,6 +72,8 @@ public class ExpandableListView extends RelativeLayout {
 		super.onRestoreInstanceState(saved.getSuperState());
 
 		mExpanded = saved.expanded;
+		mCount = saved.count;
+
 		expandOrCollapse();
 	}
 
@@ -80,14 +82,24 @@ public class ExpandableListView extends RelativeLayout {
 		mSomeMore = context.getString(R.string.some_more);
 
 		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		li.inflate(R.layout.widget_expandable_list, this, true);
+		li.inflate(R.layout.widget_expandable_readonly_list, this, true);
 		mLabelView = (TextView) findViewById(R.id.label);
 		mSummaryView = (TextView) findViewById(R.id.summary);
 		mToggleView = (ImageView) findViewById(R.id.toggle);
-		mDetailView = (ListView) findViewById(R.id.detail);
+		mDetailView = (TextView) findViewById(R.id.detail);
 
-		mAdapter = new Adapter(context);
-		mDetailView.setAdapter(mAdapter);
+		if (attrs != null) {
+			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
+			try {
+				mLabel = a.getString(R.styleable.ExpandableListView_label);
+				mClickable = a.getBoolean(R.styleable.ExpandableListView_clickable, true);
+				mQueryToken = a.getInt(R.styleable.ExpandableListView_query_token, BggContract.INVALID_ID);
+			} finally {
+				a.recycle();
+			}
+		}
+
+		mLabelView.setText(mLabel);
 
 		mExpanded = false;
 		expandOrCollapse();
@@ -99,21 +111,27 @@ public class ExpandableListView extends RelativeLayout {
 			}
 		});
 
-		if (attrs != null) {
-			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
-			try {
-				mLabelView.setText(a.getString(R.styleable.ExpandableListView_label));
-				mClickable = a.getBoolean(R.styleable.ExpandableListView_clickable, true);
-			} finally {
-				a.recycle();
-			}
+		if (!mClickable) {
+			mDetailView.setCompoundDrawables(null, null, null, null);
+		} else {
+			mDetailView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(getContext(), GameDetailActivity.class);
+					intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
+					intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
+					getContext().startActivity(intent);
+				}
+			});
 		}
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		updateSummary(mAdapter.getCursor());
+		updateSummary();
 	}
 
 	public void setLabel(CharSequence label) {
@@ -121,55 +139,37 @@ public class ExpandableListView extends RelativeLayout {
 	}
 
 	public void clear() {
-		mAdapter.swapCursor(null);
-		updateData(mAdapter.getCursor());
+		mSummaryView.setText("");
+		mDetailView.setText("");
 	}
 
-	public void bind(Cursor cursor, int nameColumnIndex, int idColumnIndex, String path) {
+	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {
 		mNameColumnIndex = nameColumnIndex;
-		mIdColumnIndex = idColumnIndex;
-		mPath = path;
-		mAdapter.swapCursor(cursor);
+		mGameId = gameId;
+		mGameName = gameName;
 		updateData(cursor);
 	}
 
 	private void updateData(Cursor cursor) {
-		updateSummary(cursor);
-		updateDetail();
+		mCount = cursor.getCount();
+		String names = joinNames(cursor);
+		mDetailView.setText(names);
+		updateSummary();
 	}
 
-	private void updateSummary(Cursor cursor) {
+	private void updateSummary() {
 		CharSequence summary = null;
-		if (cursor != null) {
+		final CharSequence text = mDetailView.getText();
+		if (!"".equals(text)) {
 			TextPaint paint = new TextPaint();
 			paint.setTextSize(mSummaryView.getTextSize());
-			summary = TextUtils.commaEllipsize(joinFirsts(cursor), paint,
-				mSummaryView.getWidth() - mSummaryView.getPaddingLeft() - mSummaryView.getPaddingRight(), mOneMore,
-				mSomeMore);
+			summary = TextUtils.commaEllipsize(text, paint, mSummaryView.getWidth() - mSummaryView.getPaddingLeft()
+				- mSummaryView.getPaddingRight(), mOneMore, mSomeMore);
 			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(mSomeMore, cursor.getCount());
+				summary = String.format(mSomeMore, mCount);
 			}
 		}
 		mSummaryView.setText(summary);
-	}
-
-	private void updateDetail() {
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
-		}
-		requestLayout();
-	}
-
-	private OnClickListener onClick() {
-		return new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Uri uri = (Uri) v.getTag();
-				if (uri != null) {
-					getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
-				}
-			}
-		};
 	}
 
 	private void expandOrCollapse() {
@@ -179,7 +179,7 @@ public class ExpandableListView extends RelativeLayout {
 		requestLayout();
 	}
 
-	private String joinFirsts(Cursor cursor) {
+	private String joinNames(Cursor cursor) {
 		StringBuilder sb = new StringBuilder();
 		if (cursor != null && cursor.moveToFirst()) {
 			boolean firstTime = true;
@@ -197,6 +197,7 @@ public class ExpandableListView extends RelativeLayout {
 
 	private static class SavedState extends BaseSavedState {
 		public boolean expanded;
+		public int count;
 
 		SavedState(Parcelable superState) {
 			super(superState);
@@ -205,6 +206,7 @@ public class ExpandableListView extends RelativeLayout {
 		private SavedState(Parcel in) {
 			super(in);
 			expanded = in.readInt() != 0;
+			count = in.readInt();
 		}
 
 		@Override
@@ -216,6 +218,7 @@ public class ExpandableListView extends RelativeLayout {
 		public void writeToParcel(Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
 			dest.writeInt(expanded ? 1 : 0);
+			dest.writeInt(count);
 		}
 
 		@SuppressWarnings("unused")
@@ -228,51 +231,5 @@ public class ExpandableListView extends RelativeLayout {
 				return new SavedState[size];
 			}
 		};
-	}
-
-	private class Adapter extends CursorAdapter {
-		private LayoutInflater mInflater;
-
-		public Adapter(Context context) {
-			super(context, null, false);
-			mInflater = LayoutInflater.from(context);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_expanded_list, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
-
-			String name = cursor.getString(mNameColumnIndex);
-			int id = cursor.getInt(mIdColumnIndex);
-			Uri uri = (mPath != null ? BggContract.buildBasicUri(mPath, id) : null);
-
-			if (mClickable && uri != null) {
-				holder.button.setClickable(true);
-				holder.button.setOnClickListener(onClick());
-				holder.button.setTag(null);
-			} else {
-				holder.button.setClickable(false);
-				holder.button.setOnClickListener(null);
-				holder.button.setTag(uri);
-			}
-
-			holder.button.setText(name);
-		}
-	}
-
-	static class ViewHolder {
-		Button button;
-
-		public ViewHolder(View view) {
-			button = (Button) view.findViewById(R.id.button);
-		}
 	}
 }

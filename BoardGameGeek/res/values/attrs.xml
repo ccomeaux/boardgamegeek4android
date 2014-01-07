@@ -10,11 +10,9 @@
 	<declare-styleable name="ExpandableListView">
 		<attr name="label" format="string" />
 		<attr name="clickable" format="boolean" />
+		<attr name="query_token" format="integer" />
 	</declare-styleable>
-	<declare-styleable name="ExpandableReadOnlyListView">
-		<attr name="xlabel" format="string" />
-	</declare-styleable>
-		<declare-styleable name="MultiSelectListPreference">
+	<declare-styleable name="MultiSelectListPreference">
 		<attr name="android:entries" />
 		<attr name="android:entryValues" />
 	</declare-styleable>

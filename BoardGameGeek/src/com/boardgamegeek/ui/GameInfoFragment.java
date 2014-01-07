@@ -32,7 +32,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -43,7 +42,6 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.ExpandableListView;
-import com.boardgamegeek.ui.widget.ExpandableReadOnlyListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -87,8 +85,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private ExpandableListView mDesignersView;
 	private ExpandableListView mArtistsView;
 	private ExpandableListView mPublishersView;
-	private ExpandableReadOnlyListView mCategoriesView;
-	private ExpandableReadOnlyListView mMechanicsView;
+	private ExpandableListView mCategoriesView;
+	private ExpandableListView mMechanicsView;
 	private ExpandableListView mExpansionsView;
 	private ExpandableListView mBaseGamesView;
 	private TextView mStatsLabel;
@@ -194,8 +192,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mDesignersView = (ExpandableListView) rootView.findViewById(R.id.game_info_designers);
 		mArtistsView = (ExpandableListView) rootView.findViewById(R.id.game_info_artists);
 		mPublishersView = (ExpandableListView) rootView.findViewById(R.id.game_info_publishers);
-		mCategoriesView = (ExpandableReadOnlyListView) rootView.findViewById(R.id.game_info_categories);
-		mMechanicsView = (ExpandableReadOnlyListView) rootView.findViewById(R.id.game_info_mechanics);
+		mCategoriesView = (ExpandableListView) rootView.findViewById(R.id.game_info_categories);
+		mMechanicsView = (ExpandableListView) rootView.findViewById(R.id.game_info_mechanics);
 		mExpansionsView = (ExpandableListView) rootView.findViewById(R.id.game_info_expansions);
 		mBaseGamesView = (ExpandableListView) rootView.findViewById(R.id.game_info_base_games);
 
@@ -322,13 +320,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
-		lm.restartLoader(DesignerQuery._TOKEN, null, this);
-		lm.restartLoader(ArtistQuery._TOKEN, null, this);
-		lm.restartLoader(PublisherQuery._TOKEN, null, this);
-		lm.restartLoader(CategoryQuery._TOKEN, null, this);
-		lm.restartLoader(MechanicQuery._TOKEN, null, this);
-		lm.restartLoader(ExpansionQuery._TOKEN, null, this);
-		lm.restartLoader(BaseGameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
 
 		return rootView;
@@ -441,18 +432,23 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		switch (loader.getId()) {
 			case GameQuery._TOKEN:
 				onGameQueryComplete(cursor);
+				LoaderManager lm = getLoaderManager();
+				lm.restartLoader(DesignerQuery._TOKEN, null, this);
+				lm.restartLoader(ArtistQuery._TOKEN, null, this);
+				lm.restartLoader(PublisherQuery._TOKEN, null, this);
+				lm.restartLoader(CategoryQuery._TOKEN, null, this);
+				lm.restartLoader(MechanicQuery._TOKEN, null, this);
+				lm.restartLoader(ExpansionQuery._TOKEN, null, this);
+				lm.restartLoader(BaseGameQuery._TOKEN, null, this);
 				break;
 			case DesignerQuery._TOKEN:
-				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME, DesignerQuery.DESIGNER_ID,
-					BggContract.PATH_DESIGNERS);
+				onListQueryComplete(cursor, mDesignersView, DesignerQuery.DESIGNER_NAME);
 				break;
 			case ArtistQuery._TOKEN:
-				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME, ArtistQuery.ARTIST_ID,
-					BggContract.PATH_ARTISTS);
+				onListQueryComplete(cursor, mArtistsView, ArtistQuery.ARTIST_NAME);
 				break;
 			case PublisherQuery._TOKEN:
-				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME,
-					PublisherQuery.PUBLISHER_ID, BggContract.PATH_PUBLISHERS);
+				onListQueryComplete(cursor, mPublishersView, PublisherQuery.PUBLISHER_NAME);
 				break;
 			case CategoryQuery._TOKEN:
 				onListQueryComplete(cursor, mCategoriesView, CategoryQuery.CATEGORY_NAME);
@@ -461,12 +457,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 				onListQueryComplete(cursor, mMechanicsView, MechanicQuery.MECHANIC_NAME);
 				break;
 			case ExpansionQuery._TOKEN:
-				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME,
-					ExpansionQuery.EXPANSION_ID, BggContract.PATH_GAMES);
+				onListQueryComplete(cursor, mExpansionsView, ExpansionQuery.EXPANSION_NAME);
 				break;
 			case BaseGameQuery._TOKEN:
-				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME, BaseGameQuery.EXPANSION_ID,
-					BggContract.PATH_GAMES);
+				onListQueryComplete(cursor, mBaseGamesView, BaseGameQuery.EXPANSION_NAME);
 				break;
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
@@ -544,24 +538,13 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mMightNeedRefreshing = false;
 	}
 
-	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex, int idColumnIndex,
-		String path) {
+	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 			view.clear();
 		} else {
 			view.setVisibility(View.VISIBLE);
-			view.bind(cursor, nameColumnIndex, idColumnIndex, path);
-		}
-	}
-
-	private void onListQueryComplete(Cursor cursor, ExpandableReadOnlyListView view, int nameColumnIndex) {
-		if (cursor == null || !cursor.moveToFirst()) {
-			view.setVisibility(View.GONE);
-			view.clear();
-		} else {
-			view.setVisibility(View.VISIBLE);
-			view.bind(cursor, nameColumnIndex);
+			view.bind(cursor, nameColumnIndex, Games.getGameId(mGameUri), mGameName);
 		}
 	}
 
@@ -690,21 +673,18 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private interface DesignerQuery {
 		int _TOKEN = 0x12;
 		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
-		int DESIGNER_ID = 0;
 		int DESIGNER_NAME = 1;
 	}
 
 	private interface ArtistQuery {
 		int _TOKEN = 0x13;
 		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
-		int ARTIST_ID = 0;
 		int ARTIST_NAME = 1;
 	}
 
 	private interface PublisherQuery {
 		int _TOKEN = 0x14;
 		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
-		int PUBLISHER_ID = 0;
 		int PUBLISHER_NAME = 1;
 	}
 
@@ -723,14 +703,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private interface ExpansionQuery {
 		int _TOKEN = 0x17;
 		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}
 
 	private interface BaseGameQuery {
 		int _TOKEN = 0x18;
 		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		int EXPANSION_ID = 0;
 		int EXPANSION_NAME = 1;
 	}
 

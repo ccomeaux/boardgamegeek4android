@@ -101,6 +101,9 @@
 				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
+			android:name=".ui.GameDetailActivity"
+			android:label="@string/title_game_detail" />
+		<activity
 			android:name=".ui.ProducerActivity"
 			android:exported="false"
 			android:label="@string/app_name" >
