@@ -40,6 +40,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/label"
+		android:background="@drawable/checkable_background"
 		android:drawableRight="@drawable/view_thread"
 		android:paddingBottom="0dp"
 		android:paddingTop="@dimen/padding_standard"

@@ -82,7 +82,7 @@ public class ExpandableListView extends RelativeLayout {
 		mSomeMore = context.getString(R.string.some_more);
 
 		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		li.inflate(R.layout.widget_expandable_readonly_list, this, true);
+		li.inflate(R.layout.widget_expandable_list, this, true);
 		mLabelView = (TextView) findViewById(R.id.label);
 		mSummaryView = (TextView) findViewById(R.id.summary);
 		mToggleView = (ImageView) findViewById(R.id.toggle);
@@ -112,6 +112,7 @@ public class ExpandableListView extends RelativeLayout {
 		});
 
 		if (!mClickable) {
+			mDetailView.setBackgroundResource(0);
 			mDetailView.setCompoundDrawables(null, null, null, null);
 		} else {
 			mDetailView.setOnClickListener(new OnClickListener() {
