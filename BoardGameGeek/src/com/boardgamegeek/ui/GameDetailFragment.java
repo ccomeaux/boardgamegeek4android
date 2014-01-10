@@ -33,11 +33,7 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	private CursorAdapter mAdapter;
 	private int mGameId;
 	private int mQueryToken;
-	private String[] mProjection;
-	private String[] mFrom;
-	private Uri mUri;
-	private String mSelection;
-	private String[] mSelectionArgs;
+	private Query mQuery;
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -67,7 +63,8 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), mUri, mProjection, mSelection, mSelectionArgs, null);
+		return new CursorLoader(getActivity(), mQuery.getUri(), mQuery.getProjection(), mQuery.getSelection(),
+			mQuery.getSelectionArgs(), null);
 	}
 
 	@Override
@@ -77,7 +74,7 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 
 		if (mAdapter == null) {
-			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_game_detail, null, mFrom,
+			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_game_detail, null, mQuery.getFrom(),
 				new int[] { R.id.name }, 0);
 			setListAdapter(mAdapter);
 		}
@@ -105,53 +102,25 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	private void determineQuery() {
 		switch (mQueryToken) {
 			case DesignerQuery._TOKEN:
-				mUri = Games.buildDesignersUri(mGameId);
-				mSelection = null;
-				mSelectionArgs = null;
-				mProjection = DesignerQuery.PROJECTION;
-				mFrom = DesignerQuery.FROM;
+				mQuery = new DesignerQuery();
 				break;
 			case ArtistQuery._TOKEN:
-				mUri = Games.buildArtistsUri(mGameId);
-				mSelection = null;
-				mSelectionArgs = null;
-				mProjection = ArtistQuery.PROJECTION;
-				mFrom = ArtistQuery.FROM;
+				mQuery = new ArtistQuery();
 				break;
 			case PublisherQuery._TOKEN:
-				mUri = Games.buildPublishersUri(mGameId);
-				mSelection = null;
-				mSelectionArgs = null;
-				mProjection = PublisherQuery.PROJECTION;
-				mFrom = PublisherQuery.FROM;
+				mQuery = new PublisherQuery();
 				break;
 			case CategoryQuery._TOKEN:
-				mUri = Games.buildCategoriesUri(mGameId);
-				mSelection = null;
-				mSelectionArgs = null;
-				mProjection = CategoryQuery.PROJECTION;
-				mFrom = CategoryQuery.FROM;
+				mQuery = new CategoryQuery();
 				break;
 			case MechanicQuery._TOKEN:
-				mUri = Games.buildMechanicsUri(mGameId);
-				mSelection = null;
-				mSelectionArgs = null;
-				mProjection = MechanicQuery.PROJECTION;
-				mFrom = MechanicQuery.FROM;
+				mQuery = new MechanicQuery();
 				break;
 			case ExpansionQuery._TOKEN:
-				mUri = Games.buildExpansionsUri(mGameId);
-				mSelection = GamesExpansions.INBOUND + "=?";
-				mSelectionArgs = new String[] { "0" };
-				mProjection = ExpansionQuery.PROJECTION;
-				mFrom = ExpansionQuery.FROM;
+				mQuery = new ExpansionQuery();
 				break;
 			case BaseGameQuery._TOKEN:
-				mUri = Games.buildExpansionsUri(mGameId);
-				mSelection = GamesExpansions.INBOUND + "=?";
-				mSelectionArgs = new String[] { "1" };
-				mProjection = BaseGameQuery.PROJECTION;
-				mFrom = BaseGameQuery.FROM;
+				mQuery = new BaseGameQuery();
 				break;
 			default:
 				mQueryToken = BggContract.INVALID_ID;
@@ -159,45 +128,159 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 	}
 
-	private interface DesignerQuery {
-		int _TOKEN = 1;
-		String[] PROJECTION = { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
-		String[] FROM = { Designers.DESIGNER_NAME };
+	interface Query {
+		String[] getProjection();
+
+		String[] getFrom();
+
+		Uri getUri();
+
+		String getSelection();
+
+		String[] getSelectionArgs();
 	}
 
-	private interface ArtistQuery {
-		int _TOKEN = 2;
-		String[] PROJECTION = { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
-		String[] FROM = { Artists.ARTIST_NAME };
+	abstract class BaseQuery implements Query {
+		@Override
+		public String getSelection() {
+			return null;
+		}
+
+		@Override
+		public String[] getSelectionArgs() {
+			return null;
+		}
 	}
 
-	private interface PublisherQuery {
-		int _TOKEN = 3;
-		String[] PROJECTION = { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
-		String[] FROM = { Publishers.PUBLISHER_NAME };
+	private class DesignerQuery extends BaseQuery {
+		static final int _TOKEN = 1;
+
+		@Override
+		public String[] getProjection() {
+			return new String[] { Designers.DESIGNER_ID, Designers.DESIGNER_NAME, Designers._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { Designers.DESIGNER_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildDesignersUri(mGameId);
+		}
 	}
 
-	private interface CategoryQuery {
-		int _TOKEN = 4;
-		String[] PROJECTION = { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
-		String[] FROM = { Categories.CATEGORY_NAME };
+	private class ArtistQuery extends BaseQuery {
+		static final int _TOKEN = 2;
+
+		@Override
+		public String[] getProjection() {
+			return new String[] { Artists.ARTIST_ID, Artists.ARTIST_NAME, Artists._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { Artists.ARTIST_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildArtistsUri(mGameId);
+		}
 	}
 
-	private interface MechanicQuery {
-		int _TOKEN = 5;
-		String[] PROJECTION = { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
-		String[] FROM = { Mechanics.MECHANIC_NAME };
+	private class PublisherQuery extends BaseQuery {
+		static final int _TOKEN = 3;
+
+		@Override
+		public String[] getProjection() {
+			return new String[] { Publishers.PUBLISHER_ID, Publishers.PUBLISHER_NAME, Publishers._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { Publishers.PUBLISHER_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildPublishersUri(mGameId);
+		}
 	}
 
-	private interface ExpansionQuery {
-		int _TOKEN = 6;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		String[] FROM = { GamesExpansions.EXPANSION_NAME };
+	private class CategoryQuery extends BaseQuery {
+		static final int _TOKEN = 4;
+
+		@Override
+		public String[] getProjection() {
+			return new String[] { Categories.CATEGORY_ID, Categories.CATEGORY_NAME, Categories._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { Categories.CATEGORY_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildCategoriesUri(mGameId);
+		}
 	}
 
-	private interface BaseGameQuery {
-		int _TOKEN = 7;
-		String[] PROJECTION = { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
-		String[] FROM = { GamesExpansions.EXPANSION_NAME };
+	private class MechanicQuery extends BaseQuery {
+		static final int _TOKEN = 5;
+
+		@Override
+		public String[] getProjection() {
+			return new String[] { Mechanics.MECHANIC_ID, Mechanics.MECHANIC_NAME, Mechanics._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { Mechanics.MECHANIC_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildMechanicsUri(mGameId);
+		}
+	}
+
+	private class ExpansionBaseQuery extends BaseQuery {
+		@Override
+		public String[] getProjection() {
+			return new String[] { GamesExpansions.EXPANSION_ID, GamesExpansions.EXPANSION_NAME, GamesExpansions._ID };
+		}
+
+		@Override
+		public String[] getFrom() {
+			return new String[] { GamesExpansions.EXPANSION_NAME };
+		}
+
+		@Override
+		public Uri getUri() {
+			return Games.buildExpansionsUri(mGameId);
+		}
+
+		public String getSelection() {
+			return GamesExpansions.INBOUND + "=?";
+		}
+	}
+
+	private class ExpansionQuery extends ExpansionBaseQuery {
+		static final int _TOKEN = 6;
+
+		public String[] getSelectionArgs() {
+			return new String[] { "0" };
+		}
+	}
+
+	private class BaseGameQuery extends ExpansionBaseQuery {
+		static final int _TOKEN = 7;
+
+		public String[] getSelectionArgs() {
+			return new String[] { "1" };
+		}
 	}
 }
