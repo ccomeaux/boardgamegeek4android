@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="30"
-	android:versionName="feature/log-plays" >
+	android:versionName="develop" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
