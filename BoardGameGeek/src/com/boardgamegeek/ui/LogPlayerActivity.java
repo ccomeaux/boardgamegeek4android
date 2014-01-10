@@ -294,6 +294,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 							String selection = array[which].toString();
 							if (selection == r.getString(R.string.team_color)) {
 								mTeamColorShown = true;
+								viewToFocus = mTeamColor;
 							} else if (selection == r.getString(R.string.starting_position)) {
 								mPositionShown = true;
 								viewToFocus = mPosition;
