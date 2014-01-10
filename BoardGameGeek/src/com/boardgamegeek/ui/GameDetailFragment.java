@@ -62,6 +62,15 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		final Cursor cursor = (Cursor) mAdapter.getItem(position);
+		Uri uri = mQuery.getUri(cursor);
+		if (uri != null) {
+			getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+		}
+	}
+
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), mQuery.getUri(), mQuery.getProjection(), mQuery.getSelection(),
 			mQuery.getSelectionArgs(), null);
@@ -138,6 +147,8 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		String getSelection();
 
 		String[] getSelectionArgs();
+
+		Uri getUri(Cursor cursor);
 	}
 
 	abstract class BaseQuery implements Query {
@@ -148,6 +159,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 
 		@Override
 		public String[] getSelectionArgs() {
+			return null;
+		}
+
+		@Override
+		public Uri getUri(Cursor cursor) {
 			return null;
 		}
 	}
@@ -169,6 +185,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		public Uri getUri() {
 			return Games.buildDesignersUri(mGameId);
 		}
+
+		@Override
+		public Uri getUri(Cursor cursor) {
+			return Designers.buildDesignerUri(cursor.getInt(0));
+		}
 	}
 
 	private class ArtistQuery extends BaseQuery {
@@ -188,6 +209,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		public Uri getUri() {
 			return Games.buildArtistsUri(mGameId);
 		}
+
+		@Override
+		public Uri getUri(Cursor cursor) {
+			return Artists.buildArtistUri(cursor.getInt(0));
+		}
 	}
 
 	private class PublisherQuery extends BaseQuery {
@@ -206,6 +232,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		@Override
 		public Uri getUri() {
 			return Games.buildPublishersUri(mGameId);
+		}
+
+		@Override
+		public Uri getUri(Cursor cursor) {
+			return Publishers.buildPublisherUri(cursor.getInt(0));
 		}
 	}
 
@@ -265,6 +296,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 
 		public String getSelection() {
 			return GamesExpansions.INBOUND + "=?";
+		}
+
+		@Override
+		public Uri getUri(Cursor cursor) {
+			return Games.buildGameUri(cursor.getInt(0));
 		}
 	}
 
