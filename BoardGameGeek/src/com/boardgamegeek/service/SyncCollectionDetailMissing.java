@@ -33,7 +33,7 @@ public class SyncCollectionDetailMissing extends SyncTask {
 			String arg = String.valueOf(hoursAgo);
 			LOGI(
 				TAG,
-				"...since "
+				"...not viewed since "
 					+ DateUtils.formatDateTime(executor.getContext(), hoursAgo, DateUtils.FORMAT_SHOW_DATE
 						| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
 			ContentResolver resolver = executor.getContext().getContentResolver();
