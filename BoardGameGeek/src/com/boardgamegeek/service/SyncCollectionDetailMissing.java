@@ -15,6 +15,7 @@ import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ResolverUtils;
@@ -36,10 +37,9 @@ public class SyncCollectionDetailMissing extends SyncTask {
 					+ DateUtils.formatDateTime(executor.getContext(), hoursAgo, DateUtils.FORMAT_SHOW_DATE
 						| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
 			ContentResolver resolver = executor.getContext().getContentResolver();
-			List<Integer> gameIds = ResolverUtils
-				.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID,
-					"collection.game_id IS NULL AND games.updated_list < ?", new String[] { arg }, "games."
-						+ Games.UPDATED);
+			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, "collection."
+				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?", new String[] { arg },
+				"games." + Games.UPDATED);
 			LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 			if (gameIds.size() > 0) {
 				int count = 0;
