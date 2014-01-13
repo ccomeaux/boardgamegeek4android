@@ -52,6 +52,7 @@ public class SelectionBuilder {
 	 */
 	public SelectionBuilder reset() {
 		mTable = null;
+		mProjectionMap.clear();
 		mSelection.setLength(0);
 		mSelectionArgs.clear();
 		mGroupBy.clear();
