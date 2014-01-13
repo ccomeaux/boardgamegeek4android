@@ -18,8 +18,8 @@ public class DateTimeUtils {
 		} else {
 			int hours = minutes / 60;
 			int mins = minutes % 60;
-			return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr) + " "
-				+ String.valueOf(mins) + " " + r.getString(R.string.minutes_abbr);
+			return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr) + " " + String.valueOf(mins) + " "
+				+ r.getString(R.string.minutes_abbr);
 		}
 	}
 
@@ -38,5 +38,11 @@ public class DateTimeUtils {
 	public static long hoursAgo(int hours){
 		long timeInMillis = hours * DateUtils.HOUR_IN_MILLIS;
 		return System.currentTimeMillis() - timeInMillis;
+
+	/**
+	 * Formats a date for use in the API (<code>yyyy-mm-dd</code>)
+	 */
+	public static String formatDateForApi(int year, int month, int day) {
+		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
 }
