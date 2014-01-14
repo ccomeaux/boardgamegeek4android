@@ -56,7 +56,6 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
@@ -328,9 +327,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
-				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
-				//final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
-				//ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
+				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
 				SaveFilters.createDialog(getActivity(), this, mViewName, mSort, mFilters);
