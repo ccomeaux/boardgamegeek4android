@@ -54,7 +54,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
 	private static final String KEY_PLAYER = "PLAYER";
-	private static final int INVALID_AUTO_POSITION = 0;
 
 	private static final int HELP_VERSION = 1;
 
@@ -97,7 +96,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
-		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, INVALID_AUTO_POSITION);
+		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 
 		if (hasAutoPosition()) {
 			setTitle(getTitle() + " #" + mAutoPosition);
@@ -251,7 +250,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean hasAutoPosition() {
-		return mAutoPosition != INVALID_AUTO_POSITION;
+		return mAutoPosition != Player.SEAT_UNKNOWN;
 	}
 
 	private boolean shouldHideScore() {
@@ -295,6 +294,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 							String selection = array[which].toString();
 							if (selection == r.getString(R.string.team_color)) {
 								mTeamColorShown = true;
+								viewToFocus = mTeamColor;
 							} else if (selection == r.getString(R.string.starting_position)) {
 								mPositionShown = true;
 								viewToFocus = mPosition;

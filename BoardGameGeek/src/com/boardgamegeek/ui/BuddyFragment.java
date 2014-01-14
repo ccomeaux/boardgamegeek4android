@@ -90,8 +90,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mImageFetcher.setImageFadeIn(false);
 		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
 		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
-
-		setHasOptionsMenu(true);
 	}
 
 	@Override

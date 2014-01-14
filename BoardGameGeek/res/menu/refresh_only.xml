@@ -6,6 +6,6 @@
 		android:icon="?attr/ic_action_refresh"
 		android:orderInCategory="1"
 		android:showAsAction="ifRoom"
-		android:title="@string/menu_sync"/>
+		android:title="@string/menu_refresh"/>
 
 </menu>

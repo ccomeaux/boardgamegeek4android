@@ -322,12 +322,17 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName) {
-		ActivityUtils.launchPlay(this, playId, gameId, gameName);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
+		ActivityUtils.launchPlay(this, playId, gameId, gameName, thumbnailUrl);
 		return false;
 	}
 
 	@Override
 	public void onPlayCountChanged(int count) {
+	}
+
+	@Override
+	public void onSortChanged(String sortName) {
+		// sorting not supported yet
 	}
 }

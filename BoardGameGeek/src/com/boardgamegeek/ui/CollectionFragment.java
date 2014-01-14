@@ -41,9 +41,6 @@ import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
-import com.boardgamegeek.data.CollectionNameSortData;
-import com.boardgamegeek.data.CollectionSortData;
-import com.boardgamegeek.data.CollectionSortDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
@@ -53,6 +50,8 @@ import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
+import com.boardgamegeek.data.sort.CollectionSortDataFactory;
+import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -93,13 +92,15 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
-	private CollectionSortData mSort;
+	private SortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 
 	private View mProgressView;
 	private View mListContainer;
 	private LinearLayout mFilterLinearLayout;
 	private TextView mFastScrollLetter;
+	private TextView mEmptyView;
+
 	private boolean mShortcut;
 
 	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
@@ -187,6 +188,9 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		mListContainer = rootView.findViewById(R.id.list_container);
 		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
+		mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
+
+		setEmptyText();
 
 		return rootView;
 	}
@@ -202,11 +206,11 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (savedInstanceState == null) {
-			mSort = new CollectionNameSortData(getActivity());
-		} else {
-			mSort = CollectionSortDataFactory.create(savedInstanceState.getInt(STATE_SORT_TYPE), getActivity());
+		int sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
+		mSort = CollectionSortDataFactory.create(sortType, getActivity());
 		requery(); // This should be handled by the activity (I think)
 
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
@@ -453,6 +457,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
 					mFilters.add(filter);
 				} while (cursor.moveToNext());
+				setEmptyText();
 				requery();
 				load = false;
 			}
@@ -482,6 +487,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	@Override
 	public void removeFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
+		setEmptyText();
 		resetScrollState();
 		requery();
 	}
@@ -492,12 +498,25 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		if (filter.isValid()) {
 			mFilters.add(filter);
 		}
+		setEmptyText();
 		resetScrollState();
 		requery();
 	}
 
-	@Override
-	public void setSort(int sortType) {
+	private void setEmptyText() {
+		if (mFilters != null && mFilters.size() > 0) {
+			mEmptyView.setText(getString(R.string.empty_collection_filter_on));
+		} else {
+			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+			if (statuses == null || statuses.length == 0) {
+				mEmptyView.setText(getString(R.string.empty_collection_sync_off));
+			} else {
+				mEmptyView.setText(getString(R.string.empty_collection));
+			}
+		}
+	}
+
+	private void setSort(int sortType) {
 		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
 		}

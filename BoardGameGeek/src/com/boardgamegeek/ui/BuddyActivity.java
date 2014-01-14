@@ -88,11 +88,11 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	}
 
 	@Override
-	public void onPageScrollStateChanged(int arg0) {
+	public void onPageScrollStateChanged(int state) {
 	}
 
 	@Override
-	public void onPageScrolled(int arg0, float arg1, int arg2) {
+	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 	}
 
 	@Override
@@ -167,13 +167,18 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName) {
-		ActivityUtils.launchPlay(this, playId, gameId, gameName);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
+		ActivityUtils.launchPlay(this, playId, gameId, gameName, thumbnailUrl);
 		return false;
 	}
 
 	@Override
 	public void onPlayCountChanged(int count) {
+	}
+
+	@Override
+	public void onSortChanged(String sortName) {
+		// sorting not supported yet
 	}
 
 	@Override

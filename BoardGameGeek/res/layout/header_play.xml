@@ -4,131 +4,146 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
 
-	<TableLayout
-		android:id="@+id/details"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:stretchColumns="1" >
+		android:orientation="horizontal" >
 
-		<TextView
-			android:id="@+id/game_name"
-			style="@style/Text.Title"
-			android:layout_width="match_parent"
+		<TableLayout
+			android:id="@+id/details"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:gravity="center_vertical"
-			android:maxLines="2"
-			android:textIsSelectable="false" />
-
-		<TableRow
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:layout_weight="1"
+			android:stretchColumns="1" >
 
 			<TextView
-				style="@style/TextLabel"
-				android:text="@string/on" />
-
-			<TextView
-				android:id="@+id/play_date"
-				style="@style/Text.Big"
-				android:textIsSelectable="false" />
-		</TableRow>
-
-		<TableRow
-			android:id="@+id/location_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
-
-			<TextView
-				style="@style/TextLabel"
-				android:text="@string/at" />
-
-			<TextView
-				android:id="@+id/play_location"
-				style="@style/Text.Big"
-				android:textIsSelectable="false" />
-		</TableRow>
-
-		<TableRow
-			android:id="@+id/length_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
-
-			<TextView
-				style="@style/TextLabel"
-				android:text="@string/for_" />
-
-			<TextView
-				android:id="@+id/play_length"
-				style="@style/Text.Big"
+				android:id="@+id/game_name"
+				style="@style/Text.Title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:gravity="center_vertical"
+				android:maxLines="2"
 				android:textIsSelectable="false" />
 
-			<LinearLayout
-				android:id="@+id/timer_root"
-				android:background="@color/background_light"
-				android:gravity="center_vertical" >
+			<TableRow
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-				<Chronometer
-					android:id="@+id/timer"
-					style="@style/Text.Title2"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:gravity="center"
-					android:maxLines="1"
-					android:paddingLeft="@dimen/padding_extra"
-					android:paddingRight="@dimen/padding_extra"
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/on" />
+
+				<TextView
+					android:id="@+id/play_date"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/location_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/at" />
+
+				<TextView
+					android:id="@+id/play_location"
+					style="@style/Text.Big"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/length_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/TextLabel"
+					android:text="@string/for_" />
+
+				<TextView
+					android:id="@+id/play_length"
+					style="@style/Text.Big"
 					android:textIsSelectable="false" />
 
-				<Button
-					android:id="@+id/timer_end"
-					android:layout_width="wrap_content"
+				<LinearLayout
+					android:id="@+id/timer_root"
+					android:background="@color/background_light"
+					android:gravity="center_vertical" >
+
+					<Chronometer
+						android:id="@+id/timer"
+						style="@style/Text.Title2"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:gravity="center"
+						android:maxLines="1"
+						android:paddingLeft="@dimen/padding_extra"
+						android:paddingRight="@dimen/padding_extra"
+						android:textIsSelectable="false" />
+
+					<Button
+						android:id="@+id/timer_end"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:gravity="center"
+						android:paddingLeft="@dimen/padding_extra"
+						android:paddingRight="@dimen/padding_extra"
+						android:text="@string/end_play" />
+				</LinearLayout>
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/quantity_root"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					android:id="@+id/play_quantity"
+					style="@style/Text.Big"
+					android:layout_column="1"
+					android:textIsSelectable="false" />
+			</TableRow>
+
+			<TableRow
+				android:id="@+id/play_incomplete"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
+
+				<TextView
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:gravity="center"
-					android:paddingLeft="@dimen/padding_extra"
-					android:paddingRight="@dimen/padding_extra"
-					android:text="@string/end_play" />
-			</LinearLayout>
-		</TableRow>
+					android:layout_column="1"
+					android:text="@string/incomplete" />
+			</TableRow>
 
-		<TableRow
-			android:id="@+id/quantity_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			<TableRow
+				android:id="@+id/play_no_win_stats"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small" >
 
-			<TextView
-				android:id="@+id/play_quantity"
-				style="@style/Text.Big"
-				android:layout_column="1"
-				android:textIsSelectable="false" />
-		</TableRow>
+				<TextView
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_column="1"
+					android:text="@string/noWinStats" />
+			</TableRow>
+		</TableLayout>
 
-		<TableRow
-			android:id="@+id/play_incomplete"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
-
-			<TextView
-				style="@style/Text.Big"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_column="1"
-				android:text="@string/incomplete" />
-		</TableRow>
-
-		<TableRow
-			android:id="@+id/play_no_win_stats"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
-
-			<TextView
-				style="@style/Text.Big"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_column="1"
-				android:text="@string/noWinStats" />
-		</TableRow>
-	</TableLayout>
+		<com.boardgamegeek.ui.widget.BezelImageView
+			android:id="@+id/game_info_thumbnail"
+			android:layout_width="@dimen/thumbnail_size"
+			android:layout_height="@dimen/thumbnail_size"
+			android:layout_gravity="right"
+			android:scaleType="centerCrop"
+			android:src="@drawable/thumbnail_image_empty" />
+	</LinearLayout>
 
 	<TextView
 		android:id="@+id/play_comments_label"
