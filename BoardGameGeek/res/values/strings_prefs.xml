@@ -39,9 +39,9 @@
 	<string name="pref_sync_group_what">What</string>
 	<string name="pref_sync_group_how">How</string>
 	<string name="pref_sync_group_tasks">Tasks</string>
-	<string name="pref_sync_statuses">Collection statuses</string>
+	<string name="pref_sync_statuses">Collection</string>
 	<string name="pref_sync_buddies">GeekBuddies</string>
-	<string name="pref_sync_plays">Games played</string>
+	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_notifications">Notifications</string>
 	<string name="pref_sync_only_charging">Sync only while charging</string>
 	<string name="pref_sync_only_wifi">Sync only when on WiFi</string>
@@ -83,6 +83,7 @@
 <li>Menu options to share and view forums in a browser</li>
 <li>Improve the settings screen and move some of the standard menu options there</li>
 <li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
+<li>When logged in, always show all of the menu options in the drawer, and improve the message shown for an empty list</li>
 <li>Fix lots of reported crashes</li>
 </ul>
 <a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a><br/>

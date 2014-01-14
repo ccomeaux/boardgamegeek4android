@@ -100,6 +100,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private View mListContainer;
 	private LinearLayout mFilterLinearLayout;
 	private TextView mFastScrollLetter;
+	private TextView mEmptyView;
+
 	private boolean mShortcut;
 
 	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
@@ -187,6 +189,9 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		mListContainer = rootView.findViewById(R.id.list_container);
 		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
 		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
+		mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
+
+		setEmptyText();
 
 		return rootView;
 	}
@@ -454,6 +459,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
 					mFilters.add(filter);
 				} while (cursor.moveToNext());
+				setEmptyText();
 				requery();
 				load = false;
 			}
@@ -483,6 +489,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	@Override
 	public void removeFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
+		setEmptyText();
 		resetScrollState();
 		requery();
 	}
@@ -493,8 +500,22 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		if (filter.isValid()) {
 			mFilters.add(filter);
 		}
+		setEmptyText();
 		resetScrollState();
 		requery();
+	}
+
+	private void setEmptyText() {
+		if (mFilters != null && mFilters.size() > 0) {
+			mEmptyView.setText(getString(R.string.empty_collection_filter_on));
+		} else {
+			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+			if (statuses == null || statuses.length == 0) {
+				mEmptyView.setText(getString(R.string.empty_collection_sync_off));
+			} else {
+				mEmptyView.setText(getString(R.string.empty_collection));
+			}
+		}
 	}
 
 	private void setSort(int sortType) {
