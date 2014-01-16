@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="30"
-	android:versionName="develop" >
+	android:versionName="feature/intent-filters" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
@@ -57,7 +57,7 @@
 
 		<activity-alias
 			android:name="CreateShortcutActivity"
-			android:label="@string/title_game"
+			android:label="@string/title_game_shortcut"
 			android:targetActivity=".ui.CollectionActivity" >
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT" />
@@ -80,7 +80,7 @@
 		<activity
 			android:name=".ui.GameActivity"
 			android:exported="true"
-			android:label="@string/title_game" >
+			android:label="@string/title_game_shortcut" >
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -95,8 +95,8 @@
 				<category android:name="android.intent.category.BROWSABLE" />
 
 				<data
-					android:host="www.boardgamegeek.com"
-					android:pathPrefix="/boardgame/"
+					android:host="*boardgamegeek.com"
+					android:pathPrefix="/boardgame"
 					android:scheme="http" />
 			</intent-filter>
 

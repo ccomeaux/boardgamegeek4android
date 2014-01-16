@@ -45,22 +45,23 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setTitle(R.string.title_game);
 
-		mGameId = Games.getGameId(getIntent().getData());
-		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
-
-		Uri mGameUri = getIntent().getData();
-		if ("http".equals(mGameUri.getScheme())) {
-			boolean b = false;
-			for (String path : mGameUri.getPathSegments()) {
-				if (b) {
-					mGameUri = Games.buildGameUri(StringUtils.parseInt(path));
+		Uri gameUri = getIntent().getData();
+		if ("http".equals(gameUri.getScheme())) {
+			boolean idIsNext = false;
+			for (String path : gameUri.getPathSegments()) {
+				if (idIsNext) {
+					getIntent().setData(Games.buildGameUri(StringUtils.parseInt(path)));
 					break;
 				} else if ("boardgame".equals(path)) {
-					b = true;
+					idIsNext = true;
 				}
 			}
 		}
+
+		mGameId = Games.getGameId(getIntent().getData());
+		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
 			@Override
