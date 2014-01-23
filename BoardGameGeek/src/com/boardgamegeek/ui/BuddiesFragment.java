@@ -68,6 +68,12 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setFastScrollEnabled(true);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (PreferencesUtils.getSyncBuddies(getActivity())) {
