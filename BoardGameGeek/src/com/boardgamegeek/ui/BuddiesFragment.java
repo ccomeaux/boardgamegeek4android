@@ -28,6 +28,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddiesFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -75,7 +76,11 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_buddies));
+		if (PreferencesUtils.getSyncBuddies(getActivity())) {
+			setEmptyText(getString(R.string.empty_buddies));
+		} else {
+			setEmptyText(getString(R.string.empty_buddies_sync_off));
+		}
 		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
 	}
 
