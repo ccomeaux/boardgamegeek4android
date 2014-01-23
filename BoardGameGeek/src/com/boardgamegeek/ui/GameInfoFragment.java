@@ -55,7 +55,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
-	private static final int CHILD_LIMIT_COUNT = 10;
+	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
 	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
@@ -190,12 +190,19 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mSuggestedAgesView = (TextView) rootView.findViewById(R.id.game_info_suggested_ages);
 
 		mDesignersView = (ExpandableListView) rootView.findViewById(R.id.game_info_designers);
+		mDesignersView.setLimit(CHILD_LIMIT_COUNT);
 		mArtistsView = (ExpandableListView) rootView.findViewById(R.id.game_info_artists);
+		mArtistsView.setLimit(CHILD_LIMIT_COUNT);
 		mPublishersView = (ExpandableListView) rootView.findViewById(R.id.game_info_publishers);
+		mPublishersView.setLimit(CHILD_LIMIT_COUNT);
 		mCategoriesView = (ExpandableListView) rootView.findViewById(R.id.game_info_categories);
+		mCategoriesView.setLimit(CHILD_LIMIT_COUNT);
 		mMechanicsView = (ExpandableListView) rootView.findViewById(R.id.game_info_mechanics);
+		mMechanicsView.setLimit(CHILD_LIMIT_COUNT);
 		mExpansionsView = (ExpandableListView) rootView.findViewById(R.id.game_info_expansions);
+		mExpansionsView.setLimit(CHILD_LIMIT_COUNT);
 		mBaseGamesView = (ExpandableListView) rootView.findViewById(R.id.game_info_base_games);
+		mBaseGamesView.setLimit(CHILD_LIMIT_COUNT);
 
 		mStatsLabel = (TextView) rootView.findViewById(R.id.game_stats_label);
 		mStatsContent = rootView.findViewById(R.id.game_stats_content);

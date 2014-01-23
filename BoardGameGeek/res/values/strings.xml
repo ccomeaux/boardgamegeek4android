@@ -310,6 +310,7 @@
 	<string name="rating_denominator">" / 10"</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
+	<string name="and_more">, and more</string>
 	<string name="toggle">toggle</string>
 	<string name="number_to_text">123/ABC</string>
 	<string name="close">Close</string>

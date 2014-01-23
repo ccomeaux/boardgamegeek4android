@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -21,6 +23,7 @@ import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class ExpandableListView extends RelativeLayout {
+	private static int mLimit = -1;
 
 	private TextView mLabelView;
 	private TextView mSummaryView;
@@ -36,6 +39,7 @@ public class ExpandableListView extends RelativeLayout {
 	private int mGameId;
 	private String mGameName;
 	private String mLabel;
+	private String mMany = null;
 
 	public ExpandableListView(Context context) {
 		super(context);
@@ -58,6 +62,7 @@ public class ExpandableListView extends RelativeLayout {
 		SavedState state = new SavedState(p);
 		state.expanded = mExpanded;
 		state.count = mCount;
+		state.many = mMany;
 		return state;
 	}
 
@@ -73,6 +78,7 @@ public class ExpandableListView extends RelativeLayout {
 
 		mExpanded = saved.expanded;
 		mCount = saved.count;
+		mMany = saved.many;
 
 		expandOrCollapse();
 	}
@@ -139,6 +145,10 @@ public class ExpandableListView extends RelativeLayout {
 		mLabelView.setText(label);
 	}
 
+	public void setLimit(int limit) {
+		mLimit = limit;
+	}
+
 	public void clear() {
 		mSummaryView.setText("");
 		mDetailView.setText("");
@@ -160,14 +170,23 @@ public class ExpandableListView extends RelativeLayout {
 
 	private void updateSummary() {
 		CharSequence summary = null;
-		final CharSequence text = mDetailView.getText();
-		if (!"".equals(text)) {
-			TextPaint paint = new TextPaint();
-			paint.setTextSize(mSummaryView.getTextSize());
-			summary = TextUtils.commaEllipsize(text, paint, mSummaryView.getWidth() - mSummaryView.getPaddingLeft()
-				- mSummaryView.getPaddingRight(), mOneMore, mSomeMore);
-			if (TextUtils.isEmpty(summary)) {
-				summary = String.format(mSomeMore, mCount);
+		if (mCount >= mLimit) {
+			if (TextUtils.isEmpty(mMany)) {
+				String[] many = getResources().getStringArray(R.array.many);
+				Random r = new Random();
+				mMany = many[r.nextInt(many.length)];
+			}
+			summary = mMany;
+		} else {
+			final CharSequence text = mDetailView.getText();
+			if (!TextUtils.isEmpty(text)) {
+				TextPaint paint = new TextPaint();
+				paint.setTextSize(mSummaryView.getTextSize());
+				summary = TextUtils.commaEllipsize(text, paint, mSummaryView.getWidth() - mSummaryView.getPaddingLeft()
+					- mSummaryView.getPaddingRight(), mOneMore, mSomeMore);
+				if (TextUtils.isEmpty(summary)) {
+					summary = String.format(mSomeMore, mCount);
+				}
 			}
 		}
 		mSummaryView.setText(summary);
@@ -182,6 +201,7 @@ public class ExpandableListView extends RelativeLayout {
 
 	private String joinNames(Cursor cursor) {
 		StringBuilder sb = new StringBuilder();
+		int count = 0;
 		if (cursor != null && cursor.moveToFirst()) {
 			boolean firstTime = true;
 			do {
@@ -191,6 +211,11 @@ public class ExpandableListView extends RelativeLayout {
 					sb.append(", ");
 				}
 				sb.append(cursor.getString(mNameColumnIndex));
+				count++;
+				if (mLimit > 0 && count >= mLimit) {
+					sb.append(getResources().getString(R.string.and_more));
+					break;
+				}
 			} while (cursor.moveToNext());
 		}
 		return sb.toString();
@@ -199,6 +224,7 @@ public class ExpandableListView extends RelativeLayout {
 	private static class SavedState extends BaseSavedState {
 		public boolean expanded;
 		public int count;
+		public String many;
 
 		SavedState(Parcelable superState) {
 			super(superState);
@@ -208,6 +234,7 @@ public class ExpandableListView extends RelativeLayout {
 			super(in);
 			expanded = in.readInt() != 0;
 			count = in.readInt();
+			many = in.readString();
 		}
 
 		@Override
@@ -220,6 +247,7 @@ public class ExpandableListView extends RelativeLayout {
 			super.writeToParcel(dest, flags);
 			dest.writeInt(expanded ? 1 : 0);
 			dest.writeInt(count);
+			dest.writeString(many);
 		}
 
 		@SuppressWarnings("unused")
