@@ -300,9 +300,10 @@ public class ActivityUtils {
 		}
 	}
 
-	public static Intent createShortcut(Context context, int gameId, String gameName) {
+	public static Intent createGameShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
 		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(GameActivity.KEY_FROM_SHORTCUT, true);
 
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);

@@ -268,7 +268,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		if (mShortcut) {
-			Intent shortcut = ActivityUtils.createShortcut(getActivity(), gameId, gameName);
+			Intent shortcut = ActivityUtils.createGameShortcut(getActivity(), gameId, gameName);
 			mCallbacks.onSetShortcut(shortcut);
 		} else {
 			if (mCallbacks.onGameSelected(gameId, gameName)) {
