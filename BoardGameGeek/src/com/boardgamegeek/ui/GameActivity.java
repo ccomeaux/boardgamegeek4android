@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
@@ -21,6 +24,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -32,6 +36,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 
 	private int mGameId;
 	private String mGameName;
@@ -116,11 +121,22 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case android.R.id.home:
+				Intent upIntent = new Intent(this, HotnessActivity.class);
+				if (Authenticator.isSignedIn(this)) {
+					upIntent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+				}
+				if (shouldUpRecreateTask(this, upIntent)) {
+					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+				} else {
+					NavUtils.navigateUpTo(this, upIntent);
+				}
+				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;
 			case R.id.menu_shortcut:
-				Intent shortcut = ActivityUtils.createShortcut(this, mGameId, mGameName);
+				Intent shortcut = ActivityUtils.createGameShortcut(this, mGameId, mGameName);
 				sendBroadcast(shortcut);
 				return true;
 			case R.id.menu_log_play:
@@ -132,6 +148,10 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
+		return activity.getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
 	}
 
 	@Override
