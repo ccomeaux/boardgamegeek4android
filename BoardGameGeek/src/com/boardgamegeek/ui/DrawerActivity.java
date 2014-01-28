@@ -24,7 +24,6 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.PreferencesUtils;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
@@ -150,31 +149,12 @@ public abstract class DrawerActivity extends BaseActivity {
 			if (!Authenticator.isSignedIn(DrawerActivity.this)) {
 				mTitles.add(new Pair<Integer, Integer>(R.string.title_signin, R.drawable.home_btn_signin));
 			} else {
-				if (hasCollection()) {
-					mTitles.add(new Pair<Integer, Integer>(R.string.title_collection, R.drawable.home_btn_collection));
-				}
-				if (hasPlays()) {
-					mTitles.add(new Pair<Integer, Integer>(R.string.title_plays, R.drawable.home_btn_plays));
-				}
-				if (hasBuddies()) {
-					mTitles.add(new Pair<Integer, Integer>(R.string.title_buddies, R.drawable.home_btn_buddies));
-				}
+				mTitles.add(new Pair<Integer, Integer>(R.string.title_collection, R.drawable.home_btn_collection));
+				mTitles.add(new Pair<Integer, Integer>(R.string.title_plays, R.drawable.home_btn_plays));
+				mTitles.add(new Pair<Integer, Integer>(R.string.title_buddies, R.drawable.home_btn_buddies));
 			}
 			mTitles.add(new Pair<Integer, Integer>(R.string.title_hotness, R.drawable.home_btn_hotness));
 			mTitles.add(new Pair<Integer, Integer>(R.string.title_forums, R.drawable.home_btn_forums));
-		}
-
-		private boolean hasCollection() {
-			String[] statuses = PreferencesUtils.getSyncStatuses(DrawerActivity.this);
-			return (statuses != null && statuses.length > 0);
-		}
-
-		private boolean hasPlays() {
-			return PreferencesUtils.getSyncPlays(DrawerActivity.this);
-		}
-
-		private boolean hasBuddies() {
-			return PreferencesUtils.getSyncBuddies(DrawerActivity.this);
 		}
 
 		@Override

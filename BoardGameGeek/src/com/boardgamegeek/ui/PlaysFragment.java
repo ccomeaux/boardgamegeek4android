@@ -49,6 +49,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -102,6 +103,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setFastScrollEnabled(true);
 	}
 
 	@Override
@@ -284,7 +291,11 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 						return R.string.empty_plays_pending;
 					case Play.SYNC_STATUS_ALL:
 					default:
-						return R.string.empty_plays;
+						if (PreferencesUtils.getSyncPlays(getActivity())) {
+							return R.string.empty_plays_sync_off;
+						} else {
+							return R.string.empty_plays_sync_off;
+						}
 				}
 		}
 	}
