@@ -77,8 +77,9 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
-<li>Prevent crash when viewing a Buddy's collection or plays</li>
+<li>Prevent crash when viewing a Buddy\'s collection or plays</li>
 <li>Improve performance when loading forums</li>
+<li>Correctly display the votes for Best with 1 Player</li>
 <li>Fix miscellaneous crashes</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
