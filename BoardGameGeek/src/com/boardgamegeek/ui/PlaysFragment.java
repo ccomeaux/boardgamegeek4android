@@ -106,6 +106,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setFastScrollEnabled(true);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -182,10 +188,13 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	@Override
 	public void onPrepareOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 		DrawerActivity activity = (DrawerActivity) getActivity();
-		boolean isDrawerOpen = activity.isDrawerOpen();
-		showMenuItemsSafely(menu, R.id.menu_sort, !isDrawerOpen);
-		showMenuItemsSafely(menu, R.id.menu_refresh, !isDrawerOpen);
-		showMenuItemsSafely(menu, R.id.menu_refresh_on, !isDrawerOpen);
+		boolean showOptions = true;
+		if (activity != null) {
+			showOptions = !activity.isDrawerOpen();
+		}
+		showMenuItemsSafely(menu, R.id.menu_sort, showOptions);
+		showMenuItemsSafely(menu, R.id.menu_refresh, showOptions);
+		showMenuItemsSafely(menu, R.id.menu_refresh_on, showOptions);
 		super.onPrepareOptionsMenu(menu);
 	}
 

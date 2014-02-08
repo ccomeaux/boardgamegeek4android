@@ -161,7 +161,7 @@ public class PollFragment extends SherlockDialogFragment implements LoaderManage
 		PlayerNumberRow row = null;
 		String playerNumber = null;
 		String lastPlayerNumber = "-1";
-		while (cursor.moveToNext()) {
+		do {
 			playerNumber = cursor.getString(Query.POLL_RESULTS_PLAYERS);
 			if (!lastPlayerNumber.equals(playerNumber)) {
 				lastPlayerNumber = playerNumber;
@@ -197,7 +197,7 @@ public class PollFragment extends SherlockDialogFragment implements LoaderManage
 			} else {
 				LOGW(TAG, "Bad key: " + value);
 			}
-		}
+		} while (cursor.moveToNext());
 	}
 
 	private void createPieChart(Cursor cursor) {

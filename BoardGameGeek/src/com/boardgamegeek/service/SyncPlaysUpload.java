@@ -22,11 +22,14 @@ import org.apache.http.protocol.HTTP;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -41,6 +44,8 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Collection;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.HttpUtils;
@@ -91,6 +96,7 @@ public class SyncPlaysUpload extends SyncTask {
 					String error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
+						increaseGamePlayCount(play);
 						if (!play.hasBeenSynced()) {
 							deletePlay(play, syncResult);
 						}
@@ -136,6 +142,7 @@ public class SyncPlaysUpload extends SyncTask {
 				if (play.hasBeenSynced()) {
 					String error = postPlayDelete(play.PlayId, syncResult);
 					if (TextUtils.isEmpty(error)) {
+						decreaseGamePlayCount(play);
 						PlayPersister.delete(mContext.getContentResolver(), play);
 						notifyUser(String.format(mContext.getString(R.string.msg_play_deleted), play.GameName));
 						// syncResult.stats.numDeletes++;
@@ -152,6 +159,34 @@ public class SyncPlaysUpload extends SyncTask {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
 			}
+		}
+	}
+
+	private void increaseGamePlayCount(Play play) {
+		updateGamePlayCount(play, true);
+	}
+
+	private void decreaseGamePlayCount(Play play) {
+		updateGamePlayCount(play, false);
+	}
+
+	private void updateGamePlayCount(Play play, boolean add) {
+		ContentResolver resolver = mContext.getContentResolver();
+		Uri uri = Games.buildGameUri(play.GameId);
+		Cursor cursor = resolver.query(uri, new String[] { Games.NUM_PLAYS }, null, null, null);
+		if (cursor.moveToFirst()) {
+			int newPlayCount = cursor.getInt(0);
+			if (add) {
+				newPlayCount += play.Quantity;
+			} else {
+				newPlayCount -= play.Quantity;
+				if (newPlayCount < 0) {
+					newPlayCount = 0;
+				}
+			}
+			ContentValues values = new ContentValues();
+			values.put(Collection.NUM_PLAYS, newPlayCount);
+			resolver.update(uri, values, null, null);
 		}
 	}
 

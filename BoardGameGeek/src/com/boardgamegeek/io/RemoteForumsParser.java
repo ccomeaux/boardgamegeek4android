@@ -5,8 +5,10 @@ import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -16,8 +18,7 @@ import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteForumsParser extends RemoteBggParser {
 	private static final String GENERAL_FORUMS_URL = HttpUtils.BASE_URL_2 + "forumlist?id=1&type=region";
-	private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
-
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 	private List<Forum> mForums = new ArrayList<Forum>();
 	private String mUrl;
 
@@ -64,7 +65,7 @@ public class RemoteForumsParser extends RemoteBggParser {
 				forum.id = parseStringAttribute(Tags.ID);
 				forum.title = parseStringAttribute(Tags.TITLE);
 				forum.numberOfThreads = parseIntegerAttribute(Tags.NUM_THREADS);
-				forum.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, DATE_FORMAT, false);
+				forum.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, FORMAT, false);
 				mForums.add(forum);
 			}
 		}

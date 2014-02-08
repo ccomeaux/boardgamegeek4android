@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="30"
+	android:versionCode="32"
 	android:versionName="feature/intent-filters" >
 
 	<uses-sdk
@@ -111,6 +111,9 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
 		</activity>
+		<activity
+			android:name=".ui.GameDetailActivity"
+			android:label="@string/title_game_detail" />
 		<activity
 			android:name=".ui.ProducerActivity"
 			android:exported="false"
