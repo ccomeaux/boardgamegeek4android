@@ -32,7 +32,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public abstract class RemoteBggHandler {
 	private static final String TAG = makeLogTag(RemoteBggHandler.class);
-	private static final DateFormat FORMATER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	private final String mAuthority;
 	private Context mContext;
@@ -167,7 +167,7 @@ public abstract class RemoteBggHandler {
 	public long parseDateAttribute(String tag) {
 		String dateText = parseStringAttribute(tag);
 		try {
-			final Date date = FORMATER.parse(dateText);
+			final Date date = FORMAT.parse(dateText);
 			return date.getTime();
 		} catch (ParseException e) {
 			LOGE(TAG, "Couldn't parse date", e);
