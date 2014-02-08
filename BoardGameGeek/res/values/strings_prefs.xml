@@ -77,13 +77,11 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
-<li>When logging a play, players are automatically placed in seating order with the ability to drag and drop</li>
-<li>Ability to refresh plays for a specific day</li>
-<li>When adding a player, keep adding them until the user cancels</li>
-<li>Menu options to share and view forums in a browser</li>
-<li>Improve the settings screen and move some of the standard menu options there</li>
-<li>When logged in, always show all of the menu options in the drawer, and improve the message shown for an empty list</li>
-<li>Fix lots of reported crashes</li>
+<li>Prevent crash when viewing a Buddy\'s collection or plays</li>
+<li>Improve performance when loading forums</li>
+<li>Correctly display the votes for Best with 1 Player</li>
+<li>Update a game\'s play count after each logged play</li>
+<li>Fix miscellaneous crashes</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
 <br/>

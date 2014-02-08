@@ -9,6 +9,7 @@ import java.util.Locale;
 import android.text.TextUtils;
 
 public class CollectionUrlBuilder extends UrlBuilder {
+	private static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private final String mUsername;
 	private List<Integer> mGameIds;
 	private String mStatus;
@@ -75,7 +76,7 @@ public class CollectionUrlBuilder extends UrlBuilder {
 			url += "&" + mStatus.trim() + "=1";
 		}
 		if (mModifiedSince > 0) {
-			url += "&modifiedsince=" + new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(mModifiedSince));
+			url += "&modifiedsince=" + FORMAT.format(new Date(mModifiedSince));
 		}
 		return url + (mShowPrivate ? "&showprivate=1" : "") + (mStats ? "&stats=1" : "") + (mBrief ? "&brief=1" : "");
 	}

@@ -26,7 +26,7 @@ import com.boardgamegeek.util.url.PlaysUrlBuilder;
 
 public class RemotePlaysParser extends RemoteBggParser {
 	private static final String TAG = makeLogTag(RemotePlaysParser.class);
-	private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private List<Play> mPlays = new ArrayList<Play>();
 	private Play mPlay;
@@ -67,7 +67,7 @@ public class RemotePlaysParser extends RemoteBggParser {
 		}
 
 		try {
-			Date parsedDate = formatter.parse(date);
+			Date parsedDate = FORMAT.parse(date);
 			long time = parsedDate.getTime();
 			if (time > mNewestDate) {
 				mNewestDate = time;
