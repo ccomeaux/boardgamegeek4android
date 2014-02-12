@@ -74,6 +74,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
+		calculateHIndex();
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class SyncPlaysUpload extends SyncTask {
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
 								getPlayCountDescription(response.count, play.Quantity));
-						notifyUser(message, play.GameName);
+						notifyUser(boldSecondString(message, play.GameName));
 					} else {
 						notifyUser(error);
 					}
@@ -146,20 +147,64 @@ public class SyncPlaysUpload extends SyncTask {
 					if (TextUtils.isEmpty(error)) {
 						decreaseGamePlayCount(play);
 						PlayPersister.delete(mContext.getContentResolver(), play);
-						notifyUser(R.string.msg_play_deleted, play.GameName);
+						notifyUser(boldSecondString(mContext.getString(R.string.msg_play_deleted), play.GameName));
 						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(R.string.msg_play_deleted_draft, play.GameName);
+					notifyUser(boldSecondString(mContext.getString(R.string.msg_play_deleted_draft), play.GameName));
 					// syncResult.stats.numDeletes++;
 				}
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
+			}
+		}
+	}
+
+	private void calculateHIndex() {
+		int hIndex = -1;
+		Cursor cursor = null;
+		try {
+			cursor = mContext.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
+				null, Games.NUM_PLAYS + " DESC");
+			int i = 1;
+			while (cursor.moveToNext()) {
+				int numPlays = cursor.getInt(0);
+				if (i > numPlays) {
+					hIndex = i - 1;
+					break;
+				}
+				if (numPlays == 0) {
+					break;
+				}
+				i++;
+			}
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		}
+
+		if (hIndex != -1) {
+			int oldHIndex = PreferencesUtils.getHIndex(mContext);
+			if (oldHIndex != hIndex) {
+				PreferencesUtils.putHIndex(mContext, hIndex);
+
+				// display notification
+				int messageId;
+				if (hIndex > oldHIndex) {
+					messageId = R.string.sync_notification_h_index_increase;
+				} else {
+					messageId = R.string.sync_notification_h_index_decrease;
+				}
+				SpannableString ss = boldSecondString(mContext.getString(messageId), String.valueOf(hIndex));
+				NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
+					R.string.sync_notification_title_h_index, PlaysActivity.class).setContentText(ss);
+				NotificationUtils.notify(mContext, NotificationUtils.ID_H_INDEX, builder);
 			}
 		}
 	}
@@ -393,17 +438,13 @@ public class SyncPlaysUpload extends SyncTask {
 		return playCount;
 	}
 
-	private void notifyUser(int messageId, String gameName) {
-		notifyUser(mContext.getString(messageId), gameName);
-	}
-
-	private void notifyUser(String message, String gameName) {
-		String formattableMessage = message + " " + gameName;
+	private SpannableString boldSecondString(String first, String second) {
+		String formattableMessage = first + " " + second;
 		SpannableString ss = new SpannableString(formattableMessage);
-		int length = message.length() + 1;
-		ss.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), length, length + gameName.length(),
+		int length = first.length() + 1;
+		ss.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), length, length + second.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		notifyUser(ss);
+		return ss;
 	}
 
 	private void notifyUser(CharSequence message) {

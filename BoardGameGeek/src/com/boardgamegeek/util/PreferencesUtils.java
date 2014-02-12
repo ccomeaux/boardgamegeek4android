@@ -139,6 +139,21 @@ public class PreferencesUtils {
 		putNewPlayId(context, oldPlayId, BggContract.INVALID_ID);
 	}
 
+	public static int getHIndex(Context context) {
+		return getInt(context, "hIndex", -1);
+	}
+
+	public static boolean putHIndex(Context context, int hIndex) {
+		return putInt(context, "hIndex", hIndex);
+	}
+
+	private static boolean putInt(Context context, String key, int hIndex) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor =  sharedPreferences.edit();
+		editor.putInt(key, hIndex);
+		return editor.commit();
+	}
+
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return sharedPreferences.getBoolean(key, defaultValue);
