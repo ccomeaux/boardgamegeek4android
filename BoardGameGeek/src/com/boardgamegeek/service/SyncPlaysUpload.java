@@ -32,10 +32,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
@@ -108,7 +106,7 @@ public class SyncPlaysUpload extends SyncTask {
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
 								getPlayCountDescription(response.count, play.Quantity));
-						notifyUser(boldSecondString(message, play.GameName));
+						notifyUser(StringUtils.boldSecondString(message, play.GameName));
 					} else {
 						notifyUser(error);
 					}
@@ -147,14 +145,16 @@ public class SyncPlaysUpload extends SyncTask {
 					if (TextUtils.isEmpty(error)) {
 						decreaseGamePlayCount(play);
 						PlayPersister.delete(mContext.getContentResolver(), play);
-						notifyUser(boldSecondString(mContext.getString(R.string.msg_play_deleted), play.GameName));
+						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
+							play.GameName));
 						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(boldSecondString(mContext.getString(R.string.msg_play_deleted_draft), play.GameName));
+					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted_draft),
+						play.GameName));
 					// syncResult.stats.numDeletes++;
 				}
 			}
@@ -201,7 +201,8 @@ public class SyncPlaysUpload extends SyncTask {
 				} else {
 					messageId = R.string.sync_notification_h_index_decrease;
 				}
-				SpannableString ss = boldSecondString(mContext.getString(messageId), String.valueOf(hIndex));
+				SpannableString ss = StringUtils
+					.boldSecondString(mContext.getString(messageId), String.valueOf(hIndex));
 				NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
 					R.string.sync_notification_title_h_index, PlaysActivity.class).setContentText(ss);
 				NotificationUtils.notify(mContext, NotificationUtils.ID_H_INDEX, builder);
@@ -436,15 +437,6 @@ public class SyncPlaysUpload extends SyncTask {
 		int end = result.indexOf("<", start);
 		int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
 		return playCount;
-	}
-
-	private SpannableString boldSecondString(String first, String second) {
-		String formattableMessage = first + " " + second;
-		SpannableString ss = new SpannableString(formattableMessage);
-		int length = first.length() + 1;
-		ss.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), length, length + second.length(),
-			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return ss;
 	}
 
 	private void notifyUser(CharSequence message) {
