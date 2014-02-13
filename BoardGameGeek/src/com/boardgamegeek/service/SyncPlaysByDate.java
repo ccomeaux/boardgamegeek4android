@@ -29,6 +29,7 @@ public class SyncPlaysByDate extends UpdateTask {
 		executor.safelyExecuteGet(parser);
 		if (!parser.hasError()) {
 			PlayPersister.save(context.getContentResolver(), parser.getPlays());
+			SyncService.hIndex(context);
 		}
 		LOGI(TAG, "Synced plays for date " + mDate);
 	}

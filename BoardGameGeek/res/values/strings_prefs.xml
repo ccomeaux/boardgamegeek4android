@@ -80,6 +80,7 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>Calculates your games played h-index</li>
 <li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
 <li>Reword some text in the settings screens</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>

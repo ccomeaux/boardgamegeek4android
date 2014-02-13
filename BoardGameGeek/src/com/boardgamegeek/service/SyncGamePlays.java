@@ -32,6 +32,7 @@ public class SyncGamePlays extends UpdateTask {
 		if (!parser.hasError()) {
 			PlayPersister.save(context.getContentResolver(), parser.getPlays());
 			updateGameTimestamp(context);
+			SyncService.hIndex(context);
 		}
 		LOGI(TAG, "Synced plays for game " + mGameId);
 	}
