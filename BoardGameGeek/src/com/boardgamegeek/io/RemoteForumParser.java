@@ -70,7 +70,7 @@ public class RemoteForumParser extends RemoteBggParser {
 				thread.subject = parseStringAttribute(Tags.SUBJECT);
 				thread.author = parseStringAttribute(Tags.AUTHOR);
 				thread.numberOfArticles = parseIntegerAttribute(Tags.NUM_ARTICLES);
-				thread.postPate = parseDateAttribute(Tags.POST_DATE, FORMAT, false);
+				thread.postDate = parseDateAttribute(Tags.POST_DATE, FORMAT, false);
 				thread.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, FORMAT, false);
 				mThreads.add(thread);
 			}
