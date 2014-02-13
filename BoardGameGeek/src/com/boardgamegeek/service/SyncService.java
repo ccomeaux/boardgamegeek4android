@@ -16,6 +16,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -129,19 +130,26 @@ public class SyncService extends Service {
 		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			cursor = context.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
-				null, Games.NUM_PLAYS + " DESC");
-			int i = 1;
-			while (cursor.moveToNext()) {
-				int numPlays = cursor.getInt(0);
-				if (i > numPlays) {
-					hIndex = i - 1;
-					break;
+			if (PreferencesUtils.isSyncStatus(context, "played")) {
+				cursor = context.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
+					null, Games.NUM_PLAYS + " DESC");
+			} else {
+				cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
+					new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, null, null, "count DESC");
+			}
+			if (cursor != null) {
+				int i = 1;
+				while (cursor.moveToNext()) {
+					int numPlays = cursor.getInt(0);
+					if (i > numPlays) {
+						hIndex = i - 1;
+						break;
+					}
+					if (numPlays == 0) {
+						break;
+					}
+					i++;
 				}
-				if (numPlays == 0) {
-					break;
-				}
-				i++;
 			}
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
