@@ -91,6 +91,10 @@ public class PreferencesUtils {
 	public static boolean getSyncPlays(Context context) {
 		return getBoolean(context, "syncPlays", false);
 	}
+	
+	public static boolean isSyncPlays(String key){
+		return "syncPlays".equals(key);
+	}
 
 	public static boolean getSyncBuddies(Context context) {
 		return getBoolean(context, "syncBuddies", false);
