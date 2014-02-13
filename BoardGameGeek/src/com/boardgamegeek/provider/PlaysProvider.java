@@ -16,6 +16,9 @@ public class PlaysProvider extends BasicProvider {
 		if (BggContract.FRAGMENT_SIMPLE.equals(fragment)) {
 			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(Plays._ID, getTable())
 				.mapToTable(Plays.PLAY_ID, getTable());
+		} else if (BggContract.FRAGMENT_SUM.equals(fragment)) {
+			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).groupBy(PlayItems.OBJECT_ID)
+				.mapToTable(Plays._ID, getTable()).mapToTable(Plays.PLAY_ID, getTable());
 		}
 		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS)
 			.mapToTable(Plays._ID, getTable()).mapToTable(Plays.PLAY_ID, getTable())

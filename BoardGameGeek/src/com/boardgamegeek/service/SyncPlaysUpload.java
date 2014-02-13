@@ -58,7 +58,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 	private Context mContext;
 	private HttpClient mClient;
-	private List<String> mMessages;
+	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
 
 	@Override
@@ -66,11 +66,12 @@ public class SyncPlaysUpload extends SyncTask {
 		XmlPullParserException {
 		mContext = executor.getContext();
 		mClient = executor.getHttpClient();
-		mMessages = new ArrayList<String>();
+		mMessages = new ArrayList<CharSequence>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
+		SyncService.hIndex(executor.getContext());
 	}
 
 	@Override
@@ -101,11 +102,10 @@ public class SyncPlaysUpload extends SyncTask {
 							deletePlay(play, syncResult);
 						}
 
-						Resources r = mContext.getResources();
-						String message = String.format(
-							r.getString(play.hasBeenSynced() ? R.string.msg_play_updated : R.string.msg_play_added),
-							getPlayCountDescription(response.count, play.Quantity), play.GameName);
-						notifyUser(message);
+						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
+							: mContext.getString(R.string.msg_play_added,
+								getPlayCountDescription(response.count, play.Quantity));
+						notifyUser(StringUtils.boldSecondString(message, play.GameName));
 					} else {
 						notifyUser(error);
 					}
@@ -144,14 +144,16 @@ public class SyncPlaysUpload extends SyncTask {
 					if (TextUtils.isEmpty(error)) {
 						decreaseGamePlayCount(play);
 						PlayPersister.delete(mContext.getContentResolver(), play);
-						notifyUser(String.format(mContext.getString(R.string.msg_play_deleted), play.GameName));
+						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
+							play.GameName));
 						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
 					}
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(String.format(mContext.getString(R.string.msg_play_deleted_draft), play.GameName));
+					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted_draft),
+						play.GameName));
 					// syncResult.stats.numDeletes++;
 				}
 			}
@@ -391,7 +393,7 @@ public class SyncPlaysUpload extends SyncTask {
 		return playCount;
 	}
 
-	private void notifyUser(String message) {
+	private void notifyUser(CharSequence message) {
 		mMessages.add(message);
 
 		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(message);

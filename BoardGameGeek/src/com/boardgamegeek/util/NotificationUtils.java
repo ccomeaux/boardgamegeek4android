@@ -15,6 +15,7 @@ public class NotificationUtils {
 	public static final int ID_SYNC = 0;
 	public static final int ID_SYNC_PLAY_UPLOAD = 1;
 	public static final int ID_PLAY_TIMER = 2;
+	public static final int ID_H_INDEX = 3;
 	public static final int ID_SYNC_ERROR = -1;
 	public static final int ID_PROVIDER_ERROR = -2;
 

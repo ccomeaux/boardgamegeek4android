@@ -12,7 +12,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -26,6 +25,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -388,8 +388,9 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies,
 				mFormat.format(replies)));
 			holder.lastpostdate.setText(String.format(mLastPostText,
-				DateUtils.getRelativeTimeSpanString(thread.lastPostDate)));
-			holder.postdate.setText(String.format(mCreatedText, DateUtils.getRelativeTimeSpanString(thread.postPate)));
+				DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate)));
+			holder.postdate.setText(String.format(mCreatedText,
+				DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate)));
 		}
 	}
 }

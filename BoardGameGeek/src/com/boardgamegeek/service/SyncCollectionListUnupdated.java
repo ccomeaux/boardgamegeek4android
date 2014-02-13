@@ -44,6 +44,7 @@ public class SyncCollectionListUnupdated extends SyncTask {
 				String url = builder.build();
 				executor.safelyExecuteGet(url, handler);
 				// syncResult.stats.numUpdates += handler.getCount();
+				SyncService.hIndex(executor.getContext());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

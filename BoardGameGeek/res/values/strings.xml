@@ -182,6 +182,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
+	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -217,7 +218,6 @@
 	<string name="longest">Longest</string>
 	<string name="menu_collection_sort_age">Suggested Age</string>
 	<string name="youngest">Youngest</string>
-	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_weight">Average Weight</string>
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
@@ -256,10 +256,10 @@
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
-	<string name="msg_play_added">Logged your %1$s play of \"%2$s\"</string>
-	<string name="msg_play_updated">Updated a play of \"%2$s\"</string>
-	<string name="msg_play_deleted">Deleted a play of \"%s\"</string>
-	<string name="msg_play_deleted_draft">Deleted a draft of \"%s\"</string>
+	<string name="msg_play_added">Logged your %s play of</string>
+	<string name="msg_play_updated">Updated a play of</string>
+	<string name="msg_play_deleted">Deleted a play of</string>
+	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play was already deleted.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
@@ -353,7 +353,11 @@
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
-
+	<string name="title_h_index">H-index</string>
+	<string name="message_h_index">Your h-index is</string>
+	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
+	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
+	
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>

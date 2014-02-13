@@ -5,6 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+
 /**
  * Provides utility methods for dealing with strings.
  */
@@ -120,5 +124,18 @@ public class StringUtils {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static SpannableString boldSecondString(String first, String second) {
+		return boldSecondString(first, second, "");
+	}
+
+	public static SpannableString boldSecondString(String first, String second, String third) {
+		String formattableMessage = first + " " + second + " " + third;
+		SpannableString ss = new SpannableString(formattableMessage.trim());
+		int length = first.length() + 1;
+		ss.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), length, length + second.length(),
+			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return ss;
 	}
 }
