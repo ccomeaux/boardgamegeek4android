@@ -62,6 +62,9 @@
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 	<string name="pref_advanced">Advanced</string>
+	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
+	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
+	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
 	<string name="pref_advanced_debug_inserts">Debug</string>
 	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not crashing</string>
 	<string name="pref_advanced_debug_inserts_on">Next time the app crashes, please send a report. Thanks for helping us debug!</string>
@@ -77,6 +80,7 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
 <li>Reword some text in the settings screens</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/RelativeLayout1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:orientation="vertical"
 	android:paddingBottom="@dimen/padding_small" >
 
 	<TextView
@@ -11,48 +11,54 @@
 		style="@style/Text.Primary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
 		android:paddingBottom="@dimen/padding_small" />
 
-	<TextView
-		android:id="@+id/thread_author"
-		style="@style/Text"
-		android:layout_width="wrap_content"
+	<LinearLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignLeft="@+id/thread_title"
-		android:layout_below="@+id/thread_title"
-		android:layout_gravity="right|center_vertical" />
+		android:orientation="horizontal" >
 
-	<TextView
-		android:id="@+id/thread_postdate"
-		style="@style/Text.Secondary"
-		android:layout_width="wrap_content"
+		<TextView
+			android:id="@+id/thread_author"
+			style="@style/Text"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="right|center_vertical"
+			android:layout_weight="1" />
+
+		<TextView
+			android:id="@+id/thread_numarticles"
+			style="@style/Text"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="right|center_vertical"
+			android:layout_weight="1"
+			android:gravity="right" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignLeft="@+id/thread_title"
-		android:layout_below="@+id/thread_author"
-		android:layout_gravity="left|center_vertical" />
+		android:orientation="horizontal" >
 
-	<TextView
-		android:id="@+id/thread_numarticles"
-		style="@style/Text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBaseline="@+id/thread_author"
-		android:layout_alignParentRight="true"
-		android:layout_gravity="right|center_vertical"
-		android:layout_toRightOf="@+id/thread_author"
-		android:gravity="right" />
+		<TextView
+			android:id="@+id/thread_postdate"
+			style="@style/Text.Secondary"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="left|center_vertical"
+			android:layout_weight="1"
+			android:maxLines="1" />
 
-	<TextView
-		android:id="@+id/thread_lastpostdate"
-		style="@style/Text.Secondary"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBaseline="@id/thread_postdate"
-		android:layout_alignParentRight="true"
-		android:layout_gravity="left|center_vertical"
-		android:layout_toRightOf="@id/thread_postdate"
-		android:gravity="right" />
+		<TextView
+			android:id="@+id/thread_lastpostdate"
+			style="@style/Text.Secondary"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="left|center_vertical"
+			android:layout_weight="1"
+			android:gravity="right"
+			android:maxLines="1" />
+	</LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

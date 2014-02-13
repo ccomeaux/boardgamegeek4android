@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -42,8 +42,8 @@ public class ArticleFragment extends SherlockFragment {
 		mBodyView = (WebView) rootView.findViewById(R.id.article_body);
 
 		mUserView.setText(mUser);
-		mDateView.setText(mDate == 0 ? getString(R.string.text_not_available) : DateUtils
-			.getRelativeTimeSpanString(mDate));
+		mDateView.setText(mDate == 0 ? getString(R.string.text_not_available) : DateTimeUtils.formatForumDate(
+			getActivity(), mDate));
 		UIUtils.setWebViewText(mBodyView, mBody);
 
 		return rootView;

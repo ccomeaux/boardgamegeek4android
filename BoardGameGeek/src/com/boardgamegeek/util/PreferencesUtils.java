@@ -112,6 +112,10 @@ public class PreferencesUtils {
 		return getBoolean(context, "sync_only_wifi", false);
 	}
 
+	public static boolean getForumDates(Context context) {
+		return getBoolean(context, "advancedForumDates", false);
+	}
+
 	public static boolean getDebugInserts(Context context) {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
