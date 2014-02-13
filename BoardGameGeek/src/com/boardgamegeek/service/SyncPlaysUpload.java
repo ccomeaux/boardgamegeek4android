@@ -32,7 +32,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.boardgamegeek.BggApplication;
@@ -72,7 +71,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
-		calculateHIndex();
+		SyncService.hIndex(executor.getContext());
 	}
 
 	@Override
@@ -161,51 +160,6 @@ public class SyncPlaysUpload extends SyncTask {
 		} finally {
 			if (cursor != null && !cursor.isClosed()) {
 				cursor.close();
-			}
-		}
-	}
-
-	private void calculateHIndex() {
-		int hIndex = -1;
-		Cursor cursor = null;
-		try {
-			cursor = mContext.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
-				null, Games.NUM_PLAYS + " DESC");
-			int i = 1;
-			while (cursor.moveToNext()) {
-				int numPlays = cursor.getInt(0);
-				if (i > numPlays) {
-					hIndex = i - 1;
-					break;
-				}
-				if (numPlays == 0) {
-					break;
-				}
-				i++;
-			}
-		} finally {
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-
-		if (hIndex != -1) {
-			int oldHIndex = PreferencesUtils.getHIndex(mContext);
-			if (oldHIndex != hIndex) {
-				PreferencesUtils.putHIndex(mContext, hIndex);
-
-				// display notification
-				int messageId;
-				if (hIndex > oldHIndex) {
-					messageId = R.string.sync_notification_h_index_increase;
-				} else {
-					messageId = R.string.sync_notification_h_index_decrease;
-				}
-				SpannableString ss = StringUtils
-					.boldSecondString(mContext.getString(messageId), String.valueOf(hIndex));
-				NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
-					R.string.sync_notification_title_h_index, PlaysActivity.class).setContentText(ss);
-				NotificationUtils.notify(mContext, NotificationUtils.ID_H_INDEX, builder);
 			}
 		}
 	}

@@ -1,17 +1,25 @@
 package com.boardgamegeek.service;
 
-import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.NotificationUtils;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.text.SpannableString;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.StringUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
@@ -29,6 +37,8 @@ public class SyncService extends Service {
 	public static final String TIMESTAMP_BUDDIES = "com.boardgamegeek.TIMESTAMP_BUDDIES";
 	public static final String TIMESTAMP_PLAYS_NEWEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_NEWEST_DATE";
 	public static final String TIMESTAMP_PLAYS_OLDEST_DATE = "com.boardgamegeek.TIMESTAMP_PLAYS_OLDEST_DATE";
+
+	public static final int INVALID_H_INDEX = -1;
 
 	private static final Object sSyncAdapterLock = new Object();
 	private static SyncAdapter sSyncAdapter = null;
@@ -102,5 +112,55 @@ public class SyncService extends Service {
 			return true;
 		}
 		return false;
+	}
+
+	public static void hIndex(Context context) {
+		int hIndex = calculateHIndex(context);
+		if (hIndex != INVALID_H_INDEX) {
+			int oldHIndex = PreferencesUtils.getHIndex(context);
+			if (oldHIndex != hIndex) {
+				PreferencesUtils.putHIndex(context, hIndex);
+				notifyHIndex(context, hIndex, oldHIndex);
+			}
+		}
+	}
+
+	private static int calculateHIndex(Context context) {
+		int hIndex = INVALID_H_INDEX;
+		Cursor cursor = null;
+		try {
+			cursor = context.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
+				null, Games.NUM_PLAYS + " DESC");
+			int i = 1;
+			while (cursor.moveToNext()) {
+				int numPlays = cursor.getInt(0);
+				if (i > numPlays) {
+					hIndex = i - 1;
+					break;
+				}
+				if (numPlays == 0) {
+					break;
+				}
+				i++;
+			}
+		} finally {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		}
+		return hIndex;
+	}
+
+	private static void notifyHIndex(Context context, int hIndex, int oldHIndex) {
+		int messageId;
+		if (hIndex > oldHIndex) {
+			messageId = R.string.sync_notification_h_index_increase;
+		} else {
+			messageId = R.string.sync_notification_h_index_decrease;
+		}
+		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
+			R.string.sync_notification_title_h_index, PlaysActivity.class).setContentText(ss);
+		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
 	}
 }
