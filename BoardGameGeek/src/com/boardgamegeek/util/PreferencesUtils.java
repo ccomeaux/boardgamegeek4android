@@ -91,6 +91,10 @@ public class PreferencesUtils {
 	public static boolean getSyncPlays(Context context) {
 		return getBoolean(context, "syncPlays", false);
 	}
+	
+	public static boolean isSyncPlays(String key){
+		return "syncPlays".equals(key);
+	}
 
 	public static boolean getSyncBuddies(Context context) {
 		return getBoolean(context, "syncBuddies", false);
@@ -106,6 +110,10 @@ public class PreferencesUtils {
 
 	public static boolean getSyncOnlyWifi(Context context) {
 		return getBoolean(context, "sync_only_wifi", false);
+	}
+
+	public static boolean getForumDates(Context context) {
+		return getBoolean(context, "advancedForumDates", false);
 	}
 
 	public static boolean getDebugInserts(Context context) {
