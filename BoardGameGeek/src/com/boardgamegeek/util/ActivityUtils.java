@@ -226,7 +226,7 @@ public class ActivityUtils {
 		if (gameId <= 0) {
 			return;
 		}
-		link(context, BOARDGAME_URL_PREFIX + gameId);
+		link(context, BOARDGAME_URL_PREFIX + gameId, true);
 	}
 
 	public static void linkBgPrices(Context context, String gameName) {
@@ -252,10 +252,17 @@ public class ActivityUtils {
 	}
 
 	public static void link(Context context, String link) {
-		Intent intent = new Intent(Intent.ACTION_EDIT, Uri.parse(link));
+		link(context, link, false);
+	}
+
+	public static void link(Context context, String link, boolean showChooser) {
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
 		intent.addCategory(Intent.CATEGORY_BROWSABLE);
 		List<ResolveInfo> activities = context.getPackageManager().queryIntentActivities(intent, 0);
-		if (activities.size() > 0) {
+		if (!activities.isEmpty()) {
+			if (showChooser) {
+				intent = Intent.createChooser(intent, "");
+			}
 			context.startActivity(intent);
 		}
 	}
