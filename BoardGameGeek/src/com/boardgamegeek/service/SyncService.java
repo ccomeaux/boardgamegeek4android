@@ -146,9 +146,13 @@ public class SyncService extends Service {
 						break;
 					}
 					if (numPlays == 0) {
+						hIndex = 0;
 						break;
 					}
 					i++;
+				}
+				if (hIndex == INVALID_H_INDEX) {
+					hIndex = cursor.getCount();
 				}
 			}
 		} finally {

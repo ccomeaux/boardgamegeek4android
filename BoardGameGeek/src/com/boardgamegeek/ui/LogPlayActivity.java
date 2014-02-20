@@ -117,16 +117,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_logplay);
-		getSupportActionBar().setHomeButtonEnabled(false);
-		mPlayAdapter = new PlayAdapter();
-		setUiVariables();
 
 		final Intent intent = getIntent();
 		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
+
+		setContentView(R.layout.activity_logplay);
+		getSupportActionBar().setHomeButtonEnabled(false);
+		mPlayAdapter = new PlayAdapter();
+		setUiVariables();
 
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -173,6 +174,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 
 		bindUi();
+		mLocationView.requestFocus();
+		
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
