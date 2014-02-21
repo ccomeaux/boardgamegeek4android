@@ -170,7 +170,8 @@
 					android:pathPrefix="/user"
 					android:scheme="http" />
 			</intent-filter>
-			<meta-data
+
+			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.BuddiesActivity" />
 		</activity>
