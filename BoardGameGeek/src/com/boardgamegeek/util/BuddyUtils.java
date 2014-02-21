@@ -1,6 +1,8 @@
 package com.boardgamegeek.util;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 
 public class BuddyUtils {
@@ -23,5 +25,22 @@ public class BuddyUtils {
 		} else {
 			return firstName.trim() + " " + lastName.trim();
 		}
+	}
+
+	public static String getNameFromIntent(Intent intent) {
+		Uri uri = intent.getData();
+		if ("http".equals(uri.getScheme())) {
+			boolean usernameIsNext = false;
+			for (String path : uri.getPathSegments()) {
+				if (usernameIsNext) {
+					return  path;
+				} else if ("user".equals(path)) {
+					usernameIsNext = true;
+				}
+			}
+		} else {
+			return intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		}
+		return "";
 	}
 }

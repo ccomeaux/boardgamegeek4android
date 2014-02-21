@@ -161,7 +161,12 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == BuddyQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mBuddyUri, BuddyQuery.PROJECTION, null, null, null);
+			if (mBuddyUri.getScheme().equals("context")) {
+				loader = new CursorLoader(getActivity(), mBuddyUri, BuddyQuery.PROJECTION, null, null, null);
+			} else {
+				loader = new CursorLoader(getActivity(), Buddies.CONTENT_URI, BuddyQuery.PROJECTION, Buddies.BUDDY_NAME
+					+ "=?", new String[] { mBuddyUri.getLastPathSegment() }, null);
+			}
 		}
 		return loader;
 	}
@@ -199,6 +204,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mImageFetcher.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar);
 		}
 
+		mBuddyUri = Buddies.buildBuddyUri(id);
 		mFullName.setText(fullName);
 		mCallbacks.onNameChanged(fullName);
 		mName.setText(name);

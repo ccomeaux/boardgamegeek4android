@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -36,8 +37,9 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mName = getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		changeName(getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_FULL_NAME));
+		final Intent intent = getIntent();
+		mName = BuddyUtils.getNameFromIntent(intent);
+		changeName(intent.getStringExtra(BuddyUtils.KEY_BUDDY_FULL_NAME));
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);

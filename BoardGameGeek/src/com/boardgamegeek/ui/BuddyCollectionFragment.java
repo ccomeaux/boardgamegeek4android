@@ -68,7 +68,7 @@ public class BuddyCollectionFragment extends BggListFragment implements LoaderMa
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		mName = BuddyUtils.getNameFromIntent(intent);
 
 		if (TextUtils.isEmpty(mName)) {
 			LOGW(TAG, "Missing buddy name.");

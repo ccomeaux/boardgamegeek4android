@@ -159,8 +159,18 @@
 
 				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.buddy" />
 			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 
-			<meta-data
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+
+				<data
+					android:host="*boardgamegeek.com"
+					android:pathPrefix="/user"
+					android:scheme="http" />
+			</intent-filter>
+			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.BuddiesActivity" />
 		</activity>
