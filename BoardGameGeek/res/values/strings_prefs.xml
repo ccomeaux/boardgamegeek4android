@@ -82,6 +82,7 @@
 <ul>
 <li>Calculates your games played h-index</li>
 <li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
+<li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
 <li>Reword some text in the settings screens</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>

@@ -116,6 +116,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String COLLECTION_VIEWS = "collection_filters";
 		String COLLECTION_VIEW_FILTERS = "collection_filters_details";
 
+		String GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.GAME_ID);
 		String GAMES_JOIN_GAME_RANKS = createJoin(GAMES, GAME_RANKS, Games.GAME_ID);
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
