@@ -35,6 +35,7 @@ public class SyncCollectionDetailOldest extends SyncTask {
 				RemoteBggHandler handler = new RemoteGameHandler(System.currentTimeMillis());
 				String url = new GameUrlBuilder(gameIds).stats().build();
 				executor.executeGet(url, handler);
+				SyncService.hIndex(executor.getContext());
 				// syncResult.stats.numUpdates += handler.getCount();
 			}
 		} finally {

@@ -14,7 +14,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumsParser;
 import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -190,14 +190,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	public static class ForumsAdapter extends ArrayAdapter<Forum> {
 		private LayoutInflater mInflater;
 		private Resources mResources;
-		private String mLastPostText;
 		private NumberFormat mFormat = NumberFormat.getInstance();
 
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
 			super(activity, R.layout.row_forum, forums);
 			mInflater = activity.getLayoutInflater();
 			mResources = activity.getResources();
-			mLastPostText = mResources.getString(R.string.forum_last_post);
 		}
 
 		@Override
@@ -222,8 +220,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 				holder.forumTitle.setText(forum.title);
 				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads,
 					mFormat.format(forum.numberOfThreads)));
-				holder.lastPost.setText(String.format(mLastPostText,
-					DateUtils.getRelativeTimeSpanString(forum.lastPostDate)));
+				holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate));
 				holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
 			}
 			return convertView;

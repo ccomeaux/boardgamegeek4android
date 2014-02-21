@@ -26,7 +26,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
-
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private RemoteExecutor mExecutor;
 	private Account mAccount;
 	private Context mContext;
@@ -67,6 +67,7 @@ public class SyncPlays extends SyncTask {
 					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 				}
 			}
+			SyncService.hIndex(mContext);
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
@@ -134,8 +135,7 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private String formatDate(long time) {
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-		String date = df.format(new Date(time));
+		String date = FORMAT.format(new Date(time));
 		return date;
 	}
 

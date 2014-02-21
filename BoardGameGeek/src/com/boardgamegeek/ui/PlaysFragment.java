@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -106,6 +108,12 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setFastScrollEnabled(true);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -182,10 +190,13 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	@Override
 	public void onPrepareOptionsMenu(com.actionbarsherlock.view.Menu menu) {
 		DrawerActivity activity = (DrawerActivity) getActivity();
-		boolean isDrawerOpen = activity.isDrawerOpen();
-		showMenuItemsSafely(menu, R.id.menu_sort, !isDrawerOpen);
-		showMenuItemsSafely(menu, R.id.menu_refresh, !isDrawerOpen);
-		showMenuItemsSafely(menu, R.id.menu_refresh_on, !isDrawerOpen);
+		boolean showOptions = true;
+		if (activity != null) {
+			showOptions = !activity.isDrawerOpen();
+		}
+		showMenuItemsSafely(menu, R.id.menu_sort, showOptions);
+		showMenuItemsSafely(menu, R.id.menu_refresh, showOptions);
+		showMenuItemsSafely(menu, R.id.menu_refresh_on, showOptions);
 		super.onPrepareOptionsMenu(menu);
 	}
 
@@ -220,6 +231,18 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
+				return true;
+			case R.id.menu_h_index:
+				int hIndex = PreferencesUtils.getHIndex(getActivity());
+				Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle(R.string.sync_notification_title_h_index).setNegativeButton(R.string.close, null);
+				if (hIndex != -1) {
+					builder.setMessage(StringUtils.boldSecondString(getString(R.string.message_h_index),
+						String.valueOf(hIndex), "\n\n" + getString(R.string.message_h_index_description, hIndex)));
+				} else {
+					builder.setMessage(R.string.message_h_index_missing);
+				}
+				builder.create().show();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

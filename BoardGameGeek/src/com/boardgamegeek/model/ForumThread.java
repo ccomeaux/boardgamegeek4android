@@ -9,7 +9,7 @@ public class ForumThread implements Parcelable {
 	public String subject;
 	public String author;
 	public int numberOfArticles;
-	public long postPate;
+	public long postDate;
 	public long lastPostDate;
 	
 	public ForumThread() {
@@ -20,7 +20,7 @@ public class ForumThread implements Parcelable {
 		subject = in.readString();
 		author = in.readString();
 		numberOfArticles = in.readInt();
-		postPate = in.readLong();
+		postDate = in.readLong();
 		lastPostDate = in.readLong();
 	}
 
@@ -35,7 +35,7 @@ public class ForumThread implements Parcelable {
 		dest.writeString(subject);
 		dest.writeString(author);
 		dest.writeInt(numberOfArticles);
-		dest.writeLong(postPate);
+		dest.writeLong(postDate);
 		dest.writeLong(lastPostDate);
 	}
 

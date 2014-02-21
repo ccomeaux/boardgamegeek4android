@@ -176,7 +176,6 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	@Override
 	public CharSequence getSummary() {
-
 		if (mValues == null || mValues.size() == 0) {
 			return getContext().getString(R.string.pref_list_empty);
 		}
@@ -189,9 +188,13 @@ public class MultiSelectListPreference extends DialogPreference {
 					sb.append(mEntries[i]).append(", ");
 					break;
 				}
-			}			
+			}
 		}
-		return sb.substring(0, sb.length() - 2);
+		if (sb.length() > 2) {
+			return sb.substring(0, sb.length() - 2);
+		} else {
+			return sb.toString();
+		}
 	}
 
 	@Override
@@ -235,6 +238,8 @@ public class MultiSelectListPreference extends DialogPreference {
 		super.onDialogClosed(positiveResult);
 
 		if (positiveResult && mPreferenceChanged) {
+			notifyChanged();
+
 			final Set<String> values = mNewValues;
 			if (callChangeListener(values)) {
 				setValues(values);

@@ -46,4 +46,13 @@ public class DateTimeUtils {
 	public static String formatDateForApi(int year, int month, int day) {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
+
+	public static CharSequence formatForumDate(Context context, long date) {
+		if (PreferencesUtils.getForumDates(context)) {
+			return DateUtils.formatDateTime(context, date, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
+				| DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_TIME);
+		} else {
+			return DateUtils.getRelativeTimeSpanString(date);
+		}
+	}
 }

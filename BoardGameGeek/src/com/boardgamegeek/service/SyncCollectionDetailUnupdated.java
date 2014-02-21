@@ -46,6 +46,7 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 						// syncResult.stats.numUpdates += handler.getCount();
 					}
 				}
+				SyncService.hIndex(executor.getContext());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
