@@ -21,10 +21,12 @@ public abstract class SliderFilter {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 
+		final TextView descriptionView = (TextView) layout.findViewById(R.id.slider_filter_description);
 		final TextView textInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
 		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.slider_filter_slider);
 		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
 
+		initDescription(descriptionView);
 		initSlider(textInterval, sliderView);
 		initCheckbox(checkbox, sliderView);
 
@@ -43,6 +45,15 @@ public abstract class SliderFilter {
 			}).setView(layout);
 
 		builder.create().show();
+	}
+
+	private void initDescription(TextView view) {
+		if (getDescriptionId() == -1) {
+			view.setVisibility(View.GONE);
+		} else {
+			view.setText(getDescriptionId());
+			view.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void initSlider(final TextView textInterval, final DualSliderView sliderView) {
@@ -111,6 +122,10 @@ public abstract class SliderFilter {
 
 	protected int getCheckboxTextId() {
 		return R.string.include_missing_values;
+	}
+
+	protected int getDescriptionId() {
+		return -1;
 	}
 
 	protected boolean getCheckboxDisablesSecondThumb() {

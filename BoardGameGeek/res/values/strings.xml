@@ -63,6 +63,7 @@
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
 	<string name="include_missing_values">Include games with missing values</string>
+	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
