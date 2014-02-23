@@ -96,7 +96,7 @@
 
 				<data
 					android:host="*boardgamegeek.com"
-					android:pathPrefix="/boardgame"
+					android:pathPrefix="/boardgame/"
 					android:scheme="http" />
 			</intent-filter>
 
@@ -167,7 +167,7 @@
 
 				<data
 					android:host="*boardgamegeek.com"
-					android:pathPrefix="/user"
+					android:pathPrefix="/user/"
 					android:scheme="http" />
 			</intent-filter>
 
