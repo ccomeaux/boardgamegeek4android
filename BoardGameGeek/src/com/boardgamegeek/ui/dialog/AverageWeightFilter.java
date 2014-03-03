@@ -68,6 +68,11 @@ public class AverageWeightFilter extends SliderFilter {
 	protected int getTitleId() {
 		return R.string.menu_average_weight;
 	}
+	
+	@Override
+	protected int getDescriptionId() {
+		return R.string.filter_description_include_missing_average_weight;
+	}
 
 	@Override
 	protected void initValues(CollectionFilterData filter) {

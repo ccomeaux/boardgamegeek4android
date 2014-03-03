@@ -64,6 +64,9 @@
 	<string name="exactly">Exactly</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
+	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
+	<string name="filter_description_include_missing_suggested_age">If you <b>include games with missing values</b>, the filter will show games without a suggested age.</string>
+	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
@@ -357,7 +360,7 @@
 	<string name="message_h_index">Your h-index is</string>
 	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
 	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
-	
+
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
 		<item quantity="other">Deleted %s colors</item>
