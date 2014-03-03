@@ -25,6 +25,7 @@ public class ColorUtils {
 	public static final int ROSE = 0xFFFF007F;
 	public static final int BRONZE = 0xFF8C7853;
 	public static final int PINK = 0xFFCD919E;
+	public static final int TEAL = 0xFF008080;
 
 	public static int parseColor(String colorString) {
 		if (TextUtils.isEmpty(colorString)) {
@@ -72,5 +73,6 @@ public class ColorUtils {
 		sColorNameMap.put("rose", ROSE);
 		sColorNameMap.put("bronze", BRONZE);
 		sColorNameMap.put("pink", PINK);
+		sColorNameMap.put("teal", TEAL);
 	}
 }
