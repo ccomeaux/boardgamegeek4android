@@ -96,6 +96,7 @@
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="never">Never</string>
+	<string name="keep">Keep</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
@@ -356,6 +357,8 @@
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
+	<string name="title_custom_player_order">Custom Player Order</string>
+	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
 	<string name="title_h_index">H-index</string>
 	<string name="message_h_index">Your h-index is</string>
 	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
