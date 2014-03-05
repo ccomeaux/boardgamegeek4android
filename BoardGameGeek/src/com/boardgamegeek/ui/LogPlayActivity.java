@@ -546,6 +546,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	public void onTimerEnd(final View view) {
+		mEndPlay = true;
 		mPlay.end();
 		bindUiPlay();
 		mLengthView.requestFocus();
@@ -591,6 +592,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
@@ -619,6 +621,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				int offsetPosition = position - 1; // offset by the list header
 				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
 				Intent intent = player.toIntent();
+				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
