@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="30"
+	android:versionCode="32"
 	android:versionName="develop" >
 
 	<uses-sdk
@@ -88,10 +88,6 @@
 
 				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game" />
 			</intent-filter>
-
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.CollectionActivity" />
 		</activity>
 		<activity
 			android:name=".ui.ImageActivity"
@@ -100,6 +96,9 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
 		</activity>
+		<activity
+			android:name=".ui.GameDetailActivity"
+			android:label="@string/title_game_detail" />
 		<activity
 			android:name=".ui.ProducerActivity"
 			android:exported="false"

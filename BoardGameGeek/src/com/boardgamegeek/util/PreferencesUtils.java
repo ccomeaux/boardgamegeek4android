@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
@@ -88,8 +89,28 @@ public class PreferencesUtils {
 		return getStringArray(context, "syncStatuses", "");
 	}
 
+	public static boolean isSyncStatus(Context context, String status) {
+		if (TextUtils.isEmpty(status)) {
+			return false;
+		}
+		String[] statuses = getStringArray(context, "syncStatuses", "");
+		if (statuses == null) {
+			return false;
+		}
+		for (int i = 0; i < statuses.length; i++) {
+			if (status.equals(statuses[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static boolean getSyncPlays(Context context) {
 		return getBoolean(context, "syncPlays", false);
+	}
+
+	public static boolean isSyncPlays(String key) {
+		return "syncPlays".equals(key);
 	}
 
 	public static boolean getSyncBuddies(Context context) {
@@ -106,6 +127,10 @@ public class PreferencesUtils {
 
 	public static boolean getSyncOnlyWifi(Context context) {
 		return getBoolean(context, "sync_only_wifi", false);
+	}
+
+	public static boolean getForumDates(Context context) {
+		return getBoolean(context, "advancedForumDates", false);
 	}
 
 	public static boolean getDebugInserts(Context context) {
@@ -137,6 +162,21 @@ public class PreferencesUtils {
 
 	public static void removeNewPlayId(Context context, int oldPlayId) {
 		putNewPlayId(context, oldPlayId, BggContract.INVALID_ID);
+	}
+
+	public static int getHIndex(Context context) {
+		return getInt(context, "hIndex", -1);
+	}
+
+	public static boolean putHIndex(Context context, int hIndex) {
+		return putInt(context, "hIndex", hIndex);
+	}
+
+	private static boolean putInt(Context context, String key, int hIndex) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putInt(key, hIndex);
+		return editor.commit();
 	}
 
 	private static boolean getBoolean(Context context, String key, boolean defaultValue) {

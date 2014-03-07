@@ -29,12 +29,13 @@ public class SyncCollectionDetailOldest extends SyncTask {
 		LOGI(TAG, "Syncing oldest games in the collection...");
 		try {
 			List<String> gameIds = ResolverUtils.queryStrings(executor.getContext().getContentResolver(),
-				Games.CONTENT_URI, Games.GAME_ID, null, null, Games.UPDATED + " LIMIT " + SYNC_GAME_LIMIT);
+				Games.CONTENT_URI, Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + SYNC_GAME_LIMIT);
 			LOGI(TAG, "...found " + gameIds.size() + " games to update");
 			if (gameIds.size() > 0) {
 				RemoteBggHandler handler = new RemoteGameHandler(System.currentTimeMillis());
 				String url = new GameUrlBuilder(gameIds).stats().build();
 				executor.executeGet(url, handler);
+				SyncService.hIndex(executor.getContext());
 				// syncResult.stats.numUpdates += handler.getCount();
 			}
 		} finally {

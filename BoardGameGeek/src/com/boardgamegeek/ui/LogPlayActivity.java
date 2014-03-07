@@ -117,16 +117,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_logplay);
-		getSupportActionBar().setHomeButtonEnabled(false);
-		mPlayAdapter = new PlayAdapter();
-		setUiVariables();
 
 		final Intent intent = getIntent();
 		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
 			LOGW(TAG, "Received bad intent action: " + intent.getAction());
 			finish();
 		}
+
+		setContentView(R.layout.activity_logplay);
+		getSupportActionBar().setHomeButtonEnabled(false);
+		mPlayAdapter = new PlayAdapter();
+		setUiVariables();
 
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -173,6 +174,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 
 		bindUi();
+		mLocationView.requestFocus();
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
@@ -282,19 +284,40 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				promptAddField(array, item);
 				return true;
 			case R.id.menu_custom_player_order:
-				if (mCustomPlayerSort && mPlay.arePlayersCustomSorted()) {
-					final MenuItem finalItem = item;
-					Dialog dialog = ActivityUtils.createConfirmationDialog(this,
-						R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								mPlay.pickStartPlayer(0);
-								toggleCustomSort(finalItem);
-							}
-						});
-					dialog.show();
+				final MenuItem finalItem = item;
+				if (mCustomPlayerSort) {
+					if (mPlay.arePlayersCustomSorted()) {
+						Dialog dialog = ActivityUtils.createConfirmationDialog(this,
+							R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									mPlay.pickStartPlayer(0);
+									bindUiPlayers();
+									toggleCustomSort(finalItem);
+								}
+							});
+						dialog.show();
+					} else {
+						mPlay.pickStartPlayer(0);
+						bindUiPlayers();
+						toggleCustomSort(item);
+					}
 				} else {
 					toggleCustomSort(item);
+					if (mPlay.hasStartingPositions()) {
+						AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false)
+							.setTitle(R.string.title_custom_player_order)
+							.setMessage(R.string.message_custom_player_order).setNegativeButton(R.string.keep, null)
+							.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									mPlay.clearPlayerPositions();
+									bindUiPlayers();
+								}
+							});
+						builder = ActivityUtils.addAlertIcon(builder);
+						builder.create().show();
+					}
 				}
 				return true;
 			case R.id.menu_pick_start_player:
@@ -523,6 +546,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	public void onTimerEnd(final View view) {
+		mEndPlay = true;
 		mPlay.end();
 		bindUiPlay();
 		mLengthView.requestFocus();
@@ -568,6 +592,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
@@ -596,6 +621,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				int offsetPosition = position - 1; // offset by the list header
 				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
 				Intent intent = player.toIntent();
+				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}

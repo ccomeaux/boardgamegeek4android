@@ -72,5 +72,13 @@
 		<item>Edits and Drafts</item>
 		<item>Pending Upload</item>
 	</string-array>
+	<string-array name="many">
+		<item>A lot</item>
+		<item>A multitude</item>
+		<item>Bunches</item>
+		<item>Many</item>
+		<item>Oodles</item>
+		<item>Scads</item>
+	</string-array>
 
 </resources>

@@ -35,10 +35,24 @@ public class DateTimeUtils {
 		return (int) ((System.currentTimeMillis() - time) / DateUtils.MINUTE_IN_MILLIS);
 	}
 
+	public static long hoursAgo(int hours) {
+		long timeInMillis = hours * DateUtils.HOUR_IN_MILLIS;
+		return System.currentTimeMillis() - timeInMillis;
+	}
+
 	/**
 	 * Formats a date for use in the API (<code>yyyy-mm-dd</code>)
 	 */
 	public static String formatDateForApi(int year, int month, int day) {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
+	}
+
+	public static CharSequence formatForumDate(Context context, long date) {
+		if (PreferencesUtils.getForumDates(context)) {
+			return DateUtils.formatDateTime(context, date, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
+				| DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_TIME);
+		} else {
+			return DateUtils.getRelativeTimeSpanString(date);
+		}
 	}
 }

@@ -46,6 +46,12 @@ import com.boardgamegeek.ui.PlayActivity;
 
 public class ActivityUtils {
 	// private static final String TAG = makeLogTag(ActivityUtils.class);
+
+	public final static String KEY_TITLE = "TITLE";
+	public final static String KEY_GAME_ID = "GAME_ID";
+	public final static String KEY_GAME_NAME = "GAME_NAME";
+	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+
 	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
@@ -88,7 +94,7 @@ public class ActivityUtils {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener).setTitle(R.string.are_you_sure_title);
-		builder = addIcon(builder);
+		builder = addAlertIcon(builder);
 		if (messageId != -1) {
 			builder.setMessage(messageId);
 		} else {
@@ -102,7 +108,7 @@ public class ActivityUtils {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private static AlertDialog.Builder addIcon(AlertDialog.Builder builder) {
+	public static AlertDialog.Builder addAlertIcon(AlertDialog.Builder builder) {
 		if (VersionUtils.hasHoneycomb()) {
 			return builder.setIconAttribute(android.R.attr.alertDialogIcon);
 		} else {
@@ -294,9 +300,10 @@ public class ActivityUtils {
 		}
 	}
 
-	public static Intent createShortcut(Context context, int gameId, String gameName) {
+	public static Intent createGameShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
 		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(GameActivity.KEY_FROM_SHORTCUT, true);
 
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);

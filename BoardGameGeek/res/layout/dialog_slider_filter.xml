@@ -25,4 +25,14 @@
 		android:layout_height="wrap_content"
 		android:text="@string/include_missing_values" />
 
+	<TextView
+		android:id="@+id/slider_filter_description"
+		style="@style/Text.Dialog"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:paddingTop="@dimen/padding_extra"
+		android:text="@string/filter_description_player_number"
+		android:visibility="gone" />
+
 </LinearLayout>

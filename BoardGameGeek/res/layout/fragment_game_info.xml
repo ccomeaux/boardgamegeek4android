@@ -261,21 +261,24 @@
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:label="@string/designers" />
+				bgg:label="@string/designers"
+				bgg:query_token="1" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_artists"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:label="@string/artists" />
+				bgg:label="@string/artists"
+				bgg:query_token="2" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_publishers"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:label="@string/publishers" />
+				bgg:label="@string/publishers"
+				bgg:query_token="3" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_categories"
@@ -283,7 +286,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:clickable="false"
-				bgg:label="@string/categories" />
+				bgg:label="@string/categories"
+				bgg:query_token="4" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_mechanics"
@@ -291,21 +295,24 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:clickable="false"
-				bgg:label="@string/mechanics" />
+				bgg:label="@string/mechanics"
+				bgg:query_token="5" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_expansions"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:label="@string/expansions" />
+				bgg:label="@string/expansions"
+				bgg:query_token="6" />
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_base_games"
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:label="@string/base_games" />
+				bgg:label="@string/base_games"
+				bgg:query_token="7" />
 
 			<LinearLayout
 				android:id="@+id/game_info_stats_root"

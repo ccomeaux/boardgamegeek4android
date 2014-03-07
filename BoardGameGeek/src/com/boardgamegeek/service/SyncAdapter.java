@@ -199,6 +199,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionListUnupdated());
 			tasks.add(new SyncCollectionDetailOldest());
 			tasks.add(new SyncCollectionDetailUnupdated());
+			tasks.add(new SyncCollectionDetailMissing());
 		}
 		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
 			tasks.add(new SyncBuddiesList());

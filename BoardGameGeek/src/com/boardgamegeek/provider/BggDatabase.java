@@ -116,6 +116,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String COLLECTION_VIEWS = "collection_filters";
 		String COLLECTION_VIEW_FILTERS = "collection_filters_details";
 
+		String GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.GAME_ID);
 		String GAMES_JOIN_GAME_RANKS = createJoin(GAMES, GAME_RANKS, Games.GAME_ID);
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
@@ -139,7 +140,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS = Tables.PLAY_PLAYERS
 			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID)
-			+ createJoinSuffix(PLAY_PLAYERS, PLAY_ITEMS, Plays.PLAY_ID);
+			+ createJoinSuffix(PLAY_PLAYERS, PLAY_ITEMS, Plays.PLAY_ID)
+			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
 		String PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS = Tables.PLAY_ITEMS
 			+ createJoinSuffix(PLAY_ITEMS, PLAYS, PlayItems.PLAY_ID)
 			+ createJoinSuffix(PLAY_ITEMS, PLAY_PLAYERS, PlayItems.PLAY_ID)

@@ -4,10 +4,10 @@
 	<string name="pref_search">Search</string>
 	<string name="pref_exact_search">Exact search</string>
 	<string name="pref_exact_search_off">Always perform a partial-name search</string>
-	<string name="pref_exact_search_on">Search for the exact name first</string>
+	<string name="pref_exact_search_on">Search for the exact name first, then search for a partial name if there\'s no results</string>
 	<string name="pref_skipResults">Skip results</string>
 	<string name="pref_skipResults_off">Stop at the results page even if there is only one result</string>
-	<string name="pref_skipResults_on">Skip the results page if there is only one result</string>
+	<string name="pref_skipResults_on">Skip the results page and go directly to the game if there is only one result</string>
 	<string name="pref_search_global">Global search</string>
 	<string name="pref_search_global_descr">Allows searching from the Quick Search Box</string>
 	<string name="pref_log">Logging plays</string>
@@ -39,30 +39,33 @@
 	<string name="pref_sync_group_what">What</string>
 	<string name="pref_sync_group_how">How</string>
 	<string name="pref_sync_group_tasks">Tasks</string>
-	<string name="pref_sync_statuses">Collection statuses</string>
+	<string name="pref_sync_statuses">Collection</string>
 	<string name="pref_sync_buddies">GeekBuddies</string>
-	<string name="pref_sync_plays">Games played</string>
+	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_notifications">Notifications</string>
-	<string name="pref_sync_only_charging">Sync only while charging</string>
-	<string name="pref_sync_only_wifi">Sync only when on WiFi</string>
+	<string name="pref_sync_only_charging">Only while charging</string>
+	<string name="pref_sync_only_wifi">Only on WiFi</string>
 	<string name="pref_sync_sign_out">Sign out</string>
 	<string name="pref_sync_sign_out_pos">Sign out</string>
 	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out?</string>
-	<string name="pref_sync_clear">Clear</string>
+	<string name="pref_sync_clear">Clear data</string>
 	<string name="pref_sync_clear_pos">Clear</string>
-	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed.</string>
+	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed. But you can re-sync.</string>
 	<string name="pref_sync_clear_success">Clear complete</string>
 	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
-	<string name="pref_sync_reset_collection">Full collection sync</string>
-	<string name="pref_sync_reset_plays">Full plays sync</string>
-	<string name="pref_sync_reset_pos">Force</string>
+	<string name="pref_sync_reset_collection">Sync entire collection</string>
+	<string name="pref_sync_reset_plays">Sync all plays</string>
+	<string name="pref_sync_reset_pos">Sync</string>
 	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
 	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
-	<string name="pref_sync_reset_success">Full sync started</string>
-	<string name="pref_sync_reset_failure">Full sync failed - are you sure you\'re signed in\?</string>
+	<string name="pref_sync_reset_success">Sync started</string>
+	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 	<string name="pref_advanced">Advanced</string>
-	<string name="pref_advanced_debug_inserts">Debug inserts</string>
+	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
+	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
+	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
+	<string name="pref_advanced_debug_inserts">Debug</string>
 	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not crashing</string>
 	<string name="pref_advanced_debug_inserts_on">Next time the app crashes, please send a report. Thanks for helping us debug!</string>
 	<string name="pref_advanced_polls">Polls</string>
@@ -77,14 +80,14 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
-<li>When logging a play, players are automatically placed in seating order with the ability to drag and drop</li>
-<li>Ability to refresh plays for a specific day</li>
-<li>When adding a player, keep adding them until the user cancels</li>
-<li>Menu options to share and view forums in a browser</li>
-<li>Improve the settings screen and move some of the standard menu options there</li>
-<li>Fix lots of reported crashes</li>
+<li>Calculates your games played h-index</li>
+<li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
+<li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
+<li>When enabling custom player order, prompt to remove the existing starting positions</li>
+<li>Reword some text in the settings screens</li>
+<li>Add a brief description to some of the filter dialogs</li>
+<li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
-<a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a><br/>
 <br/>
 Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.]]>
 	</string>

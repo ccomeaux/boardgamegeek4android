@@ -63,6 +63,10 @@
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
 	<string name="include_missing_values">Include games with missing values</string>
+	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
+	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
+	<string name="filter_description_include_missing_suggested_age">If you <b>include games with missing values</b>, the filter will show games without a suggested age.</string>
+	<string name="filter_description_include_missing_average_weight">If you <b>include games with missing values</b>, the filter will show games without a reported average weight.</string>
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
@@ -92,6 +96,7 @@
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="never">Never</string>
+	<string name="keep">Keep</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
@@ -110,6 +115,7 @@
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_game">Game</string>
+	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>
 	<string name="title_buddies">GeekBuddies</string>
 	<string name="title_buddy">GeekBuddy</string>
@@ -142,12 +148,16 @@
 	<string name="notification_playing_game">Playing "%s"</string>
 	<string name="pref_warning_username">Please sign in first.</string>
 	<string name="loading">Loading…</string>
-	<string name="empty_buddies">No buddies</string>
-	<string name="empty_collection">No games in your collection. Check your filter and sync settings and synchronize again.</string>
+	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
+	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
+	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
+	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
+	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
 	<string name="empty_game_collection">This game isn\'t in your collection. Want to add it? That\'s coming later…</string>
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
-	<string name="empty_colors">No teams/colors set for this game</string>
-	<string name="empty_plays">No plays. Do you even like games?</string>
+	<string name="empty_colors">No teams/colors set for this game.</string>
+	<string name="empty_plays">You have no plays logged. Do you even like games?</string>
+	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
@@ -155,9 +165,9 @@
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play">No play ID %s."</string>
-	<string name="empty_forums">No forums</string>
-	<string name="empty_forum">No threads in this forum</string>
-	<string name="empty_thread">No posts in this thread</string>
+	<string name="empty_forums">No forums.</string>
+	<string name="empty_forum">No threads in this forum.</string>
+	<string name="empty_thread">No posts in this thread.</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="search_label">BoardGameGeek</string>
@@ -176,6 +186,7 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
+	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -211,7 +222,6 @@
 	<string name="longest">Longest</string>
 	<string name="menu_collection_sort_age">Suggested Age</string>
 	<string name="youngest">Youngest</string>
-	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_weight">Average Weight</string>
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
@@ -250,10 +260,10 @@
 	<string name="msg_player_deleted">Player deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
-	<string name="msg_play_added">Logged your %1$s play of \"%2$s\"</string>
-	<string name="msg_play_updated">Updated a play of \"%2$s\"</string>
-	<string name="msg_play_deleted">Deleted a play of \"%s\"</string>
-	<string name="msg_play_deleted_draft">Deleted a draft of \"%s\"</string>
+	<string name="msg_play_added">Logged your %s play of</string>
+	<string name="msg_play_updated">Updated a play of</string>
+	<string name="msg_play_deleted">Deleted a play of</string>
+	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play was already deleted.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
@@ -309,6 +319,7 @@
 	<string name="rating_denominator">" / 10"</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
+	<string name="and_more">, and more</string>
 	<string name="toggle">toggle</string>
 	<string name="number_to_text">123/ABC</string>
 	<string name="close">Close</string>
@@ -346,6 +357,12 @@
 	<string name="msg_colors_generated">Colors generated!</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
+	<string name="title_custom_player_order">Custom Player Order</string>
+	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
+	<string name="title_h_index">H-index</string>
+	<string name="message_h_index">Your h-index is</string>
+	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
+	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

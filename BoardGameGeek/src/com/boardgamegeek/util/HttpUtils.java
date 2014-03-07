@@ -161,7 +161,11 @@ public class HttpUtils {
 				httpClient = HttpUtils.createHttpClient(context, useGzip);
 			}
 		} else {
-			long expiry = Long.parseLong(accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY));
+			long expiry = 0;
+			final String userData = accountManager.getUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY);
+			if (!TextUtils.isEmpty(userData)) {
+				expiry = Long.parseLong(userData);
+			}
 			httpClient = HttpUtils.createHttpClient(context, account.name, authToken, expiry, useGzip);
 		}
 		return httpClient;

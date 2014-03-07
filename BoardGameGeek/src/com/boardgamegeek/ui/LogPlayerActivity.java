@@ -47,6 +47,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
+	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
@@ -97,6 +98,10 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
+		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
+			mScoreShown = true;
+			mScore.requestFocus();
+		}
 
 		if (hasAutoPosition()) {
 			setTitle(getTitle() + " #" + mAutoPosition);

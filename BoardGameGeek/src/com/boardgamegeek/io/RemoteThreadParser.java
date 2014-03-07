@@ -6,8 +6,10 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -15,7 +17,7 @@ import com.boardgamegeek.model.ThreadArticle;
 import com.boardgamegeek.util.HttpUtils;
 
 public class RemoteThreadParser extends RemoteBggParser {
-	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz", Locale.US);
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 	private String mUrl;
 
@@ -57,8 +59,8 @@ public class RemoteThreadParser extends RemoteBggParser {
 				int id = parseIntegerAttribute(Tags.ID);
 				String userName = parseStringAttribute(Tags.USERNAME);
 				String link = parseStringAttribute(Tags.LINK);
-				long postDate = parseDateAttribute(Tags.POST_DATE, DATE_FORMAT, true);
-				long editDate = parseDateAttribute(Tags.EDIT_DATE, DATE_FORMAT, true);
+				long postDate = parseDateAttribute(Tags.POST_DATE, FORMAT, true);
+				long editDate = parseDateAttribute(Tags.EDIT_DATE, FORMAT, true);
 				int numEdits = parseIntegerAttribute(Tags.NUM_EDITS);
 
 				ThreadArticle article = parseItem();

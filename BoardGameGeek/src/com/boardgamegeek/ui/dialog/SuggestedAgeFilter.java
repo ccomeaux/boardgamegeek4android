@@ -29,6 +29,11 @@ public class SuggestedAgeFilter extends SliderFilter {
 	protected int getTitleId() {
 		return R.string.menu_suggested_age;
 	}
+	
+	@Override
+	protected int getDescriptionId() {
+		return R.string.filter_description_include_missing_suggested_age;
+	}
 
 	@Override
 	protected CollectionFilterData getNegativeData() {

@@ -8,11 +8,9 @@ import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -143,7 +141,7 @@ public abstract class RemoteBggParser {
 		return StringUtils.parseInt(parseStringAttribute(tag), defaultValue);
 	}
 
-	protected long parseDateAttribute(String tag, String format, boolean includesTimeZone) {
+	protected long parseDateAttribute(String tag, SimpleDateFormat format, boolean includesTimeZone) {
 		String dateText = parseStringAttribute(tag);
 		if (TextUtils.isEmpty(dateText)) {
 			LOGW(TAG, "Missing date");
@@ -152,9 +150,8 @@ public abstract class RemoteBggParser {
 		if (includesTimeZone) {
 			dateText = fixupTimeZone(dateText);
 		}
-		DateFormat sdf = new SimpleDateFormat(format, Locale.US);
 		try {
-			final Date date = sdf.parse(dateText);
+			final Date date = format.parse(dateText);
 			return date.getTime();
 		} catch (ParseException e) {
 			LOGE(TAG, "Couldn't parse date", e);

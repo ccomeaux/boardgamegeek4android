@@ -9,8 +9,8 @@ import android.text.TextUtils;
 
 public class PlaysUrlBuilder extends UrlBuilder {
 	// http://boardgamegeek.com/xmlapi2/plays?username=ccomeaux&mindate=2011-11-30&maxdate=2011-12-03
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private final String mUsername;
-	private final DateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int mGameId;
 	private String mMinDate;
 	private String mMaxDate;
@@ -32,8 +32,8 @@ public class PlaysUrlBuilder extends UrlBuilder {
 	}
 
 	public PlaysUrlBuilder date(long date) {
-		mMinDate = mDateFormat.format(new Date(date));
-		mMaxDate = mDateFormat.format(new Date(date));
+		mMinDate = FORMAT.format(new Date(date));
+		mMaxDate = FORMAT.format(new Date(date));
 		return this;
 	}
 
@@ -43,7 +43,7 @@ public class PlaysUrlBuilder extends UrlBuilder {
 	}
 
 	public PlaysUrlBuilder minDate(long date) {
-		mMinDate = mDateFormat.format(new Date(date));
+		mMinDate = FORMAT.format(new Date(date));
 		return this;
 	}
 
@@ -53,7 +53,7 @@ public class PlaysUrlBuilder extends UrlBuilder {
 	}
 
 	public PlaysUrlBuilder maxDate(long date) {
-		mMaxDate = mDateFormat.format(new Date(date));
+		mMaxDate = FORMAT.format(new Date(date));
 		return this;
 	}
 
