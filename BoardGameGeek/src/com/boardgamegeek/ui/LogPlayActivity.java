@@ -54,6 +54,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -166,6 +167,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				// Starting a new play
 				mPlay.PlayId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
+
+				long lastPlay = PreferencesUtils.getLastPlayTime(this);
+				if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
+					mPlay.Location = PreferencesUtils.getLastPlayLocation(this);
+					mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
+					bindUiPlay(); // needed for location to be saved in draft
+				}
+
 				saveDraft(false);
 				setResult(mPlay.PlayId);
 				mOriginalPlay = PlayBuilder.copy(mPlay);
@@ -425,6 +434,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
+		if (!mPlay.hasBeenSynced()) {
+			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
+			PreferencesUtils.putLastPlayLocation(this, mPlay.Location);
+			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
+		}
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();

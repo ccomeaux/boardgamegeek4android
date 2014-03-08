@@ -80,6 +80,7 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>Consider a play started within 2 hours of the previous play ending as part of the same session, and copy the location and players to the new play</li>
 <li>Calculates your games played h-index</li>
 <li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
 <li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
