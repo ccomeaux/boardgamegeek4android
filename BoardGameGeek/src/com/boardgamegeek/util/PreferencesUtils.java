@@ -172,10 +172,10 @@ public class PreferencesUtils {
 		return putInt(context, "hIndex", hIndex);
 	}
 
-	private static boolean putInt(Context context, String key, int hIndex) {
+	private static boolean putInt(Context context, String key, int value) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		editor.putInt(key, hIndex);
+		editor.putInt(key, value);
 		return editor.commit();
 	}
 
