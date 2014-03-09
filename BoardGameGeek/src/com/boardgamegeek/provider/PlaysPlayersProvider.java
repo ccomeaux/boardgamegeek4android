@@ -17,8 +17,9 @@ public class PlaysPlayersProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		if (BggContract.FRAGMENT_NAME.equals(uri.getFragment())) {
-			return new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME);
+		if (BggContract.QUERY_VALUE_NAME_NOT_USER.equals(uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY))) {
+			return new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
+				.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
 		} else {
 			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
 				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)

@@ -232,7 +232,8 @@ public class BggContract {
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
-	public static final String FRAGMENT_NAME = "name";
+	public static final String QUERY_KEY_GROUP_BY = "groupby";
+	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
@@ -758,8 +759,9 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
 		}
 
-		public static Uri buildPlayersUniqueUri() {
-			return buildPlayersUri().buildUpon().fragment(FRAGMENT_NAME).build();
+		public static Uri buildPlayersByNameWithoutUsernameUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
+				.build();
 		}
 
 		public static int getPlayId(Uri uri) {

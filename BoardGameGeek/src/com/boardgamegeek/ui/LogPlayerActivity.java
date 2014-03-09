@@ -132,7 +132,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 		mUsernameAdapter = new UsernameAdapter(this);
 		mUsername.setAdapter(mUsernameAdapter);
-		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersUniqueUri(),
+		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersByNameWithoutUsernameUri(),
 			PlayPlayers.NAME));
 		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
 
