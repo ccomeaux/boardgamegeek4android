@@ -106,6 +106,7 @@
 	<string name="are_you_sure_delete_player">Are you sure you want to delete this player?</string>
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
+	<string name="are_you_sure_players_clear">Are you sure you want to clear all of the players from this play?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -312,6 +313,7 @@
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>
+	<string name="menu_players_clear">Clear players</string>
 	<string name="generic_player">Player #%d</string>
 	<string name="notification_start_player">%s starts!</string>
 	<string name="stats">Stats</string>

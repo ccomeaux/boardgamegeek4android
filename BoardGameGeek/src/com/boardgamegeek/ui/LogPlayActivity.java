@@ -172,6 +172,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
 					mPlay.Location = PreferencesUtils.getLastPlayLocation(this);
 					mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
+					mPlay.pickStartPlayer(0);
 					bindUiPlay(); // needed for location to be saved in draft
 				}
 
@@ -253,6 +254,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_random_start_player).setEnabled(!mCustomPlayerSort);
 			menu.findItem(R.id.menu_random_player_order).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_random_player_order).setEnabled(!mCustomPlayerSort);
+			menu.findItem(R.id.menu_players_clear).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
@@ -342,6 +344,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.randomizePlayerOrder();
 				notifyStartPlayer();
 				bindUiPlayers();
+				return true;
+			case R.id.menu_players_clear:
+				Dialog dialog = ActivityUtils.createConfirmationDialog(this,
+					R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+				mPlay.clearPlayers();
+				bindUiPlayers();
+						}
+					});
+				dialog.show();
 				return true;
 		}
 		return false;
