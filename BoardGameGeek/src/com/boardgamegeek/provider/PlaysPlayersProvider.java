@@ -17,14 +17,25 @@ public class PlaysPlayersProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		if (BggContract.QUERY_VALUE_NAME_NOT_USER.equals(uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY))) {
-			return new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
+		SelectionBuilder builder = new SelectionBuilder();
+		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
+		if (BggContract.QUERY_VALUE_NAME_NOT_USER.equals(groupBy)) {
+			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
 				.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
+		} else if (BggContract.QUERY_VALUE_UNIQUE_NAME.equals(groupBy)) {
+			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS).mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+				.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
+				.groupBy(PlayPlayers.UNIQUE_NAME);
 		} else {
-			return new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
 				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
 		}
+		builder.map(PlayPlayers.CHECKED, "0").map(PlayPlayers.COUNT, "count(*)")
+			.map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
+			.map(PlayPlayers.DESCRIPTION, "name || IFNULL(NULLIF(' ('||user_name||')', ' ()'), '')");
+		return builder;
 	}
 
 	@Override

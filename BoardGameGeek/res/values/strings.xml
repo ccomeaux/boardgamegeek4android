@@ -97,6 +97,7 @@
 	<string name="no">No</string>
 	<string name="never">Never</string>
 	<string name="keep">Keep</string>
+	<string name="more">More</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
@@ -122,6 +123,7 @@
 	<string name="title_buddy">GeekBuddy</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
+	<string name="title_add_players">Add Players</string>
 	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_colors">Colors</string>

@@ -9,6 +9,7 @@ import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
@@ -190,7 +191,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 		bindUi();
 		if (requestLocationFocus && mLocationView.getVisibility() == View.VISIBLE) {
-		mLocationView.requestFocus();
+			mLocationView.requestFocus();
 		}
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
@@ -357,8 +358,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-				mPlay.clearPlayers();
-				bindUiPlayers();
+							mPlay.clearPlayers();
+							bindUiPlayers();
 						}
 					});
 				dialog.show();
@@ -552,12 +553,59 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	public void onAddPlayerClick(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
-			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			if (mPlay.getPlayerCount() == 0) {
+				Builder builder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
+					.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
+					.setNeutralButton(R.string.more, addPlayersButtonClickListener())
+					.setNegativeButton(android.R.string.cancel, null);
+				builder.setMultiChoiceItems(
+					getContentResolver().query(
+						Plays.buildPlayersByUniqueNameUri(),
+						new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.CHECKED,
+							PlayPlayers.DESCRIPTION, PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, null, null,
+						PlayPlayers.SORT_BY_COUNT), PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION,
+					addPlayersMultiChoiceClickListener());
+				builder.create().show();
+			} else {
+				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			}
 		} else {
 			mPlay.addPlayer(new Player());
 			bindUiPlayers();
 			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
+	}
+
+	private DialogInterface.OnMultiChoiceClickListener addPlayersMultiChoiceClickListener() {
+		return new DialogInterface.OnMultiChoiceClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+				Cursor cursor = (Cursor) ((AlertDialog) dialog).getListView().getAdapter().getItem(which);
+				Player player = new Player();
+				player.Username = cursor.getString(1);
+				player.Name = cursor.getString(2);
+				if (isChecked) {
+					mPlay.addPlayer(player);
+				} else {
+					mPlay.removePlayer(player, false);
+				}
+			}
+		};
+	}
+
+	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
+		return new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (!mCustomPlayerSort) {
+					mPlay.pickStartPlayer(0);
+				}
+				bindUiPlayers();
+				if (which == DialogInterface.BUTTON_NEUTRAL) {
+					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+				}
+			}
+		};
 	}
 
 	@Override
