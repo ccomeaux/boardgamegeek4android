@@ -90,6 +90,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mLaunchingActivity;
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
+	private Builder mAddPlayersBuilder;
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -554,18 +555,30 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onAddPlayerClick(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
 			if (mPlay.getPlayerCount() == 0) {
-				Builder builder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
-					.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
-					.setNeutralButton(R.string.more, addPlayersButtonClickListener())
-					.setNegativeButton(android.R.string.cancel, null);
-				builder.setMultiChoiceItems(
-					getContentResolver().query(
-						Plays.buildPlayersByUniqueNameUri(),
-						new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.CHECKED,
-							PlayPlayers.DESCRIPTION, PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, null, null,
-						PlayPlayers.SORT_BY_COUNT), PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION,
-					addPlayersMultiChoiceClickListener());
-				builder.create().show();
+				if (mAddPlayersBuilder == null) {
+					mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
+						.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
+						.setNeutralButton(R.string.more, addPlayersButtonClickListener())
+						.setNegativeButton(android.R.string.cancel, null);
+				}
+
+				captureForm();
+				String selection = null;
+				String[] selectionArgs = null;
+				if (!TextUtils.isEmpty(mPlay.Location)) {
+					selection = Plays.LOCATION + "=?";
+					selectionArgs = new String[] { mPlay.Location };
+				}
+
+				mAddPlayersBuilder
+					.setMultiChoiceItems(
+						getContentResolver().query(
+							Plays.buildPlayersByUniqueNameUri(),
+							new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME,
+								PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT,
+								PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT),
+						PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, addPlayersMultiChoiceClickListener()).create()
+					.show();
 			} else {
 				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 			}
