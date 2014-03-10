@@ -143,6 +143,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 		changeName(gameName);
 
+		boolean requestLocationFocus = false;
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
 			mOriginalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
@@ -180,11 +181,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				setResult(mPlay.PlayId);
 				mOriginalPlay = PlayBuilder.copy(mPlay);
 				signalDataLoaded();
+
+				if (TextUtils.isEmpty(mPlay.Location)) {
+					requestLocationFocus = true;
+				}
 			}
 		}
 
 		bindUi();
+		if (requestLocationFocus && mLocationView.getVisibility() == View.VISIBLE) {
 		mLocationView.requestFocus();
+		}
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
