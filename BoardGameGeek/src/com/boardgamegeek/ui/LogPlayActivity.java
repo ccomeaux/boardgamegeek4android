@@ -91,6 +91,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
+	private List<Player> mPlayersToAdd = new ArrayList<Player>();
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -570,6 +571,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					selectionArgs = new String[] { mPlay.Location };
 				}
 
+				mPlayersToAdd.clear();
+
 				mAddPlayersBuilder
 					.setMultiChoiceItems(
 						getContentResolver().query(
@@ -598,9 +601,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				player.Username = cursor.getString(1);
 				player.Name = cursor.getString(2);
 				if (isChecked) {
-					mPlay.addPlayer(player);
+					mPlayersToAdd.add(player);
 				} else {
-					mPlay.removePlayer(player, false);
+					mPlayersToAdd.remove(player);
 				}
 			}
 		};
@@ -610,6 +613,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		return new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				mPlay.setPlayers(mPlayersToAdd);
 				if (!mCustomPlayerSort) {
 					mPlay.pickStartPlayer(0);
 				}
