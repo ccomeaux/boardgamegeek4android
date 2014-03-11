@@ -142,6 +142,7 @@
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
+	<string name="title_add_color">Add Color</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_my_geek">My Geek</string>
@@ -249,6 +250,7 @@
 	<string name="menu_sort_comments_user">User</string>
 	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
+	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>
 	<string name="menu_settings">Settings</string>
 	<string name="menu_cancel_sync">Cancel sync</string>

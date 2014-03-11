@@ -80,8 +80,10 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>When adding players to a play, a list of most common players is displayed, enabling quicker enty</li>
 <li>Consider a play started within 2 hours of the previous play ending as part of the same session, and copy the location and players to the new play</li>
 <li>Calculates your games played h-index</li>
+<li>Ability to add a color to a game</li>
 <li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
 <li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
 <li>When enabling custom player order, prompt to remove the existing starting positions</li>

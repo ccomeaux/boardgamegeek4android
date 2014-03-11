@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -81,6 +85,23 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 	@Override
 	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.menu_colors_add:
+				final EditText editText = new EditText(getActivity());
+				editText.setInputType(EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES);
+				new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(editText)
+					.setNegativeButton(android.R.string.cancel, null)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String color = editText.getText().toString();
+							if (!TextUtils.isEmpty(color)) {
+								ContentValues values = new ContentValues();
+								values.put(GameColors.COLOR, color);
+								getActivity().getContentResolver().insert(Games.buildColorsUri(mGameId), values);
+							}
+						}
+					}).create().show();
+				return true;
 			case R.id.menu_colors_generate:
 				new Task().execute();
 				return true;
