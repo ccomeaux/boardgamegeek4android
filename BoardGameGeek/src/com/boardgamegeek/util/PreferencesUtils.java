@@ -205,10 +205,12 @@ public class PreferencesUtils {
 		for (String playerString : playerStringArray) {
 			if (!TextUtils.isEmpty(playerString)) {
 				String[] playerSplit = playerString.split(SEPARATOR_FIELD);
-				if (playerSplit.length == 2) {
+				if (playerSplit.length > 0 && playerSplit.length < 3) {
 					Player player = new Player();
 					player.Name = playerSplit[0];
-					player.Username = playerSplit[1];
+					if (playerSplit.length == 2) {
+						player.Username = playerSplit[1];
+					}
 					players.add(player);
 				}
 			}
