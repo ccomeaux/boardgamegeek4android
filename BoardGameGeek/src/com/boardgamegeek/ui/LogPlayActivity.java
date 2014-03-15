@@ -356,15 +356,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				bindUiPlayers();
 				return true;
 			case R.id.menu_players_clear:
-				Dialog dialog = ActivityUtils.createConfirmationDialog(this,
-					R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_player_sort_custom_off,
+					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							mPlay.clearPlayers();
 							bindUiPlayers();
 						}
-					});
-				dialog.show();
+					}).show();
 				return true;
 		}
 		return false;
