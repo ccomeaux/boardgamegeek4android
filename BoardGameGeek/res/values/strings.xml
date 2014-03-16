@@ -44,7 +44,7 @@
 	<string name="quantity">Quantity</string>
 	<string name="quantity_hint">Quantity</string>
 	<string name="length">Length</string>
-	<string name="length_hint">0 minutes</string>
+	<string name="length_hint">Length in minutes</string>
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
@@ -52,7 +52,7 @@
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
-	<string name="comments_hint">Game play comments</string>
+	<string name="comments_hint"></string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
 	<string name="save_draft">Save draft</string>

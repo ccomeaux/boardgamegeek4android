@@ -515,14 +515,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
-		if (shouldHideQuantity()) {
-			list.add(r.getString(R.string.quantity));
+		if (shouldHideLocation()) {
+			list.add(r.getString(R.string.location));
 		}
 		if (shouldHideLength()) {
 			list.add(r.getString(R.string.length));
 		}
-		if (shouldHideLocation()) {
-			list.add(r.getString(R.string.location));
+		if (shouldHideQuantity()) {
+			list.add(r.getString(R.string.quantity));
 		}
 		if (shouldHideIncomplete()) {
 			list.add(r.getString(R.string.incomplete));
