@@ -1,15 +1,25 @@
 package com.boardgamegeek.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
 
 public class PreferencesUtils {
+	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
+	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
+	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
+	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
+	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
+
 	private PreferencesUtils() {
 	}
 
@@ -86,14 +96,14 @@ public class PreferencesUtils {
 	}
 
 	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, "syncStatuses", "");
+		return getStringArray(context, "syncStatuses");
 	}
 
 	public static boolean isSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) {
 			return false;
 		}
-		String[] statuses = getStringArray(context, "syncStatuses", "");
+		String[] statuses = getStringArray(context, "syncStatuses");
 		if (statuses == null) {
 			return false;
 		}
@@ -172,10 +182,68 @@ public class PreferencesUtils {
 		return putInt(context, "hIndex", hIndex);
 	}
 
-	private static boolean putInt(Context context, String key, int hIndex) {
+	public static long getLastPlayTime(Context context) {
+		return getLong(context, KEY_LAST_PLAY_TIME, 0);
+	}
+
+	public static boolean putLastPlayTime(Context context, long millis) {
+		return putLong(context, KEY_LAST_PLAY_TIME, millis);
+	}
+
+	public static String getLastPlayLocation(Context context) {
+		return getString(context, KEY_LAST_PLAY_LOCATION);
+	}
+
+	public static boolean putLastPlayLocation(Context context, String location) {
+		return putString(context, KEY_LAST_PLAY_LOCATION, location);
+	}
+
+	public static List<Player> getLastPlayPlayers(Context context) {
+		List<Player> players = new ArrayList<Player>();
+		String playersString = getString(context, KEY_LAST_PLAY_PLAYERS);
+		String[] playerStringArray = playersString.split(SEPARATOR_RECORD);
+		for (String playerString : playerStringArray) {
+			if (!TextUtils.isEmpty(playerString)) {
+				String[] playerSplit = playerString.split(SEPARATOR_FIELD);
+				if (playerSplit.length > 0 && playerSplit.length < 3) {
+					Player player = new Player();
+					player.Name = playerSplit[0];
+					if (playerSplit.length == 2) {
+						player.Username = playerSplit[1];
+					}
+					players.add(player);
+				}
+			}
+		}
+		return players;
+	}
+
+	public static boolean putLastPlayPlayers(Context context, List<Player> players) {
+		StringBuilder sb = new StringBuilder();
+		for (Player player : players) {
+			sb.append(player.Name).append(SEPARATOR_FIELD).append(player.Username).append(SEPARATOR_RECORD);
+		}
+		return putString(context, KEY_LAST_PLAY_PLAYERS, sb.toString());
+	}
+
+	private static boolean putInt(Context context, String key, int value) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sharedPreferences.edit();
-		editor.putInt(key, hIndex);
+		editor.putInt(key, value);
+		return editor.commit();
+	}
+
+	private static boolean putLong(Context context, String key, long value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putLong(key, value);
+		return editor.commit();
+	}
+
+	private static boolean putString(Context context, String key, String value) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.putString(key, value);
 		return editor.commit();
 	}
 
@@ -189,12 +257,17 @@ public class PreferencesUtils {
 		return sharedPreferences.getInt(key, defaultValue);
 	}
 
-	private static String getString(Context context, String key, String defaultValue) {
+	private static long getLong(Context context, String key, long defaultValue) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getString(key, defaultValue);
+		return sharedPreferences.getLong(key, defaultValue);
 	}
 
-	private static String[] getStringArray(Context context, String key, String defaultValue) {
-		return MultiSelectListPreference.parseStoredValue(getString(context, key, defaultValue));
+	private static String getString(Context context, String key) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPreferences.getString(key, "");
+	}
+
+	private static String[] getStringArray(Context context, String key) {
+		return MultiSelectListPreference.parseStoredValue(getString(context, key));
 	}
 }

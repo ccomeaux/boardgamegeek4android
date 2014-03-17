@@ -207,7 +207,9 @@ public class SelectionBuilder {
 			}
 			final String target = mProjectionMap.get(arg);
 			if (target != null) {
-				arg = target;
+				if (!target.contains(" AS ")) {
+					arg = target;
+				}
 			}
 			clause.append(arg);
 		}
