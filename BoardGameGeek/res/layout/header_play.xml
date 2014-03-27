@@ -136,11 +136,12 @@
 			</TableRow>
 		</TableLayout>
 
-		<com.boardgamegeek.ui.widget.BezelImageView
+		<ImageView
 			android:id="@+id/game_info_thumbnail"
 			android:layout_width="@dimen/thumbnail_size"
 			android:layout_height="@dimen/thumbnail_size"
 			android:layout_gravity="right"
+			android:contentDescription="@string/thumbnail"
 			android:scaleType="centerCrop"
 			android:src="@drawable/thumbnail_image_empty" />
 	</LinearLayout>

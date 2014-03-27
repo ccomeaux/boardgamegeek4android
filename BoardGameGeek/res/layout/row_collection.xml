@@ -18,16 +18,17 @@
 			android:visibility="gone" />
 
 		<LinearLayout
-			style="@style/RowContainer"
+			style="@style/RowContainer.WithThumbnail"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal" >
 
-			<com.boardgamegeek.ui.widget.BezelImageView
+			<ImageView
 				android:id="@+id/list_thumbnail"
 				style="@style/ImageList"
 				android:layout_width="@dimen/thumbnail_list_size"
 				android:layout_height="@dimen/thumbnail_list_size"
+				android:contentDescription="@string/thumbnail"
 				android:src="@drawable/thumbnail_image_empty" />
 
 			<RelativeLayout

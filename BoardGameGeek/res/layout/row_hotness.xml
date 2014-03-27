@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer"
+	style="@style/RowContainer.WithThumbnail"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/checkable_background" >
@@ -20,11 +20,12 @@
 			android:textIsSelectable="false"
 			android:textSize="22sp" />
 
-		<com.boardgamegeek.ui.widget.BezelImageView
+		<ImageView
 			android:id="@+id/thumbnail"
 			style="@style/ImageList"
 			android:layout_width="@dimen/thumbnail_list_size"
 			android:layout_height="@dimen/thumbnail_list_size"
+			android:contentDescription="@string/thumbnail"
 			android:src="@drawable/thumbnail_image_empty" />
 
 		<LinearLayout

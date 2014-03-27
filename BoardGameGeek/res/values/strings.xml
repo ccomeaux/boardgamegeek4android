@@ -100,6 +100,7 @@
 	<string name="more">More</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
+	<string name="thumbnail">Thumbnail</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>

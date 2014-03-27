@@ -20,13 +20,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AlphabetIndexer;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -105,11 +105,6 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	protected int getLoadingImage() {
-		return R.drawable.person_image_empty;
 	}
 
 	@Override
@@ -252,14 +247,13 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
 			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
 			String name = cursor.getString(BuddiesQuery.NAME);
-			String url = cursor.getString(BuddiesQuery.AVATAR_URL);
+			String avatarUrl = cursor.getString(BuddiesQuery.AVATAR_URL);
 
 			UIUtils.setActivatedCompat(view, buddyId == mSelectedBuddyId);
 
 			holder.fullname.setText(buildFullName(firstName, lastName, name).trim());
 			holder.name.setText(buildName(firstName, lastName, name).trim());
-			holder.avatar.setImageResource(R.drawable.person_image_empty);
-			getImageFetcher().loadAvatarImage(url, Buddies.buildAvatarUri(buddyId), holder.avatar);
+			loadThumbnail(avatarUrl, holder.avatar, R.drawable.person_image_empty);
 		}
 
 		private String getSection(Cursor cursor) {
@@ -319,13 +313,13 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	static class ViewHolder {
 		TextView fullname;
 		TextView name;
-		BezelImageView avatar;
+		ImageView avatar;
 		TextView separator;
 
 		public ViewHolder(View view) {
 			fullname = (TextView) view.findViewById(R.id.list_fullname);
 			name = (TextView) view.findViewById(R.id.list_name);
-			avatar = (BezelImageView) view.findViewById(R.id.list_avatar);
+			avatar = (ImageView) view.findViewById(R.id.list_avatar);
 			separator = (TextView) view.findViewById(R.id.separator);
 		}
 	}

@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -68,7 +69,6 @@ import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -173,11 +173,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				mFastScrollLetterEnabled = true;
 			};
 		});
-	}
-
-	@Override
-	protected int getLoadingImage() {
-		return R.drawable.thumbnail_image_empty;
 	}
 
 	@Override
@@ -754,7 +749,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			}
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
-			int gameId = cursor.getInt(Query.GAME_ID);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
@@ -764,12 +758,8 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
-			if (!TextUtils.isEmpty(collectionThumbnailUrl)) {
-				getImageFetcher().loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
-					holder.thumbnail);
-			} else {
-				getImageFetcher().loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId), holder.thumbnail);
-			}
+			loadThumbnail(TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
+				holder.thumbnail);
 		}
 	}
 
@@ -777,7 +767,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		TextView name;
 		TextView year;
 		TextView info;
-		BezelImageView thumbnail;
+		ImageView thumbnail;
 		Uri thumbnailUrl;
 		TextView separator;
 
@@ -785,7 +775,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			info = (TextView) view.findViewById(R.id.info);
-			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
+			thumbnail = (ImageView) view.findViewById(R.id.list_thumbnail);
 			separator = (TextView) view.findViewById(R.id.separator);
 		}
 	}
