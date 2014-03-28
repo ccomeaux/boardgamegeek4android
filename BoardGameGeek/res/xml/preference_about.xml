@@ -29,6 +29,14 @@
 			android:dialogMessage="@string/pref_about_dslv_license"
 			android:summary="Apache License 2.0"
 			android:title="DragSortListView" />
+		<com.boardgamegeek.pref.LicensePreference
+			android:dialogMessage="@string/pref_about_okhttp_license"
+			android:summary="Apache License 2.0"
+			android:title="OkHttp" />
+		<com.boardgamegeek.pref.LicensePreference
+			android:dialogMessage="@string/pref_about_picasso_license"
+			android:summary="Apache License 2.0"
+			android:title="Picasso" />
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/pref_about_icons" >
 		<com.boardgamegeek.pref.LinkPreference
