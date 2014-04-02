@@ -208,7 +208,9 @@ public class Play {
 		if (resort && !arePlayersCustomSorted()) {
 			for (int i = player.getSeat(); i < mPlayers.size(); i++) {
 				Player p = getPlayerAtSeat(i + 1);
-				p.setSeat(i);
+				if (p != null) {
+					p.setSeat(i);
+				}
 			}
 		}
 		mPlayers.remove(player);
