@@ -758,7 +758,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
-			loadThumbnail(TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
+			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
 				holder.thumbnail);
 		}
 	}

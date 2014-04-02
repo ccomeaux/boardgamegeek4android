@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="32"
-	android:versionName="develop" >
+	android:versionName="feature/picasso" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
