@@ -100,5 +100,6 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="pref_about_icons">Icons</string>
 	<string name="pref_about_contact_us">Contact Us</string>
 	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
+	<string name="pref_feedback_title">Feedback</string>
 
 </resources>
