@@ -61,6 +61,7 @@ public class SyncPlays extends SyncTask {
 			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				LOGI(TAG, "...syncing plays before " + formatDate(oldestDate));
+				parser.setMinDate("");
 				parser.setMaxDate(oldestDate);
 				if (parseAndSave(parser)) {
 					deleteUnupdatedPlaysBefore(parser.getOldestDate());
