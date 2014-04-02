@@ -67,6 +67,7 @@ public class HttpUtils {
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
+	private static boolean mMockLogin = false;
 
 	public static String constructSearchUrl(String searchTerm, boolean useExact) {
 		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
@@ -332,6 +333,10 @@ public class HttpUtils {
 	}
 
 	public static CookieStore authenticate(String username, String password) {
+		if (mMockLogin) {
+			return mockLogin(username);
+		}
+
 		String AUTH_URI = BggApplication.siteUrl + "login";
 
 		final HttpResponse resp;
@@ -369,7 +374,7 @@ public class HttpUtils {
 					}
 				}
 			} else {
-				LOGW(TAG, "BAd response code - " + code);
+				LOGW(TAG, "Bad response code - " + code);
 			}
 			if (cookieStore != null) {
 				LOGW(TAG, "Successful authentication");
@@ -384,5 +389,15 @@ public class HttpUtils {
 		} finally {
 			LOGW(TAG, "Authenticate complete");
 		}
+	}
+
+	/**
+	 * Mocks a login by setting the cookie store with bogus data.
+	 */
+	private static CookieStore mockLogin(String username) {
+		CookieStore store = new BasicCookieStore();
+		store.addCookie(new BasicClientCookie("bggpassword", "password"));
+		store.addCookie(new BasicClientCookie("SessionID", "token"));
+		return store;
 	}
 }

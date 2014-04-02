@@ -25,6 +25,7 @@ public class SyncGame extends UpdateTask {
 		}
 		String url = new GameUrlBuilder(mGameId).stats().build();
 		executor.safelyExecuteGet(url, handler);
+		SyncService.hIndex(context);
 		LOGI(TAG, "Synced Game " + mGameId);
 	}
 }

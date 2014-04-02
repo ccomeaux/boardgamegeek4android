@@ -26,7 +26,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
-	private static final  DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private RemoteExecutor mExecutor;
 	private Account mAccount;
 	private Context mContext;
@@ -61,12 +61,14 @@ public class SyncPlays extends SyncTask {
 			long oldestDate = parseLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				LOGI(TAG, "...syncing plays before " + formatDate(oldestDate));
+				parser.setMinDate("");
 				parser.setMaxDate(oldestDate);
 				if (parseAndSave(parser)) {
 					deleteUnupdatedPlaysBefore(parser.getOldestDate());
 					setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 				}
 			}
+			SyncService.hIndex(mContext);
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

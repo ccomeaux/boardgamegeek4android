@@ -11,7 +11,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteThreadParser;
 import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -189,7 +189,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			}
 			if (article != null) {
 				holder.username.setText(article.username);
-				holder.editdate.setText(DateUtils.getRelativeTimeSpanString(article.editDate));
+				holder.editdate.setText(DateTimeUtils.formatForumDate(getContext(), article.editDate));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ForumsUtils.KEY_USER, article.username);

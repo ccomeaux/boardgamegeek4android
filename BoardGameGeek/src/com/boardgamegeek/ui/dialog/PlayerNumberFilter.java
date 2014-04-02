@@ -34,6 +34,11 @@ public class PlayerNumberFilter extends SliderFilter {
 	}
 
 	@Override
+	protected int getDescriptionId() {
+		return R.string.filter_description_player_number;
+	}
+
+	@Override
 	protected int getEnd() {
 		return mMaxPlayers;
 	}

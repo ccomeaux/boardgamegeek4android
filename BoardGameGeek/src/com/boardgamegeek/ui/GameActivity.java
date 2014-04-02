@@ -5,8 +5,11 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -33,7 +36,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class GameActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
-	GameInfoFragment.Callbacks, PlaysFragment.Callbacks {
+	GameInfoFragment.Callbacks, PlaysFragment.Callbacks, OnSharedPreferenceChangeListener {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
@@ -48,6 +51,9 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
@@ -339,5 +345,23 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	@Override
 	public void onSortChanged(String sortName) {
 		// sorting not supported yet
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (PreferencesUtils.isSyncPlays(key)) {
+			updateTabs();
+		}
+	}
+
+	@Override
+	protected void onSignInSuccess() {
+		super.onSignInSuccess();
+		updateTabs();
+	}
+
+	private void updateTabs() {
+		mViewPager.getAdapter().notifyDataSetChanged();
+		setupActionBarTabs(getSupportActionBar());
 	}
 }

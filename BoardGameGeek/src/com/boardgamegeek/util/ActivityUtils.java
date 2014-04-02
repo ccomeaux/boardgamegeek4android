@@ -94,7 +94,7 @@ public class ActivityUtils {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener).setTitle(R.string.are_you_sure_title);
-		builder = addIcon(builder);
+		builder = addAlertIcon(builder);
 		if (messageId != -1) {
 			builder.setMessage(messageId);
 		} else {
@@ -108,7 +108,7 @@ public class ActivityUtils {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private static AlertDialog.Builder addIcon(AlertDialog.Builder builder) {
+	public static AlertDialog.Builder addAlertIcon(AlertDialog.Builder builder) {
 		if (VersionUtils.hasHoneycomb()) {
 			return builder.setIconAttribute(android.R.attr.alertDialogIcon);
 		} else {

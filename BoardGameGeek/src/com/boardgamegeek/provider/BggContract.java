@@ -191,6 +191,10 @@ public class BggContract {
 		String NEW = "new";
 		String RATING = "rating";
 		String WIN = "win";
+		String CHECKED = "checked";
+		String COUNT = "count";
+		String DESCRIPTION = "description";
+		String UNIQUE_NAME = "unique_name";
 	}
 
 	interface CollectionViewsColumns {
@@ -232,8 +236,11 @@ public class BggContract {
 	private static final String PATH_LOCATIONS = "locations";
 	public static final String PATH_COLLECTION_VIEWS = "collectionviews";
 	private static final String PATH_FILTERS = "filters";
-	public static final String FRAGMENT_NAME = "name";
+	public static final String QUERY_KEY_GROUP_BY = "groupby";
+	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
+	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
 	public static final String FRAGMENT_SIMPLE = "simple";
+	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
 
 	public static class Thumbnails {
@@ -719,6 +726,7 @@ public class BggContract {
 	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
+		public static final Uri CONTENT_SUM_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SUM).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play";
@@ -756,8 +764,14 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build();
 		}
 
-		public static Uri buildPlayersUniqueUri() {
-			return buildPlayersUri().buildUpon().fragment(FRAGMENT_NAME).build();
+		public static Uri buildPlayersByNameWithoutUsernameUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
+				.build();
+		}
+
+		public static Uri buildPlayersByUniqueNameUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME)
+				.build();
 		}
 
 		public static int getPlayId(Uri uri) {
@@ -781,6 +795,7 @@ public class BggContract {
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer";
 
 		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + " ASC";
+		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
 			return Long.valueOf(uri.getLastPathSegment());

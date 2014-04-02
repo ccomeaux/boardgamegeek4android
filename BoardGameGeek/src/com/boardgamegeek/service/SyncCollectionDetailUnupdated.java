@@ -29,7 +29,8 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 		LOGI(TAG, "Syncing unupdated games in the collection...");
 		try {
 			List<String> gameIds = ResolverUtils.queryStrings(executor.getContext().getContentResolver(),
-				Games.CONTENT_URI, Games.GAME_ID, Games.UPDATED + "=0 OR " + Games.UPDATED + " IS NULL", null);
+				Games.CONTENT_URI, Games.GAME_ID, "games." + Games.UPDATED + "=0 OR games." + Games.UPDATED
+					+ " IS NULL", null);
 			LOGI(TAG, "...found " + gameIds.size() + " games to update");
 			if (gameIds.size() > 0) {
 				for (int i = 0; i < gameIds.size(); i += GAMES_PER_FETCH) {
@@ -45,6 +46,7 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 						// syncResult.stats.numUpdates += handler.getCount();
 					}
 				}
+				SyncService.hIndex(executor.getContext());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

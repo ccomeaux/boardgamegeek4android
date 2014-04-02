@@ -95,6 +95,11 @@ public class RemotePlaysParser extends RemoteBggParser {
 		return this;
 	}
 
+	public RemotePlaysParser setMinDate(String date) {
+		mBuilder.minDate(date);
+		return this;
+	}
+
 	public RemotePlaysParser setMinDate(long date) {
 		mBuilder.minDate(date);
 		return this;

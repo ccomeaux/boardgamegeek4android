@@ -54,6 +54,11 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
+	protected int getDescriptionId() {
+		return R.string.filter_description_include_missing_play_time;
+	}
+
+	@Override
 	protected int getStart() {
 		return mMinTime;
 	}

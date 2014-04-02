@@ -299,6 +299,10 @@ public class Play {
 			return false;
 		}
 
+		if (!hasStartingPositions()) {
+			return false;
+		}
+
 		int seat = 1;
 		do {
 			boolean foundSeat = false;
@@ -317,6 +321,36 @@ public class Play {
 			}
 		} while (seat < 100);
 		return true;
+	}
+
+	/**
+	 * Determine if any player has a starting position.
+	 */
+	public boolean hasStartingPositions() {
+		if (getPlayerCount() == 0) {
+			return false;
+		}
+
+		for (Player player : mPlayers) {
+			if (!TextUtils.isEmpty(player.getStartingPosition())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Remove the starting position for all players.
+	 */
+	public void clearPlayerPositions() {
+		if (getPlayerCount() == 0) {
+			return;
+		}
+
+		for (Player player : mPlayers) {
+			player.setStartingPosition(null);
+		}
 	}
 
 	// MISC
