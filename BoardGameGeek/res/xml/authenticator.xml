@@ -4,3 +4,5 @@
 	android:icon="@drawable/title_logo"
 	android:label="@string/app_name"
 	android:smallIcon="@drawable/title_logo" />
+<!-- Throws a ClassNotFoundException -->
+<!-- android:accountPreferences="@xml/preference_sync" -->
