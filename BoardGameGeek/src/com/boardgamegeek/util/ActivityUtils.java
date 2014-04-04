@@ -305,7 +305,23 @@ public class ActivityUtils {
 		}
 	}
 
-	public static Intent createGameShortcut(Context context, int gameId, String gameName) {
+	public static Intent createGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
+		Intent shortcut = createGameShortcut(context, gameId, gameName);
+		if (!TextUtils.isEmpty(thumbnailUrl)) {
+			File file = new File(context.getExternalFilesDir(BggContract.PATH_THUMBNAILS),
+				FileUtils.getFileNameFromUrl(thumbnailUrl));
+			if (file.exists()) {
+				shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
+			}
+		}
+		return shortcut;
+	}
+
+	public static void sendGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
+		new shortcutTask(context, gameId, gameName, thumbnailUrl).execute();
+	}
+
+	private static Intent createGameShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
 		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(GameActivity.KEY_FROM_SHORTCUT, true);
@@ -317,10 +333,6 @@ public class ActivityUtils {
 			Intent.ShortcutIconResource.fromContext(context, R.drawable.ic_launcher));
 
 		return shortcut;
-	}
-
-	public static void sendGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
-		new shortcutTask(context, gameId, gameName, thumbnailUrl).execute();
 	}
 
 	private static class shortcutTask extends AsyncTask<Void, Void, Void> {
@@ -340,7 +352,9 @@ public class ActivityUtils {
 			if (!TextUtils.isEmpty(mThumbnailUrl)) {
 				File file = new File(mContext.getExternalFilesDir(BggContract.PATH_THUMBNAILS),
 					FileUtils.getFileNameFromUrl(mThumbnailUrl));
-				if (!file.exists()) {
+				if (file.exists()) {
+					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+				} else {
 					try {
 						bitmap = Picasso.with(mContext).load(mThumbnailUrl).resize(128, 128).centerCrop().get();
 					} catch (IOException e) {
@@ -361,8 +375,6 @@ public class ActivityUtils {
 					} catch (IOException e) {
 						LOGE(TAG, "Error saving the thumbnail file.", e);
 					}
-				} else {
-					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 				}
 			}
 			if (bitmap != null) {
@@ -375,7 +387,7 @@ public class ActivityUtils {
 		protected void onPostExecute(Void result) {
 			mContext.sendBroadcast(mShortcut);
 			if (VersionUtils.hasJellyBean()) {
-				Toast.makeText(mContext, "Shortcut created.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
 			}
 		}
 	}

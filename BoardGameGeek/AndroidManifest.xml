@@ -59,7 +59,7 @@
 
 		<activity-alias
 			android:name="CreateShortcutActivity"
-			android:label="@string/title_game"
+			android:label="@string/title_game_shortcut"
 			android:targetActivity=".ui.CollectionActivity" >
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT" />
