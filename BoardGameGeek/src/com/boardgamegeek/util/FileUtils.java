@@ -2,8 +2,6 @@ package com.boardgamegeek.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -66,30 +64,5 @@ public class FileUtils {
 			count++;
 		}
 		return count;
-	}
-
-	/*
-	 * Remove all but the X most recently created files
-	 */
-	public static void trimDirectory(File directory, int fileCount) {
-		if (directory != null) {
-			File[] files = directory.listFiles();
-			if (files.length > fileCount) {
-				Arrays.sort(files, new ComparatorImplementation());
-				files[0].delete();
-			}
-		}
-	}
-
-	private static final class ComparatorImplementation implements Comparator<File> {
-		public int compare(File f1, File f2) {
-			if (f1.lastModified() > f2.lastModified()) {
-				return -1;
-			} else if (f1.lastModified() < f2.lastModified()) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
 	}
 }

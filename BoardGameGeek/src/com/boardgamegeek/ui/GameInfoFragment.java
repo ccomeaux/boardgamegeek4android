@@ -123,6 +123,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	public interface Callbacks {
 		public void onNameChanged(String gameName);
 
+		public void onThumbnailUrlChanged(String url);
+
 		public DetachableResultReceiver getReceiver();
 	}
 
@@ -131,9 +133,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		public void onNameChanged(String gameName) {
 		}
 
+		@Override
+		public void onThumbnailUrlChanged(String url) {
+		}
+
+		@Override
 		public DetachableResultReceiver getReceiver() {
 			return null;
-		};
+		}
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -477,6 +484,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mGameName = game.Name;
 		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
+		mCallbacks.onThumbnailUrlChanged(game.ThumbnailUrl);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
