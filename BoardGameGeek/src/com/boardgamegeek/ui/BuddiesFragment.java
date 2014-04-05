@@ -66,11 +66,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_buddies, container, false);
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (PreferencesUtils.getSyncBuddies(getActivity())) {
@@ -176,11 +171,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		@Override
-		public Cursor swapCursor(Cursor newCursor) {
-			return super.swapCursor(newCursor);
-		}
-
-		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			View row = mInflater.inflate(R.layout.row_buddy, parent, false);
 			ViewHolder holder = new ViewHolder(row);
@@ -206,6 +196,14 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		@Override
+		public long getHeaderId(int position) {
+			if (position < 0) {
+				return 0;
+			}
+			return getHeaderText(position).charAt(0);
+		}
+
+		@Override
 		public View getHeaderView(int position, View convertView, ViewGroup parent) {
 			HeaderViewHolder holder;
 			if (convertView == null) {
@@ -219,14 +217,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			String headerText = getHeaderText(position);
 			holder.text.setText(headerText);
 			return convertView;
-		}
-
-		@Override
-		public long getHeaderId(int position) {
-			if (position < 0) {
-				return 0;
-			}
-			return getHeaderText(position).charAt(0);
 		}
 
 		private String getHeaderText(int position) {

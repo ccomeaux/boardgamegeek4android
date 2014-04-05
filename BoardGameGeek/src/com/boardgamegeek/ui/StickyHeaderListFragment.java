@@ -4,7 +4,9 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
@@ -43,6 +45,11 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 	private boolean mListShown;
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_sticky_header_list, container, false);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
