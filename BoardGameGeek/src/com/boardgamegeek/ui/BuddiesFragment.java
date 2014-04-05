@@ -3,8 +3,9 @@ package com.boardgamegeek.ui;
 import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.text.Collator;
+import java.util.Locale;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,10 +20,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AlphabetIndexer;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -31,11 +29,11 @@ import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddiesFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class BuddiesFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(BuddiesFragment.class);
 	private static final String STATE_SELECTED_ID = "selectedId";
 
-	private CursorAdapter mAdapter;
+	private BuddiesAdapter mAdapter;
 	private int mSelectedBuddyId;
 
 	public interface Callbacks {
@@ -68,9 +66,8 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setFastScrollEnabled(true);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_buddies, container, false);
 	}
 
 	@Override
@@ -108,7 +105,7 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 		final String name = cursor.getString(BuddiesQuery.NAME);
@@ -170,31 +167,16 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		mAdapter.changeCursor(null);
 	}
 
-	private class BuddiesAdapter extends CursorAdapter implements SectionIndexer {
-		private static final int STATE_UNKNOWN = 0;
-		private static final int STATE_SECTIONED_CELL = 1;
-		private static final int STATE_REGULAR_CELL = 2;
-		private String mAlphabet = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
+	public class BuddiesAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
-		private AlphabetIndexer mAlphabetIndexer;
-		private Collator mCollator;
-		private int[] mCellStates;
-		private String mPreviousSection;
-		private String mCurrentSection;
 
 		public BuddiesAdapter(Context context) {
 			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
-			mCollator = java.text.Collator.getInstance();
-			mCollator.setStrength(java.text.Collator.PRIMARY);
-			mAlphabetIndexer = new AlphabetIndexer(getCursor(), BuddiesQuery.LASTNAME, mAlphabet);
+			mInflater = LayoutInflater.from(context);
 		}
 
 		@Override
 		public Cursor swapCursor(Cursor newCursor) {
-			mAlphabetIndexer.setCursor(newCursor);
-			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
 			return super.swapCursor(newCursor);
 		}
 
@@ -210,39 +192,6 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			boolean needSeparator = false;
-			final int position = cursor.getPosition();
-			mCurrentSection = getSection(cursor);
-			switch (mCellStates[position]) {
-				case STATE_SECTIONED_CELL:
-					needSeparator = true;
-					break;
-				case STATE_REGULAR_CELL:
-					needSeparator = false;
-					break;
-				case STATE_UNKNOWN:
-				default:
-					if (position == 0) {
-						needSeparator = true;
-					} else {
-						cursor.moveToPosition(position - 1);
-						mPreviousSection = getSection(cursor);
-						if (!mPreviousSection.equals(mCurrentSection)) {
-							needSeparator = true;
-						}
-						cursor.moveToPosition(position);
-					}
-					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
-					break;
-			}
-
-			if (needSeparator) {
-				holder.separator.setText(mCurrentSection);
-				holder.separator.setVisibility(View.VISIBLE);
-			} else {
-				holder.separator.setVisibility(View.GONE);
-			}
-
 			int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
 			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
@@ -256,17 +205,39 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			loadThumbnail(avatarUrl, holder.avatar, R.drawable.person_image_empty);
 		}
 
-		private String getSection(Cursor cursor) {
-			String missingLetter = "-";
-			String name = cursor.getString(BuddiesQuery.LASTNAME);
-			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1);
-			for (int i = 0; i < mAlphabet.length(); i++) {
-				String letter = Character.toString(mAlphabet.charAt(i));
-				if (mCollator.compare(targetLetter, letter) == 0) {
-					return letter;
-				}
+		@Override
+		public View getHeaderView(int position, View convertView, ViewGroup parent) {
+			HeaderViewHolder holder;
+			if (convertView == null) {
+				holder = new HeaderViewHolder();
+				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				convertView.setTag(holder);
+			} else {
+				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			return missingLetter;
+			String headerText = getHeaderText(position);
+			holder.text.setText(headerText);
+			return convertView;
+		}
+
+		@Override
+		public long getHeaderId(int position) {
+			if (position < 0) {
+				return 0;
+			}
+			return getHeaderText(position).charAt(0);
+		}
+
+		private String getHeaderText(int position) {
+			String missingLetter = "-";
+			int cur = getCursor().getPosition();
+			getCursor().moveToPosition(position);
+			String name = getCursor().getString(BuddiesQuery.LASTNAME);
+			getCursor().moveToPosition(cur);
+			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
+				Locale.getDefault());
+			return targetLetter;
 		}
 
 		private String buildFullName(String firstName, String lastName, String name) {
@@ -289,38 +260,22 @@ public class BuddiesFragment extends BggListFragment implements LoaderManager.Lo
 			}
 		}
 
-		@Override
-		public int getPositionForSection(int section) {
-			return mAlphabetIndexer.getPositionForSection(section);
-		}
+		class ViewHolder {
+			TextView fullname;
+			TextView name;
+			ImageView avatar;
+			TextView separator;
 
-		@Override
-		public int getSectionForPosition(int position) {
-			try {
-				// this throws an exception when the buddies haven't been completely retrieved
-				return mAlphabetIndexer.getSectionForPosition(position);
-			} catch (NullPointerException e) {
-				return 0;
+			public ViewHolder(View view) {
+				fullname = (TextView) view.findViewById(R.id.list_fullname);
+				name = (TextView) view.findViewById(R.id.list_name);
+				avatar = (ImageView) view.findViewById(R.id.list_avatar);
+				separator = (TextView) view.findViewById(R.id.separator);
 			}
 		}
 
-		@Override
-		public Object[] getSections() {
-			return mAlphabetIndexer.getSections();
-		}
-	}
-
-	static class ViewHolder {
-		TextView fullname;
-		TextView name;
-		ImageView avatar;
-		TextView separator;
-
-		public ViewHolder(View view) {
-			fullname = (TextView) view.findViewById(R.id.list_fullname);
-			name = (TextView) view.findViewById(R.id.list_name);
-			avatar = (ImageView) view.findViewById(R.id.list_avatar);
-			separator = (TextView) view.findViewById(R.id.separator);
+		class HeaderViewHolder {
+			TextView text;
 		}
 	}
 
