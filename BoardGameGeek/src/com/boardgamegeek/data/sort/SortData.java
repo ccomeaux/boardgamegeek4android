@@ -49,43 +49,25 @@ public abstract class SortData {
 	}
 
 	/**
-	 * Get the text to display in a popup while scrolling.
+	 * Get the text to display in the section header.
 	 */
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return "";
 	}
 
-	public String getScrollText(Cursor cursor, int position) {
+	public String getHeaderText(Cursor cursor, int position) {
 		if (cursor == null || position < 0) {
 			return "";
 		}
 		int pos = cursor.getPosition();
 		cursor.moveToPosition(position);
-		String text = getScrollText(cursor);
-		cursor.moveToPosition(pos);
-		return text;
-	}
-
-	/**
-	 * Get the text to display in the section header.
-	 */
-	public String getSectionText(Cursor cursor) {
-		return getScrollText(cursor);
-	}
-
-	public String getSectionText(Cursor cursor, int position) {
-		if (cursor == null || position < 0) {
-			return "";
-		}
-		int pos = cursor.getPosition();
-		cursor.moveToPosition(position);
-		String text = getSectionText(cursor);
+		String text = getHeaderText(cursor);
 		cursor.moveToPosition(pos);
 		return text;
 	}
 
 	protected long getHeaderId(Cursor cursor) {
-		return getSectionText(cursor).hashCode();
+		return getHeaderText(cursor).hashCode();
 	}
 
 	public long getHeaderId(Cursor cursor, int position) {
@@ -103,7 +85,7 @@ public abstract class SortData {
 	 * Gets the text to display on each row.
 	 */
 	public String getDisplayInfo(Cursor cursor) {
-		return getSectionText(cursor);
+		return getHeaderText(cursor);
 	}
 
 	/**

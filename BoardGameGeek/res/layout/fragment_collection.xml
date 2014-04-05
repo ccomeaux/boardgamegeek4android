@@ -59,20 +59,4 @@
 		</HorizontalScrollView>
 	</LinearLayout>
 
-	<!-- This TextView is used to show the first letter of the item at the top of the list during fast scrolling. -->
-
-	<TextView
-		android:id="@+id/fast_scroll_letter"
-		android:layout_width="wrap_content"
-		android:layout_height="60dp"
-		android:layout_gravity="center"
-		android:background="@drawable/text_view_border"
-		android:gravity="center"
-		android:minHeight="60dp"
-		android:minWidth="60dp"
-		android:paddingLeft="@dimen/padding_extra"
-		android:paddingRight="@dimen/padding_extra"
-		android:textSize="30sp"
-		android:visibility="gone" />
-
 </FrameLayout>

@@ -15,7 +15,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -78,8 +77,8 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class CollectionFragment extends BggListFragment implements AbsListView.OnScrollListener,
-	LoaderManager.LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
+public class CollectionFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	CollectionView, MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(CollectionFragment.class);
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
@@ -88,7 +87,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private static final String STATE_FILTERS = "STATE_FILTERS";
 
 	private int mSelectedCollectionId;
-	private boolean mFastScrollLetterEnabled;
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
@@ -98,7 +96,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private View mProgressView;
 	private View mListContainer;
 	private LinearLayout mFilterLinearLayout;
-	private TextView mFastScrollLetter;
 	private TextView mEmptyView;
 
 	private boolean mShortcut;
@@ -166,13 +163,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
-
-		new Handler().post(new Runnable() {
-			@Override
-			public void run() {
-				mFastScrollLetterEnabled = true;
-			};
-		});
 	}
 
 	@Override
@@ -182,19 +172,11 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		mProgressView = rootView.findViewById(R.id.progress);
 		mListContainer = rootView.findViewById(R.id.list_container);
 		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
-		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
 		mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
 
 		setEmptyText();
 
 		return rootView;
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
 	}
 
 	@Override
@@ -227,12 +209,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		mFastScrollLetterEnabled = true;
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putLong(STATE_VIEW_ID, mViewId);
@@ -248,13 +224,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mFastScrollLetter.setVisibility(View.INVISIBLE);
-		mFastScrollLetterEnabled = false;
 	}
 
 	@Override
@@ -369,27 +338,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (mFastScrollLetterEnabled && mAdapter != null) {
-			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
-			if (cursor != null && cursor.getCount() > 0) {
-				mFastScrollLetter.setText(mSort == null ? "" : mSort.getScrollText(cursor));
-			}
-		}
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		if (scrollState == SCROLL_STATE_IDLE) {
-			mFastScrollLetter.setVisibility(View.GONE);
-		} else if (TextUtils.isEmpty(mFastScrollLetter.getText())) {
-			mFastScrollLetter.setVisibility(View.GONE);
-		} else {
-			mFastScrollLetter.setVisibility(View.VISIBLE);
-		}
 	}
 
 	@Override
@@ -718,7 +666,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 			boolean needSeparator = false;
 			final int position = cursor.getPosition();
-			mCurrentSection = mSort.getSectionText(cursor);
+			mCurrentSection = mSort.getHeaderText(cursor);
 			switch (mCellStates[position]) {
 				case STATE_SECTIONED_CELL:
 					needSeparator = true;
@@ -732,7 +680,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 						needSeparator = true;
 					} else {
 						cursor.moveToPosition(position - 1);
-						previousSection = mSort.getSectionText(cursor);
+						previousSection = mSort.getHeaderText(cursor);
 						if (!previousSection.equals(mCurrentSection)) {
 							needSeparator = true;
 						}

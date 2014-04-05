@@ -27,12 +27,7 @@ public class WishlistPrioritySortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
-		return getIntAsString(cursor, Collection.STATUS_WISHLIST_PRIORITY, "?", true);
-	}
-
-	@Override
-	public String getSectionText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
 		if (level >= mPriorityText.length) {
 			level = 0;
@@ -46,6 +41,6 @@ public class WishlistPrioritySortData extends CollectionSortData {
 		if (level >= mPriorityText.length) {
 			level = 0;
 		}
-		return getScrollText(cursor) + " - " + getSectionText(cursor);
+		return getIntAsString(cursor, Collection.STATUS_WISHLIST_PRIORITY, "?", true) + " - " + getHeaderText(cursor);
 	}
 }

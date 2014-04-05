@@ -25,7 +25,7 @@ public class PlaysGameSortData extends PlaysSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getString(cursor, PlayItems.NAME);
 	}
 

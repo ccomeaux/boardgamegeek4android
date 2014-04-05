@@ -32,7 +32,7 @@ public class PlaysLengthSortData extends PlaysSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		int minutes = getInt(cursor, Plays.LENGTH);
 		if (minutes == 0) {
 			return mNoLength;

@@ -27,7 +27,7 @@ public class PlaysLocationSortData extends PlaysSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getString(cursor, Plays.LOCATION, mNoLocation);
 	}
 }

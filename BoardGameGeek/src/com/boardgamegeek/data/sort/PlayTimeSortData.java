@@ -18,12 +18,7 @@ public class PlayTimeSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
-		return getIntAsString(cursor, Collection.PLAYING_TIME, "?");
-	}
-
-	@Override
-	public String getSectionText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		int minutes = getInt(cursor, Collection.PLAYING_TIME);
 		if (minutes == 0) {
 			return "?";
@@ -31,12 +26,13 @@ public class PlayTimeSortData extends CollectionSortData {
 		if (minutes >= 120) {
 			return (minutes / 60) + " " + mContext.getString(R.string.hours_abbr);
 		} else {
-			return getScrollText(cursor) + " " + mContext.getString(R.string.minutes_abbr);
+			return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " "
+				+ mContext.getString(R.string.minutes_abbr);
 		}
 	}
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getScrollText(cursor) + " " + mContext.getString(R.string.minutes);
+		return getIntAsString(cursor, Collection.PLAYING_TIME, "?") + " " + mContext.getString(R.string.minutes);
 	}
 }

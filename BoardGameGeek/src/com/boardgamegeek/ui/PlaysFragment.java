@@ -545,7 +545,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			holder.text.setText(mSort.getSectionText(getCursor(), position));
+			holder.text.setText(mSort.getHeaderText(getCursor(), position));
 			return convertView;
 		}
 

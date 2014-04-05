@@ -28,7 +28,7 @@ public class LastViewedSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getSectionText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		long time = getLong(cursor, Games.LAST_VIEWED);
 		if (time == 0) {
 			return mNever;
