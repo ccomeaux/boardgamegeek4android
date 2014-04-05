@@ -21,11 +21,16 @@ public class PlaysGameSortData extends PlaysSortData {
 
 	@Override
 	public String[] getColumns() {
-		return new String[] { PlayItems.NAME };
+		return new String[] { PlayItems.NAME, PlayItems.OBJECT_ID };
 	}
 
 	@Override
 	public String getScrollText(Cursor cursor) {
 		return getString(cursor, PlayItems.NAME);
+	}
+
+	@Override
+	public long getHeaderId(Cursor cursor) {
+		return getLong(cursor, PlayItems.OBJECT_ID);
 	}
 }
