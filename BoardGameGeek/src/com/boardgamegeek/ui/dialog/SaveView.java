@@ -89,7 +89,9 @@ public class SaveView {
 						// TODO: prompt the user if replacing a default
 						PreferencesUtils.putViewDefaultId(context, viewId);
 					} else {
-						PreferencesUtils.removeViewDefaultId(context);
+						if (viewId == PreferencesUtils.getViewDefaultId(context)) {
+							PreferencesUtils.removeViewDefaultId(context);
+						}
 					}
 				}
 
