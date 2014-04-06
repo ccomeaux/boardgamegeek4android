@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -116,13 +115,6 @@ public class UIUtils {
 		if (VersionUtils.hasHoneycomb()) {
 			view.setActivated(activated);
 		}
-	}
-
-	public static ImageFetcher getImageFetcher(final FragmentActivity activity) {
-		// The ImageFetcher takes care of loading remote images into our ImageView
-		ImageFetcher fetcher = new ImageFetcher(activity);
-		fetcher.addImageCache(activity);
-		return fetcher;
 	}
 
 	/**

@@ -10,12 +10,11 @@ import android.widget.ImageView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class ImageFragment extends SherlockFragment {
 	private String mImageUrl;
-	private ImageFetcher mImageFetcher;
 	private ImageView mImageView;
 
 	@Override
@@ -28,8 +27,6 @@ public class ImageFragment extends SherlockFragment {
 		if (TextUtils.isEmpty(mImageUrl)) {
 			return;
 		}
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
 	}
 
 	@Override
@@ -37,20 +34,9 @@ public class ImageFragment extends SherlockFragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_image, null);
 
 		mImageView = (ImageView) rootView.findViewById(R.id.image);
-		mImageFetcher.loadImage(mImageUrl, mImageView);
+		Picasso.with(getActivity()).load(mImageUrl).placeholder(R.drawable.thumbnail_image_empty)
+			.error(R.drawable.thumbnail_image_empty).into(mImageView);
 
 		return rootView;
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.flushCache();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
 	}
 }

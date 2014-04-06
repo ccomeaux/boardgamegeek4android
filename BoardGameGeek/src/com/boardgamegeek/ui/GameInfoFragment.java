@@ -47,8 +47,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
@@ -61,7 +61,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 
 	private Uri mGameUri;
-	private ImageFetcher mImageFetcher;
 	private String mGameName;
 	private String mImageUrl;
 
@@ -124,6 +123,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	public interface Callbacks {
 		public void onNameChanged(String gameName);
 
+		public void onThumbnailUrlChanged(String url);
+
 		public DetachableResultReceiver getReceiver();
 	}
 
@@ -132,9 +133,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		public void onNameChanged(String gameName) {
 		}
 
+		@Override
+		public void onThumbnailUrlChanged(String url) {
+		}
+
+		@Override
 		public DetachableResultReceiver getReceiver() {
 			return null;
-		};
+		}
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -156,11 +162,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
 			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setImageFadeIn(false);
-		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
 
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
@@ -350,23 +351,11 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.flushCache();
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
 		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
 	}
 
 	@Override
@@ -495,6 +484,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mGameName = game.Name;
 		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
+		mCallbacks.onThumbnailUrlChanged(game.ThumbnailUrl);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
@@ -511,7 +501,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mPlayersView.setText(game.getPlayerRangeDescription());
 		mSuggestedAgesView.setText(game.getAgeDescription());
 
-		mImageFetcher.loadThumnailImage(game.ThumbnailUrl, Games.buildThumbnailUri(game.Id), mThumbnailView);
+		Picasso.with(getActivity()).load(game.ThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
+			.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
+			.centerCrop().into(mThumbnailView);
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));

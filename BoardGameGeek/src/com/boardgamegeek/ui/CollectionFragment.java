@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -26,10 +26,9 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,9 +67,7 @@ import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveFilters;
 import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -78,8 +75,8 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class CollectionFragment extends BggListFragment implements AbsListView.OnScrollListener,
-	LoaderManager.LoaderCallbacks<Cursor>, CollectionView, MultiChoiceModeListener {
+public class CollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	CollectionView, MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(CollectionFragment.class);
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
@@ -88,21 +85,13 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	private static final String STATE_FILTERS = "STATE_FILTERS";
 
 	private int mSelectedCollectionId;
-	private boolean mFastScrollLetterEnabled;
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
 	private SortData mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
-
-	private View mProgressView;
-	private View mListContainer;
 	private LinearLayout mFilterLinearLayout;
-	private TextView mFastScrollLetter;
-	private TextView mEmptyView;
-
 	private boolean mShortcut;
-
 	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
 	private android.view.MenuItem mLogPlayMenuItem;
 	private android.view.MenuItem mLogPlayQuickMenuItem;
@@ -166,40 +155,18 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mShortcut = "android.intent.action.CREATE_SHORTCUT".equals(intent.getAction());
-
-		new Handler().post(new Runnable() {
-			@Override
-			public void run() {
-				mFastScrollLetterEnabled = true;
-			};
-		});
-	}
-
-	@Override
-	protected int getLoadingImage() {
-		return R.drawable.thumbnail_image_empty;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_collection, null);
-
-		mProgressView = rootView.findViewById(R.id.progress);
-		mListContainer = rootView.findViewById(R.id.list_container);
-		mFilterLinearLayout = (LinearLayout) rootView.findViewById(R.id.filter_linear_layout);
-		mFastScrollLetter = (TextView) rootView.findViewById(R.id.fast_scroll_letter);
-		mEmptyView = (TextView) rootView.findViewById(android.R.id.empty);
-
-		setEmptyText();
-
-		return rootView;
+		return inflater.inflate(R.layout.fragment_collection, null);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
+		mFilterLinearLayout = (LinearLayout) getView().findViewById(R.id.filter_linear_layout);
+		setEmptyText();
 	}
 
 	@Override
@@ -213,7 +180,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
 		requery(); // This should be handled by the activity (I think)
 
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
 	private void requery() {
@@ -229,12 +196,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 
 		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		mFastScrollLetterEnabled = true;
 	}
 
 	@Override
@@ -256,19 +217,13 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-		mFastScrollLetter.setVisibility(View.INVISIBLE);
-		mFastScrollLetterEnabled = false;
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(View view, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int gameId = cursor.getInt(Query.GAME_ID);
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
+		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (mShortcut) {
-			Intent shortcut = ActivityUtils.createGameShortcut(getActivity(), gameId, gameName);
+			Intent shortcut = ActivityUtils.createGameShortcut(getActivity(), gameId, gameName, thumbnailUrl);
 			mCallbacks.onSetShortcut(shortcut);
 		} else {
 			if (mCallbacks.onGameSelected(gameId, gameName)) {
@@ -376,27 +331,6 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	}
 
 	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (mFastScrollLetterEnabled && mAdapter != null) {
-			final Cursor cursor = (Cursor) mAdapter.getItem(firstVisibleItem);
-			if (cursor != null && cursor.getCount() > 0) {
-				mFastScrollLetter.setText(mSort == null ? "" : mSort.getScrollText(cursor));
-			}
-		}
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		if (scrollState == SCROLL_STATE_IDLE) {
-			mFastScrollLetter.setVisibility(View.GONE);
-		} else if (TextUtils.isEmpty(mFastScrollLetter.getText())) {
-			mFastScrollLetter.setVisibility(View.GONE);
-		} else {
-			mFastScrollLetter.setVisibility(View.VISIBLE);
-		}
-	}
-
-	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
@@ -436,15 +370,15 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			return;
 		}
 
+		int token = loader.getId();
+		if (token == Query._TOKEN) {
 		if (mAdapter == null) {
 			mAdapter = new CollectionAdapter(getActivity());
 			setListAdapter(mAdapter);
 		}
-		boolean load = true;
-		int token = loader.getId();
-		if (token == Query._TOKEN) {
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
+			mCallbacks.onCollectionCountChanged(cursor.getCount());
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 			bindFilterButtons();
 		} else if (token == ViewQuery._TOKEN) {
@@ -459,16 +393,10 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 				} while (cursor.moveToNext());
 				setEmptyText();
 				requery();
-				load = false;
 			}
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
-		}
-		if (load) {
-			mCallbacks.onCollectionCountChanged(cursor.getCount());
-			AnimationUtils.fadeOut(getActivity(), mProgressView, isResumed());
-			AnimationUtils.fadeIn(getActivity(), mListContainer, isResumed());
 		}
 	}
 
@@ -504,16 +432,16 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 	}
 
 	private void setEmptyText() {
+		int resId = R.string.empty_collection;
 		if (mFilters != null && mFilters.size() > 0) {
-			mEmptyView.setText(getString(R.string.empty_collection_filter_on));
+			resId = R.string.empty_collection_filter_on;
 		} else {
 			String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
 			if (statuses == null || statuses.length == 0) {
-				mEmptyView.setText(getString(R.string.empty_collection_sync_off));
-			} else {
-				mEmptyView.setText(getString(R.string.empty_collection));
+				resId = R.string.empty_collection_sync_off;
 			}
 		}
+		setEmptyText(getString(resId));
 	}
 
 	private void setSort(int sortType) {
@@ -686,26 +614,13 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		}
 	}
 
-	private class CollectionAdapter extends CursorAdapter {
-		private static final int STATE_UNKNOWN = 0;
-		private static final int STATE_SECTIONED_CELL = 1;
-		private static final int STATE_REGULAR_CELL = 2;
-
+	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
-		private int[] mCellStates;
-		private String previousSection = "";
-		private String mCurrentSection = "";
 		private final String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
-		}
-
-		@Override
-		public Cursor swapCursor(Cursor newCursor) {
-			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
-			return super.swapCursor(newCursor);
 		}
 
 		@Override
@@ -720,41 +635,7 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			boolean needSeparator = false;
-			final int position = cursor.getPosition();
-			mCurrentSection = mSort.getSectionText(cursor);
-			switch (mCellStates[position]) {
-				case STATE_SECTIONED_CELL:
-					needSeparator = true;
-					break;
-				case STATE_REGULAR_CELL:
-					needSeparator = false;
-					break;
-				case STATE_UNKNOWN:
-				default:
-					if (position == 0) {
-						needSeparator = true;
-					} else {
-						cursor.moveToPosition(position - 1);
-						previousSection = mSort.getSectionText(cursor);
-						if (!previousSection.equals(mCurrentSection)) {
-							needSeparator = true;
-						}
-						cursor.moveToPosition(position);
-					}
-					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
-					break;
-			}
-
-			if (needSeparator) {
-				holder.separator.setText(mCurrentSection);
-				holder.separator.setVisibility(View.VISIBLE);
-			} else {
-				holder.separator.setVisibility(View.GONE);
-			}
-
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
-			int gameId = cursor.getInt(Query.GAME_ID);
 			int year = cursor.getInt(Query.YEAR_PUBLISHED);
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
@@ -764,29 +645,49 @@ public class CollectionFragment extends BggListFragment implements AbsListView.O
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
 			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
-			if (!TextUtils.isEmpty(collectionThumbnailUrl)) {
-				getImageFetcher().loadThumnailImage(collectionThumbnailUrl, Collection.buildThumbnailUri(collectionId),
-					holder.thumbnail);
-			} else {
-				getImageFetcher().loadThumnailImage(thumbnailUrl, Games.buildThumbnailUri(gameId), holder.thumbnail);
-			}
+			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
+				holder.thumbnail);
 		}
+
+		@Override
+		public long getHeaderId(int position) {
+			if (position < 0) {
+				return 0;
+			}
+			return mSort.getHeaderId(getCursor(), position);
 	}
 
-	static class ViewHolder {
+		@Override
+		public View getHeaderView(int position, View convertView, ViewGroup parent) {
+			HeaderViewHolder holder;
+			if (convertView == null) {
+				holder = new HeaderViewHolder();
+				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				convertView.setTag(holder);
+			} else {
+				holder = (HeaderViewHolder) convertView.getTag();
+			}
+			holder.text.setText(mSort.getHeaderText(getCursor(), position));
+			return convertView;
+		}
+
+		class ViewHolder {
 		TextView name;
 		TextView year;
 		TextView info;
-		BezelImageView thumbnail;
-		Uri thumbnailUrl;
-		TextView separator;
+		ImageView thumbnail;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			info = (TextView) view.findViewById(R.id.info);
-			thumbnail = (BezelImageView) view.findViewById(R.id.list_thumbnail);
-			separator = (TextView) view.findViewById(R.id.separator);
+			thumbnail = (ImageView) view.findViewById(R.id.list_thumbnail);
+			}
+		}
+
+		class HeaderViewHolder {
+			TextView text;
 		}
 	}
 

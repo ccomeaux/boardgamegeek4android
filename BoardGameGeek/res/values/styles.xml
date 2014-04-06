@@ -107,6 +107,11 @@
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
+	<style name="RowContainer.WithThumbnail">
+		<item name="android:paddingBottom">0dp</item>
+		<item name="android:paddingTop">0dp</item>
+	</style>
+
 	<style name="RowSeparator">
 		<item name="android:background">@color/background_dark</item>
 		<item name="android:gravity">center_horizontal</item>

@@ -31,7 +31,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" >
 
-				<com.boardgamegeek.ui.widget.BezelImageView
+				<ImageView
 					android:id="@+id/game_info_thumbnail"
 					android:layout_width="@dimen/thumbnail_size"
 					android:layout_height="@dimen/thumbnail_size"
@@ -40,6 +40,7 @@
 					android:layout_marginBottom="@dimen/padding_standard"
 					android:layout_marginRight="@dimen/padding_standard"
 					android:clickable="true"
+					android:contentDescription="@string/thumbnail"
 					android:focusable="true"
 					android:scaleType="centerCrop"
 					android:src="@drawable/thumbnail_image_empty" />

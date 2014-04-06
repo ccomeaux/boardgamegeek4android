@@ -28,7 +28,7 @@ public class CollectionNameSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getFirstChar(cursor, Collection.COLLECTION_SORT_NAME);
 	}
 

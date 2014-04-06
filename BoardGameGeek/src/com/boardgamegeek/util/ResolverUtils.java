@@ -8,7 +8,6 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -228,22 +227,6 @@ public class ResolverUtils {
 			return bitmap;
 		}
 		return null;
-	}
-
-	/*
-	 * Saves a bitmap at the URI.
-	 */
-	public static void putBitmapInContentProvider(ContentResolver resolver, Uri uri, Bitmap bitmap) {
-		OutputStream stream = null;
-		try {
-			stream = resolver.openOutputStream(uri);
-		} catch (FileNotFoundException e) {
-			LOGD(TAG, "Couldn't find drawable: " + uri, e);
-		}
-		if (stream != null) {
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-			closeStream(stream);
-		}
 	}
 
 	private static void closeCursor(Cursor cursor) {

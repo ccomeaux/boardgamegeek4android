@@ -29,7 +29,7 @@ public class MyRatingSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 

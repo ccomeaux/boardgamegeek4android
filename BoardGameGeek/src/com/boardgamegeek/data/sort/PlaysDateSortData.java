@@ -37,7 +37,7 @@ public class PlaysDateSortData extends PlaysSortData {
 	}
 
 	@Override
-	public String getSectionText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		String date = getYearAndMonth(cursor);
 		int month = Integer.parseInt(date.substring(5, 7));
 		mCalendar.set(Calendar.MONTH, month - 1);

@@ -18,7 +18,7 @@ public abstract class YearPublishedSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getIntAsString(cursor, Collection.YEAR_PUBLISHED, "?");
 	}
 }
