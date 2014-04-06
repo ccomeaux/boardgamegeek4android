@@ -14,6 +14,8 @@ import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
 
 public class PreferencesUtils {
+	public static final long VIEW_ID_COLLECTION = -1;
+	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
 	private static final String KEY_LAST_PLAY_TIME = "last_play_time";
 	private static final String KEY_LAST_PLAY_LOCATION = "last_play_location";
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
@@ -182,6 +184,18 @@ public class PreferencesUtils {
 		return putInt(context, "hIndex", hIndex);
 	}
 
+	public static long getViewDefaultId(Context context) {
+		return getLong(context, VIEW_DEFAULT_ID, VIEW_ID_COLLECTION);
+	}
+
+	public static boolean putViewDefaultId(Context context, long id) {
+		return putLong(context, VIEW_DEFAULT_ID, id);
+	}
+
+	public static boolean removeViewDefaultId(Context context) {
+		return remove(context, VIEW_DEFAULT_ID);
+	}
+
 	public static long getLastPlayTime(Context context) {
 		return getLong(context, KEY_LAST_PLAY_TIME, 0);
 	}
@@ -224,6 +238,13 @@ public class PreferencesUtils {
 			sb.append(player.Name).append(SEPARATOR_FIELD).append(player.Username).append(SEPARATOR_RECORD);
 		}
 		return putString(context, KEY_LAST_PLAY_PLAYERS, sb.toString());
+	}
+
+	private static boolean remove(Context context, String key) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		Editor editor = sharedPreferences.edit();
+		editor.remove(key);
+		return editor.commit();
 	}
 
 	private static boolean putInt(Context context, String key, int value) {

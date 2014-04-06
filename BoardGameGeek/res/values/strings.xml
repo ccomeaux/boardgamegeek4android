@@ -334,6 +334,7 @@
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
+	<string name="set_as_default">Set as default</string>
 	<string name="nickname">Nickname</string>
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>

@@ -64,7 +64,7 @@ import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
-import com.boardgamegeek.ui.dialog.SaveFilters;
+import com.boardgamegeek.ui.dialog.SaveView;
 import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.util.ActivityUtils;
@@ -178,8 +178,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
-		requery(); // This should be handled by the activity (I think)
-
+		if (savedInstanceState != null) {
+			requery();
+		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
@@ -283,10 +284,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
-				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
+				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
+					cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
-				SaveFilters.createDialog(getActivity(), this, mViewName, mSort, mFilters);
+				SaveView.createDialog(getActivity(), this, mViewName, mSort, mFilters);
 				return true;
 			case R.id.menu_collection_view_delete:
 				DeleteFilters.createDialog(getActivity(), this);
@@ -307,7 +309,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
 			case R.id.menu_collection_sort_published:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC,
+					CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime:
 				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC, CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
@@ -316,7 +319,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSortDataFactory.TYPE_AGE_ASC, CollectionSortDataFactory.TYPE_AGE_DESC);
 				return true;
 			case R.id.menu_collection_sort_weight:
-				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
+				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC,
+					CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
 				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC, CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
@@ -372,10 +376,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		int token = loader.getId();
 		if (token == Query._TOKEN) {
-		if (mAdapter == null) {
-			mAdapter = new CollectionAdapter(getActivity());
-			setListAdapter(mAdapter);
-		}
+			if (mAdapter == null) {
+				mAdapter = new CollectionAdapter(getActivity());
+				setListAdapter(mAdapter);
+			} else {
+				setProgessShown(false);
+			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
 			mCallbacks.onCollectionCountChanged(cursor.getCount());
@@ -595,8 +601,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return false;
 	}
 
+	public long getViewId() {
+		return mViewId;
+	}
+
 	public void setView(long viewId) {
 		if (mViewId != viewId) {
+			setProgessShown(true);
 			mViewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
@@ -655,7 +666,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return 0;
 			}
 			return mSort.getHeaderId(getCursor(), position);
-	}
+		}
 
 		@Override
 		public View getHeaderView(int position, View convertView, ViewGroup parent) {
@@ -673,16 +684,16 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		class ViewHolder {
-		TextView name;
-		TextView year;
-		TextView info;
-		ImageView thumbnail;
+			TextView name;
+			TextView year;
+			TextView info;
+			ImageView thumbnail;
 
-		public ViewHolder(View view) {
-			name = (TextView) view.findViewById(R.id.name);
-			year = (TextView) view.findViewById(R.id.year);
-			info = (TextView) view.findViewById(R.id.info);
-			thumbnail = (ImageView) view.findViewById(R.id.list_thumbnail);
+			public ViewHolder(View view) {
+				name = (TextView) view.findViewById(R.id.name);
+				year = (TextView) view.findViewById(R.id.year);
+				info = (TextView) view.findViewById(R.id.info);
+				thumbnail = (ImageView) view.findViewById(R.id.list_thumbnail);
 			}
 		}
 

@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,20 +24,26 @@ import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
-public class SaveFilters {
+public class SaveView {
 
-	public static void createDialog(final Context context, final CollectionView view, String name,
-		final SortData sort, final List<CollectionFilterData> filters) {
+	public static void createDialog(final Context context, final CollectionView view, String name, final SortData sort,
+		final List<CollectionFilterData> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layout = inflater.inflate(R.layout.dialog_save_filters, null);
+		View layout = inflater.inflate(R.layout.dialog_save_view, null);
 
 		final EditText nameView = (EditText) layout.findViewById(R.id.name);
+		final CheckBox defaultView = (CheckBox) layout.findViewById(R.id.default_view);
+
 		nameView.setText(name);
 		if (!TextUtils.isEmpty(name)) {
 			nameView.setSelection(0, name.length());
+		}
+		if (findViewId(context.getContentResolver(), name) == PreferencesUtils.getViewDefaultId(context)) {
+			defaultView.setChecked(true);
 		}
 		setDescription(context, layout, sort, filters);
 
@@ -46,6 +53,8 @@ public class SaveFilters {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					final String name = nameView.getText().toString().trim();
+					final boolean isDefault = defaultView.isChecked();
+
 					final ContentResolver resolver = context.getContentResolver();
 
 					final long viewId = findViewId(resolver, name);
@@ -56,25 +65,32 @@ public class SaveFilters {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									update(resolver, viewId, sort.getType(), filters);
+									setDefault(viewId, isDefault);
 									view.createView(viewId, name);
 								}
 							}).setNegativeButton(R.string.create, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
 									long id = insert(resolver, name, sort.getType(), filters);
+									setDefault(id, isDefault);
 									view.createView(id, name);
 								}
 							}).create().show();
 
 					} else {
 						long id = insert(resolver, name, sort.getType(), filters);
+						setDefault(id, isDefault);
 						view.createView(id, name);
 					}
 				}
 
-				private long findViewId(ContentResolver resolver, String name) {
-					return ResolverUtils.queryLong(resolver, CollectionViews.CONTENT_URI, CollectionViews._ID, 0,
-						CollectionViews.NAME + "=?", new String[] { name });
+				private void setDefault(long viewId, boolean isDefault) {
+					if (isDefault) {
+						// TODO: prompt the user if replacing a default
+						PreferencesUtils.putViewDefaultId(context, viewId);
+					} else {
+						PreferencesUtils.removeViewDefaultId(context);
+					}
 				}
 
 				private long insert(ContentResolver resolver, String name, int sortType,
@@ -124,6 +140,11 @@ public class SaveFilters {
 		dialog.show();
 	}
 
+	private static long findViewId(ContentResolver resolver, String name) {
+		return ResolverUtils.queryLong(resolver, CollectionViews.CONTENT_URI, CollectionViews._ID, 0,
+			CollectionViews.NAME + "=?", new String[] { name });
+	}
+
 	private static void enableSaveButton(final AlertDialog dialog, final EditText nameView) {
 		nameView.setOnKeyListener(new OnKeyListener() {
 			@Override
@@ -135,8 +156,7 @@ public class SaveFilters {
 		});
 	}
 
-	private static void setDescription(Context context, View layout, SortData sort,
-		List<CollectionFilterData> filters) {
+	private static void setDescription(Context context, View layout, SortData sort, List<CollectionFilterData> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterData filter : filters) {

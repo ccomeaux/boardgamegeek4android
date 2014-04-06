@@ -127,6 +127,16 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 		mEmptyText = text;
 	}
 
+	public void setProgessShown(boolean shown) {
+		if (shown) {
+			mProgressContainer.clearAnimation();
+			mProgressContainer.setVisibility(View.VISIBLE);
+		} else {
+			mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+			mProgressContainer.setVisibility(View.GONE);
+		}
+	}
+
 	public void setListShown(boolean shown) {
 		setListShown(shown, true);
 	}
@@ -137,9 +147,6 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 
 	private void setListShown(boolean shown, boolean animate) {
 		ensureList();
-		if (mProgressContainer == null) {
-			throw new IllegalStateException("Can't be used with a custom content view");
-		}
 		if (mListShown == shown) {
 			return;
 		}
