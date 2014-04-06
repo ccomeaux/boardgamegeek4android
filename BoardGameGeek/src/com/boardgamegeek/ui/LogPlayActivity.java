@@ -228,8 +228,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	@Override
-	protected void onStop() {
-		super.onStop();
+	protected void onPause() {
+		super.onPause();
 		if (!isFinishing() && !mLaunchingActivity) {
 			saveDraft(false);
 		}
