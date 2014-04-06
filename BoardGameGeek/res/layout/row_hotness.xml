@@ -13,8 +13,8 @@
 		<TextView
 			android:id="@+id/rank"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:gravity="right"
+			android:layout_height="match_parent"
+			android:gravity="right|center_vertical"
 			android:minWidth="32dp"
 			android:paddingRight="@dimen/padding_standard"
 			android:textIsSelectable="false"
