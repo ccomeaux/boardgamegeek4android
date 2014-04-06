@@ -38,7 +38,7 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 
 	private StickyListHeadersAdapter mAdapter;
 	private StickyListHeadersListView mList;
-	private TextView mStandardEmptyView;
+	private TextView mEmptyView;
 	private View mProgressContainer;
 	private View mListContainer;
 	private CharSequence mEmptyText;
@@ -63,7 +63,7 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 		mList = null;
 		mListShown = false;
 		mProgressContainer = mListContainer = null;
-		mStandardEmptyView = null;
+		mEmptyView = null;
 		super.onDestroyView();
 	}
 
@@ -120,9 +120,9 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 
 	public void setEmptyText(CharSequence text) {
 		ensureList();
-		mStandardEmptyView.setText(text);
+		mEmptyView.setText(text);
 		if (mEmptyText == null) {
-			mList.setEmptyView(mStandardEmptyView);
+			mList.setEmptyView(mEmptyView);
 		}
 		mEmptyText = text;
 	}
@@ -178,9 +178,7 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 
 	protected void restoreScrollState() {
 		if (mListViewStatePosition != LIST_VIEW_STATE_POSITION_DEFAULT && isAdded()) {
-			// workaround odd behavior
-			mList
-				.setSelectionFromTop(mListViewStatePosition + (mListViewStatePosition == 0 ? 0 : 1), mListViewStateTop);
+			mList.setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
 		}
 	}
 
@@ -207,8 +205,8 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 			throw new IllegalStateException("Content view not yet created");
 		}
 
-		mStandardEmptyView = (TextView) root.findViewById(android.R.id.empty);
-		mStandardEmptyView.setVisibility(View.GONE);
+		mEmptyView = (TextView) root.findViewById(android.R.id.empty);
+		mEmptyView.setVisibility(View.GONE);
 		mProgressContainer = root.findViewById(R.id.progressContainer);
 		mListContainer = root.findViewById(R.id.listContainer);
 		View rawListView = root.findViewById(android.R.id.list);
@@ -222,8 +220,8 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 				+ "'android.R.id.list'");
 		}
 		if (mEmptyText != null) {
-			mStandardEmptyView.setText(mEmptyText);
-			mList.setEmptyView(mStandardEmptyView);
+			mEmptyView.setText(mEmptyText);
+			mList.setEmptyView(mEmptyView);
 		}
 		mListShown = true;
 		mList.setOnItemClickListener(mOnClickListener);

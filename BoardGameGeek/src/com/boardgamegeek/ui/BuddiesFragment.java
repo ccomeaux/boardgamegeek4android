@@ -135,26 +135,19 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new BuddiesAdapter(getActivity());
-			setListAdapter(mAdapter);
-		}
-
 		int token = loader.getId();
 		if (token == BuddiesQuery._TOKEN) {
+			if (mAdapter == null) {
+				mAdapter = new BuddiesAdapter(getActivity());
+				setListAdapter(mAdapter);
+			}
 			mAdapter.changeCursor(cursor);
+			mCallbacks.onBuddyCountChanged(cursor.getCount());
+			restoreScrollState();
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
-
-		mCallbacks.onBuddyCountChanged(cursor.getCount());
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
-		restoreScrollState();
 	}
 
 	@Override
@@ -214,8 +207,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			String headerText = getHeaderText(position);
-			holder.text.setText(headerText);
+			holder.text.setText(getHeaderText(position));
 			return convertView;
 		}
 

@@ -390,11 +390,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
-			}
 			restoreScrollState();
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 		} else if (token == GameQuery._TOKEN) {
@@ -549,10 +544,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			return convertView;
 		}
 
-		class HeaderViewHolder {
-			TextView text;
-		}
-
 		class ViewHolder {
 			TextView name;
 			TextView date;
@@ -565,6 +556,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				location = (TextView) view.findViewById(R.id.list_location);
 				status = (TextView) view.findViewById(R.id.list_status);
 			}
+		}
+
+		class HeaderViewHolder {
+			TextView text;
 		}
 	}
 

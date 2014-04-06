@@ -51,10 +51,13 @@ public abstract class SortData {
 	/**
 	 * Get the text to display in the section header.
 	 */
-	public String getHeaderText(Cursor cursor) {
+	protected String getHeaderText(Cursor cursor) {
 		return "";
 	}
 
+	/**
+	 * Get the text to display in the section header.
+	 */
 	public String getHeaderText(Cursor cursor, int position) {
 		if (cursor == null || position < 0) {
 			return "";
