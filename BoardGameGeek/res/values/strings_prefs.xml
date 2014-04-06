@@ -80,6 +80,7 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>Sticky headers and bigger images in lists</li>
 <li>When adding players to a play, a list of most common players is displayed, enabling quicker enty</li>
 <li>Consider a play started within 2 hours of the previous play ending as part of the same session, and copy the location and players to the new play</li>
 <li>Calculates your games played h-index</li>
