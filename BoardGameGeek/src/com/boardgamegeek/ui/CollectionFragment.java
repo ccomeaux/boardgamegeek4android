@@ -615,14 +615,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	public void clearView() {
-		if (mViewId != 0) {
-			mViewId = 0;
-			mViewName = "";
-			resetScrollState();
-			mFilters.clear();
-			mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
-			requery();
-		}
+		setProgessShown(true);
+		mViewId = 0;
+		mViewName = "";
+		resetScrollState();
+		mFilters.clear();
+		mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
+		requery();
 	}
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
