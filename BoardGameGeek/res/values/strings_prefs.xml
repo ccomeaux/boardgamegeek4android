@@ -80,16 +80,6 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
-<li>Sticky headers and bigger images in lists</li>
-<li>Set a collection view as the default</li>
-<li>When adding players to a play, a list of most common players is displayed, enabling quicker entry</li>
-<li>Consider a play started within 2 hours of the previous play ending as part of the same session, and copy the location and players to the new play</li>
-<li>Calculates your games played h-index</li>
-<li>Ability to add a color to a game</li>
-<li>Option to show the full date/time in the forums (under Settings > Advanced)</li>
-<li>When syncing, remove games not in your collection if they haven\'t been viewed in 3 days</li>
-<li>When enabling custom player order, prompt to remove the existing starting positions</li>
-<li>Miscellaneous fixes and improvements</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
 <br/>
@@ -100,6 +90,7 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="pref_about_dslv_license">Copyright 2012 Carl Bauer\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_okhttp_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_picasso_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
+	<string name="pref_about_slh_license">Copyright 2014 Emil Sjölander\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_icons">Icons</string>
 	<string name="pref_about_contact_us">Contact Us</string>
 	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
