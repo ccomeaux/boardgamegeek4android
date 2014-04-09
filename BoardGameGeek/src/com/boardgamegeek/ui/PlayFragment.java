@@ -35,7 +35,6 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -44,10 +43,10 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class PlayFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
@@ -82,7 +81,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private boolean mPlayersLoaded;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
-	private ImageFetcher mImageFetcher;
 
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
@@ -129,11 +127,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
 
 		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setImageFadeIn(false);
-		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_size));
 	}
 
 	@Override
@@ -208,18 +201,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		}
 
 		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.flushCache();
-	}
-
-	@Override
-	public void onDestroy() {
-		mImageFetcher.closeCache();
-		super.onDestroy();
 	}
 
 	@Override
@@ -374,7 +355,9 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			mThumbnailView.setVisibility(View.GONE);
 		} else {
 			mThumbnailView.setVisibility(View.VISIBLE);
-			mImageFetcher.loadThumnailImage(mThumbnailUrl, Games.buildThumbnailUri(mPlay.GameId), mThumbnailView);
+			Picasso.with(getActivity()).load(mThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
+				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
+				.centerCrop().into(mThumbnailView);
 		}
 
 		List<Player> players = mPlay.getPlayers();

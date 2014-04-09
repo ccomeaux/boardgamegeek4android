@@ -55,15 +55,10 @@ public class RemoteForumsParser extends RemoteBggParser {
 		int type;
 		while (((type = mParser.next()) != END_TAG || mParser.getDepth() > depth) && type != END_DOCUMENT) {
 			if (type == START_TAG && Tags.FORUM.equals(mParser.getName())) {
-
-				if (mParser.getAttributeValue(null, Tags.NO_POSTING).equals("1")) {
-					// ignore forums that are not writable
-					continue;
-				}
-
 				final Forum forum = new Forum();
 				forum.id = parseStringAttribute(Tags.ID);
 				forum.title = parseStringAttribute(Tags.TITLE);
+				forum.noposting = parseIntegerAttribute(Tags.NO_POSTING);
 				forum.numberOfThreads = parseIntegerAttribute(Tags.NUM_THREADS);
 				forum.lastPostDate = parseDateAttribute(Tags.LAST_POST_DATE, FORMAT, false);
 				mForums.add(forum);

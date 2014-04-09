@@ -25,6 +25,7 @@ import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -38,7 +39,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private Object mSyncObserverHandle;
 	private boolean mShortcut;
 	private CollectionViewAdapter mAdapter;
-	private long mViewId;
+	private long mViewId = -2;
 	private int mCount;
 	private String mSortName;
 	private boolean mIsTitleHidden;
@@ -53,6 +54,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
 			mCount = savedInstanceState.getInt(STATE_COUNT);
 			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
+		} else {
+			mViewId = PreferencesUtils.getViewDefaultId(this);
 		}
 
 		final ActionBar actionBar = getSupportActionBar();
@@ -195,10 +198,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		CollectionFragment fragment = (CollectionFragment) getFragment();
-		if (itemId < 0) {
-			fragment.clearView();
-		} else {
-			fragment.setView(itemId);
+		long oldId = fragment.getViewId();
+		if (itemId != oldId) {
+			if (itemId < 0) {
+				fragment.clearView();
+			} else {
+				fragment.setView(itemId);
+			}
 		}
 		return true;
 	}
@@ -300,7 +306,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Override
 		public long getItemId(int position) {
 			if (position == 0) {
-				return -1;
+				return PreferencesUtils.VIEW_ID_COLLECTION;
 			}
 			return super.getItemId(position - 1);
 		}

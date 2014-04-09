@@ -18,6 +18,12 @@
 		android:layout_height="wrap_content"
 		android:inputType="textCapWords" />
 
+	<CheckBox
+		android:id="@+id/default_view"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/set_as_default" />
+
 	<TextView
 		android:id="@+id/description"
 		style="@style/Text.Dialog"

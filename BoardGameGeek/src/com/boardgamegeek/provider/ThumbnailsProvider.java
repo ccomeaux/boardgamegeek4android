@@ -3,7 +3,6 @@ package com.boardgamegeek.provider;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.File;
 import java.io.IOException;
 
 import android.content.Context;
@@ -22,8 +21,7 @@ public class ThumbnailsProvider extends BaseProvider {
 
 	protected int delete(Context context, SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
 		try {
-			return FileUtils.deleteContents(new File(FileUtils
-				.generateContentPath(context, BggContract.PATH_THUMBNAILS)));
+			return FileUtils.deleteContents(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS));
 		} catch (IOException e) {
 			LOGE(TAG, "Couldn't delete avatars", e);
 			return 0;

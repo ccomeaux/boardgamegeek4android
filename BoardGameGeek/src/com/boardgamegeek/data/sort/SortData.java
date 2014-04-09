@@ -22,7 +22,8 @@ public abstract class SortData {
 	}
 
 	/**
-	 * Gets the description to display in the UI when this sort is applied
+	 * Gets the description to display in the UI when this sort is applied. Subclasses should set mDescriptionId and
+	 * mSubDescriptionId to control this value.
 	 */
 	public String getDescription() {
 		String decription = String.format(mContext.getString(R.string.sort_description),
@@ -48,24 +49,46 @@ public abstract class SortData {
 	}
 
 	/**
-	 * Get the text to display in a popup while scrolling.
+	 * Get the text to display in the section header.
 	 */
-	public String getScrollText(Cursor cursor) {
+	protected String getHeaderText(Cursor cursor) {
 		return "";
 	}
 
 	/**
 	 * Get the text to display in the section header.
 	 */
-	public String getSectionText(Cursor cursor) {
-		return getScrollText(cursor);
+	public String getHeaderText(Cursor cursor, int position) {
+		if (cursor == null || position < 0) {
+			return "";
+		}
+		int pos = cursor.getPosition();
+		cursor.moveToPosition(position);
+		String text = getHeaderText(cursor);
+		cursor.moveToPosition(pos);
+		return text;
+	}
+
+	protected long getHeaderId(Cursor cursor) {
+		return getHeaderText(cursor).hashCode();
+	}
+
+	public long getHeaderId(Cursor cursor, int position) {
+		if (cursor == null || position < 0) {
+			return 0;
+		}
+		int pos = cursor.getPosition();
+		cursor.moveToPosition(position);
+		long id = getHeaderId(cursor);
+		cursor.moveToPosition(pos);
+		return id;
 	}
 
 	/**
 	 * Gets the text to display on each row.
 	 */
 	public String getDisplayInfo(Cursor cursor) {
-		return getSectionText(cursor);
+		return getHeaderText(cursor);
 	}
 
 	/**

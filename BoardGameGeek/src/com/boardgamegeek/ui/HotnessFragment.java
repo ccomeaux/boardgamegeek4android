@@ -14,8 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,13 +24,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteHotnessParser;
 import com.boardgamegeek.model.HotGame;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class HotnessFragment extends BggListFragment implements AbsListView.OnScrollListener, MultiChoiceModeListener {
+public class HotnessFragment extends BggListFragment implements MultiChoiceModeListener {
 	// private static final String TAG = makeLogTag(HotnessActivity.class);
 	private static final String KEY_HOT_GAMES = "HOT_GAMES";
 
@@ -70,15 +69,6 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelableArrayList(KEY_HOT_GAMES, (ArrayList<? extends Parcelable>) mHotGames);
-	}
-
-	@Override
-	protected int getLoadingImage() {
-		return R.drawable.thumbnail_image_empty;
-	}
-
-	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
 	@Override
@@ -166,7 +156,7 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 					holder.year.setText(String.valueOf(game.YearPublished));
 				}
 				holder.rank.setText(String.valueOf(game.Rank));
-				getImageFetcher().loadAvatarImage(game.ThumbnailUrl, null, holder.thumbnail);
+				loadThumbnail(game.ThumbnailUrl, holder.thumbnail);
 			}
 
 			return convertView;
@@ -177,13 +167,13 @@ public class HotnessFragment extends BggListFragment implements AbsListView.OnSc
 		TextView name;
 		TextView year;
 		TextView rank;
-		BezelImageView thumbnail;
+		ImageView thumbnail;
 
 		public ViewHolder(View view) {
 			name = (TextView) view.findViewById(R.id.name);
 			year = (TextView) view.findViewById(R.id.year);
 			rank = (TextView) view.findViewById(R.id.rank);
-			thumbnail = (BezelImageView) view.findViewById(R.id.thumbnail);
+			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
 		}
 	}
 

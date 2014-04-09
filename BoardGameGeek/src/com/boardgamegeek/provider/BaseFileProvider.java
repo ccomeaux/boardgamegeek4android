@@ -1,13 +1,7 @@
 package com.boardgamegeek.provider;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import com.boardgamegeek.util.FileUtils;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,11 +9,14 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
+import com.boardgamegeek.util.FileUtils;
+
 public abstract class BaseFileProvider extends BaseProvider {
-	private static final String TAG = makeLogTag(BaseFileProvider.class);
+	// private static final String TAG = makeLogTag(BaseFileProvider.class);
 
 	protected abstract String getContentPath();
 
+	/** Generates a file name based on the URI **/
 	protected abstract String generateFileName(Context context, Uri uri);
 
 	@Override
@@ -35,33 +32,19 @@ public abstract class BaseFileProvider extends BaseProvider {
 	@Override
 	protected ParcelFileDescriptor openFile(Context context, Uri uri, String mode) throws FileNotFoundException {
 		File file = getFile(context, uri);
-		if (file == null) {
+		if (file == null || !file.exists()) {
 			throw new FileNotFoundException("Couldn't get the file at the specified path.");
-		}
-
-		if (!file.exists()) {
-			try {
-				if (!file.createNewFile()) {
-					throw new FileNotFoundException("Couldn't create a new file for " + file.getAbsolutePath());
-				}
-			} catch (IOException e) {
-				LOGE(TAG, "Error creating a new file.", e);
-				throw new FileNotFoundException(e.getMessage());
-			}
 		}
 
 		int parcelMode = calculateParcelMode(uri, mode);
 		return ParcelFileDescriptor.open(file, parcelMode);
 	}
 
+	/** Get a {@code File} representing the locally stored results of the URI. **/
 	private File getFile(Context context, Uri uri) {
 		String fileName = generateFileName(context, uri);
 		if (!TextUtils.isEmpty(fileName)) {
-			String path = FileUtils.generateContentPath(context, getContentPath());
-			if (path == null) {
-				return null;
-			}
-			return new File(path, fileName);
+			return new File(FileUtils.generateContentPath(context, getContentPath()), fileName);
 		}
 		return null;
 	}

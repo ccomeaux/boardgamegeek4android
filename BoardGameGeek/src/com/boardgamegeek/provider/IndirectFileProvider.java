@@ -2,8 +2,8 @@ package com.boardgamegeek.provider;
 
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
 
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public abstract class IndirectFileProvider extends BaseFileProvider {
@@ -14,13 +14,6 @@ public abstract class IndirectFileProvider extends BaseFileProvider {
 	@Override
 	protected String generateFileName(Context context, Uri uri) {
 		String url = ResolverUtils.queryString(context.getContentResolver(), getFileUri(uri), getColumnName());
-		if (!TextUtils.isEmpty(url) && !BggContract.INVALID_URL.equals(url)) {
-			int i = url.lastIndexOf('/');
-			if (i > 0) {
-				return url.substring(i + 1);
-			}
-			return url;
-		}
-		return null;
+		return FileUtils.getFileNameFromUrl(url);
 	}
 }

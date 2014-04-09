@@ -100,6 +100,7 @@
 	<string name="more">More</string>
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
+	<string name="thumbnail">Thumbnail</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
@@ -117,6 +118,7 @@
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_game">Game</string>
+	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>
 	<string name="title_buddies">GeekBuddies</string>
@@ -143,6 +145,7 @@
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
+	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_my_geek">My Geek</string>
@@ -331,6 +334,7 @@
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
+	<string name="set_as_default">Set as default</string>
 	<string name="nickname">Nickname</string>
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>

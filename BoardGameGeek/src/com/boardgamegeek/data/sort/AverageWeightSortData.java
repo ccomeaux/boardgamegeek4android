@@ -28,7 +28,7 @@ public class AverageWeightSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 
