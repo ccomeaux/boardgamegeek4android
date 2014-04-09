@@ -50,8 +50,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getString(R.string.empty_forums));
 	}
 
@@ -73,7 +73,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			return;
 		}
 
-		mForumsAdapter = new ForumsAdapter(getActivity(), forums);
+		if (mForumsAdapter == null) {
+			mForumsAdapter = new ForumsAdapter(getActivity(), forums);
+		}
 		setListAdapter(mForumsAdapter);
 
 		if (loaderHasError()) {
@@ -200,34 +202,66 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			ForumViewHolder holder;
-			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_forum, parent, false);
-				holder = new ForumViewHolder(convertView);
-				convertView.setTag(holder);
-			} else {
-				holder = (ForumViewHolder) convertView.getTag();
-			}
-
 			Forum forum;
 			try {
 				forum = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
-			if (forum != null) {
-				holder.forumId = forum.id;
-				holder.forumTitle.setText(forum.title);
-				holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads, forum.numberOfThreads,
-					mFormat.format(forum.numberOfThreads)));
-				holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate));
-				holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
+
+			int type = getItemViewType(position);
+			if (type == 0) {
+				ForumViewHolder holder;
+				if (convertView == null) {
+					convertView = mInflater.inflate(R.layout.row_forum, parent, false);
+					holder = new ForumViewHolder(convertView);
+					convertView.setTag(holder);
+				} else {
+					holder = (ForumViewHolder) convertView.getTag();
+				}
+
+				if (forum != null) {
+					holder.forumId = forum.id;
+					holder.forumTitle.setText(forum.title);
+					holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads,
+						forum.numberOfThreads, mFormat.format(forum.numberOfThreads)));
+					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate));
+					holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
+				}
+				return convertView;
+			} else {
+				HeaderViewHolder holder;
+				if (convertView == null) {
+					convertView = mInflater.inflate(R.layout.row_header, parent, false);
+					holder = new HeaderViewHolder(convertView);
+					convertView.setTag(holder);
+				} else {
+					holder = (HeaderViewHolder) convertView.getTag();
+				}
+				if (forum != null) {
+					holder.header.setText(forum.title);
+				}
+				return convertView;
 			}
-			return convertView;
+		}
+
+		@Override
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			try {
+				Forum forum = getItem(position);
+				return forum.noposting;
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return 0;
+			}
 		}
 	}
 
-	public static class ForumViewHolder {
+	static class ForumViewHolder {
 		public String forumId;
 		public TextView forumTitle;
 		public TextView numThreads;
@@ -237,6 +271,14 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			forumTitle = (TextView) view.findViewById(R.id.forum_title);
 			numThreads = (TextView) view.findViewById(R.id.numthreads);
 			lastPost = (TextView) view.findViewById(R.id.lastpost);
+		}
+	}
+
+	static class HeaderViewHolder {
+		public TextView header;
+
+		public HeaderViewHolder(View view) {
+			header = (TextView) view.findViewById(R.id.separator);
 		}
 	}
 }
