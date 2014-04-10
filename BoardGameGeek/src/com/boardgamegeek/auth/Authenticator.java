@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
 import com.boardgamegeek.util.HttpUtils;
@@ -33,6 +32,8 @@ import com.boardgamegeek.util.HttpUtils;
 public class Authenticator extends AbstractAccountAuthenticator {
 	private static final String TAG = makeLogTag(Authenticator.class);
 
+	public static final String ACCOUNT_TYPE = "com.boardgamegeek";
+	public static final String AUTHTOKEN_TYPE = "com.boardgamegeek";
 	public static final String KEY_AUTHTOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
 	public static final String KEY_SESSION_ID = "SESSION_ID";
 	public static final String KEY_SESSION_ID_EXPIRY = "SESSION_ID_EXPIRY";
@@ -71,7 +72,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		LOGV(TAG, "getting auth token...");
 
 		// If the caller requested an authToken type we don't support, then return an error
-		if (!authTokenType.equals(BggApplication.AUTHTOKEN_TYPE)) {
+		if (!authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
 			final Bundle result = new Bundle();
 			result.putString(AccountManager.KEY_ERROR_MESSAGE, "invalid authTokenType");
 			return result;
@@ -107,7 +108,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	private Bundle createAuthTokenBundle(Account account, String authToken) {
 		final Bundle result = new Bundle();
 		result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-		result.putString(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
+		result.putString(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
 		result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
 		return result;
 	}
@@ -165,7 +166,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	}
 
 	public static Account getAccount(AccountManager accountManager) {
-		Account[] accounts = accountManager.getAccountsByType(BggApplication.ACCOUNT_TYPE);
+		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 		if (accounts == null || accounts.length == 0) {
 			LOGW(TAG, "no account!");
 			return null;
@@ -185,9 +186,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static void clearPassword(Context context) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
-		String authToken = accountManager.peekAuthToken(account, BggApplication.AUTHTOKEN_TYPE);
+		String authToken = accountManager.peekAuthToken(account, Authenticator.AUTHTOKEN_TYPE);
 		if (authToken != null) {
-			accountManager.invalidateAuthToken(BggApplication.AUTHTOKEN_TYPE, authToken);
+			accountManager.invalidateAuthToken(Authenticator.AUTHTOKEN_TYPE, authToken);
 		} else {
 			accountManager.clearPassword(account);
 		}
