@@ -129,11 +129,15 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 
 	public void setProgessShown(boolean shown) {
 		if (shown) {
-			mProgressContainer.clearAnimation();
-			mProgressContainer.setVisibility(View.VISIBLE);
+			if (mProgressContainer.getVisibility() != View.VISIBLE) {
+				mProgressContainer.clearAnimation();
+				mProgressContainer.setVisibility(View.VISIBLE);
+			}
 		} else {
-			mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-			mProgressContainer.setVisibility(View.GONE);
+			if (mProgressContainer.getVisibility() != View.GONE) {
+				mProgressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+				mProgressContainer.setVisibility(View.GONE);
+			}
 		}
 	}
 
