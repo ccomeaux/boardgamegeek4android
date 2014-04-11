@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="33"
+	android:versionCode="34"
 	android:versionName="develop" >
 
 	<uses-sdk
@@ -23,7 +23,6 @@
 	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
 	<application
-		android:name="BggApplication"
 		android:allowBackup="true"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/app_name"

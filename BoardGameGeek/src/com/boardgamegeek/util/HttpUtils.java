@@ -54,14 +54,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.auth.Authenticator;
 
 public class HttpUtils {
 	private static final String TAG = makeLogTag(HttpUtils.class);
 
-	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
-	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
+	public static final String SITE_URL = "http://www.boardgamegeek.com/";
+	public static final String BASE_URL = SITE_URL + "xmlapi/";
+	public static final String BASE_URL_2 = SITE_URL + "xmlapi2/";
 
 	private static final int TIMEOUT_SECS = 60;
 	private static final int BUFFER_SIZE = 8192;
@@ -154,7 +154,7 @@ public class HttpUtils {
 		throws OperationCanceledException, AuthenticatorException, IOException {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = Authenticator.getAccount(accountManager);
-		String authToken = accountManager.blockingGetAuthToken(account, BggApplication.AUTHTOKEN_TYPE, true);
+		String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTHTOKEN_TYPE, true);
 
 		HttpClient httpClient = null;
 		if (account == null || (TextUtils.isEmpty(authToken))) {
@@ -337,7 +337,7 @@ public class HttpUtils {
 			return mockLogin(username);
 		}
 
-		String AUTH_URI = BggApplication.siteUrl + "login";
+		String AUTH_URI = HttpUtils.SITE_URL + "login";
 
 		final HttpResponse resp;
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
