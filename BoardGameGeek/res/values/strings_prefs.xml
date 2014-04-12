@@ -84,6 +84,7 @@
 <li>Fix crash when viewing buddy collection</li>
 <li>Don\'t allow clicking on forum header</li>
 <li>When saving a view, enable the Save button correctly<li>
+<li>When deleting a view, go back to the default view</li>
 </ul>
 <h5>4.7.1</h5>
 <ul>

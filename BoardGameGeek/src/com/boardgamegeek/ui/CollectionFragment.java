@@ -477,7 +477,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void deleteView(long id) {
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (mViewId == id) {
-			mCallbacks.onViewRequested(0);
+			mCallbacks.onViewRequested(PreferencesUtils.getViewDefaultId(getActivity()));
 		}
 	}
 
