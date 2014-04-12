@@ -80,6 +80,8 @@
 	<string name="pref_about_body">
 <![CDATA[<b>What\'s New?</b><br/>
 <ul>
+<li>Chnage look and feel of navigation drawer</li>
+<li>Show the collection properly when adding a shortcut</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
 <br/>

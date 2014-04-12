@@ -178,7 +178,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null || mShortcut) {
 			requery();
 		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
