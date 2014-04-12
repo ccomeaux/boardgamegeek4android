@@ -14,4 +14,9 @@ public class HotnessActivity extends TopLevelSinglePaneActivity {
 	protected int getOptionsMenuId() {
 		return R.menu.search_only;
 	}
+
+	@Override
+	protected int getDrawerResId() {
+		return R.string.title_hotness;
+	}
 }
