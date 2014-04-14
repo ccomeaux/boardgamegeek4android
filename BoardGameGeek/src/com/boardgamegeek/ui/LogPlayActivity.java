@@ -984,7 +984,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 		@Override
 		public void drop(int from, int to) {
-			mPlay.reorderPlayers(from + 1, to + 1);
+			if (!mPlay.reorderPlayers(from + 1, to + 1)) {
+				Toast.makeText(LogPlayActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+			}
 			notifyDataSetChanged();
 		}
 	}
