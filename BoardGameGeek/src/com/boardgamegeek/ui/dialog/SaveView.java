@@ -9,11 +9,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -136,9 +136,13 @@ public class SaveView {
 					}
 				}
 			}).setNegativeButton(R.string.cancel, null).setCancelable(true);
-
 		final AlertDialog dialog = builder.create();
-		enableSaveButton(dialog, nameView);
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialogInterface) {
+				enableSaveButton(dialog, nameView);
+			}
+		});
 		dialog.show();
 	}
 
@@ -148,12 +152,20 @@ public class SaveView {
 	}
 
 	private static void enableSaveButton(final AlertDialog dialog, final EditText nameView) {
-		nameView.setOnKeyListener(new OnKeyListener() {
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(nameView.getText().toString().trim().length() > 0);
+		nameView.addTextChangedListener(new TextWatcher() {
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
 				dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(
 					nameView.getText().toString().trim().length() > 0);
-				return false;
 			}
 		});
 	}
