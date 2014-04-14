@@ -96,14 +96,16 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
-		if (holder != null) {
-			Intent intent = new Intent(getActivity(), ForumActivity.class);
-			intent.putExtra(ForumsUtils.KEY_FORUM_ID, holder.forumId);
-			intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
-			intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
-			intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
-			startActivity(intent);
+		if (mForumsAdapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
+			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
+			if (holder != null) {
+				Intent intent = new Intent(getActivity(), ForumActivity.class);
+				intent.putExtra(ForumsUtils.KEY_FORUM_ID, holder.forumId);
+				intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
+				intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+				startActivity(intent);
+			}
 		}
 	}
 
@@ -190,6 +192,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	public static class ForumsAdapter extends ArrayAdapter<Forum> {
+		public static final int ITEM_VIEW_TYPE_FORUM = 0;
+		public static final int ITEM_VIEW_TYPE_HEADER = 1;
+
 		private LayoutInflater mInflater;
 		private Resources mResources;
 		private NumberFormat mFormat = NumberFormat.getInstance();
@@ -210,7 +215,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			}
 
 			int type = getItemViewType(position);
-			if (type == 0) {
+			if (type == ITEM_VIEW_TYPE_FORUM) {
 				ForumViewHolder holder;
 				if (convertView == null) {
 					convertView = mInflater.inflate(R.layout.row_forum, parent, false);
@@ -254,9 +259,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public int getItemViewType(int position) {
 			try {
 				Forum forum = getItem(position);
-				return forum.noposting;
+				if (forum.noposting == 1) {
+					return ITEM_VIEW_TYPE_HEADER;
+				}
+				return ITEM_VIEW_TYPE_FORUM;
 			} catch (ArrayIndexOutOfBoundsException e) {
-				return 0;
+				return ITEM_VIEW_TYPE_FORUM;
 			}
 		}
 	}

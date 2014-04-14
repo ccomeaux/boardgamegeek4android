@@ -9,6 +9,7 @@ import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
@@ -98,14 +99,15 @@ public class PreferencesUtils {
 	}
 
 	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, "syncStatuses");
+		return getStringArray(context, "syncStatuses",
+			context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
 	public static boolean isSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) {
 			return false;
 		}
-		String[] statuses = getStringArray(context, "syncStatuses");
+		String[] statuses = getSyncStatuses(context);
 		if (statuses == null) {
 			return false;
 		}
@@ -284,11 +286,19 @@ public class PreferencesUtils {
 	}
 
 	private static String getString(Context context, String key) {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return sharedPreferences.getString(key, "");
+		return getString(context, key, "");
 	}
 
-	private static String[] getStringArray(Context context, String key) {
-		return MultiSelectListPreference.parseStoredValue(getString(context, key));
+	private static String getString(Context context, String key, String defValue) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		return sharedPreferences.getString(key, defValue);
+	}
+
+	private static String[] getStringArray(Context context, String key, String[] defValue) {
+		String value = getString(context, key, null);
+		if (value == null) {
+			return defValue;
+		}
+		return MultiSelectListPreference.parseStoredValue(value);
 	}
 }

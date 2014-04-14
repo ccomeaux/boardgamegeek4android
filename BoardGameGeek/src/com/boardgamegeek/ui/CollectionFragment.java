@@ -58,7 +58,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
-import com.boardgamegeek.ui.dialog.DeleteFilters;
+import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
@@ -178,7 +178,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
 		mSort = CollectionSortDataFactory.create(sortType, getActivity());
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null || mShortcut) {
 			requery();
 		}
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
@@ -291,7 +291,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				SaveView.createDialog(getActivity(), this, mViewName, mSort, mFilters);
 				return true;
 			case R.id.menu_collection_view_delete:
-				DeleteFilters.createDialog(getActivity(), this);
+				DeleteView.createDialog(getActivity(), this);
 				return true;
 			case R.id.menu_collection_sort_name:
 				setSort(CollectionSortDataFactory.TYPE_COLLECTION_NAME);
@@ -477,7 +477,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void deleteView(long id) {
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (mViewId == id) {
-			mCallbacks.onViewRequested(0);
+			mCallbacks.onViewRequested(PreferencesUtils.getViewDefaultId(getActivity()));
 		}
 	}
 

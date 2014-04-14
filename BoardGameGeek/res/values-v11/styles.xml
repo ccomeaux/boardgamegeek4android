@@ -8,4 +8,11 @@
 
 	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Holo.Dialog" />
 
+	<style name="Text.DrawerItem" parent="Text.Huge">
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:textIsSelectable">false</item>
+	</style>
+
 </resources>

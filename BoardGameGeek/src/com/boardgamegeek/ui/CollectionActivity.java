@@ -134,6 +134,11 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	protected int getDrawerResId() {
+		return R.string.title_collection;
+	}
+
+	@Override
 	public boolean onGameSelected(int gameId, String gameName) {
 		ActivityUtils.launchGame(this, gameId, gameName);
 		return false;

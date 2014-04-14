@@ -26,7 +26,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AuthProfile;
 import com.boardgamegeek.auth.Authenticator;
@@ -220,10 +219,10 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 	private void createAccount(CookieStore cs) {
 		LOGI(TAG, "Creating account");
-		final Account account = new Account(mUsername, BggApplication.ACCOUNT_TYPE);
+		final Account account = new Account(mUsername, Authenticator.ACCOUNT_TYPE);
 		AuthProfile ap = new AuthProfile(cs);
 
-		mAccountManager.setAuthToken(account, BggApplication.AUTHTOKEN_TYPE, ap.authToken);
+		mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, ap.authToken);
 		Bundle userData = new Bundle();
 		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
 
@@ -242,7 +241,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 		final Intent intent = new Intent();
 		intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mUsername);
-		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, BggApplication.ACCOUNT_TYPE);
+		intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, Authenticator.ACCOUNT_TYPE);
 		setAccountAuthenticatorResult(intent.getExtras());
 		setResult(RESULT_OK, intent);
 		finish();

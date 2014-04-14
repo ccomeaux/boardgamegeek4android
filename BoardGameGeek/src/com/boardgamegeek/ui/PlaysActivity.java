@@ -110,6 +110,11 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	@Override
+	protected int getDrawerResId() {
+		return R.string.title_plays;
+	}
+
 	private void setRefreshActionButtonState(boolean refreshing) {
 		if (mOptionsMenu == null) {
 			return;

@@ -34,7 +34,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -202,7 +201,7 @@ public class SyncPlaysUpload extends SyncTask {
 			return new PlayUpdateResponse("Couldn't create the HttpEntity");
 		}
 
-		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
+		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
 		post.setEntity(entity);
 
 		try {
@@ -242,7 +241,7 @@ public class SyncPlaysUpload extends SyncTask {
 			return "Couldn't create the HttpEntity";
 		}
 
-		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
+		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
 		post.setEntity(entity);
 
 		try {
