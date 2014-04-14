@@ -10,7 +10,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 
-public class DeleteFilters {
+public class DeleteView {
 	public static void createDialog(final Context context, final CollectionView view) {
 
 		final ContentResolver cr = context.getContentResolver();
