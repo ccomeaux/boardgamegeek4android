@@ -36,29 +36,20 @@
 			android:gravity="right" />
 	</LinearLayout>
 
-	<LinearLayout
+	<TextView
+		android:id="@+id/thread_postdate"
+		style="@style/Text.Secondary"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal" >
+		android:layout_gravity="left|center_vertical"
+		android:maxLines="1" />
 
-		<TextView
-			android:id="@+id/thread_postdate"
-			style="@style/Text.Secondary"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_gravity="left|center_vertical"
-			android:layout_weight="1"
-			android:maxLines="1" />
-
-		<TextView
-			android:id="@+id/thread_lastpostdate"
-			style="@style/Text.Secondary"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_gravity="left|center_vertical"
-			android:layout_weight="1"
-			android:gravity="right"
-			android:maxLines="1" />
-	</LinearLayout>
+	<TextView
+		android:id="@+id/thread_lastpostdate"
+		style="@style/Text.Secondary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="left|center_vertical"
+		android:maxLines="1" />
 
 </LinearLayout>
