@@ -100,11 +100,7 @@ public class HttpUtils {
 		return BASE_URL + "publisher/" + publisherId;
 	}
 
-	public static String constructForumlistUrl(int gameId) {
-		return BASE_URL_2 + "forumlist?id=" + gameId + "&type=thing";
-	}
-
-	public static String constructForumUrl(String forumId, int page) {
+	public static String constructForumUrl(int forumId, int page) {
 		return BASE_URL_2 + "forum?id=" + forumId + "&page=" + page;
 	}
 

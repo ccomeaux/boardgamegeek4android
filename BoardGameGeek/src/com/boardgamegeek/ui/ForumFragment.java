@@ -35,7 +35,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private ForumAdapter mForumAdapter = new ForumAdapter();
-	private String mForumId;
+	private int mForumId;
 	private String mForumTitle;
 	private int mGameId;
 	private String mGameName;
@@ -45,7 +45,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mForumId = intent.getStringExtra(ForumsUtils.KEY_FORUM_ID);
+		mForumId = intent.getIntExtra(ForumsUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
 		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
 		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
@@ -177,19 +177,19 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	private static class ForumLoader extends AsyncTaskLoader<List<ForumThread>> {
 		private static final int PAGE_SIZE = 50;
-		private String mForumId;
+		private int mForumId;
 		private List<ForumThread> mData;
 		private int mNextPage;
 		private boolean mIsLoading;
 		private String mErrorMessage;
 		private int mThreadCount;
 
-		public ForumLoader(Context context, String forumId) {
+		public ForumLoader(Context context, int forumId) {
 			super(context);
 			init(forumId);
 		}
 
-		private void init(String forumId) {
+		private void init(int forumId) {
 			mForumId = forumId;
 			mNextPage = 1;
 			mIsLoading = true;

@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.RestAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +23,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumsParser;
-import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.io.ForumService;
+import com.boardgamegeek.io.ForumService.Forum;
+import com.boardgamegeek.io.ForumService.ForumListResponse;
+import com.boardgamegeek.io.xml.SimpleXMLConverter;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
@@ -131,21 +134,31 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		private List<Forum> mData;
 		private int mGameId;
 		private String mErrorMessage;
+		private ForumService mAdapter;
 
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
+			RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
+				.setConverter(new SimpleXMLConverter()).build();
+			mAdapter = restAdapter.create(ForumService.class);
 			mGameId = gameId;
 			mErrorMessage = "";
 		}
 
 		@Override
 		public List<Forum> loadInBackground() {
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteForumsParser parser = new RemoteForumsParser(mGameId);
-
-			executor.safelyExecuteGet(parser);
-			mErrorMessage = parser.getErrorMessage();
-			return parser.getResults();
+			try {
+				ForumListResponse response = null;
+				if (mGameId == BggContract.INVALID_ID) {
+					response = mAdapter.listForums(ForumService.TYPE_REGION, ForumService.REGION_BOARDGAME);
+				} else {
+					response = mAdapter.listForums(ForumService.TYPE_THING, mGameId);
+				}
+				return response.forums;
+			} catch (Exception e) {
+				mErrorMessage = "Error loading:\n" + e.getMessage();
+				return new ArrayList<Forum>();
+			}
 		}
 
 		@Override
@@ -230,8 +243,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 					holder.forumTitle.setText(forum.title);
 					holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads,
 						forum.numberOfThreads, mFormat.format(forum.numberOfThreads)));
-					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate));
-					holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
+					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
+					holder.lastPost.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 				}
 				return convertView;
 			} else {
@@ -259,7 +272,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public int getItemViewType(int position) {
 			try {
 				Forum forum = getItem(position);
-				if (forum.noposting == 1) {
+				if (forum != null && forum.isHeader()) {
 					return ITEM_VIEW_TYPE_HEADER;
 				}
 				return ITEM_VIEW_TYPE_FORUM;
@@ -270,7 +283,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	static class ForumViewHolder {
-		public String forumId;
+		public int forumId;
 		public TextView forumTitle;
 		public TextView numThreads;
 		public TextView lastPost;

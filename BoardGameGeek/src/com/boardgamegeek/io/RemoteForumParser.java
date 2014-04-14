@@ -20,7 +20,7 @@ public class RemoteForumParser extends RemoteBggParser {
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private String mUrl;
 
-	public RemoteForumParser(String forumId, int page) {
+	public RemoteForumParser(int forumId, int page) {
 		mUrl = HttpUtils.constructForumUrl(forumId, page);
 	}
 
