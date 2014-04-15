@@ -34,7 +34,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	private static final int FORUM_LOADER_ID = 0;
 
 	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
-	private ForumAdapter mForumAdapter = new ForumAdapter();
+	private ForumAdapter mForumAdapter;
 	private int mForumId;
 	private String mForumTitle;
 	private int mGameId;
@@ -49,8 +49,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
 		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
-
-		setListAdapter(mForumAdapter);
 	}
 
 	@Override
@@ -63,30 +61,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_forum));
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
-	}
-
-	public void refresh(boolean forceRefresh) {
-		if (isLoaderLoading() && !forceRefresh) {
-			return;
-		}
-
-		// clear current items
-		mThreads.clear();
-		mForumAdapter.notifyDataSetInvalidated();
-
-		final ForumLoader loader = getLoader();
-		if (loader != null) {
-			loader.init(mForumId);
-		}
-
-		loadMoreResults();
 	}
 
 	public void loadMoreResults() {
@@ -139,6 +114,10 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		if (threads != null) {
 			mThreads = threads;
 		}
+		if (mForumAdapter == null) {
+			mForumAdapter = new ForumAdapter();
+			setListAdapter(mForumAdapter);
+		}
 		mForumAdapter.notifyDataSetChanged();
 		restoreScrollState();
 	}
@@ -186,10 +165,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 		public ForumLoader(Context context, int forumId) {
 			super(context);
-			init(forumId);
-		}
-
-		private void init(int forumId) {
 			mForumId = forumId;
 			mNextPage = 1;
 			mIsLoading = true;
@@ -314,7 +289,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 		@Override
 		public long getItemId(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position).id.hashCode() : -1;
+			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position).id : -1;
 		}
 
 		@Override
@@ -350,7 +325,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		private static NumberFormat mFormat = NumberFormat.getInstance();
 
 		public static class ViewHolder {
-			public String threadId;
+			public int threadId;
 			public TextView subject;
 			public TextView author;
 			public TextView numarticles;

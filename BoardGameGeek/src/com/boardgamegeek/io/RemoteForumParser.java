@@ -66,7 +66,7 @@ public class RemoteForumParser extends RemoteBggParser {
 			if (type == START_TAG && Tags.THREAD.equals(mParser.getName())) {
 
 				ForumThread thread = new ForumThread();
-				thread.id = parseStringAttribute(Tags.ID);
+				thread.id = parseIntegerAttribute(Tags.ID);
 				thread.subject = parseStringAttribute(Tags.SUBJECT);
 				thread.author = parseStringAttribute(Tags.AUTHOR);
 				thread.numberOfArticles = parseIntegerAttribute(Tags.NUM_ARTICLES);

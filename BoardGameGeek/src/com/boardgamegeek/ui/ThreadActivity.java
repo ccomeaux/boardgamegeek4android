@@ -18,9 +18,9 @@ import com.boardgamegeek.util.UIUtils;
 public class ThreadActivity extends SimpleSinglePaneActivity {
 	private static final int HELP_VERSION = 1;
 
-	private String mThreadId;
+	private int mThreadId;
 	private String mThreadSubject;
-	private String mForumId;
+	private int mForumId;
 	private String mForumTitle;
 	private int mGameId;
 	private String mGameName;
@@ -30,9 +30,9 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mThreadId = intent.getStringExtra(ForumsUtils.KEY_THREAD_ID);
+		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 		mThreadSubject = intent.getStringExtra(ForumsUtils.KEY_THREAD_SUBJECT);
-		mForumId = intent.getStringExtra(ForumsUtils.KEY_FORUM_ID);
+		mForumId = intent.getIntExtra(ForumsUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
 		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
 		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
@@ -89,9 +89,9 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 	public void onButtonClick(View v) {
 		Intent intent = new Intent(this, ArticleActivity.class);
 		Bundle b = (Bundle) v.getTag();
-		b.putString(ForumsUtils.KEY_THREAD_ID, mThreadId);
+		b.putInt(ForumsUtils.KEY_THREAD_ID, mThreadId);
 		b.putString(ForumsUtils.KEY_THREAD_SUBJECT, mThreadSubject);
-		b.putString(ForumsUtils.KEY_FORUM_ID, mForumId);
+		b.putInt(ForumsUtils.KEY_FORUM_ID, mForumId);
 		b.putString(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
 		b.putInt(ForumsUtils.KEY_GAME_ID, mGameId);
 		b.putString(ForumsUtils.KEY_GAME_NAME, mGameName);

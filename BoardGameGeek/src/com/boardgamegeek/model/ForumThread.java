@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 public class ForumThread implements Parcelable {
 
-	public String id;
+	public int id;
 	public String subject;
 	public String author;
 	public int numberOfArticles;
@@ -16,7 +16,7 @@ public class ForumThread implements Parcelable {
 	}
 	
 	public ForumThread(Parcel in) {
-		id = in.readString();
+		id = in.readInt();
 		subject = in.readString();
 		author = in.readString();
 		numberOfArticles = in.readInt();
@@ -31,7 +31,7 @@ public class ForumThread implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(id);
+		dest.writeInt(id);
 		dest.writeString(subject);
 		dest.writeString(author);
 		dest.writeInt(numberOfArticles);
