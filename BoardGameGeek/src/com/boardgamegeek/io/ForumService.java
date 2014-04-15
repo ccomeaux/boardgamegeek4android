@@ -2,6 +2,7 @@ package com.boardgamegeek.io;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,12 +39,21 @@ public interface ForumService {
 		private String termsOfUse;
 
 		@ElementList(inline = true)
-		public List<Forum> forums;
+		private List<Forum> forums;
+
+		public List<Forum> getForums() {
+			if (forums == null) {
+				return new ArrayList<Forum>();
+			}
+			return forums;
+		}
 
 		@Override
 		public String toString() {
 			return "" + id + ": " + type;
 		}
+
+		public String errorMessage;
 	}
 
 	@Root(name = "forum")

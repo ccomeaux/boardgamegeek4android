@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
@@ -33,7 +32,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
+public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumListResponse> {
 	private static final int FORUMS_LOADER_ID = 0;
 
 	private int mGameId;
@@ -59,30 +58,29 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		getLoaderManager().initLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
-	public Loader<List<Forum>> onCreateLoader(int id, Bundle data) {
+	public Loader<ForumListResponse> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), mGameId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<Forum>> loader, List<Forum> forums) {
+	public void onLoadFinished(Loader<ForumListResponse> loader, ForumListResponse data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (mForumsAdapter == null) {
-			mForumsAdapter = new ForumsAdapter(getActivity(), forums);
+			mForumsAdapter = new ForumsAdapter(getActivity(), data.getForums());
 		}
 		setListAdapter(mForumsAdapter);
 
-		if (loaderHasError()) {
-			setEmptyText(loaderErrorMessage());
+		if (!TextUtils.isEmpty(data.errorMessage)) {
+			setEmptyText(data.errorMessage);
 		} else {
 			if (isResumed()) {
 				setListShown(true);
@@ -94,7 +92,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<Forum>> forums) {
+	public void onLoaderReset(Loader<ForumListResponse> loader) {
 	}
 
 	@Override
@@ -112,73 +110,58 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	private boolean loaderHasError() {
-		ForumsLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		ForumsLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
-	private ForumsLoader getLoader() {
-		if (isAdded()) {
-			Loader<List<Forum>> loader = getLoaderManager().getLoader(FORUMS_LOADER_ID);
-			return (ForumsLoader) loader;
-		}
-		return null;
-	}
-
-	private static class ForumsLoader extends AsyncTaskLoader<List<Forum>> {
-		private List<Forum> mData;
+	private static class ForumsLoader extends AsyncTaskLoader<ForumListResponse> {
+		private ForumService mService;
 		private int mGameId;
-		private String mErrorMessage;
-		private ForumService mAdapter;
+		private ForumListResponse mResponse;
 
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
 			RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
 				.setConverter(new SimpleXMLConverter()).build();
-			mAdapter = restAdapter.create(ForumService.class);
+			mService = restAdapter.create(ForumService.class);
 			mGameId = gameId;
-			mErrorMessage = "";
 		}
 
 		@Override
-		public List<Forum> loadInBackground() {
+		public ForumListResponse loadInBackground() {
+			ForumListResponse response = null;
 			try {
-				ForumListResponse response = null;
 				if (mGameId == BggContract.INVALID_ID) {
-					response = mAdapter.listForums(ForumService.TYPE_REGION, ForumService.REGION_BOARDGAME);
+					response = mService.listForums(ForumService.TYPE_REGION, ForumService.REGION_BOARDGAME);
 				} else {
-					response = mAdapter.listForums(ForumService.TYPE_THING, mGameId);
+					response = mService.listForums(ForumService.TYPE_THING, mGameId);
 				}
-				return response.forums;
 			} catch (Exception e) {
-				mErrorMessage = "Error loading:\n" + e.getMessage();
-				return new ArrayList<Forum>();
+				if (response == null) {
+					response = new ForumListResponse();
+				}
+				response.errorMessage = "Error loading:\n" + e.getMessage();
 			}
+			if (response == null) {
+				response = new ForumListResponse();
+				response.errorMessage = "No response";
+			}
+			return response;
 		}
 
 		@Override
-		public void deliverResult(List<Forum> forums) {
+		public void deliverResult(ForumListResponse response) {
 			if (isReset()) {
 				return;
 			}
-
-			mData = forums;
+			mResponse = response;
 			if (isStarted()) {
-				super.deliverResult(forums == null ? null : new ArrayList<Forum>(forums));
+				super.deliverResult(response);
 			}
 		}
 
 		@Override
 		protected void onStartLoading() {
-			if (mData != null) {
-				deliverResult(mData);
+			if (mResponse != null) {
+				deliverResult(mResponse);
 			}
-			if (takeContentChanged() || mData == null) {
+			if (takeContentChanged() || mResponse == null) {
 				forceLoad();
 			}
 		}
@@ -192,15 +175,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		protected void onReset() {
 			super.onReset();
 			onStopLoading();
-			mData = null;
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
+			mResponse = null;
 		}
 	}
 
