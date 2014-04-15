@@ -2,7 +2,6 @@ package com.boardgamegeek.io;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,37 +28,22 @@ public interface ForumService {
 	ForumListResponse listForums(@Query("type") String type, @Query("id") int id);
 
 	static class ForumListResponse {
-		@Attribute(name = "type")
-		private String type;
+		@Attribute
+		public String type;
 
-		@Attribute(name = "id")
-		int id;
+		@Attribute
+		public int id;
 
 		@Attribute(name = "termsofuse")
 		private String termsOfUse;
 
 		@ElementList(inline = true)
-		private List<Forum> forums;
-
-		public List<Forum> getForums() {
-			if (forums == null) {
-				return new ArrayList<Forum>();
-			}
-			return forums;
-		}
-
-		@Override
-		public String toString() {
-			return "" + id + ": " + type;
-		}
-
-		public String errorMessage;
+		public List<Forum> forums;
 	}
 
 	@Root(name = "forum")
 	static class Forum implements Parcelable {
-		public Forum() {
-		}
+		private long mLastPostDateTime = -1;
 
 		@Attribute
 		public int id;
@@ -90,11 +74,14 @@ public interface ForumService {
 		}
 
 		public long lastPostDate() {
-			try {
-				return FORMAT.parse(lastpostdate).getTime();
-			} catch (ParseException e) {
-				return 0;
+			if (mLastPostDateTime == -1) {
+				try {
+					mLastPostDateTime = FORMAT.parse(lastpostdate).getTime();
+				} catch (ParseException e) {
+					mLastPostDateTime = 0;
+				}
 			}
+			return mLastPostDateTime;
 		}
 
 		@Override
@@ -117,6 +104,9 @@ public interface ForumService {
 			dest.writeInt(numberOfThreads);
 			dest.writeInt(numposts);
 			dest.writeString(lastpostdate);
+		}
+
+		public Forum() {
 		}
 
 		public Forum(Parcel in) {
