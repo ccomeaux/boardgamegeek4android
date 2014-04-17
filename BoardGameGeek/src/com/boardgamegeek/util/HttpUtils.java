@@ -104,7 +104,7 @@ public class HttpUtils {
 		return BASE_URL_2 + "forum?id=" + forumId + "&page=" + page;
 	}
 
-	public static String constructThreadUrl(String mThreadId) {
+	public static String constructThreadUrl(int mThreadId) {
 		return BASE_URL_2 + "thread?id=" + mThreadId;
 	}
 

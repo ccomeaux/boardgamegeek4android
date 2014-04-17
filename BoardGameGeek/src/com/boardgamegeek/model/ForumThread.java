@@ -11,10 +11,10 @@ public class ForumThread implements Parcelable {
 	public int numberOfArticles;
 	public long postDate;
 	public long lastPostDate;
-	
+
 	public ForumThread() {
 	}
-	
+
 	public ForumThread(Parcel in) {
 		id = in.readInt();
 		subject = in.readString();
@@ -47,5 +47,5 @@ public class ForumThread implements Parcelable {
 		public ForumThread[] newArray(int size) {
 			return new ForumThread[size];
 		}
-	};	
+	};
 }

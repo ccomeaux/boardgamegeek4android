@@ -22,6 +22,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteThreadParser;
 import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -30,14 +31,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	private static final int THREAD_LOADER_ID = 103;
 
 	private ThreadAdapter mThreadAdapter;
-	private String mThreadId;
+	private int mThreadId;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mThreadId = intent.getStringExtra(ForumsUtils.KEY_THREAD_ID);
+		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 
 		setListAdapter(mThreadAdapter);
 	}
@@ -112,10 +113,10 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ThreadLoader extends AsyncTaskLoader<List<ThreadArticle>> {
-		private String mThreadId;
+		private int mThreadId;
 		private String mErrorMessage;
 
-		public ThreadLoader(Context context, String threadId) {
+		public ThreadLoader(Context context, int threadId) {
 			super(context);
 			mThreadId = threadId;
 			mErrorMessage = "";

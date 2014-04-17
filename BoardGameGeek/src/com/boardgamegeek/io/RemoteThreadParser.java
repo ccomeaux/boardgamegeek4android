@@ -21,7 +21,7 @@ public class RemoteThreadParser extends RemoteBggParser {
 	private List<ThreadArticle> mArticles = new ArrayList<ThreadArticle>();
 	private String mUrl;
 
-	public RemoteThreadParser(String threadId) {
+	public RemoteThreadParser(int threadId) {
 		mUrl = HttpUtils.constructThreadUrl(threadId);
 	}
 
