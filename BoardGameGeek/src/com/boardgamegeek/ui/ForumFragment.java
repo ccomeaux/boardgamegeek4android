@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,15 +25,15 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.ForumFragment.ForumData;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<List<ForumThread>> {
+	LoaderManager.LoaderCallbacks<ForumData> {
 	private static final int FORUM_LOADER_ID = 0;
 
-	private List<ForumThread> mThreads = new ArrayList<ForumThread>();
 	private ForumAdapter mForumAdapter;
 	private int mForumId;
 	private String mForumTitle;
@@ -61,6 +61,10 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_forum));
+	}
+
+	public void onResume() {
+		super.onResume();
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
 	}
 
@@ -101,29 +105,31 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
-	public Loader<List<ForumThread>> onCreateLoader(int id, Bundle data) {
+	public Loader<ForumData> onCreateLoader(int id, Bundle data) {
 		return new ForumLoader(getActivity(), mForumId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<ForumThread>> loader, List<ForumThread> threads) {
+	public void onLoadFinished(Loader<ForumData> loader, ForumData data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (threads != null) {
-			mThreads = threads;
-		}
+		saveScrollState();
 		if (mForumAdapter == null) {
-			mForumAdapter = new ForumAdapter();
+			mForumAdapter = new ForumAdapter(data.getData(), data.getErrorMessage(), data.getTotalCount(),
+				data.getCurrentPage());
 			setListAdapter(mForumAdapter);
+		} else {
+			mForumAdapter.clear();
+			mForumAdapter.addAll(data.getData());
+			mForumAdapter.setCurrentPage(data.getCurrentPage());
 		}
-		mForumAdapter.notifyDataSetChanged();
 		restoreScrollState();
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<ForumThread>> loader) {
+	public void onLoaderReset(Loader<ForumData> loader) {
 	}
 
 	private boolean isLoaderLoading() {
@@ -136,84 +142,130 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		return (loader != null) ? loader.hasMoreResults() : false;
 	}
 
-	private boolean loaderHasError() {
-		final ForumLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		final ForumLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
 	private ForumLoader getLoader() {
 		if (isAdded()) {
-			Loader<List<ForumThread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
+			Loader<ForumData> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
 			return (ForumLoader) loader;
 		}
 		return null;
 	}
 
-	private static class ForumLoader extends AsyncTaskLoader<List<ForumThread>> {
-		private static final int PAGE_SIZE = 50;
-		private int mForumId;
-		private List<ForumThread> mData;
-		private int mNextPage;
-		private boolean mIsLoading;
+	static class ForumData {
+		private List<ForumThread> mThreads;
 		private String mErrorMessage;
-		private int mThreadCount;
+		private int mTotalCount;
+		private int mCurrentPage;
+
+		ForumData(List<ForumThread> threads, int totalCount, int page) {
+			mThreads = threads;
+			mErrorMessage = "";
+			mTotalCount = totalCount;
+			mCurrentPage = page;
+		}
+
+		ForumData(String errorMessage) {
+			mThreads = new ArrayList<ForumThread>();
+			mErrorMessage = errorMessage;
+			mTotalCount = 0;
+			mCurrentPage = 0;
+		}
+
+		ForumData(ForumData data) {
+			this.mThreads = new ArrayList<ForumThread>(data.mThreads);
+			this.mErrorMessage = data.mErrorMessage;
+			this.mTotalCount = data.mTotalCount;
+			this.mCurrentPage = data.mCurrentPage;
+		}
+
+		public void addAll(List<ForumThread> threads) {
+			mThreads.addAll(threads);
+			mCurrentPage++;
+		}
+
+		public List<ForumThread> getData() {
+			return mThreads;
+		}
+
+		public int getTotalCount() {
+			return mTotalCount;
+		}
+
+		public int getCurrentPage() {
+			return mCurrentPage;
+		}
+
+		public int getNextPage() {
+			return mCurrentPage + 1;
+		}
+
+		private int getPageSize() {
+			return 50;
+		}
+
+		public boolean hasMoreResults() {
+			return mCurrentPage * getPageSize() < mTotalCount;
+		}
+
+		public boolean hasError() {
+			return !TextUtils.isEmpty(mErrorMessage);
+		}
+
+		public String getErrorMessage() {
+			return mErrorMessage;
+		}
+	}
+
+	private static class ForumLoader extends AsyncTaskLoader<ForumData> {
+		private int mForumId;
+		private ForumData mData;
+		private boolean mIsLoading;
 
 		public ForumLoader(Context context, int forumId) {
 			super(context);
 			mForumId = forumId;
-			mNextPage = 1;
 			mIsLoading = true;
-			mErrorMessage = "";
 			mData = null;
-			mThreadCount = 0;
-		}
-
-		@Override
-		public List<ForumThread> loadInBackground() {
-			mIsLoading = true;
-
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteForumParser parser = new RemoteForumParser(mForumId, mNextPage);
-			executor.safelyExecuteGet(parser);
-			if (parser.hasError()) {
-				mErrorMessage = parser.getErrorMessage();
-				mNextPage = 1;
-				mThreadCount = 0;
-			} else {
-				mErrorMessage = "";
-				mNextPage++;
-				mThreadCount = parser.getCount();
-			}
-			return parser.getResults();
-		}
-
-		@Override
-		public void deliverResult(List<ForumThread> threads) {
-			mIsLoading = false;
-			if (threads != null) {
-				if (mData == null) {
-					mData = threads;
-				} else {
-					mData.addAll(threads);
-				}
-			}
-			if (isStarted()) {
-				super.deliverResult(mData == null ? null : new ArrayList<ForumThread>(mData));
-			}
 		}
 
 		@Override
 		protected void onStartLoading() {
 			if (mData != null) {
-				deliverResult(null);
+				deliverResult(mData);
 			}
 			if (takeContentChanged() || mData == null) {
 				forceLoad();
+			}
+		}
+
+		@Override
+		public ForumData loadInBackground() {
+			mIsLoading = true;
+
+			RemoteExecutor executor = new RemoteExecutor(getContext());
+			int page = mData == null ? 1 : mData.getNextPage();
+			RemoteForumParser parser = new RemoteForumParser(mForumId, page);
+			executor.safelyExecuteGet(parser);
+			ForumData data = null;
+			if (parser.hasError()) {
+				data = new ForumData(parser.getErrorMessage());
+			} else {
+				data = new ForumData(parser.getResults(), parser.getCount(), page);
+			}
+			return data;
+		}
+
+		@Override
+		public void deliverResult(ForumData data) {
+			mIsLoading = false;
+			if (data != null) {
+				if (mData == null) {
+					mData = data;
+				} else if (data.getCurrentPage() == mData.getNextPage()) {
+					mData.addAll(data.getData());
+				}
+			}
+			if (isStarted()) {
+				super.deliverResult(new ForumData(mData));
 			}
 		}
 
@@ -235,21 +287,41 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 
 		public boolean hasMoreResults() {
-			return (mNextPage - 1) * PAGE_SIZE < mThreadCount;
+			if (mData == null) {
+				return true;
+			}
+			return mData.hasMoreResults();
 		}
 
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
-		}
+		// public boolean hasError() {
+		// if (mData == null) {
+		// return false;
+		// }
+		// return mData.hasError();
+		// }
+		//
+		// public String getErrorMessage() {
+		// if (mData == null) {
+		// return "";
+		// }
+		// return mData.getErrorMessage();
+		// }
 	}
 
-	private class ForumAdapter extends BaseAdapter {
+	private class ForumAdapter extends ArrayAdapter<ForumThread> {
 		private static final int VIEW_TYPE_THREAD = 0;
 		private static final int VIEW_TYPE_LOADING = 1;
+		private static final int PAGE_SIZE = 50;
+		private String mErrorMessage;
+		private int mTotalCount;
+		private int mCurrentPage;
+
+		public ForumAdapter(List<ForumThread> objects, String errorMessage, int count, int page) {
+			super(getActivity(), 0, objects);
+			mErrorMessage = errorMessage;
+			mTotalCount = count;
+			mCurrentPage = page;
+		}
 
 		@Override
 		public boolean areAllItemsEnabled() {
@@ -273,23 +345,24 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 		@Override
 		public int getCount() {
-			return mThreads.size()
-				+ (((isLoaderLoading() && mThreads.size() == 0) || loaderHasMoreResults() || loaderHasError()) ? 1 : 0);
+			int count = super.getCount()
+				+ (((isLoaderLoading() && super.getCount() == 0) || hasMoreResults() || hasError()) ? 1 : 0);
+			return count;
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			return (position >= mThreads.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_THREAD;
+			return (position >= super.getCount()) ? VIEW_TYPE_LOADING : VIEW_TYPE_THREAD;
 		}
 
 		@Override
-		public Object getItem(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position) : null;
+		public ForumThread getItem(int position) {
+			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? super.getItem(position) : null;
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? mThreads.get(position).id : -1;
+			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? super.getItemId(position) : -1;
 		}
 
 		@Override
@@ -299,9 +372,9 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 					convertView = getLayoutInflater(null).inflate(R.layout.row_status, parent, false);
 				}
 
-				if (loaderHasError()) {
+				if (hasError()) {
 					convertView.findViewById(android.R.id.progress).setVisibility(View.GONE);
-					((TextView) convertView.findViewById(android.R.id.text1)).setText(loaderErrorMessage());
+					((TextView) convertView.findViewById(android.R.id.text1)).setText(mErrorMessage);
 				} else {
 					convertView.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
 					((TextView) convertView.findViewById(android.R.id.text1)).setText(R.string.loading);
@@ -318,6 +391,18 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 				ThreadRowViewBinder.bindActivityView(convertView, thread);
 				return convertView;
 			}
+		}
+
+		public void setCurrentPage(int page) {
+			mCurrentPage = page;
+		}
+
+		private boolean hasMoreResults() {
+			return mCurrentPage * PAGE_SIZE < mTotalCount;
+		}
+
+		private boolean hasError() {
+			return !TextUtils.isEmpty(mErrorMessage);
 		}
 	}
 
