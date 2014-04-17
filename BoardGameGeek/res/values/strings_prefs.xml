@@ -79,6 +79,11 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body">
 <![CDATA[<h4>What\'s New?</h4>
+<h5>Next</h5>
+<ul>
+<li>Change look and feel of navigation drawer</li>
+<li>Show the collection properly when adding a shortcut</li>
+</ul>
 <h5>4.7.2</h5>
 <ul>
 <li>Fix crash when viewing buddy collection</li>
@@ -92,10 +97,7 @@
 <ul>
 <li>No more crashes</li>
 </ul>
-<h5>4.7</h5>
 <ul>
-<li>Chnage look and feel of navigation drawer</li>
-<li>Show the collection properly when adding a shortcut</li>
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
 <br/>
