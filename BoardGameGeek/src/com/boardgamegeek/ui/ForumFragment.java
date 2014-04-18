@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AbsListView;
@@ -21,6 +20,9 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.widget.PaginatedData;
+import com.boardgamegeek.ui.widget.PaginatedLoader;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -112,13 +114,10 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 		saveScrollState();
 		if (mForumAdapter == null) {
-			mForumAdapter = new ForumAdapter(getActivity(), R.layout.row_forumthread, data.getData(),
-				data.getErrorMessage(), data.getTotalCount(), data.getCurrentPage());
+			mForumAdapter = new ForumAdapter(getActivity(), R.layout.row_forumthread, data);
 			setListAdapter(mForumAdapter);
 		} else {
-			mForumAdapter.clear();
-			mForumAdapter.addAll(data.getData());
-			mForumAdapter.setCurrentPage(data.getCurrentPage());
+			mForumAdapter.update(data);
 		}
 		restoreScrollState();
 	}
@@ -145,34 +144,20 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		return null;
 	}
 
-	private static class ForumLoader extends AsyncTaskLoader<PaginatedData<ForumThread>> {
+	private static class ForumLoader extends PaginatedLoader<ForumThread> {
 		private int mForumId;
-		private PaginatedData<ForumThread> mData;
-		private boolean mIsLoading;
 
 		public ForumLoader(Context context, int forumId) {
 			super(context);
 			mForumId = forumId;
-			mIsLoading = true;
-			mData = null;
-		}
-
-		@Override
-		protected void onStartLoading() {
-			if (mData != null) {
-				deliverResult(mData);
-			}
-			if (takeContentChanged() || mData == null) {
-				forceLoad();
-			}
 		}
 
 		@Override
 		public PaginatedData<ForumThread> loadInBackground() {
-			mIsLoading = true;
+			super.loadInBackground();
 
 			RemoteExecutor executor = new RemoteExecutor(getContext());
-			int page = mData == null ? 1 : mData.getNextPage();
+			int page = getNextPage();
 			RemoteForumParser parser = new RemoteForumParser(mForumId, page);
 			executor.safelyExecuteGet(parser);
 			PaginatedData<ForumThread> data = null;
@@ -183,65 +168,11 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			}
 			return data;
 		}
-
-		@Override
-		public void deliverResult(PaginatedData<ForumThread> data) {
-			mIsLoading = false;
-			if (data != null) {
-				if (mData == null) {
-					mData = data;
-				} else if (data.getCurrentPage() == mData.getNextPage()) {
-					mData.addAll(data.getData());
-				}
-			}
-			if (isStarted()) {
-				super.deliverResult(new PaginatedData<ForumThread>(mData));
-			}
-		}
-
-		@Override
-		protected void onStopLoading() {
-			mIsLoading = false;
-			cancelLoad();
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			onStopLoading();
-			mData = null;
-		}
-
-		public boolean isLoading() {
-			return mIsLoading;
-		}
-
-		public boolean hasMoreResults() {
-			if (mData == null) {
-				return true;
-			}
-			return mData.hasMoreResults();
-		}
-
-		// public boolean hasError() {
-		// if (mData == null) {
-		// return false;
-		// }
-		// return mData.hasError();
-		// }
-		//
-		// public String getErrorMessage() {
-		// if (mData == null) {
-		// return "";
-		// }
-		// return mData.getErrorMessage();
-		// }
 	}
 
 	private class ForumAdapter extends PaginatedArrayAdapter<ForumThread> {
-		public ForumAdapter(Context context, int resource, List<ForumThread> objects, String errorMessage, int count,
-			int page) {
-			super(context, resource, objects, errorMessage, count, page);
+		public ForumAdapter(Context context, int resource, PaginatedData<ForumThread> data) {
+			super(context, resource, data);
 		}
 
 		@Override

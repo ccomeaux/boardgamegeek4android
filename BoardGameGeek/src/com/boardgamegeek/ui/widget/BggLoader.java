@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui;
+package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;

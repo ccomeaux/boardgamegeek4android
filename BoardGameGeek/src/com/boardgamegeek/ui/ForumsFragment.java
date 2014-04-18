@@ -29,6 +29,7 @@ import com.boardgamegeek.io.ForumService.ForumListResponse;
 import com.boardgamegeek.io.xml.SimpleXMLConverter;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;

@@ -1,8 +1,4 @@
-package com.boardgamegeek.ui;
-
-import java.util.List;
-
-import com.boardgamegeek.R;
+package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -11,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
 
 public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private static final int VIEW_TYPE_ITEM = 0;
@@ -21,13 +19,20 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private int mTotalCount;
 	private int mCurrentPage;
 
-	public PaginatedArrayAdapter(Context context, int resource, List<T> objects, String errorMessage, int count,
-		int page) {
-		super(context, resource, objects);
+	public PaginatedArrayAdapter(Context context, int resource, PaginatedData<T> data) {
+		super(context, resource, data.getData());
 		mResource = resource;
-		mErrorMessage = errorMessage;
-		mTotalCount = count;
-		mCurrentPage = page;
+		mErrorMessage = data.getErrorMessage();
+		mTotalCount = data.getTotalCount();
+		mCurrentPage = data.getCurrentPage();
+	}
+
+	public void update(PaginatedData<T> data) {
+		clear();
+		mCurrentPage = data.getCurrentPage();
+		for (T datum : data.getData()) {
+			add(datum);
+		}
 	}
 
 	@Override

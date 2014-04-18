@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui;
+package com.boardgamegeek.ui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
