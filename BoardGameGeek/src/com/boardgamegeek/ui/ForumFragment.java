@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -11,12 +10,9 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,13 +21,12 @@ import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.io.RemoteForumParser;
 import com.boardgamegeek.model.ForumThread;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.ForumFragment.ForumData;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<ForumData> {
+	LoaderManager.LoaderCallbacks<PaginatedData<ForumThread>> {
 	private static final int FORUM_LOADER_ID = 0;
 
 	private ForumAdapter mForumAdapter;
@@ -98,27 +93,27 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (!isLoaderLoading() && loaderHasMoreResults() && visibleItemCount != 0
+		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
 			loadMoreResults();
 		}
 	}
 
 	@Override
-	public Loader<ForumData> onCreateLoader(int id, Bundle data) {
+	public Loader<PaginatedData<ForumThread>> onCreateLoader(int id, Bundle data) {
 		return new ForumLoader(getActivity(), mForumId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ForumData> loader, ForumData data) {
+	public void onLoadFinished(Loader<PaginatedData<ForumThread>> loader, PaginatedData<ForumThread> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		saveScrollState();
 		if (mForumAdapter == null) {
-			mForumAdapter = new ForumAdapter(data.getData(), data.getErrorMessage(), data.getTotalCount(),
-				data.getCurrentPage());
+			mForumAdapter = new ForumAdapter(getActivity(), R.layout.row_forumthread, data.getData(),
+				data.getErrorMessage(), data.getTotalCount(), data.getCurrentPage());
 			setListAdapter(mForumAdapter);
 		} else {
 			mForumAdapter.clear();
@@ -129,10 +124,10 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ForumData> loader) {
+	public void onLoaderReset(Loader<PaginatedData<ForumThread>> loader) {
 	}
 
-	private boolean isLoaderLoading() {
+	private boolean isLoading() {
 		final ForumLoader loader = getLoader();
 		return (loader != null) ? loader.isLoading() : true;
 	}
@@ -144,80 +139,15 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	private ForumLoader getLoader() {
 		if (isAdded()) {
-			Loader<ForumData> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
+			Loader<PaginatedData<ForumThread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
 			return (ForumLoader) loader;
 		}
 		return null;
 	}
 
-	static class ForumData {
-		private List<ForumThread> mThreads;
-		private String mErrorMessage;
-		private int mTotalCount;
-		private int mCurrentPage;
-
-		ForumData(List<ForumThread> threads, int totalCount, int page) {
-			mThreads = threads;
-			mErrorMessage = "";
-			mTotalCount = totalCount;
-			mCurrentPage = page;
-		}
-
-		ForumData(String errorMessage) {
-			mThreads = new ArrayList<ForumThread>();
-			mErrorMessage = errorMessage;
-			mTotalCount = 0;
-			mCurrentPage = 0;
-		}
-
-		ForumData(ForumData data) {
-			this.mThreads = new ArrayList<ForumThread>(data.mThreads);
-			this.mErrorMessage = data.mErrorMessage;
-			this.mTotalCount = data.mTotalCount;
-			this.mCurrentPage = data.mCurrentPage;
-		}
-
-		public void addAll(List<ForumThread> threads) {
-			mThreads.addAll(threads);
-			mCurrentPage++;
-		}
-
-		public List<ForumThread> getData() {
-			return mThreads;
-		}
-
-		public int getTotalCount() {
-			return mTotalCount;
-		}
-
-		public int getCurrentPage() {
-			return mCurrentPage;
-		}
-
-		public int getNextPage() {
-			return mCurrentPage + 1;
-		}
-
-		private int getPageSize() {
-			return 50;
-		}
-
-		public boolean hasMoreResults() {
-			return mCurrentPage * getPageSize() < mTotalCount;
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
-		}
-	}
-
-	private static class ForumLoader extends AsyncTaskLoader<ForumData> {
+	private static class ForumLoader extends AsyncTaskLoader<PaginatedData<ForumThread>> {
 		private int mForumId;
-		private ForumData mData;
+		private PaginatedData<ForumThread> mData;
 		private boolean mIsLoading;
 
 		public ForumLoader(Context context, int forumId) {
@@ -238,24 +168,24 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 
 		@Override
-		public ForumData loadInBackground() {
+		public PaginatedData<ForumThread> loadInBackground() {
 			mIsLoading = true;
 
 			RemoteExecutor executor = new RemoteExecutor(getContext());
 			int page = mData == null ? 1 : mData.getNextPage();
 			RemoteForumParser parser = new RemoteForumParser(mForumId, page);
 			executor.safelyExecuteGet(parser);
-			ForumData data = null;
+			PaginatedData<ForumThread> data = null;
 			if (parser.hasError()) {
-				data = new ForumData(parser.getErrorMessage());
+				data = new PaginatedData<ForumThread>(parser.getErrorMessage());
 			} else {
-				data = new ForumData(parser.getResults(), parser.getCount(), page);
+				data = new PaginatedData<ForumThread>(parser.getResults(), parser.getCount(), page);
 			}
 			return data;
 		}
 
 		@Override
-		public void deliverResult(ForumData data) {
+		public void deliverResult(PaginatedData<ForumThread> data) {
 			mIsLoading = false;
 			if (data != null) {
 				if (mData == null) {
@@ -265,7 +195,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 				}
 			}
 			if (isStarted()) {
-				super.deliverResult(new ForumData(mData));
+				super.deliverResult(new PaginatedData<ForumThread>(mData));
 			}
 		}
 
@@ -308,101 +238,20 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		// }
 	}
 
-	private class ForumAdapter extends ArrayAdapter<ForumThread> {
-		private static final int VIEW_TYPE_THREAD = 0;
-		private static final int VIEW_TYPE_LOADING = 1;
-		private static final int PAGE_SIZE = 50;
-		private String mErrorMessage;
-		private int mTotalCount;
-		private int mCurrentPage;
-
-		public ForumAdapter(List<ForumThread> objects, String errorMessage, int count, int page) {
-			super(getActivity(), 0, objects);
-			mErrorMessage = errorMessage;
-			mTotalCount = count;
-			mCurrentPage = page;
+	private class ForumAdapter extends PaginatedArrayAdapter<ForumThread> {
+		public ForumAdapter(Context context, int resource, List<ForumThread> objects, String errorMessage, int count,
+			int page) {
+			super(context, resource, objects, errorMessage, count, page);
 		}
 
 		@Override
-		public boolean areAllItemsEnabled() {
-			return false;
+		protected boolean isLoaderLoading() {
+			return isLoading();
 		}
 
 		@Override
-		public boolean isEnabled(int position) {
-			return getItemViewType(position) == VIEW_TYPE_THREAD;
-		}
-
-		@Override
-		public int getViewTypeCount() {
-			return 2;
-		}
-
-		@Override
-		public boolean hasStableIds() {
-			return true;
-		}
-
-		@Override
-		public int getCount() {
-			int count = super.getCount()
-				+ (((isLoaderLoading() && super.getCount() == 0) || hasMoreResults() || hasError()) ? 1 : 0);
-			return count;
-		}
-
-		@Override
-		public int getItemViewType(int position) {
-			return (position >= super.getCount()) ? VIEW_TYPE_LOADING : VIEW_TYPE_THREAD;
-		}
-
-		@Override
-		public ForumThread getItem(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? super.getItem(position) : null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_THREAD) ? super.getItemId(position) : -1;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (getItemViewType(position) == VIEW_TYPE_LOADING) {
-				if (convertView == null) {
-					convertView = getLayoutInflater(null).inflate(R.layout.row_status, parent, false);
-				}
-
-				if (hasError()) {
-					convertView.findViewById(android.R.id.progress).setVisibility(View.GONE);
-					((TextView) convertView.findViewById(android.R.id.text1)).setText(mErrorMessage);
-				} else {
-					convertView.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
-					((TextView) convertView.findViewById(android.R.id.text1)).setText(R.string.loading);
-				}
-
-				return convertView;
-
-			} else {
-				ForumThread thread = (ForumThread) getItem(position);
-				if (convertView == null) {
-					convertView = getLayoutInflater(null).inflate(R.layout.row_forumthread, parent, false);
-				}
-
-				ThreadRowViewBinder.bindActivityView(convertView, thread);
-				return convertView;
-			}
-		}
-
-		public void setCurrentPage(int page) {
-			mCurrentPage = page;
-		}
-
-		private boolean hasMoreResults() {
-			return mCurrentPage * PAGE_SIZE < mTotalCount;
-		}
-
-		private boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
+		protected void bind(View view, ForumThread item) {
+			ThreadRowViewBinder.bindActivityView(view, item);
 		}
 	}
 
