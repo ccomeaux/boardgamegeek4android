@@ -46,27 +46,27 @@ public class SuggestedAgeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return mMinAge;
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return mMaxAge;
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return mUndefined;
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return SuggestedAgeFilterData.MIN_RANGE;
 	}
 
 	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return SuggestedAgeFilterData.MAX_RANGE;
 	}
 

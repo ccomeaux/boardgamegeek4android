@@ -20,27 +20,22 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return mUndefined;
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return (int) (mMaxWeight * FACTOR);
-	}
-	
-	@Override
-	protected int getLineSpacing() {
-		return FACTOR;
 	}
 
 	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return (int) (AverageWeightFilterData.MAX_RANGE * FACTOR);
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return (int) (AverageWeightFilterData.MIN_RANGE * FACTOR);
 	}
 
@@ -55,20 +50,15 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return (int) (mMinWeight * FACTOR);
-	}
-
-	@Override
-	protected double getStep() {
-		return 2.0;
 	}
 
 	@Override
 	protected int getTitleId() {
 		return R.string.menu_average_weight;
 	}
-	
+
 	@Override
 	protected int getDescriptionId() {
 		return R.string.filter_description_include_missing_average_weight;

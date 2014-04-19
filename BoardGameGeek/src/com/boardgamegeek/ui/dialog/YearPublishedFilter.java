@@ -39,17 +39,17 @@ public class YearPublishedFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return mMinYear;
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return mMaxYear;
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return false;
 	}
 
@@ -59,12 +59,12 @@ public class YearPublishedFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return YearPublishedFilterData.MIN_RANGE;
 	}
 
 	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return YearPublishedFilterData.MAX_RANGE;
 	}
 

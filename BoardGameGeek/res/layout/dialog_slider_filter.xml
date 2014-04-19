@@ -13,10 +13,10 @@
 		android:layout_height="wrap_content"
 		android:gravity="center" />
 
-	<com.boardgamegeek.ui.widget.DualSliderView
-		android:id="@+id/slider_filter_slider"
+	<FrameLayout
+		android:id="@+id/slider_filter_rangeseekbar_container"
 		android:layout_width="fill_parent"
-		android:layout_height="0dp" />
+		android:layout_height="wrap_content" />
 
 	<CheckBox
 		android:id="@+id/slider_filter_checkbox"
