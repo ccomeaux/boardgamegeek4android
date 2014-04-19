@@ -100,14 +100,6 @@ public class HttpUtils {
 		return BASE_URL + "publisher/" + publisherId;
 	}
 
-	public static String constructForumUrl(int forumId, int page) {
-		return BASE_URL_2 + "forum?id=" + forumId + "&page=" + page;
-	}
-
-	public static String constructThreadUrl(int mThreadId) {
-		return BASE_URL_2 + "thread?id=" + mThreadId;
-	}
-
 	public static HttpClient createHttpClient(Context context, String username, String authToken,
 		long authTokenExpiration, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);

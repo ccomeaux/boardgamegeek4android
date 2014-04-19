@@ -161,7 +161,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			ForumData data;
 			try {
 				int page = getNextPage();
-				data = new ForumData(mService.listThreads(mForumId, page), page);
+				data = new ForumData(mService.forum(mForumId, page), page);
 			} catch (Exception e) {
 				data = new ForumData(e);
 			}

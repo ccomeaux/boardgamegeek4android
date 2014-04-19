@@ -8,9 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +17,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteThreadParser;
-import com.boardgamegeek.model.ThreadArticle;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.ForumService;
+import com.boardgamegeek.io.ForumService.Article;
+import com.boardgamegeek.io.ForumService.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.widget.BggLoader;
+import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<ThreadArticle>> {
+public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
 	private static final int THREAD_LOADER_ID = 103;
 
 	private ThreadAdapter mThreadAdapter;
@@ -39,8 +40,6 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
-
-		setListAdapter(mThreadAdapter);
 	}
 
 	@Override
@@ -65,21 +64,24 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public Loader<List<ThreadArticle>> onCreateLoader(int id, Bundle data) {
+	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), mThreadId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<ThreadArticle>> loader, List<ThreadArticle> articles) {
+	public void onLoadFinished(Loader<ThreadData> loader, ThreadData data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		mThreadAdapter = new ThreadAdapter(getActivity(), articles);
-		setListAdapter(mThreadAdapter);
+		if (mThreadAdapter == null) {
+			mThreadAdapter = new ThreadAdapter(getActivity(), data.list());
+			setListAdapter(mThreadAdapter);
+		}
+		mThreadAdapter.notifyDataSetChanged();
 
-		if (loaderHasError()) {
-			setEmptyText(loaderErrorMessage());
+		if (data.hasError()) {
+			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
 				setListShown(true);
@@ -91,82 +93,56 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<ThreadArticle>> loader) {
+	public void onLoaderReset(Loader<ThreadData> loader) {
 	}
 
-	private boolean loaderHasError() {
-		final ThreadLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		final ThreadLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
-	private ThreadLoader getLoader() {
-		if (isAdded()) {
-			Loader<List<ThreadArticle>> loader = getLoaderManager().getLoader(THREAD_LOADER_ID);
-			return (ThreadLoader) loader;
-		}
-		return null;
-	}
-
-	private static class ThreadLoader extends AsyncTaskLoader<List<ThreadArticle>> {
+	private static class ThreadLoader extends BggLoader<ThreadData> {
+		private ForumService mService;
 		private int mThreadId;
-		private String mErrorMessage;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
+			mService = Adapter.get().create(ForumService.class);
 			mThreadId = threadId;
-			mErrorMessage = "";
 		}
 
 		@Override
-		public List<ThreadArticle> loadInBackground() {
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteThreadParser parser = new RemoteThreadParser(mThreadId);
-			executor.safelyExecuteGet(parser);
-			mErrorMessage = parser.getErrorMessage();
-			return parser.getResults();
-		}
-
-		@Override
-		public void deliverResult(List<ThreadArticle> articles) {
-			if (isStarted()) {
-				super.deliverResult(articles == null ? null : new ArrayList<ThreadArticle>(articles));
+		public ThreadData loadInBackground() {
+			ThreadData forums = null;
+			try {
+				forums = new ThreadData(mService.thread(mThreadId));
+			} catch (Exception e) {
+				forums = new ThreadData(e);
 			}
-		}
-
-		@Override
-		protected void onStartLoading() {
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			cancelLoad();
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			onStopLoading();
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
+			return forums;
 		}
 	}
 
-	public static class ThreadAdapter extends ArrayAdapter<ThreadArticle> {
+	static class ThreadData extends Data<Article> {
+		private ThreadResponse mResponse;
+
+		public ThreadData(ThreadResponse response) {
+			super();
+			mResponse = response;
+		}
+
+		public ThreadData(Exception e) {
+			super(e);
+		}
+
+		@Override
+		protected List<Article> list() {
+			if (mResponse == null || mResponse.articles == null) {
+				return new ArrayList<Article>();
+			}
+			return mResponse.articles;
+		}
+	}
+
+	public static class ThreadAdapter extends ArrayAdapter<Article> {
 		private LayoutInflater mInflater;
 
-		public ThreadAdapter(Activity activity, List<ThreadArticle> articles) {
+		public ThreadAdapter(Activity activity, List<Article> articles) {
 			super(activity, R.layout.row_threadarticle, articles);
 			mInflater = activity.getLayoutInflater();
 		}
@@ -182,7 +158,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			ThreadArticle article;
+			Article article;
 			try {
 				article = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -190,11 +166,11 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			}
 			if (article != null) {
 				holder.username.setText(article.username);
-				holder.editdate.setText(DateTimeUtils.formatForumDate(getContext(), article.editDate));
+				holder.editdate.setText(DateTimeUtils.formatForumDate(getContext(), article.editDate()));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ForumsUtils.KEY_USER, article.username);
-				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate);
+				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate());
 				bundle.putString(ForumsUtils.KEY_BODY, article.body);
 				bundle.putString(ForumsUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);
