@@ -16,8 +16,8 @@ import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.NotificationUtils;
@@ -132,13 +132,9 @@ public class SyncService extends Service {
 		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			if (PreferencesUtils.isSyncStatus(context, "played")) {
-				cursor = context.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
-					null, Games.NUM_PLAYS + " DESC");
-			} else {
-				cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
-					new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, null, null, "count DESC");
-			}
+			cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
+				new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, Plays.SYNC_STATUS + "=?",
+				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) }, "count DESC");
 			if (cursor != null) {
 				int i = 1;
 				while (cursor.moveToNext()) {
