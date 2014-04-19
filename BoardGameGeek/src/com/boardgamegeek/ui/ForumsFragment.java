@@ -22,7 +22,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.ForumService;
-import com.boardgamegeek.io.ForumService.Forum;
+import com.boardgamegeek.model.Forum;
 import com.boardgamegeek.io.ForumService.ForumListResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;

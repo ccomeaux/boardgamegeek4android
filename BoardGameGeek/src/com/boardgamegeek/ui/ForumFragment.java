@@ -19,7 +19,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.ForumService;
 import com.boardgamegeek.io.ForumService.ForumResponse;
-import com.boardgamegeek.io.ForumService.Thread;
+import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.widget.PaginatedData;

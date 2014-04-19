@@ -13,8 +13,8 @@ public class PaginatedData<T> {
 	private int mCurrentPage;
 	private int mPageSize;
 
-	public PaginatedData(List<T> threads, int totalCount, int page, int pageSize) {
-		mData = threads;
+	public PaginatedData(List<T> data, int totalCount, int page, int pageSize) {
+		mData = data;
 		if (mData == null) {
 			mData = new ArrayList<T>();
 		}

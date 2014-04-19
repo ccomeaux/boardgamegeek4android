@@ -1,5 +1,8 @@
 package com.boardgamegeek.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -7,6 +10,8 @@ import android.text.format.DateUtils;
 import com.boardgamegeek.R;
 
 public class DateTimeUtils {
+	public static final long UNPARSED_DATE = -2;
+	private static final long UNKNOWN_DATE = -1;
 
 	private DateTimeUtils() {
 	}
@@ -54,5 +59,16 @@ public class DateTimeUtils {
 		} else {
 			return DateUtils.getRelativeTimeSpanString(date);
 		}
+	}
+
+	public static long tryParseDate(long time, String date, DateFormat format) {
+		if (time == UNPARSED_DATE) {
+			try {
+				time = format.parse(date).getTime();
+			} catch (ParseException e) {
+				time = UNKNOWN_DATE;
+			}
+		}
+		return time;
 	}
 }
