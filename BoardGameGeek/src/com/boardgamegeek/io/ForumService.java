@@ -11,8 +11,6 @@ import org.simpleframework.xml.Root;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 public interface ForumService {
 	public static String TYPE_REGION = "region";
@@ -23,6 +21,8 @@ public interface ForumService {
 	public static final int REGION_VIDEOGAME = 3;
 
 	static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+	static final long UNPARSED_DATE = -2;
+	static final long UNKNOWN_DATE = -1;
 
 	@GET("/xmlapi2/forumlist")
 	ForumListResponse listForums(@Query("type") String type, @Query("id") int id);
@@ -42,8 +42,8 @@ public interface ForumService {
 	}
 
 	@Root(name = "forum")
-	static class Forum implements Parcelable {
-		private long mLastPostDateTime = -1;
+	static class Forum {
+		private long mLastPostDateTime = UNPARSED_DATE;
 
 		@Attribute
 		public int id;
@@ -74,11 +74,11 @@ public interface ForumService {
 		}
 
 		public long lastPostDate() {
-			if (mLastPostDateTime == -1) {
+			if (mLastPostDateTime == UNPARSED_DATE) {
 				try {
 					mLastPostDateTime = FORMAT.parse(lastpostdate).getTime();
 				} catch (ParseException e) {
-					mLastPostDateTime = 0;
+					mLastPostDateTime = UNKNOWN_DATE;
 				}
 			}
 			return mLastPostDateTime;
@@ -88,46 +88,87 @@ public interface ForumService {
 		public String toString() {
 			return "" + id + ": " + title + " - " + description;
 		}
+	}
+
+	@GET("/xmlapi2/forum")
+	ForumResponse listThreads(@Query("id") int id, @Query("page") int page);
+
+	static class ForumResponse {
+		public static final int PAGE_SIZE = 50;
+
+		@Attribute
+		public int id;
+
+		@Attribute
+		public String title;
+
+		@Attribute(name = "numthreads")
+		public int numberOfThreads;
+
+		@Attribute
+		private int numposts;
+
+		@Attribute
+		private String lastpostdate;
+
+		@Attribute
+		private int noposting;
+
+		@Attribute(name = "termsofuse")
+		private String termsOfUse;
+
+		@ElementList
+		public List<Thread> threads;
 
 		@Override
-		public int describeContents() {
-			return 0;
+		public String toString() {
+			return "" + id + ": " + title;
 		}
+	}
 
-		@Override
-		public void writeToParcel(Parcel dest, int flags) {
-			dest.writeInt(id);
-			dest.writeInt(groupid);
-			dest.writeString(title);
-			dest.writeInt(noposting);
-			dest.writeString(description);
-			dest.writeInt(numberOfThreads);
-			dest.writeInt(numposts);
-			dest.writeString(lastpostdate);
-		}
+	@Root(name = "thread")
+	static class Thread {
+		private long mPostDateTime;
+		private long mLastPostDateTime;
 
-		public Forum() {
-		}
+		@Attribute
+		public int id;
 
-		public Forum(Parcel in) {
-			id = in.readInt();
-			groupid = in.readInt();
-			title = in.readString();
-			noposting = in.readInt();
-			description = in.readString();
-			numberOfThreads = in.readInt();
-			numposts = in.readInt();
-			lastpostdate = in.readString();
-		}
+		@Attribute
+		public String subject;
 
-		public static final Parcelable.Creator<Forum> CREATOR = new Parcelable.Creator<Forum>() {
-			public Forum createFromParcel(Parcel in) {
-				return new Forum(in);
+		@Attribute
+		public String author;
+
+		@Attribute(name = "numarticles")
+		public int numberOfArticles;
+
+		@Attribute
+		public String postdate;
+
+		@Attribute
+		public String lastpostdate;
+
+		public long postDate() {
+			if (mPostDateTime == UNPARSED_DATE) {
+				try {
+					mPostDateTime = FORMAT.parse(lastpostdate).getTime();
+				} catch (ParseException e) {
+					mPostDateTime = UNKNOWN_DATE;
+				}
 			}
+			return mPostDateTime;
+		}
 
-			public Forum[] newArray(int size) {
-				return new Forum[size];
+		public long lastPostDate() {
+			if (mLastPostDateTime == UNPARSED_DATE) {
+				try {
+					mLastPostDateTime = FORMAT.parse(lastpostdate).getTime();
+				} catch (ParseException e) {
+					mLastPostDateTime = UNKNOWN_DATE;
+				}
 			}
-		};
+			return mLastPostDateTime;
+		}
 	}
 }

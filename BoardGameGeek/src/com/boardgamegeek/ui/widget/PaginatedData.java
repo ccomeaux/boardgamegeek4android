@@ -3,41 +3,61 @@ package com.boardgamegeek.ui.widget;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.RetrofitError;
 import android.text.TextUtils;
 
-public class PaginatedData<D> {
-	private List<D> mData;
+public class PaginatedData<T> {
+	private List<T> mData;
 	private String mErrorMessage;
 	private int mTotalCount;
 	private int mCurrentPage;
+	private int mPageSize;
 
-	public PaginatedData(List<D> threads, int totalCount, int page) {
+	public PaginatedData(List<T> threads, int totalCount, int page, int pageSize) {
 		mData = threads;
+		if (mData == null) {
+			mData = new ArrayList<T>();
+		}
 		mErrorMessage = "";
 		mTotalCount = totalCount;
 		mCurrentPage = page;
+		mPageSize = pageSize;
 	}
 
 	public PaginatedData(String errorMessage) {
-		mData = new ArrayList<D>();
-		mErrorMessage = errorMessage;
-		mTotalCount = 0;
-		mCurrentPage = 0;
+		mData = new ArrayList<T>();
+		updateErrorMessage(errorMessage);
 	}
 
-	public PaginatedData(PaginatedData<D> data) {
-		this.mData = new ArrayList<D>(data.mData);
+	public PaginatedData(Exception e) {
+		updateErrorMessage(e.getMessage());
+		if (e instanceof RetrofitError) {
+			RetrofitError re = (RetrofitError) e;
+			if (re.isNetworkError() && re.getResponse() == null) {
+				updateErrorMessage("Looks like you're offline.");
+			}
+		}
+	}
+
+	public PaginatedData(PaginatedData<T> data) {
+		this.mData = new ArrayList<T>(data.mData);
 		this.mErrorMessage = data.mErrorMessage;
 		this.mTotalCount = data.mTotalCount;
 		this.mCurrentPage = data.mCurrentPage;
 	}
 
-	public void addAll(List<D> threads) {
+	protected void updateErrorMessage(String errorMessage) {
+		mErrorMessage = errorMessage;
+		mTotalCount = 0;
+		mCurrentPage = 0;
+	}
+
+	public void addAll(List<T> threads) {
 		mData.addAll(threads);
 		mCurrentPage++;
 	}
 
-	public List<D> getData() {
+	public List<T> getData() {
 		return mData;
 	}
 
@@ -54,7 +74,7 @@ public class PaginatedData<D> {
 	}
 
 	private int getPageSize() {
-		return 50;
+		return mPageSize;
 	}
 
 	public boolean hasMoreResults() {
