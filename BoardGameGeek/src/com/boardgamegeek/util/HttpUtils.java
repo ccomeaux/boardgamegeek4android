@@ -80,21 +80,6 @@ public class HttpUtils {
 		return queryUrl;
 	}
 
-	public static String constructDesignerUrl(int designerId) {
-		// http://www.boardgamegeek.com/xmlapi/designer/13
-		return BASE_URL + "designer/" + designerId;
-	}
-
-	public static String constructArtistUrl(int artistId) {
-		// http://www.boardgamegeek.com/xmlapi/boardgameartist/9798
-		return BASE_URL + "boardgameartist/" + artistId;
-	}
-
-	public static String constructPublisherUrl(int publisherId) {
-		// http://www.boardgamegeek.com/xmlapi/publisher/10
-		return BASE_URL + "publisher/" + publisherId;
-	}
-
 	public static HttpClient createHttpClient(Context context, String username, String authToken,
 		long authTokenExpiration, boolean useGzip) {
 		final HttpParams params = createHttpParams(context, useGzip);
