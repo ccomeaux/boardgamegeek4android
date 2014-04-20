@@ -19,27 +19,22 @@ public class GeekRankingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return mUnranked;
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return mMaxRanking;
 	}
 
 	@Override
-	protected int getLineSpacing() {
-		return 500;
-	}
-
-	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return GeekRankingFilterData.MAX_RANGE;
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return GeekRankingFilterData.MIN_RANGE;
 	}
 
@@ -54,18 +49,8 @@ public class GeekRankingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStartOffset() {
-		return 1;
-	}
-
-	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return mMinRanking;
-	}
-
-	@Override
-	protected double getStep() {
-		return 100.0;
 	}
 
 	@Override

@@ -585,7 +585,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 			}
 		} else {
-			mPlay.addPlayer(new Player());
+			Player player = new Player();
+			if (!mCustomPlayerSort) {
+				player.setSeat(mPlay.getPlayerCount() + 1);
+			}
+			mPlay.addPlayer(player);
 			bindUiPlayers();
 			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
