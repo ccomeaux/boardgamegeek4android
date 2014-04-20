@@ -80,11 +80,6 @@ public class HttpUtils {
 		return queryUrl;
 	}
 
-	public static String constructHotnessUrl() {
-		// http://www.boardgamegeek.com/xmlapi2/hot
-		return BASE_URL_2 + "hot";
-	}
-
 	public static String constructDesignerUrl(int designerId) {
 		// http://www.boardgamegeek.com/xmlapi/designer/13
 		return BASE_URL + "designer/" + designerId;

@@ -113,7 +113,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			return;
 		}
 
-		saveScrollState();
 		if (mForumAdapter == null) {
 			mForumAdapter = new ForumAdapter(getActivity(), R.layout.row_forumthread, data);
 			setListAdapter(mForumAdapter);

@@ -138,8 +138,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	static class ForumsData extends Data<Forum> {
 		private ForumListResponse mResponse;
 
-		public ForumsData(ForumListResponse forumListResponse) {
-			mResponse = forumListResponse;
+		public ForumsData(ForumListResponse response) {
+			mResponse = response;
 		}
 
 		public ForumsData(Exception e) {
