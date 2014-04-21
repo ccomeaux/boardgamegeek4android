@@ -1,6 +1,5 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
@@ -68,17 +67,6 @@ public class HttpUtils {
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
 	private static boolean mMockLogin = false;
-
-	public static String constructSearchUrl(String searchTerm, boolean useExact) {
-		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
-		// http://boardgamegeek.com/xmlapi2/search?type=boardgame&query=puerto+rico
-		String queryUrl = BASE_URL + "search?search=" + encode(searchTerm);
-		if (useExact) {
-			queryUrl += "&exact=1";
-		}
-		LOGD(TAG, "Query: " + queryUrl);
-		return queryUrl;
-	}
 
 	public static HttpClient createHttpClient(Context context, String username, String authToken,
 		long authTokenExpiration, boolean useGzip) {

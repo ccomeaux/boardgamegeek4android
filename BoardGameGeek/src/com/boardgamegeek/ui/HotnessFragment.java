@@ -46,11 +46,6 @@ public class HotnessFragment extends BggListFragment implements
 	private MenuItem mBggLinkMenuItem;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
-
-	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getString(R.string.empty_hotness));
