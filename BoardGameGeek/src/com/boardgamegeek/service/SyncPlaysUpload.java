@@ -329,8 +329,8 @@ public class SyncPlaysUpload extends SyncTask {
 
 		for (Play parsedPlay : parsedPlays) {
 			if ((play.playId != parsedPlay.playId) && (play.gameId == parsedPlay.gameId)
-				&& (play.Year == parsedPlay.Year) && (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
-				&& (play.Incomplete() == parsedPlay.Incomplete()) && (play.NoWinStats() == parsedPlay.NoWinStats())
+				&& (play.getDate() == parsedPlay.getDate()) && (play.Incomplete() == parsedPlay.Incomplete())
+				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
 				if (parsedPlay.playId > latestPlayId) {
 					latestPlayId = parsedPlay.playId;

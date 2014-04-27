@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -546,9 +547,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onDateClick(View v) {
 		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
 		Bundle bundle = new Bundle();
-		bundle.putInt(DatePickerFragment.KEY_YEAR, mPlay.Year);
-		bundle.putInt(DatePickerFragment.KEY_MONTH, mPlay.Month);
-		bundle.putInt(DatePickerFragment.KEY_DAY, mPlay.Day);
+		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
 		fragment.setArguments(bundle);
 		fragment.show(getSupportFragmentManager(), "datePicker");
 	}
@@ -936,9 +935,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@SuppressLint("ValidFragment")
 	private static class DatePickerFragment extends DialogFragment {
-		public static final String KEY_YEAR = "YEAR";
-		public static final String KEY_MONTH = "MONTH";
-		public static final String KEY_DAY = "DAY";
+		public static final String KEY_DATE = "YEAR";
 
 		private OnDateSetListener mListener;
 
@@ -949,10 +946,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			Bundle b = getArguments();
-			int year = b.getInt(KEY_YEAR);
-			int month = b.getInt(KEY_MONTH);
-			int day = b.getInt(KEY_DAY);
-			return new DatePickerDialog(getActivity(), mListener, year, month, day);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(b.getLong(KEY_DATE));
+			return new DatePickerDialog(getActivity(), mListener, c.get(Calendar.YEAR), c.get(Calendar.MONTH),
+				c.get(Calendar.DAY_OF_MONTH));
 		}
 	}
 

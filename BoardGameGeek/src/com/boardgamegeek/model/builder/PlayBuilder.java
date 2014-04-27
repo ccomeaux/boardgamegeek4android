@@ -18,9 +18,7 @@ public class PlayBuilder {
 	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_YEAR = "YEAR";
-	public static final String KEY_MONTH = "MONTH";
-	public static final String KEY_DAY = "DAY";
+	public static final String KEY_DATE = "DATE";
 	public static final String KEY_QUANTITY = "QUANTITY";
 	public static final String KEY_LENGTH = "LENGTH";
 	public static final String KEY_LOCATION = "LOCATION";
@@ -71,9 +69,7 @@ public class PlayBuilder {
 
 	public static Play copy(Play play) {
 		Play copy = new Play(play.playId, play.gameId, play.gameName);
-		copy.Year = play.Year;
-		copy.Month = play.Month;
-		copy.Day = play.Day;
+		copy.setDate(play.getDate());
 		copy.quantity = play.quantity;
 		copy.length = play.length;
 		copy.location = play.location;
@@ -120,9 +116,7 @@ public class PlayBuilder {
 		bundle.putInt(prefix + KEY_PLAY_ID, play.playId);
 		bundle.putInt(prefix + KEY_GAME_ID, play.gameId);
 		bundle.putString(prefix + KEY_GAME_NAME, play.gameName);
-		bundle.putInt(prefix + KEY_YEAR, play.Year);
-		bundle.putInt(prefix + KEY_MONTH, play.Month);
-		bundle.putInt(prefix + KEY_DAY, play.Day);
+		bundle.putString(prefix + KEY_DATE, play.getDate());
 		bundle.putInt(prefix + KEY_QUANTITY, play.quantity);
 		bundle.putInt(prefix + KEY_LENGTH, play.length);
 		bundle.putString(prefix + KEY_LOCATION, play.location);
@@ -140,9 +134,7 @@ public class PlayBuilder {
 		play.playId = bundle.getInt(prefix + KEY_PLAY_ID);
 		play.gameId = bundle.getInt(prefix + KEY_GAME_ID);
 		play.gameName = getString(bundle, prefix + KEY_GAME_NAME);
-		play.Year = bundle.getInt(prefix + KEY_YEAR);
-		play.Month = bundle.getInt(prefix + KEY_MONTH);
-		play.Day = bundle.getInt(prefix + KEY_DAY);
+		play.setDate(bundle.getString(prefix + KEY_DATE));
 		play.quantity = bundle.getInt(prefix + KEY_QUANTITY);
 		play.length = bundle.getInt(prefix + KEY_LENGTH);
 		play.location = getString(bundle, prefix + KEY_LOCATION);

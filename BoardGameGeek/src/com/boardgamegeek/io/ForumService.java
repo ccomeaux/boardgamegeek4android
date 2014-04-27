@@ -104,5 +104,4 @@ public interface ForumService {
 		@ElementList
 		public List<Article> articles;
 	}
-
 }

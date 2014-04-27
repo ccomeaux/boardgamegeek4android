@@ -1,9 +1,12 @@
 package com.boardgamegeek.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -57,15 +60,14 @@ public class Play {
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	@Attribute(name = "id")
 	public int playId;
 
 	@Attribute
 	private String date;
-	public int Year;
-	public int Month;
-	public int Day;
+	private long playDate = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute
 	public int quantity;
@@ -193,10 +195,13 @@ public class Play {
 	 * @return
 	 */
 	public String getDate() {
-		if (Year == 0) {
-			setDate(date);
-		}
-		return DateTimeUtils.formatDateForApi(Year, Month, Day);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return DateTimeUtils.formatDateForApi(playDate);
+	}
+
+	public long getDateInMillis() {
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return playDate;
 	}
 
 	/**
@@ -205,18 +210,14 @@ public class Play {
 	 * @return a localized date.
 	 */
 	public CharSequence getDateForDisplay(Context context) {
-		if (Year == 0) {
-			setDate(date);
-		}
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Year, Month, Day);
-		return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return DateUtils.formatDateTime(context, playDate, DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public void setDate(int year, int month, int day) {
-		Year = year;
-		Month = month;
-		Day = day;
+		playDate = DateTimeUtils.UNPARSED_DATE;
+		date = DateTimeUtils.formatDateForApi(year, month, day);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
 	}
 
 	/**
@@ -226,20 +227,15 @@ public class Play {
 	 *            in the yyyy-MM-dd format
 	 */
 	public void setDate(String date) {
-		// TODO: verify date
-		if (TextUtils.isEmpty(date)) {
-			return;
-		}
-		Year = Integer.parseInt(date.substring(0, 4));
-		Month = Integer.parseInt(date.substring(5, 7)) - 1;
-		Day = Integer.parseInt(date.substring(8, 10));
+		playDate = DateTimeUtils.UNPARSED_DATE;
+		this.date = date;
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
 	}
 
 	public void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
-		Year = c.get(Calendar.YEAR);
-		Month = c.get(Calendar.MONTH);
-		Day = c.get(Calendar.DAY_OF_MONTH);
+		date = DateTimeUtils.formatDateForApi(c.getTimeInMillis());
+		playDate = c.getTimeInMillis();
 	}
 
 	// PLAYERS
@@ -518,8 +514,8 @@ public class Play {
 		}
 
 		Play p = (Play) o;
-		boolean eq = (playId == p.playId) && (gameId == p.gameId) && (Year == p.Year) && (Month == p.Month)
-			&& (Day == p.Day) && (quantity == p.quantity) && (length == p.length)
+		boolean eq = (playId == p.playId) && (gameId == p.gameId) && (playDate == p.playDate)
+			&& (quantity == p.quantity) && (length == p.length)
 			&& (location == p.location || (location != null && location.equals(p.location)))
 			&& (incomplete == p.incomplete) && (nowinstats == p.nowinstats)
 			&& (comments == p.comments || (comments != null && comments.equals(p.comments))) && (updated == p.updated)
@@ -542,9 +538,7 @@ public class Play {
 		result = prime * result + playId;
 		result = prime * result + gameId;
 		result = prime * result + ((gameName == null) ? 0 : gameName.hashCode());
-		result = prime * result + Year;
-		result = prime * result + Month;
-		result = prime * result + Day;
+		result = prime * result + (int) (playDate ^ (playDate >>> 32));
 		result = prime * result + quantity;
 		result = prime * result + length;
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
