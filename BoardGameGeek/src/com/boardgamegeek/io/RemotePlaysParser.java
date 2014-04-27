@@ -157,35 +157,35 @@ public class RemotePlaysParser extends RemoteBggParser {
 					if (Tags.PLAY.equals(tag)) {
 						date = parseStringAttribute(Tags.DATE);
 						mPlay = new Play();
-						mPlay.PlayId = parseIntegerAttribute(Tags.ID);
+						mPlay.playId = parseIntegerAttribute(Tags.ID);
 						mPlay.setDate(date);
-						mPlay.Quantity = parseIntegerAttribute(Tags.QUANTITY);
-						mPlay.Length = parseIntegerAttribute(Tags.LENGTH);
-						mPlay.Incomplete = parseBooleanAttribute(Tags.INCOMPLETE);
-						mPlay.NoWinStats = parseBooleanAttribute(Tags.NO_WIN_STATS);
-						mPlay.Location = parseStringAttribute(Tags.LOCATION);
-						mPlay.Updated = System.currentTimeMillis();
+						mPlay.quantity = parseIntegerAttribute(Tags.QUANTITY);
+						mPlay.length = parseIntegerAttribute(Tags.LENGTH);
+						mPlay.setIncomplete(parseBooleanAttribute(Tags.INCOMPLETE));
+						mPlay.setNoWinStats(parseBooleanAttribute(Tags.NO_WIN_STATS));
+						mPlay.location = parseStringAttribute(Tags.LOCATION);
+						mPlay.updated = System.currentTimeMillis();
 					} else if (Tags.ITEM.equals(tag)) {
-						mPlay.GameId = parseIntegerAttribute(Tags.OBJECT_ID);
-						mPlay.GameName = parseStringAttribute(Tags.NAME);
+						mPlay.gameId = parseIntegerAttribute(Tags.OBJECT_ID);
+						mPlay.gameName = parseStringAttribute(Tags.NAME);
 					} else if (Tags.COMMENTS.equals(tag)) {
 						isComments = true;
 					} else if (Tags.PLAYER.equals(tag)) {
 						Player player = new Player();
-						player.UserId = parseIntegerAttribute(Tags.USERID);
-						player.Username = parseStringAttribute(Tags.USERNAME);
-						player.Name = parseStringAttribute(Tags.NAME);
+						player.userid = parseIntegerAttribute(Tags.USERID);
+						player.username = parseStringAttribute(Tags.USERNAME);
+						player.name = parseStringAttribute(Tags.NAME);
 						player.setStartingPosition(parseStringAttribute(Tags.STARTPOSITION));
-						player.TeamColor = parseStringAttribute(Tags.COLOR);
-						player.Score = parseStringAttribute(Tags.SCORE);
-						player.New = parseBooleanAttribute(Tags.NEW);
-						player.Rating = parseDoubleAttribute(Tags.RATING);
-						player.Win = parseBooleanAttribute(Tags.WIN);
+						player.color = parseStringAttribute(Tags.COLOR);
+						player.score = parseStringAttribute(Tags.SCORE);
+						player.New(parseBooleanAttribute(Tags.NEW));
+						player.rating = parseDoubleAttribute(Tags.RATING);
+						player.Win(parseBooleanAttribute(Tags.WIN));
 						mPlay.addPlayer(player);
 					}
 				} else if (type == TEXT) {
 					if (isComments) {
-						mPlay.Comments = mParser.getText();
+						mPlay.comments = mParser.getText();
 					}
 				} else if (type == END_TAG) {
 					String tag = mParser.getName();

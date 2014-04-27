@@ -57,18 +57,18 @@ public class NotificationUtils {
 	}
 
 	private static void launchStartNotification(Context context, Play play, boolean includeTicker) {
-		Intent intent = ActivityUtils.createPlayIntent(play.PlayId, play.GameId, play.GameName);
+		Intent intent = ActivityUtils.createPlayIntent(play.playId, play.gameId, play.gameName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
 			R.string.notification_playing);
 
-		builder.setContentText(play.GameName).setOnlyAlertOnce(true)
+		builder.setContentText(play.gameName).setOnlyAlertOnce(true)
 			.setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 		if (includeTicker) {
-			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.GameName));
+			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.gameName));
 		}
-		if (play.StartTime > 0) {
-			builder.setWhen(play.StartTime).setUsesChronometer(true);
+		if (play.startTime > 0) {
+			builder.setWhen(play.startTime).setUsesChronometer(true);
 		}
 		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
 		// TODO - set large icon with game thumbnail

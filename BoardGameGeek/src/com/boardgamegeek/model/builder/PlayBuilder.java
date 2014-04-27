@@ -39,20 +39,20 @@ public class PlayBuilder {
 
 	public static Play fromCursor(Cursor cursor, Context context, boolean includePlayers) {
 		Play play = new Play();
-		play.PlayId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
-		play.GameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
-		play.GameName = CursorUtils.getString(cursor, PlayItems.NAME);
+		play.playId = CursorUtils.getInt(cursor, Plays.PLAY_ID, BggContract.INVALID_ID);
+		play.gameId = CursorUtils.getInt(cursor, PlayItems.OBJECT_ID, BggContract.INVALID_ID);
+		play.gameName = CursorUtils.getString(cursor, PlayItems.NAME);
 		play.setDate(CursorUtils.getString(cursor, Plays.DATE));
-		play.Quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, Play.QUANTITY_DEFAULT);
-		play.Length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);
-		play.Location = CursorUtils.getString(cursor, Plays.LOCATION);
-		play.Incomplete = CursorUtils.getBoolean(cursor, Plays.INCOMPLETE);
-		play.NoWinStats = CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS);
-		play.Comments = CursorUtils.getString(cursor, Plays.COMMENTS);
-		play.Updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
-		play.SyncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
-		play.Saved = CursorUtils.getLong(cursor, Plays.UPDATED);
-		play.StartTime = CursorUtils.getLong(cursor, Plays.START_TIME);
+		play.quantity = CursorUtils.getInt(cursor, Plays.QUANTITY, Play.QUANTITY_DEFAULT);
+		play.length = CursorUtils.getInt(cursor, Plays.LENGTH, Play.LENGTH_DEFAULT);
+		play.location = CursorUtils.getString(cursor, Plays.LOCATION);
+		play.setIncomplete(CursorUtils.getBoolean(cursor, Plays.INCOMPLETE));
+		play.setNoWinStats(CursorUtils.getBoolean(cursor, Plays.NO_WIN_STATS));
+		play.comments = CursorUtils.getString(cursor, Plays.COMMENTS);
+		play.updated = CursorUtils.getLong(cursor, Plays.UPDATED_LIST);
+		play.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
+		play.saved = CursorUtils.getLong(cursor, Plays.UPDATED);
+		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
 		if (includePlayers && context != null) {
 			Cursor c = null;
 			try {
@@ -70,20 +70,20 @@ public class PlayBuilder {
 	}
 
 	public static Play copy(Play play) {
-		Play copy = new Play(play.PlayId, play.GameId, play.GameName);
+		Play copy = new Play(play.playId, play.gameId, play.gameName);
 		copy.Year = play.Year;
 		copy.Month = play.Month;
 		copy.Day = play.Day;
-		copy.Quantity = play.Quantity;
-		copy.Length = play.Length;
-		copy.Location = play.Location;
-		copy.Incomplete = play.Incomplete;
-		copy.NoWinStats = play.NoWinStats;
-		copy.Comments = play.Comments;
-		copy.Updated = play.Updated;
-		copy.SyncStatus = play.SyncStatus;
-		copy.Saved = play.Saved;
-		copy.StartTime = play.StartTime;
+		copy.quantity = play.quantity;
+		copy.length = play.length;
+		copy.location = play.location;
+		copy.setIncomplete(play.Incomplete());
+		copy.setNoWinStats(play.NoWinStats());
+		copy.comments = play.comments;
+		copy.updated = play.updated;
+		copy.syncStatus = play.syncStatus;
+		copy.saved = play.saved;
+		copy.startTime = play.startTime;
 		for (Player player : play.getPlayers()) {
 			copy.addPlayer(new Player(player));
 		}
@@ -91,22 +91,23 @@ public class PlayBuilder {
 	}
 
 	public static Play playAgain(Play play) {
-		Play copy = new Play(play.GameId, play.GameName);
-		copy.Location = play.Location;
-		copy.NoWinStats = play.NoWinStats;
+		Play copy = new Play(play.gameId, play.gameName);
+		copy.setCurrentDate();
+		copy.location = play.location;
+		copy.setNoWinStats(play.NoWinStats());
 		boolean copyStartingPosition = !play.arePlayersCustomSorted();
 		for (Player player : play.getPlayers()) {
 			Player p = new Player();
-			p.Username = player.Username;
-			p.Name = player.Name;
+			p.username = player.username;
+			p.name = player.name;
 			if (copyStartingPosition) {
 				p.setStartingPosition(player.getStartingPosition());
 			}
-			p.TeamColor = player.TeamColor;
-			p.Rating = player.Rating;
-			p.Score = "";
-			p.Win = false;
-			p.New = false;
+			p.color = player.color;
+			p.rating = player.rating;
+			p.score = "";
+			p.Win(false);
+			p.New(false);
 			copy.addPlayer(p);
 		}
 		return copy;
@@ -116,42 +117,42 @@ public class PlayBuilder {
 		if (play == null) {
 			return;
 		}
-		bundle.putInt(prefix + KEY_PLAY_ID, play.PlayId);
-		bundle.putInt(prefix + KEY_GAME_ID, play.GameId);
-		bundle.putString(prefix + KEY_GAME_NAME, play.GameName);
+		bundle.putInt(prefix + KEY_PLAY_ID, play.playId);
+		bundle.putInt(prefix + KEY_GAME_ID, play.gameId);
+		bundle.putString(prefix + KEY_GAME_NAME, play.gameName);
 		bundle.putInt(prefix + KEY_YEAR, play.Year);
 		bundle.putInt(prefix + KEY_MONTH, play.Month);
 		bundle.putInt(prefix + KEY_DAY, play.Day);
-		bundle.putInt(prefix + KEY_QUANTITY, play.Quantity);
-		bundle.putInt(prefix + KEY_LENGTH, play.Length);
-		bundle.putString(prefix + KEY_LOCATION, play.Location);
-		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.Incomplete);
-		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.NoWinStats);
-		bundle.putString(prefix + KEY_COMMENTS, play.Comments);
-		bundle.putLong(prefix + KEY_UPDATED, play.Updated);
-		bundle.putInt(prefix + KEY_SYNC_STATUS, play.SyncStatus);
-		bundle.putLong(prefix + KEY_SAVED, play.Saved);
+		bundle.putInt(prefix + KEY_QUANTITY, play.quantity);
+		bundle.putInt(prefix + KEY_LENGTH, play.length);
+		bundle.putString(prefix + KEY_LOCATION, play.location);
+		bundle.putBoolean(prefix + KEY_INCOMPLETE, play.Incomplete());
+		bundle.putBoolean(prefix + KEY_NOWINSTATS, play.NoWinStats());
+		bundle.putString(prefix + KEY_COMMENTS, play.comments);
+		bundle.putLong(prefix + KEY_UPDATED, play.updated);
+		bundle.putInt(prefix + KEY_SYNC_STATUS, play.syncStatus);
+		bundle.putLong(prefix + KEY_SAVED, play.saved);
 		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) play.getPlayers());
 	}
 
 	public static Play fromBundle(Bundle bundle, String prefix) {
 		Play play = new Play();
-		play.PlayId = bundle.getInt(prefix + KEY_PLAY_ID);
-		play.GameId = bundle.getInt(prefix + KEY_GAME_ID);
-		play.GameName = getString(bundle, prefix + KEY_GAME_NAME);
+		play.playId = bundle.getInt(prefix + KEY_PLAY_ID);
+		play.gameId = bundle.getInt(prefix + KEY_GAME_ID);
+		play.gameName = getString(bundle, prefix + KEY_GAME_NAME);
 		play.Year = bundle.getInt(prefix + KEY_YEAR);
 		play.Month = bundle.getInt(prefix + KEY_MONTH);
 		play.Day = bundle.getInt(prefix + KEY_DAY);
-		play.Quantity = bundle.getInt(prefix + KEY_QUANTITY);
-		play.Length = bundle.getInt(prefix + KEY_LENGTH);
-		play.Location = getString(bundle, prefix + KEY_LOCATION);
-		play.Incomplete = bundle.getBoolean(prefix + KEY_INCOMPLETE);
-		play.NoWinStats = bundle.getBoolean(prefix + KEY_NOWINSTATS);
-		play.Comments = getString(bundle, prefix + KEY_COMMENTS);
-		play.Updated = bundle.getLong(prefix + KEY_UPDATED);
-		play.SyncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
-		play.Saved = bundle.getLong(prefix + KEY_SAVED);
-		play.StartTime = bundle.getLong(prefix + KEY_START_TIME);
+		play.quantity = bundle.getInt(prefix + KEY_QUANTITY);
+		play.length = bundle.getInt(prefix + KEY_LENGTH);
+		play.location = getString(bundle, prefix + KEY_LOCATION);
+		play.setIncomplete(bundle.getBoolean(prefix + KEY_INCOMPLETE));
+		play.setNoWinStats(bundle.getBoolean(prefix + KEY_NOWINSTATS));
+		play.comments = getString(bundle, prefix + KEY_COMMENTS);
+		play.updated = bundle.getLong(prefix + KEY_UPDATED);
+		play.syncStatus = bundle.getInt(prefix + KEY_SYNC_STATUS);
+		play.saved = bundle.getLong(prefix + KEY_SAVED);
+		play.startTime = bundle.getLong(prefix + KEY_START_TIME);
 		ArrayList<Player> players = bundle.getParcelableArrayList(prefix + KEY_PLAYERS);
 		play.setPlayers(players);
 		return play;

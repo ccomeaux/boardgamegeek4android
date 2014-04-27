@@ -9,4 +9,9 @@ public class Adapter {
 		return new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
 			.setConverter(new SimpleXMLConverter()).build();
 	}
+
+	public static BggService create() {
+		return new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
+			.setConverter(new SimpleXMLConverter()).build().create(BggService.class);
+	}
 }

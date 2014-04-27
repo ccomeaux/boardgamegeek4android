@@ -216,14 +216,14 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void bindUi() {
-		mName.setText(mPlayer.Name);
-		mUsername.setText(mPlayer.Username);
-		mTeamColor.setText(mPlayer.TeamColor);
+		mName.setText(mPlayer.name);
+		mUsername.setText(mPlayer.username);
+		mTeamColor.setText(mPlayer.color);
 		mPosition.setText(mPlayer.getStartingPosition());
-		mScore.setText(mPlayer.Score);
-		mRating.setText((mPlayer.Rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.Rating));
-		mNew.setChecked(mPlayer.New);
-		mWin.setChecked(mPlayer.Win);
+		mScore.setText(mPlayer.score);
+		mRating.setText((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
+		mNew.setChecked(mPlayer.New());
+		mWin.setChecked(mPlayer.Win());
 		hideFields();
 	}
 
@@ -245,8 +245,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideTeamColor() {
-		return !PreferencesUtils.showLogPlayerTeamColor(this) && !mTeamColorShown
-			&& TextUtils.isEmpty(mPlayer.TeamColor);
+		return !PreferencesUtils.showLogPlayerTeamColor(this) && !mTeamColorShown && TextUtils.isEmpty(mPlayer.color);
 	}
 
 	private boolean shouldHidePosition() {
@@ -259,19 +258,19 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideScore() {
-		return !PreferencesUtils.showLogPlayerScore(this) && !mScoreShown && TextUtils.isEmpty(mPlayer.Score);
+		return !PreferencesUtils.showLogPlayerScore(this) && !mScoreShown && TextUtils.isEmpty(mPlayer.score);
 	}
 
 	private boolean shouldHideRating() {
-		return !PreferencesUtils.showLogPlayerRating(this) && !mRatingShown && !(mPlayer.Rating > 0);
+		return !PreferencesUtils.showLogPlayerRating(this) && !mRatingShown && !(mPlayer.rating > 0);
 	}
 
 	private boolean shouldHideNew() {
-		return !PreferencesUtils.showLogPlayerNew(this) && !mNewShown && !mPlayer.New;
+		return !PreferencesUtils.showLogPlayerNew(this) && !mNewShown && !mPlayer.New();
 	}
 
 	private boolean shouldHideWin() {
-		return !PreferencesUtils.showLogPlayerWin(this) && !mWinShown && !mPlayer.Win;
+		return !PreferencesUtils.showLogPlayerWin(this) && !mWinShown && !mPlayer.Win();
 	}
 
 	@Override
@@ -373,14 +372,14 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void captureForm() {
-		mPlayer.Name = mName.getText().toString().trim();
-		mPlayer.Username = mUsername.getText().toString().trim();
-		mPlayer.TeamColor = mTeamColor.getText().toString().trim();
+		mPlayer.name = mName.getText().toString().trim();
+		mPlayer.username = mUsername.getText().toString().trim();
+		mPlayer.color = mTeamColor.getText().toString().trim();
 		mPlayer.setStartingPosition(mPosition.getText().toString().trim());
-		mPlayer.Score = mScore.getText().toString().trim();
-		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString().trim());
-		mPlayer.New = mNew.isChecked();
-		mPlayer.Win = mWin.isChecked();
+		mPlayer.score = mScore.getText().toString().trim();
+		mPlayer.rating = StringUtils.parseDouble(mRating.getText().toString().trim());
+		mPlayer.New(mNew.isChecked());
+		mPlayer.Win(mWin.isChecked());
 	}
 
 	private class UsernameAdapter extends CursorAdapter {

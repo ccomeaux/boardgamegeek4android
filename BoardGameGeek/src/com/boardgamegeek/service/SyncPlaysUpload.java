@@ -103,8 +103,8 @@ public class SyncPlaysUpload extends SyncTask {
 
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
-								getPlayCountDescription(response.count, play.Quantity));
-						notifyUser(StringUtils.boldSecondString(message, play.GameName));
+								getPlayCountDescription(response.count, play.quantity));
+						notifyUser(StringUtils.boldSecondString(message, play.gameName));
 					} else {
 						notifyUser(error);
 					}
@@ -139,12 +139,12 @@ public class SyncPlaysUpload extends SyncTask {
 				}
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
-					String error = postPlayDelete(play.PlayId, syncResult);
+					String error = postPlayDelete(play.playId, syncResult);
 					if (TextUtils.isEmpty(error)) {
 						decreaseGamePlayCount(play);
 						PlayPersister.delete(mContext.getContentResolver(), play);
 						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
-							play.GameName));
+							play.gameName));
 						// syncResult.stats.numDeletes++;
 					} else {
 						notifyUser(error);
@@ -152,7 +152,7 @@ public class SyncPlaysUpload extends SyncTask {
 				} else {
 					PlayPersister.delete(mContext.getContentResolver(), play);
 					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted_draft),
-						play.GameName));
+						play.gameName));
 					// syncResult.stats.numDeletes++;
 				}
 			}
@@ -173,14 +173,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 	private void updateGamePlayCount(Play play, boolean add) {
 		ContentResolver resolver = mContext.getContentResolver();
-		Uri uri = Games.buildGameUri(play.GameId);
+		Uri uri = Games.buildGameUri(play.gameId);
 		Cursor cursor = resolver.query(uri, new String[] { Games.NUM_PLAYS }, null, null, null);
 		if (cursor.moveToFirst()) {
 			int newPlayCount = cursor.getInt(0);
 			if (add) {
-				newPlayCount += play.Quantity;
+				newPlayCount += play.quantity;
 			} else {
-				newPlayCount -= play.Quantity;
+				newPlayCount -= play.quantity;
 				if (newPlayCount < 0) {
 					newPlayCount = 0;
 				}
@@ -278,7 +278,7 @@ public class SyncPlaysUpload extends SyncTask {
 	 * Marks the specified play as synced in the content provider
 	 */
 	private void setStatusToSynced(Play play) {
-		play.SyncStatus = Play.SYNC_STATUS_SYNCED;
+		play.syncStatus = Play.SYNC_STATUS_SYNCED;
 		PlayPersister.save(mContext.getContentResolver(), play);
 		// syncResult.stats.numUpdates++;
 	}
@@ -299,12 +299,12 @@ public class SyncPlaysUpload extends SyncTask {
 	private String syncGame(String username, Play play, SyncResult syncResult) {
 		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			RemotePlaysParser parser = new RemotePlaysParser(username).setGameId(play.GameId).setDate(play.getDate());
+			RemotePlaysParser parser = new RemotePlaysParser(username).setGameId(play.gameId).setDate(play.getDate());
 			re.executeGet(parser);
 
 			if (!play.hasBeenSynced()) {
 				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
-				PreferencesUtils.putNewPlayId(mContext, play.PlayId, newPlayId);
+				PreferencesUtils.putNewPlayId(mContext, play.playId, newPlayId);
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
@@ -328,12 +328,12 @@ public class SyncPlaysUpload extends SyncTask {
 		int latestPlayId = BggContract.INVALID_ID;
 
 		for (Play parsedPlay : parsedPlays) {
-			if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId)
+			if ((play.playId != parsedPlay.playId) && (play.gameId == parsedPlay.gameId)
 				&& (play.Year == parsedPlay.Year) && (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
-				&& (play.Incomplete == parsedPlay.Incomplete) && (play.NoWinStats == parsedPlay.NoWinStats)
+				&& (play.Incomplete() == parsedPlay.Incomplete()) && (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
-				if (parsedPlay.PlayId > latestPlayId) {
-					latestPlayId = parsedPlay.PlayId;
+				if (parsedPlay.playId > latestPlayId) {
+					latestPlayId = parsedPlay.playId;
 				}
 			}
 		}
@@ -348,17 +348,17 @@ public class SyncPlaysUpload extends SyncTask {
 		nvps.add(new BasicNameValuePair("version", "2"));
 		nvps.add(new BasicNameValuePair("objecttype", "thing"));
 		if (play.hasBeenSynced()) {
-			nvps.add(new BasicNameValuePair("playid", String.valueOf(play.PlayId)));
+			nvps.add(new BasicNameValuePair("playid", String.valueOf(play.playId)));
 		}
-		nvps.add(new BasicNameValuePair("objectid", String.valueOf(play.GameId)));
+		nvps.add(new BasicNameValuePair("objectid", String.valueOf(play.gameId)));
 		nvps.add(new BasicNameValuePair("playdate", play.getDate()));
 		nvps.add(new BasicNameValuePair("dateinput", play.getDate())); // TODO: ask Aldie what this is
-		nvps.add(new BasicNameValuePair("length", String.valueOf(play.Length)));
-		nvps.add(new BasicNameValuePair("location", play.Location));
-		nvps.add(new BasicNameValuePair("quantity", String.valueOf(play.Quantity)));
-		nvps.add(new BasicNameValuePair("incomplete", play.Incomplete ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("nowinstats", play.NoWinStats ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("comments", play.Comments));
+		nvps.add(new BasicNameValuePair("length", String.valueOf(play.length)));
+		nvps.add(new BasicNameValuePair("location", play.location));
+		nvps.add(new BasicNameValuePair("quantity", String.valueOf(play.quantity)));
+		nvps.add(new BasicNameValuePair("incomplete", play.Incomplete() ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("nowinstats", play.NoWinStats() ? "1" : "0"));
+		nvps.add(new BasicNameValuePair("comments", play.comments));
 
 		List<Player> players = play.getPlayers();
 		for (int i = 0; i < players.size(); i++) {

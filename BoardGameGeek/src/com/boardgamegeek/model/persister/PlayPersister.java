@@ -73,39 +73,41 @@ public class PlayPersister {
 		int pendingDeleteCount = 0;
 		int inProgressCount = 0;
 		int errorCount = 0;
-
-		for (Play play : plays) {
-			int status = PlayPersister.save(resolver, play, true);
-			switch (status) {
-				case PlayPersister.STATUS_UPDATE:
-					updateCount++;
-					break;
-				case PlayPersister.STATUS_INSERT:
-					insertCount++;
-					break;
-				case PlayPersister.STATUS_PENDING_UPDATE:
-					pendingUpdateCount++;
-					break;
-				case PlayPersister.STATUS_PENDING_DELETE:
-					pendingDeleteCount++;
-					break;
-				case PlayPersister.STATUS_IN_PROGRESS:
-					inProgressCount++;
-					break;
-				case PlayPersister.STATUS_ERROR:
-				case PlayPersister.STATUS_UNKNOWN:
-					errorCount++;
-					break;
-				default:
-					break;
+		if (plays != null) {
+			for (Play play : plays) {
+				int status = PlayPersister.save(resolver, play, true);
+				switch (status) {
+					case PlayPersister.STATUS_UPDATE:
+						updateCount++;
+						break;
+					case PlayPersister.STATUS_INSERT:
+						insertCount++;
+						break;
+					case PlayPersister.STATUS_PENDING_UPDATE:
+						pendingUpdateCount++;
+						break;
+					case PlayPersister.STATUS_PENDING_DELETE:
+						pendingDeleteCount++;
+						break;
+					case PlayPersister.STATUS_IN_PROGRESS:
+						inProgressCount++;
+						break;
+					case PlayPersister.STATUS_ERROR:
+					case PlayPersister.STATUS_UNKNOWN:
+						errorCount++;
+						break;
+					default:
+						break;
+				}
 			}
 		}
-		String msg = String
-			.format(
-				"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
-				updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
-				pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount);
-		LOGI(TAG, msg);
+		LOGI(
+			TAG,
+			String
+				.format(
+					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
+					updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
+					pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount));
 	}
 
 	/*
@@ -141,22 +143,22 @@ public class PlayPersister {
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as draft
-				if (play.SyncStatus != Play.SYNC_STATUS_PENDING_UPDATE
-					&& play.SyncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
-					play.SyncStatus = Play.SYNC_STATUS_IN_PROGRESS;
+				if (play.syncStatus != Play.SYNC_STATUS_PENDING_UPDATE
+					&& play.syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
+					play.syncStatus = Play.SYNC_STATUS_IN_PROGRESS;
 				}
 			} else {
-				play.SyncStatus = Play.SYNC_STATUS_SYNCED;
+				play.syncStatus = Play.SYNC_STATUS_SYNCED;
 			}
-			values.put(Plays.SYNC_STATUS, play.SyncStatus);
+			values.put(Plays.SYNC_STATUS, play.syncStatus);
 
-			if (play.PlayId == BggContract.INVALID_ID) {
-				play.PlayId = getTemporaryId(resolver);
+			if (play.playId == BggContract.INVALID_ID) {
+				play.playId = getTemporaryId(resolver);
 			}
-			values.put(Plays.PLAY_ID, play.PlayId);
+			values.put(Plays.PLAY_ID, play.playId);
 
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
-				values.put(Plays.UPDATED_LIST, play.Updated);
+				values.put(Plays.UPDATED_LIST, play.updated);
 			}
 			insert(batch, Plays.CONTENT_URI, values);
 		}
@@ -169,7 +171,7 @@ public class PlayPersister {
 		updateBuddyNicknames(resolver, play);
 
 		ResolverUtils.applyBatch(resolver, batch);
-		LOGI(TAG, "Saved play ID=" + play.PlayId);
+		LOGI(TAG, "Saved play ID=" + play.playId);
 		return status;
 	}
 
@@ -223,7 +225,7 @@ public class PlayPersister {
 	}
 
 	private static boolean playExistsInDatabase(ContentResolver resolver, Play play) {
-		if (play.PlayId == BggContract.INVALID_ID) {
+		if (play.playId == BggContract.INVALID_ID) {
 			return false;
 		}
 
@@ -231,7 +233,7 @@ public class PlayPersister {
 	}
 
 	private static int getCurrentSyncStatus(ContentResolver resolver, Play play) {
-		if (play.PlayId == BggContract.INVALID_ID) {
+		if (play.playId == BggContract.INVALID_ID) {
 			return Play.SYNC_STATUS_NOT_STORED;
 		}
 		return ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
@@ -240,18 +242,18 @@ public class PlayPersister {
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
 		values.put(Plays.DATE, play.getDate());
-		values.put(Plays.QUANTITY, play.Quantity);
-		values.put(Plays.LENGTH, play.Length);
-		values.put(Plays.INCOMPLETE, play.Incomplete);
-		values.put(Plays.NO_WIN_STATS, play.NoWinStats);
-		values.put(Plays.LOCATION, play.Location);
-		values.put(Plays.COMMENTS, play.Comments);
-		if (play.Updated > 0) {
-			values.put(Plays.UPDATED_LIST, play.Updated);
+		values.put(Plays.QUANTITY, play.quantity);
+		values.put(Plays.LENGTH, play.length);
+		values.put(Plays.INCOMPLETE, play.Incomplete());
+		values.put(Plays.NO_WIN_STATS, play.NoWinStats());
+		values.put(Plays.LOCATION, play.location);
+		values.put(Plays.COMMENTS, play.comments);
+		if (play.updated > 0) {
+			values.put(Plays.UPDATED_LIST, play.updated);
 		}
-		values.put(Plays.SYNC_STATUS, play.SyncStatus);
+		values.put(Plays.SYNC_STATUS, play.syncStatus);
 		// only store start time if there's no length
-		values.put(Plays.START_TIME, play.Length > 0 ? 0 : play.StartTime);
+		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime);
 		values.put(Plays.UPDATED, System.currentTimeMillis());
 		return values;
 	}
@@ -287,9 +289,9 @@ public class PlayPersister {
 
 	private static void updateOrInsertItem(Play play, List<Integer> itemObjectIds,
 		ArrayList<ContentProviderOperation> batch) {
-		int objectId = play.GameId;
+		int objectId = play.gameId;
 		ContentValues values = new ContentValues();
-		values.put(PlayItems.NAME, play.GameName);
+		values.put(PlayItems.NAME, play.gameName);
 
 		if (itemObjectIds != null && itemObjectIds.remove(Integer.valueOf(objectId))) {
 			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
@@ -304,17 +306,17 @@ public class PlayPersister {
 		ContentValues values = new ContentValues();
 		for (Player player : play.getPlayers()) {
 
-			int userId = player.UserId;
+			int userId = player.userid;
 			values.clear();
 			values.put(PlayPlayers.USER_ID, userId);
-			values.put(PlayPlayers.USER_NAME, player.Username);
-			values.put(PlayPlayers.NAME, player.Name);
+			values.put(PlayPlayers.USER_NAME, player.username);
+			values.put(PlayPlayers.NAME, player.name);
 			values.put(PlayPlayers.START_POSITION, player.getStartingPosition());
-			values.put(PlayPlayers.COLOR, player.TeamColor);
-			values.put(PlayPlayers.SCORE, player.Score);
-			values.put(PlayPlayers.NEW, player.New);
-			values.put(PlayPlayers.RATING, player.Rating);
-			values.put(PlayPlayers.WIN, player.Win);
+			values.put(PlayPlayers.COLOR, player.color);
+			values.put(PlayPlayers.SCORE, player.score);
+			values.put(PlayPlayers.NEW, player.New());
+			values.put(PlayPlayers.RATING, player.rating);
+			values.put(PlayPlayers.WIN, player.Win());
 
 			if (playerUserIds != null && playerUserIds.remove(Integer.valueOf(userId))) {
 				batch.add(ContentProviderOperation.newUpdate(play.playerUri())
@@ -331,7 +333,7 @@ public class PlayPersister {
 		ArrayList<ContentProviderOperation> batch) {
 		if (itemObjectIds != null) {
 			for (Integer itemObjectId : itemObjectIds) {
-				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.PlayId, itemObjectId)).build());
+				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
 			}
 		}
 	}
@@ -350,14 +352,14 @@ public class PlayPersister {
 	 * Add the current players' team/colors to the permanent list.
 	 */
 	private static void updateColors(ContentResolver resolver, Play play) {
-		if (!ResolverUtils.rowExists(resolver, BggContract.Games.buildGameUri(play.GameId))) {
+		if (!ResolverUtils.rowExists(resolver, BggContract.Games.buildGameUri(play.gameId))) {
 			return;
 		}
 
 		if (play.getPlayers().size() > 0) {
 			List<ContentValues> values = new ArrayList<ContentValues>();
 			for (Player player : play.getPlayers()) {
-				String color = player.TeamColor;
+				String color = player.color;
 				if (!TextUtils.isEmpty(color)) {
 					ContentValues cv = new ContentValues();
 					cv.put(GameColors.COLOR, color);
@@ -366,7 +368,7 @@ public class PlayPersister {
 			}
 			if (values.size() > 0) {
 				ContentValues[] array = {};
-				resolver.bulkInsert(Games.buildColorsUri(play.GameId), values.toArray(array));
+				resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 			}
 		}
 	}
@@ -377,11 +379,11 @@ public class PlayPersister {
 	private static void updateBuddyNicknames(ContentResolver resolver, Play play) {
 		if (play.getPlayers().size() > 0) {
 			for (Player player : play.getPlayers()) {
-				if (!TextUtils.isEmpty(player.Username) && !TextUtils.isEmpty(player.Name)) {
+				if (!TextUtils.isEmpty(player.username) && !TextUtils.isEmpty(player.name)) {
 					ContentValues values = new ContentValues();
-					values.put(Buddies.PLAY_NICKNAME, player.Name);
+					values.put(Buddies.PLAY_NICKNAME, player.name);
 					resolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
-						new String[] { player.Username });
+						new String[] { player.username });
 				}
 			}
 		}

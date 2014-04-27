@@ -221,7 +221,8 @@ public class ActivityUtils {
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
-		play.SyncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
+		play.setCurrentDate();
+		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
 		PlayPersister.save(context.getContentResolver(), play);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}

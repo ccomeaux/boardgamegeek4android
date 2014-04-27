@@ -82,40 +82,40 @@ public class PlayerRow extends LinearLayout {
 			setText(mRating, "");
 			setText(mStartingPosition, "");
 		} else {
-			setText(mUsername, player.Username);
-			if (TextUtils.isEmpty(player.Name)) {
+			setText(mUsername, player.username);
+			if (TextUtils.isEmpty(player.name)) {
 				mName.setVisibility(View.GONE);
 			} else {
 				mName.setVisibility(View.VISIBLE);
-				mName.setText(player.Name);
-				if (player.New && player.Win) {
+				mName.setText(player.name);
+				if (player.New() && player.Win()) {
 					mName.setTypeface(mNameTypeface, Typeface.BOLD_ITALIC);
-				} else if (player.New) {
+				} else if (player.New()) {
 					mName.setTypeface(mNameTypeface, Typeface.ITALIC);
-				} else if (player.Win) {
+				} else if (player.Win()) {
 					mName.setTypeface(mNameTypeface, Typeface.BOLD);
 				} else {
 					mName.setTypeface(mNameTypeface, Typeface.NORMAL);
 				}
 			}
 
-			int color = ColorUtils.parseColor(player.TeamColor);
+			int color = ColorUtils.parseColor(player.color);
 			if (color != ColorUtils.TRANSPARENT) {
 				mColorSwatch.setBackgroundColor(color);
 				mColorSwatchContainer.setVisibility(View.VISIBLE);
 				mTeamColor.setVisibility(View.GONE);
 			} else {
 				mColorSwatchContainer.setVisibility(View.INVISIBLE);
-				setText(mTeamColor, player.TeamColor);
+				setText(mTeamColor, player.color);
 			}
 
-			setText(mScore, player.Score);
+			setText(mScore, player.score);
 
 			setText(mStartingPosition, (player.getSeat() == Player.SEAT_UNKNOWN) ? player.getStartingPosition() : "#"
 				+ player.getSeat());
 			mStartingPosition.setTextColor(mAutoSort ? mLightTextColor : mDefaultTextColor);
 
-			setText(mRating, (player.Rating > 0) ? mFormat.format(player.Rating) : "");
+			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 		}
 	}
 

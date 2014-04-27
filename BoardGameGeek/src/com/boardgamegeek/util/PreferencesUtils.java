@@ -223,9 +223,9 @@ public class PreferencesUtils {
 				String[] playerSplit = playerString.split(SEPARATOR_FIELD);
 				if (playerSplit.length > 0 && playerSplit.length < 3) {
 					Player player = new Player();
-					player.Name = playerSplit[0];
+					player.name = playerSplit[0];
 					if (playerSplit.length == 2) {
-						player.Username = playerSplit[1];
+						player.username = playerSplit[1];
 					}
 					players.add(player);
 				}
@@ -237,7 +237,7 @@ public class PreferencesUtils {
 	public static boolean putLastPlayPlayers(Context context, List<Player> players) {
 		StringBuilder sb = new StringBuilder();
 		for (Player player : players) {
-			sb.append(player.Name).append(SEPARATOR_FIELD).append(player.Username).append(SEPARATOR_RECORD);
+			sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD);
 		}
 		return putString(context, KEY_LAST_PLAY_PLAYERS, sb.toString());
 	}
