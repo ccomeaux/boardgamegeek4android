@@ -8,7 +8,6 @@ import android.net.Uri;
 
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
@@ -21,7 +20,7 @@ public class SyncPublisher extends UpdateTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
+	public void execute(Context context) {
 		BggService service = Adapter.get().create(BggService.class);
 		Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, mPublisherId);
 		Uri uri = Publishers.buildPublisherUri(mPublisherId);

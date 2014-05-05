@@ -7,7 +7,6 @@ import android.content.Context;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteCollectionHandler;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class SyncGameCollection extends UpdateTask {
@@ -17,9 +16,9 @@ public class SyncGameCollection extends UpdateTask {
 	public SyncGameCollection(int gameId) {
 		mGameId = gameId;
 	}
-
+	
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
+	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {
 			return;
@@ -27,7 +26,7 @@ public class SyncGameCollection extends UpdateTask {
 
 		RemoteCollectionHandler handler = new RemoteCollectionHandler(System.currentTimeMillis(), true, true);
 		String url = new CollectionUrlBuilder(account.name).gameId(mGameId).showPrivate().stats().build();
-		executor.safelyExecuteGet(url, handler);
+		mExecutor.safelyExecuteGet(url, handler);
 		LOGI(TAG, "Synced collection for game " + mGameId);
 	}
 }

@@ -10,7 +10,6 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
@@ -24,7 +23,7 @@ public class SyncGamePlays extends UpdateTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
+	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {
 			return;

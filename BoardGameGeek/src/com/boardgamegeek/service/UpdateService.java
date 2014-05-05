@@ -137,7 +137,8 @@ public class UpdateService extends IntentService {
 		final long startTime = System.currentTimeMillis();
 		sendResultToReceiver(STATUS_RUNNING);
 		try {
-			task.execute(mRemoteExecutor, this);
+			task.setExecutor(mRemoteExecutor);
+			task.execute(this);
 			String message = task.getErrorMessage();
 			if (!TextUtils.isEmpty(message)) {
 				LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);

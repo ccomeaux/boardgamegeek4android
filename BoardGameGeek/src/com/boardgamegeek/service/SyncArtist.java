@@ -8,7 +8,6 @@ import android.net.Uri;
 
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.provider.BggContract.Artists;
 
@@ -21,7 +20,7 @@ public class SyncArtist extends UpdateTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
+	public void execute(Context context) {
 		BggService service = Adapter.get().create(BggService.class);
 		Person person = service.person(BggService.PERSON_TYPE_ARTIST, mArtistId);
 		Uri uri = Artists.buildArtistUri(mArtistId);
