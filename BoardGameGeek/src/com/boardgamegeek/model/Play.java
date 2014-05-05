@@ -122,7 +122,7 @@ public class Play {
 		String value;
 	}
 
-	@Element
+	@Element(required = false)
 	public String comments;
 
 	public long updated;
@@ -130,7 +130,7 @@ public class Play {
 	public long saved;
 	public long startTime;
 
-	@ElementList
+	@ElementList(required = false)
 	private List<Player> players;
 
 	public Play() {

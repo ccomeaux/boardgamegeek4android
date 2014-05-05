@@ -66,7 +66,7 @@ public class PlayPersister {
 		return resolver.delete(play.uri(), null, null) > 0;
 	}
 
-	public static void save(ContentResolver resolver, List<Play> plays) {
+	public static void save(ContentResolver resolver, List<Play> plays, long startTime) {
 		int updateCount = 0;
 		int insertCount = 0;
 		int pendingUpdateCount = 0;
@@ -75,6 +75,7 @@ public class PlayPersister {
 		int errorCount = 0;
 		if (plays != null) {
 			for (Play play : plays) {
+				play.updated = startTime;
 				int status = PlayPersister.save(resolver, play, true);
 				switch (status) {
 					case PlayPersister.STATUS_UPDATE:

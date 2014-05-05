@@ -21,6 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.xmlpull.v1.XmlPullParserException;
 
+import retrofit.RetrofitError;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -36,10 +37,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysParser;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -297,24 +300,23 @@ public class SyncPlaysUpload extends SyncTask {
 	 * @return An error message, or blank if no error.
 	 */
 	private String syncGame(String username, Play play, SyncResult syncResult) {
-		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			RemotePlaysParser parser = new RemotePlaysParser(username).setGameId(play.gameId).setDate(play.getDate());
-			re.executeGet(parser);
-
+			BggService service = Adapter.create();
+			long startTime = System.currentTimeMillis();
+			PlaysResponse response = service.plays(username, play.gameId, play.getDate(), play.getDate());
 			if (!play.hasBeenSynced()) {
-				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
+				int newPlayId = getTranslatedPlayId(play, response.plays);
 				PreferencesUtils.putNewPlayId(mContext, play.playId, newPlayId);
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
-
-			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
-		} catch (IOException e) {
-			syncResult.stats.numIoExceptions++;
-			return e.toString();
-		} catch (XmlPullParserException e) {
-			syncResult.stats.numParseExceptions++;
+			PlayPersister.save(mContext.getContentResolver(), response.plays, startTime);
+		} catch (Exception e) {
+			if (e instanceof RetrofitError) {
+				syncResult.stats.numIoExceptions++;
+			} else {
+				syncResult.stats.numParseExceptions++;
+			}
 			return e.toString();
 		}
 		return "";

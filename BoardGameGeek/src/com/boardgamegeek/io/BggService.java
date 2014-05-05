@@ -21,6 +21,7 @@ public interface BggService {
 	public static final String SEARCH_TYPE_RPG = "rpg";
 	public static final String SEARCH_TYPE_RPG_ITEM = "rpgitem";
 	public static final String SEARCH_TYPE_VIDEO_GAME = "videogame";
+
 	// other search types: boardgameartist, boardgamedesigner, boardgamepublisher
 
 	@GET("/xmlapi/{type}/{id}")
@@ -31,7 +32,7 @@ public interface BggService {
 
 	@GET("/xmlapi2/search")
 	SearchResponse search(@Query("query") String query, @Query("type") String type, @Query("exact") int exact);
-	
+
 	// username=NAME Name of the player you want to request play information for. Data is returned in
 	// backwards-chronological form. You must include either a username or an id and type to get results.
 	// id=NNN Id number of the item you want to request play information for. Data is returned in
@@ -49,4 +50,26 @@ public interface BggService {
 	// page=NNN The page of information to request. Page size is 100 records.
 	@GET("/xmlapi2/plays")
 	PlaysResponse plays(@QueryMap Map<String, String> options);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse playsByDate(@Query("username") String username, @Query("mindate") String minDate,
+		@Query("maxdate") String maxDate);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse playsByGame(@Query("username") String username, @Query("id") int gameId);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse plays(@Query("username") String username, @Query("id") int gameId, @Query("mindate") String minDate,
+		@Query("maxdate") String maxDate);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse playsByMinDate(@Query("username") String username, @Query("mindate") String minDate,
+		@Query("page") int page);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse playsByMaxDate(@Query("username") String username, @Query("maxdate") String maxDate,
+		@Query("page") int page);
+
+	@GET("/xmlapi2/plays")
+	PlaysResponse plays(@Query("username") String username, @Query("page") int page);
 }

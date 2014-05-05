@@ -1,14 +1,17 @@
 package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.Account;
 import android.content.ContentValues;
 import android.content.Context;
 
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysParser;
+import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 
@@ -27,14 +30,20 @@ public class SyncGamePlays extends UpdateTask {
 			return;
 		}
 
-		RemotePlaysParser parser = new RemotePlaysParser(account.name).setGameId(mGameId);
-		executor.safelyExecuteGet(parser);
-		if (!parser.hasError()) {
-			PlayPersister.save(context.getContentResolver(), parser.getPlays());
+		BggService service = Adapter.create();
+
+		PlaysResponse response = null;
+		try {
+			long startTime = System.currentTimeMillis();
+			response = service.playsByGame(account.name, mGameId);
+			PlayPersister.save(context.getContentResolver(), response.plays, startTime);
 			updateGameTimestamp(context);
 			SyncService.hIndex(context);
+			LOGI(TAG, "Synced plays for game id=" + mGameId);
+		} catch (Exception e) {
+			// TODO bubble error up?
+			LOGW(TAG, "Problem syncing plays for game id=" + mGameId, e);
 		}
-		LOGI(TAG, "Synced plays for game " + mGameId);
 	}
 
 	private void updateGameTimestamp(Context context) {
