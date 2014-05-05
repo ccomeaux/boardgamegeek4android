@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.ForumService;
-import com.boardgamegeek.io.ForumService.ForumResponse;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
@@ -145,12 +145,12 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	private static class ForumLoader extends PaginatedLoader<Thread> {
-		private ForumService mService;
+		private BggService mService;
 		private int mForumId;
 
 		public ForumLoader(Context context, int forumId) {
 			super(context);
-			mService = Adapter.get().create(ForumService.class);
+			mService = Adapter.create();
 			mForumId = forumId;
 		}
 
@@ -170,7 +170,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	static class ForumData extends PaginatedData<Thread> {
 		public ForumData(ForumResponse response, int page) {
-			super(response.threads, response.numberOfThreads, page, ForumService.ForumResponse.PAGE_SIZE);
+			super(response.threads, response.numberOfThreads, page, ForumResponse.PAGE_SIZE);
 		}
 
 		public ForumData(Exception e) {

@@ -18,9 +18,9 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.ForumService;
-import com.boardgamegeek.io.ForumService.ThreadResponse;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Article;
+import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
@@ -97,12 +97,12 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadData> {
-		private ForumService mService;
+		private BggService mService;
 		private int mThreadId;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
-			mService = Adapter.get().create(ForumService.class);
+			mService = Adapter.create();
 			mThreadId = threadId;
 		}
 
