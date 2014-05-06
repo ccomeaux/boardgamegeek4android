@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -39,22 +40,30 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 				Buddies.CONTENT_URI, Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
+				List<User> buddies = new ArrayList<User>(names.size());
+				long startTime = System.currentTimeMillis();
 				BggService service = Adapter.create();
 				for (String name : names) {
 					if (isCancelled()) {
 						LOGI(TAG, "...canceled while syncing buddies");
+						save(executor, buddies, startTime);
 						break;
 					}
-					User user = service.user(name);
-					BuddyPersister.save(executor.getContext(), user);
-					// syncResult.stats.numUpdates++;
+					buddies.add(service.user(name));
 				}
+				save(executor, buddies, startTime);
 			} else {
 				LOGI(TAG, "...no buddies to update");
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	private void save(RemoteExecutor executor, List<User> buddies, long startTime) {
+		int count = BuddyPersister.save(executor.getContext(), buddies, startTime);
+		// syncResult.stats.numUpdates += buddies.size();
+		LOGI(TAG, "...saved " + count + " buddies");
 	}
 
 	@Override

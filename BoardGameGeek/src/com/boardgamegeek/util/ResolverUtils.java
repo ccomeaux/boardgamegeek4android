@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -26,16 +27,17 @@ import com.boardgamegeek.provider.BggContract;
 public class ResolverUtils {
 	private static final String TAG = makeLogTag(ResolverUtils.class);
 
-	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
+	public static ContentProviderResult[] applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
 		if (batch.size() > 0) {
 			try {
-				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+				return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 			} catch (RemoteException e) {
 				throw new RuntimeException(e);
 			} catch (OperationApplicationException e) {
 				throw new RuntimeException(e);
 			}
 		}
+		return null;
 	}
 
 	/*
