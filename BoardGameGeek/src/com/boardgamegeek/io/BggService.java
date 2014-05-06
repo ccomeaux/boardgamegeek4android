@@ -14,6 +14,7 @@ import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThreadResponse;
+import com.boardgamegeek.model.User;
 
 public interface BggService {
 	public static final String PERSON_TYPE_ARTIST = "boardgameartist";
@@ -98,4 +99,7 @@ public interface BggService {
 
 	@GET("/xmlapi2/plays")
 	PlaysResponse plays(@Query("username") String username, @Query("page") int page);
+
+	@GET("/xmlapi2/user")
+	User user(@Query("name") String name);
 }
