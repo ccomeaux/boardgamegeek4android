@@ -254,7 +254,8 @@ public class SyncPlaysUpload extends SyncTask {
 					+ " " + response.toString() + ".";
 			} else {
 				String message = HttpUtils.parseResponse(response);
-				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
+				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")
+					|| message.contains("Play does not exist.")) {
 					// TODO: only needed if play is a draft
 					PreferencesUtils.removeNewPlayId(mContext, playId);
 					return "";
