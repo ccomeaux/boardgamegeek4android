@@ -37,6 +37,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static final String KEY_AUTHTOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
 	public static final String KEY_SESSION_ID = "SESSION_ID";
 	public static final String KEY_SESSION_ID_EXPIRY = "SESSION_ID_EXPIRY";
+	public static final String KEY_USER_ID = "com.boardgamegeek.USER_ID";
 
 	private final Context mContext;
 
@@ -175,6 +176,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 			return null;
 		}
 		return accounts[0];
+	}
+
+	public static String getUserId(Context context) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		String userId = accountManager.getUserData(account, KEY_USER_ID);
+		if (userId == null) {
+			return "0";
+		}
+		return userId;
 	}
 
 	public static boolean isSignedIn(Context context) {

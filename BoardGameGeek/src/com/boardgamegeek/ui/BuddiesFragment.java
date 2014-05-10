@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -123,8 +124,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		if (buddiesUri == null) {
 			buddiesUri = Buddies.CONTENT_URI;
 		}
+
 		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID
-			+ "!=?", new String[] { "0" }, null);
+			+ "!=?", new String[] { Authenticator.getUserId(getActivity()) }, null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}

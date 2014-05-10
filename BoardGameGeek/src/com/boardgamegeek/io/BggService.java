@@ -102,4 +102,7 @@ public interface BggService {
 
 	@GET("/xmlapi2/user")
 	User user(@Query("name") String name);
+
+	@GET("/xmlapi2/user")
+	User user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
 }

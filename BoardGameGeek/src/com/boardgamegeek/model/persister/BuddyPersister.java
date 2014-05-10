@@ -3,7 +3,6 @@ package com.boardgamegeek.model.persister;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.accounts.Account;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -12,7 +11,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -20,20 +19,14 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class BuddyPersister {
-	public static void save(Context context, User buddy) {
-		save(context, buddy, System.currentTimeMillis());
+	public static int save(Context context, User buddy) {
+		return save(context, buddy, System.currentTimeMillis());
 	}
 
 	public static int save(Context context, User buddy, long updateTime) {
-		ContentResolver resolver = context.getContentResolver();
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-		addToBatch(context, resolver, buddy, updateTime, batch);
-		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
-		if (result == null) {
-			return 0;
-		} else {
-			return result.length;
-		}
+		List<User> buddies = new ArrayList<User>(1);
+		buddies.add(buddy);
+		return save(context, buddies, updateTime);
 	}
 
 	public static int save(Context context, List<User> buddies, long updateTime) {
@@ -41,7 +34,8 @@ public class BuddyPersister {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (buddies != null) {
 			for (User buddy : buddies) {
-				addToBatch(context, resolver, buddy, updateTime, batch);
+				ContentValues values = toValues(buddy, updateTime);
+				addToBatch(context, resolver, values, batch);
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
@@ -52,20 +46,37 @@ public class BuddyPersister {
 		}
 	}
 
-	private static void addToBatch(Context context, ContentResolver resolver, User buddy, long updateTime,
-		ArrayList<ContentProviderOperation> batch) {
-		ContentValues values = toValues(buddy, updateTime);
-		Uri uri = Buddies.buildBuddyUri(buddy.id);
-		if (!ResolverUtils.rowExists(resolver, uri)) {
-			Account account = Authenticator.getAccount(context);
-			if (account != null && buddy.name.equals(account.name)) {
-				batch.add(ContentProviderOperation.newUpdate(Buddies.CONTENT_URI)
-					.withSelection(Buddies.BUDDY_NAME + "=?", new String[] { buddy.name }).withValues(values).build());
-			} else {
-				batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
+	public static int saveList(Context context, Buddy buddy, long updateTime) {
+		List<Buddy> buddies = new ArrayList<Buddy>(1);
+		buddies.add(buddy);
+		return saveList(context, buddies, updateTime);
+	}
+
+	public static int saveList(Context context, List<Buddy> buddies, long updateTime) {
+		ContentResolver resolver = context.getContentResolver();
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		if (buddies != null) {
+			for (Buddy buddy : buddies) {
+				ContentValues values = toValues(buddy, updateTime);
+				addToBatch(context, resolver, values, batch);
 			}
+		}
+		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
+		if (result == null) {
+			return 0;
 		} else {
-			maybeDeleteAvatar(buddy.avatarUrl, uri, resolver);
+			return result.length;
+		}
+	}
+
+	private static void addToBatch(Context context, ContentResolver resolver, ContentValues values,
+		ArrayList<ContentProviderOperation> batch) {
+		int id = values.getAsInteger(Buddies.BUDDY_ID);
+		Uri uri = Buddies.buildBuddyUri(id);
+		if (!ResolverUtils.rowExists(resolver, uri)) {
+			batch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values).build());
+		} else {
+			maybeDeleteAvatar(values, uri, resolver);
 			batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 		}
 	}
@@ -81,7 +92,25 @@ public class BuddyPersister {
 		return values;
 	}
 
-	private static void maybeDeleteAvatar(String newAvatarUrl, Uri uri, ContentResolver resolver) {
+	private static ContentValues toValues(Buddy buddy, long updateTime) {
+		ContentValues values = new ContentValues();
+		values.put(Buddies.BUDDY_ID, buddy.id);
+		values.put(Buddies.BUDDY_NAME, buddy.name);
+		values.put(Buddies.UPDATED_LIST, updateTime);
+		return values;
+	}
+
+	private static void maybeDeleteAvatar(ContentValues values, Uri uri, ContentResolver resolver) {
+		if (!values.containsKey(Buddies.AVATAR_URL)) {
+			// nothing to do - no avatar
+			return;
+		}
+
+		String newAvatarUrl = values.getAsString(Buddies.AVATAR_URL);
+		if (newAvatarUrl == null) {
+			newAvatarUrl = "";
+		}
+
 		String oldAvatarUrl = ResolverUtils.queryString(resolver, uri, Buddies.AVATAR_URL);
 		if (newAvatarUrl.equals(oldAvatarUrl)) {
 			// nothing to do - avatar hasn't changed
