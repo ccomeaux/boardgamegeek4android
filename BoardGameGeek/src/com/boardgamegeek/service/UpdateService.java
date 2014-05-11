@@ -153,7 +153,7 @@ public class UpdateService extends IntentService {
 	}
 
 	private RemoteExecutor createExecutor() {
-		HttpClient httpClient = HttpUtils.createHttpClient(this, true);
+		HttpClient httpClient = HttpUtils.createHttpClient(this, mUseGzip);
 		if (httpClient != null) {
 			return new RemoteExecutor(httpClient, this);
 		}
@@ -165,7 +165,7 @@ public class UpdateService extends IntentService {
 	}
 
 	private void sendResultToReceiver(int resultCode, String message) {
-		LOGI(TAG, "Code=" + resultCode + ", message=" + message);
+		LOGI(TAG, "RESULT: " + codeToText(resultCode) + ", message=" + message);
 		if (mResultReceiver != null) {
 			Bundle bundle = Bundle.EMPTY;
 			if (!TextUtils.isEmpty(message)) {
@@ -173,6 +173,19 @@ public class UpdateService extends IntentService {
 				bundle.putString(Intent.EXTRA_TEXT, message);
 			}
 			mResultReceiver.send(resultCode, bundle);
+		}
+	}
+
+	private static String codeToText(int code) {
+		switch (code) {
+			case STATUS_RUNNING:
+				return "Running";
+			case STATUS_COMPLETE:
+				return "Complete";
+			case STATUS_ERROR:
+				return "Error";
+			default:
+				return String.valueOf(code);
 		}
 	}
 }
