@@ -94,6 +94,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		}
 		if (showPlays()) {
 			createTab(actionBar, R.string.title_plays);
+			createTab(actionBar, R.string.title_play_stats);
 			createTab(actionBar, R.string.title_colors);
 		}
 		createTab(actionBar, R.string.title_forums);
@@ -199,7 +200,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				position++;
 			}
 			if (position > 1 && !showPlays()) {
-				position += 2;
+				position += 3;
 			}
 			switch (position) {
 				case 0:
@@ -212,12 +213,15 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 					fragment = new PlaysFragment();
 					break;
 				case 3:
-					fragment = new ColorsFragment();
+					fragment = new PlayStatsFragment();
 					break;
 				case 4:
-					fragment = new ForumsFragment();
+					fragment = new ColorsFragment();
 					break;
 				case 5:
+					fragment = new ForumsFragment();
+					break;
+				case 6:
 					fragment = new CommentsFragment();
 					break;
 			}
@@ -229,7 +233,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 		@Override
 		public int getCount() {
-			return 3 + (showCollection() ? 1 : 0) + (showPlays() ? 2 : 0);
+			return 3 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
 		}
 	}
 
