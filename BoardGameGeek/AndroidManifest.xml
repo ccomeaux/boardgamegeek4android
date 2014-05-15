@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="35"
-	android:versionName="develop" >
+	android:versionCode="36"
+	android:versionName="4.7.3" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
