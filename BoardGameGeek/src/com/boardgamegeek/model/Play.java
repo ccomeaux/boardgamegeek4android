@@ -229,23 +229,31 @@ public class Play {
 		return null;
 	}
 
-	public void reorderPlayers(int fromSeat, int toSeat) {
+	public boolean reorderPlayers(int fromSeat, int toSeat) {
 		if (arePlayersCustomSorted()) {
-			return;
+			return false;
 		}
 		Player player = getPlayerAtSeat(fromSeat);
+		if (player == null) {
+			return false;
+		}
 		player.setSeat(Player.SEAT_UNKNOWN);
-		if (fromSeat > toSeat) {
-			for (int i = fromSeat - 1; i >= toSeat; i--) {
-				getPlayerAtSeat(i).setSeat(i + 1);
+		try {
+			if (fromSeat > toSeat) {
+				for (int i = fromSeat - 1; i >= toSeat; i--) {
+					getPlayerAtSeat(i).setSeat(i + 1);
+				}
+			} else {
+				for (int i = fromSeat + 1; i <= toSeat; i++) {
+					getPlayerAtSeat(i).setSeat(i - 1);
+				}
 			}
-		} else {
-			for (int i = fromSeat + 1; i <= toSeat; i++) {
-				getPlayerAtSeat(i).setSeat(i - 1);
-			}
+		} catch (NullPointerException e) {
+			return false;
 		}
 		player.setSeat(toSeat);
 		sortPlayers();
+		return true;
 	}
 
 	/**

@@ -28,7 +28,6 @@ public class SyncGameCollection extends UpdateTask {
 		RemoteCollectionHandler handler = new RemoteCollectionHandler(System.currentTimeMillis(), true, true);
 		String url = new CollectionUrlBuilder(account.name).gameId(mGameId).showPrivate().stats().build();
 		executor.safelyExecuteGet(url, handler);
-		SyncService.hIndex(context);
 		LOGI(TAG, "Synced collection for game " + mGameId);
 	}
 }

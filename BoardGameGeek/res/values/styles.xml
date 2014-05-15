@@ -47,6 +47,10 @@
 		<item name="android:textSize">16sp</item>
 	</style>
 
+	<style name="Text.Huge">
+		<item name="android:textSize">20sp</item>
+	</style>
+
 	<style name="Text.Primary" parent="Text.Big">
 		<item name="android:textStyle">bold</item>
 		<item name="android:lineSpacingMultiplier">0.9</item>
@@ -97,6 +101,12 @@
 	</style>
 
 	<style name="Text.CheckboxLabel"></style>
+
+	<style name="Text.DrawerItem" parent="Text.Huge">
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+	</style>
 
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>

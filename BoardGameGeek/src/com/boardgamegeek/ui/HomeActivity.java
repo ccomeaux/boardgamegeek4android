@@ -58,7 +58,6 @@ public class HomeActivity extends TopLevelActivity {
 			intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
 		}
 		if (intent != null) {
-			intent.putExtra(EXTRA_NAVIGATION_POSITION, 0);
 			startActivity(intent);
 			finish();
 			return true;

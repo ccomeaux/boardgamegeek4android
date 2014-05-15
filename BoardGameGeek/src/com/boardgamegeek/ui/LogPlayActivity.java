@@ -585,7 +585,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 			}
 		} else {
-			mPlay.addPlayer(new Player());
+			Player player = new Player();
+			if (!mCustomPlayerSort) {
+				player.setSeat(mPlay.getPlayerCount() + 1);
+			}
+			mPlay.addPlayer(player);
 			bindUiPlayers();
 			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
@@ -984,7 +988,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 		@Override
 		public void drop(int from, int to) {
-			mPlay.reorderPlayers(from + 1, to + 1);
+			if (!mPlay.reorderPlayers(from + 1, to + 1)) {
+				Toast.makeText(LogPlayActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+			}
 			notifyDataSetChanged();
 		}
 	}

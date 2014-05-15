@@ -19,27 +19,22 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return mUndefined;
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return mMaxTime;
 	}
 
 	@Override
-	protected int getLineSpacing() {
-		return 30;
-	}
-
-	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return PlayTimeFilterData.MAX_RANGE;
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return PlayTimeFilterData.MIN_RANGE;
 	}
 
@@ -59,13 +54,8 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return mMinTime;
-	}
-
-	@Override
-	protected double getStep() {
-		return 5.0;
 	}
 
 	@Override

@@ -35,13 +35,13 @@ public class HotGame implements Parcelable {
 		dest.writeInt(YearPublished);
 	}
 
-	public static final Parcelable.Creator<Forum> CREATOR = new Parcelable.Creator<Forum>() {
-		public Forum createFromParcel(Parcel in) {
-			return new Forum(in);
+	public static final Parcelable.Creator<HotGame> CREATOR = new Parcelable.Creator<HotGame>() {
+		public HotGame createFromParcel(Parcel in) {
+			return new HotGame(in);
 		}
 
-		public Forum[] newArray(int size) {
-			return new Forum[size];
+		public HotGame[] newArray(int size) {
+			return new HotGame[size];
 		}
 	};
 }

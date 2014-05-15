@@ -20,22 +20,11 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal" >
 
-		<ImageView
-			android:id="@android:id/icon"
-			android:layout_width="@dimen/thumbnail_list_size"
-			android:layout_height="@dimen/thumbnail_list_size"
-			android:paddingRight="@dimen/padding_extra"
-			android:scaleType="fitCenter"
-			tools:ignore="ContentDescription" />
-
 		<TextView
 			android:id="@android:id/text1"
-			style="@style/Text.Primary"
+			style="@style/Text.DrawerItem"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:fontFamily="sans-serif"
-			android:gravity="center_vertical"
-			android:textIsSelectable="false" />
+			android:layout_height="match_parent" />
 	</LinearLayout>
 
 </LinearLayout>

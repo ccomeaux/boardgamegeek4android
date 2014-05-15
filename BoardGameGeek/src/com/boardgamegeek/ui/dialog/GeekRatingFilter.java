@@ -19,7 +19,7 @@ public class GeekRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return false;
 	}
 
@@ -29,22 +29,17 @@ public class GeekRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getEnd() {
+	protected int getMax() {
 		return (int) (mMaxRating * FACTOR);
 	}
 
 	@Override
-	protected int getLineSpacing() {
-		return FACTOR;
-	}
-
-	@Override
-	protected int getMax() {
+	protected int getAbsoluteMax() {
 		return (int) (GeekRatingFilterData.MAX_RANGE * FACTOR);
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return (int) (GeekRatingFilterData.MIN_RANGE * FACTOR);
 	}
 
@@ -59,7 +54,7 @@ public class GeekRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return (int) (mMinRating * FACTOR);
 	}
 
