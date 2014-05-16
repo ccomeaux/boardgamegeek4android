@@ -107,8 +107,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private DragSortListView mPlayerList;
 
 	private InputMethodManager mInputMethodManager;
-	private boolean mPlayLoaded;
-	private boolean mPlayersLoaded;
+	private boolean mDataLoaded;
 	private boolean mQuantityShown;
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -170,7 +169,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				// Editing an existing play
 				mDeleteOnCancel = false;
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
-				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
 				// Starting a new play
 				mPlay.PlayId = BggContract.INVALID_ID;
@@ -254,7 +252,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (mPlayLoaded && mPlayersLoaded) {
+		if (mDataLoaded) {
 			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
 			menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
 			menu.findItem(R.id.menu_add_field).setVisible(
@@ -858,31 +856,19 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return;
 				}
 
-				if (mPlayLoaded) {
-					return;
-				}
-				List<Player> players = mPlay.getPlayers();
 				mPlay = PlayBuilder.fromCursor(cursor);
-				mPlay.setPlayers(players);
 				if (mEndPlay) {
 					mPlay.end();
 				}
 				bindUiPlay();
-				mPlayLoaded = true;
-				if (mPlayersLoaded) {
-					onQueriesComplete();
-				}
+				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				getSupportLoaderManager().destroyLoader(PlayQuery._TOKEN);
 				break;
 			case PlayerQuery._TOKEN:
-				if (mPlayersLoaded) {
-					return;
-				}
 				mPlay.setPlayers(cursor);
 				bindUiPlayers();
-				mPlayersLoaded = true;
-				if (mPlayLoaded) {
-					onQueriesComplete();
-				}
+				getSupportLoaderManager().destroyLoader(PlayerQuery._TOKEN);
+				onQueriesComplete();
 				break;
 			default:
 				if (cursor != null && !cursor.isClosed()) {
@@ -898,9 +884,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void onQueriesComplete() {
 		mOriginalPlay = PlayBuilder.copy(mPlay);
-		signalDataLoaded();
 		maybeCreateCopy();
 		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
+		signalDataLoaded();
 	}
 
 	private void maybeCreateCopy() {
@@ -916,8 +902,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void signalDataLoaded() {
-		mPlayLoaded = true;
-		mPlayersLoaded = true;
+		mDataLoaded = true;
 		supportInvalidateOptionsMenu();
 	}
 
