@@ -13,6 +13,7 @@ import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -26,6 +27,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
@@ -104,6 +106,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private TextView mPlayerLabel;
 	private DragSortListView mPlayerList;
 
+	private InputMethodManager mInputMethodManager;
 	private boolean mPlayLoaded;
 	private boolean mPlayersLoaded;
 	private boolean mQuantityShown;
@@ -132,6 +135,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		getSupportActionBar().setHomeButtonEnabled(false);
 		mPlayAdapter = new PlayAdapter();
 		setUiVariables();
+		mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -651,7 +655,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mEndPlay = true;
 		mPlay.end();
 		bindUiPlay();
-		mLengthView.requestFocus();
+		if (mLengthView.getVisibility() == View.VISIBLE) {
+			mLengthView.setSelection(0, mLengthView.getText().length());
+			mLengthView.requestFocus();
+			mInputMethodManager.showSoftInput(mLengthView, InputMethodManager.SHOW_IMPLICIT);
+		}
 	}
 
 	private void bindUi() {
