@@ -48,13 +48,13 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
+	public static final String KEY_PLAYER = "PLAYER";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
 	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
-	private static final String KEY_PLAYER = "PLAYER";
 
 	private static final int HELP_VERSION = 1;
 
@@ -112,7 +112,10 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		}
 
 		if (savedInstanceState == null) {
-			mPlayer = new Player(intent);
+			mPlayer = intent.getParcelableExtra(KEY_PLAYER);
+			if (mPlayer == null) {
+				mPlayer = new Player();
+			}
 			if (hasAutoPosition()) {
 				mPlayer.setSeat(mAutoPosition);
 			}
@@ -358,7 +361,9 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private void save() {
 		captureForm();
-		setResult(RESULT_OK, mPlayer.toIntent());
+		Intent intent = new Intent();
+		intent.putExtra(KEY_PLAYER, mPlayer);
+		setResult(RESULT_OK, intent);
 		finish();
 	}
 

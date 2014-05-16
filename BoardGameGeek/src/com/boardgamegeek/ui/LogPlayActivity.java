@@ -633,7 +633,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (resultCode == RESULT_OK) {
-			Player player = new Player(data);
+			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
 			if (requestCode == REQUEST_ADD_PLAYER) {
 				mPlay.addPlayer(player);
 				// prompt for another player
@@ -722,7 +722,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				int offsetPosition = position - 1; // offset by the list header
 				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
-				Intent intent = player.toIntent();
+				Intent intent = new Intent();
+				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
 				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
