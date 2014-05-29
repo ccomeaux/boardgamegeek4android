@@ -76,8 +76,6 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private ListView mPlayers;
 	private TextView mSavedTimeStamp;
 	private TextView mUnsyncedMessage;
-	private boolean mPlaysLoaded;
-	private boolean mPlayersLoaded;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
 
@@ -182,10 +180,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		mAdapter = new PlayerAdapter();
 		mPlayers.setAdapter(mAdapter);
 
-		mPlaysLoaded = true;
-		mPlayersLoaded = false;
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
-		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
 		return rootView;
 	}
@@ -309,20 +304,21 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 		switch (loader.getId()) {
 			case PlayQuery._TOKEN:
-				onPlayQueryComplete(cursor);
+				if (onPlayQueryComplete(cursor)) {
+					setListShown(true);
+				}
 				break;
 			case PlayerQuery._TOKEN:
-				onPlayerQueryComplete(cursor);
+				mPlay.setPlayers(cursor);
+				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
+				mAdapter.notifyDataSetChanged();
+				setListShown(true);
 				break;
 			default:
 				if (cursor != null) {
 					cursor.close();
 				}
 				break;
-		}
-
-		if (mPlaysLoaded && mPlayersLoaded) {
-			setListShown(true);
 		}
 	}
 
@@ -333,22 +329,21 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	public void setNewPlayId(int playId) {
 		mPlayId = playId;
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
-		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 	}
 
-	private void onPlayQueryComplete(Cursor cursor) {
+	/**
+	 * @return true if the we're done loading
+	 */
+	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			int newPlayId = PreferencesUtils.getNewPlayId(getActivity(), mPlayId);
 			if (newPlayId != BggContract.INVALID_ID) {
 				setNewPlayId(newPlayId);
-				return;
+				return false;
 			}
 			setEmptyText(String.format(getResources().getString(R.string.empty_play), mPlayId));
-			mPlaysLoaded = true;
-			return;
+			return true;
 		}
-
-		mPlaysLoaded = true;
 
 		if (TextUtils.isEmpty(mThumbnailUrl)) {
 			mThumbnailView.setVisibility(View.GONE);
@@ -431,18 +426,14 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		}
 
 		getActivity().supportInvalidateOptionsMenu();
+		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
 		if (mPlay.hasBeenSynced()
 			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
-	}
 
-	private void onPlayerQueryComplete(Cursor cursor) {
-		mPlay.setPlayers(cursor);
-		mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
-		mAdapter.notifyDataSetChanged();
-		mPlayersLoaded = true;
+		return false;
 	}
 
 	private void triggerRefresh() {
