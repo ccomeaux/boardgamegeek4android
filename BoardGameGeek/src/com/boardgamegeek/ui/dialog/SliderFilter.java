@@ -6,27 +6,44 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionView;
-import com.boardgamegeek.ui.widget.DualSliderView;
-import com.boardgamegeek.ui.widget.DualSliderView.KnobValuesChangedListener;
+import com.boardgamegeek.ui.widget.RangeSeekBar;
+import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 
 public abstract class SliderFilter {
+	private Integer mMin;
+	private Integer mMax;
+	private TextView mDescriptionView;
+	private TextView mTextInterval;
+	private FrameLayout mRangeSeekBarContainer;
+	private RangeSeekBar<Integer> mRangeSeekBar;
+	private CheckBox mCheckBox;
+
 	public void createDialog(final Context context, final CollectionView view, CollectionFilterData filter) {
 		initValues(filter);
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_slider_filter, null);
 
-		final TextView textInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
-		final DualSliderView sliderView = (DualSliderView) layout.findViewById(R.id.slider_filter_slider);
-		final CheckBox checkbox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
+		mDescriptionView = (TextView) layout.findViewById(R.id.slider_filter_description);
+		mTextInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
+		mCheckBox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
+		mRangeSeekBarContainer = (FrameLayout) layout.findViewById(R.id.slider_filter_rangeseekbar_container);
+		mRangeSeekBar = new RangeSeekBar<Integer>(getAbsoluteMin(), getAbsoluteMax(), context);
+		mRangeSeekBarContainer.addView(mRangeSeekBar);
 
-		initSlider(textInterval, sliderView);
-		initCheckbox(checkbox, sliderView);
+		mMin = getMin();
+		mMax = getMax();
+
+		initDescription();
+		initSlider();
+		initCheckbox();
+		mTextInterval.setText(intervalText(getMin(), getMax()));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(getTitleId())
 			.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
@@ -37,7 +54,7 @@ public abstract class SliderFilter {
 			}).setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int id) {
-					captureForm(sliderView.getMinKnobValue(), sliderView.getMaxKnobValue(), checkbox.isChecked());
+					captureForm(mMin, mMax, mCheckBox.isChecked());
 					view.addFilter(getPositiveData(context));
 				}
 			}).setView(layout);
@@ -45,50 +62,40 @@ public abstract class SliderFilter {
 		builder.create().show();
 	}
 
-	private void initSlider(final TextView textInterval, final DualSliderView sliderView) {
-		sliderView.setStartOffset(getStartOffset());
-		sliderView.setRange(getMin(), getMax(), getStep());
-		sliderView.setStartKnobValue(getStart());
-		sliderView.setEndKnobValue(getEnd());
-		sliderView.setLineSpacing(getLineSpacing());
-		if (getCheckboxDisablesSecondThumb()) {
-			sliderView.setSecondThumbEnabled(!getCheckbox());
+	private void initDescription() {
+		if (getDescriptionId() == -1) {
+			mDescriptionView.setVisibility(View.GONE);
+		} else {
+			mDescriptionView.setText(getDescriptionId());
+			mDescriptionView.setVisibility(View.VISIBLE);
 		}
+	}
 
-		sliderView.setOnKnobValuesChangedListener(new KnobValuesChangedListener() {
+	private void initSlider() {
+		mRangeSeekBar.setNotifyWhileDragging(true);
+		mRangeSeekBar.setSelectedMinValue(getMin());
+		mRangeSeekBar.setSelectedMaxValue(getMax());
+
+		mRangeSeekBar.setOnRangeSeekBarChangeListener(new OnRangeSeekBarChangeListener<Integer>() {
 			@Override
-			public void onValuesChanged(boolean knobStartChanged, boolean knobEndChanged, int knobStart, int knobEnd) {
-				String text = "";
-				if (!sliderView.isSecondThumbEnabled() && knobEndChanged) {
-					text = intervalText(knobEnd);
-				} else if (knobStartChanged || knobEndChanged) {
-					if (knobStart == knobEnd) {
-						text = intervalText(knobEnd);
-					} else {
-						text = intervalText(Math.min(knobStart, knobEnd), Math.max(knobStart, knobEnd));
-					}
+			public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
+				mMin = minValue;
+				mMax = maxValue;
+				CharSequence text;
+				if (minValue.equals(maxValue)) {
+					text = intervalText(minValue);
+				} else {
+					text = intervalText(minValue, maxValue);
 				}
-				textInterval.setText(text);
+				mTextInterval.setText(text);
 			}
 		});
 	}
 
-	protected int getStartOffset() {
-		return 0;
-	}
-
-	private void initCheckbox(final CheckBox checkbox, final DualSliderView sliderView) {
-		checkbox.setVisibility(getCheckboxVisibility());
-		checkbox.setText(getCheckboxTextId());
-		checkbox.setChecked(getCheckbox());
-		if (getCheckboxDisablesSecondThumb()) {
-			checkbox.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					sliderView.setSecondThumbEnabled(!checkbox.isChecked());
-				}
-			});
-		}
+	private void initCheckbox() {
+		mCheckBox.setVisibility(getCheckboxVisibility());
+		mCheckBox.setText(getCheckboxTextId());
+		mCheckBox.setChecked(isChecked());
 	}
 
 	protected abstract void initValues(CollectionFilterData filter);
@@ -99,11 +106,11 @@ public abstract class SliderFilter {
 
 	protected abstract CollectionFilterData getPositiveData(final Context context);
 
-	protected abstract int getStart();
+	protected abstract int getMin();
 
-	protected abstract int getEnd();
+	protected abstract int getMax();
 
-	protected abstract boolean getCheckbox();
+	protected abstract boolean isChecked();
 
 	protected int getCheckboxVisibility() {
 		return View.VISIBLE;
@@ -113,21 +120,13 @@ public abstract class SliderFilter {
 		return R.string.include_missing_values;
 	}
 
-	protected boolean getCheckboxDisablesSecondThumb() {
-		return false;
+	protected int getDescriptionId() {
+		return -1;
 	}
 
-	protected double getStep() {
-		return 1.0;
-	}
+	protected abstract int getAbsoluteMin();
 
-	protected int getLineSpacing() {
-		return 1;
-	}
-
-	protected abstract int getMin();
-
-	protected abstract int getMax();
+	protected abstract int getAbsoluteMax();
 
 	protected abstract void captureForm(int min, int max, boolean checkbox);
 

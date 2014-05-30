@@ -54,19 +54,20 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.auth.Authenticator;
 
 public class HttpUtils {
 	private static final String TAG = makeLogTag(HttpUtils.class);
 
-	public static final String BASE_URL = "http://boardgamegeek.com/xmlapi/";
-	public static final String BASE_URL_2 = "http://boardgamegeek.com/xmlapi2/";
+	public static final String SITE_URL = "http://www.boardgamegeek.com/";
+	public static final String BASE_URL = SITE_URL + "xmlapi/";
+	public static final String BASE_URL_2 = SITE_URL + "xmlapi2/";
 
 	private static final int TIMEOUT_SECS = 60;
 	private static final int BUFFER_SIZE = 8192;
 	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
 	private static final String ENCODING_GZIP = "gzip";
+	private static boolean mMockLogin = false;
 
 	public static String constructSearchUrl(String searchTerm, boolean useExact) {
 		// http://boardgamegeek.com/xmlapi/search?search=puerto+rico
@@ -153,7 +154,7 @@ public class HttpUtils {
 		throws OperationCanceledException, AuthenticatorException, IOException {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = Authenticator.getAccount(accountManager);
-		String authToken = accountManager.blockingGetAuthToken(account, BggApplication.AUTHTOKEN_TYPE, true);
+		String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTHTOKEN_TYPE, true);
 
 		HttpClient httpClient = null;
 		if (account == null || (TextUtils.isEmpty(authToken))) {
@@ -332,7 +333,11 @@ public class HttpUtils {
 	}
 
 	public static CookieStore authenticate(String username, String password) {
-		String AUTH_URI = BggApplication.siteUrl + "login";
+		if (mMockLogin) {
+			return mockLogin(username);
+		}
+
+		String AUTH_URI = HttpUtils.SITE_URL + "login";
 
 		final HttpResponse resp;
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -369,7 +374,7 @@ public class HttpUtils {
 					}
 				}
 			} else {
-				LOGW(TAG, "BAd response code - " + code);
+				LOGW(TAG, "Bad response code - " + code);
 			}
 			if (cookieStore != null) {
 				LOGW(TAG, "Successful authentication");
@@ -384,5 +389,15 @@ public class HttpUtils {
 		} finally {
 			LOGW(TAG, "Authenticate complete");
 		}
+	}
+
+	/**
+	 * Mocks a login by setting the cookie store with bogus data.
+	 */
+	private static CookieStore mockLogin(String username) {
+		CookieStore store = new BasicCookieStore();
+		store.addCookie(new BasicClientCookie("bggpassword", "password"));
+		store.addCookie(new BasicClientCookie("SessionID", "token"));
+		return store;
 	}
 }

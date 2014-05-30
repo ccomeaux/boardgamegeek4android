@@ -2,11 +2,8 @@ package com.boardgamegeek.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import android.content.Context;
-import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -29,29 +26,17 @@ public class FileUtils {
 		return null;
 	}
 
-	public static String generateContentPath(Context context, String type) {
-		File base = getExternalFilesDir(context);
+	public static File generateContentPath(Context context, String type) {
+		File base = context.getExternalFilesDir(type);
 		if (base == null) {
 			return null;
 		}
-		String path = base.getPath() + File.separator + "content" + File.separator + type;
-		File folder = new File(path);
-		if (!folder.exists()) {
-			if (!folder.mkdirs()) {
+		if (!base.exists()) {
+			if (!base.mkdirs()) {
 				return null;
 			}
 		}
-		return path;
-	}
-
-	private static File getExternalFilesDir(Context context) {
-		File dir = context.getExternalFilesDir(null);
-		if (dir != null) {
-			return dir;
-		}
-
-		final String filesDir = "/Android/data/" + context.getPackageName() + "/files/";
-		return new File(Environment.getExternalStorageDirectory().getPath() + filesDir);
+		return base;
 	}
 
 	// from libcore.io.IoUtils and com.google.android.apps.iosched
@@ -60,7 +45,6 @@ public class FileUtils {
 	 */
 	public static int deleteContents(File directory) throws IOException {
 		// TODO: this should specify paths as Strings rather than as Files
-		int count = 0;
 		if (directory == null || !directory.exists()) {
 			return 0;
 		}
@@ -68,6 +52,8 @@ public class FileUtils {
 		if (files == null) {
 			throw new IllegalArgumentException("not a directory: " + directory);
 		}
+
+		int count = 0;
 		for (final File file : files) {
 			if (file.isDirectory()) {
 				count += deleteContents(file);
@@ -78,30 +64,5 @@ public class FileUtils {
 			count++;
 		}
 		return count;
-	}
-
-	/*
-	 * Remove all but the X most recently created files
-	 */
-	public static void trimDirectory(File directory, int fileCount) {
-		if (directory != null) {
-			File[] files = directory.listFiles();
-			if (files.length > fileCount) {
-				Arrays.sort(files, new ComparatorImplementation());
-				files[0].delete();
-			}
-		}
-	}
-
-	private static final class ComparatorImplementation implements Comparator<File> {
-		public int compare(File f1, File f2) {
-			if (f1.lastModified() > f2.lastModified()) {
-				return -1;
-			} else if (f1.lastModified() < f2.lastModified()) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
 	}
 }

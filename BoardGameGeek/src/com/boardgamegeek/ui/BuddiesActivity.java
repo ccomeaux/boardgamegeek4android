@@ -87,6 +87,11 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	}
 
 	@Override
+	protected int getDrawerResId() {
+		return R.string.title_buddies;
+	}
+
+	@Override
 	public boolean onBuddySelected(int buddyId, String name, String fullName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Buddies.buildBuddyUri(buddyId));
 		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);

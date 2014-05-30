@@ -2,11 +2,13 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -14,8 +16,8 @@ import android.text.SpannableString;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.NotificationUtils;
@@ -130,13 +132,9 @@ public class SyncService extends Service {
 		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			if (PreferencesUtils.isSyncStatus(context, "played")) {
-				cursor = context.getContentResolver().query(Games.CONTENT_URI, new String[] { Games.NUM_PLAYS }, null,
-					null, Games.NUM_PLAYS + " DESC");
-			} else {
-				cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
-					new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, null, null, "count DESC");
-			}
+			cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
+				new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, Plays.SYNC_STATUS + "=?",
+				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) }, "count DESC");
 			if (cursor != null) {
 				int i = 1;
 				while (cursor.moveToNext()) {
@@ -171,8 +169,11 @@ public class SyncService extends Service {
 			messageId = R.string.sync_notification_h_index_decrease;
 		}
 		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
-			R.string.sync_notification_title_h_index, PlaysActivity.class).setContentText(ss);
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://boardgamegeek.com/thread/953084"));
+		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
+			.setContentText(ss).setContentIntent(pi);
 		NotificationUtils.notify(context, NotificationUtils.ID_H_INDEX, builder);
 	}
 }

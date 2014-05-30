@@ -3,34 +3,21 @@ package com.boardgamegeek.ui;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AbsListView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ImageFetcher;
-import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
-public abstract class BggListFragment extends SherlockListFragment implements AbsListView.OnScrollListener {
+public abstract class BggListFragment extends SherlockListFragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
 	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
 
-	private ImageFetcher mImageFetcher;
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		if (getLoadingImage() != 0) {
-			mImageFetcher = UIUtils.getImageFetcher(getActivity());
-			mImageFetcher.setLoadingImage(getLoadingImage());
-			mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
-		}
-	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -56,19 +43,7 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mImageFetcher != null) {
-			mImageFetcher.setPauseWork(false);
-			mImageFetcher.flushCache();
-		}
 		saveScrollState();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (mImageFetcher != null) {
-			mImageFetcher.closeCache();
-		}
 	}
 
 	@Override
@@ -77,23 +52,6 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 		outState.putInt(STATE_POSITION, mListViewStatePosition);
 		outState.putInt(STATE_TOP, mListViewStateTop);
 		super.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView listView, int scrollState) {
-		if (mImageFetcher != null) {
-			// Pause disk cache access to ensure smoother scrolling
-			if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING
-				|| scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-				mImageFetcher.setPauseWork(true);
-			} else {
-				mImageFetcher.setPauseWork(false);
-			}
-		}
 	}
 
 	private void saveScrollState() {
@@ -116,11 +74,12 @@ public abstract class BggListFragment extends SherlockListFragment implements Ab
 		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
 	}
 
-	protected ImageFetcher getImageFetcher() {
-		return mImageFetcher;
+	protected void loadThumbnail(String path, ImageView target) {
+		loadThumbnail(path, target, R.drawable.thumbnail_image_empty);
 	}
 
-	protected int getLoadingImage() {
-		return 0;
+	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
+		Picasso.with(getActivity()).load(path).placeholder(placeholderResId).error(placeholderResId)
+			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop().into(target);
 	}
 }

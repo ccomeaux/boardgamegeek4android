@@ -15,7 +15,7 @@ public class GeekRatingSortData extends CollectionSortData {
 	public GeekRatingSortData(Context context) {
 		super(context);
 		mOrderByClause = Collection.SORT_BY_RATING;
-		mDescriptionId = R.string.rating;
+        mDescriptionId = R.string.menu_collection_sort_rating;
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class GeekRatingSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 

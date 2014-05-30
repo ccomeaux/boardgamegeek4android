@@ -5,17 +5,18 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Pair;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,13 +28,15 @@ import com.boardgamegeek.provider.BggContract.Plays;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
-	protected static final String EXTRA_NAVIGATION_POSITION = "EXTRA_NAVIGATION_POSITION";
 	protected DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
-	private int mPosition;
 	private NavigationAdapter mAdapter;
 
 	protected abstract int getContentViewId();
+
+	protected int getDrawerResId() {
+		return 0;
+	}
 
 	protected boolean isTitleHidden() {
 		return false;
@@ -43,8 +46,6 @@ public abstract class DrawerActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getContentViewId());
-
-		mPosition = getIntent().getIntExtra(EXTRA_NAVIGATION_POSITION, -1);
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		if (mDrawerLayout != null) {
@@ -97,9 +98,10 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private void selectItem(int position) {
-		if (position != mPosition) {
+		Integer titleResId = mAdapter.getItem(position);
+		if (titleResId != getDrawerResId()) {
 			Intent intent = null;
-			switch (mAdapter.getItem(position).first) {
+			switch (titleResId) {
 				case R.string.title_collection:
 					intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
 					break;
@@ -120,9 +122,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					break;
 			}
 			if (intent != null) {
-				intent.putExtra(EXTRA_NAVIGATION_POSITION, position);
 				startActivity(intent);
-				overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 				finish();
 			}
 		}
@@ -131,7 +131,7 @@ public abstract class DrawerActivity extends BaseActivity {
 
 	private class NavigationAdapter extends BaseAdapter {
 		private LayoutInflater mInflater;
-		private List<Pair<Integer, Integer>> mTitles;
+		private List<Integer> mTitles;
 
 		public NavigationAdapter() {
 			mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -145,16 +145,16 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		public void init() {
-			mTitles = new ArrayList<Pair<Integer, Integer>>();
+			mTitles = new ArrayList<Integer>();
 			if (!Authenticator.isSignedIn(DrawerActivity.this)) {
-				mTitles.add(new Pair<Integer, Integer>(R.string.title_signin, R.drawable.home_btn_signin));
+				mTitles.add(R.string.title_signin);
 			} else {
-				mTitles.add(new Pair<Integer, Integer>(R.string.title_collection, R.drawable.home_btn_collection));
-				mTitles.add(new Pair<Integer, Integer>(R.string.title_plays, R.drawable.home_btn_plays));
-				mTitles.add(new Pair<Integer, Integer>(R.string.title_buddies, R.drawable.home_btn_buddies));
+				mTitles.add(R.string.title_collection);
+				mTitles.add(R.string.title_plays);
+				mTitles.add(R.string.title_buddies);
 			}
-			mTitles.add(new Pair<Integer, Integer>(R.string.title_hotness, R.drawable.home_btn_hotness));
-			mTitles.add(new Pair<Integer, Integer>(R.string.title_forums, R.drawable.home_btn_forums));
+			mTitles.add(R.string.title_hotness);
+			mTitles.add(R.string.title_forums);
 		}
 
 		@Override
@@ -163,13 +163,13 @@ public abstract class DrawerActivity extends BaseActivity {
 		}
 
 		@Override
-		public Pair<Integer, Integer> getItem(int position) {
+		public Integer getItem(int position) {
 			return mTitles.get(position);
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return getItem(position).first;
+			return getItem(position);
 		}
 
 		@Override
@@ -181,30 +181,30 @@ public abstract class DrawerActivity extends BaseActivity {
 				view = convertView;
 			}
 
-			Pair<Integer, Integer> item = getItem(position);
+			int titleResId = getItem(position);
 
-			TextView text = (TextView) view.findViewById(android.R.id.text1);
-			ImageView image = (ImageView) view.findViewById(android.R.id.icon);
-			TextView separator = (TextView) view.findViewById(R.id.separator);
+			TextView textView = (TextView) view.findViewById(android.R.id.text1);
+			TextView headerView = (TextView) view.findViewById(R.id.separator);
 
-			text.setText(item.first);
-			image.setImageResource(item.second);
-			if (item.first == R.string.title_hotness) {
-				separator.setVisibility(View.VISIBLE);
-				separator.setText(R.string.title_browse);
-			} else if (position == 0) {
-				separator.setVisibility(View.VISIBLE);
-				separator.setText(R.string.title_my_geek);
+			if (titleResId == getDrawerResId()) {
+				String text = getString(titleResId);
+				SpannableString ss = new SpannableString(text);
+				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				textView.setText(ss);
 			} else {
-				separator.setVisibility(View.GONE);
+				textView.setText(titleResId);
 			}
 
-			if (position == mPosition) {
-				// TODO fix this for real
-				// UIUtils.setActivatedCompat(view, true);
-				view.setBackgroundResource(R.color.accent_light_3);
+			if (titleResId == R.string.title_hotness) {
+				// Always show the "Browse" header above hotness
+				headerView.setVisibility(View.VISIBLE);
+				headerView.setText(R.string.title_browse);
+			} else if (position == 0) {
+				// Show the "My Geek" header above the first non-hotness item
+				headerView.setVisibility(View.VISIBLE);
+				headerView.setText(R.string.title_my_geek);
 			} else {
-				view.setBackgroundColor(Color.TRANSPARENT);
+				headerView.setVisibility(View.GONE);
 			}
 
 			return view;

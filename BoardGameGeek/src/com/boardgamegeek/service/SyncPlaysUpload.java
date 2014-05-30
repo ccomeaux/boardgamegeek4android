@@ -34,7 +34,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.RemoteExecutor;
@@ -113,9 +112,6 @@ public class SyncPlaysUpload extends SyncTask {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(mContext);
 					break;
-				} else if (response.hasBadIdError()) {
-					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(mContext.getResources().getString(R.string.msg_play_update_bad_id));
 				} else {
 					syncResult.stats.numIoExceptions++;
 					notifyUser(response.error);
@@ -202,7 +198,7 @@ public class SyncPlaysUpload extends SyncTask {
 			return new PlayUpdateResponse("Couldn't create the HttpEntity");
 		}
 
-		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
+		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
 		post.setEntity(entity);
 
 		try {
@@ -242,7 +238,7 @@ public class SyncPlaysUpload extends SyncTask {
 			return "Couldn't create the HttpEntity";
 		}
 
-		HttpPost post = new HttpPost(BggApplication.siteUrl + "geekplay.php");
+		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
 		post.setEntity(entity);
 
 		try {
@@ -255,7 +251,8 @@ public class SyncPlaysUpload extends SyncTask {
 					+ " " + response.toString() + ".";
 			} else {
 				String message = HttpUtils.parseResponse(response);
-				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")) {
+				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")
+					|| message.contains("Play does not exist.")) {
 					// TODO: only needed if play is a draft
 					PreferencesUtils.removeNewPlayId(mContext, playId);
 					return "";
@@ -438,11 +435,9 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		boolean hasAuthError() {
-			return hasError() && error.contains("You must login to save plays");
-		}
-
-		boolean hasBadIdError() {
-			return hasError() && error.contains("You are not permitted to edit this play.");
+			return hasError()
+				&& (error.contains("You must login to save plays") || error
+					.contains("You are not permitted to edit this play."));
 		}
 	}
 }

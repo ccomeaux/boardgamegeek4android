@@ -39,9 +39,9 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private Uri mBuddyUri;
@@ -54,7 +54,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private ImageView mAvatar;
 	private TextView mNickname;
 	private TextView mUpdated;
-	private ImageFetcher mImageFetcher;
 
 	public interface Callbacks {
 		public void onNameChanged(String name);
@@ -85,11 +84,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		if (mBuddyUri == null) {
 			return;
 		}
-
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setImageFadeIn(false);
-		mImageFetcher.setLoadingImage(R.drawable.person_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.avatar_size));
 	}
 
 	@Override
@@ -126,18 +120,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.flushCache();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
 	}
 
 	@Override
@@ -200,11 +182,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		long updated = cursor.getLong(BuddyQuery.UPDATED);
 		String fullName = BuddyUtils.buildFullName(cursor, BuddyQuery.FIRSTNAME, BuddyQuery.LASTNAME);
 
-		if (!TextUtils.isEmpty(avatarUrl)) {
-			mImageFetcher.loadAvatarImage(avatarUrl, Buddies.buildAvatarUri(id), mAvatar);
-		}
-
-		mBuddyUri = Buddies.buildBuddyUri(id);
+		Picasso.with(getActivity()).load(avatarUrl).placeholder(R.drawable.person_image_empty)
+			.error(R.drawable.person_image_empty).fit().into(mAvatar);
 		mFullName.setText(fullName);
 		mCallbacks.onNameChanged(fullName);
 		mName.setText(name);

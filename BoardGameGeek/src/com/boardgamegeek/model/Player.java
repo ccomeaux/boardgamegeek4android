@@ -9,9 +9,7 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -25,17 +23,6 @@ public class Player implements Parcelable {
 
 	public static final double DEFAULT_RATING = 0.0;
 	public static final int SEAT_UNKNOWN = -1;
-
-	private static final String KEY_EXISTS = "EXISTS";
-	private static final String KEY_NAME = "NAME";
-	private static final String KEY_USER_ID = "USER_ID";
-	private static final String KEY_USERNAME = "USERNAME";
-	private static final String KEY_TEAM_COLOR = "TEAM_COLOR";
-	private static final String KEY_STARTING_POSITION = "STARTING_POSITION";
-	private static final String KEY_SCORE = "SCORE";
-	private static final String KEY_RATING = "RATING";
-	private static final String KEY_NEW = "NEW";
-	private static final String KEY_WIN = "WIN";
 
 	public Player() {
 		Name = "";
@@ -55,30 +42,6 @@ public class Player implements Parcelable {
 		Rating = player.Rating;
 		New = player.New;
 		Win = player.Win;
-	}
-
-	public Player(Intent intent) {
-		this();
-		final Bundle bundle = intent.getExtras();
-		if (bundle.getBoolean(KEY_EXISTS)) {
-			Name = getString(bundle, KEY_NAME);
-			UserId = bundle.getInt(KEY_USER_ID);
-			Username = getString(bundle, KEY_USERNAME);
-			TeamColor = getString(bundle, KEY_TEAM_COLOR);
-			setStartingPosition(getString(bundle, KEY_STARTING_POSITION));
-			Score = getString(bundle, KEY_SCORE);
-			Rating = bundle.getDouble(KEY_RATING);
-			New = bundle.getBoolean(KEY_NEW);
-			Win = bundle.getBoolean(KEY_WIN);
-		}
-	}
-
-	private String getString(final Bundle bundle, String key) {
-		String s = bundle.getString(key);
-		if (s == null) {
-			return "";
-		}
-		return s;
 	}
 
 	public Player(Cursor cursor) {
@@ -142,21 +105,6 @@ public class Player implements Parcelable {
 			}
 		}
 		return description;
-	}
-
-	public Intent toIntent() {
-		Intent intent = new Intent();
-		intent.putExtra(KEY_EXISTS, true);
-		intent.putExtra(KEY_NAME, Name);
-		intent.putExtra(KEY_USER_ID, UserId);
-		intent.putExtra(KEY_USERNAME, Username);
-		intent.putExtra(KEY_TEAM_COLOR, TeamColor);
-		intent.putExtra(KEY_STARTING_POSITION, mStartingPosition);
-		intent.putExtra(KEY_SCORE, Score);
-		intent.putExtra(KEY_RATING, Rating);
-		intent.putExtra(KEY_NEW, New);
-		intent.putExtra(KEY_WIN, Win);
-		return intent;
 	}
 
 	@Override

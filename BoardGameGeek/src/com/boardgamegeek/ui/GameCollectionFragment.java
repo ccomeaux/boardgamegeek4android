@@ -22,6 +22,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -33,42 +34,23 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.widget.BezelImageView;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ImageFetcher;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class GameCollectionFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameCollectionFragment.class);
 
 	private int mGameId = BggContract.INVALID_ID;
 	private CursorAdapter mAdapter;
-	private ImageFetcher mImageFetcher;
 	private boolean mMightNeedRefreshing;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		mImageFetcher = UIUtils.getImageFetcher(getActivity());
-		mImageFetcher.setImageFadeIn(false);
-		mImageFetcher.setLoadingImage(R.drawable.thumbnail_image_empty);
-		mImageFetcher.setImageSize((int) getResources().getDimension(R.dimen.thumbnail_list_size));
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		mImageFetcher.setPauseWork(false);
-		mImageFetcher.flushCache();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		mImageFetcher.closeCache();
 	}
 
 	@Override
@@ -239,12 +221,14 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 
 			holder.thumbnail.setTag(R.id.image, item.imageUrl);
 			holder.thumbnail.setTag(R.id.name, item.name);
-			mImageFetcher.loadThumnailImage(item.thumbnailUrl, Collection.buildThumbnailUri(item.id), holder.thumbnail);
+			Picasso.with(context).load(item.thumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
+				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
+				.centerCrop().into(holder.thumbnail);
 		}
 	}
 
 	static class ViewHolder {
-		BezelImageView thumbnail;
+		ImageView thumbnail;
 		TextView name;
 		TextView rating;
 		RatingBar ratingBar;
@@ -276,7 +260,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		TextView hasPartsContent;
 
 		public ViewHolder(View view) {
-			thumbnail = (BezelImageView) view.findViewById(R.id.thumbnail);
+			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
 			name = (TextView) view.findViewById(R.id.name);
 			rating = (TextView) view.findViewById(R.id.rating);
 			ratingBar = (RatingBar) view.findViewById(R.id.rating_stars);

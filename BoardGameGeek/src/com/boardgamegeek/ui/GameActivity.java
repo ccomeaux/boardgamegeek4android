@@ -45,6 +45,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 	private int mGameId;
 	private String mGameName;
+	private String mThumbnailUrl;
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -158,8 +159,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;
 			case R.id.menu_shortcut:
-				Intent shortcut = ActivityUtils.createGameShortcut(this, mGameId, mGameName);
-				sendBroadcast(shortcut);
+				ActivityUtils.sendGameShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
 				ActivityUtils.logPlay(this, mGameId, mGameName);
@@ -252,6 +252,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	@Override
 	public void onNameChanged(String gameName) {
 		changeName(gameName);
+	}
+
+	@Override
+	public void onThumbnailUrlChanged(String url) {
+		mThumbnailUrl = url;
 	}
 
 	@Override

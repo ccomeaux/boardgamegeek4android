@@ -9,9 +9,11 @@ import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -25,6 +27,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
@@ -54,6 +57,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -88,6 +92,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mLaunchingActivity;
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
+	private Builder mAddPlayersBuilder;
+	private List<Player> mPlayersToAdd = new ArrayList<Player>();
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -100,8 +106,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private TextView mPlayerLabel;
 	private DragSortListView mPlayerList;
 
-	private boolean mPlayLoaded;
-	private boolean mPlayersLoaded;
+	private InputMethodManager mInputMethodManager;
+	private boolean mDataLoaded;
 	private boolean mQuantityShown;
 	private boolean mLengthShown;
 	private boolean mLocationShown;
@@ -128,6 +134,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		getSupportActionBar().setHomeButtonEnabled(false);
 		mPlayAdapter = new PlayAdapter();
 		setUiVariables();
+		mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -142,6 +149,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 		changeName(gameName);
 
+		boolean requestLocationFocus = false;
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
 			mOriginalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
@@ -161,21 +169,34 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				// Editing an existing play
 				mDeleteOnCancel = false;
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
-				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 			} else {
 				// Starting a new play
 				mPlay.PlayId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
+
+				long lastPlay = PreferencesUtils.getLastPlayTime(this);
+				if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
+					mPlay.Location = PreferencesUtils.getLastPlayLocation(this);
+					mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
+					mPlay.pickStartPlayer(0);
+					bindUiPlay(); // needed for location to be saved in draft
+				}
+
 				saveDraft(false);
 				setResult(mPlay.PlayId);
 				mOriginalPlay = PlayBuilder.copy(mPlay);
 				signalDataLoaded();
+
+				if (TextUtils.isEmpty(mPlay.Location)) {
+					requestLocationFocus = true;
+				}
 			}
 		}
 
 		bindUi();
-		mLocationView.requestFocus();
-		
+		if (requestLocationFocus && mLocationView.getVisibility() == View.VISIBLE) {
+			mLocationView.requestFocus();
+		}
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
@@ -209,8 +230,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	@Override
-	protected void onStop() {
-		super.onStop();
+	protected void onPause() {
+		super.onPause();
 		if (!isFinishing() && !mLaunchingActivity) {
 			saveDraft(false);
 		}
@@ -231,7 +252,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (mPlayLoaded && mPlayersLoaded) {
+		if (mDataLoaded) {
 			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
 			menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
 			menu.findItem(R.id.menu_add_field).setVisible(
@@ -245,6 +266,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_random_start_player).setEnabled(!mCustomPlayerSort);
 			menu.findItem(R.id.menu_random_player_order).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_random_player_order).setEnabled(!mCustomPlayerSort);
+			menu.findItem(R.id.menu_players_clear).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
@@ -285,19 +307,40 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				promptAddField(array, item);
 				return true;
 			case R.id.menu_custom_player_order:
-				if (mCustomPlayerSort && mPlay.arePlayersCustomSorted()) {
-					final MenuItem finalItem = item;
-					Dialog dialog = ActivityUtils.createConfirmationDialog(this,
-						R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								mPlay.pickStartPlayer(0);
-								toggleCustomSort(finalItem);
-							}
-						});
-					dialog.show();
+				final MenuItem finalItem = item;
+				if (mCustomPlayerSort) {
+					if (mPlay.arePlayersCustomSorted()) {
+						Dialog dialog = ActivityUtils.createConfirmationDialog(this,
+							R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									mPlay.pickStartPlayer(0);
+									bindUiPlayers();
+									toggleCustomSort(finalItem);
+								}
+							});
+						dialog.show();
+					} else {
+						mPlay.pickStartPlayer(0);
+						bindUiPlayers();
+						toggleCustomSort(item);
+					}
 				} else {
 					toggleCustomSort(item);
+					if (mPlay.hasStartingPositions()) {
+						AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false)
+							.setTitle(R.string.title_custom_player_order)
+							.setMessage(R.string.message_custom_player_order).setNegativeButton(R.string.keep, null)
+							.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									mPlay.clearPlayerPositions();
+									bindUiPlayers();
+								}
+							});
+						builder = ActivityUtils.addAlertIcon(builder);
+						builder.create().show();
+					}
 				}
 				return true;
 			case R.id.menu_pick_start_player:
@@ -313,6 +356,16 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.randomizePlayerOrder();
 				notifyStartPlayer();
 				bindUiPlayers();
+				return true;
+			case R.id.menu_players_clear:
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_player_sort_custom_off,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mPlay.clearPlayers();
+							bindUiPlayers();
+						}
+					}).show();
 				return true;
 		}
 		return false;
@@ -405,6 +458,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
+		if (!mPlay.hasBeenSynced()) {
+			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
+			PreferencesUtils.putLastPlayLocation(this, mPlay.Location);
+			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
+		}
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 		triggerUpload();
 		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
@@ -459,14 +517,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
-		if (shouldHideQuantity()) {
-			list.add(r.getString(R.string.quantity));
+		if (shouldHideLocation()) {
+			list.add(r.getString(R.string.location));
 		}
 		if (shouldHideLength()) {
 			list.add(r.getString(R.string.length));
 		}
-		if (shouldHideLocation()) {
-			list.add(r.getString(R.string.location));
+		if (shouldHideQuantity()) {
+			list.add(r.getString(R.string.quantity));
 		}
 		if (shouldHideIncomplete()) {
 			list.add(r.getString(R.string.incomplete));
@@ -498,12 +556,78 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	public void onAddPlayerClick(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
-			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			if (mPlay.getPlayerCount() == 0) {
+				if (mAddPlayersBuilder == null) {
+					mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
+						.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
+						.setNeutralButton(R.string.more, addPlayersButtonClickListener())
+						.setNegativeButton(android.R.string.cancel, null);
+				}
+
+				captureForm();
+				String selection = null;
+				String[] selectionArgs = null;
+				if (!TextUtils.isEmpty(mPlay.Location)) {
+					selection = Plays.LOCATION + "=?";
+					selectionArgs = new String[] { mPlay.Location };
+				}
+
+				mPlayersToAdd.clear();
+
+				mAddPlayersBuilder
+					.setMultiChoiceItems(
+						getContentResolver().query(
+							Plays.buildPlayersByUniqueNameUri(),
+							new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME,
+								PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT,
+								PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT),
+						PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, addPlayersMultiChoiceClickListener()).create()
+					.show();
+			} else {
+				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			}
 		} else {
-			mPlay.addPlayer(new Player());
+			Player player = new Player();
+			if (!mCustomPlayerSort) {
+				player.setSeat(mPlay.getPlayerCount() + 1);
+			}
+			mPlay.addPlayer(player);
 			bindUiPlayers();
 			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
+	}
+
+	private DialogInterface.OnMultiChoiceClickListener addPlayersMultiChoiceClickListener() {
+		return new DialogInterface.OnMultiChoiceClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+				Cursor cursor = (Cursor) ((AlertDialog) dialog).getListView().getAdapter().getItem(which);
+				Player player = new Player();
+				player.Username = cursor.getString(1);
+				player.Name = cursor.getString(2);
+				if (isChecked) {
+					mPlayersToAdd.add(player);
+				} else {
+					mPlayersToAdd.remove(player);
+				}
+			}
+		};
+	}
+
+	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
+		return new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mPlay.setPlayers(mPlayersToAdd);
+				if (!mCustomPlayerSort) {
+					mPlay.pickStartPlayer(0);
+				}
+				bindUiPlayers();
+				if (which == DialogInterface.BUTTON_NEUTRAL) {
+					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+				}
+			}
+		};
 	}
 
 	@Override
@@ -511,7 +635,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (resultCode == RESULT_OK) {
-			Player player = new Player(data);
+			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
 			if (requestCode == REQUEST_ADD_PLAYER) {
 				mPlay.addPlayer(player);
 				// prompt for another player
@@ -526,9 +650,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	public void onTimerEnd(final View view) {
+		mEndPlay = true;
 		mPlay.end();
 		bindUiPlay();
-		mLengthView.requestFocus();
+		if (mLengthView.getVisibility() == View.VISIBLE) {
+			mLengthView.setSelection(0, mLengthView.getText().length());
+			mLengthView.requestFocus();
+			mInputMethodManager.showSoftInput(mLengthView, InputMethodManager.SHOW_IMPLICIT);
+		}
 	}
 
 	private void bindUi() {
@@ -571,6 +700,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
+		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
@@ -598,7 +728,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				int offsetPosition = position - 1; // offset by the list header
 				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
-				Intent intent = player.toIntent();
+				Intent intent = new Intent();
+				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 				if (!mCustomPlayerSort) {
 					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
 				}
@@ -724,31 +856,19 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					return;
 				}
 
-				if (mPlayLoaded) {
-					return;
-				}
-				List<Player> players = mPlay.getPlayers();
 				mPlay = PlayBuilder.fromCursor(cursor);
-				mPlay.setPlayers(players);
 				if (mEndPlay) {
 					mPlay.end();
 				}
 				bindUiPlay();
-				mPlayLoaded = true;
-				if (mPlayersLoaded) {
-					onQueriesComplete();
-				}
+				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
+				getSupportLoaderManager().destroyLoader(PlayQuery._TOKEN);
 				break;
 			case PlayerQuery._TOKEN:
-				if (mPlayersLoaded) {
-					return;
-				}
 				mPlay.setPlayers(cursor);
 				bindUiPlayers();
-				mPlayersLoaded = true;
-				if (mPlayLoaded) {
-					onQueriesComplete();
-				}
+				getSupportLoaderManager().destroyLoader(PlayerQuery._TOKEN);
+				onQueriesComplete();
 				break;
 			default:
 				if (cursor != null && !cursor.isClosed()) {
@@ -764,9 +884,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void onQueriesComplete() {
 		mOriginalPlay = PlayBuilder.copy(mPlay);
-		signalDataLoaded();
 		maybeCreateCopy();
 		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
+		signalDataLoaded();
 	}
 
 	private void maybeCreateCopy() {
@@ -782,8 +902,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void signalDataLoaded() {
-		mPlayLoaded = true;
-		mPlayersLoaded = true;
+		mDataLoaded = true;
 		supportInvalidateOptionsMenu();
 	}
 
@@ -863,7 +982,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 		@Override
 		public void drop(int from, int to) {
-			mPlay.reorderPlayers(from + 1, to + 1);
+			if (!mPlay.reorderPlayers(from + 1, to + 1)) {
+				Toast.makeText(LogPlayActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+			}
 			notifyDataSetChanged();
 		}
 	}

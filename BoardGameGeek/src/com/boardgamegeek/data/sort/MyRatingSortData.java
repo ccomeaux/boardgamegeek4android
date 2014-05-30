@@ -15,7 +15,7 @@ public class MyRatingSortData extends CollectionSortData {
 	public MyRatingSortData(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.RATING, true);
-		mDescriptionId = R.string.rating;
+        mDescriptionId = R.string.menu_collection_sort_myrating;
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class MyRatingSortData extends CollectionSortData {
 	}
 
 	@Override
-	public String getScrollText(Cursor cursor) {
+	public String getHeaderText(Cursor cursor) {
 		return getInfo(cursor, null);
 	}
 

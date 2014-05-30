@@ -12,20 +12,15 @@ public class PlayerNumberFilter extends SliderFilter {
 	private boolean mExact;
 
 	@Override
-	protected void captureForm(int min, int max, boolean checkbox) {
+	protected void captureForm(int min, int max, boolean isChecked) {
 		mMinPlayers = min;
 		mMaxPlayers = max;
-		mExact = checkbox;
+		mExact = isChecked;
 	}
 
 	@Override
-	protected boolean getCheckbox() {
+	protected boolean isChecked() {
 		return mExact;
-	}
-
-	@Override
-	protected boolean getCheckboxDisablesSecondThumb() {
-		return true;
 	}
 
 	@Override
@@ -34,17 +29,22 @@ public class PlayerNumberFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getEnd() {
-		return mMaxPlayers;
+	protected int getDescriptionId() {
+		return R.string.filter_description_player_number;
 	}
 
 	@Override
 	protected int getMax() {
+		return mMaxPlayers;
+	}
+
+	@Override
+	protected int getAbsoluteMax() {
 		return PlayerNumberFilterData.MAX_RANGE;
 	}
 
 	@Override
-	protected int getMin() {
+	protected int getAbsoluteMin() {
 		return PlayerNumberFilterData.MIN_RANGE;
 	}
 
@@ -59,7 +59,7 @@ public class PlayerNumberFilter extends SliderFilter {
 	}
 
 	@Override
-	protected int getStart() {
+	protected int getMin() {
 		return mMinPlayers;
 	}
 

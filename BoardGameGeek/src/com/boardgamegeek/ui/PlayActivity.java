@@ -16,10 +16,10 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
+	public static final String KEY_PLAY_ID = "PLAY_ID";
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	private static final String KEY_PLAY_ID = "PLAY_ID";
 	private static final int REQUEST_EDIT_PLAY = 0;
 	private BroadcastReceiver mReceiver;
 	private int mPlayId = BggContract.INVALID_ID;
@@ -52,7 +52,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		if (mPlayId != BggContract.INVALID_ID) {
 			return mPlayId;
 		}
-		return Plays.getPlayId(getIntent().getData());
+		return getIntent().getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 			Intent editIntent = new Intent(intent);
 			editIntent.setClass(this, LogPlayActivity.class);
 			editIntent.setAction(Intent.ACTION_EDIT);
-			editIntent.putExtra(LogPlayActivity.KEY_PLAY_ID, Plays.getPlayId(intent.getData()));
+			editIntent.putExtra(LogPlayActivity.KEY_PLAY_ID, intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID));
 			startActivityForResult(editIntent, REQUEST_EDIT_PLAY);
 		}
 	}

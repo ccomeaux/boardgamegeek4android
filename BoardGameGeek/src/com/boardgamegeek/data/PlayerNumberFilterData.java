@@ -46,7 +46,7 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		if (mExact) {
 			range = r.getString(R.string.exactly) + " ";
 		}
-		if (mExact || mMin == mMax) {
+		if (mMin == mMax) {
 			range += String.valueOf(mMax);
 		} else {
 			range += String.valueOf(mMin) + "-" + String.valueOf(mMax);
@@ -60,10 +60,10 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 
 		if (mExact) {
 			selection(Games.MIN_PLAYERS + "=? AND " + Games.MAX_PLAYERS + "=?");
-			selectionArgs(maxValue, maxValue);
+			selectionArgs(minValue, maxValue);
 		} else {
 			selection(Games.MIN_PLAYERS + "<=? AND (" + Games.MAX_PLAYERS + ">=?" + " OR " + Games.MAX_PLAYERS
-					+ " IS NULL)");
+				+ " IS NULL)");
 			selectionArgs(minValue, maxValue);
 		}
 	}

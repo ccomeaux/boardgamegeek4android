@@ -6,6 +6,7 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -31,7 +32,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +57,7 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class PlaysFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	private static final int MODE_ALL = 0;
@@ -68,7 +68,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	private Uri mUri;
 	private int mGameId;
 	private String mBuddyName;
-	private int mFilter;
+	private int mFilter = Play.SYNC_STATUS_ALL;
 	private SortData mSort;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
@@ -108,12 +108,6 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setFastScrollEnabled(true);
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -142,7 +136,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		setEmptyText(getString(getEmptyStringResoure()));
 		requery();
 
-		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
+		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
 	private void requery() {
@@ -174,7 +168,7 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
 		if (cursor != null) {
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
@@ -386,22 +380,16 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new PlayAdapter(getActivity());
-			if (mMode == MODE_GAME) {
-				mAdapter.setRowResId(R.layout.row_play_game);
-			}
-			setListAdapter(mAdapter);
-		}
-
 		int token = loader.getId();
 		if (token == PlaysQuery._TOKEN) {
-			mAdapter.changeCursor(cursor);
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
+			if (mAdapter == null) {
+				mAdapter = new PlayAdapter(getActivity());
+				if (mMode == MODE_GAME) {
+					mAdapter.setRowResId(R.layout.row_play_game);
+				}
+				setListAdapter(mAdapter);
 			}
+			mAdapter.changeCursor(cursor);
 			restoreScrollState();
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
 		} else if (token == GameQuery._TOKEN) {
@@ -444,23 +432,16 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 	}
 
 	public void filter(int filter) {
-		if (mMode == MODE_ALL) {
+		if (filter != mFilter && mMode == MODE_ALL) {
 			mFilter = filter;
 			setEmptyText(getString(getEmptyStringResoure()));
 			requery();
 		}
 	}
 
-	private class PlayAdapter extends CursorAdapter {
-		private static final int STATE_UNKNOWN = 0;
-		private static final int STATE_SECTIONED_CELL = 1;
-		private static final int STATE_REGULAR_CELL = 2;
-
+	private class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 		private int mRowResId = R.layout.row_play;
-		private int[] mCellStates;
-		private String mPreviousSection;
-		private String mCurrentSection;
 
 		private String mTimes;
 		private String mAt;
@@ -488,47 +469,8 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 		}
 
 		@Override
-		public Cursor swapCursor(Cursor newCursor) {
-			mCellStates = newCursor == null ? null : new int[newCursor.getCount()];
-			return super.swapCursor(newCursor);
-		}
-
-		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
-
-			boolean needSeparator = false;
-			final int position = cursor.getPosition();
-			mCurrentSection = mSort.getSectionText(cursor);
-			switch (mCellStates[position]) {
-				case STATE_SECTIONED_CELL:
-					needSeparator = true;
-					break;
-				case STATE_REGULAR_CELL:
-					needSeparator = false;
-					break;
-				case STATE_UNKNOWN:
-				default:
-					if (position == 0) {
-						needSeparator = true;
-					} else {
-						cursor.moveToPosition(position - 1);
-						mPreviousSection = mSort.getSectionText(cursor);
-						if (!mPreviousSection.equals(mCurrentSection)) {
-							needSeparator = true;
-						}
-						cursor.moveToPosition(position);
-					}
-					mCellStates[position] = needSeparator ? STATE_SECTIONED_CELL : STATE_REGULAR_CELL;
-					break;
-			}
-
-			if (needSeparator) {
-				holder.separator.setText(mCurrentSection);
-				holder.separator.setVisibility(View.VISIBLE);
-			} else {
-				holder.separator.setVisibility(View.GONE);
-			}
 
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
@@ -578,21 +520,46 @@ public class PlaysFragment extends BggListFragment implements LoaderManager.Load
 				holder.status.setVisibility(View.GONE);
 			}
 		}
-	}
 
-	static class ViewHolder {
-		TextView name;
-		TextView date;
-		TextView location;
-		TextView status;
-		TextView separator;
+		@Override
+		public long getHeaderId(int position) {
+			if (position < 0) {
+				return 0;
+			}
+			return mSort.getHeaderId(getCursor(), position);
+		}
 
-		public ViewHolder(View view) {
-			name = (TextView) view.findViewById(R.id.list_name);
-			date = (TextView) view.findViewById(R.id.list_date);
-			location = (TextView) view.findViewById(R.id.list_location);
-			status = (TextView) view.findViewById(R.id.list_status);
-			separator = (TextView) view.findViewById(R.id.separator);
+		@Override
+		public View getHeaderView(int position, View convertView, ViewGroup parent) {
+			HeaderViewHolder holder;
+			if (convertView == null) {
+				holder = new HeaderViewHolder();
+				convertView = mInflater.inflate(R.layout.row_header, parent, false);
+				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				convertView.setTag(holder);
+			} else {
+				holder = (HeaderViewHolder) convertView.getTag();
+			}
+			holder.text.setText(mSort.getHeaderText(getCursor(), position));
+			return convertView;
+		}
+
+		class ViewHolder {
+			TextView name;
+			TextView date;
+			TextView location;
+			TextView status;
+
+			public ViewHolder(View view) {
+				name = (TextView) view.findViewById(R.id.list_name);
+				date = (TextView) view.findViewById(R.id.list_date);
+				location = (TextView) view.findViewById(R.id.list_location);
+				status = (TextView) view.findViewById(R.id.list_status);
+			}
+		}
+
+		class HeaderViewHolder {
+			TextView text;
 		}
 	}
 

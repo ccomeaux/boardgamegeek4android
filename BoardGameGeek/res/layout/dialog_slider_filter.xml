@@ -13,10 +13,10 @@
 		android:layout_height="wrap_content"
 		android:gravity="center" />
 
-	<com.boardgamegeek.ui.widget.DualSliderView
-		android:id="@+id/slider_filter_slider"
+	<FrameLayout
+		android:id="@+id/slider_filter_rangeseekbar_container"
 		android:layout_width="fill_parent"
-		android:layout_height="0dp" />
+		android:layout_height="wrap_content" />
 
 	<CheckBox
 		android:id="@+id/slider_filter_checkbox"
@@ -24,5 +24,15 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/include_missing_values" />
+
+	<TextView
+		android:id="@+id/slider_filter_description"
+		style="@style/Text.Dialog"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:paddingTop="@dimen/padding_extra"
+		android:text="@string/filter_description_player_number"
+		android:visibility="gone" />
 
 </LinearLayout>

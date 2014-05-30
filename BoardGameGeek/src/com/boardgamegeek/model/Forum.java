@@ -7,6 +7,7 @@ public class Forum implements Parcelable {
 
 	public String id;
 	public String title;
+	public int noposting;
 	public int numberOfThreads;
 	public long lastPostDate;
 
@@ -16,6 +17,7 @@ public class Forum implements Parcelable {
 	public Forum(Parcel in) {
 		id = in.readString();
 		title = in.readString();
+		noposting = in.readInt();
 		numberOfThreads = in.readInt();
 		lastPostDate = in.readLong();
 	}
@@ -29,6 +31,7 @@ public class Forum implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
 		dest.writeString(title);
+		dest.writeInt(noposting);
 		dest.writeInt(numberOfThreads);
 		dest.writeLong(lastPostDate);
 	}

@@ -69,7 +69,6 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				accountManager
 					.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
 			}
-			SyncService.hIndex(executor.getContext());
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

@@ -208,7 +208,9 @@ public class Play {
 		if (resort && !arePlayersCustomSorted()) {
 			for (int i = player.getSeat(); i < mPlayers.size(); i++) {
 				Player p = getPlayerAtSeat(i + 1);
-				p.setSeat(i);
+				if (p != null) {
+					p.setSeat(i);
+				}
 			}
 		}
 		mPlayers.remove(player);
@@ -227,23 +229,31 @@ public class Play {
 		return null;
 	}
 
-	public void reorderPlayers(int fromSeat, int toSeat) {
+	public boolean reorderPlayers(int fromSeat, int toSeat) {
 		if (arePlayersCustomSorted()) {
-			return;
+			return false;
 		}
 		Player player = getPlayerAtSeat(fromSeat);
+		if (player == null) {
+			return false;
+		}
 		player.setSeat(Player.SEAT_UNKNOWN);
-		if (fromSeat > toSeat) {
-			for (int i = fromSeat - 1; i >= toSeat; i--) {
-				getPlayerAtSeat(i).setSeat(i + 1);
+		try {
+			if (fromSeat > toSeat) {
+				for (int i = fromSeat - 1; i >= toSeat; i--) {
+					getPlayerAtSeat(i).setSeat(i + 1);
+				}
+			} else {
+				for (int i = fromSeat + 1; i <= toSeat; i++) {
+					getPlayerAtSeat(i).setSeat(i - 1);
+				}
 			}
-		} else {
-			for (int i = fromSeat + 1; i <= toSeat; i++) {
-				getPlayerAtSeat(i).setSeat(i - 1);
-			}
+		} catch (NullPointerException e) {
+			return false;
 		}
 		player.setSeat(toSeat);
 		sortPlayers();
+		return true;
 	}
 
 	/**
@@ -299,6 +309,10 @@ public class Play {
 			return false;
 		}
 
+		if (!hasStartingPositions()) {
+			return false;
+		}
+
 		int seat = 1;
 		do {
 			boolean foundSeat = false;
@@ -317,6 +331,36 @@ public class Play {
 			}
 		} while (seat < 100);
 		return true;
+	}
+
+	/**
+	 * Determine if any player has a starting position.
+	 */
+	public boolean hasStartingPositions() {
+		if (getPlayerCount() == 0) {
+			return false;
+		}
+
+		for (Player player : mPlayers) {
+			if (!TextUtils.isEmpty(player.getStartingPosition())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Remove the starting position for all players.
+	 */
+	public void clearPlayerPositions() {
+		if (getPlayerCount() == 0) {
+			return;
+		}
+
+		for (Player player : mPlayers) {
+			player.setStartingPosition(null);
+		}
 	}
 
 	// MISC
