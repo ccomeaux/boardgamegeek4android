@@ -57,7 +57,7 @@ public class NotificationUtils {
 	}
 
 	private static void launchStartNotification(Context context, Play play, boolean includeTicker) {
-		Intent intent = ActivityUtils.createPlayIntent(play.playId, play.gameId, play.gameName);
+		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
 			R.string.notification_playing);

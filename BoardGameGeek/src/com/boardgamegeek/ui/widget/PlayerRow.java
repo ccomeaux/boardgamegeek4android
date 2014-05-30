@@ -18,10 +18,7 @@ import com.boardgamegeek.util.ColorUtils;
 
 public class PlayerRow extends LinearLayout {
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
-	private Typeface mNameTypeface;
-	private int mLightTextColor;
-	private int mDefaultTextColor;
-	private boolean mAutoSort;
+	private boolean mEditScores;
 
 	private View mDragHandle;
 	private TextView mName;
@@ -31,8 +28,14 @@ public class PlayerRow extends LinearLayout {
 	private TextView mTeamColor;
 	private TextView mScore;
 	private TextView mStartingPosition;
+	private TextView mSeatColor;
+	private TextView mSeat;
 	private TextView mRating;
 	private ImageView mDeleteButton;
+
+	private Typeface mNameTypeface;
+	private Typeface mUsernameTypeface;
+	private Typeface mScoreTypeface;
 
 	public PlayerRow(Context context) {
 		this(context, null);
@@ -46,18 +49,20 @@ public class PlayerRow extends LinearLayout {
 
 	private void initializeUi() {
 		mDragHandle = findViewById(R.id.drag_handle);
-		mName = (TextView) findViewById(R.id.name);
-		mUsername = (TextView) findViewById(R.id.username);
+		mSeatColor = (TextView) findViewById(R.id.seat_color);
+		mSeat = (TextView) findViewById(R.id.seat);
 		mColorSwatchContainer = findViewById(R.id.color_swatch_container);
 		mColorSwatch = findViewById(R.id.color_swatch);
+		mName = (TextView) findViewById(R.id.name);
+		mUsername = (TextView) findViewById(R.id.username);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
 		mScore = (TextView) findViewById(R.id.score);
 		mRating = (TextView) findViewById(R.id.rating);
 		mStartingPosition = (TextView) findViewById(R.id.starting_position);
 
 		mNameTypeface = mName.getTypeface();
-		mDefaultTextColor = mScore.getTextColors().getDefaultColor();
-		mLightTextColor = getResources().getColor(R.color.light_text);
+		mUsernameTypeface = mUsername.getTypeface();
+		mScoreTypeface = mScore.getTypeface();
 
 		mDeleteButton = (ImageView) findViewById(R.id.log_player_delete);
 	}
@@ -69,8 +74,11 @@ public class PlayerRow extends LinearLayout {
 	}
 
 	public void setAutoSort(boolean value) {
-		mAutoSort = value;
 		mDragHandle.setVisibility(value ? View.VISIBLE : View.GONE);
+	}
+
+	public void setEditScores(boolean edit) {
+		mEditScores = edit;
 	}
 
 	public void setPlayer(Player player) {
@@ -80,47 +88,61 @@ public class PlayerRow extends LinearLayout {
 			setText(mTeamColor, "");
 			setText(mScore, "");
 			setText(mRating, "");
-			setText(mStartingPosition, "");
+			setText(mSeatColor, "");
+			setText(mSeat, "");
 		} else {
-			setText(mUsername, player.username);
-			if (TextUtils.isEmpty(player.name)) {
-				mName.setVisibility(View.GONE);
-			} else {
-				mName.setVisibility(View.VISIBLE);
-				mName.setText(player.name);
-				if (player.New() && player.Win()) {
-					mName.setTypeface(mNameTypeface, Typeface.BOLD_ITALIC);
-				} else if (player.New()) {
-					mName.setTypeface(mNameTypeface, Typeface.ITALIC);
-				} else if (player.Win()) {
-					mName.setTypeface(mNameTypeface, Typeface.BOLD);
-				} else {
-					mName.setTypeface(mNameTypeface, Typeface.NORMAL);
-				}
-			}
-
 			int color = ColorUtils.parseColor(player.color);
+
+			setText(mSeatColor, player.getStartingPosition());
+			setText(mSeat, player.getStartingPosition());
+			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
+			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
+			setText(mTeamColor, player.color);
+			setText(mScore, player.score, mScoreTypeface, false, player.Win());
+			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
+			setText(mStartingPosition, player.getStartingPosition());
+
 			if (color != ColorUtils.TRANSPARENT) {
-				mColorSwatch.setBackgroundColor(color);
-				mColorSwatchContainer.setVisibility(View.VISIBLE);
+				mSeat.setVisibility(View.GONE);
+				if (player.getSeat() == Player.SEAT_UNKNOWN) {
+					mColorSwatch.setBackgroundColor(color);
+					mColorSwatchContainer.setVisibility(View.VISIBLE);
+					mSeatColor.setVisibility(View.GONE);
+				} else {
+					mSeatColor.setTextColor(color);
+					mColorSwatchContainer.setVisibility(View.GONE);
+					mStartingPosition.setVisibility(View.GONE);
+				}
 				mTeamColor.setVisibility(View.GONE);
 			} else {
-				mColorSwatchContainer.setVisibility(View.INVISIBLE);
-				setText(mTeamColor, player.color);
+				mSeatColor.setVisibility(View.GONE);
+				mColorSwatchContainer.setVisibility(View.GONE);
+				if (player.getSeat() == Player.SEAT_UNKNOWN) {
+					mSeat.setVisibility(View.GONE);
+				} else {
+					mStartingPosition.setVisibility(View.GONE);
+				}
 			}
-
-			setText(mScore, player.score);
-
-			setText(mStartingPosition, (player.getSeat() == Player.SEAT_UNKNOWN) ? player.getStartingPosition() : "#"
-				+ player.getSeat());
-			mStartingPosition.setTextColor(mAutoSort ? mLightTextColor : mDefaultTextColor);
-
-			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 		}
 	}
 
 	private void setText(TextView textView, String text) {
 		textView.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		textView.setText(text);
+	}
+
+	private void setText(TextView textView, String text, Typeface tf, boolean italic, boolean bold) {
+		setText(textView, text);
+		if (!TextUtils.isEmpty(text)) {
+			if (italic && bold) {
+				textView.setTypeface(tf, Typeface.BOLD_ITALIC);
+			} else if (italic) {
+				textView.setTypeface(tf, Typeface.ITALIC);
+			} else if (bold) {
+				textView.setTypeface(tf, Typeface.BOLD);
+			} else {
+				textView.setTypeface(tf, Typeface.NORMAL);
+			}
+		}
 	}
 }

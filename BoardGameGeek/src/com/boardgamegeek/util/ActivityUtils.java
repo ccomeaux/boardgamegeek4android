@@ -42,7 +42,6 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
@@ -169,17 +168,18 @@ public class ActivityUtils {
 	}
 
 	public static void launchPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
-		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
+		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(int playId, int gameId, String gameName) {
-		return createPlayIntent(playId, gameId, gameName, null);
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName) {
+		return createPlayIntent(context, playId, gameId, gameName, null);
 	}
 
-	public static Intent createPlayIntent(int playId, int gameId, String gameName, String thumbnailUrl) {
-		Uri playUri = Plays.buildPlayUri(playId);
-		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+		Intent intent = new Intent(context, PlayActivity.class);
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
@@ -214,7 +214,7 @@ public class ActivityUtils {
 
 	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
 		String thumbnailUrl) {
-		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
+		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl);
 		intent.setAction(Intent.ACTION_EDIT);
 		return intent;
 	}

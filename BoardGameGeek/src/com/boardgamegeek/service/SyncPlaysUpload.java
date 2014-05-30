@@ -115,9 +115,6 @@ public class SyncPlaysUpload extends SyncTask {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(mContext);
 					break;
-				} else if (response.hasBadIdError()) {
-					PlayPersister.delete(mContext.getContentResolver(), play);
-					notifyUser(mContext.getResources().getString(R.string.msg_play_update_bad_id));
 				} else {
 					syncResult.stats.numIoExceptions++;
 					notifyUser(response.error);
@@ -440,11 +437,9 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		boolean hasAuthError() {
-			return hasError() && error.contains("You must login to save plays");
-		}
-
-		boolean hasBadIdError() {
-			return hasError() && error.contains("You are not permitted to edit this play.");
+			return hasError()
+				&& (error.contains("You must login to save plays") || error
+					.contains("You are not permitted to edit this play."));
 		}
 	}
 }
