@@ -55,6 +55,15 @@ public class StringUtils {
 		}
 	}
 
+	public static boolean isNumeric(String text) {
+		try {
+			Double.parseDouble(text);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Gets the ordinal (1st) for the given cardinal (1)
 	 * 
