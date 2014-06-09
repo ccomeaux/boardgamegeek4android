@@ -11,6 +11,7 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
+import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
@@ -18,6 +19,15 @@ import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
 public interface BggService {
+	public static final String HOTNESS_TYPE_BOARDGAME = "boardgame";
+	// rpg
+	// videogame
+	// boardgameperson
+	// rpgperson
+	// boardgamecompany
+	// rpgcompany
+	// videogamecompany
+
 	public static final String PERSON_TYPE_ARTIST = "boardgameartist";
 	public static final String PERSON_TYPE_DESIGNER = "boardgamedesigner";
 	public static final String COMPANY_TYPE_PUBLISHER = "boardgamepublisher";
@@ -34,6 +44,9 @@ public interface BggService {
 	public static final int FORUM_REGION_BOARDGAME = 1;
 	public static final int FORUM_REGION_RPG = 2;
 	public static final int FORUM_REGION_VIDEOGAME = 3;
+
+	@GET("/xmlapi2/hot")
+	HotnessResponse getHotness(@Query("type") String type);
 
 	@GET("/xmlapi2/forumlist")
 	ForumListResponse forumList(@Query("type") String type, @Query("id") int id);

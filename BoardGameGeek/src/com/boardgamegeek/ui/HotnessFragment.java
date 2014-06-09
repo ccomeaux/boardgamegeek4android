@@ -24,9 +24,9 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
-import com.boardgamegeek.io.HotnessService;
-import com.boardgamegeek.io.HotnessService.HotnessResponse;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
+import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
@@ -98,18 +98,18 @@ public class HotnessFragment extends BggListFragment implements
 	}
 
 	private static class HotnessLoader extends BggLoader<HotnessData> {
-		private HotnessService mService;
+		private BggService mService;
 
 		public HotnessLoader(Context context) {
 			super(context);
-			mService = Adapter.get().create(HotnessService.class);
+			mService = Adapter.create();
 		}
 
 		@Override
 		public HotnessData loadInBackground() {
 			HotnessData games = null;
 			try {
-				games = new HotnessData(mService.getHotness(HotnessService.TYPE_BOARDGAME));
+				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
 			} catch (Exception e) {
 				games = new HotnessData(e);
 			}
