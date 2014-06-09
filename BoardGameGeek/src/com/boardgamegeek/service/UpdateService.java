@@ -43,7 +43,6 @@ public class UpdateService extends IntentService {
 	public static final int STATUS_COMPLETE = 2;
 	public static final int STATUS_ERROR = 3;
 
-	private RemoteExecutor mRemoteExecutor;
 	private ResultReceiver mResultReceiver;
 	private static boolean mUseGzip = true;
 
@@ -61,12 +60,6 @@ public class UpdateService extends IntentService {
 
 	public UpdateService() {
 		super(TAG);
-	}
-
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		mRemoteExecutor = createExecutor();
 	}
 
 	@Override
@@ -95,7 +88,14 @@ public class UpdateService extends IntentService {
 		UpdateTask task = null;
 		switch (syncType) {
 			case SYNC_TYPE_GAME:
-				task = new SyncGame(syncId);
+				SyncGame sg = new SyncGame(syncId);
+				RemoteExecutor remoteExecutor = createExecutor();
+				if (remoteExecutor == null) {
+					sendResultToReceiver(STATUS_ERROR, "Unable to create executor.");
+					return;
+				}
+				sg.setExecutor(remoteExecutor);
+				task = sg;
 				break;
 			case SYNC_TYPE_GAME_PLAYS:
 				task = new SyncGamePlays(syncId);
@@ -125,25 +125,22 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (mRemoteExecutor == null) {
-			mRemoteExecutor = createExecutor();
-		}
-
-		if (mRemoteExecutor == null) {
-			sendResultToReceiver(STATUS_ERROR, "Unable to create executor.");
-			return;
-		}
-
 		final long startTime = System.currentTimeMillis();
 		sendResultToReceiver(STATUS_RUNNING);
 		try {
-			task.setExecutor(mRemoteExecutor);
 			task.execute(this);
-			String message = task.getErrorMessage();
-			if (!TextUtils.isEmpty(message)) {
-				LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
-				sendResultToReceiver(STATUS_ERROR, message);
+			if (task instanceof SyncGame) {
+				SyncGame sg = (SyncGame) task;
+				String message = sg.getErrorMessage();
+				if (!TextUtils.isEmpty(message)) {
+					LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
+					sendResultToReceiver(STATUS_ERROR, message);
+				}
 			}
+		} catch (Exception e) {
+			String message = e.getMessage();
+			LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
+			sendResultToReceiver(STATUS_ERROR, message);
 		} finally {
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
