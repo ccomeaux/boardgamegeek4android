@@ -7,6 +7,7 @@ import retrofit.http.Path;
 import retrofit.http.Query;
 import retrofit.http.QueryMap;
 
+import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
@@ -105,4 +106,8 @@ public interface BggService {
 
 	@GET("/xmlapi2/user")
 	User user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
+
+	@GET("/xmlapi2/collection")
+	CollectionResponse collection(@Query("username") String username, @Query("id") int gameId,
+		@Query("showprivate") int showPrivate, @Query("stats") int stats);
 }

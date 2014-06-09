@@ -35,7 +35,7 @@ public class BuddyPersister {
 		if (buddies != null) {
 			for (User buddy : buddies) {
 				ContentValues values = toValues(buddy, updateTime);
-				addToBatch(context, resolver, values, batch);
+				addToBatch(resolver, values, batch);
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
@@ -58,7 +58,7 @@ public class BuddyPersister {
 		if (buddies != null) {
 			for (Buddy buddy : buddies) {
 				ContentValues values = toValues(buddy, updateTime);
-				addToBatch(context, resolver, values, batch);
+				addToBatch(resolver, values, batch);
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
@@ -69,7 +69,7 @@ public class BuddyPersister {
 		}
 	}
 
-	private static void addToBatch(Context context, ContentResolver resolver, ContentValues values,
+	private static void addToBatch(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
 		int id = values.getAsInteger(Buddies.BUDDY_ID);
 		Uri uri = Buddies.buildBuddyUri(id);
@@ -119,6 +119,7 @@ public class BuddyPersister {
 
 		String avatarFileName = FileUtils.getFileNameFromUrl(oldAvatarUrl);
 		if (!TextUtils.isEmpty(avatarFileName)) {
+			// TODO: use batch
 			resolver.delete(Avatars.buildUri(avatarFileName), null, null);
 		}
 	}

@@ -393,7 +393,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = CursorUtils.getFormettedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
 			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
