@@ -12,6 +12,9 @@ public class CollectionResponse {
 	@Attribute(name = "termsofuse")
 	private String termsOfUse;
 
+	@Attribute(required = false)
+	private String pubdate;
+
 	@ElementList(inline = true, required = false)
 	public List<CollectionItem> items;
 }

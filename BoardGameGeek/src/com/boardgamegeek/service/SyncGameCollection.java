@@ -8,11 +8,15 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.RetryableException;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
 public class SyncGameCollection extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGameCollection.class);
+	private static final int MAX_RETRIES = 5;
+	private static final int RETRY_BACKOFF = 100;
+
 	private int mGameId;
 
 	public SyncGameCollection(int gameId) {
@@ -26,10 +30,33 @@ public class SyncGameCollection extends UpdateTask {
 			return;
 		}
 
-		BggService service = Adapter.createWithAuth(context);
+		BggService service = Adapter.createWithAuthRetry(context);
+		CollectionResponse response = null;
 		long t = System.currentTimeMillis();
-		CollectionResponse response = service.collection(account.name, mGameId, 1, 0);
-		if (response.items == null || response.items.size() == 0) {
+
+		int retries = 0;
+		while (true) {
+			try {
+				response = service.collection(account.name, mGameId, 1, 0);
+				break;
+			} catch (Exception e) {
+				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+					retries++;
+					if (retries > MAX_RETRIES) {
+						break;
+					}
+					try {
+						Thread.sleep(retries * retries * RETRY_BACKOFF);
+					} catch (InterruptedException e1) {
+						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+						break;
+					}
+				} else {
+					throw e;
+				}
+			}
+		}
+		if (response == null || response.items == null || response.items.size() == 0) {
 			LOGI(TAG, "No collection items for game ID=" + mGameId);
 		}
 		CollectionPersister.save(context, response.items, t);
