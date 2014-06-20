@@ -26,18 +26,41 @@ import com.boardgamegeek.provider.BggContract;
 
 public class ResolverUtils {
 	private static final String TAG = makeLogTag(ResolverUtils.class);
+	private static final boolean DEBUG = false;
 
 	public static ContentProviderResult[] applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
 		if (batch.size() > 0) {
-			try {
-				return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			} catch (OperationApplicationException e) {
-				throw new RuntimeException(e);
+			if (DEBUG) {
+				for (ContentProviderOperation cpo : batch) {
+					applySingle(resolver, cpo);
+				}
+			} else {
+				try {
+					return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+				} catch (RemoteException e) {
+					LOGE(TAG, batch.toString(), e);
+					throw new RuntimeException(e);
+				} catch (OperationApplicationException e) {
+					LOGE(TAG, batch.toString(), e);
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return null;
+	}
+
+	private static void applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>(1);
+		batch.add(cpo);
+		try {
+			resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+		} catch (RemoteException e) {
+			LOGE(TAG, cpo.toString(), e);
+			throw new RuntimeException(e);
+		} catch (OperationApplicationException e) {
+			LOGE(TAG, cpo.toString(), e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	/*
