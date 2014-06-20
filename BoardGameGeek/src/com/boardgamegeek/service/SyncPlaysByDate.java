@@ -21,6 +21,11 @@ public class SyncPlaysByDate extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync plays for date=" + mDate;
+	}
+
+	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {

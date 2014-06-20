@@ -20,6 +20,11 @@ public class SyncArtist extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync artist ID=" + mArtistId;
+	}
+
+	@Override
 	public void execute(Context context) {
 		BggService service = Adapter.get().create(BggService.class);
 		Person person = service.person(BggService.PERSON_TYPE_ARTIST, mArtistId);

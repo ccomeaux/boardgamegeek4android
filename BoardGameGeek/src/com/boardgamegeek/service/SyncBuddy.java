@@ -18,6 +18,11 @@ public class SyncBuddy extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync artist name=" + mName;
+	}
+
+	@Override
 	public void execute(Context context) {
 		BggService service = Adapter.create();
 		User user = service.user(mName);

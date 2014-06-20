@@ -20,6 +20,11 @@ public class SyncDesigner extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync designer ID=" + mDesignerId;
+	}
+
+	@Override
 	public void execute(Context context) {
 		BggService service = Adapter.get().create(BggService.class);
 		Person person = service.person(BggService.PERSON_TYPE_DESIGNER, mDesignerId);

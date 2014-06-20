@@ -20,6 +20,11 @@ public class SyncPublisher extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync publisher ID=" + mPublisherId;
+	}
+
+	@Override
 	public void execute(Context context) {
 		BggService service = Adapter.get().create(BggService.class);
 		Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, mPublisherId);

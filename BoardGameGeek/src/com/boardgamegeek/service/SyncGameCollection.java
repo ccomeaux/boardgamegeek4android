@@ -24,6 +24,11 @@ public class SyncGameCollection extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync collection for game ID=" + mGameId;
+	}
+
+	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {

@@ -5,9 +5,6 @@ import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import org.apache.http.client.HttpClient;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +12,8 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
 
 public class UpdateService extends IntentService {
@@ -88,14 +83,7 @@ public class UpdateService extends IntentService {
 		UpdateTask task = null;
 		switch (syncType) {
 			case SYNC_TYPE_GAME:
-				SyncGame sg = new SyncGame(syncId);
-				RemoteExecutor remoteExecutor = createExecutor();
-				if (remoteExecutor == null) {
-					sendResultToReceiver(STATUS_ERROR, "Unable to create executor.");
-					return;
-				}
-				sg.setExecutor(remoteExecutor);
-				task = sg;
+				task = new SyncGame(syncId);
 				break;
 			case SYNC_TYPE_GAME_PLAYS:
 				task = new SyncGamePlays(syncId);
@@ -129,32 +117,20 @@ public class UpdateService extends IntentService {
 		sendResultToReceiver(STATUS_RUNNING);
 		try {
 			task.execute(this);
-			if (task instanceof SyncGame) {
-				SyncGame sg = (SyncGame) task;
-				String message = sg.getErrorMessage();
-				if (!TextUtils.isEmpty(message)) {
-					LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
-					sendResultToReceiver(STATUS_ERROR, message);
-				}
-			}
 		} catch (Exception e) {
-			String message = e.getMessage();
-			LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
-			sendResultToReceiver(STATUS_ERROR, message);
+			String message = "Failed during " + task.getDescription();
+			String error = e.getMessage();
+			if (!TextUtils.isEmpty(error)) {
+				message += ", message=" + error;
+			}
+			LOGE(TAG, message);
+			sendResultToReceiver(STATUS_ERROR, error);
 		} finally {
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
 			sendResultToReceiver(STATUS_COMPLETE);
 			mResultReceiver = null;
 		}
-	}
-
-	private RemoteExecutor createExecutor() {
-		HttpClient httpClient = HttpUtils.createHttpClient(this, mUseGzip);
-		if (httpClient != null) {
-			return new RemoteExecutor(httpClient, this);
-		}
-		return null;
 	}
 
 	private void sendResultToReceiver(int resultCode) {

@@ -23,6 +23,11 @@ public class SyncGamePlays extends UpdateTask {
 	}
 
 	@Override
+	public String getDescription() {
+		return "Sync plays for game ID=" + mGameId;
+	}
+
+	@Override
 	public void execute(Context context) {
 		Account account = Authenticator.getAccount(context);
 		if (account == null) {
