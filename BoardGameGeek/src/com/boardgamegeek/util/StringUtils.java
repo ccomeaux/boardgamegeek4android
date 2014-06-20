@@ -29,7 +29,7 @@ public class StringUtils {
 	public static int parseInt(String text, int defaultValue) {
 		try {
 			return Integer.parseInt(text);
-		} catch (NumberFormatException ex) {
+		} catch (NumberFormatException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}
@@ -41,7 +41,7 @@ public class StringUtils {
 	public static double parseDouble(String text, double defaultValue) {
 		try {
 			return Double.parseDouble(text);
-		} catch (NumberFormatException ex) {
+		} catch (NumberFormatException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}

@@ -9,11 +9,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteBggHandler;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteGameHandler;
-import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.url.GameUrlBuilder;
+import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.model.persister.GamePersister;
 
 public class SyncGame extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncGame.class);
@@ -35,12 +36,11 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		RemoteGameHandler handler = new RemoteGameHandler(System.currentTimeMillis());
-		if (PreferencesUtils.getPolls(context)) {
-			handler.setParsePolls();
-		}
-		String url = new GameUrlBuilder(mGameId).stats().build();
-		mExecutor.safelyExecuteGet(url, handler);
+		long startTime = System.currentTimeMillis();
+		BggService service = Adapter.create();
+		ThingResponse response = service.thing(mGameId, 1);
+		GamePersister gp = new GamePersister(context, response.games, startTime);
+		gp.save();
 		LOGI(TAG, "Synced Game " + mGameId);
 	}
 

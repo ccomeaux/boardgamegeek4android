@@ -15,6 +15,7 @@ import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
+import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.model.User;
 
@@ -123,4 +124,8 @@ public interface BggService {
 	@GET("/xmlapi2/collection")
 	CollectionResponse collection(@Query("username") String username, @Query("id") int gameId,
 		@Query("showprivate") int showPrivate, @Query("stats") int stats);
+
+	@GET("/xmlapi2/thing")
+	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);
+	// TODO handle multiple gameId's
 }

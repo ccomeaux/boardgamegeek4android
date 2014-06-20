@@ -111,7 +111,7 @@ public class CollectionItem {
 	public double pricePaid() {
 		try {
 			return Double.parseDouble(pricepaid);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException | NullPointerException e) {
 			return 0.0;
 		}
 	}
@@ -127,7 +127,7 @@ public class CollectionItem {
 	public double currentValue() {
 		try {
 			return Double.parseDouble(currvalue);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException | NullPointerException e) {
 			return 0.0;
 		}
 	}
