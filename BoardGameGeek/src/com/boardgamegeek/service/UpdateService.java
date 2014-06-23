@@ -10,11 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.NetworkUtils;
+import com.boardgamegeek.util.NotificationUtils;
 
 public class UpdateService extends IntentService {
 	private static final String TAG = makeLogTag(UpdateService.class);
@@ -37,6 +40,8 @@ public class UpdateService extends IntentService {
 	public static final int STATUS_RUNNING = 1;
 	public static final int STATUS_COMPLETE = 2;
 	public static final int STATUS_ERROR = 3;
+
+	private static final boolean DEBUG = true;
 
 	private ResultReceiver mResultReceiver;
 	private static boolean mUseGzip = true;
@@ -122,6 +127,12 @@ public class UpdateService extends IntentService {
 			String error = e.getMessage();
 			if (!TextUtils.isEmpty(error)) {
 				message += ", message=" + error;
+			}
+			if (DEBUG) {
+				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
+					R.string.title_error);
+				builder.setContentText(message);
+				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}
 			LOGE(TAG, message);
 			sendResultToReceiver(STATUS_ERROR, error);

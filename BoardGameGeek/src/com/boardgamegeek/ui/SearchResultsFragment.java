@@ -157,7 +157,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 		public SearchLoader(Context context, String query) {
 			super(context);
-			mService = Adapter.get().create(BggService.class);
+			mService = Adapter.create();
 			mQuery = query;
 		}
 

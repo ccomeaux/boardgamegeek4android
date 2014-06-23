@@ -26,7 +26,7 @@ public class SyncArtist extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		BggService service = Adapter.get().create(BggService.class);
+		BggService service = Adapter.create();
 		Person person = service.person(BggService.PERSON_TYPE_ARTIST, mArtistId);
 		Uri uri = Artists.buildArtistUri(mArtistId);
 		context.getContentResolver().update(uri, toValues(person), null, null);

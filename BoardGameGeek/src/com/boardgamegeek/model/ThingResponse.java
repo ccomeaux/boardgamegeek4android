@@ -6,6 +6,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
 public class ThingResponse {
+	public static final int PAGE_SIZE = 100;
+
 	@Attribute
 	private String termsofuse;
 

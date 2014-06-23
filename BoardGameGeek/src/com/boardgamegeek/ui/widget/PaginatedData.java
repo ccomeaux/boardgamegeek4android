@@ -40,7 +40,11 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(PaginatedData<T> data) {
-		this.mData = new ArrayList<T>(data.mData);
+		if (data.mData == null) {
+			this.mData = new ArrayList<T>();
+		} else {
+			this.mData = new ArrayList<T>(data.mData);
+		}
 		this.mErrorMessage = data.mErrorMessage;
 		this.mTotalCount = data.mTotalCount;
 		this.mCurrentPage = data.mCurrentPage;

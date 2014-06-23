@@ -174,6 +174,22 @@ public class Game {
 		public double averageWeight;
 	}
 
+	@Root(name = "comment")
+	public static class Comment {
+		@Attribute
+		public String username;
+
+		@Attribute
+		private String rating;
+
+		public double getRating() {
+			return StringUtils.parseDouble(rating, 0.0);
+		}
+
+		@Attribute
+		public String value;
+	}
+
 	@Attribute
 	private String type;
 
@@ -220,6 +236,20 @@ public class Game {
 
 	@Element(name = "statistics", required = false)
 	public Statistics statistics;
+
+	@Element(required = false)
+	public Comments comments;
+
+	public static class Comments {
+		@Attribute
+		public int page;
+
+		@Attribute
+		public int totalitems;
+
+		@ElementList(inline = true)
+		public List<Comment> comments;
+	}
 
 	public String getName() {
 		for (Name name : names) {

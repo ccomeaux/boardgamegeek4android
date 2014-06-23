@@ -26,7 +26,7 @@ public class SyncPublisher extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		BggService service = Adapter.get().create(BggService.class);
+		BggService service = Adapter.create();
 		Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, mPublisherId);
 		Uri uri = Publishers.buildPublisherUri(mPublisherId);
 		context.getContentResolver().update(uri, toValues(company), null, null);
