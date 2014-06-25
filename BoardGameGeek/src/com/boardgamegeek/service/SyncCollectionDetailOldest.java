@@ -10,14 +10,16 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.SyncResult;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteBggHandler;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteGameHandler;
+import com.boardgamegeek.model.ThingResponse;
+import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.url.GameUrlBuilder;
 
 public class SyncCollectionDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);
@@ -32,10 +34,13 @@ public class SyncCollectionDetailOldest extends SyncTask {
 				Games.CONTENT_URI, Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + SYNC_GAME_LIMIT);
 			LOGI(TAG, "...found " + gameIds.size() + " games to update");
 			if (gameIds.size() > 0) {
-				RemoteBggHandler handler = new RemoteGameHandler(System.currentTimeMillis());
-				String url = new GameUrlBuilder(gameIds).stats().build();
-				executor.executeGet(url, handler);
-				// syncResult.stats.numUpdates += handler.getCount();
+				BggService service = Adapter.create();
+				long time = System.currentTimeMillis();
+				ThingResponse response = service.thing(TextUtils.join(",", gameIds), 1);
+				GamePersister gp = new GamePersister(executor.getContext(), response.games, time);
+				int count = gp.save();
+				LOGI(TAG, "...saved " + count + " rows");
+				// syncResult.stats.numUpdates += ...;
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

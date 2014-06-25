@@ -128,7 +128,8 @@ public interface BggService {
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);
 
-	// TODO handle multiple gameId's
+	@GET("/xmlapi2/thing")
+	ThingResponse thing(@Query("id") String gameIds, @Query("stats") int stats);
 
 	@GET("/xmlapi2/thing?comments=1")
 	ThingResponse thingWithComments(@Query("id") int gameId, @Query("page") int page);
