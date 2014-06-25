@@ -6,7 +6,9 @@ import retrofit.ErrorHandler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.Builder;
+import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
+import retrofit.android.AndroidLog;
 import retrofit.client.Response;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -18,9 +20,15 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.xml.SimpleXMLConverter;
 
 public class Adapter {
+	private static final boolean DEBUG = false;
+
 	public static BggService create() {
-		return new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
-			.setConverter(new SimpleXMLConverter()).build().create(BggService.class);
+		Builder builder = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/").setConverter(
+			new SimpleXMLConverter());
+		if (DEBUG) {
+			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
+		}
+		return builder.build().create(BggService.class);
 	}
 
 	public static BggService createWithAuth(Context context) {

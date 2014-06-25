@@ -223,7 +223,7 @@ public class ActivityUtils {
 		Play play = new Play(gameId, gameName);
 		play.setCurrentDate();
 		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
-		PlayPersister.save(context.getContentResolver(), play);
+		PlayPersister.save(context, play);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 

@@ -55,7 +55,7 @@ public class SyncPlays extends SyncTask {
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = service.playsByMinDate(account.name, date, page);
-					PlayPersister.save(mContext.getContentResolver(), response.plays, mStartTime);
+					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");
@@ -70,7 +70,7 @@ public class SyncPlays extends SyncTask {
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = service.plays(account.name, page);
-					PlayPersister.save(mContext.getContentResolver(), response.plays, mStartTime);
+					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");
@@ -88,7 +88,7 @@ public class SyncPlays extends SyncTask {
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = service.playsByMaxDate(account.name, date, page);
-					PlayPersister.save(mContext.getContentResolver(), response.plays, mStartTime);
+					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");

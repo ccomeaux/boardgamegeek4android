@@ -14,6 +14,7 @@ import java.util.List;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -26,11 +27,11 @@ import com.boardgamegeek.provider.BggContract;
 
 public class ResolverUtils {
 	private static final String TAG = makeLogTag(ResolverUtils.class);
-	private static final boolean DEBUG = false;
 
-	public static ContentProviderResult[] applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
+	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
+		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
-			if (DEBUG) {
+			if (PreferencesUtils.getDebugInserts(context)) {
 				for (ContentProviderOperation cpo : batch) {
 					applySingle(resolver, cpo);
 				}

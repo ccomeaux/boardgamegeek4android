@@ -10,7 +10,7 @@ import java.util.List;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.net.Uri;
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
@@ -56,9 +56,6 @@ public class PlayPersister {
 	 */
 	public static final int STATUS_ERROR = -1;
 
-	private static ContentResolver mResolver;
-	private static boolean mBatch = true;
-
 	/*
 	 * Delete the play from the content provider.
 	 */
@@ -66,7 +63,7 @@ public class PlayPersister {
 		return resolver.delete(play.uri(), null, null) > 0;
 	}
 
-	public static void save(ContentResolver resolver, List<Play> plays, long startTime) {
+	public static void save(Context context, List<Play> plays, long startTime) {
 		int updateCount = 0;
 		int insertCount = 0;
 		int pendingUpdateCount = 0;
@@ -76,7 +73,7 @@ public class PlayPersister {
 		if (plays != null) {
 			for (Play play : plays) {
 				play.updated = startTime;
-				int status = PlayPersister.save(resolver, play, true);
+				int status = PlayPersister.save(context, play, true);
 				switch (status) {
 					case PlayPersister.STATUS_UPDATE:
 						updateCount++;
@@ -114,15 +111,15 @@ public class PlayPersister {
 	/*
 	 * Save the play while not syncing.
 	 */
-	public static void save(ContentResolver resolver, Play play) {
-		save(resolver, play, false);
+	public static void save(Context context, Play play) {
+		save(context, play, false);
 	}
 
 	/*
 	 * Save the play. If syncing, the play will not be saved if it is a draft.
 	 */
-	public static int save(ContentResolver resolver, Play play, boolean isSyncing) {
-		mResolver = resolver;
+	public static int save(Context context, Play play, boolean isSyncing) {
+		ContentResolver resolver = context.getContentResolver();
 
 		int status = determineStatus(resolver, play, isSyncing);
 
@@ -161,7 +158,7 @@ public class PlayPersister {
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
 				values.put(Plays.UPDATED_LIST, play.updated);
 			}
-			insert(batch, Plays.CONTENT_URI, values);
+			batch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
 		}
 
 		updateOrInsertItem(play, itemObjectIds, batch);
@@ -171,7 +168,7 @@ public class PlayPersister {
 		updateColors(resolver, play);
 		updateBuddyNicknames(resolver, play);
 
-		ResolverUtils.applyBatch(resolver, batch);
+		ResolverUtils.applyBatch(context, batch);
 		LOGI(TAG, "Saved play ID=" + play.playId);
 		return status;
 	}
@@ -298,7 +295,7 @@ public class PlayPersister {
 			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
 		} else {
 			values.put(PlayItems.OBJECT_ID, objectId);
-			insert(batch, play.itemUri(), values);
+			batch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
 		}
 	}
 
@@ -325,7 +322,7 @@ public class PlayPersister {
 					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
-				insert(batch, play.playerUri(), values);
+				batch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
 			}
 		}
 	}
@@ -389,13 +386,4 @@ public class PlayPersister {
 			}
 		}
 	}
-
-	private static void insert(ArrayList<ContentProviderOperation> batch, Uri uri, ContentValues values) {
-		if (mBatch) {
-			batch.add(ContentProviderOperation.newInsert(uri).withValues(values).build());
-		} else {
-			mResolver.insert(uri, values);
-		}
-	}
-
 }

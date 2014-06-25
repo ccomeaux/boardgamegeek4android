@@ -487,7 +487,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
-		PlayPersister.save(getContentResolver(), mPlay);
+		PlayPersister.save(this, mPlay);
 	}
 
 	private void cancel() {

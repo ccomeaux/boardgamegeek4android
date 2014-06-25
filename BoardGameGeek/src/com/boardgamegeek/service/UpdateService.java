@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.text.TextUtils;
 
@@ -131,7 +132,7 @@ public class UpdateService extends IntentService {
 			if (DEBUG) {
 				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
 					R.string.title_error);
-				builder.setContentText(message);
+				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}
 			LOGE(TAG, message);

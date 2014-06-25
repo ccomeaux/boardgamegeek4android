@@ -86,7 +86,7 @@ public class GamePersister {
 				mBatch.addAll(new ExpansionPersister().save(game.id, mResolver, game.getExpansions()));
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mResolver, mBatch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
 		if (result == null) {
 			return 0;
 		} else {

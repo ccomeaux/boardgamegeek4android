@@ -38,7 +38,7 @@ public class BuddyPersister {
 				addToBatch(resolver, values, batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
 		if (result == null) {
 			return 0;
 		} else {
@@ -61,7 +61,7 @@ public class BuddyPersister {
 				addToBatch(resolver, values, batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
 		if (result == null) {
 			return 0;
 		} else {

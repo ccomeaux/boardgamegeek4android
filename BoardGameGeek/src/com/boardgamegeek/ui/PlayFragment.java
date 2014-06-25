@@ -442,7 +442,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 	private void save(int status) {
 		mPlay.syncStatus = status;
-		PlayPersister.save(getActivity().getContentResolver(), mPlay);
+		PlayPersister.save(getActivity(), mPlay);
 		triggerRefresh();
 	}
 

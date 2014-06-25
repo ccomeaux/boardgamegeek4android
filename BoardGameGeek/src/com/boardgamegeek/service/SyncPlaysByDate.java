@@ -38,7 +38,7 @@ public class SyncPlaysByDate extends UpdateTask {
 		try {
 			long startTime = System.currentTimeMillis();
 			response = service.playsByDate(account.name, mDate, mDate);
-			PlayPersister.save(context.getContentResolver(), response.plays, startTime);
+			PlayPersister.save(context, response.plays, startTime);
 			SyncService.hIndex(context);
 			LOGI(TAG, "Synced plays for date " + mDate);
 		} catch (Exception e) {

@@ -39,7 +39,7 @@ public class CollectionPersister {
 				insertOrUpdateCollection(resolver, toCollectionValues(item, updateTime), batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(resolver, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
 		if (result == null) {
 			return 0;
 		} else {

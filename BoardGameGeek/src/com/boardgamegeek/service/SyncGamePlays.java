@@ -40,7 +40,7 @@ public class SyncGamePlays extends UpdateTask {
 		try {
 			long startTime = System.currentTimeMillis();
 			response = service.playsByGame(account.name, mGameId);
-			PlayPersister.save(context.getContentResolver(), response.plays, startTime);
+			PlayPersister.save(context, response.plays, startTime);
 			updateGameTimestamp(context);
 			SyncService.hIndex(context);
 			LOGI(TAG, "Synced plays for game id=" + mGameId);

@@ -244,7 +244,7 @@ public abstract class RemoteBggHandler {
 			}
 			mInserts.clear();
 		}
-		ResolverUtils.applyBatch(mResolver, mBatch);
+		ResolverUtils.applyBatch(mContext, mBatch);
 		mBatch.clear();
 	}
 

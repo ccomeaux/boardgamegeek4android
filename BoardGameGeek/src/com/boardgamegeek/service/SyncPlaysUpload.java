@@ -280,7 +280,7 @@ public class SyncPlaysUpload extends SyncTask {
 	 */
 	private void setStatusToSynced(Play play) {
 		play.syncStatus = Play.SYNC_STATUS_SYNCED;
-		PlayPersister.save(mContext.getContentResolver(), play);
+		PlayPersister.save(mContext, play);
 		// syncResult.stats.numUpdates++;
 	}
 
@@ -308,7 +308,7 @@ public class SyncPlaysUpload extends SyncTask {
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
-			PlayPersister.save(mContext.getContentResolver(), response.plays, startTime);
+			PlayPersister.save(mContext, response.plays, startTime);
 		} catch (Exception e) {
 			if (e instanceof RetrofitError) {
 				syncResult.stats.numIoExceptions++;
