@@ -20,26 +20,46 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class CollectionPersister {
-	public static int save(Context context, CollectionItem item) {
-		return save(context, item, System.currentTimeMillis());
+	private Context mContext;
+	private long mUpdateTime;
+	private boolean mIncludePrivateInfo;
+	private boolean mIncludeStats;
+
+	public CollectionPersister(Context context) {
+		mContext = context;
+		mUpdateTime = System.currentTimeMillis();
 	}
 
-	public static int save(Context context, CollectionItem item, long updateTime) {
+	public long getTimeStamp() {
+		return mUpdateTime;
+	}
+
+	public CollectionPersister includePrivateInfo() {
+		mIncludePrivateInfo = true;
+		return this;
+	}
+
+	public CollectionPersister includeStats() {
+		mIncludeStats = true;
+		return this;
+	}
+
+	public int save(CollectionItem item) {
 		List<CollectionItem> items = new ArrayList<CollectionItem>(1);
 		items.add(item);
-		return save(context, items, updateTime);
+		return save(items);
 	}
 
-	public static int save(Context context, List<CollectionItem> items, long updateTime) {
-		ContentResolver resolver = context.getContentResolver();
+	public int save(List<CollectionItem> items) {
+		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (items != null) {
 			for (CollectionItem item : items) {
-				insertOrUpdateGame(resolver, toGameValues(item, updateTime), batch);
-				insertOrUpdateCollection(resolver, toCollectionValues(item, updateTime), batch);
+				insertOrUpdateGame(resolver, toGameValues(item), batch);
+				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 		if (result == null) {
 			return 0;
 		} else {
@@ -47,9 +67,9 @@ public class CollectionPersister {
 		}
 	}
 
-	private static ContentValues toGameValues(CollectionItem item, long updateTime) {
+	private ContentValues toGameValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		values.put(Games.UPDATED_LIST, updateTime);
+		values.put(Games.UPDATED_LIST, mUpdateTime);
 		values.put(Games.GAME_ID, item.gameId);
 		values.put(Games.GAME_NAME, item.gameName());
 		values.put(Games.GAME_SORT_NAME, item.gameSortName());
@@ -58,18 +78,21 @@ public class CollectionPersister {
 		// values.put(Collection.IMAGE_URL, item.image);
 		// values.put(Collection.THUMBNAIL_URL, item.thumbnail);
 		values.put(Games.NUM_PLAYS, item.numplays);
-		// TODO: store when stats are retrieved
-		// values.put(Games.MIN_PLAYERS, parseIntegerAttribute(Tags.MIN_PLAYERS));
-		// values.put(Games.MAX_PLAYERS, parseIntegerAttribute(Tags.MAX_PLAYERS));
-		// values.put(Games.PLAYING_TIME, parseIntegerAttribute(Tags.PLAYING_TIME));
-		// values.put(Games.STATS_NUMBER_OWNED, parseIntegerAttribute(Tags.NUM_OWNED));
+		if (mIncludeStats) {
+			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
+			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
+			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
+			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numowned);
+		}
 		return values;
 	}
 
-	private static ContentValues toCollectionValues(CollectionItem item, long updateTime) {
+	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		values.put(Collection.UPDATED, updateTime);
-		values.put(Collection.UPDATED_LIST, updateTime);
+		if (mIncludePrivateInfo && mIncludeStats) {
+			values.put(Collection.UPDATED, mUpdateTime);
+		}
+		values.put(Collection.UPDATED_LIST, mUpdateTime);
 		values.put(Collection.GAME_ID, item.gameId);
 		values.put(Collection.COLLECTION_ID, item.collectionId);
 		values.put(Collection.COLLECTION_NAME, item.collectionName());
@@ -87,14 +110,19 @@ public class CollectionPersister {
 		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.wishlistpriority);
 		values.put(Collection.STATUS_PREORDERED, item.preordered);
 		values.put(Collection.LAST_MODIFIED, item.lastModifiedDate());
-		values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.pricePaidCurrency);
-		values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
-		values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency);
-		values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.currentValue());
-		values.put(Collection.PRIVATE_INFO_QUANTITY, item.quantity);
-		values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate);
-		values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom);
-		values.put(Collection.PRIVATE_INFO_COMMENT, item.privatecomment);
+		if (mIncludePrivateInfo) {
+			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.pricePaidCurrency);
+			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
+			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency);
+			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.currentValue());
+			values.put(Collection.PRIVATE_INFO_QUANTITY, item.quantity);
+			values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate);
+			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom);
+			values.put(Collection.PRIVATE_INFO_COMMENT, item.privatecomment);
+		}
+		if (mIncludeStats) {
+			values.put(Collection.RATING, item.statistics.getRating());
+		}
 		values.put(Collection.COMMENT, item.comment);
 		values.put(Collection.WANTPARTS_LIST, item.wantpartslist);
 		values.put(Collection.CONDITION, item.conditiontext);

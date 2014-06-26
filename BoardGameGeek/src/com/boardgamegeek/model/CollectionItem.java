@@ -2,16 +2,19 @@ package com.boardgamegeek.model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
 import android.text.TextUtils;
 
+import com.boardgamegeek.model.Game.Rank;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -20,6 +23,52 @@ public class CollectionItem {
 	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 	private long mLastModifiedDate = DateTimeUtils.UNPARSED_DATE;
+
+	public static class Statistics {
+		@Attribute
+		public int minplayers;
+
+		@Attribute
+		public int maxplayers;
+
+		@Attribute
+		public int playingtime;
+
+		@Attribute
+		public int numowned;
+
+		@Path("rating")
+		@Attribute(name = "value")
+		private String rating;
+
+		public double getRating() {
+			return StringUtils.parseDouble(rating, 0.0);
+		}
+
+		@Path("rating/usersrated")
+		@Attribute(name = "value")
+		private int usersRated;
+
+		@Path("rating/average")
+		@Attribute(name = "value")
+		private double average;
+
+		@Path("rating/bayesaverage")
+		@Attribute(name = "value")
+		private double bayesAverage;
+
+		@Path("rating/stddev")
+		@Attribute(name = "value")
+		private double standardDeviation;
+
+		@Path("rating/median")
+		@Attribute(name = "value")
+		private double median;
+		
+		@Path("rating")
+		@ElementList
+		private List<Rank> ranks;
+	}
 
 	// "thing"
 	@Attribute
@@ -96,6 +145,9 @@ public class CollectionItem {
 
 	@Element
 	public String thumbnail;
+
+	@Element(name = "stats", required = false)
+	public Statistics statistics;
 
 	@Element
 	public int numplays;

@@ -10,17 +10,23 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.accounts.Account;
 import android.content.SyncResult;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCollectionHandler;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class SyncCollectionListUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListUnupdated.class);
 	private static final int GAME_PER_FETCH = 25;
+	private static final int MAX_RETRIES = 5;
+	private static final int RETRY_BACKOFF = 100;
 
 	@Override
 	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
@@ -32,18 +38,13 @@ public class SyncCollectionListUnupdated extends SyncTask {
 					+ Collection.UPDATED + " IS NULL", null, Collection.COLLECTION_ID + " LIMIT " + GAME_PER_FETCH);
 			LOGI(TAG, "...found " + gameIds.size() + " collection items to update");
 			if (gameIds.size() > 0) {
-				RemoteCollectionHandler handler = new RemoteCollectionHandler(System.currentTimeMillis(), true, true);
-				CollectionUrlBuilder builder = new CollectionUrlBuilder(account.name).showPrivate().stats();
-				for (int i = 0; i < gameIds.size(); i++) {
-					if (isCancelled()) {
-						break;
-					}
-					int gameId = gameIds.get(i);
-					builder.addGameId(gameId);
+				CollectionPersister persister = new CollectionPersister(executor.getContext()).includePrivateInfo()
+					.includeStats();
+				BggService service = Adapter.create();
+				CollectionResponse response = getResponse(service, account.name, gameIds);
+				if (response != null) {
+					persister.save(response.items);
 				}
-				String url = builder.build();
-				executor.safelyExecuteGet(url, handler);
-				// syncResult.stats.numUpdates += handler.getCount();
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
@@ -55,4 +56,29 @@ public class SyncCollectionListUnupdated extends SyncTask {
 		return R.string.sync_notification_collection_unupdated;
 	}
 
+	private CollectionResponse getResponse(BggService service, String username, List<Integer> gameIds) {
+		int retries = 0;
+		while (true) {
+			try {
+				return service.collectionForGame(username, 1, 1, TextUtils.join(",", gameIds));
+			} catch (Exception e) {
+				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+					retries++;
+					if (retries > MAX_RETRIES) {
+						break;
+					}
+					try {
+						LOGI(TAG, "...retrying #" + retries);
+						Thread.sleep(retries * retries * RETRY_BACKOFF);
+					} catch (InterruptedException e1) {
+						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+						break;
+					}
+				} else {
+					throw e;
+				}
+			}
+		}
+		return null;
+	}
 }

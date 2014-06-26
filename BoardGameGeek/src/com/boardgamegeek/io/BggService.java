@@ -122,8 +122,16 @@ public interface BggService {
 	User user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
 
 	@GET("/xmlapi2/collection")
-	CollectionResponse collection(@Query("username") String username, @Query("id") int gameId,
-		@Query("showprivate") int showPrivate, @Query("stats") int stats);
+	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> statuses,
+		@Query("showprivate") int showPrivate, @Query("stats") int stats, @Query("modifiedsince") String modifiedSince);
+
+	@GET("/xmlapi2/collection")
+	CollectionResponse collectionForGame(@Query("username") String username, @Query("showprivate") int showPrivate,
+		@Query("stats") int stats, @Query("id") int gameId);
+
+	@GET("/xmlapi2/collection")
+	CollectionResponse collectionForGame(@Query("username") String username, @Query("showprivate") int showPrivate,
+		@Query("stats") int stats, @Query("id") String gameIds);
 
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);

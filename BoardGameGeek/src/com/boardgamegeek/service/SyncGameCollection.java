@@ -35,14 +35,14 @@ public class SyncGameCollection extends UpdateTask {
 			return;
 		}
 
+		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		BggService service = Adapter.createWithAuthRetry(context);
 		CollectionResponse response = null;
-		long t = System.currentTimeMillis();
 
 		int retries = 0;
 		while (true) {
 			try {
-				response = service.collection(account.name, mGameId, 1, 0);
+				response = service.collectionForGame(account.name, 1, 1, mGameId);
 				break;
 			} catch (Exception e) {
 				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
@@ -64,7 +64,7 @@ public class SyncGameCollection extends UpdateTask {
 		if (response == null || response.items == null || response.items.size() == 0) {
 			LOGI(TAG, "No collection items for game ID=" + mGameId);
 		}
-		CollectionPersister.save(context, response.items, t);
+		persister.save(response.items);
 		LOGI(TAG, "Synced " + response.items.size() + " collection item(s) for game ID=" + mGameId);
 	}
 }
