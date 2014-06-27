@@ -1,5 +1,8 @@
 package com.boardgamegeek.model.persister;
 
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import static com.boardgamegeek.util.LogUtils.LOGI;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,8 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class CollectionPersister {
+	private static final String TAG = makeLogTag(CollectionPersister.class);
+
 	private Context mContext;
 	private long mUpdateTime;
 	private boolean mIncludePrivateInfo;
@@ -51,20 +56,23 @@ public class CollectionPersister {
 	}
 
 	public int save(List<CollectionItem> items) {
-		ContentResolver resolver = mContext.getContentResolver();
-		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (items != null) {
+			ContentResolver resolver = mContext.getContentResolver();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (CollectionItem item : items) {
 				insertOrUpdateGame(resolver, toGameValues(item), batch);
 				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
+				LOGI(TAG, "Batch game ID=" + item.gameId + "; collection ID=" + item.collectionId);
+			}
+			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+			LOGI(TAG, "Saved " + items.size() + " games");
+			if (result == null) {
+				return 0;
+			} else {
+				return result.length;
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
-		if (result == null) {
-			return 0;
-		} else {
-			return result.length;
-		}
+		return 0;
 	}
 
 	private ContentValues toGameValues(CollectionItem item) {

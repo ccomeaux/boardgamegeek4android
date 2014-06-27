@@ -196,10 +196,10 @@ public class Game {
 	@Attribute
 	public int id;
 
-	@Element
+	@Element(required = false)
 	public String thumbnail;
 
-	@Element
+	@Element(required = false)
 	public String image;
 
 	@ElementList(inline = true)

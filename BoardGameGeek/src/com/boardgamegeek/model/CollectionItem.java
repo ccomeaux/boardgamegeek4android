@@ -25,13 +25,13 @@ public class CollectionItem {
 	private long mLastModifiedDate = DateTimeUtils.UNPARSED_DATE;
 
 	public static class Statistics {
-		@Attribute
+		@Attribute(required = false)
 		public int minplayers;
 
-		@Attribute
+		@Attribute(required = false)
 		public int maxplayers;
 
-		@Attribute
+		@Attribute(required = false)
 		public int playingtime;
 
 		@Attribute
@@ -64,7 +64,7 @@ public class CollectionItem {
 		@Path("rating/median")
 		@Attribute(name = "value")
 		private double median;
-		
+
 		@Path("rating")
 		@ElementList
 		private List<Rank> ranks;
@@ -140,10 +140,10 @@ public class CollectionItem {
 	@Attribute
 	private String lastmodified;
 
-	@Element
+	@Element(required = false)
 	public String image;
 
-	@Element
+	@Element(required = false)
 	public String thumbnail;
 
 	@Element(name = "stats", required = false)

@@ -1,5 +1,7 @@
 package com.boardgamegeek.io;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit.http.GET;
@@ -45,6 +47,14 @@ public interface BggService {
 	public static final int FORUM_REGION_BOARDGAME = 1;
 	public static final int FORUM_REGION_RPG = 2;
 	public static final int FORUM_REGION_VIDEOGAME = 3;
+
+	public static final String COLLECTION_QUERY_KEY_ID = "id";
+	public static final String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
+	public static final String COLLECTION_QUERY_KEY_STATS = "stats";
+	public static final String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
+	public static final SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+	// TODO: add HH:MM:SS
 
 	@GET("/xmlapi2/hot")
 	HotnessResponse getHotness(@Query("type") String type);
@@ -122,16 +132,7 @@ public interface BggService {
 	User user(@Query("name") String name, @Query("buddies") int buddies, @Query("page") int page);
 
 	@GET("/xmlapi2/collection")
-	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> statuses,
-		@Query("showprivate") int showPrivate, @Query("stats") int stats, @Query("modifiedsince") String modifiedSince);
-
-	@GET("/xmlapi2/collection")
-	CollectionResponse collectionForGame(@Query("username") String username, @Query("showprivate") int showPrivate,
-		@Query("stats") int stats, @Query("id") int gameId);
-
-	@GET("/xmlapi2/collection")
-	CollectionResponse collectionForGame(@Query("username") String username, @Query("showprivate") int showPrivate,
-		@Query("stats") int stats, @Query("id") String gameIds);
+	CollectionResponse collection(@Query("username") String username, @QueryMap Map<String, String> options);
 
 	@GET("/xmlapi2/thing")
 	ThingResponse thing(@Query("id") int gameId, @Query("stats") int stats);
