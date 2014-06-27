@@ -1,10 +1,11 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -14,12 +15,13 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCollectionHandler;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.url.CollectionUrlBuilder;
 
 public class SyncCollectionListComplete extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
@@ -44,6 +46,8 @@ public class SyncCollectionListComplete extends SyncTask {
 				return;
 			}
 
+			BggService service = com.boardgamegeek.io.Adapter.createWithAuthRetry(executor.getContext());
+			CollectionPersister persister = new CollectionPersister(executor.getContext()).brief();
 			final long startTime = System.currentTimeMillis();
 
 			for (int i = 0; i < statuses.length; i++) {
@@ -52,30 +56,24 @@ public class SyncCollectionListComplete extends SyncTask {
 					break;
 				}
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
-				try {
-					RemoteCollectionHandler handler = new RemoteCollectionHandler(startTime, false, false);
-					String url = new CollectionUrlBuilder(account.name).status(statuses[i]).brief().build();
-					executor.executeGet(url, handler);
-					// syncResult.stats.numInserts += handler.getNumInserts();
-					// syncResult.stats.numUpdates += handler.getNumUpdates();
-					// syncResult.stats.numSkippedEntries += handler.getNumSkips();
-				} catch (IOException e) {
-					// This happens rather frequently with an EOF exception
-					LOGE(TAG, "  Problem syncing status [" + statuses[i] + "] (continuing with next status)", e);
-					syncResult.stats.numIoExceptions++;
-					success = false;
-				}
+
+				Map<String, String> options = new HashMap<String, String>();
+				options.put(statuses[i], "1");
+				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+
+				CollectionResponse response = getCollectionResponse(service, account.name, options);
+				persister.save(response.items);
 			}
 
 			if (success) {
 				LOGI(TAG, "...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
-				executor
+				int count = executor
 					.getContext()
 					.getContentResolver()
 					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
 						new String[] { String.valueOf(startTime) });
-				// syncResult.stats.numDeletes += count;
+				LOGI(TAG, "...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game
 

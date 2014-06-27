@@ -97,7 +97,7 @@ public class CollectionItem {
 	@Attribute
 	private int sortindex;
 
-	@Element
+	@Element(required = false)
 	public int yearpublished;
 
 	@Path("status")
@@ -149,7 +149,7 @@ public class CollectionItem {
 	@Element(name = "stats", required = false)
 	public Statistics statistics;
 
-	@Element
+	@Element(required = false)
 	public int numplays;
 
 	@Path("privateinfo")

@@ -27,6 +27,7 @@ public class CollectionPersister {
 
 	private Context mContext;
 	private long mUpdateTime;
+	private boolean mBrief;
 	private boolean mIncludePrivateInfo;
 	private boolean mIncludeStats;
 
@@ -37,6 +38,11 @@ public class CollectionPersister {
 
 	public long getTimeStamp() {
 		return mUpdateTime;
+	}
+
+	public CollectionPersister brief() {
+		mBrief = true;
+		return this;
 	}
 
 	public CollectionPersister includePrivateInfo() {
@@ -85,7 +91,9 @@ public class CollectionPersister {
 		// values.put(Games.YEAR_PUBLISHED, item.yearpublished);
 		// values.put(Collection.IMAGE_URL, item.image);
 		// values.put(Collection.THUMBNAIL_URL, item.thumbnail);
-		values.put(Games.NUM_PLAYS, item.numplays);
+		if (!mBrief) {
+			values.put(Games.NUM_PLAYS, item.numplays);
+		}
 		if (mIncludeStats) {
 			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
 			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
@@ -97,7 +105,7 @@ public class CollectionPersister {
 
 	private ContentValues toCollectionValues(CollectionItem item) {
 		ContentValues values = new ContentValues();
-		if (mIncludePrivateInfo && mIncludeStats) {
+		if (!mBrief && mIncludePrivateInfo && mIncludeStats) {
 			values.put(Collection.UPDATED, mUpdateTime);
 		}
 		values.put(Collection.UPDATED_LIST, mUpdateTime);
@@ -105,9 +113,6 @@ public class CollectionPersister {
 		values.put(Collection.COLLECTION_ID, item.collectionId);
 		values.put(Collection.COLLECTION_NAME, item.collectionName());
 		values.put(Collection.COLLECTION_SORT_NAME, item.collectionSortName());
-		values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.yearpublished);
-		values.put(Collection.COLLECTION_IMAGE_URL, item.image);
-		values.put(Collection.COLLECTION_THUMBNAIL_URL, item.thumbnail);
 		values.put(Collection.STATUS_OWN, item.own);
 		values.put(Collection.STATUS_PREVIOUSLY_OWNED, item.prevowned);
 		values.put(Collection.STATUS_FOR_TRADE, item.fortrade);
@@ -118,6 +123,16 @@ public class CollectionPersister {
 		values.put(Collection.STATUS_WISHLIST_PRIORITY, item.wishlistpriority);
 		values.put(Collection.STATUS_PREORDERED, item.preordered);
 		values.put(Collection.LAST_MODIFIED, item.lastModifiedDate());
+		if (!mBrief) {
+			values.put(Collection.COLLECTION_YEAR_PUBLISHED, item.yearpublished);
+			values.put(Collection.COLLECTION_IMAGE_URL, item.image);
+			values.put(Collection.COLLECTION_THUMBNAIL_URL, item.thumbnail);
+			values.put(Collection.COMMENT, item.comment);
+			values.put(Collection.WANTPARTS_LIST, item.wantpartslist);
+			values.put(Collection.CONDITION, item.conditiontext);
+			values.put(Collection.HASPARTS_LIST, item.haspartslist);
+			values.put(Collection.WISHLIST_COMMENT, item.wishlistcomment);
+		}
 		if (mIncludePrivateInfo) {
 			values.put(Collection.PRIVATE_INFO_PRICE_PAID_CURRENCY, item.pricePaidCurrency);
 			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
@@ -131,11 +146,6 @@ public class CollectionPersister {
 		if (mIncludeStats) {
 			values.put(Collection.RATING, item.statistics.getRating());
 		}
-		values.put(Collection.COMMENT, item.comment);
-		values.put(Collection.WANTPARTS_LIST, item.wantpartslist);
-		values.put(Collection.CONDITION, item.conditiontext);
-		values.put(Collection.HASPARTS_LIST, item.haspartslist);
-		values.put(Collection.WISHLIST_COMMENT, item.wishlistcomment);
 		return values;
 	}
 
@@ -152,7 +162,7 @@ public class CollectionPersister {
 		batch.add(cpo.withValues(values).withYieldAllowed(true).build());
 	}
 
-	private static void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
+	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
 		Builder cpo = null;
 		Uri uri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
@@ -166,8 +176,14 @@ public class CollectionPersister {
 		batch.add(cpo.withValues(values).build());
 	}
 
-	private static void maybeDeleteThumbnail(ContentResolver resolver, ContentValues values, Uri uri,
+	private void maybeDeleteThumbnail(ContentResolver resolver, ContentValues values, Uri uri,
 		ArrayList<ContentProviderOperation> batch) {
+
+		if (mBrief) {
+			// thumbnail not returned in brief mode
+			return;
+		}
+
 		if (!values.containsKey(Collection.THUMBNAIL_URL)) {
 			// nothing to do - no thumbnail
 			return;

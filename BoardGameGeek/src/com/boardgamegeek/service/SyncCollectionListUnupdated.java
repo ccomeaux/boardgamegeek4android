@@ -48,6 +48,7 @@ public class SyncCollectionListUnupdated extends SyncTask {
 
 				CollectionResponse response = getCollectionResponse(service, account.name, options);
 				persister.save(response.items);
+				// TODO games with a status of played don't get returned with this request
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

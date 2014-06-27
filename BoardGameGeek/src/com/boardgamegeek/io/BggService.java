@@ -52,6 +52,7 @@ public interface BggService {
 	public static final String COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate";
 	public static final String COLLECTION_QUERY_KEY_STATS = "stats";
 	public static final String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
+	public static final String COLLECTION_QUERY_KEY_BRIEF = "brief";
 	public static final SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	// TODO: add HH:MM:SS
