@@ -3,20 +3,17 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -27,18 +24,17 @@ public class SyncCollectionListComplete extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing full collection list...");
 		boolean success = true;
 		try {
-			String[] statuses = PreferencesUtils.getSyncStatuses(executor.getContext());
+			String[] statuses = PreferencesUtils.getSyncStatuses(context);
 			if (statuses == null || statuses.length == 0) {
 				LOGI(TAG, "...no statuses set to sync");
 				return;
 			}
 
-			AccountManager accountManager = AccountManager.get(executor.getContext());
+			AccountManager accountManager = AccountManager.get(context);
 			String s = accountManager.getUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 			long lastCompleteSync = TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
@@ -46,8 +42,8 @@ public class SyncCollectionListComplete extends SyncTask {
 				return;
 			}
 
-			BggService service = com.boardgamegeek.io.Adapter.createWithAuthRetry(executor.getContext());
-			CollectionPersister persister = new CollectionPersister(executor.getContext()).brief();
+			BggService service = com.boardgamegeek.io.Adapter.createWithAuthRetry(context);
+			CollectionPersister persister = new CollectionPersister(context).brief();
 			final long startTime = System.currentTimeMillis();
 
 			for (int i = 0; i < statuses.length; i++) {
@@ -68,11 +64,8 @@ public class SyncCollectionListComplete extends SyncTask {
 			if (success) {
 				LOGI(TAG, "...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
-				int count = executor
-					.getContext()
-					.getContentResolver()
-					.delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-						new String[] { String.valueOf(startTime) });
+				int count = context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
+					new String[] { String.valueOf(startTime) });
 				LOGI(TAG, "...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game

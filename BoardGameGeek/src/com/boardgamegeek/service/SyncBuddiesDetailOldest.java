@@ -3,19 +3,16 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
+import android.content.Context;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -27,17 +24,16 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 	private static final int SYNC_LIMIT = 25;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing oldest buddies...");
 		try {
-			if (!PreferencesUtils.getSyncBuddies(executor.getContext())) {
+			if (!PreferencesUtils.getSyncBuddies(context)) {
 				LOGI(TAG, "...buddies not set to sync");
 				return;
 			}
 
-			List<String> names = ResolverUtils.queryStrings(executor.getContext().getContentResolver(),
-				Buddies.CONTENT_URI, Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
+			List<String> names = ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
+				Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				List<User> buddies = new ArrayList<User>(names.size());
@@ -46,12 +42,12 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 				for (String name : names) {
 					if (isCancelled()) {
 						LOGI(TAG, "...canceled while syncing buddies");
-						save(executor, buddies, startTime);
+						save(context, buddies, startTime);
 						break;
 					}
 					buddies.add(service.user(name));
 				}
-				save(executor, buddies, startTime);
+				save(context, buddies, startTime);
 			} else {
 				LOGI(TAG, "...no buddies to update");
 			}
@@ -60,8 +56,8 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 		}
 	}
 
-	private void save(RemoteExecutor executor, List<User> buddies, long startTime) {
-		int count = BuddyPersister.save(executor.getContext(), buddies, startTime);
+	private void save(Context context, List<User> buddies, long startTime) {
+		int count = BuddyPersister.save(context, buddies, startTime);
 		// syncResult.stats.numUpdates += buddies.size();
 		LOGI(TAG, "...saved " + count + " buddies");
 	}

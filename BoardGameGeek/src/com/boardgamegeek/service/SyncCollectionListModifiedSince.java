@@ -3,22 +3,19 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -28,14 +25,13 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListModifiedSince.class);
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
-		AccountManager accountManager = AccountManager.get(executor.getContext());
+	public void execute(Context context, Account account, SyncResult syncResult) {
+		AccountManager accountManager = AccountManager.get(context);
 		long date = getLong(account, accountManager, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			String[] statuses = PreferencesUtils.getSyncStatuses(executor.getContext());
+			String[] statuses = PreferencesUtils.getSyncStatuses(context);
 			if (statuses == null || statuses.length == 0) {
 				LOGI(TAG, "...no statuses set to sync");
 				return;
@@ -46,8 +42,8 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				LOGI(TAG, "...skipping; we just did a complete sync");
 			}
 
-			CollectionPersister persister = new CollectionPersister(executor.getContext()).includeStats();
-			BggService service = Adapter.createWithAuthRetry(executor.getContext());
+			CollectionPersister persister = new CollectionPersister(context).includeStats();
+			BggService service = Adapter.createWithAuthRetry(context);
 			Map<String, String> options = new HashMap<String, String>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_FORMAT.format(new Date(date));
 

@@ -2,11 +2,6 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
@@ -15,7 +10,6 @@ import android.content.SyncResult;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
@@ -31,19 +25,18 @@ public class SyncPlays extends SyncTask {
 	private AccountManager mAccountManager;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing plays...");
 		try {
-			if (!PreferencesUtils.getSyncPlays(executor.getContext())) {
+			if (!PreferencesUtils.getSyncPlays(context)) {
 				LOGI(TAG, "...plays not set to sync");
 				return;
 			}
 
 			mAccount = account;
-			mContext = executor.getContext();
+			mContext = context;
 			mStartTime = System.currentTimeMillis();
-			mAccountManager = AccountManager.get(executor.getContext());
+			mAccountManager = AccountManager.get(context);
 
 			BggService service = Adapter.create();
 			PlaysResponse response = null;

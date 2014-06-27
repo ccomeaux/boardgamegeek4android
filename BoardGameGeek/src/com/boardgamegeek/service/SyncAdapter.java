@@ -5,16 +5,10 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.client.HttpClient;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
@@ -30,8 +24,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -40,7 +32,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private static final String TAG = makeLogTag(SyncAdapter.class);
 
 	private final Context mContext;
-	private final boolean mUseGzip = true;
 	private boolean mShowNotifications = true;
 	private SyncTask mCurrentTask;
 	private boolean mIsCancelled;
@@ -86,16 +77,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		toggleReceiver(true);
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
-
-		HttpClient httpClient = getHttpClient(syncResult);
-		if (httpClient == null) {
-			return;
-		}
-		RemoteExecutor remoteExecutor = new RemoteExecutor(httpClient, mContext);
-
-		List<SyncTask> tasks = createTasks(type);
-
 		NotificationCompat.Builder builder = createNotificationBuilder();
+		List<SyncTask> tasks = createTasks(type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
 				showError(getContext().getString(R.string.sync_notification_error_cancel), null);
@@ -114,18 +97,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 					}
 					NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
 				}
-				mCurrentTask.execute(remoteExecutor, account, syncResult);
-			} catch (IOException e) {
-				LOGE(TAG, "Syncing " + mCurrentTask, e);
-				syncResult.stats.numIoExceptions++;
-				showError(e);
-				break;
-			} catch (XmlPullParserException e) {
-				LOGE(TAG, "Syncing " + mCurrentTask, e);
-				syncResult.stats.numParseExceptions++;
-				showError(e);
+				mCurrentTask.execute(mContext, account, syncResult);
 			} catch (Exception e) {
 				LOGE(TAG, "Syncing " + mCurrentTask, e);
+				syncResult.stats.numIoExceptions++;
 				showError(e);
 			}
 		}
@@ -171,26 +146,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return true;
 	}
 
-	private HttpClient getHttpClient(SyncResult syncResult) {
-		HttpClient httpClient = null;
-		try {
-			httpClient = HttpUtils.createHttpClientWithAuth(mContext, mUseGzip, true);
-		} catch (OperationCanceledException e) {
-			LOGE(TAG, "Getting auth token", e);
-			syncResult.stats.numIoExceptions++;
-			showAuthError(e);
-		} catch (AuthenticatorException e) {
-			LOGE(TAG, "Getting auth token", e);
-			syncResult.stats.numAuthExceptions++;
-			showAuthError(e);
-		} catch (IOException e) {
-			LOGE(TAG, "Getting auth token", e);
-			syncResult.stats.numIoExceptions++;
-			showAuthError(e);
-		}
-		return httpClient;
-	}
-
 	private List<SyncTask> createTasks(final int type) {
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
@@ -225,17 +180,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private NotificationCompat.Builder createNotificationBuilder() {
 		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title)
-			.setPriority(NotificationCompat.PRIORITY_LOW)
-			.setOngoing(true)
+			.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(true)
 			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 	}
 
 	private void showError(Throwable t) {
 		showError(mContext.getString(R.string.sync_notification_error), t.getLocalizedMessage());
-	}
-
-	private void showAuthError(Throwable t) {
-		showError(mContext.getString(R.string.sync_notification_error_auth), t.getLocalizedMessage());
 	}
 
 	private void showError(String text, String message) {

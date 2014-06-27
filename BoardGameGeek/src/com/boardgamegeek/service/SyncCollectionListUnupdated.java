@@ -3,21 +3,18 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
+import android.content.Context;
 import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -28,17 +25,15 @@ public class SyncCollectionListUnupdated extends SyncTask {
 	private static final int GAME_PER_FETCH = 25;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing unupdated collection list...");
 		try {
-			List<Integer> gameIds = ResolverUtils.queryInts(executor.getContext().getContentResolver(),
-				Collection.CONTENT_URI, Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection."
-					+ Collection.UPDATED + " IS NULL", null, Collection.COLLECTION_ID + " LIMIT " + GAME_PER_FETCH);
+			List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
+				Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
+					+ " IS NULL", null, Collection.COLLECTION_ID + " LIMIT " + GAME_PER_FETCH);
 			LOGI(TAG, "...found " + gameIds.size() + " collection items to update");
 			if (gameIds.size() > 0) {
-				CollectionPersister persister = new CollectionPersister(executor.getContext()).includePrivateInfo()
-					.includeStats();
+				CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 				BggService service = Adapter.create();
 
 				Map<String, String> options = new HashMap<String, String>();

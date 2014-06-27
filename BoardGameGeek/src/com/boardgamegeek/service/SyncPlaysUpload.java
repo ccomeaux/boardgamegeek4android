@@ -19,10 +19,11 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.xmlpull.v1.XmlPullParserException;
 
 import retrofit.RetrofitError;
 import android.accounts.Account;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -39,7 +40,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.PlaysResponse;
@@ -57,28 +57,47 @@ import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
-
+	private final boolean mUseGzip = true;
 	private Context mContext;
 	private HttpClient mClient;
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
-		mContext = executor.getContext();
-		mClient = executor.getHttpClient();
+	public void execute(Context context, Account account, SyncResult syncResult) {
+		mContext = context;
+		mClient = getHttpClient(syncResult);
 		mMessages = new ArrayList<CharSequence>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
-		SyncService.hIndex(executor.getContext());
+		SyncService.hIndex(context);
 	}
 
 	@Override
 	public int getNotification() {
 		return R.string.sync_notification_plays_upload;
+	}
+
+	private HttpClient getHttpClient(SyncResult syncResult) {
+		HttpClient httpClient = null;
+		try {
+			httpClient = HttpUtils.createHttpClientWithAuth(mContext, mUseGzip, true);
+		} catch (OperationCanceledException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numIoExceptions++;
+			throw new RuntimeException(e);
+		} catch (AuthenticatorException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numAuthExceptions++;
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			LOGE(TAG, "Getting auth token", e);
+			syncResult.stats.numIoExceptions++;
+			throw new RuntimeException(e);
+		}
+		return httpClient;
 	}
 
 	private void updatePendingPlays(String username, SyncResult syncResult) {

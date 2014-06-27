@@ -2,14 +2,10 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SyncResult;
 import android.text.TextUtils;
 
@@ -17,7 +13,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.io.RemoteExecutor;
 import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
@@ -29,16 +24,15 @@ public class SyncBuddiesList extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesList.class);
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing list of buddies in the collection...");
 		try {
-			if (!PreferencesUtils.getSyncBuddies(executor.getContext())) {
+			if (!PreferencesUtils.getSyncBuddies(context)) {
 				LOGI(TAG, "...buddies not set to sync");
 				return;
 			}
 
-			AccountManager accountManager = AccountManager.get(executor.getContext());
+			AccountManager accountManager = AccountManager.get(context);
 			String s = accountManager.getUserData(account, SyncService.TIMESTAMP_BUDDIES);
 			long lastCompleteSync = TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
@@ -56,14 +50,14 @@ public class SyncBuddiesList extends SyncTask {
 			accountManager.setUserData(account, Authenticator.KEY_USER_ID, String.valueOf(user.id));
 
 			int count = 0;
-			count += BuddyPersister.saveList(executor.getContext(), Buddy.fromUser(user), startTime);
-			count += BuddyPersister.saveList(executor.getContext(), user.getBuddies(), startTime);
+			count += BuddyPersister.saveList(context, Buddy.fromUser(user), startTime);
+			count += BuddyPersister.saveList(context, user.getBuddies(), startTime);
 			LOGI(TAG, "Synced " + count + " buddies");
 			// TODO: update syncResult.stats
 
 			// TODO: delete avatar images associated with this list
 			// Actually, these are now only in the cache!
-			ContentResolver resolver = executor.getContext().getContentResolver();
+			ContentResolver resolver = context.getContentResolver();
 			count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(startTime) });
 			// syncResult.stats.numDeletes += count;
