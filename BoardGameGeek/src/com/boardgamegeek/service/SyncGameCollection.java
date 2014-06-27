@@ -37,7 +37,7 @@ public class SyncGameCollection extends UpdateTask {
 		}
 
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
-		BggService service = Adapter.createWithAuthRetry(context);
+		BggService service = Adapter.createWithAuth(context);
 
 		Map<String, String> options = new HashMap<String, String>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");

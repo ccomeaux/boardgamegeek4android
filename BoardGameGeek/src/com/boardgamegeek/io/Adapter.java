@@ -17,40 +17,15 @@ import android.accounts.OperationCanceledException;
 import android.content.Context;
 
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.xml.SimpleXMLConverter;
 
 public class Adapter {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	public static BggService create() {
-		Builder builder = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/").setConverter(
-			new SimpleXMLConverter());
-		if (DEBUG) {
-			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
-		}
-		return builder.build().create(BggService.class);
+		return createBuilder().build().create(BggService.class);
 	}
 
 	public static BggService createWithAuth(Context context) {
-		return createBuilderWithAuth(context).build().create(BggService.class);
-	}
-
-	public static BggService createWithAuthRetry(Context context) {
-		ErrorHandler errorHandler = new ErrorHandler() {
-			@Override
-			public Throwable handleError(RetrofitError cause) {
-				Response r = cause.getResponse();
-				if (r != null && r.getStatus() == 202) {
-					return new RetryableException(cause);
-				}
-				return cause;
-			}
-		};
-
-		return createBuilderWithAuth(context).setErrorHandler(errorHandler).build().create(BggService.class);
-	}
-
-	private static Builder createBuilderWithAuth(Context context) {
 		RequestInterceptor requestInterceptor = null;
 
 		AccountManager accountManager = AccountManager.get(context);
@@ -67,7 +42,27 @@ public class Adapter {
 			// TODO handle this somehow; maybe just return create()
 		}
 
-		return new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
-			.setRequestInterceptor(requestInterceptor).setConverter(new SimpleXMLConverter());
+		return createBuilder().setRequestInterceptor(requestInterceptor).build().create(BggService.class);
 	}
+
+	private static Builder createBuilder() {
+		ErrorHandler errorHandler = new ErrorHandler() {
+			@Override
+			public Throwable handleError(RetrofitError cause) {
+				Response r = cause.getResponse();
+				if (r != null && r.getStatus() == 202) {
+					return new RetryableException(cause);
+				}
+				return cause;
+			}
+		};
+
+		Builder builder = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
+			.setConverter(new SimpleXMLConverter()).setErrorHandler(errorHandler);
+		if (DEBUG) {
+			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
+		}
+		return builder;
+	}
+
 }

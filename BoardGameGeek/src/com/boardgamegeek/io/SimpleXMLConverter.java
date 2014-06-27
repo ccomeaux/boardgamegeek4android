@@ -1,7 +1,7 @@
 /**
  * From: https://github.com/square/retrofit/tree/master/retrofit-converters/simplexml/src/main/java/retrofit/converter
  */
-package com.boardgamegeek.io.xml;
+package com.boardgamegeek.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

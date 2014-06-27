@@ -43,7 +43,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 			}
 
 			CollectionPersister persister = new CollectionPersister(context).includeStats();
-			BggService service = Adapter.createWithAuthRetry(context);
+			BggService service = Adapter.createWithAuth(context);
 			Map<String, String> options = new HashMap<String, String>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_FORMAT.format(new Date(date));
 

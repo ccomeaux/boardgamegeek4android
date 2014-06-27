@@ -13,6 +13,7 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
@@ -42,7 +43,7 @@ public class SyncCollectionListComplete extends SyncTask {
 				return;
 			}
 
-			BggService service = com.boardgamegeek.io.Adapter.createWithAuthRetry(context);
+			BggService service = Adapter.createWithAuth(context);
 			CollectionPersister persister = new CollectionPersister(context).brief();
 			final long startTime = System.currentTimeMillis();
 
