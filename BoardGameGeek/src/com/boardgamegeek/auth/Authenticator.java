@@ -212,6 +212,29 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return data != null;
 	}
 
+	public static long getLong(Context context, String key) {
+		return getLong(context, key, 0);
+	}
+
+	public static long getLong(Context context, String key, long defaultValue) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		String s = accountManager.getUserData(account, key);
+		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
+	}
+
+	public static void putLong(Context context, String key, long value) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		accountManager.setUserData(account, key, String.valueOf(value));
+	}
+
+	public static void putInt(Context context, String key, int value) {
+		AccountManager accountManager = AccountManager.get(context);
+		Account account = getAccount(accountManager);
+		accountManager.setUserData(account, key, String.valueOf(value));
+	}
+
 	public static void signOut(final Context context) {
 		AccountManager am = AccountManager.get(context);
 		final Account account = Authenticator.getAccount(am);

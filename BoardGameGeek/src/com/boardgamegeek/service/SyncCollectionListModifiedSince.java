@@ -14,15 +14,21 @@ import android.content.SyncResult;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+/**
+ * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
+ */
 public class SyncCollectionListModifiedSince extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListModifiedSince.class);
+
+	public SyncCollectionListModifiedSince(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {
@@ -31,23 +37,12 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			String[] statuses = PreferencesUtils.getSyncStatuses(context);
-			if (statuses == null || statuses.length == 0) {
-				LOGI(TAG, "...no statuses set to sync");
-				return;
-			}
-
-			long lastFullSync = getLong(account, accountManager, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
-			if (DateTimeUtils.howManyHoursOld(lastFullSync) < 3) {
-				LOGI(TAG, "...skipping; we just did a complete sync");
-			}
-
 			CollectionPersister persister = new CollectionPersister(context).includeStats();
-			BggService service = Adapter.createWithAuth(context);
 			Map<String, String> options = new HashMap<String, String>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_FORMAT.format(new Date(date));
 
 			boolean cancelled = false;
+			String[] statuses = PreferencesUtils.getSyncStatuses(context);
 			for (int i = 0; i < statuses.length; i++) {
 				if (isCancelled()) {
 					cancelled = true;
@@ -60,12 +55,11 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 
-				CollectionResponse response = getCollectionResponse(service, account.name, options);
+				CollectionResponse response = getCollectionResponse(mService, account.name, options);
 				persister.save(response.items);
 			}
 			if (!cancelled) {
-				accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL,
-					String.valueOf(persister.getTimeStamp()));
+				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

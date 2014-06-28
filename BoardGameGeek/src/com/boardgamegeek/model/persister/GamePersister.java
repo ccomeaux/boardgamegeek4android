@@ -41,30 +41,24 @@ public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private ArrayList<ContentProviderOperation> mBatch;
-	private List<Game> mGames;
 	private long mUpdateTime;
 
-	public GamePersister(Context context, Game game, long updateTime) {
-		List<Game> games = new ArrayList<Game>(1);
-		games.add(game);
-		init(context, games, updateTime);
-	}
-
-	public GamePersister(Context context, List<Game> games, long updateTime) {
-		init(context, games, updateTime);
-	}
-
-	private void init(Context context, List<Game> games, long updateTime) {
+	public GamePersister(Context context) {
 		mContext = context;
 		mResolver = context.getContentResolver();
-		mBatch = new ArrayList<ContentProviderOperation>();
-		mGames = games;
-		mUpdateTime = updateTime;
+		mUpdateTime = System.currentTimeMillis();
 	}
 
-	public int save() {
-		if (mGames != null) {
-			for (Game game : mGames) {
+	public int save(Game game) {
+		List<Game> games = new ArrayList<Game>(1);
+		games.add(game);
+		return save(games);
+	}
+
+	public int save(List<Game> games) {
+		mBatch = new ArrayList<ContentProviderOperation>();
+		if (games != null) {
+			for (Game game : games) {
 				Builder cpo = null;
 				ContentValues values = toValues(game, mUpdateTime);
 				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {

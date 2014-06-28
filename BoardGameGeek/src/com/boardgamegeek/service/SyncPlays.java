@@ -3,12 +3,11 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.PlaysResponse;
@@ -19,10 +18,12 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
-	private Account mAccount;
 	private Context mContext;
 	private long mStartTime;
-	private AccountManager mAccountManager;
+
+	public SyncPlays(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {
@@ -33,21 +34,18 @@ public class SyncPlays extends SyncTask {
 				return;
 			}
 
-			mAccount = account;
 			mContext = context;
 			mStartTime = System.currentTimeMillis();
-			mAccountManager = AccountManager.get(context);
 
-			BggService service = Adapter.create();
 			PlaysResponse response = null;
-			long newestSyncDate = getUserDataLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
 				LOGI(TAG, "...syncing plays since " + date);
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
-					response = service.playsByMinDate(account.name, date, page);
+					response = mService.playsByMinDate(account.name, date, page);
 					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -62,7 +60,7 @@ public class SyncPlays extends SyncTask {
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
-					response = service.plays(account.name, page);
+					response = mService.plays(account.name, page);
 					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -73,14 +71,14 @@ public class SyncPlays extends SyncTask {
 				} while (response.hasMorePages());
 			}
 
-			long oldestDate = getUserDataLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
 				LOGI(TAG, "...syncing plays before " + date);
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
-					response = service.playsByMaxDate(account.name, date, page);
+					response = mService.playsByMaxDate(account.name, date, page);
 					PlayPersister.save(mContext, response.plays, mStartTime);
 					updateTimeStamps(response);
 					if (isCancelled()) {
@@ -90,7 +88,7 @@ public class SyncPlays extends SyncTask {
 					page++;
 				} while (response.hasMorePages());
 				deleteUnupdatedPlaysBefore(oldestDate);
-				setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
 			SyncService.hIndex(mContext);
 		} finally {
@@ -117,29 +115,15 @@ public class SyncPlays extends SyncTask {
 	}
 
 	private void updateTimeStamps(PlaysResponse response) {
-		long newestDate = getUserDataLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+		long newestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 		if (response.getNewestDate() > newestDate) {
-			setLong(SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());
+			Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, response.getNewestDate());
 		}
 
-		long oldestDate = getUserDataLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+		long oldestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 		if (response.getOldestDate() < oldestDate) {
-			setLong(SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, response.getOldestDate());
+			Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, response.getOldestDate());
 		}
-	}
-
-	private long getUserDataLong(String key, long defaultValue) {
-		long l = defaultValue;
-		try {
-			l = Long.parseLong(mAccountManager.getUserData(mAccount, key));
-		} catch (NumberFormatException e) {
-			// swallow and return the default value
-		}
-		return l;
-	}
-
-	private void setLong(String key, long l) {
-		mAccountManager.setUserData(mAccount, key, String.valueOf(l));
 	}
 
 	@Override

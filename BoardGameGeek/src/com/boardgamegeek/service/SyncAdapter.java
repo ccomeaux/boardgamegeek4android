@@ -24,6 +24,10 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -78,7 +82,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		toggleReceiver(true);
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
 		NotificationCompat.Builder builder = createNotificationBuilder();
-		List<SyncTask> tasks = createTasks(type);
+		List<SyncTask> tasks = createTasks(mContext, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
 				showError(getContext().getString(R.string.sync_notification_error_cancel), null);
@@ -146,26 +150,36 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		return true;
 	}
 
-	private List<SyncTask> createTasks(final int type) {
+	private List<SyncTask> createTasks(Context context, final int type) {
+		BggService service = Adapter.createWithAuth(context);
 		List<SyncTask> tasks = new ArrayList<SyncTask>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
-			tasks.add(new SyncCollectionListComplete());
-			tasks.add(new SyncCollectionListModifiedSince());
-			tasks.add(new SyncCollectionListUnupdated());
-			tasks.add(new SyncCollectionDetailOldest());
-			tasks.add(new SyncCollectionDetailUnupdated());
-			tasks.add(new SyncCollectionDetailMissing());
+			if (PreferencesUtils.isSyncStatus(context)) {
+				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
+				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
+					tasks.add(new SyncCollectionListModifiedSince(service));
+				} else {
+					tasks.add(new SyncCollectionListComplete(service));
+				}
+			} else {
+				LOGI(TAG, "...no statuses set to sync");
+			}
+
+			tasks.add(new SyncCollectionListUnupdated(service));
+			tasks.add(new SyncCollectionDetailOldest(service));
+			tasks.add(new SyncCollectionDetailUnupdated(service));
+			tasks.add(new SyncCollectionDetailMissing(service));
 		}
 		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList());
-			tasks.add(new SyncBuddiesDetailOldest());
-			tasks.add(new SyncBuddiesDetailUnupdated());
+			tasks.add(new SyncBuddiesList(service));
+			tasks.add(new SyncBuddiesDetailOldest(service));
+			tasks.add(new SyncBuddiesDetailUnupdated(service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-			tasks.add(new SyncPlaysUpload());
+			tasks.add(new SyncPlaysUpload(service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
-			tasks.add(new SyncPlays());
+			tasks.add(new SyncPlays(service));
 		}
 		return tasks;
 	}

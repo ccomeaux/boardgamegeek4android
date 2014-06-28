@@ -19,26 +19,34 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class BuddyPersister {
-	public static int save(Context context, User buddy) {
-		return save(context, buddy, System.currentTimeMillis());
+	private Context mContext;
+	private long mUpdateTime;
+
+	public BuddyPersister(Context context) {
+		mContext = context;
+		mUpdateTime = System.currentTimeMillis();
 	}
 
-	public static int save(Context context, User buddy, long updateTime) {
+	public long getTimestamp() {
+		return mUpdateTime;
+	}
+
+	public int save(User buddy) {
 		List<User> buddies = new ArrayList<User>(1);
 		buddies.add(buddy);
-		return save(context, buddies, updateTime);
+		return save(buddies);
 	}
 
-	public static int save(Context context, List<User> buddies, long updateTime) {
-		ContentResolver resolver = context.getContentResolver();
+	public int save(List<User> buddies) {
+		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (buddies != null) {
 			for (User buddy : buddies) {
-				ContentValues values = toValues(buddy, updateTime);
+				ContentValues values = toValues(buddy);
 				addToBatch(resolver, values, batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 		if (result == null) {
 			return 0;
 		} else {
@@ -46,22 +54,22 @@ public class BuddyPersister {
 		}
 	}
 
-	public static int saveList(Context context, Buddy buddy, long updateTime) {
+	public int saveList(Buddy buddy) {
 		List<Buddy> buddies = new ArrayList<Buddy>(1);
 		buddies.add(buddy);
-		return saveList(context, buddies, updateTime);
+		return saveList(buddies);
 	}
 
-	public static int saveList(Context context, List<Buddy> buddies, long updateTime) {
-		ContentResolver resolver = context.getContentResolver();
+	public int saveList(List<Buddy> buddies) {
+		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (buddies != null) {
 			for (Buddy buddy : buddies) {
-				ContentValues values = toValues(buddy, updateTime);
+				ContentValues values = toValues(buddy);
 				addToBatch(resolver, values, batch);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(context, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 		if (result == null) {
 			return 0;
 		} else {
@@ -81,22 +89,22 @@ public class BuddyPersister {
 		}
 	}
 
-	private static ContentValues toValues(User buddy, long updateTime) {
+	private ContentValues toValues(User buddy) {
 		ContentValues values = new ContentValues();
 		values.put(Buddies.BUDDY_ID, buddy.id);
 		values.put(Buddies.BUDDY_NAME, buddy.name);
 		values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
 		values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
 		values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
-		values.put(Buddies.UPDATED, updateTime);
+		values.put(Buddies.UPDATED, mUpdateTime);
 		return values;
 	}
 
-	private static ContentValues toValues(Buddy buddy, long updateTime) {
+	private ContentValues toValues(Buddy buddy) {
 		ContentValues values = new ContentValues();
 		values.put(Buddies.BUDDY_ID, buddy.id);
 		values.put(Buddies.BUDDY_NAME, buddy.name);
-		values.put(Buddies.UPDATED_LIST, updateTime);
+		values.put(Buddies.UPDATED_LIST, mUpdateTime);
 		return values;
 	}
 

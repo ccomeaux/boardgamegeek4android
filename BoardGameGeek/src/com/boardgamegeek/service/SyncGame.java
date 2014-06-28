@@ -24,11 +24,10 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public void execute(Context context) {
-		long startTime = System.currentTimeMillis();
 		BggService service = Adapter.create();
+		GamePersister gp = new GamePersister(context);
 		ThingResponse response = service.thing(mGameId, 1);
-		GamePersister gp = new GamePersister(context, response.games, startTime);
-		gp.save();
+		gp.save(response.games);
 		LOGI(TAG, "Synced Game " + mGameId);
 	}
 }

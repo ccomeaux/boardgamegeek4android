@@ -7,46 +7,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+/**
+ * Syncs the user's collection in brief mode, one collection status at a time.
+ */
 public class SyncCollectionListComplete extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
+
+	public SyncCollectionListComplete(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing full collection list...");
 		boolean success = true;
 		try {
-			String[] statuses = PreferencesUtils.getSyncStatuses(context);
-			if (statuses == null || statuses.length == 0) {
-				LOGI(TAG, "...no statuses set to sync");
-				return;
-			}
-
-			AccountManager accountManager = AccountManager.get(context);
-			String s = accountManager.getUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
-			long lastCompleteSync = TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
-			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-				LOGI(TAG, "...skipping; we did a full sync already this week");
-				return;
-			}
-
-			BggService service = Adapter.createWithAuth(context);
 			CollectionPersister persister = new CollectionPersister(context).brief();
-			final long startTime = System.currentTimeMillis();
 
+			String[] statuses = PreferencesUtils.getSyncStatuses(context);
 			for (int i = 0; i < statuses.length; i++) {
 				if (isCancelled()) {
 					success = false;
@@ -58,7 +47,7 @@ public class SyncCollectionListComplete extends SyncTask {
 				options.put(statuses[i], "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 
-				CollectionResponse response = getCollectionResponse(service, account.name, options);
+				CollectionResponse response = getCollectionResponse(mService, account.name, options);
 				persister.save(response.items);
 			}
 
@@ -66,15 +55,13 @@ public class SyncCollectionListComplete extends SyncTask {
 				LOGI(TAG, "...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
 				int count = context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-					new String[] { String.valueOf(startTime) });
+					new String[] { String.valueOf(persister.getTimeStamp()) });
 				LOGI(TAG, "...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game
 
-				accountManager.setUserData(account, SyncService.TIMESTAMP_COLLECTION_COMPLETE,
-					String.valueOf(startTime));
-				accountManager
-					.setUserData(account, SyncService.TIMESTAMP_COLLECTION_PARTIAL, String.valueOf(startTime));
+				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
+				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

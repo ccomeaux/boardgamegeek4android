@@ -31,8 +31,8 @@ public class SyncBuddy extends UpdateTask {
 			LOGI(TAG, "Invalid user: " + mName);
 			return;
 		}
-
-		BuddyPersister.save(context, user);
+		BuddyPersister persister = new BuddyPersister(context);
+		persister.save(user);
 		LOGI(TAG, "Synced Buddy " + mName);
 	}
 }

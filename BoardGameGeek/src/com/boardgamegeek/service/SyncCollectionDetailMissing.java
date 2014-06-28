@@ -12,18 +12,23 @@ import android.content.SyncResult;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 /**
- * Deletes games that aren't in the collection and haven't been viewed in 72 hours. NOTE: This will probably removed
- * games that are marked as played, but not in the collection.
+ * Deletes games that aren't in the collection and haven't been viewed in 72 hours. NOTE: This will probably remove
+ * games that are marked as played, but not otherwise in the collection.
  */
 public class SyncCollectionDetailMissing extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailMissing.class);
 	private static final int HOURS_OLD = 72;
+
+	public SyncCollectionDetailMissing(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {

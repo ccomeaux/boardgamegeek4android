@@ -103,6 +103,11 @@ public class PreferencesUtils {
 			context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
+	public static boolean isSyncStatus(Context context) {
+		String[] statuses = getSyncStatuses(context);
+		return statuses != null && statuses.length > 0;
+	}
+
 	public static boolean isSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) {
 			return false;

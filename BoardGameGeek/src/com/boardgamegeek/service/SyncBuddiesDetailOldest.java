@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
@@ -19,9 +18,16 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+/**
+ * Syncs a number of buddies that haven't been updated in a while.
+ */
 public class SyncBuddiesDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesDetailOldest.class);
 	private static final int SYNC_LIMIT = 25;
+
+	public SyncBuddiesDetailOldest(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {
@@ -37,29 +43,24 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				List<User> buddies = new ArrayList<User>(names.size());
-				long startTime = System.currentTimeMillis();
-				BggService service = Adapter.create();
+				BuddyPersister persister = new BuddyPersister(context);
 				for (String name : names) {
 					if (isCancelled()) {
 						LOGI(TAG, "...canceled while syncing buddies");
-						save(context, buddies, startTime);
+						int count = persister.save(buddies);
+						LOGI(TAG, "...saved " + count + " buddies");
 						break;
 					}
-					buddies.add(service.user(name));
+					buddies.add(mService.user(name));
 				}
-				save(context, buddies, startTime);
+				int count = persister.save(buddies);
+				LOGI(TAG, "...saved " + count + " buddies");
 			} else {
 				LOGI(TAG, "...no buddies to update");
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
-	}
-
-	private void save(Context context, List<User> buddies, long startTime) {
-		int count = BuddyPersister.save(context, buddies, startTime);
-		// syncResult.stats.numUpdates += buddies.size();
-		LOGI(TAG, "...saved " + count + " buddies");
 	}
 
 	@Override

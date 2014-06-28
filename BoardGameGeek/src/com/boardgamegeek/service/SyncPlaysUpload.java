@@ -38,7 +38,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
@@ -62,6 +61,10 @@ public class SyncPlaysUpload extends SyncTask {
 	private HttpClient mClient;
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
+
+	public SyncPlaysUpload(BggService service) {
+		super(service);
+	}
 
 	@Override
 	public void execute(Context context, Account account, SyncResult syncResult) {
@@ -318,9 +321,8 @@ public class SyncPlaysUpload extends SyncTask {
 	 */
 	private String syncGame(String username, Play play, SyncResult syncResult) {
 		try {
-			BggService service = Adapter.create();
 			long startTime = System.currentTimeMillis();
-			PlaysResponse response = service.plays(username, play.gameId, play.getDate(), play.getDate());
+			PlaysResponse response = mService.plays(username, play.gameId, play.getDate(), play.getDate());
 			if (!play.hasBeenSynced()) {
 				int newPlayId = getTranslatedPlayId(play, response.plays);
 				PreferencesUtils.putNewPlayId(mContext, play.playId, newPlayId);
