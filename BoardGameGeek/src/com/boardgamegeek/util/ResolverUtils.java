@@ -38,12 +38,9 @@ public class ResolverUtils {
 			} else {
 				try {
 					return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-				} catch (RemoteException e) {
+				} catch (OperationApplicationException | RemoteException e) {
 					LOGE(TAG, batch.toString(), e);
-					throw new RuntimeException(e);
-				} catch (OperationApplicationException e) {
-					LOGE(TAG, batch.toString(), e);
-					throw new RuntimeException(e);
+					throw new RuntimeException(batch.toString(), e);
 				}
 			}
 		}
@@ -55,12 +52,9 @@ public class ResolverUtils {
 		batch.add(cpo);
 		try {
 			resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-		} catch (RemoteException e) {
+		} catch (OperationApplicationException | RemoteException e) {
 			LOGE(TAG, cpo.toString(), e);
-			throw new RuntimeException(e);
-		} catch (OperationApplicationException e) {
-			LOGE(TAG, cpo.toString(), e);
-			throw new RuntimeException(e);
+			throw new RuntimeException(cpo.toString(), e);
 		}
 	}
 

@@ -150,7 +150,11 @@ public class UpdateService extends IntentService {
 	}
 
 	private void sendResultToReceiver(int resultCode, String message) {
-		LOGI(TAG, "RESULT: " + codeToText(resultCode) + ", message=" + message);
+		String logMessage = codeToText(resultCode);
+		if (!TextUtils.isEmpty(message)) {
+			logMessage += ", message=" + message;
+		}
+		LOGI(TAG, "Update Result: " + logMessage);
 		if (mResultReceiver != null) {
 			Bundle bundle = Bundle.EMPTY;
 			if (!TextUtils.isEmpty(message)) {

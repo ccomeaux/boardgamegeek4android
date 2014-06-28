@@ -17,6 +17,10 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+/**
+ * Deletes games that aren't in the collection and haven't been viewed in 72 hours. NOTE: This will probably removed
+ * games that are marked as played, but not in the collection.
+ */
 public class SyncCollectionDetailMissing extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailMissing.class);
 	private static final int HOURS_OLD = 72;
@@ -26,16 +30,15 @@ public class SyncCollectionDetailMissing extends SyncTask {
 		LOGI(TAG, "Deleting missing games from the collection...");
 		try {
 			long hoursAgo = DateTimeUtils.hoursAgo(HOURS_OLD);
-			String arg = String.valueOf(hoursAgo);
-			LOGI(
-				TAG,
-				"...not viewed since "
-					+ DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE
-						| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME));
+
+			String date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE
+				| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME);
+			LOGI(TAG, "...not viewed since " + date);
+
 			ContentResolver resolver = context.getContentResolver();
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, "collection."
-				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?", new String[] { arg },
-				"games." + Games.UPDATED);
+				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?",
+				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
 			LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 			if (gameIds.size() > 0) {
 				int count = 0;
@@ -44,9 +47,8 @@ public class SyncCollectionDetailMissing extends SyncTask {
 					count += resolver.delete(Games.buildGameUri(gameId), null, null);
 				}
 				LOGI(TAG, "...deleted " + count + " games");
-				// syncResult.stats.numDeletes += count;
 			}
-			// NOTE: We're not deleting on with the selection because it doesn't perform the game/collection join
+			// NOTE: We're not deleting one at a time, because a batch doesn't perform the game/collection join
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
