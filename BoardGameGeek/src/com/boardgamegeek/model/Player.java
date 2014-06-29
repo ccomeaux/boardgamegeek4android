@@ -69,7 +69,7 @@ public class Player implements Parcelable {
 	public String name;
 
 	@Attribute
-	private String startposition;
+	public String startposition;
 
 	@Attribute
 	public String color;
@@ -78,13 +78,13 @@ public class Player implements Parcelable {
 	public String score;
 
 	@Attribute(name = "new")
-	private int new_;
+	public int new_;
 
 	@Attribute
 	public double rating;
 
 	@Attribute
-	private int win;
+	public int win;
 
 	public boolean Win() {
 		return win == 1;

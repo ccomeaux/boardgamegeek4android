@@ -9,5 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/okhttp-1.5.3.jar"/>
 	<classpathentry kind="lib" path="libs/simple-xml-2.7.1.jar"/>
 	<classpathentry kind="lib" path="libs/retrofit-1.5.1.jar"/>
+	<classpathentry kind="lib" path="libs/gson-2.2.4.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

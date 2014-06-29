@@ -26,23 +26,11 @@ public class Adapter {
 	}
 
 	public static BggService createWithAuth(Context context) {
-		RequestInterceptor requestInterceptor = null;
+		return addAuth(context, createBuilder()).build().create(BggService.class);
+	}
 
-		AccountManager accountManager = AccountManager.get(context);
-		final Account account = Authenticator.getAccount(accountManager);
-		try {
-			final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTHTOKEN_TYPE, true);
-			requestInterceptor = new RequestInterceptor() {
-				@Override
-				public void intercept(RequestFacade request) {
-					request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
-				}
-			};
-		} catch (OperationCanceledException | AuthenticatorException | IOException e) {
-			// TODO handle this somehow; maybe just return create()
-		}
-
-		return createBuilder().setRequestInterceptor(requestInterceptor).build().create(BggService.class);
+	public static BggService createForPost(Context context) {
+		return addAuth(context, createBuilder()).setConverter(new JsonConverter()).build().create(BggService.class);
 	}
 
 	private static Builder createBuilder() {
@@ -65,4 +53,23 @@ public class Adapter {
 		return builder;
 	}
 
+	private static Builder addAuth(Context context, Builder builder) {
+		RequestInterceptor requestInterceptor = null;
+
+		AccountManager accountManager = AccountManager.get(context);
+		final Account account = Authenticator.getAccount(accountManager);
+		try {
+			final String authToken = accountManager.blockingGetAuthToken(account, Authenticator.AUTHTOKEN_TYPE, true);
+			requestInterceptor = new RequestInterceptor() {
+				@Override
+				public void intercept(RequestFacade request) {
+					request.addHeader("Cookie", "bggusername=" + account.name + "; bggpassword=" + authToken);
+				}
+			};
+		} catch (OperationCanceledException | AuthenticatorException | IOException e) {
+			// TODO handle this somehow; maybe just return create()
+		}
+
+		return builder.setRequestInterceptor(requestInterceptor);
+	}
 }

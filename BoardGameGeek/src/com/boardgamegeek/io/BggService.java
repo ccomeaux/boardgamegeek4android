@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Map;
 
+import retrofit.http.FieldMap;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import retrofit.http.QueryMap;
@@ -15,6 +18,7 @@ import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
+import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.SearchResponse;
 import com.boardgamegeek.model.ThingResponse;
@@ -146,4 +150,8 @@ public interface BggService {
 
 	@GET("/xmlapi2/thing?ratingcomments=1")
 	ThingResponse thingWithRatings(@Query("id") int gameId, @Query("page") int page);
+
+	@FormUrlEncoded
+	@POST("/geekplay.php")
+	PlayPostResponse geekPlay(@FieldMap Map<String, String> form);
 }
