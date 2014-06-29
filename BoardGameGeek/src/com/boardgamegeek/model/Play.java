@@ -255,7 +255,11 @@ public class Play {
 	}
 
 	public void setPlayers(List<Player> players) {
-		this.players = players;
+		if (players == null) {
+			this.players = new ArrayList<Player>();
+		} else {
+			this.players = players;
+		}
 	}
 
 	public void setPlayers(Cursor cursor) {

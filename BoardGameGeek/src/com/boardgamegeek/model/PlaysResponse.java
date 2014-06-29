@@ -32,9 +32,11 @@ public class PlaysResponse {
 
 	public long getNewestDate() {
 		long date = 0;
-		for (Play play : plays) {
-			if (play.getDateInMillis() > date) {
-				date = play.getDateInMillis();
+		if (plays != null) {
+			for (Play play : plays) {
+				if (play.getDateInMillis() > date) {
+					date = play.getDateInMillis();
+				}
 			}
 		}
 		return date;
@@ -42,9 +44,11 @@ public class PlaysResponse {
 
 	public long getOldestDate() {
 		long date = Long.MAX_VALUE;
-		for (Play play : plays) {
-			if (play.getDateInMillis() < date) {
-				date = play.getDateInMillis();
+		if (plays != null) {
+			for (Play play : plays) {
+				if (play.getDateInMillis() < date) {
+					date = play.getDateInMillis();
+				}
 			}
 		}
 		return date;

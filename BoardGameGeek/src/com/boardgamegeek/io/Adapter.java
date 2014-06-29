@@ -19,7 +19,7 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 
 public class Adapter {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public static BggService create() {
 		return createBuilder().build().create(BggService.class);

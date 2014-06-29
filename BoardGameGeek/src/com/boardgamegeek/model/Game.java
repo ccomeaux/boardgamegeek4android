@@ -321,4 +321,9 @@ public class Game {
 		}
 		return list;
 	}
+
+	@Override
+	public String toString() {
+		return id + ": " + getName();
+	}
 }
