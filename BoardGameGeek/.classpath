@@ -5,10 +5,12 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry exported="true" kind="lib" path="libs/picasso-2.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/okhttp-1.5.3.jar"/>
 	<classpathentry kind="lib" path="libs/simple-xml-2.7.1.jar"/>
 	<classpathentry kind="lib" path="libs/retrofit-1.5.1.jar"/>
 	<classpathentry kind="lib" path="libs/gson-2.2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/okhttp-2.0.0-RC1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/okio-1.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/picasso-2.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/okhttp-urlconnection-2.0.0-RC1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
