@@ -1,12 +1,22 @@
 package com.boardgamegeek.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 
 public class DateTimeUtils {
+	public static final long UNPARSED_DATE = -2;
+	private static final long UNKNOWN_DATE = -1;
+	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private DateTimeUtils() {
 	}
@@ -47,6 +57,12 @@ public class DateTimeUtils {
 		return String.format("%04d", year) + "-" + String.format("%02d", month + 1) + "-" + String.format("%02d", day);
 	}
 
+	public static String formatDateForApi(long date) {
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(date);
+		return FORMAT_API.format(c.getTime());
+	}
+
 	public static CharSequence formatForumDate(Context context, long date) {
 		if (PreferencesUtils.getForumDates(context)) {
 			return DateUtils.formatDateTime(context, date, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
@@ -54,5 +70,20 @@ public class DateTimeUtils {
 		} else {
 			return DateUtils.getRelativeTimeSpanString(date);
 		}
+	}
+
+	public static long tryParseDate(long time, String date, DateFormat format) {
+		if (TextUtils.isEmpty(date)) {
+			time = UNKNOWN_DATE;
+		} else {
+			if (time == UNPARSED_DATE) {
+				try {
+					time = format.parse(date).getTime();
+				} catch (ParseException e) {
+					time = UNKNOWN_DATE;
+				}
+			}
+		}
+		return time;
 	}
 }

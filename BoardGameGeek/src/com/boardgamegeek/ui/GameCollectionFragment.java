@@ -42,6 +42,7 @@ import com.squareup.picasso.Picasso;
 
 public class GameCollectionFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameCollectionFragment.class);
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private int mGameId = BggContract.INVALID_ID;
 	private CursorAdapter mAdapter;
@@ -123,7 +124,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 				cursor.moveToFirst();
 				do {
 					long u = cursor.getLong(new CollectionItem().UPDATED);
-					if (DateTimeUtils.howManyDaysOld(u) > 0) {
+					if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
 						triggerRefresh();
 						break;
 					}
@@ -393,7 +394,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = CursorUtils.getFormettedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
 			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);

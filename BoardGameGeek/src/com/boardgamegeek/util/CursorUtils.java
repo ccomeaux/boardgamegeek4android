@@ -84,15 +84,15 @@ public class CursorUtils {
 		return array;
 	}
 
-	public static String getFormettedDate(Cursor cursor, Context context, int columnIndex) {
-		return getFormettedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
+	public static String getFormattedDate(Cursor cursor, Context context, int columnIndex) {
+		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public static String getFormettedDateAbbreviated(Cursor cursor, Context context, int columnIndex) {
-		return getFormettedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
 	}
 
-	private static String getFormettedDate(Cursor cursor, Context context, int columnIndex, int flags) {
+	private static String getFormattedDate(Cursor cursor, Context context, int columnIndex, int flags) {
 		String date = cursor.getString(columnIndex);
 		if (!TextUtils.isEmpty(date)) {
 			int year = Integer.parseInt(date.substring(0, 4));

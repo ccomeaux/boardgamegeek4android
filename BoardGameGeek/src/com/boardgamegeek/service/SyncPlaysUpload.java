@@ -1,33 +1,20 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.xmlpull.v1.XmlPullParserException;
-
+import retrofit.RetrofitError;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -36,10 +23,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemotePlaysParser;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.model.PlayPostResponse;
 import com.boardgamegeek.model.Player;
+import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.builder.PlayBuilder;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
@@ -47,30 +36,31 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
-
 	private Context mContext;
-	private HttpClient mClient;
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
+	private BggService mPostService;
+
+	public SyncPlaysUpload(BggService service) {
+		super(service);
+	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
-		mContext = executor.getContext();
-		mClient = executor.getHttpClient();
+	public void execute(Context context, Account account, SyncResult syncResult) {
+		mContext = context;
+		mPostService = Adapter.createForPost(mContext);
 		mMessages = new ArrayList<CharSequence>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
-		SyncService.hIndex(executor.getContext());
+		SyncService.hIndex(context);
 	}
 
 	@Override
@@ -90,7 +80,7 @@ public class SyncPlaysUpload extends SyncTask {
 				}
 				Play play = PlayBuilder.fromCursor(cursor, mContext, true);
 
-				PlayUpdateResponse response = postPlayUpdate(play);
+				PlayPostResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
 					setStatusToSynced(play);
 					String error = syncGame(username, play, syncResult);
@@ -98,23 +88,26 @@ public class SyncPlaysUpload extends SyncTask {
 					if (TextUtils.isEmpty(error)) {
 						increaseGamePlayCount(play);
 						if (!play.hasBeenSynced()) {
-							deletePlay(play, syncResult);
+							deletePlay(play);
 						}
 
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
-								getPlayCountDescription(response.count, play.Quantity));
-						notifyUser(StringUtils.boldSecondString(message, play.GameName));
+								getPlayCountDescription(response.getPlayCount(), play.quantity));
+						notifyUser(StringUtils.boldSecondString(message, play.gameName));
 					} else {
-						notifyUser(error);
+						notifyError(error);
 					}
+				} else if (response.hasInvalidIdError()) {
+					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_update_bad_id),
+						String.valueOf(play.playId)));
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(mContext);
 					break;
 				} else {
 					syncResult.stats.numIoExceptions++;
-					notifyUser(response.error);
+					notifyError(response.getErrorMessage());
 				}
 			}
 		} finally {
@@ -136,21 +129,27 @@ public class SyncPlaysUpload extends SyncTask {
 				}
 				Play play = PlayBuilder.fromCursor(cursor);
 				if (play.hasBeenSynced()) {
-					String error = postPlayDelete(play.PlayId, syncResult);
-					if (TextUtils.isEmpty(error)) {
+					PlayPostResponse response = postPlayDelete(play.playId);
+					if (!response.hasError()) {
 						decreaseGamePlayCount(play);
-						PlayPersister.delete(mContext.getContentResolver(), play);
+						deletePlay(play);
 						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
-							play.GameName));
-						// syncResult.stats.numDeletes++;
+							play.gameName));
+					} else if (response.hasInvalidIdError()) {
+						deletePlay(play);
+						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
+							play.gameName));
+					} else if (response.hasAuthError()) {
+						syncResult.stats.numAuthExceptions++;
+						Authenticator.clearPassword(mContext);
 					} else {
-						notifyUser(error);
+						syncResult.stats.numIoExceptions++;
+						notifyError(response.getErrorMessage());
 					}
 				} else {
-					PlayPersister.delete(mContext.getContentResolver(), play);
+					deletePlay(play);
 					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted_draft),
-						play.GameName));
-					// syncResult.stats.numDeletes++;
+						play.gameName));
 				}
 			}
 		} finally {
@@ -170,14 +169,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 	private void updateGamePlayCount(Play play, boolean add) {
 		ContentResolver resolver = mContext.getContentResolver();
-		Uri uri = Games.buildGameUri(play.GameId);
+		Uri uri = Games.buildGameUri(play.gameId);
 		Cursor cursor = resolver.query(uri, new String[] { Games.NUM_PLAYS }, null, null, null);
 		if (cursor.moveToFirst()) {
 			int newPlayCount = cursor.getInt(0);
 			if (add) {
-				newPlayCount += play.Quantity;
+				newPlayCount += play.quantity;
 			} else {
-				newPlayCount -= play.Quantity;
+				newPlayCount -= play.quantity;
 				if (newPlayCount < 0) {
 					newPlayCount = 0;
 				}
@@ -188,87 +187,61 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private PlayUpdateResponse postPlayUpdate(Play play) {
-		List<NameValuePair> nvps = toNameValuePairs(play);
-		UrlEncodedFormEntity entity;
-		try {
-			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-		} catch (UnsupportedEncodingException e) {
-			LOGE(TAG, "Trying to encode play for update", e);
-			return new PlayUpdateResponse("Couldn't create the HttpEntity");
+	private PlayPostResponse postPlayUpdate(Play play) {
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("ajax", "1");
+		form.put("action", "save");
+		form.put("version", "2");
+		form.put("objecttype", "thing");
+		if (play.hasBeenSynced()) {
+			form.put("playid", String.valueOf(play.playId));
+		}
+		form.put("objectid", String.valueOf(play.gameId));
+		form.put("playdate", play.getDate());
+		form.put("dateinput", play.getDate()); // TODO: ask Aldie what this is
+		form.put("length", String.valueOf(play.length));
+		form.put("location", play.location);
+		form.put("quantity", String.valueOf(play.quantity));
+		form.put("incomplete", play.Incomplete() ? "1" : "0");
+		form.put("nowinstats", play.NoWinStats() ? "1" : "0");
+		form.put("comments", play.comments);
+		List<Player> players = play.getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			Player player = players.get(i);
+			form.put(getMapKey(i, "playerid"), "player_" + i);
+			form.put(getMapKey(i, "name"), player.name);
+			form.put(getMapKey(i, "username"), player.username);
+			form.put(getMapKey(i, "color"), player.color);
+			form.put(getMapKey(i, "position"), player.startposition);
+			form.put(getMapKey(i, "score"), player.score);
+			form.put(getMapKey(i, "rating"), String.valueOf(player.rating));
+			form.put(getMapKey(i, "new"), String.valueOf(player.new_));
+			form.put(getMapKey(i, "win"), String.valueOf(player.win));
 		}
 
-		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
-		post.setEntity(entity);
-
 		try {
-			Resources r = mContext.getResources();
-			HttpResponse response = mClient.execute(post);
-			if (response == null) {
-				return new PlayUpdateResponse(r.getString(R.string.logInError) + " : "
-					+ r.getString(R.string.logInErrorSuffixNoResponse));
-			} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				return new PlayUpdateResponse(r.getString(R.string.logInError) + " : "
-					+ r.getString(R.string.logInErrorSuffixBadResponse) + " " + response.toString() + ".");
-			} else {
-				String message = HttpUtils.parseResponse(response);
-				if (message.startsWith("Plays: <a") || message.startsWith("{\"html\":\"Plays:")) {
-					return new PlayUpdateResponse(parsePlayCount(message));
-				} else {
-					return new PlayUpdateResponse("Bad response:\n" + message);
-				}
-			}
-		} catch (ClientProtocolException e) {
-			return new PlayUpdateResponse(e);
-		} catch (IOException e) {
-			return new PlayUpdateResponse(e);
+			PlayPostResponse response = mPostService.geekPlay(form);
+			return response;
+		} catch (Exception e) {
+			return new PlayPostResponse(e);
 		}
 	}
 
-	private String postPlayDelete(int playId, SyncResult syncResult) {
-		UrlEncodedFormEntity entity = null;
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("ajax", "1"));
-		nvps.add(new BasicNameValuePair("action", "delete"));
-		nvps.add(new BasicNameValuePair("playid", String.valueOf(playId)));
-		try {
-			entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-		} catch (UnsupportedEncodingException e) {
-			LOGE(TAG, "Trying to encode play for deletion", e);
-			return "Couldn't create the HttpEntity";
-		}
+	private static String getMapKey(int index, String key) {
+		return "players[" + index + "][" + key + "]";
+	}
 
-		HttpPost post = new HttpPost(HttpUtils.SITE_URL + "geekplay.php");
-		post.setEntity(entity);
+	private PlayPostResponse postPlayDelete(int playId) {
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("ajax", "1");
+		form.put("action", "delete");
+		form.put("playid", String.valueOf(playId));
 
 		try {
-			Resources r = mContext.getResources();
-			HttpResponse response = mClient.execute(post);
-			if (response == null) {
-				return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixNoResponse);
-			} else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				return r.getString(R.string.logInError) + " : " + r.getString(R.string.logInErrorSuffixBadResponse)
-					+ " " + response.toString() + ".";
-			} else {
-				String message = HttpUtils.parseResponse(response);
-				if (message.contains("<title>Plays ") || message.contains("That play doesn't exist")
-					|| message.contains("Play does not exist.")) {
-					// TODO: only needed if play is a draft
-					PreferencesUtils.removeNewPlayId(mContext, playId);
-					return "";
-				} else {
-					return "Bad response:\n" + message;
-				}
-			}
-		} catch (ClientProtocolException e) {
-			syncResult.stats.numIoExceptions++;
-			return e.toString();
-		} catch (IOException e) {
-			syncResult.stats.numIoExceptions++;
-			return e.toString();
+			PlayPostResponse response = mPostService.geekPlay(form);
+			return response;
 		} catch (Exception e) {
-			syncResult.stats.numAuthExceptions++;
-			return e.toString();
+			return new PlayPostResponse(e);
 		}
 	}
 
@@ -276,17 +249,16 @@ public class SyncPlaysUpload extends SyncTask {
 	 * Marks the specified play as synced in the content provider
 	 */
 	private void setStatusToSynced(Play play) {
-		play.SyncStatus = Play.SYNC_STATUS_SYNCED;
-		PlayPersister.save(mContext.getContentResolver(), play);
+		play.syncStatus = Play.SYNC_STATUS_SYNCED;
+		PlayPersister.save(mContext, play);
 		// syncResult.stats.numUpdates++;
 	}
 
 	/**
 	 * Deletes the specified play from the content provider
 	 */
-	private void deletePlay(Play play, SyncResult syncResult) {
+	private void deletePlay(Play play) {
 		PlayPersister.delete(mContext.getContentResolver(), play);
-		// syncResult.stats.numDeletes++;
 	}
 
 	/**
@@ -295,24 +267,22 @@ public class SyncPlaysUpload extends SyncTask {
 	 * @return An error message, or blank if no error.
 	 */
 	private String syncGame(String username, Play play, SyncResult syncResult) {
-		RemoteExecutor re = new RemoteExecutor(mClient, mContext);
 		try {
-			RemotePlaysParser parser = new RemotePlaysParser(username).setGameId(play.GameId).setDate(play.getDate());
-			re.executeGet(parser);
-
+			long startTime = System.currentTimeMillis();
+			PlaysResponse response = mService.plays(username, play.gameId, play.getDate(), play.getDate());
 			if (!play.hasBeenSynced()) {
-				int newPlayId = getTranslatedPlayId(play, parser.getPlays());
-				PreferencesUtils.putNewPlayId(mContext, play.PlayId, newPlayId);
+				int newPlayId = getTranslatedPlayId(play, response.plays);
+				PreferencesUtils.putNewPlayId(mContext, play.playId, newPlayId);
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
-
-			PlayPersister.save(mContext.getContentResolver(), parser.getPlays());
-		} catch (IOException e) {
-			syncResult.stats.numIoExceptions++;
-			return e.toString();
-		} catch (XmlPullParserException e) {
-			syncResult.stats.numParseExceptions++;
+			PlayPersister.save(mContext, response.plays, startTime);
+		} catch (Exception e) {
+			if (e instanceof RetrofitError) {
+				syncResult.stats.numIoExceptions++;
+			} else {
+				syncResult.stats.numParseExceptions++;
+			}
 			return e.toString();
 		}
 		return "";
@@ -326,45 +296,17 @@ public class SyncPlaysUpload extends SyncTask {
 		int latestPlayId = BggContract.INVALID_ID;
 
 		for (Play parsedPlay : parsedPlays) {
-			if ((play.PlayId != parsedPlay.PlayId) && (play.GameId == parsedPlay.GameId)
-				&& (play.Year == parsedPlay.Year) && (play.Month == parsedPlay.Month) && (play.Day == parsedPlay.Day)
-				&& (play.Incomplete == parsedPlay.Incomplete) && (play.NoWinStats == parsedPlay.NoWinStats)
+			if ((play.playId != parsedPlay.playId) && (play.gameId == parsedPlay.gameId)
+				&& (play.getDate() == parsedPlay.getDate()) && (play.Incomplete() == parsedPlay.Incomplete())
+				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
-				if (parsedPlay.PlayId > latestPlayId) {
-					latestPlayId = parsedPlay.PlayId;
+				if (parsedPlay.playId > latestPlayId) {
+					latestPlayId = parsedPlay.playId;
 				}
 			}
 		}
 
 		return latestPlayId;
-	}
-
-	private List<NameValuePair> toNameValuePairs(Play play) {
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("ajax", "1"));
-		nvps.add(new BasicNameValuePair("action", "save"));
-		nvps.add(new BasicNameValuePair("version", "2"));
-		nvps.add(new BasicNameValuePair("objecttype", "thing"));
-		if (play.hasBeenSynced()) {
-			nvps.add(new BasicNameValuePair("playid", String.valueOf(play.PlayId)));
-		}
-		nvps.add(new BasicNameValuePair("objectid", String.valueOf(play.GameId)));
-		nvps.add(new BasicNameValuePair("playdate", play.getDate()));
-		nvps.add(new BasicNameValuePair("dateinput", play.getDate())); // TODO: ask Aldie what this is
-		nvps.add(new BasicNameValuePair("length", String.valueOf(play.Length)));
-		nvps.add(new BasicNameValuePair("location", play.Location));
-		nvps.add(new BasicNameValuePair("quantity", String.valueOf(play.Quantity)));
-		nvps.add(new BasicNameValuePair("incomplete", play.Incomplete ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("nowinstats", play.NoWinStats ? "1" : "0"));
-		nvps.add(new BasicNameValuePair("comments", play.Comments));
-
-		List<Player> players = play.getPlayers();
-		for (int i = 0; i < players.size(); i++) {
-			nvps.addAll(players.get(i).toNameValuePairs(i));
-		}
-
-		LOGD(TAG, nvps.toString());
-		return nvps;
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {
@@ -381,13 +323,6 @@ public class SyncPlaysUpload extends SyncTask {
 				break;
 		}
 		return countDescription;
-	}
-
-	private int parsePlayCount(String result) {
-		int start = result.indexOf(">");
-		int end = result.indexOf("<", start);
-		int playCount = StringUtils.parseInt(result.substring(start + 1, end), 1);
-		return playCount;
 	}
 
 	private void notifyUser(CharSequence message) {
@@ -409,35 +344,15 @@ public class SyncPlaysUpload extends SyncTask {
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD, builder);
 	}
 
+	private void notifyError(String error) {
+		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(error);
+		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
+		detail.bigText(error);
+		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR, builder);
+	}
+
 	private NotificationCompat.Builder createNotificationBuilder() {
 		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title_play_upload,
 			PlaysActivity.class);
-	}
-
-	private static class PlayUpdateResponse {
-		int count;
-		String error;
-
-		PlayUpdateResponse(int count) {
-			this.count = count;
-		}
-
-		PlayUpdateResponse(String error) {
-			this.error = error;
-		}
-
-		PlayUpdateResponse(Exception e) {
-			this.error = e.toString();
-		}
-
-		boolean hasError() {
-			return !TextUtils.isEmpty(error);
-		}
-
-		boolean hasAuthError() {
-			return hasError()
-				&& (error.contains("You must login to save plays") || error
-					.contains("You are not permitted to edit this play."));
-		}
 	}
 }

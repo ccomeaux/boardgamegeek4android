@@ -445,6 +445,15 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, path, 0);
 		}
 
+		public static Uri buildPathUri(int gameId, String path) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path).build();
+		}
+
+		public static Uri buildPathUri(int gameId, String path, int id) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
+				.appendPath(String.valueOf(id)).build();
+		}
+
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
 			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 			if (limit > 0) {

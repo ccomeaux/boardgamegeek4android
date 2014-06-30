@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -171,23 +172,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 			} else {
 				// Starting a new play
-				mPlay.PlayId = BggContract.INVALID_ID;
+				mPlay.playId = BggContract.INVALID_ID;
 				mDeleteOnCancel = true;
+				mPlay.setCurrentDate();
 
 				long lastPlay = PreferencesUtils.getLastPlayTime(this);
 				if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
-					mPlay.Location = PreferencesUtils.getLastPlayLocation(this);
+					mPlay.location = PreferencesUtils.getLastPlayLocation(this);
 					mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
 					mPlay.pickStartPlayer(0);
 					bindUiPlay(); // needed for location to be saved in draft
 				}
 
 				saveDraft(false);
-				setResult(mPlay.PlayId);
+				setResult(mPlay.playId);
 				mOriginalPlay = PlayBuilder.copy(mPlay);
 				signalDataLoaded();
 
-				if (TextUtils.isEmpty(mPlay.Location)) {
+				if (TextUtils.isEmpty(mPlay.location)) {
 					requestLocationFocus = true;
 				}
 			}
@@ -460,7 +462,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
 		if (!mPlay.hasBeenSynced()) {
 			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
-			PreferencesUtils.putLastPlayLocation(this, mPlay.Location);
+			PreferencesUtils.putLastPlayLocation(this, mPlay.location);
 			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
 		}
 		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
@@ -484,8 +486,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 			captureForm();
 		}
-		mPlay.SyncStatus = syncStatus;
-		PlayPersister.save(getContentResolver(), mPlay);
+		mPlay.syncStatus = syncStatus;
+		PlayPersister.save(this, mPlay);
 	}
 
 	private void cancel() {
@@ -547,9 +549,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onDateClick(View v) {
 		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
 		Bundle bundle = new Bundle();
-		bundle.putInt(DatePickerFragment.KEY_YEAR, mPlay.Year);
-		bundle.putInt(DatePickerFragment.KEY_MONTH, mPlay.Month);
-		bundle.putInt(DatePickerFragment.KEY_DAY, mPlay.Day);
+		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
 		fragment.setArguments(bundle);
 		fragment.show(getSupportFragmentManager(), "datePicker");
 	}
@@ -567,9 +567,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				captureForm();
 				String selection = null;
 				String[] selectionArgs = null;
-				if (!TextUtils.isEmpty(mPlay.Location)) {
+				if (!TextUtils.isEmpty(mPlay.location)) {
 					selection = Plays.LOCATION + "=?";
-					selectionArgs = new String[] { mPlay.Location };
+					selectionArgs = new String[] { mPlay.location };
 				}
 
 				mPlayersToAdd.clear();
@@ -603,8 +603,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 				Cursor cursor = (Cursor) ((AlertDialog) dialog).getListView().getAdapter().getItem(which);
 				Player player = new Player();
-				player.Username = cursor.getString(1);
-				player.Name = cursor.getString(2);
+				player.username = cursor.getString(1);
+				player.name = cursor.getString(2);
 				if (isChecked) {
 					mPlayersToAdd.add(player);
 				} else {
@@ -666,15 +666,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void bindUiPlay() {
-		changeName(mPlay.GameName);
+		changeName(mPlay.gameName);
 		setDateButtonText();
-		mQuantityView.setText((mPlay.Quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.Quantity));
-		mLengthView.setText((mPlay.Length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.Length));
-		UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
-		mLocationView.setText(mPlay.Location);
-		mIncompleteView.setChecked(mPlay.Incomplete);
-		mNoWinStatsView.setChecked(mPlay.NoWinStats);
-		mCommentsView.setText(mPlay.Comments);
+		mQuantityView.setText((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
+		mLengthView.setText((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
+		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
+		mLocationView.setText(mPlay.location);
+		mIncompleteView.setChecked(mPlay.Incomplete());
+		mNoWinStatsView.setChecked(mPlay.NoWinStats());
+		mCommentsView.setText(mPlay.comments);
 		hideFields();
 		supportInvalidateOptionsMenu();
 	}
@@ -698,8 +698,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void editPlayer(Intent intent, int requestCode) {
 		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
-		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.GameId);
-		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.GameName);
+		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.gameId);
+		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.gameName);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
@@ -778,27 +778,27 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private boolean shouldHideQuantity() {
-		return !PreferencesUtils.showLogPlayQuantity(this) && !mQuantityShown && !(mPlay.Quantity > 1);
+		return !PreferencesUtils.showLogPlayQuantity(this) && !mQuantityShown && !(mPlay.quantity > 1);
 	}
 
 	private boolean shouldHideLength() {
-		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.Length > 0);
+		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.length > 0);
 	}
 
 	private boolean shouldHideLocation() {
-		return !PreferencesUtils.showLogPlayLocation(this) && !mLocationShown && TextUtils.isEmpty(mPlay.Location);
+		return !PreferencesUtils.showLogPlayLocation(this) && !mLocationShown && TextUtils.isEmpty(mPlay.location);
 	}
 
 	private boolean shouldHideIncomplete() {
-		return !PreferencesUtils.showLogPlayIncomplete(this) && !mIncompleteShown && !mPlay.Incomplete;
+		return !PreferencesUtils.showLogPlayIncomplete(this) && !mIncompleteShown && !mPlay.Incomplete();
 	}
 
 	private boolean shouldHideNoWinStats() {
-		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mNoWinStatsShown && !mPlay.NoWinStats;
+		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mNoWinStatsShown && !mPlay.NoWinStats();
 	}
 
 	private boolean shouldHideComments() {
-		return !PreferencesUtils.showLogPlayComments(this) && !mCommentsShown && TextUtils.isEmpty(mPlay.Comments);
+		return !PreferencesUtils.showLogPlayComments(this) && !mCommentsShown && TextUtils.isEmpty(mPlay.comments);
 	}
 
 	private boolean shouldHidePlayers() {
@@ -824,12 +824,12 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	 */
 	private void captureForm() {
 		// date info already captured
-		mPlay.Quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
-		mPlay.Length = StringUtils.parseInt(mLengthView.getText().toString().trim());
-		mPlay.Location = mLocationView.getText().toString().trim();
-		mPlay.Incomplete = mIncompleteView.isChecked();
-		mPlay.NoWinStats = mNoWinStatsView.isChecked();
-		mPlay.Comments = mCommentsView.getText().toString().trim();
+		mPlay.quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
+		mPlay.length = StringUtils.parseInt(mLengthView.getText().toString().trim());
+		mPlay.location = mLocationView.getText().toString().trim();
+		mPlay.setIncomplete(mIncompleteView.isChecked());
+		mPlay.setNoWinStats(mNoWinStatsView.isChecked());
+		mPlay.comments = mCommentsView.getText().toString().trim();
 		// player info already captured
 	}
 
@@ -896,7 +896,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mOriginalPlay = PlayBuilder.copy(mPlay);
 			bindUi();
 			saveDraft(false);
-			setResult(mPlay.PlayId);
+			setResult(mPlay.playId);
 			mDeleteOnCancel = true;
 		}
 	}
@@ -929,9 +929,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	@SuppressLint("ValidFragment")
 	private static class DatePickerFragment extends DialogFragment {
-		public static final String KEY_YEAR = "YEAR";
-		public static final String KEY_MONTH = "MONTH";
-		public static final String KEY_DAY = "DAY";
+		public static final String KEY_DATE = "YEAR";
 
 		private OnDateSetListener mListener;
 
@@ -942,10 +940,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			Bundle b = getArguments();
-			int year = b.getInt(KEY_YEAR);
-			int month = b.getInt(KEY_MONTH);
-			int day = b.getInt(KEY_DAY);
-			return new DatePickerDialog(getActivity(), mListener, year, month, day);
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(b.getLong(KEY_DATE));
+			return new DatePickerDialog(getActivity(), mListener, c.get(Calendar.YEAR), c.get(Calendar.MONTH),
+				c.get(Calendar.DAY_OF_MONTH));
 		}
 	}
 

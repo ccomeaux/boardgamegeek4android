@@ -4,7 +4,9 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
@@ -12,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,22 +27,25 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteBuddyCollectionParser;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.model.BuddyGame;
-import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyGamesAdapter.BuddyGameViewHolder;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.CollectionItem;
+import com.boardgamegeek.model.CollectionResponse;
+import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.BuddyGameViewHolder;
+import com.boardgamegeek.ui.widget.BggLoader;
+import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
-	LoaderManager.LoaderCallbacks<List<BuddyGame>> {
+	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
 	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
 	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
 
-	private BuddyGamesAdapter mGamesAdapter;
+	private BuddyCollectionAdapter mAdapter;
 	private SubMenu mSubMenu;
 	private String mName;
 	private String mStatusValue;
@@ -115,7 +119,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onListItemClick(convertView, position, id);
 		BuddyGameViewHolder holder = (BuddyGameViewHolder) convertView.getTag();
 		if (holder != null) {
-			ActivityUtils.launchGame(getActivity(), Integer.parseInt(holder.id), holder.name.getText().toString());
+			ActivityUtils.launchGame(getActivity(), holder.id, holder.name.getText().toString());
 		}
 	}
 
@@ -177,25 +181,24 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public Loader<List<BuddyGame>> onCreateLoader(int id, Bundle data) {
+	public Loader<BuddyCollectionData> onCreateLoader(int id, Bundle data) {
 		return new BuddyGamesLoader(getActivity(), mName, mStatusValue);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<BuddyGame>> loader, List<BuddyGame> games) {
+	public void onLoadFinished(Loader<BuddyCollectionData> loader, BuddyCollectionData data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (mGamesAdapter == null) {
-			mGamesAdapter = new BuddyGamesAdapter(getActivity(), games);
-			setListAdapter(mGamesAdapter);
-		} else {
-			mGamesAdapter.setGames(games);
+		if (mAdapter == null) {
+			mAdapter = new BuddyCollectionAdapter(getActivity(), data.list());
+			setListAdapter(mAdapter);
 		}
+		mAdapter.notifyDataSetChanged();
 
-		if (loaderHasError()) {
-			setEmptyText(loaderErrorMessage());
+		if (data.hasError()) {
+			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
 				setListShown(true);
@@ -207,98 +210,73 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<BuddyGame>> loader) {
+	public void onLoaderReset(Loader<BuddyCollectionData> loader) {
 	}
 
-	private boolean loaderHasError() {
-		final BuddyGamesLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		final BuddyGamesLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
-	private BuddyGamesLoader getLoader() {
-		if (isAdded()) {
-			Loader<List<BuddyGame>> loader = getLoaderManager().getLoader(BUDDY_GAMES_LOADER_ID);
-			return (BuddyGamesLoader) loader;
-		}
-		return null;
-	}
-
-	private static class BuddyGamesLoader extends AsyncTaskLoader<List<BuddyGame>> {
+	private static class BuddyGamesLoader extends BggLoader<BuddyCollectionData> {
+		private BggService mService;
 		private String mUsername;
-		private String mErrorMessage;
-		private String mStatus;
+		private Map<String, String> mOptions;
 
 		public BuddyGamesLoader(Context context, String username, String status) {
 			super(context);
+			mService = Adapter.create();
 			mUsername = username;
-			mStatus = status;
-			mErrorMessage = "";
+			mOptions = new HashMap<String, String>();
+			mOptions.put(status, "1");
+			mOptions.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
 
 		@Override
-		public List<BuddyGame> loadInBackground() {
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteBuddyCollectionParser parser = new RemoteBuddyCollectionParser(mUsername, mStatus);
-			executor.safelyExecuteGet(parser);
-			mErrorMessage = parser.getErrorMessage();
-			return parser.getResults();
-		}
-
-		@Override
-		public void deliverResult(List<BuddyGame> games) {
-			if (isStarted()) {
-				super.deliverResult(games == null ? null : new ArrayList<BuddyGame>(games));
+		public BuddyCollectionData loadInBackground() {
+			BuddyCollectionData collection = null;
+			try {
+				collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
+			} catch (Exception e) {
+				collection = new BuddyCollectionData(e);
 			}
-		}
-
-		@Override
-		protected void onStartLoading() {
-			forceLoad();
-		}
-
-		@Override
-		protected void onStopLoading() {
-			cancelLoad();
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			onStopLoading();
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
+			return collection;
 		}
 	}
 
-	public static class BuddyGamesAdapter extends ArrayAdapter<BuddyGame> implements StickyListHeadersAdapter {
-		private List<BuddyGame> mBuddyGames;
-		private LayoutInflater mInflater;
+	static class BuddyCollectionData extends Data<CollectionItem> {
+		private CollectionResponse mResponse;
 
-		public BuddyGamesAdapter(Activity activity, List<BuddyGame> games) {
-			super(activity, R.layout.row_collection, games);
-			mInflater = activity.getLayoutInflater();
-			setGames(games);
+		public BuddyCollectionData(CollectionResponse response) {
+			mResponse = response;
 		}
 
-		public void setGames(List<BuddyGame> games) {
-			mBuddyGames = games;
+		public BuddyCollectionData(Exception e) {
+			super(e);
+		}
+
+		@Override
+		public List<CollectionItem> list() {
+			if (mResponse == null || mResponse.items == null) {
+				return new ArrayList<CollectionItem>();
+			}
+			return mResponse.items;
+		}
+	}
+
+	public static class BuddyCollectionAdapter extends ArrayAdapter<CollectionItem> implements StickyListHeadersAdapter {
+		private List<CollectionItem> mBuddyCollection;
+		private LayoutInflater mInflater;
+
+		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
+			super(activity, R.layout.row_collection, collection);
+			mInflater = activity.getLayoutInflater();
+			setCollection(collection);
+		}
+
+		public void setCollection(List<CollectionItem> games) {
+			mBuddyCollection = games;
 			notifyDataSetChanged();
 		}
 
 		@Override
 		public int getCount() {
-			return mBuddyGames.size();
+			return mBuddyCollection.size();
 		}
 
 		@Override
@@ -313,16 +291,16 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			}
 			convertView.findViewById(R.id.list_thumbnail).setVisibility(View.GONE);
 
-			BuddyGame game;
+			CollectionItem game;
 			try {
-				game = mBuddyGames.get(position);
+				game = mBuddyCollection.get(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
 			if (game != null) {
-				holder.name.setText(game.Name);
-				holder.year.setText(game.Year);
-				holder.id = game.Id;
+				holder.name.setText(game.gameName());
+				holder.year.setText(String.valueOf(game.gameId));
+				holder.id = game.gameId;
 			}
 			return convertView;
 		}
@@ -348,9 +326,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		private String getHeaderText(int position) {
-			BuddyGame game = mBuddyGames.get(position);
+			CollectionItem game = mBuddyCollection.get(position);
 			if (game != null) {
-				return game.SortName.substring(0, 1);
+				return game.gameSortName().substring(0, 1);
 			}
 			return "-";
 		}
@@ -358,7 +336,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		class BuddyGameViewHolder {
 			public TextView name;
 			public TextView year;
-			public String id;
+			public int id;
 
 			public BuddyGameViewHolder(View view) {
 				name = (TextView) view.findViewById(R.id.name);

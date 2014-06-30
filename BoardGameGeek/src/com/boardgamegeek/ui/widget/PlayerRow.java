@@ -91,15 +91,15 @@ public class PlayerRow extends LinearLayout {
 			setText(mSeatColor, "");
 			setText(mSeat, "");
 		} else {
-			int color = ColorUtils.parseColor(player.TeamColor);
+			int color = ColorUtils.parseColor(player.color);
 
 			setText(mSeatColor, player.getStartingPosition());
 			setText(mSeat, player.getStartingPosition());
-			setText(mName, player.Name, mNameTypeface, player.New, player.Win);
-			setText(mUsername, player.Username, mUsernameTypeface, player.New, false);
-			setText(mTeamColor, player.TeamColor);
-			setText(mScore, player.Score, mScoreTypeface, false, player.Win);
-			setText(mRating, (player.Rating > 0) ? mFormat.format(player.Rating) : "");
+			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
+			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
+			setText(mTeamColor, player.color);
+			setText(mScore, player.score, mScoreTypeface, false, player.Win());
+			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 			setText(mStartingPosition, player.getStartingPosition());
 
 			if (color != ColorUtils.TRANSPARENT) {

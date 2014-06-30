@@ -31,11 +31,6 @@
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
-	<string name="logInError">Unable to log in, please verify your username and password are correct.</string>
-	<string name="logInErrorSuffixNoResponse">no response</string>
-	<string name="logInErrorSuffixBadResponse">received a bad response</string>
-	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
-	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
@@ -259,8 +254,6 @@
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
-	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
-	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updating">Updating…</string>
 	<string name="msg_update_error">Error updating.</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
@@ -272,7 +265,7 @@
 	<string name="msg_play_updated">Updated a play of</string>
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
-	<string name="msg_play_update_bad_id">Play was already deleted.</string>
+	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>

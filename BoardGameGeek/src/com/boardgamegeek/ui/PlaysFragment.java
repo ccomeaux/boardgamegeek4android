@@ -217,11 +217,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				setSort(PlaysSortDataFactory.TYPE_PLAY_LENGTH);
 				return true;
 			case R.id.menu_refresh:
-				if (mAutoSyncTriggered) {
-					Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-				} else {
-					triggerRefresh();
-				}
+				triggerRefresh();
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
