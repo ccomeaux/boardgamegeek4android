@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -54,7 +53,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
@@ -117,7 +115,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
-	private long mUpdated;
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
@@ -361,11 +358,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
-			if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
-				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-			} else {
-				triggerRefresh();
-			}
+			triggerRefresh();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -493,7 +486,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		formatRating(game);
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
-		mUpdated = game.Updated;
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());

@@ -254,8 +254,6 @@
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
-	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
-	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updating">Updating…</string>
 	<string name="msg_update_error">Error updating.</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
