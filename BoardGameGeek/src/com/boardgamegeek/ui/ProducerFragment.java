@@ -22,7 +22,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class ProducerFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final int AGE_IN_DAYS_TO_REFRESH = 45;
+	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private Uri mUri;
 	private int mToken;
 
@@ -48,7 +48,7 @@ public class ProducerFragment extends SherlockFragment implements LoaderManager.
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_producer, null);
+		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
 
 		mId = (TextView) rootView.findViewById(R.id.id);
 		mName = (TextView) rootView.findViewById(R.id.name);

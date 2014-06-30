@@ -3,11 +3,11 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="36"
-	android:versionName="feature/retrofit" >
+	android:versionName="develop" >
 
 	<uses-sdk
 		android:minSdkVersion="8"
-		android:targetSdkVersion="19" />
+		android:targetSdkVersion="20" />
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />

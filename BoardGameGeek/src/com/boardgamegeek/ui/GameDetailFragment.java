@@ -4,7 +4,6 @@ import static com.boardgamegeek.util.LogUtils.LOGD;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -38,10 +37,8 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
 		final ListView listView = getListView();
 		listView.setSelector(android.R.color.transparent);
-		listView.setCacheColorHint(Color.WHITE);
 	}
 
 	@Override

@@ -165,7 +165,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_info, null);
+		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 
 		mScrollRoot = rootView.findViewById(R.id.game_info_scroll_root);
 		mProgressView = rootView.findViewById(R.id.game_info_progress);
@@ -567,7 +567,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, null);
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
+			.inflate(R.layout.widget_rank_row, mRankRoot, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);

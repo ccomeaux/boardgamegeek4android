@@ -159,7 +159,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_collection, null);
+		return inflater.inflate(R.layout.fragment_collection, container, false);
 	}
 
 	@Override
@@ -515,7 +515,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
-		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, null);
+		final Button button = (Button) layoutInflater
+			.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
 		button.setText(text);
 		button.setTag(type);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
