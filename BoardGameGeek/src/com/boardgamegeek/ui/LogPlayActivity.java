@@ -95,6 +95,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
 	private List<Player> mPlayersToAdd = new ArrayList<Player>();
+	private List<String> mUsernames = new ArrayList<String>();
+	private List<String> mNames = new ArrayList<String>();
 
 	private Button mDateButton;
 	private EditText mQuantityView;
@@ -557,32 +559,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void onAddPlayerClick(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
 			if (mPlay.getPlayerCount() == 0) {
-				if (mAddPlayersBuilder == null) {
-					mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
-						.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
-						.setNeutralButton(R.string.more, addPlayersButtonClickListener())
-						.setNegativeButton(android.R.string.cancel, null);
-				}
-
-				captureForm();
-				String selection = null;
-				String[] selectionArgs = null;
-				if (!TextUtils.isEmpty(mPlay.location)) {
-					selection = Plays.LOCATION + "=?";
-					selectionArgs = new String[] { mPlay.location };
-				}
-
-				mPlayersToAdd.clear();
-
-				mAddPlayersBuilder
-					.setMultiChoiceItems(
-						getContentResolver().query(
-							Plays.buildPlayersByUniqueNameUri(),
-							new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME,
-								PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, PlayPlayers.COUNT,
-								PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT),
-						PlayPlayers.CHECKED, PlayPlayers.DESCRIPTION, addPlayersMultiChoiceClickListener()).create()
-					.show();
+				showPlayersToAddDialog();
 			} else {
 				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 			}
@@ -597,21 +574,58 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private DialogInterface.OnMultiChoiceClickListener addPlayersMultiChoiceClickListener() {
-		return new DialogInterface.OnMultiChoiceClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-				Cursor cursor = (Cursor) ((AlertDialog) dialog).getListView().getAdapter().getItem(which);
-				Player player = new Player();
-				player.username = cursor.getString(1);
-				player.name = cursor.getString(2);
-				if (isChecked) {
-					mPlayersToAdd.add(player);
-				} else {
-					mPlayersToAdd.remove(player);
-				}
+	private void showPlayersToAddDialog() {
+		if (mAddPlayersBuilder == null) {
+			mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
+				.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
+				.setNeutralButton(R.string.more, addPlayersButtonClickListener())
+				.setNegativeButton(android.R.string.cancel, null);
+		}
+
+		captureForm();
+
+		mPlayersToAdd.clear();
+		mUsernames.clear();
+		mNames.clear();
+		List<String> descriptions = new ArrayList<String>();
+
+		String selection = null;
+		String[] selectionArgs = null;
+		if (!TextUtils.isEmpty(mPlay.location)) {
+			selection = Plays.LOCATION + "=?";
+			selectionArgs = new String[] { mPlay.location };
+		}
+		Cursor cursor = getContentResolver().query(
+			Plays.buildPlayersByUniqueNameUri(),
+			new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
+				PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
+		try {
+			while (cursor.moveToNext()) {
+				mUsernames.add(cursor.getString(1));
+				mNames.add(cursor.getString(2));
+				descriptions.add(cursor.getString(3));
 			}
-		};
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+
+		CharSequence[] array = {};
+		mAddPlayersBuilder
+			.setMultiChoiceItems(descriptions.toArray(array), null, new DialogInterface.OnMultiChoiceClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+					Player player = new Player();
+					player.username = mUsernames.get(which);
+					player.name = mNames.get(which);
+					if (isChecked) {
+						mPlayersToAdd.add(player);
+					} else {
+						mPlayersToAdd.remove(player);
+					}
+				}
+			}).create().show();
 	}
 
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {

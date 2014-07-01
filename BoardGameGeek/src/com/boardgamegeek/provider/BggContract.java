@@ -191,7 +191,6 @@ public class BggContract {
 		String NEW = "new";
 		String RATING = "rating";
 		String WIN = "win";
-		String CHECKED = "checked";
 		String COUNT = "count";
 		String DESCRIPTION = "description";
 		String UNIQUE_NAME = "unique_name";

@@ -32,8 +32,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
 		}
-		builder.map(PlayPlayers.CHECKED, "0").map(PlayPlayers.COUNT, "count(*)")
-			.map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
+		builder.map(PlayPlayers.COUNT, "count(*)").map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
 			.map(PlayPlayers.DESCRIPTION, "name || IFNULL(NULLIF(' ('||user_name||')', ' ()'), '')");
 		return builder;
 	}
