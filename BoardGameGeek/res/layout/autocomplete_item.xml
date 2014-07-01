@@ -2,4 +2,6 @@
 	android:id="@+id/autocomplete_item"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:gravity="center_vertical"
+	android:minHeight="@dimen/dropdownitem_min_height"
 	android:padding="@dimen/padding_standard" />
