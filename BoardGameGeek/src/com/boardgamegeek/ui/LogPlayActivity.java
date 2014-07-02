@@ -26,7 +26,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -489,6 +488,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			}).show();
 	}
 
+	public void addPlayer(View v) {
+		if (PreferencesUtils.editPlayer(this)) {
+			if (mPlay.getPlayerCount() == 0) {
+				showPlayersToAddDialog();
+			} else {
+				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			}
+		} else {
+			Player player = new Player();
+			if (!mCustomPlayerSort) {
+				player.setSeat(mPlay.getPlayerCount() + 1);
+			}
+			mPlay.addPlayer(player);
+			bindUiPlayers();
+			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
+		}
+	}
+
 	private void logPlay() {
 		save(Play.SYNC_STATUS_PENDING_UPDATE);
 		if (!mPlay.hasBeenSynced()) {
@@ -583,24 +600,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
 		fragment.setArguments(bundle);
 		fragment.show(getSupportFragmentManager(), "datePicker");
-	}
-
-	public void onAddPlayerClick(View v) {
-		if (PreferencesUtils.editPlayer(this)) {
-			if (mPlay.getPlayerCount() == 0) {
-				showPlayersToAddDialog();
-			} else {
-				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-			}
-		} else {
-			Player player = new Player();
-			if (!mCustomPlayerSort) {
-				player.setSeat(mPlay.getPlayerCount() + 1);
-			}
-			mPlay.addPlayer(player);
-			bindUiPlayers();
-			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
-		}
 	}
 
 	private void showPlayersToAddDialog() {
@@ -796,8 +795,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
 		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
 		enabled |= hideRow(shouldHidePlayers(), mPlayerLabel);
-		addFooter(!shouldHidePlayers());
-
+		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 		mAddFieldButton.setEnabled(enabled);
 	}
 
@@ -836,21 +834,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private boolean shouldHidePlayers() {
 		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
-	}
-
-	private void addFooter(boolean add) {
-		View footer = View.inflate(this, R.layout.footer_logplay, null);
-		if (add && mPlayerList.getFooterViewsCount() == 0) {
-			mPlayerList.addFooterView(footer);
-			footer.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					onAddPlayerClick(v);
-				}
-			});
-		} else if (!add && mPlayerList.getFooterViewsCount() > 0) {
-			mPlayerList.removeFooterView(footer);
-		}
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
