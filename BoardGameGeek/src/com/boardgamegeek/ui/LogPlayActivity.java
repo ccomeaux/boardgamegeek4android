@@ -654,7 +654,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.addPlayer(player);
 				// prompt for another player
 				Intent intent = new Intent();
-				intent.putExtra(LogPlayerActivity.KEY_CANCEL_ON_BACK, true);
 				editPlayer(intent, REQUEST_ADD_PLAYER);
 			} else {
 				mPlay.replacePlayer(player, requestCode);

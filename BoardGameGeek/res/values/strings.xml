@@ -50,6 +50,7 @@
 	<string name="comments_hint"></string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
+	<string name="done">Done</string>
 	<string name="save_draft">Save draft</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
@@ -323,7 +324,8 @@
 	<string name="some_more">%d more</string>
 	<string name="and_more">, and more</string>
 	<string name="toggle">toggle</string>
-	<string name="number_to_text">123/ABC</string>
+	<string name="number_to_text">ABC</string>
+	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>

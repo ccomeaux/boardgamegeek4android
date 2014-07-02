@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -22,11 +23,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
@@ -45,7 +47,6 @@ import com.boardgamegeek.util.UIUtils;
 public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
@@ -65,6 +66,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
+	private ScrollView mScrollContainer;
+	private TextView mHeader;
 	private AutoCompleteTextView mUsername;
 	private AutoCompleteTextView mName;
 	private AutoCompleteTextView mTeamColor;
@@ -76,39 +79,54 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private CheckBox mNew;
 	private CheckBox mWin;
 
+	private boolean mPrefShowTeamColor;
+	private boolean mPrefShowPosition;
+	private boolean mPrefShowScore;
+	private boolean mPrefShowRating;
+	private boolean mPrefShowNew;
+	private boolean mPrefShowWin;
 	private boolean mTeamColorShown;
 	private boolean mPositionShown;
 	private boolean mScoreShown;
 	private boolean mRatingShown;
 	private boolean mNewShown;
 	private boolean mWinShown;
-	private boolean mCancelOnBack;
 	private int mAutoPosition;
+
+	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			onActionBarItemSelected(v.getId());
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 		setContentView(R.layout.activity_logplayer);
 		setUiVariables();
 
+		// set up custom action bar
+		getSupportActionBar().setDisplayOptions(
+			ActionBar.DISPLAY_SHOW_CUSTOM,
+			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
+				| ActionBar.DISPLAY_SHOW_CUSTOM);
+		LayoutInflater inflater = getLayoutInflater();
+		View actionBarButtons = inflater.inflate(R.layout.actionbar_done_cancel, new LinearLayout(this), false);
+		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
+		cancelActionView.setOnClickListener(mActionBarListener);
+		View doneActionView = actionBarButtons.findViewById(R.id.menu_save);
+		doneActionView.setOnClickListener(mActionBarListener);
+		getSupportActionBar().setCustomView(actionBarButtons);
+
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
-		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			mScoreShown = true;
 			mScore.requestFocus();
-		}
-
-		if (hasAutoPosition()) {
-			setTitle(getTitle() + " #" + mAutoPosition);
-		}
-
-		if (!TextUtils.isEmpty(mGameName)) {
-			getSupportActionBar().setSubtitle(mGameName);
 		}
 
 		if (savedInstanceState == null) {
@@ -143,6 +161,18 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		mPrefShowTeamColor = PreferencesUtils.showLogPlayerTeamColor(this);
+		mPrefShowPosition = PreferencesUtils.showLogPlayerPosition(this);
+		mPrefShowScore = PreferencesUtils.showLogPlayerScore(this);
+		mPrefShowRating = PreferencesUtils.showLogPlayerRating(this);
+		mPrefShowNew = PreferencesUtils.showLogPlayerNew(this);
+		mPrefShowWin = PreferencesUtils.showLogPlayerWin(this);
+		setViewVisibility();
+	}
+
+	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_PLAYER, mPlayer);
@@ -155,27 +185,13 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.logplayer, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
 	public void onBackPressed() {
-		if (mCancelOnBack) {
-			cancel();
-		} else {
-			save();
-		}
+		cancel();
 	}
 
 	private void setUiVariables() {
+		mScrollContainer = (ScrollView) findViewById(R.id.scroll_container);
+		mHeader = (TextView) findViewById(R.id.header);
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
 		mName = (AutoCompleteTextView) findViewById(R.id.log_player_name);
 		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
@@ -209,9 +225,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 				if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
 					editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
 						| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+					((Button) v).setText(R.string.text_to_number);
 				} else {
 					editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
 						| InputType.TYPE_NUMBER_FLAG_SIGNED);
+					((Button) v).setText(R.string.number_to_text);
 				}
 				editText.requestFocus();
 			}
@@ -219,41 +237,45 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void bindUi() {
-		mName.setText(mPlayer.name);
-		mUsername.setText(mPlayer.username);
-		mTeamColor.setText(mPlayer.color);
-		mPosition.setText(mPlayer.getStartingPosition());
-		mScore.setText(mPlayer.score);
-		mRating.setText((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
+		CharSequence title = getTitle() + (hasAutoPosition() ? " #" + mAutoPosition : "") + " - " + mGameName;
+		mHeader.setText(title);
+		mName.setTextKeepState(mPlayer.name);
+		mUsername.setTextKeepState(mPlayer.username);
+		mTeamColor.setTextKeepState(mPlayer.color);
+		mPosition.setTextKeepState(mPlayer.getStartingPosition());
+		mScore.setTextKeepState(mPlayer.score);
+		mRating.setTextKeepState((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
 		mNew.setChecked(mPlayer.New());
 		mWin.setChecked(mPlayer.Win());
-		hideFields();
 	}
 
-	private void hideFields() {
-		findViewById(R.id.log_player_team_color_label).setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
-		mTeamColor.setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_position_container).setVisibility(
-			hasAutoPosition() || shouldHidePosition() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_score_container).setVisibility(shouldHideScore() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_rating_label).setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
-		mRating.setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
-		mNew.setVisibility(shouldHideNew() ? View.GONE : View.VISIBLE);
-		mWin.setVisibility(shouldHideWin() ? View.GONE : View.VISIBLE);
+	private void setViewVisibility() {
+		boolean enableButton = false;
+		enableButton |= hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
+		enableButton |= hideRow(hasAutoPosition() || shouldHidePosition(),
+			findViewById(R.id.log_player_position_container));
+		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
+		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
+		enableButton |= hideRow(shouldHideNew(), mNew);
+		enableButton |= hideRow(shouldHideWin(), mWin);
+		findViewById(R.id.add_field).setEnabled(enableButton);
 	}
 
-	public void hideAddFieldMenuItem(MenuItem mi) {
-		mi.setVisible(shouldHideTeamColor() || (shouldHidePosition() && !hasAutoPosition()) || shouldHideScore()
-			|| shouldHideRating() || shouldHideNew() || shouldHideWin());
+	private boolean hideRow(boolean shouldHide, View view) {
+		if (shouldHide) {
+			view.setVisibility(View.GONE);
+			return true;
+		}
+		view.setVisibility(View.VISIBLE);
+		return false;
 	}
 
 	private boolean shouldHideTeamColor() {
-		return !PreferencesUtils.showLogPlayerTeamColor(this) && !mTeamColorShown && TextUtils.isEmpty(mPlayer.color);
+		return !mPrefShowTeamColor && !mTeamColorShown && TextUtils.isEmpty(mPlayer.color);
 	}
 
 	private boolean shouldHidePosition() {
-		return !PreferencesUtils.showLogPlayerPosition(this) && !mPositionShown
-			&& TextUtils.isEmpty(mPlayer.getStartingPosition());
+		return !mPrefShowPosition && !mPositionShown && TextUtils.isEmpty(mPlayer.getStartingPosition());
 	}
 
 	private boolean hasAutoPosition() {
@@ -261,73 +283,89 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideScore() {
-		return !PreferencesUtils.showLogPlayerScore(this) && !mScoreShown && TextUtils.isEmpty(mPlayer.score);
+		return !mPrefShowScore && !mScoreShown && TextUtils.isEmpty(mPlayer.score);
 	}
 
 	private boolean shouldHideRating() {
-		return !PreferencesUtils.showLogPlayerRating(this) && !mRatingShown && !(mPlayer.rating > 0);
+		return !mPrefShowRating && !mRatingShown && !(mPlayer.rating > 0);
 	}
 
 	private boolean shouldHideNew() {
-		return !PreferencesUtils.showLogPlayerNew(this) && !mNewShown && !mPlayer.New();
+		return !mPrefShowNew && !mNewShown && !mPlayer.New();
 	}
 
 	private boolean shouldHideWin() {
-		return !PreferencesUtils.showLogPlayerWin(this) && !mWinShown && !mPlayer.Win();
+		return !mPrefShowWin && !mWinShown && !mPlayer.Win();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+	private boolean onActionBarItemSelected(int itemId) {
+		switch (itemId) {
 			case R.id.menu_save:
 				save();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
 				return true;
-			case R.id.menu_add_field:
-				final CharSequence[] array = createAddFieldArray();
-				if (array == null || array.length == 0) {
-					return false;
-				}
-				final MenuItem mi = item;
-				new AlertDialog.Builder(this).setTitle(R.string.add_field)
-					.setItems(array, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Resources r = getResources();
-							View viewToFocus = null;
-
-							String selection = array[which].toString();
-							if (selection == r.getString(R.string.team_color)) {
-								mTeamColorShown = true;
-								viewToFocus = mTeamColor;
-							} else if (selection == r.getString(R.string.starting_position)) {
-								mPositionShown = true;
-								viewToFocus = mPosition;
-							} else if (selection == r.getString(R.string.score)) {
-								mScoreShown = true;
-								viewToFocus = mScore;
-							} else if (selection == r.getString(R.string.rating)) {
-								mRatingShown = true;
-								viewToFocus = mRating;
-							} else if (selection == r.getString(R.string.new_label)) {
-								mNewShown = true;
-								mNew.setChecked(true);
-							} else if (selection == r.getString(R.string.win)) {
-								mWinShown = true;
-								mWin.setChecked(true);
-							}
-							hideAddFieldMenuItem(mi);
-							hideFields();
-							if (viewToFocus != null) {
-								viewToFocus.requestFocus();
-							}
-						}
-					}).show();
-				return true;
 		}
-		return super.onOptionsItemSelected(item);
+		return false;
+	}
+
+	public void addField(View v) {
+		final CharSequence[] array = createAddFieldArray();
+		if (array == null || array.length == 0) {
+			return;
+		}
+		new AlertDialog.Builder(this).setTitle(R.string.add_field)
+			.setItems(array, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Resources r = getResources();
+					View viewToFocus = null;
+					View viewToScroll = null;
+
+					String selection = array[which].toString();
+					if (selection == r.getString(R.string.team_color)) {
+						mTeamColorShown = true;
+						viewToFocus = mTeamColor;
+						viewToScroll = findViewById(R.id.log_player_team_color_container);
+					} else if (selection == r.getString(R.string.starting_position)) {
+						mPositionShown = true;
+						viewToFocus = mPosition;
+						viewToScroll = findViewById(R.id.log_player_position_container);
+					} else if (selection == r.getString(R.string.score)) {
+						mScoreShown = true;
+						viewToFocus = mScore;
+						viewToScroll = findViewById(R.id.log_player_score_container);
+					} else if (selection == r.getString(R.string.rating)) {
+						mRatingShown = true;
+						viewToFocus = mRating;
+						viewToScroll = findViewById(R.id.log_player_rating);
+					} else if (selection == r.getString(R.string.new_label)) {
+						mNewShown = true;
+						mNew.setChecked(true);
+						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToFocus = mNew;
+					} else if (selection == r.getString(R.string.win)) {
+						mWinShown = true;
+						mWin.setChecked(true);
+						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToFocus = mWin;
+					}
+					setViewVisibility();
+					if (viewToFocus != null) {
+						viewToFocus.requestFocus();
+					}
+					if (viewToScroll != null) {
+						final View finalView = viewToScroll;
+						mScrollContainer.post(new Runnable() {
+							@Override
+							public void run() {
+								mScrollContainer.smoothScrollTo(0, finalView.getBottom());
+							}
+						});
+					}
+				}
+			}).show();
 	}
 
 	private CharSequence[] createAddFieldArray() {
