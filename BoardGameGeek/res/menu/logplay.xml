@@ -12,11 +12,6 @@
 		android:showAsAction="ifRoom"
 		android:title="@string/start"/>
 	<item
-		android:id="@+id/menu_add_field"
-		android:icon="?attr/ic_action_add"
-		android:showAsAction="ifRoom"
-		android:title="@string/add_field"/>
-	<item
 		android:id="@+id/menu_player_order"
 		android:icon="?attr/ic_action_sort"
 		android:showAsAction="ifRoom"

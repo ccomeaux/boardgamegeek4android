@@ -138,20 +138,27 @@
 		</TableRow>
 	</TableLayout>
 
-	<TextView
-		android:id="@+id/log_play_comments_label"
-		style="@style/Text.Header.Underline"
+	<LinearLayout
+		android:id="@+id/log_play_comments_root"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:labelFor="@+id/log_play_comments"
-		android:text="@string/comments" />
+		android:layout_height="match_parent"
+		android:orientation="vertical" >
 
-	<EditText
-		android:id="@+id/log_play_comments"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/comments_hint"
-		android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+		<TextView
+			android:id="@+id/log_play_comments_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:labelFor="@+id/log_play_comments"
+			android:text="@string/comments" />
+
+		<EditText
+			android:id="@+id/log_play_comments"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/comments_hint"
+			android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+	</LinearLayout>
 
 	<TextView
 		android:id="@+id/log_play_players_label"

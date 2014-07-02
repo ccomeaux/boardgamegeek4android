@@ -98,6 +98,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private List<String> mUsernames = new ArrayList<String>();
 	private List<String> mNames = new ArrayList<String>();
 
+	private View mHeaderView;
 	private Button mDateButton;
 	private EditText mQuantityView;
 	private EditText mLengthView;
@@ -108,16 +109,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private EditText mCommentsView;
 	private TextView mPlayerLabel;
 	private DragSortListView mPlayerList;
+	private Button mAddFieldButton;
 
 	private InputMethodManager mInputMethodManager;
 	private boolean mDataLoaded;
-	private boolean mQuantityShown;
-	private boolean mLengthShown;
-	private boolean mLocationShown;
-	private boolean mIncompleteShown;
-	private boolean mNoWinStatsShown;
-	private boolean mCommentsShown;
-	private boolean mPlayersShown;
+	private boolean mPrefShowLocation;
+	private boolean mPrefShowLength;
+	private boolean mPrefShowQuantity;
+	private boolean mPrefShowIncomplete;
+	private boolean mPrefShowNoWinStats;
+	private boolean mPrefShowComments;
+	private boolean mPrefShowPlayers;
+	private boolean mUserShowLocation;
+	private boolean mUserShowLength;
+	private boolean mUserShowQuantity;
+	private boolean mUserShowIncomplete;
+	private boolean mUserShowNoWinStats;
+	private boolean mUserShowComments;
+	private boolean mUserShowPlayers;
 	private boolean mDeleteOnCancel;
 	private boolean mEndPlay;
 	private boolean mPlayAgain;
@@ -156,13 +165,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
 			mOriginalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
-			mQuantityShown = savedInstanceState.getBoolean(KEY_QUANTITY_SHOWN);
-			mLengthShown = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
-			mLocationShown = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
-			mIncompleteShown = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
-			mNoWinStatsShown = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
-			mCommentsShown = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
-			mPlayersShown = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
+			mUserShowQuantity = savedInstanceState.getBoolean(KEY_QUANTITY_SHOWN);
+			mUserShowLength = savedInstanceState.getBoolean(KEY_LENGTH_SHOWN);
+			mUserShowLocation = savedInstanceState.getBoolean(KEY_LOCATION_SHOWN);
+			mUserShowIncomplete = savedInstanceState.getBoolean(KEY_INCOMPLETE_SHOWN);
+			mUserShowNoWinStats = savedInstanceState.getBoolean(KEY_NO_WIN_STATS_SHOWN);
+			mUserShowComments = savedInstanceState.getBoolean(KEY_COMMENTS_SHOWN);
+			mUserShowPlayers = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
 			mCustomPlayerSort = savedInstanceState.getBoolean(KEY_CUSTOM_PLAYER_SORT);
 			signalDataLoaded();
@@ -215,6 +224,14 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
+		mPrefShowLocation = PreferencesUtils.showLogPlayLocation(this);
+		mPrefShowLength = PreferencesUtils.showLogPlayLength(this);
+		mPrefShowQuantity = PreferencesUtils.showLogPlayQuantity(this);
+		mPrefShowIncomplete = PreferencesUtils.showLogPlayIncomplete(this);
+		mPrefShowNoWinStats = PreferencesUtils.showLogPlayNoWinStats(this);
+		mPrefShowComments = PreferencesUtils.showLogPlayComments(this);
+		mPrefShowPlayers = PreferencesUtils.showLogPlayPlayerList(this);
+		setViewVisibility();
 	}
 
 	@Override
@@ -222,13 +239,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		super.onSaveInstanceState(outState);
 		PlayBuilder.toBundle(mPlay, outState, "P");
 		PlayBuilder.toBundle(mOriginalPlay, outState, "O");
-		outState.putBoolean(KEY_QUANTITY_SHOWN, mQuantityShown);
-		outState.putBoolean(KEY_LENGTH_SHOWN, mLengthShown);
-		outState.putBoolean(KEY_LOCATION_SHOWN, mLocationShown);
-		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mIncompleteShown);
-		outState.putBoolean(KEY_NO_WIN_STATS_SHOWN, mNoWinStatsShown);
-		outState.putBoolean(KEY_COMMENTS_SHOWN, mCommentsShown);
-		outState.putBoolean(KEY_PLAYERS_SHOWN, mPlayersShown);
+		outState.putBoolean(KEY_QUANTITY_SHOWN, mUserShowQuantity);
+		outState.putBoolean(KEY_LENGTH_SHOWN, mUserShowLength);
+		outState.putBoolean(KEY_LOCATION_SHOWN, mUserShowLocation);
+		outState.putBoolean(KEY_INCOMPLETE_SHOWN, mUserShowIncomplete);
+		outState.putBoolean(KEY_NO_WIN_STATS_SHOWN, mUserShowNoWinStats);
+		outState.putBoolean(KEY_COMMENTS_SHOWN, mUserShowComments);
+		outState.putBoolean(KEY_PLAYERS_SHOWN, mUserShowPlayers);
 		outState.putBoolean(KEY_DELETE_ON_CANCEL, mDeleteOnCancel);
 		outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 	}
@@ -259,9 +276,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		if (mDataLoaded) {
 			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
 			menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
-			menu.findItem(R.id.menu_add_field).setVisible(
-				shouldHideQuantity() || shouldHideLength() || shouldHideLocation() || shouldHideNoWinStats()
-					|| shouldHideIncomplete() || shouldHideComments() || shouldHidePlayers());
 			menu.findItem(R.id.menu_player_order).setVisible(!shouldHidePlayers());
 			menu.findItem(R.id.menu_custom_player_order).setVisible(true);
 			menu.findItem(R.id.menu_pick_start_player).setVisible(mPlay.getPlayerCount() > 1);
@@ -276,7 +290,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		} else {
 			menu.findItem(R.id.menu_send).setVisible(false);
 			menu.findItem(R.id.menu_start).setVisible(false);
-			menu.findItem(R.id.menu_add_field).setVisible(false);
 			menu.findItem(R.id.menu_player_order).setVisible(false);
 			menu.findItem(R.id.menu_save).setVisible(false);
 			menu.findItem(R.id.menu_cancel).setVisible(false);
@@ -302,13 +315,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				return true;
 			case R.id.menu_cancel:
 				cancel();
-				return true;
-			case R.id.menu_add_field:
-				final CharSequence[] array = createAddFieldArray();
-				if (array == null || array.length == 0) {
-					return false;
-				}
-				promptAddField(array, item);
 				return true;
 			case R.id.menu_custom_player_order:
 				final MenuItem finalItem = item;
@@ -422,39 +428,62 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		return array;
 	}
 
-	private void promptAddField(final CharSequence[] array, final MenuItem menuItem) {
+	public void addField(View v) {
+		final CharSequence[] array = createAddFieldArray();
+		if (array == null || array.length == 0) {
+			return;
+		}
 		new AlertDialog.Builder(this).setTitle(R.string.add_field)
 			.setItems(array, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					View viewToFocus = null;
+					View viewToScroll = null;
 					Resources r = getResources();
 					String selection = array[which].toString();
-					if (selection == r.getString(R.string.quantity)) {
-						mQuantityShown = true;
-						viewToFocus = mQuantityView;
-					} else if (selection == r.getString(R.string.length)) {
-						mLengthShown = true;
-						viewToFocus = mLengthView;
-					} else if (selection == r.getString(R.string.location)) {
-						mLocationShown = true;
+
+					if (selection == r.getString(R.string.location)) {
+						mUserShowLocation = true;
 						viewToFocus = mLocationView;
+						viewToScroll = findViewById(R.id.log_play_location_root);
+					} else if (selection == r.getString(R.string.length)) {
+						mUserShowLength = true;
+						viewToFocus = mLengthView;
+						viewToScroll = findViewById(R.id.log_play_length_root);
+					} else if (selection == r.getString(R.string.quantity)) {
+						mUserShowQuantity = true;
+						viewToFocus = mQuantityView;
+						viewToScroll = findViewById(R.id.log_play_quantity_root);
 					} else if (selection == r.getString(R.string.incomplete)) {
-						mIncompleteShown = true;
+						mUserShowIncomplete = true;
 						mIncompleteView.setChecked(true);
+						viewToScroll = mIncompleteView;
 					} else if (selection == r.getString(R.string.noWinStats)) {
-						mNoWinStatsShown = true;
+						mUserShowNoWinStats = true;
 						mNoWinStatsView.setChecked(true);
+						viewToScroll = mNoWinStatsView;
 					} else if (selection == r.getString(R.string.comments)) {
-						mCommentsShown = true;
+						mUserShowComments = true;
 						viewToFocus = mCommentsView;
+						viewToScroll = mCommentsView;
 					} else if (selection == r.getString(R.string.title_players)) {
-						mPlayersShown = true;
+						mUserShowPlayers = true;
+						viewToScroll = mPlayerLabel;
 					}
+					setViewVisibility();
 					supportInvalidateOptionsMenu();
-					hideFields();
 					if (viewToFocus != null) {
 						viewToFocus.requestFocus();
+					}
+					// TODO These views are the header, so this doesn't work as expected
+					if (viewToScroll != null) {
+						final View finalView = viewToScroll;
+						mPlayerList.post(new Runnable() {
+							@Override
+							public void run() {
+								mPlayerList.smoothScrollBy(finalView.getBottom(), android.R.integer.config_longAnimTime);
+							}
+						});
 					}
 				}
 			}).show();
@@ -688,13 +717,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mIncompleteView.setChecked(mPlay.Incomplete());
 		mNoWinStatsView.setChecked(mPlay.NoWinStats());
 		mCommentsView.setText(mPlay.comments);
-		hideFields();
+		setViewVisibility();
 		supportInvalidateOptionsMenu();
 	}
 
 	private void bindUiPlayers() {
 		calculatePlayerCount();
-		hideFields();
+		setViewVisibility();
 		mPlayAdapter.notifyDataSetChanged();
 	}
 
@@ -722,19 +751,20 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
-		View header = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(header);
+		mHeaderView = View.inflate(this, R.layout.header_logplay, null);
+		mPlayerList.addHeaderView(mHeaderView);
 		mPlayerList.setAdapter(mPlayAdapter);
 
-		mDateButton = (Button) header.findViewById(R.id.log_play_date);
-		mQuantityView = (EditText) header.findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) header.findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) header.findViewById(R.id.log_play_location);
-		mIncompleteView = (CheckBox) header.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) header.findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) header.findViewById(R.id.timer);
-		mCommentsView = (EditText) header.findViewById(R.id.log_play_comments);
-		mPlayerLabel = (TextView) header.findViewById(R.id.log_play_players_label);
+		mDateButton = (Button) mHeaderView.findViewById(R.id.log_play_date);
+		mQuantityView = (EditText) mHeaderView.findViewById(R.id.log_play_quantity);
+		mLengthView = (EditText) mHeaderView.findViewById(R.id.log_play_length);
+		mLocationView = (AutoCompleteTextView) mHeaderView.findViewById(R.id.log_play_location);
+		mIncompleteView = (CheckBox) mHeaderView.findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (CheckBox) mHeaderView.findViewById(R.id.log_play_no_win_stats);
+		mTimer = (Chronometer) mHeaderView.findViewById(R.id.timer);
+		mCommentsView = (EditText) mHeaderView.findViewById(R.id.log_play_comments);
+		mPlayerLabel = (TextView) mHeaderView.findViewById(R.id.log_play_players_label);
+		mAddFieldButton = (Button) findViewById(R.id.add_field);
 
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -754,25 +784,58 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlayerList.setItemsCanFocus(true);
 	}
 
-	private void hideFields() {
-		findViewById(R.id.log_play_length_root).setVisibility(
-			shouldHideLength() && !mPlay.hasStarted() ? View.GONE : View.VISIBLE);
+	private void setViewVisibility() {
+		boolean enabled = false;
+		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
 		mLengthView.setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
 		findViewById(R.id.timer_root).setVisibility(mPlay.hasStarted() ? View.VISIBLE : View.GONE);
 
-		findViewById(R.id.log_play_quantity_root).setVisibility(shouldHideQuantity() ? View.GONE : View.VISIBLE);
-
-		findViewById(R.id.log_play_location_root).setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
-		mLocationView.setVisibility(shouldHideLocation() ? View.GONE : View.VISIBLE);
-
-		mIncompleteView.setVisibility(shouldHideIncomplete() ? View.GONE : View.VISIBLE);
-		mNoWinStatsView.setVisibility(shouldHideNoWinStats() ? View.GONE : View.VISIBLE);
-
-		findViewById(R.id.log_play_comments_label).setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
-		mCommentsView.setVisibility(shouldHideComments() ? View.GONE : View.VISIBLE);
-
-		mPlayerLabel.setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
+		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
+		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
+		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
+		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
+		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
+		enabled |= hideRow(shouldHidePlayers(), mPlayerLabel);
 		addFooter(!shouldHidePlayers());
+
+		mAddFieldButton.setEnabled(enabled);
+	}
+
+	private boolean hideRow(boolean shouldHide, View view) {
+		if (shouldHide) {
+			view.setVisibility(View.GONE);
+			return true;
+		}
+		view.setVisibility(View.VISIBLE);
+		return false;
+	}
+
+	private boolean shouldHideLocation() {
+		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
+	}
+
+	private boolean shouldHideLength() {
+		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
+	}
+
+	private boolean shouldHideQuantity() {
+		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
+	}
+
+	private boolean shouldHideIncomplete() {
+		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
+	}
+
+	private boolean shouldHideNoWinStats() {
+		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
+	}
+
+	private boolean shouldHideComments() {
+		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
+	}
+
+	private boolean shouldHidePlayers() {
+		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
 	}
 
 	private void addFooter(boolean add) {
@@ -788,34 +851,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		} else if (!add && mPlayerList.getFooterViewsCount() > 0) {
 			mPlayerList.removeFooterView(footer);
 		}
-	}
-
-	private boolean shouldHideQuantity() {
-		return !PreferencesUtils.showLogPlayQuantity(this) && !mQuantityShown && !(mPlay.quantity > 1);
-	}
-
-	private boolean shouldHideLength() {
-		return !PreferencesUtils.showLogPlayLength(this) && !mLengthShown && !(mPlay.length > 0);
-	}
-
-	private boolean shouldHideLocation() {
-		return !PreferencesUtils.showLogPlayLocation(this) && !mLocationShown && TextUtils.isEmpty(mPlay.location);
-	}
-
-	private boolean shouldHideIncomplete() {
-		return !PreferencesUtils.showLogPlayIncomplete(this) && !mIncompleteShown && !mPlay.Incomplete();
-	}
-
-	private boolean shouldHideNoWinStats() {
-		return !PreferencesUtils.showLogPlayNoWinStats(this) && !mNoWinStatsShown && !mPlay.NoWinStats();
-	}
-
-	private boolean shouldHideComments() {
-		return !PreferencesUtils.showLogPlayComments(this) && !mCommentsShown && TextUtils.isEmpty(mPlay.comments);
-	}
-
-	private boolean shouldHidePlayers() {
-		return !PreferencesUtils.showLogPlayPlayerList(this) && !mPlayersShown && (mPlay.getPlayerCount() == 0);
 	}
 
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {

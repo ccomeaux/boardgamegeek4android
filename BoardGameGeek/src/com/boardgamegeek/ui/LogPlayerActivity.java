@@ -85,12 +85,12 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private boolean mPrefShowRating;
 	private boolean mPrefShowNew;
 	private boolean mPrefShowWin;
-	private boolean mTeamColorShown;
-	private boolean mPositionShown;
-	private boolean mScoreShown;
-	private boolean mRatingShown;
-	private boolean mNewShown;
-	private boolean mWinShown;
+	private boolean mUserShowTeamColor;
+	private boolean mUserShowPosition;
+	private boolean mUserShowScore;
+	private boolean mUserShowRating;
+	private boolean mUserShowNew;
+	private boolean mUserShowWin;
 	private int mAutoPosition;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
@@ -125,7 +125,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
-			mScoreShown = true;
+			mUserShowScore = true;
 			mScore.requestFocus();
 		}
 
@@ -139,12 +139,12 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 			}
 			mOriginalPlayer = new Player(mPlayer);
 		} else {
-			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
-			mPositionShown = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
-			mScoreShown = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
-			mRatingShown = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
-			mNewShown = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
-			mWinShown = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
+			mUserShowTeamColor = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
+			mUserShowPosition = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
+			mUserShowScore = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
+			mUserShowRating = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
+			mUserShowNew = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
+			mUserShowWin = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
 
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
@@ -176,12 +176,12 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_PLAYER, mPlayer);
-		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mTeamColorShown);
-		outState.putBoolean(KEY_POSITION_SHOWN, mPositionShown);
-		outState.putBoolean(KEY_SCORE_SHOWN, mScoreShown);
-		outState.putBoolean(KEY_RATING_SHOWN, mRatingShown);
-		outState.putBoolean(KEY_NEW_SHOWN, mNewShown);
-		outState.putBoolean(KEY_WIN_SHOWN, mWinShown);
+		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mUserShowTeamColor);
+		outState.putBoolean(KEY_POSITION_SHOWN, mUserShowPosition);
+		outState.putBoolean(KEY_SCORE_SHOWN, mUserShowScore);
+		outState.putBoolean(KEY_RATING_SHOWN, mUserShowRating);
+		outState.putBoolean(KEY_NEW_SHOWN, mUserShowNew);
+		outState.putBoolean(KEY_WIN_SHOWN, mUserShowWin);
 	}
 
 	@Override
@@ -271,11 +271,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideTeamColor() {
-		return !mPrefShowTeamColor && !mTeamColorShown && TextUtils.isEmpty(mPlayer.color);
+		return !mPrefShowTeamColor && !mUserShowTeamColor && TextUtils.isEmpty(mPlayer.color);
 	}
 
 	private boolean shouldHidePosition() {
-		return !mPrefShowPosition && !mPositionShown && TextUtils.isEmpty(mPlayer.getStartingPosition());
+		return !mPrefShowPosition && !mUserShowPosition && TextUtils.isEmpty(mPlayer.getStartingPosition());
 	}
 
 	private boolean hasAutoPosition() {
@@ -283,19 +283,19 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideScore() {
-		return !mPrefShowScore && !mScoreShown && TextUtils.isEmpty(mPlayer.score);
+		return !mPrefShowScore && !mUserShowScore && TextUtils.isEmpty(mPlayer.score);
 	}
 
 	private boolean shouldHideRating() {
-		return !mPrefShowRating && !mRatingShown && !(mPlayer.rating > 0);
+		return !mPrefShowRating && !mUserShowRating && !(mPlayer.rating > 0);
 	}
 
 	private boolean shouldHideNew() {
-		return !mPrefShowNew && !mNewShown && !mPlayer.New();
+		return !mPrefShowNew && !mUserShowNew && !mPlayer.New();
 	}
 
 	private boolean shouldHideWin() {
-		return !mPrefShowWin && !mWinShown && !mPlayer.Win();
+		return !mPrefShowWin && !mUserShowWin && !mPlayer.Win();
 	}
 
 	private boolean onActionBarItemSelected(int itemId) {
@@ -325,28 +325,28 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 					String selection = array[which].toString();
 					if (selection == r.getString(R.string.team_color)) {
-						mTeamColorShown = true;
+						mUserShowTeamColor = true;
 						viewToFocus = mTeamColor;
 						viewToScroll = findViewById(R.id.log_player_team_color_container);
 					} else if (selection == r.getString(R.string.starting_position)) {
-						mPositionShown = true;
+						mUserShowPosition = true;
 						viewToFocus = mPosition;
 						viewToScroll = findViewById(R.id.log_player_position_container);
 					} else if (selection == r.getString(R.string.score)) {
-						mScoreShown = true;
+						mUserShowScore = true;
 						viewToFocus = mScore;
 						viewToScroll = findViewById(R.id.log_player_score_container);
 					} else if (selection == r.getString(R.string.rating)) {
-						mRatingShown = true;
+						mUserShowRating = true;
 						viewToFocus = mRating;
 						viewToScroll = findViewById(R.id.log_player_rating);
 					} else if (selection == r.getString(R.string.new_label)) {
-						mNewShown = true;
+						mUserShowNew = true;
 						mNew.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);
 						viewToFocus = mNew;
 					} else if (selection == r.getString(R.string.win)) {
-						mWinShown = true;
+						mUserShowWin = true;
 						mWin.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);
 						viewToFocus = mWin;
