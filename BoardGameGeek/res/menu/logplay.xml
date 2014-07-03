@@ -7,11 +7,6 @@
 		android:showAsAction="ifRoom"
 		android:title="@string/send"/>
 	<item
-		android:id="@+id/menu_start"
-		android:icon="?attr/ic_action_timer"
-		android:showAsAction="ifRoom"
-		android:title="@string/start"/>
-	<item
 		android:id="@+id/menu_player_order"
 		android:icon="?attr/ic_action_sort"
 		android:showAsAction="ifRoom"

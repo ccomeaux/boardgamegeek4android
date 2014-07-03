@@ -23,6 +23,7 @@
 
 			<Button
 				android:id="@+id/log_play_date"
+				android:layout_span="2"
 				android:gravity="left|center_vertical"
 				android:onClick="onDateClick" />
 		</TableRow>
@@ -39,6 +40,7 @@
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
+				android:layout_span="2"
 				android:completionThreshold="1"
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
@@ -66,33 +68,26 @@
 					android:hint="@string/length_hint"
 					android:inputType="number" />
 
-				<LinearLayout
-					android:id="@+id/timer_root"
+				<Chronometer
+					android:id="@+id/timer"
+					style="@style/Text.Title2"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="match_parent"
 					android:background="@color/background_light"
-					android:gravity="center_vertical" >
-
-					<Chronometer
-						android:id="@+id/timer"
-						style="@style/Text.Title2"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:gravity="center"
-						android:maxLines="1"
-						android:textIsSelectable="false" />
-
-					<Button
-						android:id="@+id/timer_end"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:gravity="center"
-						android:onClick="onTimerEnd"
-						android:text="@string/end_play" />
-				</LinearLayout>
+					android:gravity="center"
+					android:maxLines="1"
+					android:paddingBottom="@dimen/padding_standard"
+					android:paddingTop="@dimen/padding_standard"
+					android:textIsSelectable="false" />
 			</FrameLayout>
+
+			<ImageButton
+				android:id="@+id/timer_end"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:onClick="onTimer"
+				android:src="@drawable/ic_action_timer_light" />
 		</TableRow>
 
 		<TableRow
@@ -107,6 +102,7 @@
 
 			<EditText
 				android:id="@+id/log_play_quantity"
+				android:layout_span="2"
 				android:hint="@string/quantity_hint"
 				android:inputType="number" />
 		</TableRow>
@@ -120,6 +116,7 @@
 				android:id="@+id/log_play_incomplete"
 				style="@style/Text.CheckboxLabel"
 				android:layout_column="1"
+				android:layout_span="2"
 				android:checked="false"
 				android:text="@string/incomplete" />
 		</TableRow>
@@ -133,6 +130,7 @@
 				android:id="@+id/log_play_no_win_stats"
 				style="@style/Text.CheckboxLabel"
 				android:layout_column="1"
+				android:layout_span="2"
 				android:checked="false"
 				android:text="@string/noWinStats" />
 		</TableRow>

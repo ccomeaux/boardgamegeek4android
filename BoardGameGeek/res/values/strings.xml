@@ -105,6 +105,7 @@
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
 	<string name="are_you_sure_players_clear">Are you sure you want to clear all of the players from this play?</string>
+	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="description_logo">BoardGameGeek</string>

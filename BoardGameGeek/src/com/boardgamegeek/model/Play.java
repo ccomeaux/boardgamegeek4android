@@ -471,7 +471,7 @@ public class Play {
 	 * @return true, if it's not ended and the start time has been set.
 	 */
 	public boolean hasStarted() {
-		if (!hasEnded() && startTime > 0) {
+		if (length == 0 && startTime > 0) {
 			return true;
 		}
 		return false;
@@ -524,8 +524,8 @@ public class Play {
 			&& (incomplete == p.incomplete) && (nowinstats == p.nowinstats)
 			&& (comments == p.comments || (comments != null && comments.equals(p.comments))) && (updated == p.updated)
 			&& (syncStatus == p.syncStatus) && (saved == p.saved) && (startTime == p.startTime)
-			&& (players.size() == p.players.size());
-		if (eq) {
+			&& ((players == null && p.players == null) || (players.size() == p.players.size()));
+		if (eq && players != null) {
 			for (int i = 0; i < players.size(); i++) {
 				if (!players.get(i).equals(p.getPlayers().get(i))) {
 					return false;

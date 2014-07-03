@@ -274,7 +274,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (mDataLoaded) {
 			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
-			menu.findItem(R.id.menu_start).setVisible(!mPlay.hasStarted() && !mPlay.hasEnded());
 			menu.findItem(R.id.menu_player_order).setVisible(!shouldHidePlayers());
 			menu.findItem(R.id.menu_custom_player_order).setVisible(true);
 			menu.findItem(R.id.menu_pick_start_player).setVisible(mPlay.getPlayerCount() > 1);
@@ -288,7 +287,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
 			menu.findItem(R.id.menu_send).setVisible(false);
-			menu.findItem(R.id.menu_start).setVisible(false);
 			menu.findItem(R.id.menu_player_order).setVisible(false);
 			menu.findItem(R.id.menu_save).setVisible(false);
 			menu.findItem(R.id.menu_cancel).setVisible(false);
@@ -305,12 +303,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			case R.id.menu_save:
 				saveDraft(true);
 				finish();
-				return true;
-			case R.id.menu_start:
-				mPlay.start();
-				saveDraft(false);
-				NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
-				bindUiPlay();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -690,15 +682,37 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	public void onTimerEnd(final View view) {
-		mEndPlay = true;
-		mPlay.end();
-		bindUiPlay();
-		if (mLengthView.getVisibility() == View.VISIBLE) {
-			mLengthView.setSelection(0, mLengthView.getText().length());
-			mLengthView.requestFocus();
-			mInputMethodManager.showSoftInput(mLengthView, InputMethodManager.SHOW_IMPLICIT);
+	public void onTimer(View v) {
+		if (mPlay.hasStarted()) {
+			mEndPlay = true;
+			mPlay.end();
+			NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
+			bindUiPlay();
+			if (mPlay.length > 0) {
+				mLengthView.setSelection(0, mLengthView.getText().length());
+				mLengthView.requestFocus();
+				mInputMethodManager.showSoftInput(mLengthView, InputMethodManager.SHOW_IMPLICIT);
+			}
+		} else {
+			if (mPlay.length == 0) {
+				startTimer();
+			} else {
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_timer_reset,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							startTimer();
+						}
+					}).show();
+			}
 		}
+	}
+
+	private void startTimer() {
+		mPlay.start();
+		bindUiPlay();
+		saveDraft(false);
+		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 	}
 
 	private void bindUi() {
@@ -786,8 +800,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void setViewVisibility() {
 		boolean enabled = false;
 		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
-		mLengthView.setVisibility(shouldHideLength() ? View.INVISIBLE : View.VISIBLE);
-		findViewById(R.id.timer_root).setVisibility(mPlay.hasStarted() ? View.VISIBLE : View.GONE);
+		if (mPlay.hasStarted()) {
+			mLengthView.setVisibility(View.GONE);
+			mTimer.setVisibility(View.VISIBLE);
+		} else {
+			mLengthView.setVisibility(View.VISIBLE);
+			mTimer.setVisibility(View.GONE);
+		}
 
 		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
 		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
@@ -890,6 +909,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay = PlayBuilder.fromCursor(cursor);
 				if (mEndPlay) {
 					mPlay.end();
+					NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
 				}
 				bindUiPlay();
 				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);

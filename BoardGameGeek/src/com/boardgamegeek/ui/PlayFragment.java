@@ -17,8 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -104,6 +104,17 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -153,7 +164,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 		mTimerRoot = header.findViewById(R.id.timer_root);
 		mTimer = (Chronometer) header.findViewById(R.id.timer);
-		Button b = (Button) header.findViewById(R.id.timer_end);
+		ImageButton b = (ImageButton) header.findViewById(R.id.timer_end);
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -186,14 +197,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
+	public void onResume() {
+		super.onResume();
+		if (mPlay != null && mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay);
 		}
-
-		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override
