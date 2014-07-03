@@ -3,7 +3,15 @@ package com.boardgamegeek.util;
 import java.util.HashMap;
 import java.util.Locale;
 
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class ColorUtils {
 	public static final int TRANSPARENT = 0;
@@ -13,7 +21,7 @@ public class ColorUtils {
 	public static final int LTGRAY = 0xFFCCCCCC;
 	public static final int WHITE = 0xFFFFFFFF;
 	public static final int RED = 0xFFFF0000;
-	public static final int GREEN = 0xFF238E23; // dark green really
+	public static final int GREEN = 0xFF008000; // dark green really
 	public static final int BLUE = 0xFF0000FF;
 	public static final int YELLOW = 0xFFFFFF00;
 	public static final int CYAN = 0xFF00FFFF;
@@ -85,4 +93,47 @@ public class ColorUtils {
 		sColorNameMap.put("silver", SILVER);
 		sColorNameMap.put("gold", GOLD);
 	}
+
+	// Modified from Roman Nurik's DashClock https://code.google.com/p/dashclock/
+	public static void setColorViewValue(View view, int color) {
+		if (view instanceof ImageView) {
+			ImageView imageView = (ImageView) view;
+
+			if (color == ColorUtils.TRANSPARENT) {
+				imageView.setImageDrawable(null);
+				return;
+			}
+
+			Resources res = imageView.getContext().getResources();
+
+			Drawable currentDrawable = imageView.getDrawable();
+			GradientDrawable colorChoiceDrawable;
+			if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+				// Reuse drawable
+				colorChoiceDrawable = (GradientDrawable) currentDrawable;
+			} else {
+				colorChoiceDrawable = new GradientDrawable();
+				colorChoiceDrawable.setShape(GradientDrawable.OVAL);
+			}
+
+			// Set stroke to dark version of color
+			int darkenedColor = Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256,
+				Color.blue(color) * 192 / 256);
+
+			colorChoiceDrawable.setColor(color);
+			colorChoiceDrawable
+				.setStroke((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, res.getDisplayMetrics()),
+					darkenedColor);
+
+			Drawable drawable = colorChoiceDrawable;
+
+			imageView.setImageDrawable(drawable);
+
+		} else if (view instanceof TextView) {
+			if (color != ColorUtils.TRANSPARENT) {
+				((TextView) view).setTextColor(color);
+			}
+		}
+	}
+
 }

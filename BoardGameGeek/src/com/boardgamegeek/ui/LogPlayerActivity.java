@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +25,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,12 +36,12 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.GameColors;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -71,6 +74,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private AutoCompleteTextView mUsername;
 	private AutoCompleteTextView mName;
 	private AutoCompleteTextView mTeamColor;
+	private ImageView mColorView;
 	private EditText mPosition;
 	private Button mPositionButton;
 	private EditText mScore;
@@ -155,7 +159,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mUsername.setAdapter(mUsernameAdapter);
 		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersByNameWithoutUsernameUri(),
 			PlayPlayers.NAME));
-		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
+		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
@@ -195,6 +199,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
 		mName = (AutoCompleteTextView) findViewById(R.id.log_player_name);
 		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
+		mColorView = (ImageView) findViewById(R.id.color_view);
 		mPosition = (EditText) findViewById(R.id.log_player_position);
 		mPositionButton = (Button) findViewById(R.id.log_player_position_button);
 		mScore = (EditText) findViewById(R.id.log_player_score);
@@ -203,9 +208,27 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mNew = (CheckBox) findViewById(R.id.log_player_new);
 		mWin = (CheckBox) findViewById(R.id.log_player_win);
 
+		mTeamColor.addTextChangedListener(watcher());
 		mPositionButton.setOnClickListener(numberToTextClick());
 		mScoreButton.setOnClickListener(numberToTextClick());
 		mUsername.setOnItemClickListener(this);
+	}
+
+	private TextWatcher watcher() {
+		return new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				ColorUtils.setColorViewValue(mColorView, ColorUtils.parseColor(s.toString()));
+			}
+		};
 	}
 
 	private OnClickListener numberToTextClick() {

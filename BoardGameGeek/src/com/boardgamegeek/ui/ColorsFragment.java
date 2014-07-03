@@ -1,6 +1,6 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.LOGWTF;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
@@ -11,15 +11,12 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,22 +27,23 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class ColorsFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class ColorsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(ColorsFragment.class);
+	private static final int TOKEN = 0x20;
 	private int mGameId;
-	private CursorAdapter mAdapter;
+	private GameColorAdapter mAdapter;
 	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<Integer>();
 
 	@Override
@@ -57,10 +55,8 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
 		final ListView listView = getListView();
 		listView.setSelector(android.R.color.transparent);
-		listView.setCacheColorHint(Color.WHITE);
 	}
 
 	@Override
@@ -71,7 +67,7 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
 		mGameId = Games.getGameId(uri);
 
-		getLoaderManager().restartLoader(ColorsQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
@@ -111,7 +107,8 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), Games.buildColorsUri(mGameId), ColorsQuery.PROJECTION, null, null, null);
+		return new CursorLoader(getActivity(), GameColorAdapter.createUri(mGameId), GameColorAdapter.PROJECTION, null,
+			null, null);
 	}
 
 	@Override
@@ -121,16 +118,15 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 		}
 
 		if (mAdapter == null) {
-			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_color, null,
-				new String[] { GameColors.COLOR }, new int[] { R.id.color }, 0);
+			mAdapter = new GameColorAdapter(getActivity(), mGameId, R.layout.row_color);
 			setListAdapter(mAdapter);
 		}
 
 		int token = loader.getId();
-		if (token == ColorsQuery._TOKEN) {
+		if (token == TOKEN) {
 			mAdapter.changeCursor(cursor);
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			LOGWTF(TAG, "Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 
@@ -182,8 +178,7 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 			case R.id.menu_delete:
 				int count = 0;
 				for (int position : mSelectedColorPositions) {
-					Cursor cursor = (Cursor) mAdapter.getItem(position);
-					String color = cursor.getString(ColorsQuery.COLOR);
+					String color = mAdapter.getColorName(position);
 					count += getActivity().getContentResolver()
 						.delete(Games.buildColorsUri(mGameId, color), null, null);
 				}
@@ -193,12 +188,6 @@ public class ColorsFragment extends SherlockListFragment implements LoaderManage
 				return true;
 		}
 		return false;
-	}
-
-	private interface ColorsQuery {
-		int _TOKEN = 0x20;
-		String[] PROJECTION = { GameColors._ID, GameColors.COLOR, };
-		int COLOR = 1;
 	}
 
 	protected class Task extends AsyncTask<Void, Void, Integer> {

@@ -85,7 +85,6 @@
 
 					<AutoCompleteTextView
 						android:id="@+id/log_player_team_color"
-						android:layout_span="2"
 						android:completionThreshold="1"
 						android:dropDownHeight="wrap_content"
 						android:hint="@string/team_color"
@@ -93,6 +92,16 @@
 						android:inputType="textCapSentences"
 						android:maxLength="32"
 						android:textColor="#000" />
+
+					<FrameLayout android:layout_gravity="center_vertical" >
+
+						<ImageView
+							android:id="@+id/color_view"
+							android:layout_width="@dimen/color_circle_diameter"
+							android:layout_height="@dimen/color_circle_diameter"
+							android:layout_gravity="center"
+							android:scaleType="fitXY" />
+					</FrameLayout>
 				</TableRow>
 
 				<TableRow
