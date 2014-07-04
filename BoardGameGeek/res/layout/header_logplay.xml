@@ -158,12 +158,30 @@
 			android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
 	</LinearLayout>
 
-	<TextView
-		android:id="@+id/log_play_players_label"
-		style="@style/Text.Header.Underline"
+	<LinearLayout
+		android:id="@+id/log_play_players_header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="@dimen/padding_standard"
-		android:text="@string/title_players" />
+		android:gravity="bottom"
+		android:orientation="horizontal"
+		android:paddingRight="@dimen/padding_standard" >
+
+		<TextView
+			android:id="@+id/log_play_players_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="@dimen/padding_standard"
+			android:text="@string/title_players" />
+
+		<ImageView
+			android:id="@+id/clear_players"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:onClick="onClearPlayers"
+			android:src="@drawable/ic_action_cancel_light" />
+	</LinearLayout>
 
 </LinearLayout>

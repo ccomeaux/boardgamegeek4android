@@ -106,6 +106,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private CheckBox mNoWinStatsView;
 	private Chronometer mTimer;
 	private EditText mCommentsView;
+	private LinearLayout mPlayerHeader;
 	private TextView mPlayerLabel;
 	private DragSortListView mPlayerList;
 	private Button mAddFieldButton;
@@ -282,7 +283,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			menu.findItem(R.id.menu_random_start_player).setEnabled(!mCustomPlayerSort);
 			menu.findItem(R.id.menu_random_player_order).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_random_player_order).setEnabled(!mCustomPlayerSort);
-			menu.findItem(R.id.menu_players_clear).setVisible(mPlay.getPlayerCount() > 1);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
@@ -357,16 +357,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				mPlay.randomizePlayerOrder();
 				notifyStartPlayer();
 				bindUiPlayers();
-				return true;
-			case R.id.menu_players_clear:
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_player_sort_custom_off,
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							mPlay.clearPlayers();
-							bindUiPlayers();
-						}
-					}).show();
 				return true;
 		}
 		return false;
@@ -459,7 +449,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 						viewToScroll = mCommentsView;
 					} else if (selection == r.getString(R.string.title_players)) {
 						mUserShowPlayers = true;
-						viewToScroll = mPlayerLabel;
+						viewToScroll = mPlayerHeader;
 					}
 					setViewVisibility();
 					supportInvalidateOptionsMenu();
@@ -715,6 +705,17 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
 	}
 
+	public void onClearPlayers(View v) {
+		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
+			new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mPlay.clearPlayers();
+					bindUiPlayers();
+				}
+			}).show();
+	}
+
 	private void bindUi() {
 		bindUiPlay();
 		bindUiPlayers();
@@ -776,6 +777,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mNoWinStatsView = (CheckBox) mHeaderView.findViewById(R.id.log_play_no_win_stats);
 		mTimer = (Chronometer) mHeaderView.findViewById(R.id.timer);
 		mCommentsView = (EditText) mHeaderView.findViewById(R.id.log_play_comments);
+		mPlayerHeader = (LinearLayout) mHeaderView.findViewById(R.id.log_play_players_header);
 		mPlayerLabel = (TextView) mHeaderView.findViewById(R.id.log_play_players_label);
 		mAddFieldButton = (Button) findViewById(R.id.add_field);
 
@@ -813,7 +815,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
 		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
 		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
-		enabled |= hideRow(shouldHidePlayers(), mPlayerLabel);
+		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
+		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
+
 		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
 		mAddFieldButton.setEnabled(enabled);
 	}
