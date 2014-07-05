@@ -31,10 +31,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -391,5 +393,19 @@ public class ActivityUtils {
 				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
 			}
 		}
+	}
+
+	public static void setDoneCancelActionBarView(SherlockFragmentActivity activity, View.OnClickListener listener) {
+		activity.getSupportActionBar().setDisplayOptions(
+			ActionBar.DISPLAY_SHOW_CUSTOM,
+			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
+				| ActionBar.DISPLAY_SHOW_CUSTOM);
+		View actionBarButtons = activity.getLayoutInflater().inflate(R.layout.actionbar_done_cancel,
+			new LinearLayout(activity), false);
+		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
+		cancelActionView.setOnClickListener(listener);
+		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
+		doneActionView.setOnClickListener(listener);
+		activity.getSupportActionBar().setCustomView(actionBarButtons);
 	}
 }

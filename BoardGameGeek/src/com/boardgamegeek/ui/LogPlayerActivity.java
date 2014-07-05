@@ -14,7 +14,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -26,11 +25,9 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
@@ -111,18 +108,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		setContentView(R.layout.activity_logplayer);
 		setUiVariables();
 
-		// set up custom action bar
-		getSupportActionBar().setDisplayOptions(
-			ActionBar.DISPLAY_SHOW_CUSTOM,
-			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
-				| ActionBar.DISPLAY_SHOW_CUSTOM);
-		LayoutInflater inflater = getLayoutInflater();
-		View actionBarButtons = inflater.inflate(R.layout.actionbar_done_cancel, new LinearLayout(this), false);
-		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
-		cancelActionView.setOnClickListener(mActionBarListener);
-		View doneActionView = actionBarButtons.findViewById(R.id.menu_save);
-		doneActionView.setOnClickListener(mActionBarListener);
-		getSupportActionBar().setCustomView(actionBarButtons);
+		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
@@ -323,7 +309,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private boolean onActionBarItemSelected(int itemId) {
 		switch (itemId) {
-			case R.id.menu_save:
+			case R.id.menu_done:
 				save();
 				return true;
 			case R.id.menu_cancel:

@@ -44,7 +44,6 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder.Callback;
 import com.actionbarsherlock.internal.view.menu.MenuPopupHelper;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -136,6 +135,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mPlayAgain;
 	private boolean mCustomPlayerSort;
 
+	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			onActionBarItemSelected(v.getId());
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -146,8 +152,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			finish();
 		}
 
+		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setContentView(R.layout.activity_logplay);
-		getSupportActionBar().setHomeButtonEnabled(false);
 		mPlayAdapter = new PlayAdapter();
 		setUiVariables();
 		mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -268,35 +274,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		finish();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.logplay, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (mDataLoaded) {
-			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
-			menu.findItem(R.id.menu_save).setVisible(true);
-			menu.findItem(R.id.menu_cancel).setVisible(true);
-		} else {
-			menu.findItem(R.id.menu_send).setVisible(false);
-			menu.findItem(R.id.menu_save).setVisible(false);
-			menu.findItem(R.id.menu_cancel).setVisible(false);
-		}
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_send:
-				logPlay();
-				return true;
-			case R.id.menu_save:
-				saveDraft(true);
-				finish();
+	private boolean onActionBarItemSelected(int itemId) {
+		switch (itemId) {
+			case R.id.menu_done:
+				if (mPlay.hasStarted()) {
+					saveDraft(true);
+					finish();
+				} else {
+					logPlay();
+				}
 				return true;
 			case R.id.menu_cancel:
 				cancel();
@@ -305,15 +291,61 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		return false;
 	}
 
-	private void notifyStartPlayer() {
-		Player p = mPlay.getPlayerAtSeat(1);
-		if (p != null) {
-			String name = p.getDescsription();
-			if (TextUtils.isEmpty(name)) {
-				name = String.format(getResources().getString(R.string.generic_player), 1);
+	private void logPlay() {
+		save(Play.SYNC_STATUS_PENDING_UPDATE);
+		if (!mPlay.hasBeenSynced()) {
+			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
+			PreferencesUtils.putLastPlayLocation(this, mPlay.location);
+			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
+		}
+		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
+		triggerUpload();
+		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+		finish();
+	}
+
+	private void triggerUpload() {
+		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
+	}
+
+	private void saveDraft(boolean showToast) {
+		save(Play.SYNC_STATUS_IN_PROGRESS);
+		if (showToast) {
+			Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void save(int syncStatus) {
+		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
+			captureForm();
+		}
+		mPlay.syncStatus = syncStatus;
+		PlayPersister.save(this, mPlay);
+	}
+
+	private void cancel() {
+		captureForm();
+		if (mPlay.equals(mOriginalPlay)) {
+			if (mDeleteOnCancel) {
+				save(Play.SYNC_STATUS_PENDING_DELETE);
+				setResult(RESULT_OK);
 			}
-			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
-				Toast.LENGTH_SHORT).show();
+			triggerUpload();
+			finish();
+		} else {
+			if (mDeleteOnCancel) {
+				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							save(Play.SYNC_STATUS_PENDING_DELETE);
+							setResult(RESULT_OK);
+							triggerUpload();
+							finish();
+						}
+					}).show();
+			} else {
+				ActivityUtils.createCancelDialog(this).show();
+			}
 		}
 	}
 
@@ -398,61 +430,15 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	}
 
-	private void logPlay() {
-		save(Play.SYNC_STATUS_PENDING_UPDATE);
-		if (!mPlay.hasBeenSynced()) {
-			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
-			PreferencesUtils.putLastPlayLocation(this, mPlay.location);
-			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
-		}
-		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-		triggerUpload();
-		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-		finish();
-	}
-
-	private void triggerUpload() {
-		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-	}
-
-	private void saveDraft(boolean showToast) {
-		save(Play.SYNC_STATUS_IN_PROGRESS);
-		if (showToast) {
-			Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	private void save(int syncStatus) {
-		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
-			captureForm();
-		}
-		mPlay.syncStatus = syncStatus;
-		PlayPersister.save(this, mPlay);
-	}
-
-	private void cancel() {
-		captureForm();
-		if (mPlay.equals(mOriginalPlay)) {
-			if (mDeleteOnCancel) {
-				save(Play.SYNC_STATUS_PENDING_DELETE);
-				setResult(RESULT_OK);
+	private void notifyStartPlayer() {
+		Player p = mPlay.getPlayerAtSeat(1);
+		if (p != null) {
+			String name = p.getDescsription();
+			if (TextUtils.isEmpty(name)) {
+				name = String.format(getResources().getString(R.string.generic_player), 1);
 			}
-			triggerUpload();
-			finish();
-		} else {
-			if (mDeleteOnCancel) {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							save(Play.SYNC_STATUS_PENDING_DELETE);
-							setResult(RESULT_OK);
-							triggerUpload();
-							finish();
-						}
-					}).show();
-			} else {
-				ActivityUtils.createCancelDialog(this).show();
-			}
+			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
+				Toast.LENGTH_SHORT).show();
 		}
 	}
 
