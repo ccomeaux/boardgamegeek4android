@@ -27,7 +27,7 @@ public class ColorUtils {
 	public static final int CYAN = 0xFF00FFFF;
 	public static final int MAGENTA = 0xFFFF00FF;
 	public static final int PURPLE = 0xFF800080;
-	public static final int ORANGE = 0xFFFFA500;
+	public static final int ORANGE = 0xFFE59400;
 	public static final int BROWN = 0xFFA52A2A;
 	public static final int NATURAL = 0xFFE9C2A6;
 	public static final int TAN = 0xFFDB9370;
@@ -136,4 +136,12 @@ public class ColorUtils {
 		}
 	}
 
+	/**
+	 * Calculate whether a color is light or dark, based on a commonly known brightness formula.
+	 * 
+	 * @see {@literal http://en.wikipedia.org/wiki/HSV_color_space%23Lightness}
+	 */
+	public static boolean isColorDark(int color) {
+		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
+	}
 }

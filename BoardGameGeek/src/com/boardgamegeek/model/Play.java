@@ -234,8 +234,7 @@ public class Play {
 
 	public void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
-		date = DateTimeUtils.formatDateForApi(c.getTimeInMillis());
-		playDate = c.getTimeInMillis();
+		setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 	}
 
 	// PLAYERS
@@ -518,13 +517,21 @@ public class Play {
 		}
 
 		Play p = (Play) o;
-		boolean eq = (playId == p.playId) && (gameId == p.gameId) && (playDate == p.playDate)
-			&& (quantity == p.quantity) && (length == p.length)
+		boolean eq = (playId == p.playId)
+			&& (gameId == p.gameId)
+			&& (playDate == p.playDate)
+			&& (quantity == p.quantity)
+			&& (length == p.length)
 			&& (location == p.location || (location != null && location.equals(p.location)))
-			&& (incomplete == p.incomplete) && (nowinstats == p.nowinstats)
-			&& (comments == p.comments || (comments != null && comments.equals(p.comments))) && (updated == p.updated)
-			&& (syncStatus == p.syncStatus) && (saved == p.saved) && (startTime == p.startTime)
-			&& ((players == null && p.players == null) || (players.size() == p.players.size()));
+			&& (incomplete == p.incomplete)
+			&& (nowinstats == p.nowinstats)
+			&& (comments == p.comments || (comments != null && comments.equals(p.comments)))
+			&& (updated == p.updated)
+			&& (syncStatus == p.syncStatus)
+			&& (saved == p.saved)
+			&& (startTime == p.startTime)
+			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
+				.size()));
 		if (eq && players != null) {
 			for (int i = 0; i < players.size(); i++) {
 				if (!players.get(i).equals(p.getPlayers().get(i))) {

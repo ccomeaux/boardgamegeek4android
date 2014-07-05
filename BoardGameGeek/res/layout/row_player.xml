@@ -21,55 +21,25 @@
 	<FrameLayout
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
-		android:layout_gravity="right"
-		android:gravity="right"
-		android:minWidth="32dp"
-		android:paddingRight="@dimen/padding_standard" >
+		android:layout_gravity="center_vertical"
+		android:layout_marginRight="@dimen/padding_standard" >
 
-		<TextView
-			android:id="@+id/seat_color"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical|right"
-			android:fontFamily="sans-serif-condensed"
-			android:shadowColor="#000"
-			android:shadowDx="2"
-			android:shadowDy="2"
-			android:shadowRadius="1.0"
-			android:textIsSelectable="false"
-			android:textSize="28sp"
-			android:textStyle="bold" />
+		<ImageView
+			android:id="@+id/color_view"
+			android:layout_width="@dimen/color_circle_diameter"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
+			android:scaleType="fitXY" />
 
 		<TextView
 			android:id="@+id/seat"
+			style="@style/Text.Huge"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical|right"
-			android:fontFamily="sans-serif-condensed"
-			android:shadowColor="#000"
-			android:textIsSelectable="false"
-			android:textSize="28sp" />
-
-		<FrameLayout
-			android:id="@+id/color_swatch_container"
-			android:layout_width="@dimen/padding_standard"
 			android:layout_height="match_parent"
-			android:layout_gravity="center_vertical|right"
-			android:layout_marginRight="@dimen/padding_half"
-			android:paddingBottom="@dimen/padding_half"
-			android:paddingTop="@dimen/padding_half" >
-
-			<View
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:background="#ff000000" />
-
-			<View
-				android:id="@+id/color_swatch"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_margin="1dp" />
-		</FrameLayout>
+			android:layout_gravity="center"
+			android:fontFamily="sans-serif-condensed"
+			android:gravity="center"
+			android:textIsSelectable="false" />
 	</FrameLayout>
 
 	<LinearLayout

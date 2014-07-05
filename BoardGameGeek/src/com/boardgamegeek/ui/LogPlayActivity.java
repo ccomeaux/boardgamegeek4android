@@ -184,7 +184,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mUserShowPlayers = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
 			mCustomPlayerSort = savedInstanceState.getBoolean(KEY_CUSTOM_PLAYER_SORT);
-			signalDataLoaded();
+			mDataLoaded = true;
 		} else {
 			mPlay = new Play(playId, gameId, gameName);
 			if (playId > 0) {
@@ -208,7 +208,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				saveDraft(false);
 				setResult(mPlay.playId);
 				mOriginalPlay = PlayBuilder.copy(mPlay);
-				signalDataLoaded();
+				mDataLoaded = true;
 
 				if (TextUtils.isEmpty(mPlay.location)) {
 					requestLocationFocus = true;
@@ -972,7 +972,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mOriginalPlay = PlayBuilder.copy(mPlay);
 		maybeCreateCopy();
 		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
-		signalDataLoaded();
+		mDataLoaded = true;
 	}
 
 	private void maybeCreateCopy() {
@@ -985,11 +985,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			setResult(mPlay.playId);
 			mDeleteOnCancel = true;
 		}
-	}
-
-	private void signalDataLoaded() {
-		mDataLoaded = true;
-		supportInvalidateOptionsMenu();
 	}
 
 	private void changeName(String gameName) {
