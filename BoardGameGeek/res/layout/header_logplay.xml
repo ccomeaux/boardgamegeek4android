@@ -81,12 +81,14 @@
 					android:textIsSelectable="false" />
 			</FrameLayout>
 
-			<ImageButton
+			<ImageView
 				android:id="@+id/timer_end"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackground"
 				android:gravity="center"
 				android:onClick="onTimer"
+				android:padding="@dimen/padding_half"
 				android:src="@drawable/ic_action_timer_light" />
 		</TableRow>
 
@@ -165,6 +167,16 @@
 		android:gravity="bottom"
 		android:orientation="horizontal"
 		android:paddingRight="@dimen/padding_standard" >
+
+		<ImageView
+			android:id="@+id/player_sort"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:gravity="center"
+			android:onClick="onPlayerSort"
+			android:padding="@dimen/padding_half"
+			android:src="@drawable/ic_action_sort_light" />
 
 		<TextView
 			android:id="@+id/log_play_players_label"

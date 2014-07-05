@@ -42,6 +42,9 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.internal.view.menu.MenuBuilder.Callback;
+import com.actionbarsherlock.internal.view.menu.MenuPopupHelper;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -110,6 +113,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private TextView mPlayerLabel;
 	private DragSortListView mPlayerList;
 	private Button mAddFieldButton;
+	private MenuBuilder mFullPopupMenu;
+	private MenuBuilder mShortPopupMenu;
 
 	private InputMethodManager mInputMethodManager;
 	private boolean mDataLoaded;
@@ -267,7 +272,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getSupportMenuInflater().inflate(R.menu.logplay, menu);
-		menu.findItem(R.id.menu_custom_player_order).setChecked(mCustomPlayerSort);
 		return true;
 	}
 
@@ -275,19 +279,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (mDataLoaded) {
 			menu.findItem(R.id.menu_send).setVisible(!mPlay.hasStarted());
-			menu.findItem(R.id.menu_player_order).setVisible(!shouldHidePlayers());
-			menu.findItem(R.id.menu_custom_player_order).setVisible(true);
-			menu.findItem(R.id.menu_pick_start_player).setVisible(mPlay.getPlayerCount() > 1);
-			menu.findItem(R.id.menu_pick_start_player).setEnabled(!mCustomPlayerSort);
-			menu.findItem(R.id.menu_random_start_player).setVisible(mPlay.getPlayerCount() > 1);
-			menu.findItem(R.id.menu_random_start_player).setEnabled(!mCustomPlayerSort);
-			menu.findItem(R.id.menu_random_player_order).setVisible(mPlay.getPlayerCount() > 1);
-			menu.findItem(R.id.menu_random_player_order).setEnabled(!mCustomPlayerSort);
 			menu.findItem(R.id.menu_save).setVisible(true);
 			menu.findItem(R.id.menu_cancel).setVisible(true);
 		} else {
 			menu.findItem(R.id.menu_send).setVisible(false);
-			menu.findItem(R.id.menu_player_order).setVisible(false);
 			menu.findItem(R.id.menu_save).setVisible(false);
 			menu.findItem(R.id.menu_cancel).setVisible(false);
 		}
@@ -307,65 +302,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			case R.id.menu_cancel:
 				cancel();
 				return true;
-			case R.id.menu_custom_player_order:
-				final MenuItem finalItem = item;
-				if (mCustomPlayerSort) {
-					if (mPlay.arePlayersCustomSorted()) {
-						Dialog dialog = ActivityUtils.createConfirmationDialog(this,
-							R.string.are_you_sure_player_sort_custom_off, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									mPlay.pickStartPlayer(0);
-									bindUiPlayers();
-									toggleCustomSort(finalItem);
-								}
-							});
-						dialog.show();
-					} else {
-						mPlay.pickStartPlayer(0);
-						bindUiPlayers();
-						toggleCustomSort(item);
-					}
-				} else {
-					toggleCustomSort(item);
-					if (mPlay.hasStartingPositions()) {
-						AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false)
-							.setTitle(R.string.title_custom_player_order)
-							.setMessage(R.string.message_custom_player_order).setNegativeButton(R.string.keep, null)
-							.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									mPlay.clearPlayerPositions();
-									bindUiPlayers();
-								}
-							});
-						builder = ActivityUtils.addAlertIcon(builder);
-						builder.create().show();
-					}
-				}
-				return true;
-			case R.id.menu_pick_start_player:
-				promptPickStartPlayer();
-				return true;
-			case R.id.menu_random_start_player:
-				int newSeat = mRandom.nextInt(mPlay.getPlayerCount());
-				mPlay.pickStartPlayer(newSeat);
-				notifyStartPlayer();
-				bindUiPlayers();
-				return true;
-			case R.id.menu_random_player_order:
-				mPlay.randomizePlayerOrder();
-				notifyStartPlayer();
-				bindUiPlayers();
-				return true;
 		}
 		return false;
-	}
-
-	private void toggleCustomSort(MenuItem item) {
-		mCustomPlayerSort = !mCustomPlayerSort;
-		item.setChecked(mCustomPlayerSort);
-		bindUiPlayers();
 	}
 
 	private void notifyStartPlayer() {
@@ -378,35 +316,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
 				Toast.LENGTH_SHORT).show();
 		}
-	}
-
-	private void promptPickStartPlayer() {
-		CharSequence[] array = createArrayOfPlayerDescriptions();
-		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
-			.setItems(array, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					mPlay.pickStartPlayer(which);
-					notifyStartPlayer();
-					bindUiPlayers();
-				}
-			}).show();
-	}
-
-	public CharSequence[] createArrayOfPlayerDescriptions() {
-		String playerPrefix = getResources().getString(R.string.generic_player);
-		List<CharSequence> list = new ArrayList<CharSequence>();
-		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
-			Player p = mPlay.getPlayers().get(i);
-			String name = p.getDescsription();
-			if (TextUtils.isEmpty(name)) {
-				name = String.format(playerPrefix, (i + 1));
-			}
-			list.add(name);
-		}
-		CharSequence[] array = {};
-		array = list.toArray(array);
-		return array;
 	}
 
 	public void addField(View v) {
@@ -473,7 +382,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public void addPlayer(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
 			if (mPlay.getPlayerCount() == 0) {
-				showPlayersToAddDialog();
+				if (!showPlayersToAddDialog()) {
+					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+				}
 			} else {
 				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 			}
@@ -584,7 +495,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		fragment.show(getSupportFragmentManager(), "datePicker");
 	}
 
-	private void showPlayersToAddDialog() {
+	private boolean showPlayersToAddDialog() {
 		if (mAddPlayersBuilder == null) {
 			mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
 				.setPositiveButton(android.R.string.ok, addPlayersButtonClickListener())
@@ -621,6 +532,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			}
 		}
 
+		if (descriptions.size() == 0) {
+			return false;
+		}
+
 		CharSequence[] array = {};
 		mAddPlayersBuilder
 			.setMultiChoiceItems(descriptions.toArray(array), null, new DialogInterface.OnMultiChoiceClickListener() {
@@ -636,6 +551,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					}
 				}
 			}).create().show();
+
+		return true;
 	}
 
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
@@ -699,10 +616,138 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void startTimer() {
+		captureForm();
 		mPlay.start();
 		bindUiPlay();
 		saveDraft(false);
 		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
+	}
+
+	public void onPlayerSort(View v) {
+		MenuPopupHelper popup = null;
+		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
+			if (mFullPopupMenu == null) {
+				mFullPopupMenu = new MenuBuilder(this);
+				MenuItem mi = mFullPopupMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE,
+					R.string.menu_custom_player_order);
+				mi.setCheckable(true);
+				mFullPopupMenu.add(MenuBuilder.NONE, R.id.menu_pick_start_player, 2, R.string.menu_pick_start_player);
+				mFullPopupMenu.add(MenuBuilder.NONE, R.id.menu_random_start_player, 3,
+					R.string.menu_random_start_player);
+				mFullPopupMenu.add(MenuBuilder.NONE, R.id.menu_random_player_order, 4,
+					R.string.menu_random_player_order);
+				mFullPopupMenu.setCallback(popupMenuCallback());
+			}
+			mFullPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
+			popup = new MenuPopupHelper(this, mFullPopupMenu, v);
+		} else {
+			if (mShortPopupMenu == null) {
+				mShortPopupMenu = new MenuBuilder(this);
+				MenuItem mi = mShortPopupMenu.add(MenuBuilder.NONE, R.id.menu_custom_player_order, MenuBuilder.NONE,
+					R.string.menu_custom_player_order);
+				mi.setCheckable(true);
+				mShortPopupMenu.setCallback(popupMenuCallback());
+			}
+			mShortPopupMenu.getItem(0).setChecked(mCustomPlayerSort);
+			popup = new MenuPopupHelper(this, mShortPopupMenu, v);
+		}
+		popup.show();
+	}
+
+	private Callback popupMenuCallback() {
+		return new MenuBuilder.Callback() {
+			@Override
+			public void onMenuModeChange(MenuBuilder menu) {
+			}
+
+			@Override
+			public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_custom_player_order:
+						if (mCustomPlayerSort) {
+							if (mPlay.arePlayersCustomSorted()) {
+								Dialog dialog = ActivityUtils.createConfirmationDialog(LogPlayActivity.this,
+									R.string.are_you_sure_player_sort_custom_off,
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											mPlay.pickStartPlayer(0);
+											mCustomPlayerSort = !mCustomPlayerSort;
+											bindUiPlayers();
+										}
+									});
+								dialog.show();
+							} else {
+								mPlay.pickStartPlayer(0);
+								mCustomPlayerSort = !mCustomPlayerSort;
+								bindUiPlayers();
+							}
+						} else {
+							mCustomPlayerSort = !mCustomPlayerSort;
+							if (mPlay.hasStartingPositions()) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this)
+									.setCancelable(false).setTitle(R.string.title_custom_player_order)
+									.setMessage(R.string.message_custom_player_order)
+									.setNegativeButton(R.string.keep, null)
+									.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											mPlay.clearPlayerPositions();
+											bindUiPlayers();
+										}
+									});
+								builder = ActivityUtils.addAlertIcon(builder);
+								builder.create().show();
+							}
+						}
+						return true;
+					case R.id.menu_pick_start_player:
+						promptPickStartPlayer();
+						return true;
+					case R.id.menu_random_start_player:
+						int newSeat = mRandom.nextInt(mPlay.getPlayerCount());
+						mPlay.pickStartPlayer(newSeat);
+						notifyStartPlayer();
+						bindUiPlayers();
+						return true;
+					case R.id.menu_random_player_order:
+						mPlay.randomizePlayerOrder();
+						notifyStartPlayer();
+						bindUiPlayers();
+						return true;
+				}
+				return false;
+			}
+		};
+	}
+
+	private void promptPickStartPlayer() {
+		CharSequence[] array = createArrayOfPlayerDescriptions();
+		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
+			.setItems(array, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mPlay.pickStartPlayer(which);
+					notifyStartPlayer();
+					bindUiPlayers();
+				}
+			}).show();
+	}
+
+	private CharSequence[] createArrayOfPlayerDescriptions() {
+		String playerPrefix = getResources().getString(R.string.generic_player);
+		List<CharSequence> list = new ArrayList<CharSequence>();
+		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
+			Player p = mPlay.getPlayers().get(i);
+			String name = p.getDescsription();
+			if (TextUtils.isEmpty(name)) {
+				name = String.format(playerPrefix, (i + 1));
+			}
+			list.add(name);
+		}
+		CharSequence[] array = {};
+		array = list.toArray(array);
+		return array;
 	}
 
 	public void onClearPlayers(View v) {

@@ -7,7 +7,7 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="libs/simple-xml-2.7.1.jar"/>
 	<classpathentry kind="lib" path="libs/gson-2.2.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/okio-1.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/okio-1.0.0.jar"/>
 	<classpathentry kind="lib" path="libs/okhttp-2.0.0.jar"/>
 	<classpathentry kind="lib" path="libs/okhttp-urlconnection-2.0.0.jar"/>
 	<classpathentry kind="lib" path="libs/retrofit-1.6.0.jar"/>
