@@ -66,6 +66,10 @@ public class CollectionPersister {
 			ContentResolver resolver = mContext.getContentResolver();
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (CollectionItem item : items) {
+				if (item.collectionId == -1) {
+					LOGI(TAG, "No collection ID for game ID=" + item.gameId + " - must be a played-only game");
+					continue;
+				}
 				insertOrUpdateGame(resolver, toGameValues(item), batch);
 				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
 				LOGI(TAG, "Batch game ID=" + item.gameId + "; collection ID=" + item.collectionId);

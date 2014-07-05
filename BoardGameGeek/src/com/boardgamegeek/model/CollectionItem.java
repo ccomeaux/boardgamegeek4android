@@ -83,7 +83,7 @@ public class CollectionItem {
 	@Attribute
 	private String subtype;
 
-	@Attribute(name = "collid")
+	@Attribute(name = "collid", empty = "-1")
 	public int collectionId;
 
 	@Path("name")
