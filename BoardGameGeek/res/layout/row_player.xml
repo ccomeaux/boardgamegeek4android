@@ -6,17 +6,15 @@
 	android:gravity="center_vertical"
 	android:minHeight="@dimen/player_row_height"
 	android:orientation="horizontal"
-	android:padding="@dimen/padding_half" >
+	android:paddingLeft="@dimen/padding_standard"
+	android:paddingRight="@dimen/padding_standard" >
 
 	<ImageView
 		android:id="@+id/drag_handle"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="@dimen/image_button_size"
+		android:layout_height="@dimen/image_button_size"
 		android:background="?attr/selectableItemBackground"
-		android:paddingBottom="@dimen/padding_half"
-		android:paddingLeft="@dimen/padding_half"
-		android:paddingRight="@dimen/padding_standard_half"
-		android:paddingTop="@dimen/padding_half"
+		android:scaleType="center"
 		android:src="@drawable/drag_grip"
 		android:visibility="gone" />
 
@@ -130,15 +128,15 @@
 			android:textIsSelectable="false" />
 	</LinearLayout>
 
-	<ImageButton
+	<ImageView
 		android:id="@+id/log_player_delete"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="@dimen/image_button_size"
+		android:layout_height="@dimen/image_button_size"
 		android:layout_gravity="center"
 		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/delete"
 		android:focusable="false"
-		android:padding="@dimen/padding_half"
+		android:scaleType="center"
 		android:src="@drawable/ic_action_delete_light"
 		android:visibility="gone" />
 

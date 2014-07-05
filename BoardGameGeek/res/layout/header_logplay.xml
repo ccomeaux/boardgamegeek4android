@@ -4,17 +4,28 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
 
+	<TextView
+		android:id="@+id/header"
+		style="@style/Text.Primary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/background_dark"
+		android:gravity="center_horizontal"
+		android:padding="@dimen/padding_standard"
+		android:textColor="#fff" />
+
 	<TableLayout
 		android:id="@+id/details"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
 		android:orientation="vertical"
+		android:paddingBottom="@dimen/padding_small"
+		android:paddingLeft="@dimen/padding_standard"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_small"
 		android:stretchColumns="1" >
 
-		<TableRow
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+		<TableRow android:gravity="center_vertical" >
 
 			<TextView
 				style="@style/TextLabel.Edit"
@@ -30,8 +41,7 @@
 
 		<TableRow
 			android:id="@+id/log_play_location_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:gravity="center_vertical" >
 
 			<TextView
 				style="@style/TextLabel.Edit"
@@ -50,9 +60,7 @@
 
 		<TableRow
 			android:id="@+id/log_play_length_root"
-			android:gravity="center_vertical"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:gravity="center_vertical" >
 
 			<TextView
 				style="@style/TextLabel.Edit"
@@ -83,19 +91,17 @@
 
 			<ImageView
 				android:id="@+id/timer_end"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackground"
 				android:gravity="center"
 				android:onClick="onTimer"
-				android:padding="@dimen/padding_half"
 				android:src="@drawable/ic_action_timer_light" />
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_quantity_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:gravity="center_vertical" >
 
 			<TextView
 				style="@style/TextLabel.Edit"
@@ -111,8 +117,7 @@
 
 		<TableRow
 			android:id="@+id/log_play_incomplete_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:gravity="center_vertical" >
 
 			<CheckBox
 				android:id="@+id/log_play_incomplete"
@@ -125,8 +130,7 @@
 
 		<TableRow
 			android:id="@+id/log_play_no_win_stats_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small" >
+			android:gravity="center_vertical" >
 
 			<CheckBox
 				android:id="@+id/log_play_no_win_stats"
@@ -136,64 +140,54 @@
 				android:checked="false"
 				android:text="@string/noWinStats" />
 		</TableRow>
+
+		<LinearLayout
+			android:id="@+id/log_play_comments_root"
+			android:orientation="vertical" >
+
+			<TextView
+				android:id="@+id/log_play_comments_label"
+				style="@style/Text.Header.Underline"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:labelFor="@+id/log_play_comments"
+				android:text="@string/comments" />
+
+			<EditText
+				android:id="@+id/log_play_comments"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/comments_hint"
+				android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+		</LinearLayout>
+
+		<TableRow
+			android:id="@+id/log_play_players_header"
+			android:gravity="bottom" >
+
+			<ImageView
+				android:id="@+id/player_sort"
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackground"
+				android:onClick="onPlayerSort"
+				android:scaleType="center"
+				android:src="@drawable/ic_action_sort_light" />
+
+			<TextView
+				android:id="@+id/log_play_players_label"
+				style="@style/Text.Header.Underline"
+				android:text="@string/title_players" />
+
+			<ImageView
+				android:id="@+id/clear_players"
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:background="?attr/selectableItemBackground"
+				android:onClick="onClearPlayers"
+				android:scaleType="center"
+				android:src="@drawable/ic_action_cancel_light" />
+		</TableRow>
 	</TableLayout>
-
-	<LinearLayout
-		android:id="@+id/log_play_comments_root"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical" >
-
-		<TextView
-			android:id="@+id/log_play_comments_label"
-			style="@style/Text.Header.Underline"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:labelFor="@+id/log_play_comments"
-			android:text="@string/comments" />
-
-		<EditText
-			android:id="@+id/log_play_comments"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/comments_hint"
-			android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/log_play_players_header"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="bottom"
-		android:orientation="horizontal"
-		android:paddingRight="@dimen/padding_standard" >
-
-		<ImageView
-			android:id="@+id/player_sort"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:background="?attr/selectableItemBackground"
-			android:gravity="center"
-			android:onClick="onPlayerSort"
-			android:padding="@dimen/padding_half"
-			android:src="@drawable/ic_action_sort_light" />
-
-		<TextView
-			android:id="@+id/log_play_players_label"
-			style="@style/Text.Header.Underline"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:paddingTop="@dimen/padding_standard"
-			android:text="@string/title_players" />
-
-		<ImageView
-			android:id="@+id/clear_players"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:background="?attr/selectableItemBackground"
-			android:onClick="onClearPlayers"
-			android:src="@drawable/ic_action_cancel_light" />
-	</LinearLayout>
 
 </LinearLayout>

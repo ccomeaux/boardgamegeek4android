@@ -40,7 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder.Callback;
@@ -100,7 +99,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private List<String> mUsernames = new ArrayList<String>();
 	private List<String> mNames = new ArrayList<String>();
 
-	private View mHeaderView;
+	private TextView mHeaderView;
 	private Button mDateButton;
 	private EditText mQuantityView;
 	private EditText mLengthView;
@@ -769,13 +768,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void bindUiPlay() {
 		changeName(mPlay.gameName);
 		setDateButtonText();
-		mQuantityView.setText((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
-		mLengthView.setText((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
+		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
+		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
 		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
-		mLocationView.setText(mPlay.location);
+		mLocationView.setTextKeepState(mPlay.location);
 		mIncompleteView.setChecked(mPlay.Incomplete());
 		mNoWinStatsView.setChecked(mPlay.NoWinStats());
-		mCommentsView.setText(mPlay.comments);
+		mCommentsView.setTextKeepState(mPlay.comments);
 		setViewVisibility();
 		supportInvalidateOptionsMenu();
 	}
@@ -810,20 +809,21 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
-		mHeaderView = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(mHeaderView);
+		View root = View.inflate(this, R.layout.header_logplay, null);
+		mPlayerList.addHeaderView(root);
 		mPlayerList.setAdapter(mPlayAdapter);
 
-		mDateButton = (Button) mHeaderView.findViewById(R.id.log_play_date);
-		mQuantityView = (EditText) mHeaderView.findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) mHeaderView.findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) mHeaderView.findViewById(R.id.log_play_location);
-		mIncompleteView = (CheckBox) mHeaderView.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) mHeaderView.findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) mHeaderView.findViewById(R.id.timer);
-		mCommentsView = (EditText) mHeaderView.findViewById(R.id.log_play_comments);
-		mPlayerHeader = (LinearLayout) mHeaderView.findViewById(R.id.log_play_players_header);
-		mPlayerLabel = (TextView) mHeaderView.findViewById(R.id.log_play_players_label);
+		mHeaderView = (TextView) root.findViewById(R.id.header);
+		mDateButton = (Button) root.findViewById(R.id.log_play_date);
+		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
+		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
+		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
+		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
+		mTimer = (Chronometer) root.findViewById(R.id.timer);
+		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
+		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
+		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
 		mAddFieldButton = (Button) findViewById(R.id.add_field);
 
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1007,11 +1007,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void changeName(String gameName) {
-		if (!TextUtils.isEmpty(gameName)) {
-			ActionBar ab = getSupportActionBar();
-			if (!gameName.equals(ab.getSubtitle())) {
-				ab.setSubtitle(gameName);
-			}
+		if (TextUtils.isEmpty(gameName)) {
+			mHeaderView.setText(getTitle());
+		} else {
+			mHeaderView.setText(getTitle() + " - " + gameName);
 		}
 	}
 

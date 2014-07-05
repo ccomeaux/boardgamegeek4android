@@ -11,7 +11,6 @@
 		android:layout_height="0dp"
 		android:layout_weight="1"
 		android:headerDividersEnabled="false"
-		android:padding="@dimen/padding_standard"
 		dslv:collapsed_height="@dimen/padding_standard"
 		dslv:drag_handle_id="@+id/drag_handle"
 		dslv:drag_start_mode="onDown"
