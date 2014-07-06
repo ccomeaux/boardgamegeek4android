@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
@@ -75,7 +74,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
-				triggerRefresh();
+				SyncService.sync(this, SyncService.FLAG_SYNC_BUDDIES);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -93,7 +92,8 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 
 	@Override
 	public boolean onBuddySelected(int buddyId, String name, String fullName) {
-		Intent intent = new Intent(Intent.ACTION_VIEW, Buddies.buildBuddyUri(buddyId));
+		Intent intent = new Intent(this, BuddyActivity.class);
+		intent.putExtra(BuddyUtils.KEY_BUDDY_ID, buddyId);
 		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);
 		intent.putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, fullName);
 		startActivity(intent);
@@ -104,10 +104,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	public void onBuddyCountChanged(int count) {
 		mCount = count;
 		supportInvalidateOptionsMenu();
-	}
-
-	private void triggerRefresh() {
-		SyncService.sync(this, SyncService.FLAG_SYNC_BUDDIES);
 	}
 
 	private void setRefreshActionButtonState(boolean refreshing) {

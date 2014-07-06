@@ -59,9 +59,10 @@ import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
+	public static final String KEY_MODE = "MODE";
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
-	private static final int MODE_BUDDY = 2;
+	public static final int MODE_BUDDY = 2;
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private PlayAdapter mAdapter;
 	private Uri mUri;
@@ -124,14 +125,24 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (uri != null) {
 			if (Games.isGameUri(uri)) {
 				mMode = MODE_GAME;
-				mGameId = Games.getGameId(uri);
-				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 			} else if (Buddies.isBuddyUri(uri)) {
 				mMode = MODE_BUDDY;
+			}
+		} else {
+			mMode = getArguments().getInt(PlaysFragment.KEY_MODE, mMode);
+		}
+
+		switch (mMode) {
+			case MODE_GAME:
+				mGameId = Games.getGameId(uri);
+				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
+				break;
+			case MODE_BUDDY:
 				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
 				mUri = Plays.buildPlayersUri();
-			}
+				break;
 		}
+
 		setEmptyText(getString(getEmptyStringResoure()));
 		requery();
 

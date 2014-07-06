@@ -122,6 +122,7 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		@Override
 		public Fragment getItem(int position) {
 			Fragment fragment = null;
+			Bundle bundle = UIUtils.intentToFragmentArguments(getIntent());
 			switch (position) {
 				case 0:
 					fragment = new BuddyFragment();
@@ -131,10 +132,11 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 					break;
 				case 2:
 					fragment = new PlaysFragment();
+					bundle.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_BUDDY);
 					break;
 			}
 			if (fragment != null) {
-				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
+				fragment.setArguments(bundle);
 			}
 			return fragment;
 		}

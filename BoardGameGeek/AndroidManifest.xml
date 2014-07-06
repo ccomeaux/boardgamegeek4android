@@ -122,14 +122,6 @@
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
 			android:label="@string/title_buddies" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.buddy" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -138,14 +130,6 @@
 			android:name=".ui.BuddyActivity"
 			android:exported="false"
 			android:label="@string/title_buddy" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.buddy" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.BuddiesActivity" />

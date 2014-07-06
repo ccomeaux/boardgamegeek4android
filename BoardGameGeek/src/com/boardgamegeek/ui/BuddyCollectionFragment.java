@@ -66,6 +66,17 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -88,17 +99,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			mStatusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
 			mStatusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override

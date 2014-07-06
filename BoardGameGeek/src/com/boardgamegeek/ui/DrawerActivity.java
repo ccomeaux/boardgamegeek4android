@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Plays;
 
@@ -112,7 +111,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
 					break;
 				case R.string.title_buddies:
-					intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
+					intent = new Intent(this, BuddiesActivity.class);
 					break;
 				case R.string.title_forums:
 					intent = new Intent(this, ForumsActivity.class);

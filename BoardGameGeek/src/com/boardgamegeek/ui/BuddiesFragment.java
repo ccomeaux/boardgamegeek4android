@@ -57,6 +57,15 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -75,15 +84,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			setEmptyText(getString(R.string.empty_buddies_sync_off));
 		}
 		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override
