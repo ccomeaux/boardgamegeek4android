@@ -650,7 +650,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				switch (item.getItemId()) {
 					case R.id.menu_custom_player_order:
 						if (mCustomPlayerSort) {
-							if (mPlay.arePlayersCustomSorted()) {
+							if (mPlay.hasStartingPositions() && mPlay.arePlayersCustomSorted()) {
 								Dialog dialog = ActivityUtils.createConfirmationDialog(LogPlayActivity.this,
 									R.string.are_you_sure_player_sort_custom_off,
 									new DialogInterface.OnClickListener() {
@@ -668,15 +668,20 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 								bindUiPlayers();
 							}
 						} else {
-							mCustomPlayerSort = !mCustomPlayerSort;
 							if (mPlay.hasStartingPositions()) {
 								AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this)
-									.setCancelable(false).setTitle(R.string.title_custom_player_order)
+									.setCancelable(true).setTitle(R.string.title_custom_player_order)
 									.setMessage(R.string.message_custom_player_order)
-									.setNegativeButton(R.string.keep, null)
-									.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+									.setNegativeButton(R.string.keep, new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
+											mCustomPlayerSort = !mCustomPlayerSort;
+											bindUiPlayers();
+										}
+									}).setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											mCustomPlayerSort = !mCustomPlayerSort;
 											mPlay.clearPlayerPositions();
 											bindUiPlayers();
 										}

@@ -398,7 +398,7 @@ public class Play {
 		}
 
 		if (!hasStartingPositions()) {
-			return false;
+			return true;
 		}
 
 		int seat = 1;

@@ -188,17 +188,17 @@ public class CollectionPersister {
 			return;
 		}
 
-		if (!values.containsKey(Collection.THUMBNAIL_URL)) {
+		if (!values.containsKey(Collection.COLLECTION_THUMBNAIL_URL)) {
 			// nothing to do - no thumbnail
 			return;
 		}
 
-		String newThumbnailUrl = values.getAsString(Collection.THUMBNAIL_URL);
+		String newThumbnailUrl = values.getAsString(Collection.COLLECTION_THUMBNAIL_URL);
 		if (newThumbnailUrl == null) {
 			newThumbnailUrl = "";
 		}
 
-		String oldThumbnailUrl = ResolverUtils.queryString(resolver, uri, Collection.THUMBNAIL_URL);
+		String oldThumbnailUrl = ResolverUtils.queryString(resolver, uri, Collection.COLLECTION_THUMBNAIL_URL);
 		if (newThumbnailUrl.equals(oldThumbnailUrl)) {
 			// nothing to do - thumbnail hasn't changed
 			return;
