@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -16,13 +14,11 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -32,19 +28,16 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
+import com.boardgamegeek.ui.widget.PlayerNameAdapter;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
+public class LogPlayerActivity extends SherlockFragmentActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
@@ -62,7 +55,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private int mGameId;
 	private String mGameName;
 
-	private UsernameAdapter mUsernameAdapter;
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
@@ -141,10 +133,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 		bindUi();
 
-		mUsernameAdapter = new UsernameAdapter(this);
-		mUsername.setAdapter(mUsernameAdapter);
-		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersByNameWithoutUsernameUri(),
-			PlayPlayers.NAME));
+		mName.setAdapter(new PlayerNameAdapter(this));
 		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
@@ -194,13 +183,22 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mNew = (CheckBox) findViewById(R.id.log_player_new);
 		mWin = (CheckBox) findViewById(R.id.log_player_win);
 
-		mTeamColor.addTextChangedListener(watcher());
+		mName.setOnItemClickListener(nameClickListener());
+		mTeamColor.addTextChangedListener(colorTextWatcher());
 		mPositionButton.setOnClickListener(numberToTextClick());
 		mScoreButton.setOnClickListener(numberToTextClick());
-		mUsername.setOnItemClickListener(this);
 	}
 
-	private TextWatcher watcher() {
+	private OnItemClickListener nameClickListener() {
+		return new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mUsername.setText((String) view.getTag());
+			}
+		};
+	}
+
+	private TextWatcher colorTextWatcher() {
 		return new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -432,63 +430,5 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mPlayer.rating = StringUtils.parseDouble(mRating.getText().toString().trim());
 		mPlayer.New(mNew.isChecked());
 		mPlayer.Win(mWin.isChecked());
-	}
-
-	private class UsernameAdapter extends CursorAdapter {
-		public UsernameAdapter(Context context) {
-			super(context, null, false);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.dropdown_logplayer_buddy, parent, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			String userName = cursor.getString(BuddiesQuery.NAME);
-			String firstName = cursor.getString(BuddiesQuery.FIRST_NAME);
-			String lastName = cursor.getString(BuddiesQuery.LAST_NAME);
-			String nickname = cursor.getString(BuddiesQuery.PLAY_NICKNAME);
-			String fullName = (firstName + " " + lastName).trim();
-
-			((TextView) view.findViewById(R.id.buddy_username)).setText(userName);
-			((TextView) view.findViewById(R.id.buddy_description)).setText(fullName);
-			((TextView) view.findViewById(R.id.buddy_nickname)).setText(nickname);
-			view.setTag(TextUtils.isEmpty(nickname) ? firstName : nickname);
-		}
-
-		@Override
-		public CharSequence convertToString(Cursor cursor) {
-			return cursor.getString(BuddiesQuery.NAME);
-		}
-
-		@Override
-		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (!TextUtils.isEmpty(constraint)) {
-				selection = Buddies.BUDDY_NAME + " LIKE ? OR " + Buddies.BUDDY_FIRSTNAME + " LIKE ? OR "
-					+ Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
-				String selectionArg = constraint + "%";
-				selectionArgs = new String[] { selectionArg, selectionArg, selectionArg, selectionArg };
-			}
-			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, selectionArgs,
-				Buddies.NAME_SORT);
-		}
-	}
-
-	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-			Buddies.PLAY_NICKNAME };
-		int NAME = 1;
-		int FIRST_NAME = 2;
-		int LAST_NAME = 3;
-		int PLAY_NICKNAME = 4;
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		mName.setText((String) view.getTag());
 	}
 }

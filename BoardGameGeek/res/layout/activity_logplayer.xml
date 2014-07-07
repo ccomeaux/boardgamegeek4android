@@ -31,31 +31,11 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:padding="@dimen/padding_standard"
+				android:paddingBottom="@dimen/padding_small"
+				android:paddingTop="@dimen/padding_small"
 				android:stretchColumns="1" >
 
-				<TableRow
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
-
-					<TextView
-						style="@style/TextLabel.Edit"
-						android:text="@string/user" />
-
-					<AutoCompleteTextView
-						android:id="@+id/log_player_username"
-						android:layout_span="2"
-						android:completionThreshold="1"
-						android:dropDownHeight="wrap_content"
-						android:hint="@string/username"
-						android:imeOptions="actionNext"
-						android:inputType="text"
-						android:maxLength="63"
-						android:textColor="#000" />
-				</TableRow>
-
-				<TableRow
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
+				<TableRow>
 
 					<TextView
 						style="@style/TextLabel.Edit"
@@ -73,10 +53,25 @@
 						android:textColor="#000" />
 				</TableRow>
 
-				<TableRow
-					android:id="@+id/log_player_team_color_container"
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
+				<TableRow>
+
+					<TextView
+						style="@style/TextLabel.Edit"
+						android:text="@string/user" />
+
+					<AutoCompleteTextView
+						android:id="@+id/log_player_username"
+						android:layout_span="2"
+						android:completionThreshold="1"
+						android:dropDownHeight="wrap_content"
+						android:hint="@string/username"
+						android:imeOptions="actionNext"
+						android:inputType="text"
+						android:maxLength="63"
+						android:textColor="#000" />
+				</TableRow>
+
+				<TableRow android:id="@+id/log_player_team_color_container" >
 
 					<TextView
 						android:id="@+id/log_player_team_color_label"
@@ -104,10 +99,7 @@
 					</FrameLayout>
 				</TableRow>
 
-				<TableRow
-					android:id="@+id/log_player_position_container"
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
+				<TableRow android:id="@+id/log_player_position_container" >
 
 					<TextView
 						android:id="@+id/log_player_position_label"
@@ -127,10 +119,7 @@
 						android:text="@string/number_to_text" />
 				</TableRow>
 
-				<TableRow
-					android:id="@+id/log_player_score_container"
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
+				<TableRow android:id="@+id/log_player_score_container" >
 
 					<TextView
 						android:id="@+id/log_player_score_label"
@@ -150,10 +139,7 @@
 						android:text="@string/number_to_text" />
 				</TableRow>
 
-				<TableRow
-					android:id="@+id/log_player_rating_container"
-					android:paddingBottom="@dimen/padding_small"
-					android:paddingTop="@dimen/padding_small" >
+				<TableRow android:id="@+id/log_player_rating_container" >
 
 					<TextView
 						android:id="@+id/log_player_rating_label"
@@ -167,33 +153,32 @@
 						android:inputType="numberDecimal"
 						android:maxLength="8" />
 				</TableRow>
+
+				<TableRow>
+
+					<LinearLayout
+						android:id="@+id/log_player_checkbox_container"
+						android:layout_column="1"
+						android:orientation="horizontal" >
+
+						<CheckBox
+							android:id="@+id/log_player_new"
+							style="@style/Text.CheckboxLabel"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:text="@string/new_label" />
+
+						<CheckBox
+							android:id="@+id/log_player_win"
+							style="@style/Text.CheckboxLabel"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:text="@string/win" />
+					</LinearLayout>
+				</TableRow>
 			</TableLayout>
-
-			<LinearLayout
-				android:id="@+id/log_player_checkbox_container"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:paddingLeft="@dimen/padding_standard"
-				android:paddingRight="@dimen/padding_standard"
-				android:paddingTop="@dimen/padding_small" >
-
-				<CheckBox
-					android:id="@+id/log_player_new"
-					style="@style/Text.CheckboxLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/new_label" />
-
-				<CheckBox
-					android:id="@+id/log_player_win"
-					style="@style/Text.CheckboxLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/win" />
-			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
 
