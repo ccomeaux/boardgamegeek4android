@@ -69,6 +69,7 @@
 	<string name="play_again">Play again</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
+	<string name="title_player">Player</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
@@ -163,6 +164,7 @@
 	<string name="empty_plays">You have no plays logged. Do you even like games?</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
+	<string name="empty_plays_player">You haven\'t logged any plays with this player.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>

@@ -160,6 +160,15 @@
 				android:value=".ui.PlaysActivity" />
 		</activity>
 		<activity
+			android:name=".ui.PlayerActivity"
+			android:exported="false"
+			android:label="@string/title_player"
+			android:launchMode="singleTop" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.BuddiesActivity" />
+		</activity>
+		<activity
 			android:name=".ui.SearchResultsActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:exported="true"

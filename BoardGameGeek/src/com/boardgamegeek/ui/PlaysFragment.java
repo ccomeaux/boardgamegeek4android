@@ -60,14 +60,17 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	MultiChoiceModeListener {
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	public static final String KEY_MODE = "MODE";
+	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	public static final int MODE_BUDDY = 2;
+	public static final int MODE_PLAYER = 3;
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
 	private String mBuddyName;
+	private String mPlayerName;
 	private int mFilter = Play.SYNC_STATUS_ALL;
 	private SortData mSort;
 	private boolean mAutoSyncTriggered;
@@ -139,6 +142,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				break;
 			case MODE_BUDDY:
 				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
+				mUri = Plays.buildPlayersUri();
+				break;
+			case MODE_PLAYER:
+				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
+				mPlayerName = getArguments().getString(KEY_PLAYER_NAME);
 				mUri = Plays.buildPlayersUri();
 				break;
 		}
@@ -293,6 +301,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		switch (mMode) {
 			case MODE_BUDDY:
 				return R.string.empty_plays_buddy;
+			case MODE_PLAYER:
+				return R.string.empty_plays_player;
 			case MODE_GAME:
 				return R.string.empty_plays_game;
 			case MODE_ALL:
@@ -357,6 +367,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return PlayItems.OBJECT_ID + "=?";
 			case MODE_BUDDY:
 				return PlayPlayers.USER_NAME + "=?";
+			case MODE_PLAYER:
+				return PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "=?";
 		}
 		return null;
 	}
@@ -376,6 +388,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return new String[] { String.valueOf(mGameId) };
 			case MODE_BUDDY:
 				return new String[] { mBuddyName };
+			case MODE_PLAYER:
+				return new String[] { mBuddyName, mPlayerName };
 		}
 		return null;
 	}
@@ -429,6 +443,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		switch (mMode) {
 			case MODE_ALL:
 			case MODE_BUDDY:
+			case MODE_PLAYER:
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
@@ -500,8 +515,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				int minutes = length % 60;
 				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
 			}
-			if (playerCount > 0 && mMode != MODE_BUDDY) {
-				// TODO make this work for budddies
+			if (playerCount > 0 && mMode != MODE_BUDDY && mMode != MODE_PLAYER) {
+				// TODO make this work for budddies and players
 				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
 			holder.location.setText(info.trim());
