@@ -19,34 +19,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.squareup.picasso.Picasso;
 
-public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> implements Filterable {
-	private static final String TAG = makeLogTag(PlayerNameAdapter.class);
+public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> implements Filterable {
+	private static final String TAG = makeLogTag(BuddyNameAdapter.class);
 
 	public static class Result {
-		private final String mName;
-		private final String mSubtitle;
 		private final String mUsername;
-		private final String mAvatarUrl;
 
-		public Result(String displayName, String subtitle, String username, String avatarUrl) {
-			this.mName = displayName;
-			this.mSubtitle = subtitle;
+		public Result(String username) {
 			this.mUsername = username;
-			this.mAvatarUrl = avatarUrl;
 		}
 
 		@Override
 		public String toString() {
-			return mName;
+			return mUsername;
 		}
 	}
 
@@ -56,8 +48,8 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 	private final LayoutInflater mInflater;
 	private final ArrayList<Result> mResultList = new ArrayList<Result>();
 
-	public PlayerNameAdapter(Context context) {
-		super(context, R.layout.autocomplete_player, EMPTY_LIST);
+	public BuddyNameAdapter(Context context) {
+		super(context, R.layout.autocomplete_item, EMPTY_LIST);
 
 		mResolver = context.getContentResolver();
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -81,42 +73,23 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 	public View getView(final int position, final View convertView, final ViewGroup parent) {
 		View view = convertView;
 		if (view == null) {
-			view = mInflater.inflate(R.layout.autocomplete_player, parent, false);
+			view = mInflater.inflate(R.layout.autocomplete_item, parent, false);
 		}
 		final Result result = getItem(position);
 		if (result == null) {
 			return view;
 		}
 
-		TextView titleView = (TextView) view.findViewById(R.id.player_title);
+		TextView titleView = (TextView) view.findViewById(R.id.autocomplete_item);
 		if (titleView != null) {
-			if (result.mName == null) {
+			if (result.mUsername == null) {
 				titleView.setVisibility(View.GONE);
 			} else {
 				titleView.setVisibility(View.VISIBLE);
-				titleView.setText(result.mName);
+				titleView.setText(result.mUsername);
 			}
 		}
 
-		TextView subtitleView = (TextView) view.findViewById(R.id.player_subtitle);
-		if (subtitleView != null) {
-			if (result.mSubtitle == null) {
-				subtitleView.setVisibility(View.GONE);
-			} else {
-				subtitleView.setVisibility(View.VISIBLE);
-				subtitleView.setText(result.mSubtitle);
-			}
-		}
-
-		view.setTag(result.mUsername);
-
-		ImageView avatarView = (ImageView) view.findViewById(R.id.player_avatar);
-		if (avatarView != null) {
-			Picasso.with(getContext()).load(result.mAvatarUrl).placeholder(R.drawable.person_image_empty)
-				.error(R.drawable.person_image_empty)
-				.resizeDimen(R.dimen.dropdownitem_min_height, R.dimen.dropdownitem_min_height).centerCrop()
-				.into(avatarView);
-		}
 		return view;
 	}
 
@@ -181,11 +154,9 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		}
 	}
 
-	private static final String PLAYER_SELECTION = PlayPlayers.NAME + " LIKE ?";
-	private static final String[] PLAYER_PROJECTION = new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME,
-		PlayPlayers.NAME };
+	private static final String PLAYER_SELECTION = PlayPlayers.USER_NAME + " LIKE ?";
+	private static final String[] PLAYER_PROJECTION = new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME };
 	private static final int PLAYER_USERNAME = 1;
-	private static final int PLAYER_NAME = 2;
 
 	private static List<Result> queryPlayerHistory(ContentResolver resolver, String input) {
 		String where = null;
@@ -197,17 +168,16 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 			whereArgs = new String[] { param };
 		}
 
-		Cursor c = resolver.query(Plays.buildPlayersByUniquePlayerUri(), PLAYER_PROJECTION, where, whereArgs,
+		Cursor c = resolver.query(Plays.buildPlayersByUniqueUserUri(), PLAYER_PROJECTION, where, whereArgs,
 			PlayPlayers.NAME);
 		try {
 			List<Result> results = new ArrayList<Result>();
 
 			c.moveToPosition(-1);
 			while (c.moveToNext()) {
-				String name = c.getString(PLAYER_NAME);
 				String username = c.getString(PLAYER_USERNAME);
 
-				results.add(new Result(name, username, username, null));
+				results.add(new Result(username));
 			}
 			return results;
 		} finally {
@@ -217,15 +187,9 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		}
 	}
 
-	private static final String BUDDY_SELECTION = Buddies.BUDDY_NAME + " LIKE ? OR " + Buddies.BUDDY_FIRSTNAME
-		+ " LIKE ? OR " + Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
-	private static final String[] BUDDY_PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME,
-		Buddies.BUDDY_LASTNAME, Buddies.PLAY_NICKNAME, Buddies.AVATAR_URL };
+	private static final String BUDDY_SELECTION = Buddies.BUDDY_NAME + " LIKE ?";
+	private static final String[] BUDDY_PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME };
 	private static final int BUDDY_NAME = 1;
-	private static final int BUDDY_FIRST_NAME = 2;
-	private static final int BUDDY_LAST_NAME = 3;
-	private static final int BUDDY_PLAY_NICKNAME = 4;
-	private static final int BUDDY_AVATAR_URL = 5;
 
 	private static List<Result> queryBuddies(ContentResolver resolver, String input, HashSet<String> usernames) {
 		String where = null;
@@ -234,7 +198,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		if (!TextUtils.isEmpty(input)) {
 			where = BUDDY_SELECTION;
 			String param = input + "%";
-			whereArgs = new String[] { param, param, param, param };
+			whereArgs = new String[] { param };
 		}
 		Cursor c = resolver.query(Buddies.CONTENT_URI, BUDDY_PROJECTION, where, whereArgs, Buddies.NAME_SORT);
 		try {
@@ -243,14 +207,8 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 			c.moveToPosition(-1);
 			while (c.moveToNext()) {
 				String userName = c.getString(BUDDY_NAME);
-				String firstName = c.getString(BUDDY_FIRST_NAME);
-				String lastName = c.getString(BUDDY_LAST_NAME);
-				String nickname = c.getString(BUDDY_PLAY_NICKNAME);
-				String avatarUrl = c.getString(BUDDY_AVATAR_URL);
-				String fullName = (firstName + " " + lastName).trim();
 
-				results.add(new Result(TextUtils.isEmpty(nickname) ? fullName : nickname,
-					TextUtils.isEmpty(nickname) ? userName : fullName + " (" + userName + ")", userName, avatarUrl));
+				results.add(new Result(userName));
 				usernames.add(userName);
 			}
 			return results;

@@ -28,6 +28,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.widget.BuddyNameAdapter;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.PlayerNameAdapter;
 import com.boardgamegeek.util.ActivityUtils;
@@ -134,6 +135,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		bindUi();
 
 		mName.setAdapter(new PlayerNameAdapter(this));
+		mUsername.setAdapter(new BuddyNameAdapter(this));
 		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);

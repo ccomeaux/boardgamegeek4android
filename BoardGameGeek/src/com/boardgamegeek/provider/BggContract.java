@@ -239,6 +239,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
+	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
@@ -783,6 +784,10 @@ public class BggContract {
 				.build();
 		}
 
+		public static Uri buildPlayersByUniqueUserUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
+				.build();
+		}
 		public static Uri buildPlayersByUniqueNameUri() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME)
 				.build();
