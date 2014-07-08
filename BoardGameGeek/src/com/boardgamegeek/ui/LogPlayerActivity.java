@@ -212,7 +212,12 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				ColorUtils.setColorViewValue(mColorView, ColorUtils.parseColor(s.toString()));
+				int color = ColorUtils.parseColor(s.toString());
+				if (color != ColorUtils.TRANSPARENT) {
+					ColorUtils.setColorViewValue(mColorView, color);
+				} else {
+					mColorView.setImageDrawable(null);
+				}
 			}
 		};
 	}

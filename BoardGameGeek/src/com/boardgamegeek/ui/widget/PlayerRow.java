@@ -93,27 +93,20 @@ public class PlayerRow extends LinearLayout {
 			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 			setText(mStartingPosition, player.getStartingPosition());
 
-			if (color != ColorUtils.TRANSPARENT) {
-				mColorView.setVisibility(View.VISIBLE);
-				ColorUtils.setColorViewValue(mColorView, color);
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					mSeat.setVisibility(View.GONE);
-				} else {
-					if (ColorUtils.isColorDark(color)) {
-						mSeat.setTextColor(Color.WHITE);
-					} else {
-						mSeat.setTextColor(Color.BLACK);
-					}
-					mStartingPosition.setVisibility(View.GONE);
-				}
-				mTeamColor.setVisibility(View.GONE);
+			mColorView.setVisibility(View.VISIBLE);
+			ColorUtils.setColorViewValue(mColorView, color);
+			if (player.getSeat() == Player.SEAT_UNKNOWN) {
+				mSeat.setVisibility(View.GONE);
 			} else {
-				mColorView.setVisibility(View.GONE);
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					mSeat.setVisibility(View.GONE);
+				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
+					mSeat.setTextColor(Color.WHITE);
 				} else {
-					mStartingPosition.setVisibility(View.GONE);
+					mSeat.setTextColor(Color.BLACK);
 				}
+				mStartingPosition.setVisibility(View.GONE);
+			}
+			if (color != ColorUtils.TRANSPARENT) {
+				mTeamColor.setVisibility(View.GONE);
 			}
 		}
 	}

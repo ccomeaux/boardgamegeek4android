@@ -47,7 +47,11 @@ public class GameColorAdapter extends CursorAdapter {
 
 		holder.colorName.setText(colorName);
 		int color = ColorUtils.parseColor(colorName);
-		ColorUtils.setColorViewValue(holder.color, color);
+		if (color != ColorUtils.TRANSPARENT) {
+			ColorUtils.setColorViewValue(holder.color, color);
+		} else {
+			holder.color.setImageDrawable(null);
+		}
 	}
 
 	class ViewHolder {

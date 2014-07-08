@@ -9,15 +9,6 @@
 	android:paddingLeft="@dimen/padding_standard"
 	android:paddingRight="@dimen/padding_standard" >
 
-	<ImageView
-		android:id="@+id/drag_handle"
-		android:layout_width="@dimen/image_button_size"
-		android:layout_height="@dimen/image_button_size"
-		android:background="?attr/selectableItemBackground"
-		android:scaleType="center"
-		android:src="@drawable/drag_grip"
-		android:visibility="gone" />
-
 	<FrameLayout
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
@@ -40,6 +31,15 @@
 			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
 			android:textIsSelectable="false" />
+
+		<ImageView
+			android:id="@+id/drag_handle"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackground"
+			android:scaleType="center"
+			android:src="@drawable/drag_grip"
+			android:visibility="gone" />
 	</FrameLayout>
 
 	<LinearLayout

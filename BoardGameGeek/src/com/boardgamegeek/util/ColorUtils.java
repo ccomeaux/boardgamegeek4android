@@ -99,11 +99,6 @@ public class ColorUtils {
 		if (view instanceof ImageView) {
 			ImageView imageView = (ImageView) view;
 
-			if (color == ColorUtils.TRANSPARENT) {
-				imageView.setImageDrawable(null);
-				return;
-			}
-
 			Resources res = imageView.getContext().getResources();
 
 			Drawable currentDrawable = imageView.getDrawable();
@@ -119,16 +114,16 @@ public class ColorUtils {
 			// Set stroke to dark version of color
 			int darkenedColor = Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256,
 				Color.blue(color) * 192 / 256);
+			if (color == TRANSPARENT) {
+				darkenedColor = Color.argb(127, 127, 127, 127);
+			}
 
 			colorChoiceDrawable.setColor(color);
 			colorChoiceDrawable
 				.setStroke((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, res.getDisplayMetrics()),
 					darkenedColor);
 
-			Drawable drawable = colorChoiceDrawable;
-
-			imageView.setImageDrawable(drawable);
-
+			imageView.setImageDrawable(colorChoiceDrawable);
 		} else if (view instanceof TextView) {
 			if (color != ColorUtils.TRANSPARENT) {
 				((TextView) view).setTextColor(color);

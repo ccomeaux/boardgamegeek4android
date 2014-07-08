@@ -267,6 +267,11 @@ public class Play {
 			Player player = new Player(cursor);
 			addPlayer(player);
 		}
+		// When player count is in the double digits, numeric starting positions aren't sorted correctly
+		// TODO don't assume we should be sorting by starting positions
+		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
+			sortPlayers();
+		}
 	}
 
 	public void clearPlayers() {
@@ -526,9 +531,6 @@ public class Play {
 			&& (incomplete == p.incomplete)
 			&& (nowinstats == p.nowinstats)
 			&& (comments == p.comments || (comments != null && comments.equals(p.comments)))
-			&& (updated == p.updated)
-			&& (syncStatus == p.syncStatus)
-			&& (saved == p.saved)
 			&& (startTime == p.startTime)
 			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
 				.size()));

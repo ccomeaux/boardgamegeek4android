@@ -773,6 +773,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private void bindUiPlayers() {
 		calculatePlayerCount();
 		setViewVisibility();
+		mPlayerList.setDragEnabled(!mCustomPlayerSort);
 		mPlayAdapter.notifyDataSetChanged();
 	}
 
