@@ -169,48 +169,55 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
-		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl);
+	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,
+		String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(PlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl);
+	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, null);
+	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void logPlayAgain(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, null);
+	public static void logPlayAgain(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_AGAIN, true);
 		context.startActivity(intent);
 	}
 
-	public static void logPlay(Context context, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, null);
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
 	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
-		String imageUrl) {
+		String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
 		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}

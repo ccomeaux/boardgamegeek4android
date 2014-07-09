@@ -81,7 +81,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private MenuItem mEditMenuItem;
 
 	public interface Callbacks {
-		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl);
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl);
 
 		public void onPlayCountChanged(int count);
 
@@ -90,7 +90,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
+		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 			return true;
 		}
 
@@ -193,7 +193,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int gameId = cursor.getInt(PlaysQuery.GAME_ID);
 			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
 			String thumbnailUrl = cursor.getString(PlaysQuery.THUMBNAIL_URL);
-			if (mCallbacks.onPlaySelected(playId, gameId, gameName, thumbnailUrl)) {
+			String imageUrl = cursor.getString(PlaysQuery.IMAGE_URL);
+			if (mCallbacks.onPlaySelected(playId, gameId, gameName, thumbnailUrl, imageUrl)) {
 				setSelectedPlayId(playId);
 			}
 		}
@@ -588,7 +589,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")",
-			Games.THUMBNAIL_URL };
+			Games.THUMBNAIL_URL, Games.IMAGE_URL };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
@@ -599,6 +600,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		int SYNC_STATUS = 8;
 		int PLAYER_COUNT = 9;
 		int THUMBNAIL_URL = 10;
+		int IMAGE_URL = 11;
 	}
 
 	private interface GameQuery {
@@ -673,7 +675,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				mode.finish();
 				Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPlaysPositions.iterator().next());
 				ActivityUtils.editPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
-					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME), null);
+					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME),
+					cursor.getString(PlaysQuery.THUMBNAIL_URL), cursor.getString(PlaysQuery.IMAGE_URL));
 				return true;
 			case R.id.menu_delete:
 				mode.finish();

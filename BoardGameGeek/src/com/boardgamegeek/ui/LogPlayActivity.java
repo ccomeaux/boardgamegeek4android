@@ -36,6 +36,7 @@ import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,7 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
+import com.squareup.picasso.Picasso;
 
 public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -78,6 +80,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_END_PLAY = "END_PLAY";
 	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
+	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
@@ -115,7 +118,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
 
-	private InputMethodManager mInputMethodManager;
 	private boolean mDataLoaded;
 	private boolean mPrefShowLocation;
 	private boolean mPrefShowLength;
@@ -134,6 +136,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mDeleteOnCancel;
 	private boolean mEndPlay;
 	private boolean mPlayAgain;
+	private String mThumbnailUrl;
+	private String mImageUrl;
 	private boolean mCustomPlayerSort;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
@@ -149,8 +153,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setContentView(R.layout.activity_logplay);
 		setUiVariables();
-		mPlayAdapter = new PlayAdapter();
-		mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		final Intent intent = getIntent();
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
@@ -158,13 +160,19 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);
 		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
 		mPlayAgain = intent.getBooleanExtra(KEY_PLAY_AGAIN, false);
+		mThumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
+		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
 		if (gameId <= 0) {
-			LOGW(TAG, "Can't log a play without a game ID.");
-			Toast.makeText(this, "Can't log a play without a game ID.", Toast.LENGTH_LONG).show();
+			String message = "Can't log a play without a game ID.";
+			LOGW(TAG, message);
+			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}
 		changeName(gameName);
+		if (!TextUtils.isEmpty(mImageUrl)) {
+			Picasso.with(this).load(mImageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
+		}
 
 		boolean requestLocationFocus = false;
 		if (savedInstanceState != null) {
@@ -578,7 +586,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			if (mPlay.length > 0) {
 				mLengthView.setSelection(0, mLengthView.getText().length());
 				mLengthView.requestFocus();
-				mInputMethodManager.showSoftInput(mLengthView, InputMethodManager.SHOW_IMPLICIT);
+				((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(mLengthView,
+					InputMethodManager.SHOW_IMPLICIT);
 			}
 		} else {
 			if (mPlay.length == 0) {
@@ -600,7 +609,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlay.start();
 		bindUiPlay();
 		saveDraft(false);
-		NotificationUtils.launchStartNotificationWithTicker(this, mPlay);
+		NotificationUtils.launchStartNotificationWithTicker(this, mPlay, mThumbnailUrl, mImageUrl);
 	}
 
 	public void onPlayerSort(View v) {
@@ -787,6 +796,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_ID, mPlay.gameId);
 		intent.putExtra(LogPlayerActivity.KEY_GAME_NAME, mPlay.gameName);
+		intent.putExtra(LogPlayerActivity.KEY_IMAGE_URL, mImageUrl);
 		intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
@@ -798,6 +808,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		View root = View.inflate(this, R.layout.header_logplay, null);
 		mPlayerList.addHeaderView(root);
+		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
 
 		mHeaderView = (TextView) root.findViewById(R.id.header);

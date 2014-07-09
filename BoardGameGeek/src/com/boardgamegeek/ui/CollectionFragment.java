@@ -706,7 +706,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.THUMBNAIL_URL };
+			Collection.COLLECTION_THUMBNAIL_URL, Collection.IMAGE_URL };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -716,6 +716,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int GAME_ID = 5;
 		int COLLECTION_THUMBNAIL_URL = 6;
 		int THUMBNAIL_URL = 7;
+		int IMAGE_URL = 8;
 	}
 
 	private interface ViewQuery {
@@ -771,10 +772,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.GAME_NAME);
+		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+		String imageUrl = cursor.getString(Query.IMAGE_URL);
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName);
+				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

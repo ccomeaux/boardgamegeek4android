@@ -54,6 +54,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
 	private String mThumbnailUrl;
+	private String mImageUrl;
 
 	private TextView mUpdated;
 	private TextView mPlayIdView;
@@ -134,6 +135,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
 
 		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+		mImageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
 	}
 
 	@Override
@@ -168,7 +170,8 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName);
+				ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
 			}
 		});
 
@@ -200,7 +203,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	public void onResume() {
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		}
 	}
 
@@ -245,7 +248,8 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				}
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl);
+				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -266,7 +270,8 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				return true;
 			}
 			case R.id.menu_play_again:
-				ActivityUtils.logPlayAgain(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName);
+				ActivityUtils.logPlayAgain(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -368,7 +373,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		mPlay.setPlayers(players);
 
 		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		}
 
 		mCallbacks.onNameChanged(mPlay.gameName);

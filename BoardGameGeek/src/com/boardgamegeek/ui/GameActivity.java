@@ -45,6 +45,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
+	private String mImageUrl;
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -147,7 +148,8 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				ActivityUtils.sendGameShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
-				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl);
+				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,
+					mImageUrl);
 				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
@@ -254,6 +256,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
+	public void onImageUrlChanged(String url) {
+		mImageUrl = url;
+	}
+
+	@Override
 	public DetachableResultReceiver getReceiver() {
 		return mSyncStatusUpdaterFragment.mReceiver;
 	}
@@ -348,8 +355,8 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		return false;
 	}
 

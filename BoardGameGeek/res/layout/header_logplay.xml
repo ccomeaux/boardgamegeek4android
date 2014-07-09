@@ -4,15 +4,28 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
 
-	<TextView
-		android:id="@+id/header"
-		style="@style/Text.Primary"
+	<FrameLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/background_dark"
-		android:gravity="center_horizontal"
-		android:padding="@dimen/padding_standard"
-		android:textColor="#fff" />
+		android:layout_height="@dimen/image_header_height"
+		android:layout_gravity="center"
+		android:background="@color/background_light" >
+
+		<ImageView
+			android:id="@+id/thumbnail"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:scaleType="centerCrop" />
+
+		<TextView
+			android:id="@+id/header"
+			style="@style/Text.Primary"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_gravity="center"
+			android:background="#6000"
+			android:gravity="center"
+			android:textColor="#fff" />
+	</FrameLayout>
 
 	<TableLayout
 		android:id="@+id/details"

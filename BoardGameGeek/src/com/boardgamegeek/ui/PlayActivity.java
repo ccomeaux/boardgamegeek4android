@@ -20,6 +20,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private BroadcastReceiver mReceiver;
 	private int mPlayId = BggContract.INVALID_ID;
 
@@ -70,8 +71,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
 		super.onStop();
 	}
-
-	// TODO - finish when a play is deleted
 
 	@Override
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {

@@ -37,10 +37,12 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
 public class LogPlayerActivity extends SherlockFragmentActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
@@ -106,6 +108,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
+		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			mUserShowScore = true;
@@ -132,6 +135,9 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
+		if (!TextUtils.isEmpty(imageUrl)) {
+			Picasso.with(this).load(imageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
+		}
 		bindUi();
 
 		mName.setAdapter(new PlayerNameAdapter(this));

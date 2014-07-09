@@ -46,8 +46,8 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		return false;
 	}
 

@@ -49,16 +49,19 @@ public class NotificationUtils {
 		nm.cancel(id);
 	}
 
-	public static void launchStartNotification(Context context, Play play) {
-		launchStartNotification(context, play, false);
+	public static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl) {
+		launchStartNotification(context, play, thumbnailUrl, imageUrl, false);
 	}
 
-	public static void launchStartNotificationWithTicker(Context context, Play play) {
-		launchStartNotification(context, play, true);
+	public static void launchStartNotificationWithTicker(Context context, Play play, String thumbnailUrl,
+		String imageUrl) {
+		launchStartNotification(context, play, thumbnailUrl, imageUrl, true);
 	}
 
-	private static void launchStartNotification(Context context, Play play, boolean includeTicker) {
-		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, null);
+	private static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl,
+		boolean includeTicker) {
+		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl,
+			imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
 			R.string.notification_playing);
