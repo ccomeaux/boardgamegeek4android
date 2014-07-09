@@ -126,6 +126,7 @@ public class PlayBuilder {
 		bundle.putLong(prefix + KEY_UPDATED, play.updated);
 		bundle.putInt(prefix + KEY_SYNC_STATUS, play.syncStatus);
 		bundle.putLong(prefix + KEY_SAVED, play.saved);
+		bundle.putLong(prefix + KEY_START_TIME, play.startTime);
 		bundle.putParcelableArrayList(prefix + KEY_PLAYERS, (ArrayList<? extends Parcelable>) play.getPlayers());
 	}
 

@@ -153,8 +153,7 @@
 		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
-			android:label="@string/title_play"
-			android:launchMode="singleTop" >
+			android:label="@string/title_play" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.PlaysActivity" />
@@ -162,8 +161,7 @@
 		<activity
 			android:name=".ui.PlayerActivity"
 			android:exported="false"
-			android:label="@string/title_player"
-			android:launchMode="singleTop" >
+			android:label="@string/title_player" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.BuddiesActivity" />

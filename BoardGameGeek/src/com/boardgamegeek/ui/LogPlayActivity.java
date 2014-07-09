@@ -78,6 +78,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_END_PLAY = "END_PLAY";
 	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -145,19 +146,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		final Intent intent = getIntent();
-		if (!Intent.ACTION_EDIT.equals(intent.getAction())) {
-			LOGW(TAG, "Received bad intent action: " + intent.getAction());
-			finish();
-		}
-
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setContentView(R.layout.activity_logplay);
-		mPlayAdapter = new PlayAdapter();
 		setUiVariables();
+		mPlayAdapter = new PlayAdapter();
 		mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
+		final Intent intent = getIntent();
 		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		String gameName = intent.getStringExtra(KEY_GAME_NAME);

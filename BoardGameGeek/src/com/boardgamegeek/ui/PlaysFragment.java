@@ -673,7 +673,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				mode.finish();
 				Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPlaysPositions.iterator().next());
 				ActivityUtils.editPlay(getActivity(), cursor.getInt(PlaysQuery.PLAY_ID),
-					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME));
+					cursor.getInt(PlaysQuery.GAME_ID), cursor.getString(PlaysQuery.GAME_NAME), null);
 				return true;
 			case R.id.menu_delete:
 				mode.finish();

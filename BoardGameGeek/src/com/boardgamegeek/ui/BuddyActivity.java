@@ -170,7 +170,7 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 
 	@Override
 	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
-		ActivityUtils.launchPlay(this, playId, gameId, gameName, thumbnailUrl);
+		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl);
 		return false;
 	}
 

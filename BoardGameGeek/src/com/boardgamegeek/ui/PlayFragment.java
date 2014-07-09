@@ -245,7 +245,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				}
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName);
+				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -267,6 +267,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			}
 			case R.id.menu_play_again:
 				ActivityUtils.logPlayAgain(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName);
+				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
