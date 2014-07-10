@@ -744,6 +744,9 @@ public class BggContract {
 		// TODO define table name in a better spot
 		public static final String DEFAULT_SORT = DATE + " DESC, plays." + PLAY_ID + " DESC";
 
+		/**
+		 * content://com.boardgamegeek/plays/#
+		 */
 		public static Uri buildPlayUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
 		}
@@ -788,6 +791,7 @@ public class BggContract {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
 				.build();
 		}
+
 		public static Uri buildPlayersByUniqueNameUri() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME)
 				.build();

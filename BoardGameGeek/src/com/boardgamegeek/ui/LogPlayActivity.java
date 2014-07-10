@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,9 +24,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +69,7 @@ import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 import com.squareup.picasso.Picasso;
 
-public class LogPlayActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class LogPlayActivity extends SherlockFragmentActivity {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 2;
@@ -92,9 +92,31 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 
+	private static final int TOKEN_PLAY = 1;
+	private static final int TOKEN_PLAYERS = 1 << 1;
+	private static final int TOKEN_ID = 1 << 2;
+	private static final int TOKEN_UNITIALIZED = 1 << 31;
+	private static final String[] PLAY_PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE,
+		Plays.LOCATION, Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS,
+		Plays.START_TIME };
+	private static final String[] PLAYER_PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME,
+		PlayPlayers.START_POSITION, PlayPlayers.COLOR, PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW,
+		PlayPlayers.WIN, };
+	private static final String[] ID_PROJECTION = { "MAX(plays." + Plays.PLAY_ID + ")" };
+
+	private int mPlayId;
+	private int mGameId;
+	private String mGameName;
+	private boolean mEndPlay;
+	private boolean mPlayAgain;
+	private String mThumbnailUrl;
+	private String mImageUrl;
+
+	private QueryHandler mHandler;
+	private int mOutstandingQueries = TOKEN_UNITIALIZED;
+
 	private Play mPlay;
 	private Play mOriginalPlay;
-	private boolean mLaunchingActivity;
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
@@ -118,7 +140,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
 
-	private boolean mDataLoaded;
 	private boolean mPrefShowLocation;
 	private boolean mPrefShowLength;
 	private boolean mPrefShowQuantity;
@@ -133,11 +154,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	private boolean mUserShowNoWinStats;
 	private boolean mUserShowComments;
 	private boolean mUserShowPlayers;
+
+	private boolean mLaunchingActivity;
 	private boolean mDeleteOnCancel;
-	private boolean mEndPlay;
-	private boolean mPlayAgain;
-	private String mThumbnailUrl;
-	private String mImageUrl;
+	private boolean mSaveOnPause = true;
 	private boolean mCustomPlayerSort;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
@@ -147,34 +167,147 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		}
 	};
 
+	@SuppressLint("HandlerLeak")
+	private class QueryHandler extends AsyncQueryHandler {
+		public QueryHandler(ContentResolver cr) {
+			super(cr);
+		}
+
+		@Override
+		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+			// If the query didn't return a cursor for some reason return
+			if (cursor == null) {
+				return;
+			}
+
+			// If the Activity is finishing, then close the cursor
+			if (isFinishing()) {
+				cursor.close();
+				return;
+			}
+
+			switch (token) {
+				case TOKEN_PLAY:
+					if (cursor.getCount() == 0) {
+						// The cursor is empty. This can happen if the play was deleted
+						cursor.close();
+						LogPlayActivity.this.finish();
+						return;
+					}
+
+					cursor.moveToFirst();
+					mPlay = PlayBuilder.fromCursor(cursor);
+					cursor.close();
+					if (mEndPlay) {
+						mPlay.end();
+					}
+					if ((mOutstandingQueries & TOKEN_PLAYERS) != 0) {
+						mHandler.startQuery(TOKEN_PLAYERS, null, Plays.buildPlayerUri(mPlayId), PLAYER_PROJECTION,
+							null, null, null);
+					}
+					setModelIfDone(token);
+					break;
+				case TOKEN_PLAYERS:
+					try {
+						mPlay.setPlayers(cursor);
+					} finally {
+						cursor.close();
+					}
+					setModelIfDone(token);
+					break;
+				case TOKEN_ID:
+					int id = Play.UNSYNCED_PLAY_ID;
+					try {
+						int lastId = 0;
+						if (cursor.getCount() == 1 && cursor.moveToFirst()) {
+							lastId = cursor.getInt(0);
+						}
+						if (lastId >= id) {
+							id = lastId + 1;
+						}
+					} finally {
+						cursor.close();
+					}
+					mPlayId = id;
+					setModelIfDone(token);
+					break;
+				default:
+					cursor.close();
+					break;
+			}
+		}
+	}
+
+	private void setModelIfDone(int queryType) {
+		synchronized (this) {
+			mOutstandingQueries &= ~queryType;
+			if (mOutstandingQueries == 0) {
+				if (mPlay == null) {
+					mPlay = new Play(mPlayId, mGameId, mGameName);
+					mPlay.setCurrentDate();
+
+					long lastPlay = PreferencesUtils.getLastPlayTime(this);
+					if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
+						mPlay.location = PreferencesUtils.getLastPlayLocation(this);
+						mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
+						mPlay.pickStartPlayer(0);
+					}
+				}
+				if (mPlayAgain) {
+					mPlay.playId = mPlayId;
+					mPlay = PlayBuilder.playAgain(mPlay);
+				}
+				mOriginalPlay = PlayBuilder.copy(mPlay);
+				finishDataLoad();
+			}
+		}
+	}
+
+	private void finishDataLoad() {
+		mOutstandingQueries = 0;
+		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
+		if (mEndPlay) {
+			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
+		}
+
+		bindUi();
+		findViewById(R.id.progress).setVisibility(View.GONE);
+		findViewById(R.id.form).setVisibility(View.VISIBLE);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setContentView(R.layout.activity_logplay);
 		setUiVariables();
+		mHandler = new QueryHandler(getContentResolver());
 
 		final Intent intent = getIntent();
-		int playId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
-		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		String gameName = intent.getStringExtra(KEY_GAME_NAME);
+		mPlayId = intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID);
+		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
 		mPlayAgain = intent.getBooleanExtra(KEY_PLAY_AGAIN, false);
 		mThumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
-		if (gameId <= 0) {
+		if (mGameId <= 0) {
 			String message = "Can't log a play without a game ID.";
 			LOGW(TAG, message);
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}
-		changeName(gameName);
+		if (TextUtils.isEmpty(mGameName)) {
+			mHeaderView.setText(getTitle());
+		} else {
+			mHeaderView.setText(getTitle() + " - " + mGameName);
+		}
+
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			Picasso.with(this).load(mImageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
 		}
 
-		boolean requestLocationFocus = false;
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
 			mOriginalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
@@ -187,50 +320,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			mUserShowPlayers = savedInstanceState.getBoolean(KEY_PLAYERS_SHOWN);
 			mDeleteOnCancel = savedInstanceState.getBoolean(KEY_DELETE_ON_CANCEL);
 			mCustomPlayerSort = savedInstanceState.getBoolean(KEY_CUSTOM_PLAYER_SORT);
-			mDataLoaded = true;
-		} else {
-			mPlay = new Play(playId, gameId, gameName);
-			if (playId > 0) {
-				// Editing an existing play
-				mDeleteOnCancel = false;
-				getSupportLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
-			} else {
-				// Starting a new play
-				mPlay.playId = BggContract.INVALID_ID;
-				mDeleteOnCancel = true;
-				mPlay.setCurrentDate();
-
-				long lastPlay = PreferencesUtils.getLastPlayTime(this);
-				if (DateTimeUtils.howManyHoursOld(lastPlay) < 3) {
-					mPlay.location = PreferencesUtils.getLastPlayLocation(this);
-					mPlay.setPlayers(PreferencesUtils.getLastPlayPlayers(this));
-					mPlay.pickStartPlayer(0);
-					bindUiPlay(); // needed for location to be saved in draft
-				}
-
-				saveDraft(false);
-				setResult(mPlay.playId);
-				mOriginalPlay = PlayBuilder.copy(mPlay);
-				mDataLoaded = true;
-
-				if (TextUtils.isEmpty(mPlay.location)) {
-					requestLocationFocus = true;
-				}
-			}
 		}
-
-		bindUi();
-		if (requestLocationFocus && mLocationView.getVisibility() == View.VISIBLE) {
-			mLocationView.requestFocus();
-		}
+		startQuery();
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
 	}
 
 	@Override
@@ -250,8 +343,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		PlayBuilder.toBundle(mPlay, outState, "P");
-		PlayBuilder.toBundle(mOriginalPlay, outState, "O");
+		if (mOutstandingQueries == 0) {
+			captureForm();
+			PlayBuilder.toBundle(mPlay, outState, "P");
+			PlayBuilder.toBundle(mOriginalPlay, outState, "O");
+		}
 		outState.putBoolean(KEY_QUANTITY_SHOWN, mUserShowQuantity);
 		outState.putBoolean(KEY_LENGTH_SHOWN, mUserShowLength);
 		outState.putBoolean(KEY_LOCATION_SHOWN, mUserShowLocation);
@@ -266,7 +362,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (!isFinishing() && !mLaunchingActivity) {
+		if (mSaveOnPause && !mLaunchingActivity) {
 			saveDraft(false);
 		}
 	}
@@ -274,17 +370,200 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	@Override
 	public void onBackPressed() {
 		saveDraft(true);
+		setResult(Activity.RESULT_OK);
 		finish();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (resultCode == RESULT_OK) {
+			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
+			if (requestCode == REQUEST_ADD_PLAYER) {
+				mPlay.addPlayer(player);
+				// prompt for another player
+				Intent intent = new Intent();
+				editPlayer(intent, REQUEST_ADD_PLAYER);
+			} else {
+				mPlay.replacePlayer(player, requestCode);
+			}
+			bindUiPlayers();
+		}
+	}
+
+	private void setUiVariables() {
+		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
+		View root = View.inflate(this, R.layout.header_logplay, null);
+		mPlayerList.addHeaderView(root);
+		mPlayAdapter = new PlayAdapter();
+		mPlayerList.setAdapter(mPlayAdapter);
+
+		mHeaderView = (TextView) root.findViewById(R.id.header);
+		mDateButton = (Button) root.findViewById(R.id.log_play_date);
+		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
+		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
+		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
+		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
+		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
+		mTimer = (Chronometer) root.findViewById(R.id.timer);
+		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
+		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
+		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
+		mAddFieldButton = (Button) findViewById(R.id.add_field);
+
+		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				int offsetPosition = position - 1; // offset by the list header
+				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
+				Intent intent = new Intent();
+				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
+				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
+				if (!mCustomPlayerSort) {
+					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
+				}
+				editPlayer(intent, offsetPosition);
+			}
+		});
+
+		mPlayerList.setItemsCanFocus(true);
+	}
+
+	private void bindUi() {
+		setDateButtonText();
+		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
+		bindLength();
+		mLocationView.setTextKeepState(mPlay.location);
+		mIncompleteView.setChecked(mPlay.Incomplete());
+		mNoWinStatsView.setChecked(mPlay.NoWinStats());
+		mCommentsView.setTextKeepState(mPlay.comments);
+		bindUiPlayers();
+	}
+
+	private void bindLength() {
+		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
+		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
+	}
+
+	private void bindUiPlayers() {
+		// calculate player count
+		Resources r = getResources();
+		int playerCount = mPlay.getPlayerCount();
+		if (playerCount <= 0) {
+			mPlayerLabel.setText(r.getString(R.string.title_players));
+		} else {
+			mPlayerLabel.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
+		}
+
+		mPlayerList.setDragEnabled(!mCustomPlayerSort);
+		mPlayAdapter.notifyDataSetChanged();
+		setViewVisibility();
+	}
+
+	private void setViewVisibility() {
+		boolean enabled = false;
+		if (mPlay == null) {
+			// all fields should be hidden, so it shouldn't matter
+			return;
+		}
+
+		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		if (mPlay.hasStarted()) {
+			mLengthView.setVisibility(View.GONE);
+			mTimer.setVisibility(View.VISIBLE);
+		} else {
+			mLengthView.setVisibility(View.VISIBLE);
+			mTimer.setVisibility(View.GONE);
+		}
+
+		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
+		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
+		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
+		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
+		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
+		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
+		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
+
+		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
+		mAddFieldButton.setEnabled(enabled);
+	}
+
+	private boolean hideRow(boolean shouldHide, View view) {
+		if (shouldHide) {
+			view.setVisibility(View.GONE);
+			return true;
+		}
+		view.setVisibility(View.VISIBLE);
+		return false;
+	}
+
+	private boolean shouldHideLocation() {
+		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
+	}
+
+	private boolean shouldHideLength() {
+		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
+	}
+
+	private boolean shouldHideQuantity() {
+		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
+	}
+
+	private boolean shouldHideIncomplete() {
+		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
+	}
+
+	private boolean shouldHideNoWinStats() {
+		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
+	}
+
+	private boolean shouldHideComments() {
+		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
+	}
+
+	private boolean shouldHidePlayers() {
+		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
+	}
+
+	private void startQuery() {
+		if (mPlay != null) {
+			// we already have the play from the saved instance
+			finishDataLoad();
+		} else {
+			if (mPlayId > 0) {
+				// Editing or copying an existing play, so retrieve it
+				mDeleteOnCancel = false;
+				mOutstandingQueries = TOKEN_PLAY | TOKEN_PLAYERS;
+				if (mPlayAgain) {
+					mDeleteOnCancel = true;
+					mOutstandingQueries |= TOKEN_ID;
+					mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
+				}
+				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PLAY_PROJECTION, null, null, null);
+			} else {
+				// Starting a new play
+				mDeleteOnCancel = true;
+				mOutstandingQueries = TOKEN_ID;
+				mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
+			}
+		}
 	}
 
 	private boolean onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
-				if (mPlay.hasStarted()) {
-					saveDraft(true);
-					finish();
+				if (mPlay == null) {
+					cancel();
 				} else {
-					logPlay();
+					if (mPlay.hasStarted()) {
+						saveDraft(true);
+						setResult(Activity.RESULT_OK);
+						finish();
+					} else {
+						logPlay();
+					}
 				}
 				return true;
 			case R.id.menu_cancel:
@@ -295,54 +574,61 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void logPlay() {
-		save(Play.SYNC_STATUS_PENDING_UPDATE);
-		if (!mPlay.hasBeenSynced()) {
-			PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
-			PreferencesUtils.putLastPlayLocation(this, mPlay.location);
-			PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
+		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
+			if (!mPlay.hasBeenSynced()) {
+				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
+				PreferencesUtils.putLastPlayLocation(this, mPlay.location);
+				PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
+			}
+			NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
+			triggerUpload();
+			Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 		}
-		NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-		triggerUpload();
-		Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
+		setResult(Activity.RESULT_OK);
 		finish();
 	}
 
-	private void triggerUpload() {
-		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-	}
-
 	private void saveDraft(boolean showToast) {
-		save(Play.SYNC_STATUS_IN_PROGRESS);
-		if (showToast) {
-			Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
+		if (save(Play.SYNC_STATUS_IN_PROGRESS)) {
+			if (showToast) {
+				Toast.makeText(this, R.string.msg_saving_draft, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
-	private void save(int syncStatus) {
+	private boolean save(int syncStatus) {
+		if (mPlay == null) {
+			return false;
+		}
+		mSaveOnPause = false;
 		if (syncStatus != Play.SYNC_STATUS_PENDING_DELETE) {
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
 		PlayPersister.save(this, mPlay);
+		return true;
 	}
 
 	private void cancel() {
+		mSaveOnPause = false;
 		captureForm();
-		if (mPlay.equals(mOriginalPlay)) {
+		if (mPlay == null || mPlay.equals(mOriginalPlay)) {
 			if (mDeleteOnCancel) {
-				save(Play.SYNC_STATUS_PENDING_DELETE);
-				setResult(RESULT_OK);
+				if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
+					triggerUpload();
+				}
 			}
-			triggerUpload();
+			setResult(RESULT_CANCELED);
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
 				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							save(Play.SYNC_STATUS_PENDING_DELETE);
-							setResult(RESULT_OK);
-							triggerUpload();
+							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
+								triggerUpload();
+							}
+							setResult(RESULT_CANCELED);
 							finish();
 						}
 					}).show();
@@ -350,6 +636,10 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				ActivityUtils.createCancelDialog(this).show();
 			}
 		}
+	}
+
+	private void triggerUpload() {
+		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
 	public void addField(View v) {
@@ -413,38 +703,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 			}).show();
 	}
 
-	public void addPlayer(View v) {
-		if (PreferencesUtils.editPlayer(this)) {
-			if (mPlay.getPlayerCount() == 0) {
-				if (!showPlayersToAddDialog()) {
-					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-				}
-			} else {
-				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-			}
-		} else {
-			Player player = new Player();
-			if (!mCustomPlayerSort) {
-				player.setSeat(mPlay.getPlayerCount() + 1);
-			}
-			mPlay.addPlayer(player);
-			bindUiPlayers();
-			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
-		}
-	}
-
-	private void notifyStartPlayer() {
-		Player p = mPlay.getPlayerAtSeat(1);
-		if (p != null) {
-			String name = p.getDescsription();
-			if (TextUtils.isEmpty(name)) {
-				name = String.format(getResources().getString(R.string.generic_player), 1);
-			}
-			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
-				Toast.LENGTH_SHORT).show();
-		}
-	}
-
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<CharSequence>();
@@ -475,12 +733,24 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		return array;
 	}
 
-	public void onDateClick(View v) {
-		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
-		Bundle bundle = new Bundle();
-		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
-		fragment.setArguments(bundle);
-		fragment.show(getSupportFragmentManager(), "datePicker");
+	public void addPlayer(View v) {
+		if (PreferencesUtils.editPlayer(this)) {
+			if (mPlay.getPlayerCount() == 0) {
+				if (!showPlayersToAddDialog()) {
+					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+				}
+			} else {
+				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+			}
+		} else {
+			Player player = new Player();
+			if (!mCustomPlayerSort) {
+				player.setSeat(mPlay.getPlayerCount() + 1);
+			}
+			mPlay.addPlayer(player);
+			bindUiPlayers();
+			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
+		}
 	}
 
 	private boolean showPlayersToAddDialog() {
@@ -491,7 +761,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 				.setNegativeButton(android.R.string.cancel, null);
 		}
 
-		captureForm();
+		captureForm(); // to get location
 
 		mPlayersToAdd.clear();
 		mUsernames.clear();
@@ -559,30 +829,35 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		};
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	public void onDateClick(View v) {
+		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
+		Bundle bundle = new Bundle();
+		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
+		fragment.setArguments(bundle);
+		fragment.show(getSupportFragmentManager(), "datePicker");
+	}
 
-		if (resultCode == RESULT_OK) {
-			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
-			if (requestCode == REQUEST_ADD_PLAYER) {
-				mPlay.addPlayer(player);
-				// prompt for another player
-				Intent intent = new Intent();
-				editPlayer(intent, REQUEST_ADD_PLAYER);
-			} else {
-				mPlay.replacePlayer(player, requestCode);
+	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+			if (mPlay != null) {
+				mPlay.setDate(year, monthOfYear, dayOfMonth);
+				setDateButtonText();
 			}
-			bindUiPlayers();
 		}
+	};
+
+	private void setDateButtonText() {
+		mDateButton.setText(mPlay.getDateForDisplay(this));
 	}
 
 	public void onTimer(View v) {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
 			mPlay.end();
+			bindLength();
+			setViewVisibility();
 			NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-			bindUiPlay();
 			if (mPlay.length > 0) {
 				mLengthView.setSelection(0, mLengthView.getText().length());
 				mLengthView.requestFocus();
@@ -605,10 +880,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 	}
 
 	private void startTimer() {
-		captureForm();
 		mPlay.start();
-		bindUiPlay();
-		saveDraft(false);
+		bindLength();
+		setViewVisibility();
 		NotificationUtils.launchStartNotificationWithTicker(this, mPlay, mThumbnailUrl, mImageUrl);
 	}
 
@@ -744,6 +1018,18 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		return array;
 	}
 
+	private void notifyStartPlayer() {
+		Player p = mPlay.getPlayerAtSeat(1);
+		if (p != null) {
+			String name = p.getDescsription();
+			if (TextUtils.isEmpty(name)) {
+				name = String.format(getResources().getString(R.string.generic_player), 1);
+			}
+			Toast.makeText(this, String.format(getResources().getString(R.string.notification_start_player), name),
+				Toast.LENGTH_SHORT).show();
+		}
+	}
+
 	public void onClearPlayers(View v) {
 		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
@@ -753,42 +1039,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 					bindUiPlayers();
 				}
 			}).show();
-	}
-
-	private void bindUi() {
-		bindUiPlay();
-		bindUiPlayers();
-	}
-
-	private void bindUiPlay() {
-		changeName(mPlay.gameName);
-		setDateButtonText();
-		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
-		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
-		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
-		mLocationView.setTextKeepState(mPlay.location);
-		mIncompleteView.setChecked(mPlay.Incomplete());
-		mNoWinStatsView.setChecked(mPlay.NoWinStats());
-		mCommentsView.setTextKeepState(mPlay.comments);
-		setViewVisibility();
-		supportInvalidateOptionsMenu();
-	}
-
-	private void bindUiPlayers() {
-		calculatePlayerCount();
-		setViewVisibility();
-		mPlayerList.setDragEnabled(!mCustomPlayerSort);
-		mPlayAdapter.notifyDataSetChanged();
-	}
-
-	private void calculatePlayerCount() {
-		Resources r = getResources();
-		int playerCount = mPlay.getPlayerCount();
-		if (playerCount <= 0) {
-			mPlayerLabel.setText(r.getString(R.string.title_players));
-		} else {
-			mPlayerLabel.setText(r.getString(R.string.title_players) + " - " + String.valueOf(playerCount));
-		}
 	}
 
 	private void editPlayer(Intent intent, int requestCode) {
@@ -804,122 +1054,13 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void setUiVariables() {
-		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
-		View root = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(root);
-		mPlayAdapter = new PlayAdapter();
-		mPlayerList.setAdapter(mPlayAdapter);
-
-		mHeaderView = (TextView) root.findViewById(R.id.header);
-		mDateButton = (Button) root.findViewById(R.id.log_play_date);
-		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
-		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) root.findViewById(R.id.timer);
-		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
-		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
-		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
-		mAddFieldButton = (Button) findViewById(R.id.add_field);
-
-		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				int offsetPosition = position - 1; // offset by the list header
-				Player player = (Player) mPlayAdapter.getItem(offsetPosition);
-				Intent intent = new Intent();
-				intent.putExtra(LogPlayerActivity.KEY_PLAYER, player);
-				intent.putExtra(LogPlayerActivity.KEY_END_PLAY, mEndPlay);
-				if (!mCustomPlayerSort) {
-					intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, player.getSeat());
-				}
-				editPlayer(intent, offsetPosition);
-			}
-		});
-
-		mPlayerList.setItemsCanFocus(true);
-	}
-
-	private void setViewVisibility() {
-		boolean enabled = false;
-		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
-		if (mPlay.hasStarted()) {
-			mLengthView.setVisibility(View.GONE);
-			mTimer.setVisibility(View.VISIBLE);
-		} else {
-			mLengthView.setVisibility(View.VISIBLE);
-			mTimer.setVisibility(View.GONE);
-		}
-
-		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
-		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
-		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
-		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
-		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
-		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
-		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
-
-		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
-		mAddFieldButton.setEnabled(enabled);
-	}
-
-	private boolean hideRow(boolean shouldHide, View view) {
-		if (shouldHide) {
-			view.setVisibility(View.GONE);
-			return true;
-		}
-		view.setVisibility(View.VISIBLE);
-		return false;
-	}
-
-	private boolean shouldHideLocation() {
-		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
-	}
-
-	private boolean shouldHideLength() {
-		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
-	}
-
-	private boolean shouldHideQuantity() {
-		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
-	}
-
-	private boolean shouldHideIncomplete() {
-		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
-	}
-
-	private boolean shouldHideNoWinStats() {
-		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
-	}
-
-	private boolean shouldHideComments() {
-		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
-	}
-
-	private boolean shouldHidePlayers() {
-		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
-	}
-
-	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-
-		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-			if (mPlay != null) {
-				mPlay.setDate(year, monthOfYear, dayOfMonth);
-				setDateButtonText();
-			}
-		}
-	};
-
-	private void setDateButtonText() {
-		mDateButton.setText(mPlay.getDateForDisplay(this));
-	}
-
 	/**
 	 * Captures the data in the form in the mPlay object
 	 */
 	private void captureForm() {
+		if (mPlay == null) {
+			return;
+		}
 		// date info already captured
 		mPlay.quantity = StringUtils.parseInt(mQuantityView.getText().toString().trim(), 1);
 		mPlay.length = StringUtils.parseInt(mLengthView.getText().toString().trim());
@@ -928,95 +1069,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements LoaderM
 		mPlay.setNoWinStats(mNoWinStatsView.isChecked());
 		mPlay.comments = mCommentsView.getText().toString().trim();
 		// player info already captured
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = null;
-		switch (id) {
-			case PlayQuery._TOKEN:
-				loader = new CursorLoader(this, mPlay.uri(), PlayQuery.PROJECTION, null, null, null);
-				break;
-			case PlayerQuery._TOKEN:
-				loader = new CursorLoader(this, mPlay.playerUri(), PlayerQuery.PROJECTION, null, null, null);
-				break;
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-		switch (loader.getId()) {
-			case PlayQuery._TOKEN:
-				if (cursor == null || !cursor.moveToFirst()) {
-					return;
-				}
-
-				mPlay = PlayBuilder.fromCursor(cursor);
-				if (mEndPlay) {
-					mPlay.end();
-					NotificationUtils.cancel(this, NotificationUtils.ID_PLAY_TIMER);
-				}
-				bindUiPlay();
-				getSupportLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
-				getSupportLoaderManager().destroyLoader(PlayQuery._TOKEN);
-				break;
-			case PlayerQuery._TOKEN:
-				mPlay.setPlayers(cursor);
-				bindUiPlayers();
-				getSupportLoaderManager().destroyLoader(PlayerQuery._TOKEN);
-				onQueriesComplete();
-				break;
-			default:
-				if (cursor != null && !cursor.isClosed()) {
-					cursor.close();
-				}
-				break;
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-	}
-
-	private void onQueriesComplete() {
-		mOriginalPlay = PlayBuilder.copy(mPlay);
-		maybeCreateCopy();
-		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
-		mDataLoaded = true;
-	}
-
-	private void maybeCreateCopy() {
-		if (mPlayAgain) {
-			mPlayAgain = false;
-			mPlay = PlayBuilder.playAgain(mPlay);
-			mOriginalPlay = PlayBuilder.copy(mPlay);
-			bindUi();
-			saveDraft(false);
-			setResult(mPlay.playId);
-			mDeleteOnCancel = true;
-		}
-	}
-
-	private void changeName(String gameName) {
-		if (TextUtils.isEmpty(gameName)) {
-			mHeaderView.setText(getTitle());
-		} else {
-			mHeaderView.setText(getTitle() + " - " + gameName);
-		}
-	}
-
-	private interface PlayQuery {
-		int _TOKEN = 0x01;
-		String[] PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE, Plays.LOCATION,
-			Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS, Plays.START_TIME };
-	}
-
-	private interface PlayerQuery {
-		int _TOKEN = 0x02;
-		String[] PROJECTION = { PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.START_POSITION, PlayPlayers.COLOR,
-			PlayPlayers.SCORE, PlayPlayers.RATING, PlayPlayers.NEW, PlayPlayers.WIN, };
 	}
 
 	@SuppressLint("ValidFragment")

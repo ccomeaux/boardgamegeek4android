@@ -67,6 +67,9 @@ public class PlayBuilder {
 		return play;
 	}
 
+	/**
+	 * Copy the semantic play information to a new play. Does not include data related to syncing.
+	 */
 	public static Play copy(Play play) {
 		Play copy = new Play(play.playId, play.gameId, play.gameName);
 		copy.setDate(play.getDate());
@@ -76,9 +79,6 @@ public class PlayBuilder {
 		copy.setIncomplete(play.Incomplete());
 		copy.setNoWinStats(play.NoWinStats());
 		copy.comments = play.comments;
-		copy.updated = play.updated;
-		copy.syncStatus = play.syncStatus;
-		copy.saved = play.saved;
 		copy.startTime = play.startTime;
 		for (Player player : play.getPlayers()) {
 			copy.addPlayer(new Player(player));
