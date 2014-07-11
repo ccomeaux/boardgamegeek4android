@@ -4,7 +4,6 @@ import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +11,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.content.AsyncQueryHandler;
@@ -23,7 +21,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +54,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
@@ -69,7 +68,7 @@ import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 import com.squareup.picasso.Picasso;
 
-public class LogPlayActivity extends SherlockFragmentActivity {
+public class LogPlayActivity extends SherlockFragmentActivity implements OnDateSetListener {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
 
 	private static final int HELP_VERSION = 2;
@@ -91,7 +90,7 @@ public class LogPlayActivity extends SherlockFragmentActivity {
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
 	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
-
+	private static final String DATE_PICKER_DIALOG_TAG = "DATE_PICKER_DIALOG";
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
@@ -126,6 +125,7 @@ public class LogPlayActivity extends SherlockFragmentActivity {
 
 	private TextView mHeaderView;
 	private Button mDateButton;
+	private DatePickerDialogFragment mDatePickerFragment;
 	private EditText mQuantityView;
 	private EditText mLengthView;
 	private AutoCompleteTextView mLocationView;
@@ -401,6 +401,11 @@ public class LogPlayActivity extends SherlockFragmentActivity {
 
 		mHeaderView = (TextView) root.findViewById(R.id.header);
 		mDateButton = (Button) root.findViewById(R.id.log_play_date);
+		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(
+			DATE_PICKER_DIALOG_TAG);
+		if (mDatePickerFragment != null) {
+			mDatePickerFragment.setOnDateSetListener(this);
+		}
 		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
 		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
 		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
@@ -830,22 +835,23 @@ public class LogPlayActivity extends SherlockFragmentActivity {
 	}
 
 	public void onDateClick(View v) {
-		DialogFragment fragment = new DatePickerFragment(mDateSetListener);
-		Bundle bundle = new Bundle();
-		bundle.putLong(DatePickerFragment.KEY_DATE, mPlay.getDateInMillis());
-		fragment.setArguments(bundle);
-		fragment.show(getSupportFragmentManager(), "datePicker");
+		if (mDatePickerFragment == null) {
+			mDatePickerFragment = new DatePickerDialogFragment();
+			mDatePickerFragment.setOnDateSetListener(this);
+		}
+		final FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager.executePendingTransactions();
+		mDatePickerFragment.setCurrentDateInMillis(mPlay.getDateInMillis());
+		mDatePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 	}
 
-	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-
-		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-			if (mPlay != null) {
-				mPlay.setDate(year, monthOfYear, dayOfMonth);
-				setDateButtonText();
-			}
+	@Override
+	public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+		if (mPlay != null) {
+			mPlay.setDate(year, monthOfYear, dayOfMonth);
+			setDateButtonText();
 		}
-	};
+	}
 
 	private void setDateButtonText() {
 		mDateButton.setText(mPlay.getDateForDisplay(this));
@@ -1069,26 +1075,6 @@ public class LogPlayActivity extends SherlockFragmentActivity {
 		mPlay.setNoWinStats(mNoWinStatsView.isChecked());
 		mPlay.comments = mCommentsView.getText().toString().trim();
 		// player info already captured
-	}
-
-	@SuppressLint("ValidFragment")
-	private static class DatePickerFragment extends DialogFragment {
-		public static final String KEY_DATE = "YEAR";
-
-		private OnDateSetListener mListener;
-
-		public DatePickerFragment(DatePickerDialog.OnDateSetListener listener) {
-			mListener = listener;
-		}
-
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			Bundle b = getArguments();
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(b.getLong(KEY_DATE));
-			return new DatePickerDialog(getActivity(), mListener, c.get(Calendar.YEAR), c.get(Calendar.MONTH),
-				c.get(Calendar.DAY_OF_MONTH));
-		}
 	}
 
 	private class PlayAdapter extends BaseAdapter implements DropListener {
