@@ -647,7 +647,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			ViewHolder holder = (ViewHolder) view.getTag();
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
-			int year = cursor.getInt(Query.YEAR_PUBLISHED);
+			int year = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED);
+			if (year == 0) {
+				year = cursor.getInt(Query.YEAR_PUBLISHED);
+			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
@@ -706,7 +709,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.COLLECTION_THUMBNAIL_URL, Collection.IMAGE_URL };
+			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -717,6 +720,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int COLLECTION_THUMBNAIL_URL = 6;
 		int THUMBNAIL_URL = 7;
 		int IMAGE_URL = 8;
+		int COLLECTION_YEAR_PUBLISHED = 9;
 	}
 
 	private interface ViewQuery {
