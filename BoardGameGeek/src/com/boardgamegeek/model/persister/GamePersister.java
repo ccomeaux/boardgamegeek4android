@@ -67,7 +67,7 @@ public class GamePersister {
 				} else {
 					cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 				}
-				mBatch.add(cpo.withValues(values).withYieldAllowed(true).build());
+				mBatch.add(cpo.withValues(values).build());
 				mBatch.addAll(ranks(game));
 				if (PreferencesUtils.getPolls(mContext)) {
 					mBatch.addAll(polls(game));
@@ -78,6 +78,9 @@ public class GamePersister {
 				mBatch.addAll(new CategoryPersister().save(game.id, mResolver, game.getCategories()));
 				mBatch.addAll(new MechanicPersister().save(game.id, mResolver, game.getMechanics()));
 				mBatch.addAll(new ExpansionPersister().save(game.id, mResolver, game.getExpansions()));
+				// make sure the last operation has a yield allowed
+				mBatch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
+					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);

@@ -163,7 +163,7 @@ public class CollectionPersister {
 		} else {
 			cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 		}
-		batch.add(cpo.withValues(values).withYieldAllowed(true).build());
+		batch.add(cpo.withValues(values).build());
 	}
 
 	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
@@ -177,7 +177,7 @@ public class CollectionPersister {
 		} else {
 			cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
 		}
-		batch.add(cpo.withValues(values).build());
+		batch.add(cpo.withValues(values).withYieldAllowed(true).build());
 	}
 
 	private void maybeDeleteThumbnail(ContentResolver resolver, ContentValues values, Uri uri,
