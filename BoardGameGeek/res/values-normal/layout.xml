@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-	<item name="row_forumthread" type="layout">@layout/row_forumthread_wide</item>
-
-</resources>

@@ -6,7 +6,7 @@
 	android:versionName="develop" >
 
 	<uses-sdk
-		android:minSdkVersion="8"
+		android:minSdkVersion="9"
 		android:targetSdkVersion="20" />
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
