@@ -169,8 +169,10 @@ public class CollectionPersister {
 	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
 		Builder cpo = null;
-		Uri uri = Collection.buildItemUri(values.getAsInteger(Collection.COLLECTION_ID));
-		if (ResolverUtils.rowExists(resolver, uri)) {
+		int id = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID, BggContract.INVALID_ID,
+			Collection.COLLECTION_ID + "=?", new String[] { values.getAsString(Collection.COLLECTION_ID) });
+		if (id != BggContract.INVALID_ID) {
+			Uri uri = Collection.buildItemUri(id);
 			values.remove(Collection.COLLECTION_ID);
 			cpo = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(resolver, values, uri, batch);

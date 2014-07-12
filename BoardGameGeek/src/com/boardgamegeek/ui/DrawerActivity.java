@@ -22,8 +22,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Plays;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
@@ -102,13 +100,13 @@ public abstract class DrawerActivity extends BaseActivity {
 			Intent intent = null;
 			switch (titleResId) {
 				case R.string.title_collection:
-					intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+					intent = new Intent(this, CollectionActivity.class);
 					break;
 				case R.string.title_hotness:
 					intent = new Intent(this, HotnessActivity.class);
 					break;
 				case R.string.title_plays:
-					intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
+					intent = new Intent(this, PlaysActivity.class);
 					break;
 				case R.string.title_buddies:
 					intent = new Intent(this, BuddiesActivity.class);

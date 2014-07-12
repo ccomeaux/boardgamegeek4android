@@ -5,9 +5,6 @@ import android.os.Bundle;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -51,11 +48,11 @@ public class HomeActivity extends TopLevelActivity {
 		Intent intent = null;
 		String[] statuses = PreferencesUtils.getSyncStatuses(this);
 		if (statuses != null && statuses.length > 0) {
-			intent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+			intent = new Intent(this, CollectionActivity.class);
 		} else if (PreferencesUtils.getSyncPlays(this)) {
-			intent = new Intent(Intent.ACTION_VIEW, Plays.CONTENT_URI);
+			intent = new Intent(this, PlaysActivity.class);
 		} else if (PreferencesUtils.getSyncBuddies(this)) {
-			intent = new Intent(Intent.ACTION_VIEW, Buddies.CONTENT_URI);
+			intent = new Intent(this, BuddiesActivity.class);
 		}
 		if (intent != null) {
 			startActivity(intent);

@@ -10,8 +10,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.Game.Poll;
 import com.boardgamegeek.model.Game.Rank;
@@ -34,6 +36,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
@@ -56,6 +59,8 @@ public class GamePersister {
 	}
 
 	public int save(List<Game> games) {
+		boolean debug = PreferencesUtils.getDebug(mContext);
+		int length = 0;
 		mBatch = new ArrayList<ContentProviderOperation>();
 		if (games != null) {
 			for (Game game : games) {
@@ -82,12 +87,29 @@ public class GamePersister {
 				mBatch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
 					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
 			}
+			if (debug) {
+				try {
+					ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
+					length += (result == null ? 0 : result.length);
+				} catch (Exception e) {
+					NotificationCompat.Builder builder = NotificationUtils
+						.createNotificationBuilder(mContext, R.string.sync_notification_title)
+						.setContentText(e.getMessage())
+						.setStyle(
+							new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getMessage()));
+					NotificationUtils.notify(mContext, NotificationUtils.ID_PERSIST_ERROR, builder);
+				}
+			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
-		if (result == null) {
-			return 0;
+		if (debug) {
+			return length;
 		} else {
-			return result.length;
+			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
+			if (result == null) {
+				return 0;
+			} else {
+				return result.length;
+			}
 		}
 	}
 
