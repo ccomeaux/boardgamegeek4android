@@ -15,6 +15,7 @@ import org.simpleframework.xml.Text;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Game.Rank;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
@@ -83,8 +84,12 @@ public class CollectionItem {
 	@Attribute
 	private String subtype;
 
-	@Attribute(name = "collid", empty = "-1")
-	public int collectionId;
+	@Attribute
+	private String collid;
+
+	public int collectionId() {
+		return StringUtils.parseInt(collid, BggContract.INVALID_ID);
+	}
 
 	@Path("name")
 	@Text
@@ -186,7 +191,11 @@ public class CollectionItem {
 
 	@Path("privateinfo")
 	@Attribute(required = false)
-	public int quantity;
+	private String quantity;
+	
+	public int getQuantity(){
+		return StringUtils.parseInt(quantity, 1);
+	}
 
 	@Path("privateinfo")
 	@Attribute(name = "acquisitiondate", required = false)

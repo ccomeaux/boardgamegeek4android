@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.CollectionItem;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
@@ -30,10 +31,12 @@ public class CollectionPersister {
 	private boolean mBrief;
 	private boolean mIncludePrivateInfo;
 	private boolean mIncludeStats;
+	private List<Integer> mGameIds;
 
 	public CollectionPersister(Context context) {
 		mContext = context;
 		mUpdateTime = System.currentTimeMillis();
+		mGameIds = new ArrayList<Integer>();
 	}
 
 	public long getTimeStamp() {
@@ -65,22 +68,19 @@ public class CollectionPersister {
 		if (items != null) {
 			ContentResolver resolver = mContext.getContentResolver();
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+			mGameIds.clear();
 			for (CollectionItem item : items) {
-				if (item.collectionId == -1) {
+				if (item.collectionId() == BggContract.INVALID_ID) {
 					LOGI(TAG, "No collection ID for game ID=" + item.gameId + " - must be a played-only game");
 					continue;
 				}
 				insertOrUpdateGame(resolver, toGameValues(item), batch);
 				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
-				LOGI(TAG, "Batch game ID=" + item.gameId + "; collection ID=" + item.collectionId);
+				LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 			LOGI(TAG, "Saved " + items.size() + " games");
-			if (result == null) {
-				return 0;
-			} else {
-				return result.length;
-			}
+			return result.length;
 		}
 		return 0;
 	}
@@ -114,7 +114,7 @@ public class CollectionPersister {
 		}
 		values.put(Collection.UPDATED_LIST, mUpdateTime);
 		values.put(Collection.GAME_ID, item.gameId);
-		values.put(Collection.COLLECTION_ID, item.collectionId);
+		values.put(Collection.COLLECTION_ID, item.collectionId());
 		values.put(Collection.COLLECTION_NAME, item.collectionName());
 		values.put(Collection.COLLECTION_SORT_NAME, item.collectionSortName());
 		values.put(Collection.STATUS_OWN, item.own);
@@ -142,7 +142,7 @@ public class CollectionPersister {
 			values.put(Collection.PRIVATE_INFO_PRICE_PAID, item.pricePaid());
 			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, item.currentValueCurrency);
 			values.put(Collection.PRIVATE_INFO_CURRENT_VALUE, item.currentValue());
-			values.put(Collection.PRIVATE_INFO_QUANTITY, item.quantity);
+			values.put(Collection.PRIVATE_INFO_QUANTITY, item.getQuantity());
 			values.put(Collection.PRIVATE_INFO_ACQUISITION_DATE, item.acquisitionDate);
 			values.put(Collection.PRIVATE_INFO_ACQUIRED_FROM, item.acquiredFrom);
 			values.put(Collection.PRIVATE_INFO_COMMENT, item.privatecomment);
@@ -153,17 +153,23 @@ public class CollectionPersister {
 		return values;
 	}
 
-	private static void insertOrUpdateGame(ContentResolver resolver, ContentValues values,
+	private void insertOrUpdateGame(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
-		Builder cpo = null;
-		Uri uri = Games.buildGameUri(values.getAsInteger(Games.GAME_ID));
-		if (ResolverUtils.rowExists(resolver, uri)) {
-			values.remove(Games.GAME_ID);
-			cpo = ContentProviderOperation.newUpdate(uri);
+		int gameId = values.getAsInteger(Games.GAME_ID);
+		if (mGameIds.contains(gameId)) {
+			LOGI(TAG, "Already inserted/updated game ID=" + gameId);
 		} else {
-			cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
+			Builder cpo = null;
+			Uri uri = Games.buildGameUri(gameId);
+			if (ResolverUtils.rowExists(resolver, uri)) {
+				values.remove(Games.GAME_ID);
+				cpo = ContentProviderOperation.newUpdate(uri);
+			} else {
+				cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
+			}
+			batch.add(cpo.withValues(values).build());
+			mGameIds.add(gameId);
 		}
-		batch.add(cpo.withValues(values).build());
 	}
 
 	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,

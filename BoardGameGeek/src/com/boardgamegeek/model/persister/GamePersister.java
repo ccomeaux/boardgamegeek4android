@@ -1,11 +1,13 @@
 package com.boardgamegeek.model.persister;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
-import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,6 +43,8 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class GamePersister {
+	private static final String TAG = makeLogTag(GamePersister.class);
+
 	private Context mContext;
 	private ContentResolver mResolver;
 	private ArrayList<ContentProviderOperation> mBatch;
@@ -63,6 +67,14 @@ public class GamePersister {
 		int length = 0;
 		mBatch = new ArrayList<ContentProviderOperation>();
 		if (games != null) {
+
+			DesignerPersister designerPersister = new DesignerPersister();
+			ArtistPersister artistPersister = new ArtistPersister();
+			PublisherPersister publisherPersister = new PublisherPersister();
+			CategoryPersister categoryPersister = new CategoryPersister();
+			MechanicPersister mechanicPersister = new MechanicPersister();
+			ExpansionPersister expansionPersister = new ExpansionPersister();
+
 			for (Game game : games) {
 				Builder cpo = null;
 				ContentValues values = toValues(game, mUpdateTime);
@@ -77,40 +89,39 @@ public class GamePersister {
 				if (PreferencesUtils.getPolls(mContext)) {
 					mBatch.addAll(polls(game));
 				}
-				mBatch.addAll(new DesignerPersister().save(game.id, mResolver, game.getDesigners()));
-				mBatch.addAll(new ArtistPersister().save(game.id, mResolver, game.getArtists()));
-				mBatch.addAll(new PublisherPersister().save(game.id, mResolver, game.getPublishers()));
-				mBatch.addAll(new CategoryPersister().save(game.id, mResolver, game.getCategories()));
-				mBatch.addAll(new MechanicPersister().save(game.id, mResolver, game.getMechanics()));
-				mBatch.addAll(new ExpansionPersister().save(game.id, mResolver, game.getExpansions()));
+				mBatch.addAll(designerPersister.insertAndCreateAssociations(game.id, mResolver, game.getDesigners()));
+				mBatch.addAll(artistPersister.insertAndCreateAssociations(game.id, mResolver, game.getArtists()));
+				mBatch.addAll(publisherPersister.insertAndCreateAssociations(game.id, mResolver, game.getPublishers()));
+				mBatch.addAll(categoryPersister.insertAndCreateAssociations(game.id, mResolver, game.getCategories()));
+				mBatch.addAll(mechanicPersister.insertAndCreateAssociations(game.id, mResolver, game.getMechanics()));
+				mBatch.addAll(expansionPersister.insertAndCreateAssociations(game.id, mResolver, game.getExpansions()));
 				// make sure the last operation has a yield allowed
 				mBatch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
 					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
-			}
-			if (debug) {
-				try {
-					ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
-					length += (result == null ? 0 : result.length);
-				} catch (Exception e) {
-					NotificationCompat.Builder builder = NotificationUtils
-						.createNotificationBuilder(mContext, R.string.sync_notification_title)
-						.setContentText(e.getMessage())
-						.setStyle(
-							new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getMessage()));
-					NotificationUtils.notify(mContext, NotificationUtils.ID_PERSIST_ERROR, builder);
+				if (debug) {
+					try {
+						length += ResolverUtils.applyBatch(mContext, mBatch).length;
+						LOGI(TAG, "Saved game ID=" + game.id);
+					} catch (Exception e) {
+						NotificationCompat.Builder builder = NotificationUtils
+							.createNotificationBuilder(mContext, R.string.sync_notification_title)
+							.setContentText(e.getMessage())
+							.setStyle(
+								new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
+									e.getMessage()));
+						NotificationUtils.notify(mContext, NotificationUtils.ID_PERSIST_ERROR, builder);
+					} finally {
+						mBatch.clear();
+					}
 				}
 			}
-		}
-		if (debug) {
-			return length;
-		} else {
-			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
-			if (result == null) {
-				return 0;
+			if (debug) {
+				return length;
 			} else {
-				return result.length;
+				return ResolverUtils.applyBatch(mContext, mBatch).length;
 			}
 		}
+		return 0;
 	}
 
 	private static ContentValues toValues(Game game, long updateTime) {
@@ -488,8 +499,8 @@ public class GamePersister {
 
 		protected abstract String getInboundColumnName();
 
-		ArrayList<ContentProviderOperation> save(int gameId, ContentResolver resolver, List<Game.Link> newLinks) {
-
+		ArrayList<ContentProviderOperation> insertAndCreateAssociations(int gameId, ContentResolver resolver,
+			List<Game.Link> newLinks) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 			Uri gameUri = Games.buildPathUri(gameId, getUriPath());
 			List<Integer> existingIds = ResolverUtils.queryInts(resolver, gameUri, getAssociationIdColumnName());
@@ -500,11 +511,11 @@ public class GamePersister {
 					if (!TextUtils.isEmpty(getReferenceIdColumnName())
 						&& !ResolverUtils.rowExists(resolver,
 							getContentUri().buildUpon().appendPath(String.valueOf(newLink.id)).build())) {
-						batch.add(
-							0,
-							ContentProviderOperation.newInsert(getContentUri())
-								.withValue(getReferenceIdColumnName(), newLink.id)
-								.withValue(getReferenceNameColumnName(), newLink.value).build());
+						// XXX think about delaying inserts in a separate batch
+						ContentValues cv = new ContentValues();
+						cv.put(getReferenceIdColumnName(), newLink.id);
+						cv.put(getReferenceNameColumnName(), newLink.value);
+						resolver.insert(getContentUri(), cv);
 						// TODO else update?
 					}
 					// insert association row

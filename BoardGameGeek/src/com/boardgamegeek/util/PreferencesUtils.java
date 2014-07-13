@@ -152,7 +152,7 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedForumDates", false);
 	}
 
-	public static boolean getDebugInserts(Context context) {
+	public static boolean getDebug(Context context) {
 		return getBoolean(context, "advancedDebugInsert", false);
 	}
 

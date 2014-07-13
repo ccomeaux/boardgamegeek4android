@@ -85,7 +85,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		List<SyncTask> tasks = createTasks(mContext, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
-				showError(getContext().getString(R.string.sync_notification_error_cancel), null);
+				showError(mContext.getString(R.string.sync_notification_error_cancel), null);
 				break;
 			}
 			mCurrentTask = tasks.get(i);
@@ -199,7 +199,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private void showError(Throwable t) {
-		showError(mContext.getString(R.string.sync_notification_error), t.getLocalizedMessage());
+		showError(mContext.getString(R.string.sync_notification_error), t.getMessage());
 	}
 
 	private void showError(String text, String message) {

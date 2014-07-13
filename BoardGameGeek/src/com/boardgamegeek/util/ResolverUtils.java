@@ -31,20 +31,24 @@ public class ResolverUtils {
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
-			if (PreferencesUtils.getDebugInserts(context)) {
-				for (ContentProviderOperation cpo : batch) {
-					applySingle(resolver, cpo);
-				}
+			if (PreferencesUtils.getDebug(context)) {
+					for (ContentProviderOperation cpo : batch) {
+						applySingle(resolver, cpo);
+					}
 			} else {
 				try {
-					return resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+					if (result == null) {
+						return new ContentProviderResult[] {};
+					}
+					return result;
 				} catch (OperationApplicationException | RemoteException e) {
 					LOGE(TAG, batch.toString(), e);
 					throw new RuntimeException(batch.toString(), e);
 				}
 			}
 		}
-		return null;
+		return new ContentProviderResult[] {};
 	}
 
 	private static void applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
