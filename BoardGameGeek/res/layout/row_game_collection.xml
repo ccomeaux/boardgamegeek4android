@@ -130,7 +130,7 @@
 		android:textIsSelectable="false" />
 
 	<LinearLayout
-		android:id="@+id/private_info"
+		android:id="@+id/private_info_root"
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -144,39 +144,23 @@
 			android:text="@string/private_info" />
 
 		<LinearLayout
-			android:id="@+id/private_info_data"
+			android:id="@+id/private_info_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical" >
 
 			<TextView
-				android:id="@+id/price"
+				android:id="@+id/private_info"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:textIsSelectable="false" />
-
-			<TextView
-				android:id="@+id/current_value"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:textIsSelectable="false" />
-
-			<TextView
-				android:id="@+id/quantity"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:textIsSelectable="false" />
-
-			<TextView
-				android:id="@+id/acquisition"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:singleLine="false"
 				android:textIsSelectable="false" />
 
 			<TextView
 				android:id="@+id/private_comments"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:singleLine="false"
 				android:textIsSelectable="false" />
 		</LinearLayout>
 	</LinearLayout>

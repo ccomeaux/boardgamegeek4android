@@ -287,6 +287,7 @@
 	<string name="times">times</string>
 	<string name="times_abbr">x</string>
 	<string name="on">on</string>
+	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
 	<string name="at">at</string>
@@ -355,9 +356,8 @@
 	<string name="price">Price</string>
 	<string name="value">Value</string>
 	<string name="private_info">Private Info</string>
-	<string name="acquired_on">Acquired on %1$s</string>
-	<string name="acquired_from">Acquired from %2$s</string>
-	<string name="acquired_on_from">Acquired on %1$s from %2$s</string>
+	<string name="acquired">Acquired</string>
+	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="condition">Trade Condition</string>
 	<string name="want_parts">Want Parts</string>
