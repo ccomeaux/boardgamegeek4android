@@ -61,7 +61,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION = 14;
 	private static final int VER_GAME_COLLECTION_CONFLICT = 15;
 	private static final int VER_PLAYS_START_TIME = 16;
-	private static final int DATABASE_VERSION = VER_PLAYS_START_TIME;
+	private static final int VER_PLAYS_PLAYER_COUNT = 17;
+	private static final int DATABASE_VERSION = VER_PLAYS_PLAYER_COUNT;
 
 	private Context mContext;
 
@@ -138,6 +139,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			+ createJoinSuffix(Tables.COLLECTION, Tables.GAME_RANKS, GameRanks.GAME_ID)
 			+ createJoinSuffix(Tables.COLLECTION, Tables.GAMES_EXPANSIONS, GamesExpansions.GAME_ID);
 		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
+		String PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES = Tables.PLAY_ITEMS
+			+ createJoinSuffix(PLAY_ITEMS, PLAYS, Plays.PLAY_ID)
+			+ createJoinSuffix(PLAY_ITEMS, GAMES, PlayItems.OBJECT_ID, Games.GAME_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID);
 		String PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS = Tables.PLAY_PLAYERS
 			+ createJoinSuffix(PLAY_PLAYERS, PLAYS, Plays.PLAY_ID)
@@ -427,7 +431,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Plays.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true).addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
 			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT).addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER).addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
+			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER).addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPlayItemsTable() {
@@ -557,6 +562,12 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_GAME_COLLECTION_CONFLICT:
 				addColumn(db, Tables.PLAYS, Plays.START_TIME, COLUMN_TYPE.INTEGER);
 				version = VER_PLAYS_START_TIME;
+			case VER_PLAYS_START_TIME:
+				addColumn(db, Tables.PLAYS, Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER);
+				db.execSQL("UPDATE " + Tables.PLAYS + " SET " + Plays.PLAYER_COUNT + "= (SELECT COUNT("
+					+ PlayPlayers.USER_ID + ")" + " FROM " + Tables.PLAY_PLAYERS + " WHERE " + Tables.PLAYS + "."
+					+ Plays.PLAY_ID + "=" + Tables.PLAY_PLAYERS + "." + PlayPlayers.PLAY_ID + ")");
+				version = VER_PLAYS_PLAYER_COUNT;
 		}
 
 		if (version != DATABASE_VERSION) {

@@ -129,6 +129,7 @@ public class Play {
 	public int syncStatus;
 	public long saved;
 	public long startTime;
+	public int playerCount;
 
 	@ElementList(required = false)
 	private List<Player> players;
