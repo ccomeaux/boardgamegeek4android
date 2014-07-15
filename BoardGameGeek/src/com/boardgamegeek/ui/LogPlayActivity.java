@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -132,6 +133,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 	private CheckBox mIncompleteView;
 	private CheckBox mNoWinStatsView;
 	private Chronometer mTimer;
+	private View mTimerToggle;
 	private EditText mCommentsView;
 	private LinearLayout mPlayerHeader;
 	private TextView mPlayerLabel;
@@ -413,6 +415,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
 		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
 		mTimer = (Chronometer) root.findViewById(R.id.timer);
+		mTimerToggle = root.findViewById(R.id.timer_toggle);
 		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
 		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
 		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
@@ -482,6 +485,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 			mLengthView.setVisibility(View.VISIBLE);
 			mTimer.setVisibility(View.GONE);
 		}
+		mTimerToggle.setVisibility(DateUtils.isToday(mPlay.getDateInMillis()) ? View.VISIBLE : View.INVISIBLE);
 
 		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
 		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
@@ -580,7 +584,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 
 	private void logPlay() {
 		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
-			if (!mPlay.hasBeenSynced()) {
+			if (!mPlay.hasBeenSynced()
+				&& DateUtils.isToday(mPlay.getDateInMillis() + Math.max(60, mPlay.length) * 60 * 1000)) {
 				PreferencesUtils.putLastPlayTime(this, System.currentTimeMillis());
 				PreferencesUtils.putLastPlayLocation(this, mPlay.location);
 				PreferencesUtils.putLastPlayPlayers(this, mPlay.getPlayers());
@@ -850,6 +855,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 		if (mPlay != null) {
 			mPlay.setDate(year, monthOfYear, dayOfMonth);
 			setDateButtonText();
+			setViewVisibility();
 		}
 	}
 

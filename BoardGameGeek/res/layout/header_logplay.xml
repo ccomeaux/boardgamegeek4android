@@ -103,7 +103,7 @@
 			</FrameLayout>
 
 			<ImageView
-				android:id="@+id/timer_end"
+				android:id="@+id/timer_toggle"
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackground"
