@@ -5,8 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 
 /**
@@ -29,7 +31,7 @@ public class StringUtils {
 	public static int parseInt(String text, int defaultValue) {
 		try {
 			return Integer.parseInt(text);
-		} catch (NumberFormatException ex) {
+		} catch (NumberFormatException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}
@@ -41,7 +43,7 @@ public class StringUtils {
 	public static double parseDouble(String text, double defaultValue) {
 		try {
 			return Double.parseDouble(text);
-		} catch (NumberFormatException ex) {
+		} catch (NumberFormatException | NullPointerException ex) {
 			return defaultValue;
 		}
 	}
@@ -146,5 +148,11 @@ public class StringUtils {
 		ss.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), length, length + second.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return ss;
+	}
+
+	public static void appendBold(SpannableStringBuilder sb, String boldText) {
+		sb.append(boldText);
+		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
+			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 }

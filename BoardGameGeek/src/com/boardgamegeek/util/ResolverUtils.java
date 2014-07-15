@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -26,15 +28,37 @@ import com.boardgamegeek.provider.BggContract;
 public class ResolverUtils {
 	private static final String TAG = makeLogTag(ResolverUtils.class);
 
-	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
+	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
+		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
-			try {
-				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			} catch (OperationApplicationException e) {
-				throw new RuntimeException(e);
+			if (PreferencesUtils.getDebug(context)) {
+					for (ContentProviderOperation cpo : batch) {
+						applySingle(resolver, cpo);
+					}
+			} else {
+				try {
+					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+					if (result == null) {
+						return new ContentProviderResult[] {};
+					}
+					return result;
+				} catch (OperationApplicationException | RemoteException e) {
+					LOGE(TAG, batch.toString(), e);
+					throw new RuntimeException(batch.toString(), e);
+				}
 			}
+		}
+		return new ContentProviderResult[] {};
+	}
+
+	private static void applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>(1);
+		batch.add(cpo);
+		try {
+			resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+		} catch (OperationApplicationException | RemoteException e) {
+			LOGE(TAG, cpo.toString(), e);
+			throw new RuntimeException(cpo.toString(), e);
 		}
 	}
 

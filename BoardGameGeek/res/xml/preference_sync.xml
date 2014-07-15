@@ -53,6 +53,8 @@
 			android:dialogMessage="@string/pref_sync_reset_plays_info_message"
 			android:positiveButtonText="@string/pref_sync_reset_pos"
 			android:title="@string/pref_sync_reset_plays" />
+
+		<com.boardgamegeek.pref.SyncTimestampsDialogPreference android:title="@string/pref_sync_timestamps" />
 	</PreferenceCategory>
 
 </PreferenceScreen>

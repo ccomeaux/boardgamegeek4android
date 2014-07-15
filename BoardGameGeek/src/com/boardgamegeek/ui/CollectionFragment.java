@@ -159,7 +159,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_collection, null);
+		return inflater.inflate(R.layout.fragment_collection, container, false);
 	}
 
 	@Override
@@ -515,7 +515,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
-		final Button button = (Button) layoutInflater.inflate(R.layout.widget_button_filter, null);
+		final Button button = (Button) layoutInflater
+			.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
 		button.setText(text);
 		button.setTag(type);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -646,7 +647,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			ViewHolder holder = (ViewHolder) view.getTag();
 
 			int collectionId = cursor.getInt(Query.COLLECTION_ID);
-			int year = cursor.getInt(Query.YEAR_PUBLISHED);
+			int year = cursor.getInt(Query.COLLECTION_YEAR_PUBLISHED);
+			if (year == 0) {
+				year = cursor.getInt(Query.YEAR_PUBLISHED);
+			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
@@ -705,7 +709,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.THUMBNAIL_URL };
+			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -715,6 +719,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int GAME_ID = 5;
 		int COLLECTION_THUMBNAIL_URL = 6;
 		int THUMBNAIL_URL = 7;
+		int IMAGE_URL = 8;
+		int COLLECTION_YEAR_PUBLISHED = 9;
 	}
 
 	private interface ViewQuery {
@@ -770,10 +776,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.GAME_NAME);
+		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
+		String imageUrl = cursor.getString(Query.IMAGE_URL);
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName);
+				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

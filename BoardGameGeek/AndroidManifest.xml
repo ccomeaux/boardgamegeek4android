@@ -6,8 +6,8 @@
 	android:versionName="develop" >
 
 	<uses-sdk
-		android:minSdkVersion="8"
-		android:targetSdkVersion="19" />
+		android:minSdkVersion="9"
+		android:targetSdkVersion="20" />
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -43,14 +43,6 @@
 			android:exported="false"
 			android:label="@string/title_collection"
 			android:uiOptions="splitActionBarWhenNarrow" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.collection" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -122,14 +114,6 @@
 			android:name=".ui.BuddiesActivity"
 			android:exported="false"
 			android:label="@string/title_buddies" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.buddy" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -138,14 +122,6 @@
 			android:name=".ui.BuddyActivity"
 			android:exported="false"
 			android:label="@string/title_buddy" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.buddy" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.BuddiesActivity" />
@@ -154,14 +130,6 @@
 			android:name=".ui.PlaysActivity"
 			android:exported="false"
 			android:label="@string/title_plays" >
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-
-				<category android:name="android.intent.category.DEFAULT" />
-
-				<data android:mimeType="vnd.android.cursor.dir/vnd.boardgamegeek.play" />
-			</intent-filter>
-
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -169,11 +137,18 @@
 		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
-			android:label="@string/title_play"
-			android:launchMode="singleTop" >
+			android:label="@string/title_play" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.PlaysActivity" />
+		</activity>
+		<activity
+			android:name=".ui.PlayerActivity"
+			android:exported="false"
+			android:label="@string/title_player" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.BuddiesActivity" />
 		</activity>
 		<activity
 			android:name=".ui.SearchResultsActivity"

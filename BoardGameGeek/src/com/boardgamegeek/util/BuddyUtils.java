@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 public class BuddyUtils {
+	public static final String KEY_BUDDY_ID = "BUDDY_ID";
 	public static final String KEY_BUDDY_NAME = "BUDDY_NAME";
 	public static final String KEY_BUDDY_FULL_NAME = "BUDDY_FULL_NAME";
 

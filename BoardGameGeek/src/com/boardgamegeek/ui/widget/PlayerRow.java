@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.widget;
 import java.text.DecimalFormat;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -18,18 +19,15 @@ import com.boardgamegeek.util.ColorUtils;
 
 public class PlayerRow extends LinearLayout {
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
-	private boolean mEditScores;
 
 	private View mDragHandle;
+	private ImageView mColorView;
+	private TextView mSeat;
 	private TextView mName;
 	private TextView mUsername;
-	private View mColorSwatchContainer;
-	private View mColorSwatch;
 	private TextView mTeamColor;
 	private TextView mScore;
 	private TextView mStartingPosition;
-	private TextView mSeatColor;
-	private TextView mSeat;
 	private TextView mRating;
 	private ImageView mDeleteButton;
 
@@ -49,10 +47,8 @@ public class PlayerRow extends LinearLayout {
 
 	private void initializeUi() {
 		mDragHandle = findViewById(R.id.drag_handle);
-		mSeatColor = (TextView) findViewById(R.id.seat_color);
+		mColorView = (ImageView) findViewById(R.id.color_view);
 		mSeat = (TextView) findViewById(R.id.seat);
-		mColorSwatchContainer = findViewById(R.id.color_swatch_container);
-		mColorSwatch = findViewById(R.id.color_swatch);
 		mName = (TextView) findViewById(R.id.name);
 		mUsername = (TextView) findViewById(R.id.username);
 		mTeamColor = (TextView) findViewById(R.id.team_color);
@@ -77,51 +73,40 @@ public class PlayerRow extends LinearLayout {
 		mDragHandle.setVisibility(value ? View.VISIBLE : View.GONE);
 	}
 
-	public void setEditScores(boolean edit) {
-		mEditScores = edit;
-	}
-
 	public void setPlayer(Player player) {
 		if (player == null) {
+			mColorView.setVisibility(View.GONE);
+			setText(mSeat, "");
 			setText(mName, "");
 			setText(mUsername, "");
 			setText(mTeamColor, "");
 			setText(mScore, "");
 			setText(mRating, "");
-			setText(mSeatColor, "");
-			setText(mSeat, "");
 		} else {
-			int color = ColorUtils.parseColor(player.TeamColor);
+			int color = ColorUtils.parseColor(player.color);
 
-			setText(mSeatColor, player.getStartingPosition());
 			setText(mSeat, player.getStartingPosition());
-			setText(mName, player.Name, mNameTypeface, player.New, player.Win);
-			setText(mUsername, player.Username, mUsernameTypeface, player.New, false);
-			setText(mTeamColor, player.TeamColor);
-			setText(mScore, player.Score, mScoreTypeface, false, player.Win);
-			setText(mRating, (player.Rating > 0) ? mFormat.format(player.Rating) : "");
+			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
+			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
+			setText(mTeamColor, player.color);
+			setText(mScore, player.score, mScoreTypeface, false, player.Win());
+			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 			setText(mStartingPosition, player.getStartingPosition());
 
-			if (color != ColorUtils.TRANSPARENT) {
+			mColorView.setVisibility(View.VISIBLE);
+			ColorUtils.setColorViewValue(mColorView, color);
+			if (player.getSeat() == Player.SEAT_UNKNOWN) {
 				mSeat.setVisibility(View.GONE);
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					mColorSwatch.setBackgroundColor(color);
-					mColorSwatchContainer.setVisibility(View.VISIBLE);
-					mSeatColor.setVisibility(View.GONE);
-				} else {
-					mSeatColor.setTextColor(color);
-					mColorSwatchContainer.setVisibility(View.GONE);
-					mStartingPosition.setVisibility(View.GONE);
-				}
-				mTeamColor.setVisibility(View.GONE);
 			} else {
-				mSeatColor.setVisibility(View.GONE);
-				mColorSwatchContainer.setVisibility(View.GONE);
-				if (player.getSeat() == Player.SEAT_UNKNOWN) {
-					mSeat.setVisibility(View.GONE);
+				if (color != ColorUtils.TRANSPARENT && ColorUtils.isColorDark(color)) {
+					mSeat.setTextColor(Color.WHITE);
 				} else {
-					mStartingPosition.setVisibility(View.GONE);
+					mSeat.setTextColor(Color.BLACK);
 				}
+				mStartingPosition.setVisibility(View.GONE);
+			}
+			if (color != ColorUtils.TRANSPARENT) {
+				mTeamColor.setVisibility(View.GONE);
 			}
 		}
 	}

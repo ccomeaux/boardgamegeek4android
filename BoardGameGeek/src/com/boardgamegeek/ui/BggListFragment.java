@@ -54,7 +54,7 @@ public abstract class BggListFragment extends SherlockListFragment {
 		super.onSaveInstanceState(outState);
 	}
 
-	private void saveScrollState() {
+	protected void saveScrollState() {
 		if (isAdded()) {
 			View v = getListView().getChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();

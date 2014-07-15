@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import android.os.AsyncTask;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,121 +23,126 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteHotnessParser;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.HotGame;
+import com.boardgamegeek.model.HotnessResponse;
+import com.boardgamegeek.ui.widget.BggLoader;
+import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
-public class HotnessFragment extends BggListFragment implements MultiChoiceModeListener {
+public class HotnessFragment extends BggListFragment implements
+	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	// private static final String TAG = makeLogTag(HotnessActivity.class);
-	private static final String KEY_HOT_GAMES = "HOT_GAMES";
+	private static final int LOADER_ID = 1;
 
-	private List<HotGame> mHotGames = new ArrayList<HotGame>();
 	private BoardGameAdapter mAdapter;
-	private String mEmptyMessage;
 	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mEmptyMessage = getString(R.string.empty_hotness);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		setEmptyText(getString(R.string.empty_hotness));
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setListShown(false);
-
-		if (savedInstanceState != null) {
-			mHotGames = savedInstanceState.getParcelableArrayList(KEY_HOT_GAMES);
-		}
-		if (mHotGames == null || mHotGames.size() == 0) {
-			HotnessTask task = new HotnessTask();
-			task.execute();
-		} else {
-			showList();
-		}
-
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putParcelableArrayList(KEY_HOT_GAMES, (ArrayList<? extends Parcelable>) mHotGames);
+	public Loader<HotnessData> onCreateLoader(int id, Bundle data) {
+		return new HotnessLoader(getActivity());
+	}
+
+	@Override
+	public void onLoadFinished(Loader<HotnessData> loader, HotnessData data) {
+		if (getActivity() == null) {
+			return;
+		}
+
+		if (mAdapter == null) {
+			mAdapter = new BoardGameAdapter(getActivity(), data.list());
+			setListAdapter(mAdapter);
+		}
+		mAdapter.notifyDataSetChanged();
+
+		if (data.hasError()) {
+			setEmptyText(data.getErrorMessage());
+		} else {
+			if (isResumed()) {
+				setListShown(true);
+			} else {
+				setListShownNoAnimation(true);
+			}
+			restoreScrollState();
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<HotnessData> loader) {
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		HotGame game = (HotGame) mAdapter.getItem(position);
-		ActivityUtils.launchGame(getActivity(), game.Id, game.Name);
+		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
-	private class HotnessTask extends AsyncTask<Void, Void, RemoteHotnessParser> {
-		private RemoteExecutor mExecutor;
+	private static class HotnessLoader extends BggLoader<HotnessData> {
+		private BggService mService;
 
-		@Override
-		protected void onPreExecute() {
-			if (mHotGames == null) {
-				mHotGames = new ArrayList<HotGame>();
-			} else {
-				mHotGames.clear();
-			}
-			mExecutor = new RemoteExecutor(getActivity());
+		public HotnessLoader(Context context) {
+			super(context);
+			mService = Adapter.create();
 		}
 
 		@Override
-		protected RemoteHotnessParser doInBackground(Void... params) {
-			RemoteHotnessParser parser = new RemoteHotnessParser();
-			mExecutor.safelyExecuteGet(parser);
-			return parser;
-		}
-
-		@Override
-		protected void onPostExecute(RemoteHotnessParser result) {
-			if (isAdded()) {
-				mHotGames = result.getResults();
-				if (result.hasError()) {
-					mEmptyMessage = result.getErrorMessage();
-				} else {
-					mEmptyMessage = getString(R.string.empty_hotness);
-				}
-				showList();
+		public HotnessData loadInBackground() {
+			HotnessData games = null;
+			try {
+				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
+			} catch (Exception e) {
+				games = new HotnessData(e);
 			}
+			return games;
 		}
 	}
 
-	private void showList() {
-		if (mAdapter == null) {
-			mAdapter = new BoardGameAdapter();
-			setListAdapter(mAdapter);
+	static class HotnessData extends Data<HotGame> {
+		private HotnessResponse mResponse;
+
+		public HotnessData(HotnessResponse response) {
+			mResponse = response;
 		}
 
-		setEmptyText(mEmptyMessage);
-		// addAll not available until API11
-		for (HotGame hotGame : mHotGames) {
-			mAdapter.add(hotGame);
+		public HotnessData(Exception e) {
+			super(e);
 		}
 
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
+		@Override
+		public List<HotGame> list() {
+			if (mResponse == null || mResponse.games == null) {
+				return new ArrayList<HotGame>();
+			}
+			return mResponse.games;
 		}
 	}
 
 	private class BoardGameAdapter extends ArrayAdapter<HotGame> {
 		private LayoutInflater mInflater;
 
-		BoardGameAdapter() {
-			super(getActivity(), R.layout.row_hotness);
-			mInflater = getActivity().getLayoutInflater();
+		public BoardGameAdapter(Activity activity, List<HotGame> games) {
+			super(activity, R.layout.row_hotness, games);
+			mInflater = activity.getLayoutInflater();
 		}
 
 		@Override
@@ -149,14 +156,14 @@ public class HotnessFragment extends BggListFragment implements MultiChoiceModeL
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			HotGame game = mHotGames.get(position);
+			HotGame game = getItem(position);
 			if (game != null) {
-				holder.name.setText(game.Name);
-				if (game.YearPublished > 0) {
-					holder.year.setText(String.valueOf(game.YearPublished));
+				holder.name.setText(game.name);
+				if (game.yearPublished > 0) {
+					holder.year.setText(String.valueOf(game.yearPublished));
 				}
-				holder.rank.setText(String.valueOf(game.Rank));
-				loadThumbnail(game.ThumbnailUrl, holder.thumbnail);
+				holder.rank.setText(String.valueOf(game.rank));
+				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
 			}
 
 			return convertView;
@@ -219,29 +226,29 @@ public class HotnessFragment extends BggListFragment implements MultiChoiceModeL
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.Id, game.Name);
+				ActivityUtils.logPlay(getActivity(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
 				Toast.makeText(getActivity(), R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-				ActivityUtils.logQuickPlay(getActivity(), game.Id, game.Name);
+				ActivityUtils.logQuickPlay(getActivity(), game.id, game.name);
 				return true;
 			case R.id.menu_share:
 				mode.finish();
 				if (mSelectedPositions.size() == 1) {
-					ActivityUtils.shareGame(getActivity(), game.Id, game.Name);
+					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
 						HotGame g = (HotGame) mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(g.Id, g.Name));
+						games.add(new Pair<Integer, String>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}
 				return true;
 			case R.id.menu_link:
 				mode.finish();
-				ActivityUtils.linkBgg(getActivity(), game.Id);
+				ActivityUtils.linkBgg(getActivity(), game.id);
 				return true;
 		}
 		return false;

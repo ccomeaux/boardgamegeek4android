@@ -60,6 +60,12 @@
 	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
 	<string name="pref_sync_reset_success">Sync started</string>
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
+	<string name="pref_sync_timestamps">Sync timestamps</string>
+	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
+	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
+	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>
+	<string name="pref_sync_timestamps_plays_oldest_date">Oldest Synced Play Date</string>
+	<string name="pref_sync_timestamps_buddy">Last Buddy Sync</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 	<string name="pref_advanced">Advanced</string>
 	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
@@ -81,7 +87,9 @@
 <![CDATA[<h4>What\'s New?</h4>
 <h5>Coming Soon</h5>
 <ul>
-<li>...</li>
+<li>Usability improvements when logging plays</li>
+<li>View all players along with GeekBuddies</li>
+<li>Completely rewritten syncing logic</li>
 </ul>
 <h5>4.7.3</h5>
 <ul>
@@ -113,7 +121,9 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="pref_about_abs_license">Copyright 2012 Jake Wharton\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_dslv_license">Copyright 2012 Carl Bauer\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_okhttp_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
+	<string name="pref_about_gson_license">Copyright 2013 Google, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_picasso_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
+	<string name="pref_about_retrofit_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_slh_license">Copyright 2014 Emil Sjölander\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_icons">Icons</string>
 	<string name="pref_about_contact_us">Contact Us</string>

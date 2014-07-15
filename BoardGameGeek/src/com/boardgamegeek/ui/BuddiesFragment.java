@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -56,6 +57,15 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -74,15 +84,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			setEmptyText(getString(R.string.empty_buddies_sync_off));
 		}
 		getLoaderManager().restartLoader(BuddiesQuery._TOKEN, getArguments(), this);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override
@@ -123,8 +124,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		if (buddiesUri == null) {
 			buddiesUri = Buddies.CONTENT_URI;
 		}
+
 		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID
-			+ "!=?", new String[] { "0" }, null);
+			+ "!=?", new String[] { Authenticator.getUserId(getActivity()) }, null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}

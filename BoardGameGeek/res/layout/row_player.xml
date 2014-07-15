@@ -6,72 +6,40 @@
 	android:gravity="center_vertical"
 	android:minHeight="@dimen/player_row_height"
 	android:orientation="horizontal"
-	android:padding="@dimen/padding_half" >
-
-	<ImageView
-		android:id="@+id/drag_handle"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:background="?attr/selectableItemBackground"
-		android:paddingBottom="@dimen/padding_half"
-		android:paddingLeft="@dimen/padding_half"
-		android:paddingRight="@dimen/padding_standard_half"
-		android:paddingTop="@dimen/padding_half"
-		android:src="@drawable/drag_grip"
-		android:visibility="gone" />
+	android:paddingLeft="@dimen/padding_standard"
+	android:paddingRight="@dimen/padding_standard" >
 
 	<FrameLayout
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
-		android:layout_gravity="right"
-		android:gravity="right"
-		android:minWidth="32dp"
-		android:paddingRight="@dimen/padding_standard" >
+		android:layout_gravity="center_vertical"
+		android:layout_marginRight="@dimen/padding_standard" >
 
-		<TextView
-			android:id="@+id/seat_color"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical|right"
-			android:fontFamily="sans-serif-condensed"
-			android:shadowColor="#000"
-			android:shadowDx="2"
-			android:shadowDy="2"
-			android:shadowRadius="1.0"
-			android:textIsSelectable="false"
-			android:textSize="28sp"
-			android:textStyle="bold" />
+		<ImageView
+			android:id="@+id/color_view"
+			android:layout_width="@dimen/color_circle_diameter"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
+			android:scaleType="fitXY" />
 
 		<TextView
 			android:id="@+id/seat"
+			style="@style/Text.Huge"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical|right"
-			android:fontFamily="sans-serif-condensed"
-			android:shadowColor="#000"
-			android:textIsSelectable="false"
-			android:textSize="28sp" />
-
-		<FrameLayout
-			android:id="@+id/color_swatch_container"
-			android:layout_width="@dimen/padding_standard"
 			android:layout_height="match_parent"
-			android:layout_gravity="center_vertical|right"
-			android:layout_marginRight="@dimen/padding_half"
-			android:paddingBottom="@dimen/padding_half"
-			android:paddingTop="@dimen/padding_half" >
+			android:layout_gravity="center"
+			android:fontFamily="sans-serif-condensed"
+			android:gravity="center"
+			android:textIsSelectable="false" />
 
-			<View
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:background="#ff000000" />
-
-			<View
-				android:id="@+id/color_swatch"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_margin="1dp" />
-		</FrameLayout>
+		<ImageView
+			android:id="@+id/drag_handle"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackground"
+			android:scaleType="center"
+			android:src="@drawable/drag_grip"
+			android:visibility="gone" />
 	</FrameLayout>
 
 	<LinearLayout
@@ -130,15 +98,15 @@
 			android:textIsSelectable="false" />
 	</LinearLayout>
 
-	<ImageButton
+	<ImageView
 		android:id="@+id/log_player_delete"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="@dimen/image_button_size"
+		android:layout_height="@dimen/image_button_size"
 		android:layout_gravity="center"
 		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/delete"
 		android:focusable="false"
-		android:padding="@dimen/padding_half"
+		android:scaleType="center"
 		android:src="@drawable/ic_action_delete_light"
 		android:visibility="gone" />
 

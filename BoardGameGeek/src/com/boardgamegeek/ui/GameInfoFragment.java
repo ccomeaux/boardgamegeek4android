@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -54,7 +53,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
@@ -117,13 +115,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
-	private long mUpdated;
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
 		public void onNameChanged(String gameName);
 
 		public void onThumbnailUrlChanged(String url);
+
+		public void onImageUrlChanged(String url);
 
 		public DetachableResultReceiver getReceiver();
 	}
@@ -135,6 +134,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		@Override
 		public void onThumbnailUrlChanged(String url) {
+		}
+
+		@Override
+		public void onImageUrlChanged(String url) {
 		}
 
 		@Override
@@ -168,7 +171,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_info, null);
+		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 
 		mScrollRoot = rootView.findViewById(R.id.game_info_scroll_root);
 		mProgressView = rootView.findViewById(R.id.game_info_progress);
@@ -361,11 +364,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
-			if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
-				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-			} else {
-				triggerRefresh();
-			}
+			triggerRefresh();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -484,6 +483,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mGameName = game.Name;
 		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
+		mCallbacks.onImageUrlChanged(mImageUrl);
 		mCallbacks.onThumbnailUrlChanged(game.ThumbnailUrl);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
@@ -493,7 +493,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		formatRating(game);
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
-		mUpdated = game.Updated;
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
@@ -575,7 +574,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, null);
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
+			.inflate(R.layout.widget_rank_row, mRankRoot, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);

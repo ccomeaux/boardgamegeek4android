@@ -1,9 +1,18 @@
 package com.boardgamegeek.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Path;
+import org.simpleframework.xml.Root;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -17,6 +26,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 
+@Root(name = "play")
 public class Play {
 	/**
 	 * Used for filtering to include all plays
@@ -50,24 +60,78 @@ public class Play {
 	public static final int UNSYNCED_PLAY_ID = 100000000;
 	public static final int QUANTITY_DEFAULT = 1;
 	public static final int LENGTH_DEFAULT = 0;
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-	public int PlayId;
-	public int GameId;
-	public String GameName;
-	public int Year;
-	public int Month;
-	public int Day;
-	public int Quantity;
-	public int Length;
-	public String Location;
-	public boolean Incomplete;
-	public boolean NoWinStats;
-	public String Comments;
-	public long Updated;
-	public int SyncStatus;
-	public long Saved;
-	public long StartTime;
-	private List<Player> mPlayers = new ArrayList<Player>();
+	@Attribute(name = "id")
+	public int playId;
+
+	@Attribute
+	private String date;
+	private long playDate = DateTimeUtils.UNPARSED_DATE;
+
+	@Attribute
+	public int quantity;
+
+	@Attribute
+	public int length;
+
+	@Attribute
+	private int incomplete;
+
+	public boolean Incomplete() {
+		return incomplete == 1;
+	}
+
+	public void setIncomplete(boolean value) {
+		incomplete = value ? 1 : 0;
+	}
+
+	@Attribute
+	private int nowinstats;
+
+	public boolean NoWinStats() {
+		return nowinstats == 1;
+	}
+
+	public void setNoWinStats(boolean value) {
+		nowinstats = value ? 1 : 0;
+	}
+
+	@Attribute
+	public String location;
+
+	@Path("item")
+	@Attribute(name = "name")
+	public String gameName;
+
+	@Path("item")
+	@Attribute(name = "objectid")
+	public int gameId;
+
+	@Path("item")
+	@Attribute
+	public String objecttype;
+
+	@Path("item")
+	@ElementList
+	List<Subtype> subtypes;
+
+	@Root(name = "subtype")
+	static class Subtype {
+		@Attribute
+		String value;
+	}
+
+	@Element(required = false)
+	public String comments;
+
+	public long updated;
+	public int syncStatus;
+	public long saved;
+	public long startTime;
+
+	@ElementList(required = false)
+	private List<Player> players;
 
 	public Play() {
 		init(BggContract.INVALID_ID, BggContract.INVALID_ID, "");
@@ -82,15 +146,14 @@ public class Play {
 	}
 
 	private void init(int playId, int gameId, String gameName) {
-		PlayId = playId;
-		GameId = gameId;
-		GameName = gameName;
-		Quantity = QUANTITY_DEFAULT;
-		Length = LENGTH_DEFAULT;
-		setCurrentDate();
-		Location = "";
-		Comments = "";
-		StartTime = 0;
+		this.playId = playId;
+		this.gameId = gameId;
+		this.gameName = gameName;
+		quantity = QUANTITY_DEFAULT;
+		length = LENGTH_DEFAULT;
+		location = "";
+		comments = "";
+		startTime = 0;
 	}
 
 	// URI
@@ -99,28 +162,28 @@ public class Play {
 	 * @return plays/#
 	 */
 	public Uri uri() {
-		return Plays.buildPlayUri(PlayId);
+		return Plays.buildPlayUri(playId);
 	}
 
 	/**
 	 * @return plays/#/items
 	 */
 	public Uri itemUri() {
-		return Plays.buildItemUri(PlayId);
+		return Plays.buildItemUri(playId);
 	}
 
 	/**
 	 * @return plays/#/items/#
 	 */
 	public Uri itemIdUri() {
-		return Plays.buildItemUri(PlayId, GameId);
+		return Plays.buildItemUri(playId, gameId);
 	}
 
 	/**
 	 * @return plays/#/players
 	 */
 	public Uri playerUri() {
-		return Plays.buildPlayerUri(PlayId);
+		return Plays.buildPlayerUri(playId);
 	}
 
 	// DATE
@@ -132,7 +195,13 @@ public class Play {
 	 * @return
 	 */
 	public String getDate() {
-		return DateTimeUtils.formatDateForApi(Year, Month, Day);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return DateTimeUtils.formatDateForApi(playDate);
+	}
+
+	public long getDateInMillis() {
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return playDate;
 	}
 
 	/**
@@ -141,15 +210,14 @@ public class Play {
 	 * @return a localized date.
 	 */
 	public CharSequence getDateForDisplay(Context context) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Year, Month, Day);
-		return DateUtils.formatDateTime(context, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_DATE);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
+		return DateUtils.formatDateTime(context, playDate, DateUtils.FORMAT_SHOW_DATE);
 	}
 
 	public void setDate(int year, int month, int day) {
-		Year = year;
-		Month = month;
-		Day = day;
+		playDate = DateTimeUtils.UNPARSED_DATE;
+		date = DateTimeUtils.formatDateForApi(year, month, day);
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
 	}
 
 	/**
@@ -159,33 +227,38 @@ public class Play {
 	 *            in the yyyy-MM-dd format
 	 */
 	public void setDate(String date) {
-		Year = Integer.parseInt(date.substring(0, 4));
-		Month = Integer.parseInt(date.substring(5, 7)) - 1;
-		Day = Integer.parseInt(date.substring(8, 10));
+		playDate = DateTimeUtils.UNPARSED_DATE;
+		this.date = date;
+		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
 	}
 
-	private void setCurrentDate() {
+	public void setCurrentDate() {
 		final Calendar c = Calendar.getInstance();
-		Year = c.get(Calendar.YEAR);
-		Month = c.get(Calendar.MONTH);
-		Day = c.get(Calendar.DAY_OF_MONTH);
+		setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
 	}
 
 	// PLAYERS
 
 	public List<Player> getPlayers() {
-		return mPlayers;
+		if (players == null) {
+			return new ArrayList<Player>();
+		}
+		return players;
 	}
 
 	public int getPlayerCount() {
-		if (mPlayers == null) {
+		if (players == null) {
 			return 0;
 		}
-		return mPlayers.size();
+		return players.size();
 	}
 
 	public void setPlayers(List<Player> players) {
-		mPlayers = players;
+		if (players == null) {
+			this.players = new ArrayList<Player>();
+		} else {
+			this.players = players;
+		}
 	}
 
 	public void setPlayers(Cursor cursor) {
@@ -194,34 +267,51 @@ public class Play {
 			Player player = new Player(cursor);
 			addPlayer(player);
 		}
+		// When player count is in the double digits, numeric starting positions aren't sorted correctly
+		// TODO don't assume we should be sorting by starting positions
+		if (getPlayerCount() > 9 && !arePlayersCustomSorted()) {
+			sortPlayers();
+		}
 	}
 
 	public void clearPlayers() {
-		mPlayers.clear();
+		if (players != null) {
+			players.clear();
+		}
 	}
 
 	public void addPlayer(Player player) {
-		mPlayers.add(player);
+		if (players == null) {
+			players = new ArrayList<Player>();
+		}
+		players.add(player);
 	}
 
 	public void removePlayer(Player player, boolean resort) {
+		if (players == null) {
+			return;
+		}
 		if (resort && !arePlayersCustomSorted()) {
-			for (int i = player.getSeat(); i < mPlayers.size(); i++) {
+			for (int i = player.getSeat(); i < players.size(); i++) {
 				Player p = getPlayerAtSeat(i + 1);
 				if (p != null) {
 					p.setSeat(i);
 				}
 			}
 		}
-		mPlayers.remove(player);
+		players.remove(player);
 	}
 
 	public void replacePlayer(Player player, int position) {
-		mPlayers.set(position, player);
+		// TODO
+		players.set(position, player);
 	}
 
 	public Player getPlayerAtSeat(int seat) {
-		for (Player player : mPlayers) {
+		if (players == null) {
+			return null;
+		}
+		for (Player player : players) {
 			if (player.getSeat() == seat) {
 				return player;
 			}
@@ -230,6 +320,9 @@ public class Play {
 	}
 
 	public boolean reorderPlayers(int fromSeat, int toSeat) {
+		if (players == null) {
+			return false;
+		}
 		if (arePlayersCustomSorted()) {
 			return false;
 		}
@@ -263,9 +356,9 @@ public class Play {
 	 *            The zero-based index of the new start player
 	 */
 	public void pickStartPlayer(int startPlayerIndex) {
-		int playerCount = mPlayers.size();
+		int playerCount = getPlayerCount();
 		for (int i = 0; i < playerCount; i++) {
-			Player p = mPlayers.get(i);
+			Player p = players.get(i);
 			p.setSeat((i - startPlayerIndex + playerCount) % playerCount + 1);
 		}
 		sortPlayers();
@@ -275,13 +368,13 @@ public class Play {
 	 * Randomizes the order of players, assigning seats to the new order.
 	 */
 	public void randomizePlayerOrder() {
-		if (mPlayers == null || mPlayers.size() == 0) {
+		if (players == null || players.size() == 0) {
 			return;
 		}
-		Collections.shuffle(mPlayers);
-		int playerCount = mPlayers.size();
+		Collections.shuffle(players);
+		int playerCount = players.size();
 		for (int i = 0; i < playerCount; i++) {
-			Player p = mPlayers.get(i);
+			Player p = players.get(i);
 			p.setSeat(i + 1);
 		}
 	}
@@ -291,11 +384,11 @@ public class Play {
 	 */
 	public void sortPlayers() {
 		int index = 0;
-		for (int i = 1; i <= mPlayers.size(); i++) {
+		for (int i = 1; i <= getPlayerCount(); i++) {
 			Player p = getPlayerAtSeat(i);
 			if (p != null) {
-				mPlayers.remove(p);
-				mPlayers.add(index, p);
+				players.remove(p);
+				players.add(index, p);
 				index++;
 			}
 		}
@@ -310,13 +403,13 @@ public class Play {
 		}
 
 		if (!hasStartingPositions()) {
-			return false;
+			return true;
 		}
 
 		int seat = 1;
 		do {
 			boolean foundSeat = false;
-			for (Player player : mPlayers) {
+			for (Player player : players) {
 				if (player.getSeat() == seat) {
 					foundSeat = true;
 					break;
@@ -341,7 +434,7 @@ public class Play {
 			return false;
 		}
 
-		for (Player player : mPlayers) {
+		for (Player player : players) {
 			if (!TextUtils.isEmpty(player.getStartingPosition())) {
 				return true;
 			}
@@ -358,7 +451,7 @@ public class Play {
 			return;
 		}
 
-		for (Player player : mPlayers) {
+		for (Player player : players) {
 			player.setStartingPosition(null);
 		}
 	}
@@ -369,7 +462,7 @@ public class Play {
 	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
 	 */
 	public boolean hasBeenSynced() {
-		return Play.hasBeenSynced(PlayId);
+		return Play.hasBeenSynced(playId);
 	}
 
 	public static boolean hasBeenSynced(int playId) {
@@ -382,7 +475,7 @@ public class Play {
 	 * @return true, if it's not ended and the start time has been set.
 	 */
 	public boolean hasStarted() {
-		if (!hasEnded() && StartTime > 0) {
+		if (length == 0 && startTime > 0) {
 			return true;
 		}
 		return false;
@@ -394,12 +487,12 @@ public class Play {
 	 * @return true, if the length has been entered or at least one of the players has won.
 	 */
 	public boolean hasEnded() {
-		if (Length > 0) {
+		if (length > 0) {
 			return true;
 		}
-		if (mPlayers != null && mPlayers.size() > 0) {
-			for (Player player : mPlayers) {
-				if (player.Win) {
+		if (players != null && players.size() > 0) {
+			for (Player player : players) {
+				if (player.Win()) {
 					return true;
 				}
 			}
@@ -408,14 +501,14 @@ public class Play {
 	}
 
 	public void start() {
-		Length = 0;
-		StartTime = System.currentTimeMillis();
+		length = 0;
+		startTime = System.currentTimeMillis();
 	}
 
 	public void end() {
-		if (StartTime > 0) {
-			Length = DateTimeUtils.howManyMinutesOld(StartTime);
-			StartTime = 0;
+		if (startTime > 0) {
+			length = DateTimeUtils.howManyMinutesOld(startTime);
+			startTime = 0;
 		}
 	}
 
@@ -429,16 +522,21 @@ public class Play {
 		}
 
 		Play p = (Play) o;
-		boolean eq = (PlayId == p.PlayId) && (GameId == p.GameId) && (Year == p.Year) && (Month == p.Month)
-			&& (Day == p.Day) && (Quantity == p.Quantity) && (Length == p.Length)
-			&& (Location == p.Location || (Location != null && Location.equals(p.Location)))
-			&& (Incomplete == p.Incomplete) && (NoWinStats == p.NoWinStats)
-			&& (Comments == p.Comments || (Comments != null && Comments.equals(p.Comments))) && (Updated == p.Updated)
-			&& (SyncStatus == p.SyncStatus) && (Saved == p.Saved) && (StartTime == p.StartTime)
-			&& (mPlayers.size() == p.mPlayers.size());
-		if (eq) {
-			for (int i = 0; i < mPlayers.size(); i++) {
-				if (!mPlayers.get(i).equals(p.getPlayers().get(i))) {
+		boolean eq = (playId == p.playId)
+			&& (gameId == p.gameId)
+			&& (playDate == p.playDate)
+			&& (quantity == p.quantity)
+			&& (length == p.length)
+			&& (location == p.location || (location != null && location.equals(p.location)))
+			&& (incomplete == p.incomplete)
+			&& (nowinstats == p.nowinstats)
+			&& (comments == p.comments || (comments != null && comments.equals(p.comments)))
+			&& (startTime == p.startTime)
+			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
+				.size()));
+		if (eq && players != null) {
+			for (int i = 0; i < players.size(); i++) {
+				if (!players.get(i).equals(p.getPlayers().get(i))) {
 					return false;
 				}
 			}
@@ -450,24 +548,22 @@ public class Play {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + PlayId;
-		result = prime * result + GameId;
-		result = prime * result + ((GameName == null) ? 0 : GameName.hashCode());
-		result = prime * result + Year;
-		result = prime * result + Month;
-		result = prime * result + Day;
-		result = prime * result + Quantity;
-		result = prime * result + Length;
-		result = prime * result + ((Location == null) ? 0 : Location.hashCode());
-		result = prime * result + (Incomplete ? 1231 : 1237);
-		result = prime * result + (NoWinStats ? 1231 : 1237);
-		result = prime * result + ((Comments == null) ? 0 : Comments.hashCode());
-		long u = Double.doubleToLongBits(Updated);
+		result = prime * result + playId;
+		result = prime * result + gameId;
+		result = prime * result + ((gameName == null) ? 0 : gameName.hashCode());
+		result = prime * result + (int) (playDate ^ (playDate >>> 32));
+		result = prime * result + quantity;
+		result = prime * result + length;
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
+		result = prime * result + incomplete;
+		result = prime * result + nowinstats;
+		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
+		long u = Double.doubleToLongBits(updated);
 		result = prime * result + (int) (u ^ (u >>> 32));
-		result = prime * result + SyncStatus;
-		long s = Double.doubleToLongBits(Saved);
+		result = prime * result + syncStatus;
+		long s = Double.doubleToLongBits(saved);
 		result = prime * result + (int) (s ^ (s >>> 32));
-		long t = Double.doubleToLongBits(StartTime);
+		long t = Double.doubleToLongBits(startTime);
 		result = prime * result + (int) (t ^ (t >>> 32));
 		return result;
 	}
@@ -475,7 +571,7 @@ public class Play {
 	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
 		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
 		return sb.toString();
 	}
@@ -483,19 +579,19 @@ public class Play {
 	public String toLongDescription(Context context) {
 		Resources r = context.getResources();
 		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(GameName);
-		if (Quantity > 1) {
-			sb.append(" ").append(Quantity).append(" ").append(r.getString(R.string.times));
+		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
+		if (quantity > 1) {
+			sb.append(" ").append(quantity).append(" ").append(r.getString(R.string.times));
 		}
 		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
-		if (!TextUtils.isEmpty(Location)) {
-			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(Location);
+		if (!TextUtils.isEmpty(location)) {
+			sb.append(" ").append(r.getString(R.string.at)).append(" ").append(location);
 		}
-		if (mPlayers.size() > 0) {
-			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(mPlayers.size()).append(" ")
+		if (players.size() > 0) {
+			sb.append(" ").append(r.getString(R.string.with)).append(" ").append(players.size()).append(" ")
 				.append(r.getString(R.string.players));
 		}
-		sb.append(" (www.boardgamegeek.com/boardgame/").append(GameId).append(")");
+		sb.append(" (www.boardgamegeek.com/boardgame/").append(gameId).append(")");
 		return sb.toString();
 	}
 }

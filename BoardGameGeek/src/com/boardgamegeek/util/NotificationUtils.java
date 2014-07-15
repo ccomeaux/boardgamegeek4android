@@ -18,7 +18,9 @@ public class NotificationUtils {
 	public static final int ID_H_INDEX = 3;
 	public static final int ID_SYNC_ERROR = -1;
 	public static final int ID_PROVIDER_ERROR = -2;
-
+	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
+	public static final int ID_PERSIST_ERROR = -4;
+	
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
 		return createNotificationBuilder(context, titleId, HomeActivity.class);
 	}
@@ -48,27 +50,30 @@ public class NotificationUtils {
 		nm.cancel(id);
 	}
 
-	public static void launchStartNotification(Context context, Play play) {
-		launchStartNotification(context, play, false);
+	public static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl) {
+		launchStartNotification(context, play, thumbnailUrl, imageUrl, false);
 	}
 
-	public static void launchStartNotificationWithTicker(Context context, Play play) {
-		launchStartNotification(context, play, true);
+	public static void launchStartNotificationWithTicker(Context context, Play play, String thumbnailUrl,
+		String imageUrl) {
+		launchStartNotification(context, play, thumbnailUrl, imageUrl, true);
 	}
 
-	private static void launchStartNotification(Context context, Play play, boolean includeTicker) {
-		Intent intent = ActivityUtils.createPlayIntent(context, play.PlayId, play.GameId, play.GameName);
+	private static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl,
+		boolean includeTicker) {
+		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl,
+			imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
 			R.string.notification_playing);
 
-		builder.setContentText(play.GameName).setOnlyAlertOnce(true)
+		builder.setContentText(play.gameName).setOnlyAlertOnce(true)
 			.setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 		if (includeTicker) {
-			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.GameName));
+			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.gameName));
 		}
-		if (play.StartTime > 0) {
-			builder.setWhen(play.StartTime).setUsesChronometer(true);
+		if (play.startTime > 0) {
+			builder.setWhen(play.startTime).setUsesChronometer(true);
 		}
 		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
 		// TODO - set large icon with game thumbnail

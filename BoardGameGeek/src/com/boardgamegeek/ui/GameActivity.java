@@ -40,10 +40,12 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
+	private static final int REQUEST_EDIT_PLAY = 1;
 
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
+	private String mImageUrl;
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -147,7 +149,9 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				ActivityUtils.sendGameShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
-				ActivityUtils.logPlay(this, mGameId, mGameName);
+				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,
+					mImageUrl);
+				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
@@ -155,6 +159,14 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
+			onPageSelected((showCollection() ? 1 : 0) + 1);
+		}
 	}
 
 	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
@@ -245,6 +257,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	@Override
 	public void onThumbnailUrlChanged(String url) {
 		mThumbnailUrl = url;
+	}
+
+	@Override
+	public void onImageUrlChanged(String url) {
+		mImageUrl = url;
 	}
 
 	@Override
@@ -342,8 +359,8 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
-		ActivityUtils.launchPlay(this, playId, gameId, gameName, thumbnailUrl);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		return false;
 	}
 

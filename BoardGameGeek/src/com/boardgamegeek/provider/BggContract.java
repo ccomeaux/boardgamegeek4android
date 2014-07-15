@@ -191,7 +191,6 @@ public class BggContract {
 		String NEW = "new";
 		String RATING = "rating";
 		String WIN = "win";
-		String CHECKED = "checked";
 		String COUNT = "count";
 		String DESCRIPTION = "description";
 		String UNIQUE_NAME = "unique_name";
@@ -239,6 +238,8 @@ public class BggContract {
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
 	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
+	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
+	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
@@ -443,6 +444,15 @@ public class BggContract {
 
 		private static Builder getUriBuilder(int gameId, String path) {
 			return getLimitedUriBuilder(gameId, path, 0);
+		}
+
+		public static Uri buildPathUri(int gameId, String path) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path).build();
+		}
+
+		public static Uri buildPathUri(int gameId, String path, int id) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
+				.appendPath(String.valueOf(id)).build();
 		}
 
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
@@ -734,6 +744,9 @@ public class BggContract {
 		// TODO define table name in a better spot
 		public static final String DEFAULT_SORT = DATE + " DESC, plays." + PLAY_ID + " DESC";
 
+		/**
+		 * content://com.boardgamegeek/plays/#
+		 */
 		public static Uri buildPlayUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
 		}
@@ -766,6 +779,16 @@ public class BggContract {
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
+				.build();
+		}
+
+		public static Uri buildPlayersByUniquePlayerUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER)
+				.build();
+		}
+
+		public static Uri buildPlayersByUniqueUserUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
 				.build();
 		}
 

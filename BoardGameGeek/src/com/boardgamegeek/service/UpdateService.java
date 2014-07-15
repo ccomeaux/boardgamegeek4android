@@ -5,21 +5,20 @@ import static com.boardgamegeek.util.LogUtils.LOGE;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import org.apache.http.client.HttpClient;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.text.TextUtils;
 
-import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NetworkUtils;
+import com.boardgamegeek.util.NotificationUtils;
 
 public class UpdateService extends IntentService {
 	private static final String TAG = makeLogTag(UpdateService.class);
@@ -43,7 +42,8 @@ public class UpdateService extends IntentService {
 	public static final int STATUS_COMPLETE = 2;
 	public static final int STATUS_ERROR = 3;
 
-	private RemoteExecutor mRemoteExecutor;
+	private static final boolean DEBUG = true;
+
 	private ResultReceiver mResultReceiver;
 	private static boolean mUseGzip = true;
 
@@ -61,12 +61,6 @@ public class UpdateService extends IntentService {
 
 	public UpdateService() {
 		super(TAG);
-	}
-
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		mRemoteExecutor = createExecutor();
 	}
 
 	@Override
@@ -125,24 +119,24 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (mRemoteExecutor == null) {
-			mRemoteExecutor = createExecutor();
-		}
-
-		if (mRemoteExecutor == null) {
-			sendResultToReceiver(STATUS_ERROR, "Unable to create executor.");
-			return;
-		}
-
 		final long startTime = System.currentTimeMillis();
 		sendResultToReceiver(STATUS_RUNNING);
 		try {
-			task.execute(mRemoteExecutor, this);
-			String message = task.getErrorMessage();
-			if (!TextUtils.isEmpty(message)) {
-				LOGE(TAG, "Failed during sync type=" + syncType + ", ID=" + syncId + ", message=" + message);
-				sendResultToReceiver(STATUS_ERROR, message);
+			task.execute(this);
+		} catch (Exception e) {
+			String message = "Failed during " + task.getDescription();
+			String error = e.getMessage();
+			if (!TextUtils.isEmpty(error)) {
+				message += ", message=" + error;
 			}
+			if (DEBUG) {
+				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
+					R.string.title_error);
+				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
+			}
+			LOGE(TAG, message);
+			sendResultToReceiver(STATUS_ERROR, error);
 		} finally {
 			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
@@ -151,20 +145,16 @@ public class UpdateService extends IntentService {
 		}
 	}
 
-	private RemoteExecutor createExecutor() {
-		HttpClient httpClient = HttpUtils.createHttpClient(this, true);
-		if (httpClient != null) {
-			return new RemoteExecutor(httpClient, this);
-		}
-		return null;
-	}
-
 	private void sendResultToReceiver(int resultCode) {
 		sendResultToReceiver(resultCode, null);
 	}
 
 	private void sendResultToReceiver(int resultCode, String message) {
-		LOGI(TAG, "Code=" + resultCode + ", message=" + message);
+		String logMessage = codeToText(resultCode);
+		if (!TextUtils.isEmpty(message)) {
+			logMessage += ", message=" + message;
+		}
+		LOGI(TAG, "Update Result: " + logMessage);
 		if (mResultReceiver != null) {
 			Bundle bundle = Bundle.EMPTY;
 			if (!TextUtils.isEmpty(message)) {
@@ -172,6 +162,19 @@ public class UpdateService extends IntentService {
 				bundle.putString(Intent.EXTRA_TEXT, message);
 			}
 			mResultReceiver.send(resultCode, bundle);
+		}
+	}
+
+	private static String codeToText(int code) {
+		switch (code) {
+			case STATUS_RUNNING:
+				return "Running";
+			case STATUS_COMPLETE:
+				return "Complete";
+			case STATUS_ERROR:
+				return "Error";
+			default:
+				return String.valueOf(code);
 		}
 	}
 }

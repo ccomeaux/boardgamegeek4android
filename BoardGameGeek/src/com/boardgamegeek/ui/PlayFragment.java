@@ -17,8 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,6 +54,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
 	private String mThumbnailUrl;
+	private String mImageUrl;
 
 	private TextView mUpdated;
 	private TextView mPlayIdView;
@@ -104,6 +105,17 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -123,6 +135,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			intent.getStringExtra(PlayActivity.KEY_GAME_NAME));
 
 		mThumbnailUrl = intent.getStringExtra(PlayActivity.KEY_THUMBNAIL_URL);
+		mImageUrl = intent.getStringExtra(PlayActivity.KEY_IMAGE_URL);
 	}
 
 	@Override
@@ -153,11 +166,12 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 		mTimerRoot = header.findViewById(R.id.timer_root);
 		mTimer = (Chronometer) header.findViewById(R.id.timer);
-		Button b = (Button) header.findViewById(R.id.timer_end);
+		ImageButton b = (ImageButton) header.findViewById(R.id.timer_end);
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ActivityUtils.endPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
 			}
 		});
 
@@ -186,14 +200,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
+	public void onResume() {
+		super.onResume();
+		if (mPlay != null && mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		}
-
-		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override
@@ -209,13 +220,13 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_send).setVisible(mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS);
+		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
 		MenuItem refreshMenuItem = menu.findItem(R.id.menu_refresh);
 		refreshMenuItem.setEnabled(mPlay.hasBeenSynced());
-		if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+		if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 			refreshMenuItem.setTitle(R.string.menu_discard_changes);
 		}
-		menu.findItem(R.id.menu_share).setEnabled(mPlay.SyncStatus == Play.SYNC_STATUS_SYNCED);
+		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
 
 		super.onPrepareOptionsMenu(menu);
 	}
@@ -224,7 +235,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
-				if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
+				if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
 					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
@@ -237,7 +248,8 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				}
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
@@ -258,14 +270,16 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				return true;
 			}
 			case R.id.menu_play_again:
-				ActivityUtils.logPlayAgain(getActivity(), mPlay.PlayId, mPlay.GameId, mPlay.GameName);
+				ActivityUtils.logPlayAgain(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+					mImageUrl);
+				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
 					mPlay.toLongDescription(getActivity()), R.string.share_play_title);
 				return true;
 			case R.id.menu_view_game:
-				ActivityUtils.launchGame(getActivity(), mPlay.GameId, mPlay.GameName);
+				ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -359,21 +373,21 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		mPlay.setPlayers(players);
 
 		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay);
+			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		}
 
-		mCallbacks.onNameChanged(mPlay.GameName);
+		mCallbacks.onNameChanged(mPlay.gameName);
 
-		mGameName.setText(mPlay.GameName);
+		mGameName.setText(mPlay.gameName);
 
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
-		mQuantity.setText(String.valueOf(mPlay.Quantity) + " " + getString(R.string.times));
-		mQuantityRoot.setVisibility((mPlay.Quantity == 1) ? View.GONE : View.VISIBLE);
+		mQuantity.setText(String.valueOf(mPlay.quantity) + " " + getString(R.string.times));
+		mQuantityRoot.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
 
-		if (mPlay.Length > 0) {
+		if (mPlay.length > 0) {
 			mLengthRoot.setVisibility(View.VISIBLE);
-			mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.Length));
+			mLength.setText(DateTimeUtils.describeMinutes(getActivity(), mPlay.length));
 			mLength.setVisibility(View.VISIBLE);
 			mTimerRoot.setVisibility(View.GONE);
 			mTimer.stop();
@@ -381,43 +395,43 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			mLengthRoot.setVisibility(View.VISIBLE);
 			mLength.setVisibility(View.GONE);
 			mTimerRoot.setVisibility(View.VISIBLE);
-			UIUtils.startTimerWithSystemTime(mTimer, mPlay.StartTime);
+			UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
 		} else {
 			mLengthRoot.setVisibility(View.GONE);
 		}
 
-		mLocation.setText(mPlay.Location);
-		mLocationRoot.setVisibility(TextUtils.isEmpty(mPlay.Location) ? View.GONE : View.VISIBLE);
+		mLocation.setText(mPlay.location);
+		mLocationRoot.setVisibility(TextUtils.isEmpty(mPlay.location) ? View.GONE : View.VISIBLE);
 
-		mIncomplete.setVisibility(mPlay.Incomplete ? View.VISIBLE : View.GONE);
-		mNoWinStats.setVisibility(mPlay.NoWinStats ? View.VISIBLE : View.GONE);
+		mIncomplete.setVisibility(mPlay.Incomplete() ? View.VISIBLE : View.GONE);
+		mNoWinStats.setVisibility(mPlay.NoWinStats() ? View.VISIBLE : View.GONE);
 
-		mComments.setText(mPlay.Comments);
-		mComments.setVisibility(TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
-		mCommentsLabel.setVisibility(TextUtils.isEmpty(mPlay.Comments) ? View.GONE : View.VISIBLE);
+		mComments.setText(mPlay.comments);
+		mComments.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
+		mCommentsLabel.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
 
 		mUpdated.setText(getResources().getString(R.string.updated) + " "
-			+ DateUtils.getRelativeTimeSpanString(mPlay.Updated));
-		mUpdated.setVisibility((mPlay.Updated == 0) ? View.GONE : View.VISIBLE);
+			+ DateUtils.getRelativeTimeSpanString(mPlay.updated));
+		mUpdated.setVisibility((mPlay.updated == 0) ? View.GONE : View.VISIBLE);
 
 		if (mPlay.hasBeenSynced()) {
-			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.PlayId));
+			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.playId));
 		}
 
-		if (mPlay.SyncStatus != Play.SYNC_STATUS_SYNCED) {
+		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			mUnsyncedMessage.setVisibility(View.VISIBLE);
 			mSavedTimeStamp.setVisibility(View.VISIBLE);
 			mSavedTimeStamp.setText(getResources().getString(R.string.saved) + " "
-				+ DateUtils.getRelativeTimeSpanString(mPlay.Saved));
-			if (mPlay.SyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+				+ DateUtils.getRelativeTimeSpanString(mPlay.saved));
+			if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 				if (mPlay.hasBeenSynced()) {
 					mUnsyncedMessage.setText(R.string.sync_editing);
 				} else {
 					mUnsyncedMessage.setText(R.string.sync_draft);
 				}
-			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+			} else if (mPlay.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
 				mUnsyncedMessage.setText(R.string.sync_pending_update);
-			} else if (mPlay.SyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
+			} else if (mPlay.syncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
 				mUnsyncedMessage.setText(R.string.sync_pending_delete);
 			}
 		} else {
@@ -429,7 +443,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
 		if (mPlay.hasBeenSynced()
-			&& (mPlay.Updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
+			&& (mPlay.updated == 0 || DateTimeUtils.howManyDaysOld(mPlay.updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 
@@ -437,12 +451,12 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	}
 
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.GameId, mReceiver);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.gameId, mReceiver);
 	}
 
 	private void save(int status) {
-		mPlay.SyncStatus = status;
-		PlayPersister.save(getActivity().getContentResolver(), mPlay);
+		mPlay.syncStatus = status;
+		PlayPersister.save(getActivity(), mPlay);
 		triggerRefresh();
 	}
 

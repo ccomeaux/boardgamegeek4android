@@ -18,5 +18,9 @@
 	<dimen name="actionbar_text_medium">18sp</dimen>
 	<dimen name="actionbar_text_small">12sp</dimen>
 	<dimen name="icon_width">48dp</dimen>
+	<dimen name="dropdownitem_min_height">48dp</dimen>
+	<dimen name="color_circle_diameter">36dp</dimen>
+	<dimen name="image_button_size">40dp</dimen>
+	<dimen name="image_header_height">48dp</dimen>
 
 </resources>

@@ -11,7 +11,7 @@ public class CollectionIdProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
 		int itemId = Collection.getItemId(uri);
-		return new SelectionBuilder().table(Tables.COLLECTION).whereEquals(Collection.COLLECTION_ID, itemId);
+		return new SelectionBuilder().table(Tables.COLLECTION).whereEquals(Collection._ID, itemId);
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class CollectionIdProvider extends BaseProvider {
 		return new SelectionBuilder().table(Tables.COLLECTION_JOIN_GAMES).mapToTable(Collection._ID, Tables.COLLECTION)
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
-			.whereEquals(Tables.COLLECTION + "." + Collection.COLLECTION_ID, itemId);
+			.whereEquals(Tables.COLLECTION + "." + Collection._ID, itemId);
 	}
 
 	@Override

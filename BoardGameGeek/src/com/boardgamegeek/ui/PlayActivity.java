@@ -20,7 +20,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
-	private static final int REQUEST_EDIT_PLAY = 0;
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private BroadcastReceiver mReceiver;
 	private int mPlayId = BggContract.INVALID_ID;
 
@@ -30,9 +30,7 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 
 		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
 
-		if (savedInstanceState == null) {
-			maybeEditPlay(getIntent());
-		} else {
+		if (savedInstanceState != null) {
 			newPlayId(savedInstanceState.getInt(KEY_PLAY_ID, BggContract.INVALID_ID));
 		}
 
@@ -75,31 +73,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 	}
 
 	@Override
-	public void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		maybeEditPlay(intent);
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == REQUEST_EDIT_PLAY) {
-			switch (resultCode) {
-				case RESULT_OK:
-					// new play was deleted
-					finish();
-					break;
-				case RESULT_CANCELED:
-					// do nothing
-					break;
-				default:
-					// resultCode is a new playId
-					newPlayId(resultCode);
-					break;
-			}
-		}
-	}
-
-	@Override
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
 		if (mPlayId != BggContract.INVALID_ID) {
 			arguments = UIUtils.replaceData(arguments, Plays.buildPlayUri(mPlayId));
@@ -139,16 +112,6 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
 			getSupportActionBar().setSubtitle(gameName);
-		}
-	}
-
-	private void maybeEditPlay(Intent intent) {
-		if (Intent.ACTION_EDIT.equals(intent.getAction())) {
-			Intent editIntent = new Intent(intent);
-			editIntent.setClass(this, LogPlayActivity.class);
-			editIntent.setAction(Intent.ACTION_EDIT);
-			editIntent.putExtra(LogPlayActivity.KEY_PLAY_ID, intent.getIntExtra(KEY_PLAY_ID, BggContract.INVALID_ID));
-			startActivityForResult(editIntent, REQUEST_EDIT_PLAY);
 		}
 	}
 }
