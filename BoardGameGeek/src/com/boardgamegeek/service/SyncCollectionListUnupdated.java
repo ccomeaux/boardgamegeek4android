@@ -34,22 +34,33 @@ public class SyncCollectionListUnupdated extends SyncTask {
 	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing unupdated collection list...");
 		try {
-			List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
-				Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
-					+ " IS NULL", null, Collection.COLLECTION_ID + " LIMIT " + GAME_PER_FETCH);
-			LOGI(TAG, "...found " + gameIds.size() + " collection items to update");
-			if (gameIds.size() > 0) {
-				CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
+			int numberOfFetches = 0;
+			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
+			Map<String, String> options = new HashMap<String, String>();
+			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
+			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 
-				Map<String, String> options = new HashMap<String, String>();
-				options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
-				options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
-				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
-
-				CollectionResponse response = getCollectionResponse(mService, account.name, options);
-				persister.save(response.items);
-				// TODO games with a status of played don't get returned with this request
-			}
+			do {
+				if (isCancelled()) {
+					break;
+				}
+				numberOfFetches++;
+				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
+					Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
+						+ " IS NULL", null, "collection." + Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
+				if (gameIds.size() > 0) {
+					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
+					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
+					CollectionResponse response = getCollectionResponse(mService, account.name, options);
+					int count = persister.save(response.items);
+					// TODO games with a status of played don't get returned with this request
+					// syncResult.stats.numUpdates += gameIds.size();
+					LOGI(TAG, "...saved " + count + " rows for " + gameIds.size() + " collection items");
+				} else {
+					LOGI(TAG, "...no more unupdated collection items");
+					break;
+				}
+			} while (numberOfFetches < 100);
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

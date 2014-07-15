@@ -44,16 +44,18 @@ public class SyncCollectionDetailMissing extends SyncTask {
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, "collection."
 				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?",
 				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
-			LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 			if (gameIds.size() > 0) {
+				LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 				int count = 0;
 				for (Integer gameId : gameIds) {
 					LOGI(TAG, "...deleting game ID=" + gameId);
 					count += resolver.delete(Games.buildGameUri(gameId), null, null);
 				}
 				LOGI(TAG, "...deleted " + count + " games");
+			} else {
+				LOGI(TAG, "...no games need deleting");
 			}
-			// NOTE: We're not deleting one at a time, because a batch doesn't perform the game/collection join
+			// NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

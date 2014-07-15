@@ -79,7 +79,7 @@ public class CollectionPersister {
 				LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
-			LOGI(TAG, "Saved " + items.size() + " games");
+			LOGI(TAG, "Saved " + items.size() + " collection items");
 			return result.length;
 		}
 		return 0;

@@ -199,7 +199,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	private void showError(Throwable t) {
-		showError(mContext.getString(R.string.sync_notification_error), t.getMessage());
+		String message = t.getMessage();
+		if (TextUtils.isEmpty(message)) {
+			Throwable t1 = t.getCause();
+			if (t1 != null) {
+				message = t1.toString();
+			}
+		}
+		showError(mContext.getString(R.string.sync_notification_error), message);
 	}
 
 	private void showError(String text, String message) {

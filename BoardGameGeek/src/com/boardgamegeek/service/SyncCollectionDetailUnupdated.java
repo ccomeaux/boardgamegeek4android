@@ -3,6 +3,7 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import android.accounts.Account;
@@ -22,7 +23,7 @@ import com.boardgamegeek.util.ResolverUtils;
  */
 public class SyncCollectionDetailUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailUnupdated.class);
-	private static final int GAMES_PER_FETCH = 25;
+	private static final int GAMES_PER_FETCH = 16;
 
 	public SyncCollectionDetailUnupdated(BggService service) {
 		super(service);
@@ -32,25 +33,40 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing unupdated games in the collection...");
 		try {
-			List<String> gameIds = ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
-				Games.GAME_ID, "games." + Games.UPDATED + "=0 OR games." + Games.UPDATED + " IS NULL", null);
-			LOGI(TAG, "...found " + gameIds.size() + " games to update");
-			if (gameIds.size() > 0) {
-				for (int i = 0; i < gameIds.size(); i += GAMES_PER_FETCH) {
-					if (isCancelled()) {
-						break;
-					}
-					if (i <= gameIds.size()) {
-						List<String> ids = gameIds.subList(i, Math.min(i + GAMES_PER_FETCH, gameIds.size()));
-						LOGI(TAG, "...updating " + ids.size() + " games");
-						GamePersister gp = new GamePersister(context);
-						ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
-						int count = gp.save(response.games);
-						LOGI(TAG, "...saved " + count + " rows");
-						// syncResult.stats.numUpdates += ...
-					}
+			int gamesPerFetch = GAMES_PER_FETCH;
+			int numberOfFetches = 0;
+			do {
+				if (isCancelled()) {
+					break;
 				}
-			}
+				numberOfFetches++;
+				List<String> gameIds = ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
+					Games.GAME_ID, "games." + Games.UPDATED + "=0 OR games." + Games.UPDATED + " IS NULL", null,
+					"games." + Games.UPDATED_LIST + " DESC LIMIT " + gamesPerFetch);
+				if (gameIds.size() > 0) {
+					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
+					try {
+						GamePersister persister = new GamePersister(context);
+						ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
+						int count = persister.save(response.games);
+						// syncResult.stats.numUpdates += gameIds.size();
+						LOGI(TAG, "...saved " + count + " rows for " + gameIds.size() + " games");
+					} catch (Exception e) {
+						if (e.getCause() instanceof SocketTimeoutException) {
+							if (gamesPerFetch == 1) {
+								LOGI(TAG, "...timeout with only 1 game; aborting.");
+								break;
+							}
+							gamesPerFetch = gamesPerFetch / 2;
+							LOGI(TAG, "...timeout - reducing games per fetch to " + gamesPerFetch);
+						}
+						throw e;
+					}
+				} else {
+					LOGI(TAG, "...no more unupdated games");
+					break;
+				}
+			} while (numberOfFetches < 100);
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

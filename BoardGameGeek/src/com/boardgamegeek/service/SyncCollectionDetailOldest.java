@@ -23,7 +23,7 @@ import com.boardgamegeek.util.ResolverUtils;
  */
 public class SyncCollectionDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);
-	private static final int SYNC_GAME_LIMIT = 25;
+	private static final int SYNC_GAME_LIMIT = 8;
 
 	public SyncCollectionDetailOldest(BggService service) {
 		super(service);
@@ -35,12 +35,14 @@ public class SyncCollectionDetailOldest extends SyncTask {
 		try {
 			List<String> gameIds = ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
 				Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + SYNC_GAME_LIMIT);
-			LOGI(TAG, "...found " + gameIds.size() + " games to update");
 			if (gameIds.size() > 0) {
+				LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
 				GamePersister gp = new GamePersister(context);
 				ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
 				int count = gp.save(response.games);
 				LOGI(TAG, "...saved " + count + " rows");
+			} else {
+				LOGI(TAG, "...found no old games to update (this should only happen with empty collections)");
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

@@ -8,6 +8,7 @@ import java.util.List;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -118,7 +119,8 @@ public class GamePersister {
 			if (debug) {
 				return length;
 			} else {
-				return ResolverUtils.applyBatch(mContext, mBatch).length;
+				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
+				return result.length;
 			}
 		}
 		return 0;

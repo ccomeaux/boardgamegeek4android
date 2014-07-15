@@ -56,7 +56,15 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 
 				CollectionResponse response = getCollectionResponse(mService, account.name, options);
-				persister.save(response.items);
+				int itemCount = 0;
+				if (response.items != null) {
+					itemCount = response.items.size();
+					int count = persister.save(response.items);
+					// syncResult.stats
+					LOGI(TAG, "...saved " + count + " rows for " + itemCount + " collection items");
+				} else {
+					LOGI(TAG, "...no new collection modifications");
+				}
 			}
 			if (!cancelled) {
 				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
