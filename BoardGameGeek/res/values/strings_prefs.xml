@@ -60,6 +60,12 @@
 	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
 	<string name="pref_sync_reset_success">Sync started</string>
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
+	<string name="pref_sync_timestamps">Sync timestamps</string>
+	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
+	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
+	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>
+	<string name="pref_sync_timestamps_plays_oldest_date">Oldest Synced Play Date</string>
+	<string name="pref_sync_timestamps_buddy">Last Buddy Sync</string>
 	<string name="pref_list_empty">&lt;None&gt;</string>
 	<string name="pref_advanced">Advanced</string>
 	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>

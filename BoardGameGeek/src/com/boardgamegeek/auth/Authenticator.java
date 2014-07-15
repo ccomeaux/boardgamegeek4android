@@ -219,6 +219,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static long getLong(Context context, String key, long defaultValue) {
 		AccountManager accountManager = AccountManager.get(context);
 		Account account = getAccount(accountManager);
+		if (account == null) {
+			return defaultValue;
+		}
 		String s = accountManager.getUserData(account, key);
 		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
 	}
