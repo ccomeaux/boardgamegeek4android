@@ -51,6 +51,7 @@ public class PlayBuilder {
 		play.syncStatus = CursorUtils.getInt(cursor, Plays.SYNC_STATUS);
 		play.saved = CursorUtils.getLong(cursor, Plays.UPDATED);
 		play.startTime = CursorUtils.getLong(cursor, Plays.START_TIME);
+		play.playerCount = CursorUtils.getInt(cursor, Plays.PLAYER_COUNT);
 		if (includePlayers && context != null) {
 			Cursor c = null;
 			try {

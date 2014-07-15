@@ -174,6 +174,7 @@ public class BggContract {
 		String COMMENTS = "comments";
 		String SYNC_STATUS = "sync_status";
 		String START_TIME = "start_time";
+		String PLAYER_COUNT = "player_count";
 	}
 
 	interface PlayItemsColumns {

@@ -246,6 +246,7 @@ public class PlayPersister {
 		values.put(Plays.NO_WIN_STATS, play.NoWinStats());
 		values.put(Plays.LOCATION, play.location);
 		values.put(Plays.COMMENTS, play.comments);
+		values.put(Plays.PLAYER_COUNT, play.getPlayerCount());
 		if (play.updated > 0) {
 			values.put(Plays.UPDATED_LIST, play.updated);
 		}

@@ -588,8 +588,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private interface PlaysQuery {
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
-			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, "COUNT(" + PlayPlayers.USER_ID + ")",
-			Games.THUMBNAIL_URL, Games.IMAGE_URL };
+			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
+			Games.IMAGE_URL };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
