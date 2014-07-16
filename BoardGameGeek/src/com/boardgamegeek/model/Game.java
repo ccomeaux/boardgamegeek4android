@@ -306,10 +306,6 @@ public class Game {
 		return getLinks("boardgameimplementation");
 	}
 
-	public Rank getRank() {
-		return null;
-	}
-
 	private List<Link> getLinks(String type) {
 		List<Link> list = new ArrayList<Link>();
 		if (!TextUtils.isEmpty(type)) {
