@@ -485,7 +485,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 			mLengthView.setVisibility(View.VISIBLE);
 			mTimer.setVisibility(View.GONE);
 		}
-		mTimerToggle.setVisibility(DateUtils.isToday(mPlay.getDateInMillis()) ? View.VISIBLE : View.INVISIBLE);
+		if (mPlay.hasStarted() || DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
+			mTimerToggle.setVisibility(View.VISIBLE);
+		} else {
+			mTimerToggle.setVisibility(View.INVISIBLE);
+		}
 
 		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
 		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
