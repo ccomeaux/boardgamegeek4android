@@ -171,6 +171,7 @@
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
+	<string name="empty_play_stats">You have no plays to analyze.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>

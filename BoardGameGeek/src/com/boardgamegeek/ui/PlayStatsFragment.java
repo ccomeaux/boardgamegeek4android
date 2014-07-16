@@ -21,10 +21,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
@@ -38,6 +38,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 	private double mRating;
 
 	private View mProgress;
+	private View mEmpty;
 	private View mData;
 	private TextView mPlayCountView;
 	private TextView mPlayHoursView;
@@ -65,6 +66,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
 		mProgress = rootView.findViewById(R.id.progress);
+		mEmpty = rootView.findViewById(R.id.empty);
 		mData = rootView.findViewById(R.id.data);
 
 		mFhmView = (TextView) rootView.findViewById(R.id.fhm);
@@ -96,7 +98,8 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 		switch (id) {
 			case PlayQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlayQuery.PROJECTION, PlayItems.OBJECT_ID
-					+ "=?", new String[] { String.valueOf(mGameId) }, Plays.DATE + " ASC");
+					+ "=? AND " + Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(mGameId),
+					String.valueOf(Play.SYNC_STATUS_SYNCED) }, Plays.DATE + " ASC");
 				break;
 			case GameQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, GameQuery.PROJECTION, "collection."
@@ -113,7 +116,9 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 		}
 
 		if (cursor == null || !cursor.moveToFirst()) {
-			// TODO: display empty message
+			mProgress.setVisibility(View.GONE);
+			mEmpty.setVisibility(View.VISIBLE);
+			mData.setVisibility(View.GONE);
 			return;
 		}
 
@@ -154,12 +159,22 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 					mQuarter.setText(stats.mQuarterDate);
 				}
 
-				mData.setVisibility(View.VISIBLE);
 				mProgress.setVisibility(View.GONE);
+				mEmpty.setVisibility(View.GONE);
+				mData.setVisibility(View.VISIBLE);
 				break;
 			case GameQuery._TOKEN:
 				mPlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-				mRating = cursor.getDouble(GameQuery.RATING);
+				double ratingSum = 0;
+				int ratingCount = 0;
+				do {
+					double rating = cursor.getDouble(GameQuery.RATING);
+					if (rating > 0) {
+						ratingSum += rating;
+						ratingCount++;
+					}
+				} while (cursor.moveToNext());
+				mRating = ratingSum / ratingCount;
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
 				break;
 			default:

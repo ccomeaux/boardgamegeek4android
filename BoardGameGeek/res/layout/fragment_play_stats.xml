@@ -10,6 +10,14 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center" />
 
+	<TextView
+		android:id="@+id/empty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:text="@string/empty_play_stats"
+		android:visibility="gone" />
+
 	<ScrollView
 		android:id="@+id/data"
 		android:layout_width="match_parent"
@@ -18,7 +26,7 @@
 
 		<TableLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
+			android:layout_height="wrap_content"
 			android:padding="@dimen/padding_standard" >
 
 			<TableRow>
