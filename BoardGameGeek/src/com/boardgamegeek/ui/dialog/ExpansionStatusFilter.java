@@ -22,7 +22,11 @@ public class ExpansionStatusFilter {
 			}).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new ExpansionStatusFilterData(context, mSelected));
+					if (mSelected == 0) {
+						view.removeFilter(new ExpansionStatusFilterData());
+					} else {
+						view.addFilter(new ExpansionStatusFilterData(context, mSelected));
+					}
 				}
 			}).setNegativeButton(R.string.cancel, null).create().show();
 	}

@@ -641,7 +641,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -667,6 +667,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int STATS_NUMBER_WISHING = 21;
 		int POLLS_COUNT = 22;
 		int IMAGE_URL = 23;
+		int SUBTYPE = 24;
 	}
 
 	private interface DesignerQuery {
@@ -746,6 +747,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int NumberWanting;
 		int NumberWishing;
 		int PollsCount;
+		String Subtype;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -772,6 +774,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			NumberWanting = cursor.getInt(GameQuery.STATS_NUMBER_WANTING);
 			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
 			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
+			Subtype = cursor.getString(GameQuery.SUBTYPE);
 		}
 
 		public String getAgeDescription() {

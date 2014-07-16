@@ -350,9 +350,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 						where.append("(").append(filter.getSelection()).append(")");
 						args = StringUtils.concat(args, filter.getSelectionArgs());
 					}
-					if (!TextUtils.isEmpty(filter.getPath())) {
-						uriBuilder.appendPath(filter.getPath());
-					}
 				}
 			}
 			Uri mUri = uriBuilder.build();
