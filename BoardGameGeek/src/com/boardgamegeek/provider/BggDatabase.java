@@ -62,7 +62,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_COLLECTION_CONFLICT = 15;
 	private static final int VER_PLAYS_START_TIME = 16;
 	private static final int VER_PLAYS_PLAYER_COUNT = 17;
-	private static final int DATABASE_VERSION = VER_PLAYS_PLAYER_COUNT;
+	private static final int VER_GAMES_SUBTYPE = 18;
+	private static final int DATABASE_VERSION = VER_GAMES_SUBTYPE;
 
 	private Context mContext;
 
@@ -265,8 +266,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.THUMBNAIL_URL, COLUMN_TYPE.TEXT).addColumn(Games.MIN_PLAYERS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.MAX_PLAYERS, COLUMN_TYPE.INTEGER).addColumn(Games.PLAYING_TIME, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.NUM_PLAYS, COLUMN_TYPE.INTEGER, true, 0).addColumn(Games.MINIMUM_AGE, COLUMN_TYPE.INTEGER)
-			.addColumn(Games.DESCRIPTION, COLUMN_TYPE.TEXT).addColumn(Games.STATS_USERS_RATED, COLUMN_TYPE.INTEGER)
-			.addColumn(Games.STATS_AVERAGE, COLUMN_TYPE.REAL).addColumn(Games.STATS_BAYES_AVERAGE, COLUMN_TYPE.REAL)
+			.addColumn(Games.DESCRIPTION, COLUMN_TYPE.TEXT).addColumn(Games.SUBTYPE, COLUMN_TYPE.TEXT)
+			.addColumn(Games.STATS_USERS_RATED, COLUMN_TYPE.INTEGER).addColumn(Games.STATS_AVERAGE, COLUMN_TYPE.REAL)
+			.addColumn(Games.STATS_BAYES_AVERAGE, COLUMN_TYPE.REAL)
 			.addColumn(Games.STATS_STANDARD_DEVIATION, COLUMN_TYPE.REAL)
 			.addColumn(Games.STATS_MEDIAN, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_NUMBER_OWNED, COLUMN_TYPE.INTEGER)
@@ -568,6 +570,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 					+ PlayPlayers.USER_ID + ")" + " FROM " + Tables.PLAY_PLAYERS + " WHERE " + Tables.PLAYS + "."
 					+ Plays.PLAY_ID + "=" + Tables.PLAY_PLAYERS + "." + PlayPlayers.PLAY_ID + ")");
 				version = VER_PLAYS_PLAYER_COUNT;
+			case VER_PLAYS_PLAYER_COUNT:
+				addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
+				version = VER_GAMES_SUBTYPE;
 		}
 
 		if (version != DATABASE_VERSION) {

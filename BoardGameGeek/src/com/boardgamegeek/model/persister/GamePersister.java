@@ -136,6 +136,7 @@ public class GamePersister {
 		values.put(Games.THUMBNAIL_URL, game.thumbnail);
 		values.put(Games.IMAGE_URL, game.image);
 		values.put(Games.DESCRIPTION, game.getDescription());
+		values.put(Games.SUBTYPE, game.subtype());
 		values.put(Games.YEAR_PUBLISHED, game.yearPublished);
 		values.put(Games.MIN_PLAYERS, game.minPlayers);
 		values.put(Games.MAX_PLAYERS, game.maxPlayers);

@@ -193,6 +193,10 @@ public class Game {
 	@Attribute
 	private String type;
 
+	public String subtype() {
+		return type;
+	}
+
 	@Attribute
 	public int id;
 

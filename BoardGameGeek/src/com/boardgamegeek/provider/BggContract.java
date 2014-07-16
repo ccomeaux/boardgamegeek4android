@@ -35,6 +35,7 @@ public class BggContract {
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
+		String SUBTYPE = "subtype";
 		String STATS_USERS_RATED = "usersrated";
 		String STATS_AVERAGE = "average";
 		String STATS_BAYES_AVERAGE = "bayes_average";
