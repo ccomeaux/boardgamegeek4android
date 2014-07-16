@@ -70,10 +70,6 @@ public class CollectionPersister {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			mGameIds.clear();
 			for (CollectionItem item : items) {
-				if (item.collectionId() == BggContract.INVALID_ID) {
-					LOGI(TAG, "No collection ID for game ID=" + item.gameId + " - must be a played-only game");
-					continue;
-				}
 				insertOrUpdateGame(resolver, toGameValues(item), batch);
 				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
 				LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
