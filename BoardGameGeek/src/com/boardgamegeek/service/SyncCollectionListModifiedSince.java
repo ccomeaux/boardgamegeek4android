@@ -57,23 +57,28 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				}
 				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
+				requestAndPersist(account.name, persister, options);
 
-				CollectionResponse response = getCollectionResponse(mService, account.name, options);
-				int itemCount = 0;
-				if (response.items != null) {
-					itemCount = response.items.size();
-					int count = persister.save(response.items);
-					// syncResult.stats
-					LOGI(TAG, "...saved " + count + " rows for " + itemCount + " collection items");
-				} else {
-					LOGI(TAG, "...no new collection modifications");
-				}
+				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+				requestAndPersist(account.name, persister, options);
 			}
 			if (!cancelled) {
 				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
+		}
+	}
+
+	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options) {
+		CollectionResponse response;
+		response = getCollectionResponse(mService, username, options);
+		if (response.items != null) {
+			int count = persister.save(response.items);
+			// syncResult.stats
+			LOGI(TAG, "...saved " + count + " rows for " + response.items.size() + " collection items");
+		} else {
+			LOGI(TAG, "...no new collection modifications");
 		}
 	}
 

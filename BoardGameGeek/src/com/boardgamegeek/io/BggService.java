@@ -34,6 +34,7 @@ public interface BggService {
 	// boardgamecompany
 	// rpgcompany
 	// videogamecompany
+	public static final String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";
 
 	public static final String PERSON_TYPE_ARTIST = "boardgameartist";
 	public static final String PERSON_TYPE_DESIGNER = "boardgamedesigner";
@@ -57,6 +58,7 @@ public interface BggService {
 	public static final String COLLECTION_QUERY_KEY_STATS = "stats";
 	public static final String COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince";
 	public static final String COLLECTION_QUERY_KEY_BRIEF = "brief";
+	public static final String COLLECTION_QUERY_KEY_SUBTYPE = "subtype";
 	public static final SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	// TODO: add HH:MM:SS

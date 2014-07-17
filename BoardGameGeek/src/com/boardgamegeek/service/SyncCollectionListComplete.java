@@ -50,8 +50,10 @@ public class SyncCollectionListComplete extends SyncTask {
 					options.put(statuses[j], "0");
 				}
 
-				CollectionResponse response = getCollectionResponse(mService, account.name, options);
-				persister.save(response.items);
+				requestAndPersist(account.name, persister, options);
+
+				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+				requestAndPersist(account.name, persister, options);
 			}
 
 			if (success) {
@@ -69,6 +71,12 @@ public class SyncCollectionListComplete extends SyncTask {
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options) {
+		CollectionResponse response = getCollectionResponse(mService, username, options);
+		int count = persister.save(response.items);
+		LOGI(TAG, "...saved " + count + " rows for " + response.items.size() + " collection items");
 	}
 
 	@Override

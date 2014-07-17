@@ -224,7 +224,7 @@ public class Game {
 	@Attribute(name = "value")
 	public int maxPlayers;
 
-	@ElementList(inline = true)
+	@ElementList(inline = true, required = false)
 	public List<Poll> polls;
 
 	@Path("playingtime")
