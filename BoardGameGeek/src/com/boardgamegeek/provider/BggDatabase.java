@@ -63,7 +63,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYS_START_TIME = 16;
 	private static final int VER_PLAYS_PLAYER_COUNT = 17;
 	private static final int VER_GAMES_SUBTYPE = 18;
-	private static final int DATABASE_VERSION = VER_GAMES_SUBTYPE;
+	private static final int VER_COLLECTION_ID_NULLABLE = 19;
+	private static final int DATABASE_VERSION = VER_COLLECTION_ID_NULLABLE;
 
 	private Context mContext;
 
@@ -336,7 +337,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		return new TableBuilder().setTable(Tables.COLLECTION).useDefaultPrimaryKey()
 			.addColumn(Collection.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Collection.UPDATED_LIST, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.GAME_ID, COLUMN_TYPE.INTEGER, true, false, Tables.GAMES, Games.GAME_ID, true)
-			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(Collection.COLLECTION_ID, COLUMN_TYPE.INTEGER)
 			.addColumn(Collection.COLLECTION_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.COLLECTION_SORT_NAME, COLUMN_TYPE.TEXT, true)
 			.addColumn(Collection.STATUS_OWN, COLUMN_TYPE.INTEGER, true, 0)
@@ -569,6 +570,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_PLAYS_PLAYER_COUNT:
 				addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
 				version = VER_GAMES_SUBTYPE;
+			case VER_GAMES_SUBTYPE:
+				buildCollectionTable().replace(db);
+				version = VER_COLLECTION_ID_NULLABLE;
 		}
 
 		if (version != DATABASE_VERSION) {

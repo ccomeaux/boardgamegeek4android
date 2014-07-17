@@ -171,11 +171,19 @@ public class CollectionPersister {
 	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
 		Builder cpo = null;
-		int id = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID, BggContract.INVALID_ID,
-			Collection.COLLECTION_ID + "=?", new String[] { values.getAsString(Collection.COLLECTION_ID) });
-		if (id != BggContract.INVALID_ID) {
-			Uri uri = Collection.buildItemUri(id);
+		int existingId = BggContract.INVALID_ID;
+		if (values.getAsInteger(Collection.COLLECTION_ID) == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);
+			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
+				BggContract.INVALID_ID, Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
+				new String[] { values.getAsString(Collection.GAME_ID) });
+		} else {
+			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
+				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?",
+				new String[] { values.getAsString(Collection.COLLECTION_ID) });
+		}
+		if (existingId != BggContract.INVALID_ID) {
+			Uri uri = Collection.buildItemUri(existingId);
 			cpo = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(resolver, values, uri, batch);
 		} else {

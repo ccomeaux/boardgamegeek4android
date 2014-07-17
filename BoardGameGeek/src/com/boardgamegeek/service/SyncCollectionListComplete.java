@@ -44,8 +44,11 @@ public class SyncCollectionListComplete extends SyncTask {
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 
 				Map<String, String> options = new HashMap<String, String>();
-				options.put(statuses[i], "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+				options.put(statuses[i], "1");
+				for (int j = 0; j < i; j++) {
+					options.put(statuses[j], "0");
+				}
 
 				CollectionResponse response = getCollectionResponse(mService, account.name, options);
 				persister.save(response.items);

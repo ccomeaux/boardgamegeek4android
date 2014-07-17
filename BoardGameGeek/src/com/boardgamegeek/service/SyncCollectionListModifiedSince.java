@@ -52,6 +52,9 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 
 				options.clear();
 				options.put(statuses[i], "1");
+				for (int j = 0; j < i; j++) {
+					options.put(statuses[j], "0");
+				}
 				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 
