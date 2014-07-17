@@ -87,6 +87,7 @@
 <![CDATA[<h4>What\'s New?</h4>
 <h5>Coming Soon</h5>
 <ul>
+<li>Now syncs accessories (though this will break the base game/expansion filter until the next complete collection sync)</li>
 <li>Usability improvements when logging plays</li>
 <li>View all players along with GeekBuddies</li>
 <li>Completely rewritten syncing logic</li>
