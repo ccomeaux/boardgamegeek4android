@@ -206,8 +206,10 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
-	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,
+		boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 

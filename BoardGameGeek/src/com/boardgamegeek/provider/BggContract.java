@@ -51,6 +51,7 @@ public class BggContract {
 		String LAST_VIEWED = "last_viewed";
 		String STARRED = "starred";
 		String UPDATED_PLAYS = "updated_plays";
+		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 	}
 
 	interface GameRanksColumns {

@@ -289,7 +289,7 @@ public class Play {
 	}
 
 	public void removePlayer(Player player, boolean resort) {
-		if (players == null) {
+		if (players == null || getPlayerCount() == 0) {
 			return;
 		}
 		if (resort && !arePlayersCustomSorted()) {
@@ -321,7 +321,7 @@ public class Play {
 	}
 
 	public boolean reorderPlayers(int fromSeat, int toSeat) {
-		if (players == null) {
+		if (players == null || getPlayerCount() == 0) {
 			return false;
 		}
 		if (arePlayersCustomSorted()) {
@@ -399,10 +399,6 @@ public class Play {
 	 * Determine if the starting positions indicate the players are custom sorted.
 	 */
 	public boolean arePlayersCustomSorted() {
-		if (getPlayerCount() == 0) {
-			return false;
-		}
-
 		if (!hasStartingPositions()) {
 			return true;
 		}

@@ -64,7 +64,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_PLAYS_PLAYER_COUNT = 17;
 	private static final int VER_GAMES_SUBTYPE = 18;
 	private static final int VER_COLLECTION_ID_NULLABLE = 19;
-	private static final int DATABASE_VERSION = VER_COLLECTION_ID_NULLABLE;
+	private static final int VER_GAME_CUSTOM_PLAYER_SORT = 20;
+	private static final int DATABASE_VERSION = VER_GAME_CUSTOM_PLAYER_SORT;
 
 	private Context mContext;
 
@@ -276,7 +277,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.STATS_NUMBER_WEIGHTS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL).addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER).addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
-			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
+			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER).setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
 	private TableBuilder buildGameRanksTable() {
@@ -573,6 +574,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_GAMES_SUBTYPE:
 				buildCollectionTable().replace(db);
 				version = VER_COLLECTION_ID_NULLABLE;
+			case VER_COLLECTION_ID_NULLABLE:
+				addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
+				version = VER_GAME_CUSTOM_PLAYER_SORT;
 		}
 
 		if (version != DATABASE_VERSION) {

@@ -46,6 +46,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	private String mGameName;
 	private String mThumbnailUrl;
 	private String mImageUrl;
+	private boolean mCustomPlayerSort;
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -150,6 +151,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 			case R.id.menu_log_play:
 				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,
 					mImageUrl);
+				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
@@ -246,18 +248,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public void onNameChanged(String gameName) {
+	public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		changeName(gameName);
-	}
-
-	@Override
-	public void onThumbnailUrlChanged(String url) {
-		mThumbnailUrl = url;
-	}
-
-	@Override
-	public void onImageUrlChanged(String url) {
-		mImageUrl = url;
+		mThumbnailUrl = thumbnailUrl;
+		mImageUrl = imageUrl;
+		mCustomPlayerSort = customPlayerSort;
 	}
 
 	@Override

@@ -82,6 +82,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String KEY_QUANTITY_SHOWN = "QUANTITY_SHOWN";
 	private static final String KEY_LENGTH_SHOWN = "LENGTH_SHOWN";
 	private static final String KEY_LOCATION_SHOWN = "LOCATION_SHOWN";
@@ -90,7 +91,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 	private static final String KEY_COMMENTS_SHOWN = "COMMENTS_SHOWN";
 	private static final String KEY_PLAYERS_SHOWN = "PLAYERS_SHOWN";
 	private static final String KEY_DELETE_ON_CANCEL = "DELETE_ON_CANCEL";
-	private static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
 	private static final String DATE_PICKER_DIALOG_TAG = "DATE_PICKER_DIALOG";
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
@@ -215,6 +215,11 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 					} finally {
 						cursor.close();
 					}
+					if (mPlay.getPlayerCount() > 0) {
+						mCustomPlayerSort = mPlay.arePlayersCustomSorted();
+					} else {
+						mCustomPlayerSort = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
+					}
 					setModelIfDone(token);
 					break;
 				case TOKEN_ID:
@@ -267,7 +272,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 
 	private void finishDataLoad() {
 		mOutstandingQueries = 0;
-		mCustomPlayerSort = mPlay.arePlayersCustomSorted();
 		if (mEndPlay) {
 			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
 		}
@@ -558,6 +562,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 			} else {
 				// Starting a new play
 				mDeleteOnCancel = true;
+				mCustomPlayerSort = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 				mOutstandingQueries = TOKEN_ID;
 				mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 			}

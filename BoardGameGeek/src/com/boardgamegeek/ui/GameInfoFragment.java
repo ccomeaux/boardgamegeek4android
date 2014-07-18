@@ -118,26 +118,14 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
-		public void onNameChanged(String gameName);
-
-		public void onThumbnailUrlChanged(String url);
-
-		public void onImageUrlChanged(String url);
+		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort);
 
 		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onNameChanged(String gameName) {
-		}
-
-		@Override
-		public void onThumbnailUrlChanged(String url) {
-		}
-
-		@Override
-		public void onImageUrlChanged(String url) {
+		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		}
 
 		@Override
@@ -481,10 +469,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		Game game = new Game(cursor);
 
 		mGameName = game.Name;
-		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
-		mCallbacks.onImageUrlChanged(mImageUrl);
-		mCallbacks.onThumbnailUrlChanged(game.ThumbnailUrl);
+		mCallbacks.onGameInfoChanged(mGameName, game.ThumbnailUrl, mImageUrl, game.CustomPlayerSort);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
@@ -641,7 +627,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -668,6 +654,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int POLLS_COUNT = 22;
 		int IMAGE_URL = 23;
 		int SUBTYPE = 24;
+		int CUSTOM_PLAYER_SORT = 25;
 	}
 
 	private interface DesignerQuery {
@@ -748,6 +735,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int NumberWishing;
 		int PollsCount;
 		String Subtype;
+		boolean CustomPlayerSort;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -775,6 +763,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
 			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
 			Subtype = cursor.getString(GameQuery.SUBTYPE);
+			CustomPlayerSort = cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1;
 		}
 
 		public String getAgeDescription() {

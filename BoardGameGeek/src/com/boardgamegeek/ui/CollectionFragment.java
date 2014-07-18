@@ -706,7 +706,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int _TOKEN = 0x01;
 		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
 			Collection.YEAR_PUBLISHED, Collection.GAME_NAME, Games.GAME_ID, Collection.COLLECTION_THUMBNAIL_URL,
-			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED };
+			Collection.THUMBNAIL_URL, Collection.IMAGE_URL, Collection.COLLECTION_YEAR_PUBLISHED,
+			Games.CUSTOM_PLAYER_SORT };
 
 		// int _ID = 0;
 		int COLLECTION_ID = 1;
@@ -718,6 +719,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		int THUMBNAIL_URL = 7;
 		int IMAGE_URL = 8;
 		int COLLECTION_YEAR_PUBLISHED = 9;
+		int CUSTOM_PLAYER_SORT = 10;
 	}
 
 	private interface ViewQuery {
@@ -775,10 +777,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		String gameName = cursor.getString(Query.GAME_NAME);
 		String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		String imageUrl = cursor.getString(Query.IMAGE_URL);
+		boolean customPlayerSort = (cursor.getInt(Query.CUSTOM_PLAYER_SORT) == 1);
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl);
+				ActivityUtils.logPlay(getActivity(), gameId, gameName, thumbnailUrl, imageUrl, customPlayerSort);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
