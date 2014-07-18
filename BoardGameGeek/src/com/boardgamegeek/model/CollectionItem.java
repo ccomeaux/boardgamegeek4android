@@ -107,31 +107,31 @@ public class CollectionItem {
 
 	@Path("status")
 	@Attribute
-	public int own;
+	public String own;
 
 	@Path("status")
 	@Attribute
-	public int prevowned;
+	public String prevowned;
 
 	@Path("status")
 	@Attribute
-	public int fortrade;
+	public String fortrade;
 
 	@Path("status")
 	@Attribute
-	public int want;
+	public String want;
 
 	@Path("status")
 	@Attribute
-	public int wanttoplay;
+	public String wanttoplay;
 
 	@Path("status")
 	@Attribute
-	public int wanttobuy;
+	public String wanttobuy;
 
 	@Path("status")
 	@Attribute
-	public int wishlist;
+	public String wishlist;
 
 	@Path("status")
 	@Attribute(required = false)
@@ -139,7 +139,7 @@ public class CollectionItem {
 
 	@Path("status")
 	@Attribute
-	public int preordered;
+	public String preordered;
 
 	@Path("status")
 	@Attribute

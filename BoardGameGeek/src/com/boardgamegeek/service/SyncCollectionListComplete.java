@@ -44,11 +44,16 @@ public class SyncCollectionListComplete extends SyncTask {
 				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
 
 				Map<String, String> options = new HashMap<String, String>();
-				options.put(statuses[i], "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
+				options.put(statuses[i], "1");
+				for (int j = 0; j < i; j++) {
+					options.put(statuses[j], "0");
+				}
 
-				CollectionResponse response = getCollectionResponse(mService, account.name, options);
-				persister.save(response.items);
+				requestAndPersist(account.name, persister, options);
+
+				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+				requestAndPersist(account.name, persister, options);
 			}
 
 			if (success) {
@@ -66,6 +71,12 @@ public class SyncCollectionListComplete extends SyncTask {
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options) {
+		CollectionResponse response = getCollectionResponse(mService, username, options);
+		int count = persister.save(response.items);
+		LOGI(TAG, "...saved " + count + " rows for " + response.items.size() + " collection items");
 	}
 
 	@Override

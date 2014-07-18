@@ -207,7 +207,7 @@
 	<string name="menu_collection_view_save">Save view…</string>
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status">Collection Status</string>
-	<string name="menu_expansion_status">Expansion Status</string>
+	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_collection_sort_name">Name</string>
 	<string name="menu_collection_sort_rating">Rating</string>

@@ -226,7 +226,7 @@ public class HotnessFragment extends BggListFragment implements
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
-				ActivityUtils.logPlay(getActivity(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl);
+				ActivityUtils.logPlay(getActivity(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl, false);
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();

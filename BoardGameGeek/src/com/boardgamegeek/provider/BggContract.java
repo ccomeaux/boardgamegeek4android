@@ -35,6 +35,7 @@ public class BggContract {
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
+		String SUBTYPE = "subtype";
 		String STATS_USERS_RATED = "usersrated";
 		String STATS_AVERAGE = "average";
 		String STATS_BAYES_AVERAGE = "bayes_average";
@@ -50,6 +51,7 @@ public class BggContract {
 		String LAST_VIEWED = "last_viewed";
 		String STARRED = "starred";
 		String UPDATED_PLAYS = "updated_plays";
+		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 	}
 
 	interface GameRanksColumns {

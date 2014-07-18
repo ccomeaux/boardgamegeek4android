@@ -11,6 +11,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.boardgamegeek.model.Play;
@@ -165,6 +166,7 @@ public class PlayPersister {
 		updateOrInsertPlayers(play, playerUserIds, batch);
 		removeUnusedItems(play, itemObjectIds, batch);
 		removeUnusedPlayers(play, playerUserIds, batch);
+		updateGameSortOrder(resolver, play);
 		updateColors(resolver, play);
 		updateBuddyNicknames(resolver, play);
 
@@ -347,28 +349,44 @@ public class PlayPersister {
 		}
 	}
 
-	/**
-	 * Add the current players' team/colors to the permanent list.
-	 */
-	private static void updateColors(ContentResolver resolver, Play play) {
-		if (!ResolverUtils.rowExists(resolver, BggContract.Games.buildGameUri(play.gameId))) {
+	private static void updateGameSortOrder(ContentResolver resolver, Play play) {
+		if (play.getPlayerCount() == 0) {
 			return;
 		}
 
-		if (play.getPlayers().size() > 0) {
-			List<ContentValues> values = new ArrayList<ContentValues>();
-			for (Player player : play.getPlayers()) {
-				String color = player.color;
-				if (!TextUtils.isEmpty(color)) {
-					ContentValues cv = new ContentValues();
-					cv.put(GameColors.COLOR, color);
-					values.add(cv);
-				}
+		Uri gameUri = Games.buildGameUri(play.gameId);
+		if (!ResolverUtils.rowExists(resolver, gameUri)) {
+			return;
+		}
+
+		ContentValues values = new ContentValues(1);
+		values.put(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted() ? 1 : 0);
+		resolver.update(gameUri, values, null, null);
+	}
+
+	/**
+	 * Add the current players' team/colors to the permanent list for the game.
+	 */
+	private static void updateColors(ContentResolver resolver, Play play) {
+		if (play.getPlayerCount() == 0) {
+			return;
+		}
+		if (!ResolverUtils.rowExists(resolver, Games.buildGameUri(play.gameId))) {
+			return;
+		}
+
+		List<ContentValues> values = new ArrayList<ContentValues>();
+		for (Player player : play.getPlayers()) {
+			String color = player.color;
+			if (!TextUtils.isEmpty(color)) {
+				ContentValues cv = new ContentValues();
+				cv.put(GameColors.COLOR, color);
+				values.add(cv);
 			}
-			if (values.size() > 0) {
-				ContentValues[] array = {};
-				resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
-			}
+		}
+		if (values.size() > 0) {
+			ContentValues[] array = {};
+			resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 		}
 	}
 
