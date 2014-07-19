@@ -44,6 +44,14 @@ public class SyncGameCollection extends UpdateTask {
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));
 
+		requestAndPersist(account, persister, service, options);
+
+		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+		requestAndPersist(account, persister, service, options);
+	}
+
+	private void requestAndPersist(Account account, CollectionPersister persister, BggService service,
+		Map<String, String> options) {
 		CollectionResponse response = getCollectionResponse(service, account.name, options);
 		if (response == null || response.items == null || response.items.size() == 0) {
 			LOGI(TAG, "No collection items for game ID=" + mGameId);

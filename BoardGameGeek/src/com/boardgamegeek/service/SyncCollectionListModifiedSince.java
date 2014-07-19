@@ -75,8 +75,9 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 		response = getCollectionResponse(mService, username, options);
 		if (response.items != null) {
 			int count = persister.save(response.items);
+			int itemCount = response.items != null ? response.items.size() : 0;
 			// syncResult.stats
-			LOGI(TAG, "...saved " + count + " rows for " + response.items.size() + " collection items");
+			LOGI(TAG, "...saved " + count + " rows for " + itemCount + " collection items");
 		} else {
 			LOGI(TAG, "...no new collection modifications");
 		}

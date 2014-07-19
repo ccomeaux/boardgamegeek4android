@@ -75,8 +75,9 @@ public class SyncCollectionListComplete extends SyncTask {
 
 	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options) {
 		CollectionResponse response = getCollectionResponse(mService, username, options);
+		int itemCount = (response.items != null) ? response.items.size() : 0;
 		int count = persister.save(response.items);
-		LOGI(TAG, "...saved " + count + " rows for " + response.items.size() + " collection items");
+		LOGI(TAG, "...saved " + count + " rows for " + itemCount + " collection items");
 	}
 
 	@Override
