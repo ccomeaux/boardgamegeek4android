@@ -27,7 +27,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -134,7 +133,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 			case android.R.id.home:
 				Intent upIntent = new Intent(this, HotnessActivity.class);
 				if (Authenticator.isSignedIn(this)) {
-					upIntent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+					upIntent = new Intent(this, CollectionActivity.class);
 				}
 				if (shouldUpRecreateTask(this, upIntent)) {
 					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
