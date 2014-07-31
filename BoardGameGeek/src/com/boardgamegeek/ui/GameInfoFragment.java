@@ -763,7 +763,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
 			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
 			Subtype = cursor.getString(GameQuery.SUBTYPE);
-			CustomPlayerSort = cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1;
+			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
 		}
 
 		public String getAgeDescription() {
