@@ -8,7 +8,7 @@ public class CollectionIdThumbnailProvider extends IndirectFileProvider {
 
 	@Override
 	protected Uri getFileUri(Uri uri) {
-		return Collection.buildItemUri(Collection.getItemId(uri));
+		return Collection.buildUri(Collection.getId(uri));
 	}
 
 	@Override
