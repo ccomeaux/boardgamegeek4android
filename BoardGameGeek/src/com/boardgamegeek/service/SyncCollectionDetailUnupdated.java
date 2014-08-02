@@ -48,9 +48,13 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 					try {
 						GamePersister persister = new GamePersister(context);
 						ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
-						int count = persister.save(response.games);
-						// syncResult.stats.numUpdates += gameIds.size();
-						LOGI(TAG, "...saved " + count + " rows for " + gameIds.size() + " games");
+						if (response.games != null && response.games.size() > 0) {
+							int count = persister.save(response.games);
+							syncResult.stats.numUpdates += response.games.size();
+							LOGI(TAG, "...saved " + count + " rows for " + response.games.size() + " games");
+						} else {
+							LOGI(TAG, "...no games returned (shouldn't happen)");
+						}
 					} catch (Exception e) {
 						if (e.getCause() instanceof SocketTimeoutException) {
 							if (gamesPerFetch == 1) {

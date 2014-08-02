@@ -39,8 +39,13 @@ public class SyncCollectionDetailOldest extends SyncTask {
 				LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
 				GamePersister gp = new GamePersister(context);
 				ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
-				int count = gp.save(response.games);
-				LOGI(TAG, "...saved " + count + " rows");
+				if (response.games != null && response.games.size() > 0) {
+					int count = gp.save(response.games);
+					syncResult.stats.numUpdates += response.games.size();
+					LOGI(TAG, "...saved " + count + " rows for " + response.games.size() + "  games");
+				} else {
+					LOGI(TAG, "...no games returned (shouldn't happen)");
+				}
 			} else {
 				LOGI(TAG, "...found no old games to update (this should only happen with empty collections)");
 			}

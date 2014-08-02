@@ -50,12 +50,13 @@ public class SyncCollectionListUnupdated extends SyncTask {
 						+ " IS NULL", null, "collection." + Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 				if (gameIds.size() > 0) {
 					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
+
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
-					CollectionResponse response = getCollectionResponse(mService, account.name, options);
-					int count = persister.save(response.items);
-					// TODO games with a status of played don't get returned with this request
-					// syncResult.stats.numUpdates += gameIds.size();
-					LOGI(TAG, "...saved " + count + " rows for " + gameIds.size() + " collection items");
+					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
+					requestAndPersist(account.name, persister, options, syncResult);
+
+					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
+					requestAndPersist(account.name, persister, options, syncResult);
 				} else {
 					LOGI(TAG, "...no more unupdated collection items");
 					break;
@@ -63,6 +64,19 @@ public class SyncCollectionListUnupdated extends SyncTask {
 			} while (numberOfFetches < 100);
 		} finally {
 			LOGI(TAG, "...complete!");
+		}
+	}
+
+	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
+		SyncResult syncResult) {
+		// TODO games with a status of played don't get returned with this request
+		CollectionResponse response = getCollectionResponse(mService, username, options);
+		if (response.items != null && response.items.size() > 0) {
+			int count = persister.save(response.items);
+			syncResult.stats.numUpdates += response.items.size();
+			LOGI(TAG, "...saved " + count + " records for " + response.items.size() + " collection items");
+		} else {
+			LOGI(TAG, "...no collection items found for these games");
 		}
 	}
 

@@ -46,7 +46,7 @@ public class SyncPlays extends SyncTask {
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = mService.playsByMinDate(account.name, date, page);
-					PlayPersister.save(mContext, response.plays, mStartTime);
+					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");
@@ -54,14 +54,14 @@ public class SyncPlays extends SyncTask {
 					}
 					page++;
 				} while (response.hasMorePages());
-				deleteUnupdatedPlaysSince(newestSyncDate);
+				deleteUnupdatedPlaysSince(newestSyncDate, syncResult);
 			} else {
 				LOGI(TAG, "...syncing all plays");
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = mService.plays(account.name, page);
-					PlayPersister.save(mContext, response.plays, mStartTime);
+					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");
@@ -79,7 +79,7 @@ public class SyncPlays extends SyncTask {
 				do {
 					LOGI(TAG, "......syncing page " + page);
 					response = mService.playsByMaxDate(account.name, date, page);
-					PlayPersister.save(mContext, response.plays, mStartTime);
+					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
 						LOGI(TAG, "...cancelled early");
@@ -87,7 +87,7 @@ public class SyncPlays extends SyncTask {
 					}
 					page++;
 				} while (response.hasMorePages());
-				deleteUnupdatedPlaysBefore(oldestDate);
+				deleteUnupdatedPlaysBefore(oldestDate, syncResult);
 				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
 			SyncService.hIndex(mContext);
@@ -96,22 +96,33 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	private void deleteUnupdatedPlaysSince(long time) {
+	private void persist(PlaysResponse response, SyncResult syncResult) {
+		if (response.plays != null && response.plays.size() > 0) {
+			PlayPersister.save(mContext, response.plays, mStartTime);
+			syncResult.stats.numEntries += response.plays.size();
+			LOGI(TAG, "...saved " + response.plays);
+		} else {
+			LOGI(TAG, "...no plays to update");
+		}
+	}
+
+	private void deleteUnupdatedPlaysSince(long time, SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
 			+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) });
+			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
-	private void deleteUnupdatedPlaysBefore(long time) {
+	private void deleteUnupdatedPlaysBefore(long time, SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
 			+ Play.SYNC_STATUS_SYNCED,
-			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) });
+			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
-	private void deletePlays(String selection, String[] selectionArgs) {
+	private void deletePlays(String selection, String[] selectionArgs, SyncResult syncResult) {
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
-		// mSyncResult.stats.numDeletes += count;
-		LOGI(TAG, "Deleted " + count + " unupdated plays");
+		// TODO: verify this number is correct
+		syncResult.stats.numDeletes += count;
+		LOGI(TAG, "...deleted " + count + " unupdated plays");
 	}
 
 	private void updateTimeStamps(PlaysResponse response) {
