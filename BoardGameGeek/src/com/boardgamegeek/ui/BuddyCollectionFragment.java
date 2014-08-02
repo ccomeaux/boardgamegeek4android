@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.LOGW;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
@@ -29,6 +30,7 @@ import com.actionbarsherlock.view.SubMenu;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.io.RetryableException;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.BuddyGameViewHolder;
@@ -44,6 +46,8 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
 	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
+	private static final int MAX_RETRIES = 5;
+	private static final int RETRY_BACKOFF = 100;
 
 	private BuddyCollectionAdapter mAdapter;
 	private SubMenu mSubMenu;
@@ -230,10 +234,28 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		@Override
 		public BuddyCollectionData loadInBackground() {
 			BuddyCollectionData collection = null;
-			try {
-				collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
-			} catch (Exception e) {
-				collection = new BuddyCollectionData(e);
+			int retries = 0;
+			while (true) {
+				try {
+					collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
+					break;
+				} catch (Exception e) {
+					if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+						retries++;
+						if (retries > MAX_RETRIES) {
+							break;
+						}
+						try {
+							LOGI(TAG, "...retrying #" + retries);
+							Thread.sleep(retries * retries * RETRY_BACKOFF);
+						} catch (InterruptedException e1) {
+							LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+							break;
+						}
+					} else {
+						collection = new BuddyCollectionData(e);
+					}
+				}
 			}
 			return collection;
 		}
