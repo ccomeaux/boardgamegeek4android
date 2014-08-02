@@ -337,6 +337,10 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				}
 				break;
 			case PlayerQuery._TOKEN:
+				// HACK ensures the list header shows, not the empty text
+				setEmptyText(null);
+				getListView().setEmptyView(null);
+
 				mPlay.setPlayers(cursor);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();

@@ -165,7 +165,13 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
-			onPageSelected((showCollection() ? 1 : 0) + 1);
+			mViewPager.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					// HACK prevent a blank fragment if this page is already selected
+					mViewPager.setCurrentItem((showCollection() ? 1 : 0) + 1);
+				}
+			}, 100);
 		}
 	}
 

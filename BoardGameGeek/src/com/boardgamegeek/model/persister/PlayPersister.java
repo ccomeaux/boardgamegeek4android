@@ -117,7 +117,7 @@ public class PlayPersister {
 	}
 
 	/*
-	 * Save the play. If syncing, the play will not be saved if it is a draft.
+     * Save the play. If syncing, the play will not be saved if it is being modified on the device.
 	 */
 	public static int save(Context context, Play play, boolean isSyncing) {
 		ContentResolver resolver = context.getContentResolver();

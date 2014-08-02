@@ -296,8 +296,12 @@ public class SyncPlaysUpload extends SyncTask {
 		int latestPlayId = BggContract.INVALID_ID;
 
 		for (Play parsedPlay : parsedPlays) {
-			if ((play.playId != parsedPlay.playId) && (play.gameId == parsedPlay.gameId)
-				&& (play.getDate() == parsedPlay.getDate()) && (play.Incomplete() == parsedPlay.Incomplete())
+			if ((play.playId != parsedPlay.playId)
+				&& (play.gameId == parsedPlay.gameId)
+				&& (play.getDate().equals(parsedPlay.getDate()))
+				&& ((play.location == null && parsedPlay.location == null) || (play.location
+					.equals(parsedPlay.location))) && (play.length == parsedPlay.length)
+				&& (play.quantity == parsedPlay.quantity) && (play.Incomplete() == parsedPlay.Incomplete())
 				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
 				if (parsedPlay.playId > latestPlayId) {
