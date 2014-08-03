@@ -1,11 +1,9 @@
 package com.boardgamegeek.ui;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -27,6 +25,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.widget.PaginatedData;
 import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
@@ -69,8 +68,8 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		outState.putBoolean(STATE_BY_RATING, mByRating);
 		super.onSaveInstanceState(outState);
+		outState.putBoolean(STATE_BY_RATING, mByRating);
 	}
 
 	@Override
@@ -90,7 +89,9 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 		if ((id == R.id.menu_comments_by_user && mByRating) || (id == R.id.menu_comments_by_rating && !mByRating)) {
 			item.setChecked(true);
 			mByRating = !mByRating;
-			mCommentsAdapter.clear();
+			if (mCommentsAdapter != null) {
+				mCommentsAdapter.clear();
+			}
 			getLoaderManager().restartLoader(COMMENTS_LOADER_ID, null, this);
 			return true;
 		}
@@ -217,9 +218,6 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	private static class CommentRowViewBinder {
-		private static final int backgroundColors[] = { Color.WHITE, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
-			0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00 };
-
 		private static class ViewHolder {
 			TextView username;
 			TextView rating;
@@ -243,8 +241,8 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			}
 
 			holder.username.setText(comment.username);
-			holder.rating.setText(new DecimalFormat("#0.00").format(comment.getRating()));
-			holder.rating.setBackgroundColor(backgroundColors[(int) comment.getRating()]);
+			holder.rating.setText(comment.getRatingText());
+			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
 			holder.comment.setText(comment.value);
 		}
 	}

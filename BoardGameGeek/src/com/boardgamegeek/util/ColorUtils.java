@@ -64,6 +64,35 @@ public class ColorUtils {
 		return TRANSPARENT;
 	}
 
+	public static int getRatingColor(double rating) {
+		int baseRating = clamp((int) rating, 0, 10);
+		return blendColors(BACKGROUND_COLORS[baseRating], BACKGROUND_COLORS[baseRating + 1], baseRating + 1 - rating);
+	}
+
+	private static int clamp(int number, int low, int high) {
+		if (number < low) {
+			return low;
+		}
+		if (number > high) {
+			return high;
+		}
+		return number;
+	}
+
+	private static int blendColors(int color1, int color2, double ratio) {
+		double ir = 1.0 - ratio;
+
+		int a = (int) (Color.alpha(color1) * ratio + Color.alpha(color2) * ir);
+		int r = (int) (Color.red(color1) * ratio + Color.red(color2) * ir);
+		int g = (int) (Color.green(color1) * ratio + Color.green(color2) * ir);
+		int b = (int) (Color.blue(color1) * ratio + Color.blue(color2) * ir);
+
+		return Color.argb(a, r, g, b);
+	}
+
+	public static final int BACKGROUND_COLORS[] = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
+		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
+
 	private static final HashMap<String, Integer> sColorNameMap;
 
 	static {
@@ -94,12 +123,34 @@ public class ColorUtils {
 		sColorNameMap.put("gold", GOLD);
 	}
 
+	@SuppressWarnings("deprecation")
+	public static void setTextViewBackground(TextView view, int color) {
+		Resources r = view.getResources();
+
+		Drawable currentDrawable = view.getBackground();
+		GradientDrawable backgroundDrawable;
+		if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
+			// Reuse drawable
+			backgroundDrawable = (GradientDrawable) currentDrawable;
+		} else {
+			backgroundDrawable = new GradientDrawable();
+		}
+
+		int darkenedColor = darkenColor(color);
+
+		backgroundDrawable.setColor(color);
+		backgroundDrawable.setStroke(
+			(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics()), darkenedColor);
+
+		view.setBackgroundDrawable(backgroundDrawable);
+	}
+
 	// Modified from Roman Nurik's DashClock https://code.google.com/p/dashclock/
 	public static void setColorViewValue(View view, int color) {
 		if (view instanceof ImageView) {
 			ImageView imageView = (ImageView) view;
 
-			Resources res = imageView.getContext().getResources();
+			Resources r = imageView.getResources();
 
 			Drawable currentDrawable = imageView.getDrawable();
 			GradientDrawable colorChoiceDrawable;
@@ -112,16 +163,11 @@ public class ColorUtils {
 			}
 
 			// Set stroke to dark version of color
-			int darkenedColor = Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256,
-				Color.blue(color) * 192 / 256);
-			if (color == TRANSPARENT) {
-				darkenedColor = Color.argb(127, 127, 127, 127);
-			}
+			int darkenedColor = darkenColor(color);
 
 			colorChoiceDrawable.setColor(color);
-			colorChoiceDrawable
-				.setStroke((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, res.getDisplayMetrics()),
-					darkenedColor);
+			colorChoiceDrawable.setStroke(
+				(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, r.getDisplayMetrics()), darkenedColor);
 
 			imageView.setImageDrawable(colorChoiceDrawable);
 		} else if (view instanceof TextView) {
@@ -129,6 +175,13 @@ public class ColorUtils {
 				((TextView) view).setTextColor(color);
 			}
 		}
+	}
+
+	private static int darkenColor(int color) {
+		if (color == TRANSPARENT) {
+			return Color.argb(127, 127, 127, 127);
+		}
+		return Color.rgb(Color.red(color) * 192 / 256, Color.green(color) * 192 / 256, Color.blue(color) * 192 / 256);
 	}
 
 	/**

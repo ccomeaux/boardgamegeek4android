@@ -20,7 +20,10 @@
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
 		android:layout_gravity="right|center_vertical"
-		android:padding="@dimen/padding_small" />
+		android:paddingBottom="@dimen/padding_small"
+		android:paddingLeft="@dimen/padding_standard"
+		android:paddingRight="@dimen/padding_standard"
+		android:paddingTop="@dimen/padding_small" />
 
 	<TextView
 		android:id="@+id/comment"

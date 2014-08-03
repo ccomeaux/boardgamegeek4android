@@ -1,5 +1,6 @@
 package com.boardgamegeek.model;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -176,6 +177,8 @@ public class Game {
 
 	@Root(name = "comment")
 	public static class Comment {
+		private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.00");
+
 		@Attribute
 		public String username;
 
@@ -184,6 +187,14 @@ public class Game {
 
 		public double getRating() {
 			return StringUtils.parseDouble(rating, 0.0);
+		}
+
+		public String getRatingText() {
+			double rating = getRating();
+			if (rating < 1.0) {
+				return "N/A";
+			}
+			return RATING_FORMAT.format(rating);
 		}
 
 		@Attribute
