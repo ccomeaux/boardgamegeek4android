@@ -194,7 +194,7 @@
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
-	<string name="menu_links">Links</string>
+	<string name="menu_links">Links...</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
 	<string name="menu_link_bg_prices">Board Game Prices</string>
 	<string name="menu_link_amazon">Amazon</string>

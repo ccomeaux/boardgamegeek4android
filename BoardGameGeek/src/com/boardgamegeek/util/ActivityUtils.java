@@ -243,22 +243,21 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://boardgameprices.com/iphone/?s=" + HttpUtils.encode(gameName));
+		link(context, "http://boardgameprices.com/compare-prices-for-" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + HttpUtils.encode(gameName)
-			+ "&i=toys-and-games&submitSearch=GO");
+		link(context, "http://www.amazon.com/gp/aw/s/?i=toys-and-games&keywords=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkEbay(Context context, String gameName) {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
+		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
 	public static void link(Context context, String link) {

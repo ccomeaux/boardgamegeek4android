@@ -56,7 +56,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
-	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 
 	private Uri mGameUri;
 	private String mGameName;
@@ -103,16 +102,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private StatBar mNumWantingBar;
 	private StatBar mNumWishingBar;
 	private StatBar mNumWeightingBar;
-	private TextView mLinksLabel;
-	private View mLinksContent;
-	private View mBggLinkView;
-	private View mBgPricesLinkView;
-	private View mAmazonLinkView;
-	private View mEbayLinkView;
 
 	boolean mIsDescriptionExpanded;
 	boolean mIsStatsExpanded;
-	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
 	private boolean mMightNeedRefreshing;
@@ -151,7 +143,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		if (savedInstanceState != null) {
 			mIsDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
-			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -218,41 +209,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_stats_wishing_bar);
 		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_stats_weighting_bar);
 
-		mLinksLabel = (TextView) rootView.findViewById(R.id.game_info_links_label);
-		mLinksContent = rootView.findViewById(R.id.game_info_links_content);
-		mBggLinkView = rootView.findViewById(R.id.game_info_link_bgg);
-		mBgPricesLinkView = rootView.findViewById(R.id.game_info_link_bg_prices);
-		mAmazonLinkView = rootView.findViewById(R.id.game_info_link_amazon);
-		mEbayLinkView = rootView.findViewById(R.id.game_info_link_ebay);
-
-		mBggLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkBgg(getActivity(), Games.getGameId(mGameUri));
-			}
-		});
-
-		mBgPricesLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkBgPrices(getActivity(), mGameName);
-			}
-		});
-
-		mAmazonLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkAmazon(getActivity(), mGameName);
-			}
-		});
-
-		mEbayLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkEbay(getActivity(), mGameName);
-			}
-		});
-
 		mThumbnailView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -285,15 +241,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			}
 		});
 		openOrCloseStats();
-
-		mLinksLabel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mIsLinksExpanded = !mIsLinksExpanded;
-				openOrCloseLinks();
-			}
-		});
-		openOrCloseLinks();
 
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -346,7 +293,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
-		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
 	}
 
 	@Override
@@ -598,12 +544,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private void openOrCloseStats() {
 		mStatsContent.setVisibility(mIsStatsExpanded ? View.VISIBLE : View.GONE);
 		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close
-			: R.drawable.expander_open, 0);
-	}
-
-	private void openOrCloseLinks() {
-		mLinksContent.setVisibility(mIsLinksExpanded ? View.VISIBLE : View.GONE);
-		mLinksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsLinksExpanded ? R.drawable.expander_close
 			: R.drawable.expander_open, 0);
 	}
 
