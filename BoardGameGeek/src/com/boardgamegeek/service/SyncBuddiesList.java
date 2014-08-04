@@ -52,15 +52,16 @@ public class SyncBuddiesList extends SyncTask {
 			int count = 0;
 			count += persister.saveList(Buddy.fromUser(user));
 			count += persister.saveList(user.getBuddies());
+			syncResult.stats.numEntries += count;
 			LOGI(TAG, "Synced " + count + " buddies");
-			// TODO: update syncResult.stats
 
 			// TODO: delete avatar images associated with this list
 			// Actually, these are now only in the cache!
 			ContentResolver resolver = context.getContentResolver();
 			count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(persister.getTimestamp()) });
-			// syncResult.stats.numDeletes += count;
+			syncResult.stats.numDeletes += count;
+			LOGI(TAG, "Removed " + count + " people who are no longer buddies");
 
 			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {

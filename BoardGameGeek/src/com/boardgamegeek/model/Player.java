@@ -26,6 +26,7 @@ public class Player implements Parcelable {
 
 	public static final double DEFAULT_RATING = 0.0;
 	public static final int SEAT_UNKNOWN = -1;
+	public static final int SEAT_UNPARSED = -2;
 
 	public Player() {
 		name = "";
@@ -102,22 +103,21 @@ public class Player implements Parcelable {
 		new_ = value ? 1 : 0;
 	}
 
-	private int mSeat;
+	private int mSeat = SEAT_UNPARSED;
 
 	public String getStartingPosition() {
 		return startposition;
 	}
 
 	public void setStartingPosition(String value) {
+		mSeat = SEAT_UNPARSED;
 		startposition = value;
-		if (StringUtils.isInteger(startposition)) {
-			mSeat = Integer.parseInt(startposition);
-		} else {
-			mSeat = SEAT_UNKNOWN;
-		}
 	}
 
 	public int getSeat() {
+		if (mSeat == SEAT_UNPARSED) {
+			mSeat = StringUtils.parseInt(startposition, SEAT_UNKNOWN);
+		}
 		return mSeat;
 	}
 

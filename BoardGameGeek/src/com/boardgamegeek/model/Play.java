@@ -155,6 +155,7 @@ public class Play {
 		location = "";
 		comments = "";
 		startTime = 0;
+		players = new ArrayList<Player>();
 	}
 
 	// URI

@@ -117,7 +117,7 @@ public class PlayPersister {
 	}
 
 	/*
-	 * Save the play. If syncing, the play will not be saved if it is a draft.
+     * Save the play. If syncing, the play will not be saved if it is being modified on the device.
 	 */
 	public static int save(Context context, Play play, boolean isSyncing) {
 		ContentResolver resolver = context.getContentResolver();
@@ -166,9 +166,11 @@ public class PlayPersister {
 		updateOrInsertPlayers(play, playerUserIds, batch);
 		removeUnusedItems(play, itemObjectIds, batch);
 		removeUnusedPlayers(play, playerUserIds, batch);
-		updateGameSortOrder(resolver, play);
-		updateColors(resolver, play);
-		updateBuddyNicknames(resolver, play);
+		if (play.syncStatus == Play.SYNC_STATUS_SYNCED || play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+			updateGameSortOrder(resolver, play);
+			updateColors(resolver, play);
+			updateBuddyNicknames(resolver, play);
+		}
 
 		ResolverUtils.applyBatch(context, batch);
 		LOGI(TAG, "Saved play ID=" + play.playId);
@@ -360,7 +362,7 @@ public class PlayPersister {
 		}
 
 		ContentValues values = new ContentValues(1);
-		values.put(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted() ? 1 : 0);
+		values.put(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted());
 		resolver.update(gameUri, values, null, null);
 	}
 

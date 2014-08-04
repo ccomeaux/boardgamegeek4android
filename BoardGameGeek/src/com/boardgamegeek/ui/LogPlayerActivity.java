@@ -262,7 +262,9 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		mName.setTextKeepState(mPlayer.name);
 		mUsername.setTextKeepState(mPlayer.username);
 		mTeamColor.setTextKeepState(mPlayer.color);
-		mPosition.setTextKeepState(mPlayer.getStartingPosition());
+		if (mPlayer.getStartingPosition() != null) {
+			mPosition.setTextKeepState(mPlayer.getStartingPosition());
+		}
 		mScore.setTextKeepState(mPlayer.score);
 		mRating.setTextKeepState((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
 		mNew.setChecked(mPlayer.New());

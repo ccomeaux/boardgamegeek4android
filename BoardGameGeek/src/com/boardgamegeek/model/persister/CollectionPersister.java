@@ -171,19 +171,19 @@ public class CollectionPersister {
 	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
 		ArrayList<ContentProviderOperation> batch) {
 		Builder cpo = null;
-		int existingId = BggContract.INVALID_ID;
-		if (values.getAsInteger(Collection.COLLECTION_ID) == BggContract.INVALID_ID) {
+		long existingId = BggContract.INVALID_ID;
+		int collId = values.getAsInteger(Collection.COLLECTION_ID);
+		if (collId == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);
 			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
 				BggContract.INVALID_ID, Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
 				new String[] { values.getAsString(Collection.GAME_ID) });
 		} else {
-			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
-				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?",
-				new String[] { values.getAsString(Collection.COLLECTION_ID) });
+			existingId = ResolverUtils.queryLong(resolver, Collection.CONTENT_URI, Collection._ID,
+				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collId) });
 		}
 		if (existingId != BggContract.INVALID_ID) {
-			Uri uri = Collection.buildItemUri(existingId);
+			Uri uri = Collection.buildUri(existingId);
 			cpo = ContentProviderOperation.newUpdate(uri);
 			maybeDeleteThumbnail(resolver, values, uri, batch);
 		} else {

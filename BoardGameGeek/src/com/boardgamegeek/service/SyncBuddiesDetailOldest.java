@@ -47,14 +47,13 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 				for (String name : names) {
 					if (isCancelled()) {
 						LOGI(TAG, "...canceled while syncing buddies");
-						int count = persister.save(buddies);
-						LOGI(TAG, "...saved " + count + " buddies");
 						break;
 					}
 					buddies.add(mService.user(name));
 				}
 				int count = persister.save(buddies);
-				LOGI(TAG, "...saved " + count + " buddies");
+				syncResult.stats.numUpdates += buddies.size();
+				LOGI(TAG, "...saved " + count + " records for " + buddies.size() + " buddies");
 			} else {
 				LOGI(TAG, "...no buddies to update");
 			}

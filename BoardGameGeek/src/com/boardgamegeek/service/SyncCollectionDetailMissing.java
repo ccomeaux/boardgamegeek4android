@@ -47,15 +47,16 @@ public class SyncCollectionDetailMissing extends SyncTask {
 			if (gameIds.size() > 0) {
 				LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 				int count = 0;
+				// NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
 				for (Integer gameId : gameIds) {
 					LOGI(TAG, "...deleting game ID=" + gameId);
 					count += resolver.delete(Games.buildGameUri(gameId), null, null);
 				}
+				syncResult.stats.numDeletes += count;
 				LOGI(TAG, "...deleted " + count + " games");
 			} else {
 				LOGI(TAG, "...no games need deleting");
 			}
-			// NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

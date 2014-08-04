@@ -27,7 +27,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -135,7 +134,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 			case android.R.id.home:
 				Intent upIntent = new Intent(this, HotnessActivity.class);
 				if (Authenticator.isSignedIn(this)) {
-					upIntent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+					upIntent = new Intent(this, CollectionActivity.class);
 				}
 				if (shouldUpRecreateTask(this, upIntent)) {
 					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
@@ -159,6 +158,18 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
 				return true;
+			case R.id.menu_link_bgg:
+				ActivityUtils.linkBgg(this, mGameId);
+				return true;
+			case R.id.menu_link_bg_prices:
+				ActivityUtils.linkBgPrices(this, mGameName);
+				return true;
+			case R.id.menu_link_amazon:
+				ActivityUtils.linkAmazon(this, mGameName);
+				return true;
+			case R.id.menu_link_ebay:
+				ActivityUtils.linkEbay(this, mGameName);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -167,7 +178,13 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
-			onPageSelected((showCollection() ? 1 : 0) + 1);
+			mViewPager.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					// HACK prevent a blank fragment if this page is already selected
+					mViewPager.setCurrentItem((showCollection() ? 1 : 0) + 1);
+				}
+			}, 100);
 		}
 	}
 

@@ -32,9 +32,11 @@ public class ResolverUtils {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
 			if (PreferencesUtils.getDebug(context)) {
-					for (ContentProviderOperation cpo : batch) {
-						applySingle(resolver, cpo);
-					}
+				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
+				for (int i = 0; i < batch.size(); i++) {
+					results[i] = applySingle(resolver, batch.get(i));
+				}
+				return results;
 			} else {
 				try {
 					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
@@ -51,15 +53,19 @@ public class ResolverUtils {
 		return new ContentProviderResult[] {};
 	}
 
-	private static void applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
+	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>(1);
 		batch.add(cpo);
 		try {
-			resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+			ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+			if (result != null && result.length > 0) {
+				return result[0];
+			}
 		} catch (OperationApplicationException | RemoteException e) {
 			LOGE(TAG, cpo.toString(), e);
 			throw new RuntimeException(cpo.toString(), e);
 		}
+		return null;
 	}
 
 	/*

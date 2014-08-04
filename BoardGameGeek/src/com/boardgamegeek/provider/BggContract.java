@@ -655,15 +655,15 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
 		public static final String SORT_BY_RATING = GamesColumns.STATS_BAYES_AVERAGE + " DESC, " + DEFAULT_SORT;
 
-		public static Uri buildItemUri(int itemId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).build();
+		public static Uri buildUri(long id) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
 		}
 
 		public static Uri buildThumbnailUri(int itemId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).appendPath(PATH_THUMBNAILS).build();
 		}
 
-		public static int getItemId(Uri uri) {
+		public static long getId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}

@@ -50,6 +50,7 @@ import com.squareup.picasso.Picasso;
 public class PlayFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final String KEY_NOTIFIED = "NOTIFIED";
 
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
@@ -79,6 +80,7 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	private TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
+	private boolean mNotified;
 
 	public interface Callbacks {
 		public void onNameChanged(String mGameName);
@@ -118,6 +120,11 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			mNotified = savedInstanceState.getBoolean(KEY_NOTIFIED);
+		}
+
 		setHasOptionsMenu(true);
 
 		// TODO: move this to a fragment so it survives orientation changes
@@ -204,7 +211,14 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+			mNotified = true;
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_NOTIFIED, mNotified);
 	}
 
 	@Override
@@ -323,6 +337,10 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 				}
 				break;
 			case PlayerQuery._TOKEN:
+				// HACK ensures the list header shows, not the empty text
+				setEmptyText(null);
+				getListView().setEmptyView(null);
+
 				mPlay.setPlayers(cursor);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();
@@ -374,8 +392,9 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 
 		if (mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+		} else if (mNotified) {
+			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
 		}
-
 		mCallbacks.onNameChanged(mPlay.gameName);
 
 		mGameName.setText(mPlay.gameName);

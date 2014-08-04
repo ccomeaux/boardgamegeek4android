@@ -336,57 +336,6 @@
 					layout="@layout/tab_game_stats"
 					android:visibility="gone" />
 			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/game_info_links_root"
-				style="@style/InfoSection"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical" >
-
-				<TextView
-					android:id="@+id/game_info_links_label"
-					style="@style/Text.Header.Expandable"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/menu_links" />
-
-				<LinearLayout
-					android:id="@+id/game_info_links_content"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="vertical"
-					android:visibility="gone" >
-
-					<Button
-						android:id="@+id/game_info_link_bgg"
-						style="?attr/android:buttonStyleSmall"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/menu_link_bgg" />
-
-					<Button
-						android:id="@+id/game_info_link_bg_prices"
-						style="?attr/android:buttonStyleSmall"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/menu_link_bg_prices" />
-
-					<Button
-						android:id="@+id/game_info_link_amazon"
-						style="?attr/android:buttonStyleSmall"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/menu_link_amazon" />
-
-					<Button
-						android:id="@+id/game_info_link_ebay"
-						style="?attr/android:buttonStyleSmall"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/menu_link_ebay" />
-				</LinearLayout>
-			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
 

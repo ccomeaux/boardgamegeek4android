@@ -29,6 +29,25 @@
 		android:showAsAction="never"
 		android:title="@string/menu_create_shortcut"/>
 	<item
+		android:id="@+id/menu_links"
+		android:showAsAction="never"
+		android:title="@string/menu_links">
+		<menu>
+			<item
+				android:id="@+id/menu_link_bgg"
+				android:title="@string/menu_link_bgg"/>
+			<item
+				android:id="@+id/menu_link_bg_prices"
+				android:title="@string/menu_link_bg_prices"/>
+			<item
+				android:id="@+id/menu_link_amazon"
+				android:title="@string/menu_link_amazon"/>
+			<item
+				android:id="@+id/menu_link_ebay"
+				android:title="@string/menu_link_ebay"/>
+		</menu>
+	</item>
+	<item
 		android:id="@+id/menu_refresh"
 		android:icon="?attr/ic_action_refresh"
 		android:showAsAction="never"
