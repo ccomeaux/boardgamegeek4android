@@ -66,7 +66,7 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 				if (selection.length() > 0) {
 					selection += " " + (mOr ? "OR" : "AND") + " ";
 				}
-				selection += values[i] + ">=?";
+				selection += values[i] + "=?";
 				selectionArgs.add("1");
 			}
 		}

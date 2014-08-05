@@ -3,12 +3,16 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -23,6 +27,7 @@ import com.boardgamegeek.util.PreferencesUtils;
  */
 public class SyncCollectionListComplete extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
+	private static final String STATUS_PLAYED = "played";
 
 	public SyncCollectionListComplete(BggService service) {
 		super(service);
@@ -35,19 +40,29 @@ public class SyncCollectionListComplete extends SyncTask {
 		try {
 			CollectionPersister persister = new CollectionPersister(context).brief();
 
-			String[] statuses = PreferencesUtils.getSyncStatuses(context);
-			for (int i = 0; i < statuses.length; i++) {
+			List<String> statuses = new ArrayList<String>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+			if (statuses.remove(STATUS_PLAYED)) {
+				statuses.add(0, STATUS_PLAYED);
+			}
+
+			for (int i = 0; i < statuses.size(); i++) {
 				if (isCancelled()) {
 					success = false;
 					break;
 				}
-				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
+
+				String status = statuses.get(i);
+				if (TextUtils.isEmpty(status)) {
+					LOGI(TAG, "...skipping blank status");
+					continue;
+				}
+				LOGI(TAG, "...syncing status [" + status + "]");
 
 				Map<String, String> options = new HashMap<String, String>();
 				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
-				options.put(statuses[i], "1");
+				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
-					options.put(statuses[j], "0");
+					options.put(statuses.get(j), "0");
 				}
 
 				requestAndPersist(account.name, persister, options, syncResult);
@@ -77,9 +92,9 @@ public class SyncCollectionListComplete extends SyncTask {
 		SyncResult syncResult) {
 		CollectionResponse response = getCollectionResponse(mService, username, options);
 		if (response.items != null && response.items.size() > 0) {
-			int count = persister.save(response.items);
+			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();
-			LOGI(TAG, "...saved " + count + " records for " + response.items.size() + " collection items");
+			LOGI(TAG, "...saved " + rows + " records for " + response.items.size() + " collection items");
 		} else {
 			LOGI(TAG, "...no collection items to save");
 		}
