@@ -66,6 +66,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="played">Played</string>
 	<string name="play_again">Play again</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
@@ -352,7 +353,7 @@
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="collection_modified">Collection modified</string>
-	<string name="invalid_collection_status">This game isn\'t in your collection (but you may have played it or commented on it).</string>
+	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="price">Price</string>
 	<string name="value">Value</string>
 	<string name="private_info">Private Info</string>
