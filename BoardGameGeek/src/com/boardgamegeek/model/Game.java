@@ -124,15 +124,27 @@ public class Game {
 
 		@Path("ratings/usersrated")
 		@Attribute(name = "value")
-		public int usersRated;
+		private String usersRated;
+
+		public int usersRated() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/average")
 		@Attribute(name = "value")
-		public double average;
+		private String average;
+
+		public double average() {
+			return StringUtils.parseDouble(averageWeight);
+		}
 
 		@Path("ratings/bayesaverage")
 		@Attribute(name = "value")
-		public double bayesAverage;
+		private String bayesAverage;
+
+		public double bayesAverage() {
+			return StringUtils.parseDouble(averageWeight);
+		}
 
 		@Path("ratings")
 		@ElementList
@@ -140,39 +152,75 @@ public class Game {
 
 		@Path("ratings/stddev")
 		@Attribute(name = "value")
-		public double standardDeviation;
+		private String standardDeviation;
+
+		public double standardDeviation() {
+			return StringUtils.parseDouble(averageWeight);
+		}
 
 		@Path("ratings/median")
 		@Attribute(name = "value")
-		public double median;
+		private String median;
+
+		public double median() {
+			return StringUtils.parseDouble(averageWeight);
+		}
 
 		@Path("ratings/owned")
 		@Attribute(name = "value")
-		public int owned;
+		private String owned;
+
+		public int owned() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/trading")
 		@Attribute(name = "value")
-		public int trading;
+		private String trading;
+
+		public int trading() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/wanting")
 		@Attribute(name = "value")
-		public int wanting;
+		private String wanting;
+
+		public int wanting() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/wishing")
 		@Attribute(name = "value")
-		public int wishing;
+		private String wishing;
+
+		public int wishing() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/numcomments")
 		@Attribute(name = "value")
-		public int commenting;
+		private String commenting;
+
+		public int commenting() {
+			return StringUtils.parseInt(commenting);
+		}
 
 		@Path("ratings/numweights")
 		@Attribute(name = "value")
-		public int weighting;
+		private String weighting;
+
+		public int weighting() {
+			return StringUtils.parseInt(weighting);
+		}
 
 		@Path("ratings/averageweight")
 		@Attribute(name = "value")
-		public double averageWeight;
+		private String averageWeight;
+
+		public double averageWeight() {
+			return StringUtils.parseDouble(averageWeight);
+		}
 	}
 
 	@Root(name = "comment")

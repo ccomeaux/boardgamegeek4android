@@ -142,18 +142,18 @@ public class GamePersister {
 		values.put(Games.MAX_PLAYERS, game.maxPlayers);
 		values.put(Games.PLAYING_TIME, game.playingTime);
 		values.put(Games.MINIMUM_AGE, game.minAge);
-		values.put(Games.STATS_USERS_RATED, game.statistics.usersRated);
-		values.put(Games.STATS_AVERAGE, game.statistics.average);
-		values.put(Games.STATS_BAYES_AVERAGE, game.statistics.bayesAverage);
-		values.put(Games.STATS_STANDARD_DEVIATION, game.statistics.standardDeviation);
-		values.put(Games.STATS_MEDIAN, game.statistics.median);
-		values.put(Games.STATS_NUMBER_OWNED, game.statistics.owned);
-		values.put(Games.STATS_NUMBER_TRADING, game.statistics.trading);
-		values.put(Games.STATS_NUMBER_WANTING, game.statistics.wanting);
-		values.put(Games.STATS_NUMBER_WISHING, game.statistics.wishing);
-		values.put(Games.STATS_NUMBER_COMMENTS, game.statistics.commenting);
-		values.put(Games.STATS_NUMBER_WEIGHTS, game.statistics.weighting);
-		values.put(Games.STATS_AVERAGE_WEIGHT, game.statistics.averageWeight);
+		values.put(Games.STATS_USERS_RATED, game.statistics.usersRated());
+		values.put(Games.STATS_AVERAGE, game.statistics.average());
+		values.put(Games.STATS_BAYES_AVERAGE, game.statistics.bayesAverage());
+		values.put(Games.STATS_STANDARD_DEVIATION, game.statistics.standardDeviation());
+		values.put(Games.STATS_MEDIAN, game.statistics.median());
+		values.put(Games.STATS_NUMBER_OWNED, game.statistics.owned());
+		values.put(Games.STATS_NUMBER_TRADING, game.statistics.trading());
+		values.put(Games.STATS_NUMBER_WANTING, game.statistics.wanting());
+		values.put(Games.STATS_NUMBER_WISHING, game.statistics.wishing());
+		values.put(Games.STATS_NUMBER_COMMENTS, game.statistics.commenting());
+		values.put(Games.STATS_NUMBER_WEIGHTS, game.statistics.weighting());
+		values.put(Games.STATS_AVERAGE_WEIGHT, game.statistics.averageWeight());
 		return values;
 	}
 

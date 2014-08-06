@@ -98,7 +98,7 @@ public class CollectionPersister {
 			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
 			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
 			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
-			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numowned);
+			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numberOwned());
 		}
 		return values;
 	}

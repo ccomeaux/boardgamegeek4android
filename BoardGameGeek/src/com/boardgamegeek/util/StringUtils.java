@@ -37,7 +37,7 @@ public class StringUtils {
 	}
 
 	public static double parseDouble(String text) {
-		return parseDouble(text, 0);
+		return parseDouble(text, 0.0);
 	}
 
 	public static double parseDouble(String text, double defaultValue) {
