@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="libs/okio-1.0.0.jar"/>
 	<classpathentry kind="lib" path="libs/okhttp-2.0.0.jar"/>
 	<classpathentry kind="lib" path="libs/okhttp-urlconnection-2.0.0.jar"/>
-	<classpathentry kind="lib" path="libs/retrofit-1.6.0.jar"/>
-	<classpathentry kind="lib" path="libs/picasso-2.3.2.jar"/>
+	<classpathentry kind="lib" path="libs/retrofit-1.6.1.jar"/>
+	<classpathentry kind="lib" path="libs/picasso-2.3.3.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

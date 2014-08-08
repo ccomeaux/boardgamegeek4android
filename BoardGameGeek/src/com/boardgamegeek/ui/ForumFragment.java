@@ -170,7 +170,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	static class ForumData extends PaginatedData<Thread> {
 		public ForumData(ForumResponse response, int page) {
-			super(response.threads, response.numberOfThreads, page, ForumResponse.PAGE_SIZE);
+			super(response.threads, response.numberOfThreads(), page, ForumResponse.PAGE_SIZE);
 		}
 
 		public ForumData(Exception e) {
