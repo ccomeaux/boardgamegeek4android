@@ -98,7 +98,7 @@ public class CollectionPersister {
 			values.put(Games.MIN_PLAYERS, item.statistics.minplayers);
 			values.put(Games.MAX_PLAYERS, item.statistics.maxplayers);
 			values.put(Games.PLAYING_TIME, item.statistics.playingtime);
-			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numowned);
+			values.put(Games.STATS_NUMBER_OWNED, item.statistics.numberOwned());
 		}
 		return values;
 	}
@@ -176,8 +176,8 @@ public class CollectionPersister {
 		if (collId == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);
 			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
-				BggContract.INVALID_ID, Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID + " IS NULL",
-				new String[] { values.getAsString(Collection.GAME_ID) });
+				BggContract.INVALID_ID, "collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID
+					+ " IS NULL", new String[] { values.getAsString(Collection.GAME_ID) });
 		} else {
 			existingId = ResolverUtils.queryLong(resolver, Collection.CONTENT_URI, Collection._ID,
 				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collId) });

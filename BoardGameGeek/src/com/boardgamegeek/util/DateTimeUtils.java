@@ -15,7 +15,7 @@ import com.boardgamegeek.R;
 
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
-	private static final long UNKNOWN_DATE = -1;
+	public static final long UNKNOWN_DATE = -1;
 	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private DateTimeUtils() {

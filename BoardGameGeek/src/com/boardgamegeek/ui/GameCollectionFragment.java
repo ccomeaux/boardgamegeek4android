@@ -187,6 +187,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.ratingDenominator.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
 			holder.unrated.setVisibility(item.hasRating() ? View.GONE : View.VISIBLE);
 			holder.id.setText(String.valueOf(item.id));
+			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
 			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.updated.setText(item.getUpdatedDescription());
 			holder.year.setText(item.getYearDescription());
@@ -295,7 +296,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			Collection.HASPARTS_LIST, Collection.WANTPARTS_LIST, Collection.WISHLIST_COMMENT, Collection.RATING,
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
-			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY };
+			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
+			Collection.NUM_PLAYS };
 
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
@@ -328,6 +330,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		// int STATUS_WANT_TO_PLAY = 29;
 		int STATUS_PREORDERED = 30;
 		int STATUS_WISHLIST_PRIORITY = 31;
+		int NUM_PLAYS = 32;
 
 		DecimalFormat currencyFormat = new DecimalFormat("#0.00");
 
@@ -356,6 +359,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		String hasParts;
 		int wishlistPriority;
 		String wishlistComment;
+		int numPlays;
 
 		private ArrayList<String> mStatus;
 
@@ -369,8 +373,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			name = cursor.getString(COLLECTION_NAME);
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
 			comment = cursor.getString(COMMENT);
-			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
 			rating = cursor.getDouble(RATING);
+			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
 			if (!TextUtils.isEmpty(lastModifiedDateTime) && TextUtils.isDigitsOnly(lastModifiedDateTime)) {
 				this.lastModified = Long.parseLong(lastModifiedDateTime);
 				lastModifiedDateTime = null;
@@ -392,6 +396,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			condition = cursor.getString(CONDITION);
 			wantParts = cursor.getString(WANTPARTS_LIST);
 			hasParts = cursor.getString(HASPARTS_LIST);
+			numPlays = cursor.getInt(NUM_PLAYS);
 
 			mStatus = new ArrayList<String>();
 			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
@@ -408,6 +413,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		String getStatus() {
 			String status = StringUtils.formatList(mStatus);
 			if (TextUtils.isEmpty(status)) {
+				if (numPlays > 0) {
+					return r.getString(R.string.played);
+				}
 				return r.getString(R.string.invalid_collection_status);
 			}
 			return status;
@@ -417,6 +425,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			String s = r.getString(R.string.collection_modified) + ": ";
 			if (TextUtils.isEmpty(lastModifiedDateTime)) {
 				return s + DateUtils.getRelativeTimeSpanString(lastModified);
+			} else if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
+				return ""; // probably not in the collection at all
 			}
 			return s + lastModifiedDateTime;
 		}

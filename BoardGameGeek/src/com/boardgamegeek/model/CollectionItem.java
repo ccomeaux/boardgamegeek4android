@@ -36,35 +36,39 @@ public class CollectionItem {
 		public int playingtime;
 
 		@Attribute
-		public int numowned;
+		private String numowned;
+
+		public int numberOwned() {
+			return StringUtils.parseInt(numowned);
+		}
 
 		@Path("rating")
 		@Attribute(name = "value")
 		private String rating;
 
 		public double getRating() {
-			return StringUtils.parseDouble(rating, 0.0);
+			return StringUtils.parseDouble(rating);
 		}
 
 		@Path("rating/usersrated")
 		@Attribute(name = "value")
-		private int usersRated;
+		private String usersRated;
 
 		@Path("rating/average")
 		@Attribute(name = "value")
-		private double average;
+		private String average;
 
 		@Path("rating/bayesaverage")
 		@Attribute(name = "value")
-		private double bayesAverage;
+		private String bayesAverage;
 
 		@Path("rating/stddev")
 		@Attribute(name = "value")
-		private double standardDeviation;
+		private String standardDeviation;
 
 		@Path("rating/median")
 		@Attribute(name = "value")
-		private double median;
+		private String median;
 
 		@Path("rating")
 		@ElementList
@@ -192,8 +196,8 @@ public class CollectionItem {
 	@Path("privateinfo")
 	@Attribute(required = false)
 	private String quantity;
-	
-	public int getQuantity(){
+
+	public int getQuantity() {
 		return StringUtils.parseInt(quantity, 1);
 	}
 

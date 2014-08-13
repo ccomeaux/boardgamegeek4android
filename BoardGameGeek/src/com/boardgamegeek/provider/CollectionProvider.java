@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -25,11 +24,6 @@ public class CollectionProvider extends BasicProvider {
 	@Override
 	protected String getDefaultSortOrder() {
 		return Collection.DEFAULT_SORT;
-	}
-
-	@Override
-	protected Integer getInsertedId(ContentValues values) {
-		return values.getAsInteger(Collection.COLLECTION_ID);
 	}
 
 	@Override
