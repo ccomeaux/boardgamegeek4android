@@ -124,6 +124,24 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 
 		int token = loader.getId();
 		switch (token) {
+			case GameQuery._TOKEN:
+				mPlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
+				double ratingSum = 0;
+				int ratingCount = 0;
+				do {
+					double rating = cursor.getDouble(GameQuery.RATING);
+					if (rating > 0) {
+						ratingSum += rating;
+						ratingCount++;
+					}
+				} while (cursor.moveToNext());
+				if (ratingCount == 0) {
+					mRating = 0.0;
+				} else {
+					mRating = ratingSum / ratingCount;
+				}
+				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
+				break;
 			case PlayQuery._TOKEN:
 				DecimalFormat doubleFormat = new DecimalFormat("0.00");
 				DecimalFormat percentageFormat = new DecimalFormat("0.0");
@@ -138,7 +156,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 				String pcd = null;// stats.getPlayCountDescription();
 				mPlayCountView.setText(String.valueOf(stats.getPlayCount())
 					+ (!TextUtils.isEmpty(pcd) ? " - " + pcd : ""));
-				mPlayHoursView.setText(String.valueOf(stats.getHoursPlayed()));
+				mPlayHoursView.setText(String.valueOf((int) stats.getHoursPlayed()));
 				mPlayMonthsView.setText(String.valueOf(stats.getMonthsPlayed()));
 				if (stats.mNickelDate == null) {
 					mNickelRoot.setVisibility(View.GONE);
@@ -162,20 +180,6 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 				mProgress.setVisibility(View.GONE);
 				mEmpty.setVisibility(View.GONE);
 				mData.setVisibility(View.VISIBLE);
-				break;
-			case GameQuery._TOKEN:
-				mPlayingTime = cursor.getInt(GameQuery.PLAYING_TIME);
-				double ratingSum = 0;
-				int ratingCount = 0;
-				do {
-					double rating = cursor.getDouble(GameQuery.RATING);
-					if (rating > 0) {
-						ratingSum += rating;
-						ratingCount++;
-					}
-				} while (cursor.moveToNext());
-				mRating = ratingSum / ratingCount;
-				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
 				break;
 			default:
 				cursor.close();
@@ -267,7 +271,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 			return "";
 		}
 
-		public int getHoursPlayed() {
+		public double getHoursPlayed() {
 			return mMinutesPlayed / 60;
 		}
 
@@ -356,7 +360,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 				}
 				long days = TimeUnit.DAYS.convert(s - f, TimeUnit.MILLISECONDS);
 				if (days < 1) {
-					return days;
+					return 1;
 				}
 				return days;
 			} catch (ParseException e) {
