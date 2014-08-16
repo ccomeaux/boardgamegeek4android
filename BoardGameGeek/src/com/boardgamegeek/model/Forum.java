@@ -1,48 +1,54 @@
 package com.boardgamegeek.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
-public class Forum implements Parcelable {
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Root;
 
-	public String id;
+import com.boardgamegeek.util.DateTimeUtils;
+
+@Root(name = "forum")
+public class Forum {
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+
+	private long mLastPostDateTime = DateTimeUtils.UNPARSED_DATE;
+
+	@Attribute
+	public int id;
+
+	@Attribute
+	private int groupid;
+
+	@Attribute
 	public String title;
-	public int noposting;
+
+	@Attribute
+	private int noposting;
+
+	@Attribute
+	private String description;
+
+	@Attribute(name = "numthreads")
 	public int numberOfThreads;
-	public long lastPostDate;
 
-	public Forum() {
+	@Attribute
+	private int numposts;
+
+	@Attribute
+	private String lastpostdate;
+
+	public boolean isHeader() {
+		return noposting == 1;
 	}
 
-	public Forum(Parcel in) {
-		id = in.readString();
-		title = in.readString();
-		noposting = in.readInt();
-		numberOfThreads = in.readInt();
-		lastPostDate = in.readLong();
+	public long lastPostDate() {
+		mLastPostDateTime = DateTimeUtils.tryParseDate(mLastPostDateTime, lastpostdate, FORMAT);
+		return mLastPostDateTime;
 	}
 
 	@Override
-	public int describeContents() {
-		return 0;
+	public String toString() {
+		return "" + id + ": " + title + " - " + description;
 	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(id);
-		dest.writeString(title);
-		dest.writeInt(noposting);
-		dest.writeInt(numberOfThreads);
-		dest.writeLong(lastPostDate);
-	}
-
-	public static final Parcelable.Creator<Forum> CREATOR = new Parcelable.Creator<Forum>() {
-		public Forum createFromParcel(Parcel in) {
-			return new Forum(in);
-		}
-
-		public Forum[] newArray(int size) {
-			return new Forum[size];
-		}
-	};
 }

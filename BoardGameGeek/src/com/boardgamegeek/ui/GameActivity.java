@@ -27,7 +27,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -40,10 +39,13 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
+	private static final int REQUEST_EDIT_PLAY = 1;
 
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
+	private String mImageUrl;
+	private boolean mCustomPlayerSort;
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
@@ -131,7 +133,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 			case android.R.id.home:
 				Intent upIntent = new Intent(this, HotnessActivity.class);
 				if (Authenticator.isSignedIn(this)) {
-					upIntent = new Intent(Intent.ACTION_VIEW, Collection.CONTENT_URI);
+					upIntent = new Intent(this, CollectionActivity.class);
 				}
 				if (shouldUpRecreateTask(this, upIntent)) {
 					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
@@ -146,14 +148,43 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 				ActivityUtils.sendGameShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
-				ActivityUtils.logPlay(this, mGameId, mGameName);
+				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,
+					mImageUrl);
+				intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
+				startActivityForResult(intent, REQUEST_EDIT_PLAY);
 				return true;
 			case R.id.menu_log_play_quick:
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
 				return true;
+			case R.id.menu_link_bgg:
+				ActivityUtils.linkBgg(this, mGameId);
+				return true;
+			case R.id.menu_link_bg_prices:
+				ActivityUtils.linkBgPrices(this, mGameName);
+				return true;
+			case R.id.menu_link_amazon:
+				ActivityUtils.linkAmazon(this, mGameName);
+				return true;
+			case R.id.menu_link_ebay:
+				ActivityUtils.linkEbay(this, mGameName);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
+			mViewPager.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					// HACK prevent a blank fragment if this page is already selected
+					mViewPager.setCurrentItem((showCollection() ? 1 : 0) + 1);
+				}
+			}, 100);
+		}
 	}
 
 	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
@@ -234,13 +265,11 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public void onNameChanged(String gameName) {
+	public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		changeName(gameName);
-	}
-
-	@Override
-	public void onThumbnailUrlChanged(String url) {
-		mThumbnailUrl = url;
+		mThumbnailUrl = thumbnailUrl;
+		mImageUrl = imageUrl;
+		mCustomPlayerSort = customPlayerSort;
 	}
 
 	@Override
@@ -338,8 +367,8 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl) {
-		ActivityUtils.launchPlay(this, playId, gameId, gameName, thumbnailUrl);
+	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		return false;
 	}
 

@@ -17,6 +17,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ import com.squareup.picasso.Picasso;
 
 public class GameCollectionFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameCollectionFragment.class);
+	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private int mGameId = BggContract.INVALID_ID;
 	private CursorAdapter mAdapter;
@@ -123,7 +125,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 				cursor.moveToFirst();
 				do {
 					long u = cursor.getLong(new CollectionItem().UPDATED);
-					if (DateTimeUtils.howManyDaysOld(u) > 0) {
+					if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
 						triggerRefresh();
 						break;
 					}
@@ -185,6 +187,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.ratingDenominator.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
 			holder.unrated.setVisibility(item.hasRating() ? View.GONE : View.VISIBLE);
 			holder.id.setText(String.valueOf(item.id));
+			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
 			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.updated.setText(item.getUpdatedDescription());
 			holder.year.setText(item.getYearDescription());
@@ -194,16 +197,10 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.comment.setText(item.comment);
 
 			// Private info
-			if (item.hasPrivateInfo()) {
+			if (item.hasPrivateInfo() || item.hasPrivateComment()) {
 				holder.privateInfoRoot.setVisibility(View.VISIBLE);
-				holder.price.setVisibility(item.hasPrice() ? View.VISIBLE : View.GONE);
-				holder.price.setText(getString(R.string.price) + ": " + item.getPrice());
-				holder.currentValue.setVisibility(item.hasValue() ? View.VISIBLE : View.GONE);
-				holder.currentValue.setText(getString(R.string.value) + ": " + item.getValue());
-				holder.quantity.setVisibility(item.hasQuantity() ? View.VISIBLE : View.GONE);
-				holder.quantity.setText(getString(R.string.quantity) + ": " + item.quantity);
-				holder.acquisition.setVisibility(item.hasAcquisition() ? View.VISIBLE : View.GONE);
-				holder.acquisition.setText(item.getAcquistionDescription());
+				holder.privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
+				holder.privateInfo.setText(item.getPrivateInfo());
 				holder.privateComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
 				holder.privateComments.setText(item.privateComment);
 			} else {
@@ -244,10 +241,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		TextView comment;
 
 		View privateInfoRoot;
-		TextView price;
-		TextView currentValue;
-		TextView quantity;
-		TextView acquisition;
+		TextView privateInfo;
 		TextView privateComments;
 
 		View wishlistRoot;
@@ -274,11 +268,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			status = (TextView) view.findViewById(R.id.status);
 			comment = (TextView) view.findViewById(R.id.comment);
 
-			privateInfoRoot = view.findViewById(R.id.private_info);
-			price = (TextView) view.findViewById(R.id.price);
-			currentValue = (TextView) view.findViewById(R.id.current_value);
-			quantity = (TextView) view.findViewById(R.id.quantity);
-			acquisition = (TextView) view.findViewById(R.id.acquisition);
+			privateInfoRoot = view.findViewById(R.id.private_info_root);
+			privateInfo = (TextView) view.findViewById(R.id.private_info);
 			privateComments = (TextView) view.findViewById(R.id.private_comments);
 
 			wishlistRoot = view.findViewById(R.id.wishlist_root);
@@ -305,7 +296,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			Collection.HASPARTS_LIST, Collection.WANTPARTS_LIST, Collection.WISHLIST_COMMENT, Collection.RATING,
 			Collection.UPDATED, Collection.STATUS_OWN, Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE,
 			Collection.STATUS_WANT, Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST,
-			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY };
+			Collection.STATUS_WANT_TO_PLAY, Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY,
+			Collection.NUM_PLAYS };
 
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
@@ -338,8 +330,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		// int STATUS_WANT_TO_PLAY = 29;
 		int STATUS_PREORDERED = 30;
 		int STATUS_WISHLIST_PRIORITY = 31;
+		int NUM_PLAYS = 32;
 
-		DecimalFormat currencyFormat = new DecimalFormat("#.##");
+		DecimalFormat currencyFormat = new DecimalFormat("#0.00");
 
 		Resources r;
 		int id;
@@ -366,6 +359,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		String hasParts;
 		int wishlistPriority;
 		String wishlistComment;
+		int numPlays;
 
 		private ArrayList<String> mStatus;
 
@@ -379,8 +373,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			name = cursor.getString(COLLECTION_NAME);
 			// sortName = cursor.getString(COLLECTION_SORT_NAME);
 			comment = cursor.getString(COMMENT);
-			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
 			rating = cursor.getDouble(RATING);
+			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
 			if (!TextUtils.isEmpty(lastModifiedDateTime) && TextUtils.isDigitsOnly(lastModifiedDateTime)) {
 				this.lastModified = Long.parseLong(lastModifiedDateTime);
 				lastModifiedDateTime = null;
@@ -393,7 +387,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			quantity = cursor.getInt(PRIVATE_INFO_QUANTITY);
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
-			acquisitionDate = CursorUtils.getFormettedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
+			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
 			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
@@ -402,6 +396,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			condition = cursor.getString(CONDITION);
 			wantParts = cursor.getString(WANTPARTS_LIST);
 			hasParts = cursor.getString(HASPARTS_LIST);
+			numPlays = cursor.getInt(NUM_PLAYS);
 
 			mStatus = new ArrayList<String>();
 			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
@@ -418,6 +413,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		String getStatus() {
 			String status = StringUtils.formatList(mStatus);
 			if (TextUtils.isEmpty(status)) {
+				if (numPlays > 0) {
+					return r.getString(R.string.played);
+				}
 				return r.getString(R.string.invalid_collection_status);
 			}
 			return status;
@@ -427,6 +425,8 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			String s = r.getString(R.string.collection_modified) + ": ";
 			if (TextUtils.isEmpty(lastModifiedDateTime)) {
 				return s + DateUtils.getRelativeTimeSpanString(lastModified);
+			} else if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
+				return ""; // probably not in the collection at all
 			}
 			return s + lastModifiedDateTime;
 		}
@@ -470,7 +470,19 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		}
 
 		boolean hasPrivateInfo() {
-			return hasPrice() || hasValue() || hasQuantity() || hasAcquisition() || hasPrivateComment();
+			return hasQuantity() || hasAcquisitionDate() || hasAcquiredFrom() || hasPrice() || hasValue();
+		}
+
+		boolean hasQuantity() {
+			return quantity > 1;
+		}
+
+		boolean hasAcquisitionDate() {
+			return !TextUtils.isEmpty(acquisitionDate);
+		}
+
+		boolean hasAcquiredFrom() {
+			return !TextUtils.isEmpty(acquiredFrom);
 		}
 
 		boolean hasPrice() {
@@ -481,30 +493,42 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			return currentValue > 0.0;
 		}
 
-		boolean hasQuantity() {
-			return quantity > 0;
-		}
-
-		boolean hasAcquisition() {
-			return getAcquistionDescription() != null;
-		}
-
 		boolean hasPrivateComment() {
 			return !TextUtils.isEmpty(privateComment);
 		}
 
-		String getAcquistionDescription() {
-			int resource;
-			if (TextUtils.isEmpty(acquiredFrom)) {
-				if (TextUtils.isEmpty(acquisitionDate)) {
-					return null;
-				} else {
-					resource = R.string.acquired_on;
-				}
-			} else {
-				resource = TextUtils.isEmpty(acquisitionDate) ? R.string.acquired_from : R.string.acquired_on_from;
+		CharSequence getPrivateInfo() {
+			String intialText = r.getString(R.string.acquired);
+			SpannableStringBuilder sb = new SpannableStringBuilder();
+			sb.append(intialText);
+			if (hasQuantity()) {
+				sb.append(" ");
+				StringUtils.appendBold(sb, String.valueOf(quantity));
 			}
-			return String.format(r.getString(resource), acquisitionDate, acquiredFrom);
+			if (hasAcquisitionDate()) {
+				sb.append(" ").append(r.getString(R.string.on)).append(" ");
+				StringUtils.appendBold(sb, acquisitionDate);
+			}
+			if (hasAcquiredFrom()) {
+				sb.append(" ").append(r.getString(R.string.from)).append(" ");
+				StringUtils.appendBold(sb, acquiredFrom);
+			}
+			if (hasPrice()) {
+				sb.append(" ").append(r.getString(R.string.for_)).append(" ");
+				StringUtils.appendBold(sb, getPrice());
+			}
+			if (hasValue()) {
+				sb.append(" (").append(r.getString(R.string.currently_worth)).append(" ");
+				StringUtils.appendBold(sb, getValue());
+				sb.append(")");
+			}
+
+			if (sb.toString().equals(intialText)) {
+				// shouldn't happen
+				return null;
+			}
+			return sb;
+
 		}
 
 		private String formatCurrency(String currency) {

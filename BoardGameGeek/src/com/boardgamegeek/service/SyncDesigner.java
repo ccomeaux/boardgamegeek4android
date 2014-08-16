@@ -2,11 +2,14 @@ package com.boardgamegeek.service;
 
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 
-import com.boardgamegeek.io.RemoteDesignerHandler;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.Person;
+import com.boardgamegeek.provider.BggContract.Designers;
 
 public class SyncDesigner extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncDesigner.class);
@@ -17,10 +20,24 @@ public class SyncDesigner extends UpdateTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
-		RemoteDesignerHandler handler = new RemoteDesignerHandler(mDesignerId);
-		String url = HttpUtils.constructDesignerUrl(mDesignerId);
-		safelyExecuteGet(executor, url, handler);
-		LOGI(TAG, "Synched Designer " + mDesignerId);
+	public String getDescription() {
+		return "Sync designer ID=" + mDesignerId;
+	}
+
+	@Override
+	public void execute(Context context) {
+		BggService service = Adapter.create();
+		Person person = service.person(BggService.PERSON_TYPE_DESIGNER, mDesignerId);
+		Uri uri = Designers.buildDesignerUri(mDesignerId);
+		context.getContentResolver().update(uri, toValues(person), null, null);
+		LOGI(TAG, "Synced Designer " + mDesignerId);
+	}
+
+	private static ContentValues toValues(Person person) {
+		ContentValues values = new ContentValues();
+		values.put(Designers.DESIGNER_NAME, person.name);
+		values.put(Designers.DESIGNER_DESCRIPTION, person.description);
+		values.put(Designers.UPDATED, System.currentTimeMillis());
+		return values;
 	}
 }

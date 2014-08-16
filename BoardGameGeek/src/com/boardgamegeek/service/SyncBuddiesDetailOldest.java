@@ -3,49 +3,59 @@ package com.boardgamegeek.service;
 import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.accounts.Account;
+import android.content.Context;
 import android.content.SyncResult;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteBuddyUserHandler;
-import com.boardgamegeek.io.RemoteExecutor;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.User;
+import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
-import com.boardgamegeek.util.url.UserUrlBuilder;
 
+/**
+ * Syncs a number of buddies that haven't been updated in a while.
+ */
 public class SyncBuddiesDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesDetailOldest.class);
 	private static final int SYNC_LIMIT = 25;
 
+	public SyncBuddiesDetailOldest(BggService service) {
+		super(service);
+	}
+
 	@Override
-	public void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException {
+	public void execute(Context context, Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing oldest buddies...");
 		try {
-			if (!PreferencesUtils.getSyncBuddies(executor.getContext())) {
+			if (!PreferencesUtils.getSyncBuddies(context)) {
 				LOGI(TAG, "...buddies not set to sync");
 				return;
 			}
 
-			List<String> names = ResolverUtils.queryStrings(executor.getContext().getContentResolver(),
-				Buddies.CONTENT_URI, Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
+			List<String> names = ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
+				Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
+				List<User> buddies = new ArrayList<User>(names.size());
+				BuddyPersister persister = new BuddyPersister(context);
 				for (String name : names) {
 					if (isCancelled()) {
+						LOGI(TAG, "...canceled while syncing buddies");
 						break;
 					}
-					RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
-					String url = new UserUrlBuilder(name).build();
-					executor.executeGet(url, handler);
-					// syncResult.stats.numUpdates += handler.getCount();
+					buddies.add(mService.user(name));
 				}
+				int count = persister.save(buddies);
+				syncResult.stats.numUpdates += buddies.size();
+				LOGI(TAG, "...saved " + count + " records for " + buddies.size() + " buddies");
+			} else {
+				LOGI(TAG, "...no buddies to update");
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

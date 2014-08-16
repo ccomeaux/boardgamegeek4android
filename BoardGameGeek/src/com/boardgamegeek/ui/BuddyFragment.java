@@ -33,6 +33,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -79,8 +80,12 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mBuddyUri = intent.getData();
+		int buddyId = intent.getIntExtra(BuddyUtils.KEY_BUDDY_ID, BggContract.INVALID_ID);
+		if (buddyId == BggContract.INVALID_ID) {
+			return;
+		}
 
+		mBuddyUri = Buddies.buildBuddyUri(buddyId);
 		if (mBuddyUri == null) {
 			return;
 		}
@@ -88,7 +93,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, null);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
 		mFullName = (TextView) rootView.findViewById(R.id.buddy_full_name);
 		mName = (TextView) rootView.findViewById(R.id.buddy_name);

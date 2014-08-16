@@ -20,9 +20,9 @@ public class PlaysProvider extends BasicProvider {
 			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).groupBy(PlayItems.OBJECT_ID)
 				.mapToTable(Plays._ID, getTable()).mapToTable(Plays.PLAY_ID, getTable());
 		}
-		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_PLAYERS)
-			.mapToTable(Plays._ID, getTable()).mapToTable(Plays.PLAY_ID, getTable())
-			.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
+		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES).mapToTable(Plays._ID, getTable())
+			.mapToTable(Plays.PLAY_ID, getTable()).mapToTable(Plays.UPDATED, Tables.PLAYS)
+			.mapToTable(Plays.UPDATED_LIST, Tables.PLAYS);
 	}
 
 	@Override

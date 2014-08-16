@@ -38,10 +38,6 @@ public class CollectionFilterData implements Parcelable {
 		return selectionArgs;
 	}
 
-	public String getPath() {
-		return path;
-	}
-
 	public CollectionFilterData displayText(String displayText) {
 		this.displayText = displayText;
 		return this;
@@ -54,11 +50,6 @@ public class CollectionFilterData implements Parcelable {
 
 	public CollectionFilterData selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
-		return this;
-	}
-
-	public CollectionFilterData path(String path) {
-		this.path = path;
 		return this;
 	}
 

@@ -126,7 +126,7 @@ public class UIUtils {
 			view.setText("");
 			return;
 		}
-		if (text.contains("<") && text.contains(">")) {
+		if ((text.contains("<") && text.contains(">")) || (text.contains("&") && text.contains(";"))) {
 			// Fix up problematic HTML
 			// replace DIVs with BR
 			text = text.replaceAll("[<]div[^>]*[>]", "");
@@ -137,6 +137,8 @@ public class UIUtils {
 			text = text.replaceAll("(<br\\s?/>)+$", "");
 			// replace 3+ BRs with a double
 			text = text.replaceAll("(<br\\s?/>){3,}", "<br/><br/>");
+			// use BRs instead of new line character
+			text = text.replaceAll("\n", "<br/>");
 
 			Spanned spanned = Html.fromHtml(text);
 			view.setText(spanned);

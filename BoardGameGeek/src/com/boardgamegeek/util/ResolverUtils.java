@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -26,16 +28,44 @@ import com.boardgamegeek.provider.BggContract;
 public class ResolverUtils {
 	private static final String TAG = makeLogTag(ResolverUtils.class);
 
-	public static void applyBatch(ContentResolver resolver, ArrayList<ContentProviderOperation> batch) {
+	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
+		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
-			try {
-				resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			} catch (OperationApplicationException e) {
-				throw new RuntimeException(e);
+			if (PreferencesUtils.getDebug(context)) {
+				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
+				for (int i = 0; i < batch.size(); i++) {
+					results[i] = applySingle(resolver, batch.get(i));
+				}
+				return results;
+			} else {
+				try {
+					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+					if (result == null) {
+						return new ContentProviderResult[] {};
+					}
+					return result;
+				} catch (OperationApplicationException | RemoteException e) {
+					LOGE(TAG, batch.toString(), e);
+					throw new RuntimeException(batch.toString(), e);
+				}
 			}
 		}
+		return new ContentProviderResult[] {};
+	}
+
+	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
+		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>(1);
+		batch.add(cpo);
+		try {
+			ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
+			if (result != null && result.length > 0) {
+				return result[0];
+			}
+		} catch (OperationApplicationException | RemoteException e) {
+			LOGE(TAG, cpo.toString(), e);
+			throw new RuntimeException(cpo.toString(), e);
+		}
+		return null;
 	}
 
 	/*

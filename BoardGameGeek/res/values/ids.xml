@@ -9,5 +9,10 @@
 	<item name="version" type="id"/>
 	<!-- game header -->
 	<item name="game_name" type="id"/>
+	<!-- player order popup menu -->
+	<item name="menu_custom_player_order" type="id"/>
+	<item name="menu_pick_start_player" type="id"/>
+	<item name="menu_random_start_player" type="id"/>
+	<item name="menu_random_player_order" type="id"/>
 
 </resources>

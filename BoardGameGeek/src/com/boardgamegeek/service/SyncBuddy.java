@@ -4,9 +4,10 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Context;
 
-import com.boardgamegeek.io.RemoteBuddyUserHandler;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.util.url.UserUrlBuilder;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.User;
+import com.boardgamegeek.model.persister.BuddyPersister;
 
 public class SyncBuddy extends UpdateTask {
 	private static final String TAG = makeLogTag(SyncBuddy.class);
@@ -17,10 +18,21 @@ public class SyncBuddy extends UpdateTask {
 	}
 
 	@Override
-	public void execute(RemoteExecutor executor, Context context) {
-		RemoteBuddyUserHandler handler = new RemoteBuddyUserHandler(System.currentTimeMillis());
-		String url = new UserUrlBuilder(mName).build();
-		safelyExecuteGet(executor, url, handler);
+	public String getDescription() {
+		return "Sync artist name=" + mName;
+	}
+
+	@Override
+	public void execute(Context context) {
+		BggService service = Adapter.create();
+		User user = service.user(mName);
+
+		if (user == null || user.id == 0) {
+			LOGI(TAG, "Invalid user: " + mName);
+			return;
+		}
+		BuddyPersister persister = new BuddyPersister(context);
+		persister.save(user);
 		LOGI(TAG, "Synced Buddy " + mName);
 	}
 }

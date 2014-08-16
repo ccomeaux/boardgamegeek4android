@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -14,8 +13,8 @@ public class CollectionProvider extends BasicProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		return new SelectionBuilder().table(getExpandedTable()).mapToTable(Collection._ID, Tables.COLLECTION)
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
-			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION).whereEqualsOrNull(GameRanks.GAME_RANK_ID, 1)
-			.groupBy(Collection.COLLECTION_ID);
+			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
+			.whereEqualsOrNull(GameRanks.GAME_RANK_TYPE, "subtype").groupBy(Tables.COLLECTION + "." + Collection._ID);
 	}
 
 	protected String getExpandedTable() {
@@ -25,11 +24,6 @@ public class CollectionProvider extends BasicProvider {
 	@Override
 	protected String getDefaultSortOrder() {
 		return Collection.DEFAULT_SORT;
-	}
-
-	@Override
-	protected Integer getInsertedId(ContentValues values) {
-		return values.getAsInteger(Collection.COLLECTION_ID);
 	}
 
 	@Override

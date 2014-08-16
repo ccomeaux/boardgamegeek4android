@@ -31,11 +31,6 @@
 	<string name="users">Users</string>
 	<string name="weight">Weight</string>
 	<string name="logPlayDialogTitle">Logging</string>
-	<string name="logInError">Unable to log in, please verify your username and password are correct.</string>
-	<string name="logInErrorSuffixNoResponse">no response</string>
-	<string name="logInErrorSuffixBadResponse">received a bad response</string>
-	<string name="logInErrorSuffixMissingCookies">cookies are missing</string>
-	<string name="logInErrorSuffixBadCookies">cookies are incomplete</string>
 	<string name="sync_pending_update">Update pending</string>
 	<string name="sync_pending_delete">Delete pending</string>
 	<string name="sync_draft">Draft</string>
@@ -55,6 +50,7 @@
 	<string name="comments_hint"></string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
+	<string name="done">Done</string>
 	<string name="save_draft">Save draft</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
@@ -70,15 +66,17 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="played">Played</string>
 	<string name="play_again">Play again</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
+	<string name="title_player">Player</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
 	<string name="add">Add</string>
 	<string name="delete">Delete</string>
-	<string name="add_player">Add Player…</string>
+	<string name="add_player">Add player…</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
 	<string name="user">User</string>
@@ -109,6 +107,7 @@
 	<string name="are_you_sure_player_sort_custom_off">Are you sure you want to enable automatic player sorting? The existing starting positions will be replaced.</string>
 	<string name="are_you_sure_delete_collection_view">Are you sure you want to delete this collection view?</string>
 	<string name="are_you_sure_players_clear">Are you sure you want to clear all of the players from this play?</string>
+	<string name="are_you_sure_timer_reset">Are you sure you want to reset the timer and lose the current length?</string>
 	<string name="app_name">BoardGameGeek</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="description_logo">BoardGameGeek</string>
@@ -166,6 +165,7 @@
 	<string name="empty_plays">You have no plays logged. Do you even like games?</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
+	<string name="empty_plays_player">You haven\'t logged any plays with this player.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
@@ -195,7 +195,7 @@
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
-	<string name="menu_links">Links</string>
+	<string name="menu_links">Links...</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
 	<string name="menu_link_bg_prices">Board Game Prices</string>
 	<string name="menu_link_amazon">Amazon</string>
@@ -206,7 +206,7 @@
 	<string name="menu_collection_view_save">Save view…</string>
 	<string name="menu_collection_view_delete">Delete view…</string>
 	<string name="menu_collection_status">Collection Status</string>
-	<string name="menu_expansion_status">Expansion Status</string>
+	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_collection_sort_name">Name</string>
 	<string name="menu_collection_sort_rating">Rating</string>
@@ -259,8 +259,6 @@
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
-	<string name="msg_refresh_recent">You just refreshed. Have some patience.</string>
-	<string name="msg_refresh_exceeds_throttle">Can\'t update more than once an hour.</string>
 	<string name="msg_updating">Updating…</string>
 	<string name="msg_update_error">Error updating.</string>
 	<string name="msg_error_remote">"Error refreshing, try again later."</string>
@@ -272,7 +270,7 @@
 	<string name="msg_play_updated">Updated a play of</string>
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
-	<string name="msg_play_update_bad_id">Play was already deleted.</string>
+	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
@@ -290,6 +288,7 @@
 	<string name="times">times</string>
 	<string name="times_abbr">x</string>
 	<string name="on">on</string>
+	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
 	<string name="at">at</string>
@@ -330,7 +329,8 @@
 	<string name="some_more">%d more</string>
 	<string name="and_more">, and more</string>
 	<string name="toggle">toggle</string>
-	<string name="number_to_text">123/ABC</string>
+	<string name="number_to_text">ABC</string>
+	<string name="text_to_number">123</string>
 	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
@@ -353,13 +353,12 @@
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
 	<string name="collection_modified">Collection modified</string>
-	<string name="invalid_collection_status">This game isn\'t in your collection (but you may have played it or commented on it).</string>
+	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="price">Price</string>
 	<string name="value">Value</string>
 	<string name="private_info">Private Info</string>
-	<string name="acquired_on">Acquired on %1$s</string>
-	<string name="acquired_from">Acquired from %2$s</string>
-	<string name="acquired_on_from">Acquired on %1$s from %2$s</string>
+	<string name="acquired">Acquired</string>
+	<string name="currently_worth">currently worth</string>
 	<string name="wishlist">Wishlist</string>
 	<string name="condition">Trade Condition</string>
 	<string name="want_parts">Want Parts</string>

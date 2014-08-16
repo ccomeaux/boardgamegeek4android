@@ -11,9 +11,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,20 +20,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.io.RemoteForumsParser;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Forum;
+import com.boardgamegeek.model.ForumListResponse;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.widget.BggLoader;
+import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<List<Forum>> {
+public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
 	private static final int FORUMS_LOADER_ID = 0;
 
 	private int mGameId;
 	private String mGameName;
-	private ForumsAdapter mForumsAdapter = null;
+	private ForumsAdapter mForumsAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,6 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		Uri uri = intent.getData();
 		mGameId = Games.getGameId(uri);
 		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
-
-		setListAdapter(mForumsAdapter);
 	}
 
 	@Override
@@ -56,30 +56,30 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().restartLoader(FORUMS_LOADER_ID, null, this);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		getLoaderManager().initLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
-	public Loader<List<Forum>> onCreateLoader(int id, Bundle data) {
+	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), mGameId);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<Forum>> loader, List<Forum> forums) {
+	public void onLoadFinished(Loader<ForumsData> loader, ForumsData data) {
 		if (getActivity() == null) {
 			return;
 		}
 
 		if (mForumsAdapter == null) {
-			mForumsAdapter = new ForumsAdapter(getActivity(), forums);
+			mForumsAdapter = new ForumsAdapter(getActivity(), data.list());
+			setListAdapter(mForumsAdapter);
 		}
-		setListAdapter(mForumsAdapter);
+		mForumsAdapter.notifyDataSetChanged();
 
-		if (loaderHasError()) {
-			setEmptyText(loaderErrorMessage());
+		if (data.hasError()) {
+			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
 				setListShown(true);
@@ -91,7 +91,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<Forum>> forums) {
+	public void onLoaderReset(Loader<ForumsData> loader) {
 	}
 
 	@Override
@@ -109,85 +109,49 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	private boolean loaderHasError() {
-		ForumsLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		ForumsLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
-	private ForumsLoader getLoader() {
-		if (isAdded()) {
-			Loader<List<Forum>> loader = getLoaderManager().getLoader(FORUMS_LOADER_ID);
-			return (ForumsLoader) loader;
-		}
-		return null;
-	}
-
-	private static class ForumsLoader extends AsyncTaskLoader<List<Forum>> {
-		private List<Forum> mData;
+	private static class ForumsLoader extends BggLoader<ForumsData> {
+		private BggService mService;
 		private int mGameId;
-		private String mErrorMessage;
 
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
+			mService = Adapter.create();
 			mGameId = gameId;
-			mErrorMessage = "";
 		}
 
 		@Override
-		public List<Forum> loadInBackground() {
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteForumsParser parser = new RemoteForumsParser(mGameId);
-
-			executor.safelyExecuteGet(parser);
-			mErrorMessage = parser.getErrorMessage();
-			return parser.getResults();
-		}
-
-		@Override
-		public void deliverResult(List<Forum> forums) {
-			if (isReset()) {
-				return;
+		public ForumsData loadInBackground() {
+			ForumsData forums = null;
+			try {
+				if (mGameId == BggContract.INVALID_ID) {
+					forums = new ForumsData(mService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME));
+				} else {
+					forums = new ForumsData(mService.forumList(BggService.FORUM_TYPE_THING, mGameId));
+				}
+			} catch (Exception e) {
+				forums = new ForumsData(e);
 			}
+			return forums;
+		}
+	}
 
-			mData = forums;
-			if (isStarted()) {
-				super.deliverResult(forums == null ? null : new ArrayList<Forum>(forums));
-			}
+	static class ForumsData extends Data<Forum> {
+		private ForumListResponse mResponse;
+
+		public ForumsData(ForumListResponse response) {
+			mResponse = response;
+		}
+
+		public ForumsData(Exception e) {
+			super(e);
 		}
 
 		@Override
-		protected void onStartLoading() {
-			if (mData != null) {
-				deliverResult(mData);
+		public List<Forum> list() {
+			if (mResponse == null || mResponse.forums == null) {
+				return new ArrayList<Forum>();
 			}
-			if (takeContentChanged() || mData == null) {
-				forceLoad();
-			}
-		}
-
-		@Override
-		protected void onStopLoading() {
-			cancelLoad();
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			onStopLoading();
-			mData = null;
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
+			return mResponse.forums;
 		}
 	}
 
@@ -230,8 +194,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 					holder.forumTitle.setText(forum.title);
 					holder.numThreads.setText(mResources.getQuantityString(R.plurals.forum_threads,
 						forum.numberOfThreads, mFormat.format(forum.numberOfThreads)));
-					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate));
-					holder.lastPost.setVisibility((forum.lastPostDate > 0) ? View.VISIBLE : View.GONE);
+					holder.lastPost.setText(DateTimeUtils.formatForumDate(getContext(), forum.lastPostDate()));
+					holder.lastPost.setVisibility((forum.lastPostDate() > 0) ? View.VISIBLE : View.GONE);
 				}
 				return convertView;
 			} else {
@@ -259,7 +223,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public int getItemViewType(int position) {
 			try {
 				Forum forum = getItem(position);
-				if (forum.noposting == 1) {
+				if (forum != null && forum.isHeader()) {
 					return ITEM_VIEW_TYPE_HEADER;
 				}
 				return ITEM_VIEW_TYPE_FORUM;
@@ -270,7 +234,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	static class ForumViewHolder {
-		public String forumId;
+		public int forumId;
 		public TextView forumTitle;
 		public TextView numThreads;
 		public TextView lastPost;

@@ -4,70 +4,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.GameColors;
-import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.BuddyNameAdapter;
+import com.boardgamegeek.ui.widget.GameColorAdapter;
+import com.boardgamegeek.ui.widget.PlayerNameAdapter;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.AutoCompleteAdapter;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
-public class LogPlayerActivity extends SherlockFragmentActivity implements OnItemClickListener {
+public class LogPlayerActivity extends SherlockFragmentActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_CANCEL_ON_BACK = "CANCEL_ON_BACK";
+	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
+	public static final String KEY_PLAYER = "PLAYER";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
 	private static final String KEY_POSITION_SHOWN = "POSITION_SHOWN";
 	private static final String KEY_SCORE_SHOWN = "SCORE_SHOWN";
 	private static final String KEY_RATING_SHOWN = "RATING_SHOWN";
 	private static final String KEY_NEW_SHOWN = "NEW_SHOWN";
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
-	private static final String KEY_PLAYER = "PLAYER";
 
 	private static final int HELP_VERSION = 1;
 
 	private int mGameId;
 	private String mGameName;
 
-	private UsernameAdapter mUsernameAdapter;
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
+	private ScrollView mScrollContainer;
+	private TextView mHeader;
 	private AutoCompleteTextView mUsername;
 	private AutoCompleteTextView mName;
 	private AutoCompleteTextView mTeamColor;
+	private ImageView mColorView;
 	private EditText mPosition;
 	private Button mPositionButton;
 	private EditText mScore;
@@ -76,106 +75,114 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	private CheckBox mNew;
 	private CheckBox mWin;
 
-	private boolean mTeamColorShown;
-	private boolean mPositionShown;
-	private boolean mScoreShown;
-	private boolean mRatingShown;
-	private boolean mNewShown;
-	private boolean mWinShown;
-	private boolean mCancelOnBack;
+	private boolean mPrefShowTeamColor;
+	private boolean mPrefShowPosition;
+	private boolean mPrefShowScore;
+	private boolean mPrefShowRating;
+	private boolean mPrefShowNew;
+	private boolean mPrefShowWin;
+	private boolean mUserShowTeamColor;
+	private boolean mUserShowPosition;
+	private boolean mUserShowScore;
+	private boolean mUserShowRating;
+	private boolean mUserShowNew;
+	private boolean mUserShowWin;
 	private int mAutoPosition;
+
+	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			onActionBarItemSelected(v.getId());
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 		setContentView(R.layout.activity_logplayer);
 		setUiVariables();
 
+		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
+
 		final Intent intent = getIntent();
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
-		mCancelOnBack = intent.getBooleanExtra(KEY_CANCEL_ON_BACK, false);
+		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
-			mScoreShown = true;
+			mUserShowScore = true;
 			mScore.requestFocus();
 		}
 
-		if (hasAutoPosition()) {
-			setTitle(getTitle() + " #" + mAutoPosition);
-		}
-
-		if (!TextUtils.isEmpty(mGameName)) {
-			getSupportActionBar().setSubtitle(mGameName);
-		}
-
 		if (savedInstanceState == null) {
-			mPlayer = new Player(intent);
+			mPlayer = intent.getParcelableExtra(KEY_PLAYER);
+			if (mPlayer == null) {
+				mPlayer = new Player();
+			}
 			if (hasAutoPosition()) {
 				mPlayer.setSeat(mAutoPosition);
 			}
 			mOriginalPlayer = new Player(mPlayer);
 		} else {
-			mTeamColorShown = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
-			mPositionShown = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
-			mScoreShown = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
-			mRatingShown = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
-			mNewShown = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
-			mWinShown = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
+			mUserShowTeamColor = savedInstanceState.getBoolean(KEY_TEAM_COLOR_SHOWN);
+			mUserShowPosition = savedInstanceState.getBoolean(KEY_POSITION_SHOWN);
+			mUserShowScore = savedInstanceState.getBoolean(KEY_SCORE_SHOWN);
+			mUserShowRating = savedInstanceState.getBoolean(KEY_RATING_SHOWN);
+			mUserShowNew = savedInstanceState.getBoolean(KEY_NEW_SHOWN);
+			mUserShowWin = savedInstanceState.getBoolean(KEY_WIN_SHOWN);
 
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
+		if (!TextUtils.isEmpty(imageUrl)) {
+			Picasso.with(this).load(imageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
+		}
 		bindUi();
 
-		mUsernameAdapter = new UsernameAdapter(this);
-		mUsername.setAdapter(mUsernameAdapter);
-		mName.setAdapter(new AutoCompleteAdapter(this, PlayPlayers.NAME, Plays.buildPlayersByNameWithoutUsernameUri(),
-			PlayPlayers.NAME));
-		mTeamColor.setAdapter(new AutoCompleteAdapter(this, GameColors.COLOR, Games.buildColorsUri(mGameId)));
+		mName.setAdapter(new PlayerNameAdapter(this));
+		mUsername.setAdapter(new BuddyNameAdapter(this));
+		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mPrefShowTeamColor = PreferencesUtils.showLogPlayerTeamColor(this);
+		mPrefShowPosition = PreferencesUtils.showLogPlayerPosition(this);
+		mPrefShowScore = PreferencesUtils.showLogPlayerScore(this);
+		mPrefShowRating = PreferencesUtils.showLogPlayerRating(this);
+		mPrefShowNew = PreferencesUtils.showLogPlayerNew(this);
+		mPrefShowWin = PreferencesUtils.showLogPlayerWin(this);
+		setViewVisibility();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(KEY_PLAYER, mPlayer);
-		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mTeamColorShown);
-		outState.putBoolean(KEY_POSITION_SHOWN, mPositionShown);
-		outState.putBoolean(KEY_SCORE_SHOWN, mScoreShown);
-		outState.putBoolean(KEY_RATING_SHOWN, mRatingShown);
-		outState.putBoolean(KEY_NEW_SHOWN, mNewShown);
-		outState.putBoolean(KEY_WIN_SHOWN, mWinShown);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.logplayer, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		hideAddFieldMenuItem(menu.findItem(R.id.menu_add_field));
-		return super.onPrepareOptionsMenu(menu);
+		outState.putBoolean(KEY_TEAM_COLOR_SHOWN, mUserShowTeamColor);
+		outState.putBoolean(KEY_POSITION_SHOWN, mUserShowPosition);
+		outState.putBoolean(KEY_SCORE_SHOWN, mUserShowScore);
+		outState.putBoolean(KEY_RATING_SHOWN, mUserShowRating);
+		outState.putBoolean(KEY_NEW_SHOWN, mUserShowNew);
+		outState.putBoolean(KEY_WIN_SHOWN, mUserShowWin);
 	}
 
 	@Override
 	public void onBackPressed() {
-		if (mCancelOnBack) {
-			cancel();
-		} else {
-			save();
-		}
+		cancel();
 	}
 
 	private void setUiVariables() {
+		mScrollContainer = (ScrollView) findViewById(R.id.scroll_container);
+		mHeader = (TextView) findViewById(R.id.header);
 		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
 		mName = (AutoCompleteTextView) findViewById(R.id.log_player_name);
 		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
+		mColorView = (ImageView) findViewById(R.id.color_view);
 		mPosition = (EditText) findViewById(R.id.log_player_position);
 		mPositionButton = (Button) findViewById(R.id.log_player_position_button);
 		mScore = (EditText) findViewById(R.id.log_player_score);
@@ -184,9 +191,41 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 		mNew = (CheckBox) findViewById(R.id.log_player_new);
 		mWin = (CheckBox) findViewById(R.id.log_player_win);
 
+		mName.setOnItemClickListener(nameClickListener());
+		mTeamColor.addTextChangedListener(colorTextWatcher());
 		mPositionButton.setOnClickListener(numberToTextClick());
 		mScoreButton.setOnClickListener(numberToTextClick());
-		mUsername.setOnItemClickListener(this);
+	}
+
+	private OnItemClickListener nameClickListener() {
+		return new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mUsername.setText((String) view.getTag());
+			}
+		};
+	}
+
+	private TextWatcher colorTextWatcher() {
+		return new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				int color = ColorUtils.parseColor(s.toString());
+				if (color != ColorUtils.TRANSPARENT) {
+					ColorUtils.setColorViewValue(mColorView, color);
+				} else {
+					mColorView.setImageDrawable(null);
+				}
+			}
+		};
 	}
 
 	private OnClickListener numberToTextClick() {
@@ -206,9 +245,11 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 				if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
 					editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
 						| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+					((Button) v).setText(R.string.text_to_number);
 				} else {
 					editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
 						| InputType.TYPE_NUMBER_FLAG_SIGNED);
+					((Button) v).setText(R.string.number_to_text);
 				}
 				editText.requestFocus();
 			}
@@ -216,42 +257,47 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void bindUi() {
-		mName.setText(mPlayer.Name);
-		mUsername.setText(mPlayer.Username);
-		mTeamColor.setText(mPlayer.TeamColor);
-		mPosition.setText(mPlayer.getStartingPosition());
-		mScore.setText(mPlayer.Score);
-		mRating.setText((mPlayer.Rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.Rating));
-		mNew.setChecked(mPlayer.New);
-		mWin.setChecked(mPlayer.Win);
-		hideFields();
+		CharSequence title = getTitle() + (hasAutoPosition() ? " #" + mAutoPosition : "") + " - " + mGameName;
+		mHeader.setText(title);
+		mName.setTextKeepState(mPlayer.name);
+		mUsername.setTextKeepState(mPlayer.username);
+		mTeamColor.setTextKeepState(mPlayer.color);
+		if (mPlayer.getStartingPosition() != null) {
+			mPosition.setTextKeepState(mPlayer.getStartingPosition());
+		}
+		mScore.setTextKeepState(mPlayer.score);
+		mRating.setTextKeepState((mPlayer.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(mPlayer.rating));
+		mNew.setChecked(mPlayer.New());
+		mWin.setChecked(mPlayer.Win());
 	}
 
-	private void hideFields() {
-		findViewById(R.id.log_player_team_color_label).setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
-		mTeamColor.setVisibility(shouldHideTeamColor() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_position_container).setVisibility(
-			hasAutoPosition() || shouldHidePosition() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_score_container).setVisibility(shouldHideScore() ? View.GONE : View.VISIBLE);
-		findViewById(R.id.log_player_rating_label).setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
-		mRating.setVisibility(shouldHideRating() ? View.GONE : View.VISIBLE);
-		mNew.setVisibility(shouldHideNew() ? View.GONE : View.VISIBLE);
-		mWin.setVisibility(shouldHideWin() ? View.GONE : View.VISIBLE);
+	private void setViewVisibility() {
+		boolean enableButton = false;
+		enableButton |= hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
+		enableButton |= hideRow(hasAutoPosition() || shouldHidePosition(),
+			findViewById(R.id.log_player_position_container));
+		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
+		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
+		enableButton |= hideRow(shouldHideNew(), mNew);
+		enableButton |= hideRow(shouldHideWin(), mWin);
+		findViewById(R.id.add_field).setEnabled(enableButton);
 	}
 
-	public void hideAddFieldMenuItem(MenuItem mi) {
-		mi.setVisible(shouldHideTeamColor() || (shouldHidePosition() && !hasAutoPosition()) || shouldHideScore()
-			|| shouldHideRating() || shouldHideNew() || shouldHideWin());
+	private boolean hideRow(boolean shouldHide, View view) {
+		if (shouldHide) {
+			view.setVisibility(View.GONE);
+			return true;
+		}
+		view.setVisibility(View.VISIBLE);
+		return false;
 	}
 
 	private boolean shouldHideTeamColor() {
-		return !PreferencesUtils.showLogPlayerTeamColor(this) && !mTeamColorShown
-			&& TextUtils.isEmpty(mPlayer.TeamColor);
+		return !mPrefShowTeamColor && !mUserShowTeamColor && TextUtils.isEmpty(mPlayer.color);
 	}
 
 	private boolean shouldHidePosition() {
-		return !PreferencesUtils.showLogPlayerPosition(this) && !mPositionShown
-			&& TextUtils.isEmpty(mPlayer.getStartingPosition());
+		return !mPrefShowPosition && !mUserShowPosition && TextUtils.isEmpty(mPlayer.getStartingPosition());
 	}
 
 	private boolean hasAutoPosition() {
@@ -259,73 +305,89 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private boolean shouldHideScore() {
-		return !PreferencesUtils.showLogPlayerScore(this) && !mScoreShown && TextUtils.isEmpty(mPlayer.Score);
+		return !mPrefShowScore && !mUserShowScore && TextUtils.isEmpty(mPlayer.score);
 	}
 
 	private boolean shouldHideRating() {
-		return !PreferencesUtils.showLogPlayerRating(this) && !mRatingShown && !(mPlayer.Rating > 0);
+		return !mPrefShowRating && !mUserShowRating && !(mPlayer.rating > 0);
 	}
 
 	private boolean shouldHideNew() {
-		return !PreferencesUtils.showLogPlayerNew(this) && !mNewShown && !mPlayer.New;
+		return !mPrefShowNew && !mUserShowNew && !mPlayer.New();
 	}
 
 	private boolean shouldHideWin() {
-		return !PreferencesUtils.showLogPlayerWin(this) && !mWinShown && !mPlayer.Win;
+		return !mPrefShowWin && !mUserShowWin && !mPlayer.Win();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_save:
+	private boolean onActionBarItemSelected(int itemId) {
+		switch (itemId) {
+			case R.id.menu_done:
 				save();
 				return true;
 			case R.id.menu_cancel:
 				cancel();
 				return true;
-			case R.id.menu_add_field:
-				final CharSequence[] array = createAddFieldArray();
-				if (array == null || array.length == 0) {
-					return false;
-				}
-				final MenuItem mi = item;
-				new AlertDialog.Builder(this).setTitle(R.string.add_field)
-					.setItems(array, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Resources r = getResources();
-							View viewToFocus = null;
-
-							String selection = array[which].toString();
-							if (selection == r.getString(R.string.team_color)) {
-								mTeamColorShown = true;
-								viewToFocus = mTeamColor;
-							} else if (selection == r.getString(R.string.starting_position)) {
-								mPositionShown = true;
-								viewToFocus = mPosition;
-							} else if (selection == r.getString(R.string.score)) {
-								mScoreShown = true;
-								viewToFocus = mScore;
-							} else if (selection == r.getString(R.string.rating)) {
-								mRatingShown = true;
-								viewToFocus = mRating;
-							} else if (selection == r.getString(R.string.new_label)) {
-								mNewShown = true;
-								mNew.setChecked(true);
-							} else if (selection == r.getString(R.string.win)) {
-								mWinShown = true;
-								mWin.setChecked(true);
-							}
-							hideAddFieldMenuItem(mi);
-							hideFields();
-							if (viewToFocus != null) {
-								viewToFocus.requestFocus();
-							}
-						}
-					}).show();
-				return true;
 		}
-		return super.onOptionsItemSelected(item);
+		return false;
+	}
+
+	public void addField(View v) {
+		final CharSequence[] array = createAddFieldArray();
+		if (array == null || array.length == 0) {
+			return;
+		}
+		new AlertDialog.Builder(this).setTitle(R.string.add_field)
+			.setItems(array, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Resources r = getResources();
+					View viewToFocus = null;
+					View viewToScroll = null;
+
+					String selection = array[which].toString();
+					if (selection == r.getString(R.string.team_color)) {
+						mUserShowTeamColor = true;
+						viewToFocus = mTeamColor;
+						viewToScroll = findViewById(R.id.log_player_team_color_container);
+					} else if (selection == r.getString(R.string.starting_position)) {
+						mUserShowPosition = true;
+						viewToFocus = mPosition;
+						viewToScroll = findViewById(R.id.log_player_position_container);
+					} else if (selection == r.getString(R.string.score)) {
+						mUserShowScore = true;
+						viewToFocus = mScore;
+						viewToScroll = findViewById(R.id.log_player_score_container);
+					} else if (selection == r.getString(R.string.rating)) {
+						mUserShowRating = true;
+						viewToFocus = mRating;
+						viewToScroll = findViewById(R.id.log_player_rating);
+					} else if (selection == r.getString(R.string.new_label)) {
+						mUserShowNew = true;
+						mNew.setChecked(true);
+						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToFocus = mNew;
+					} else if (selection == r.getString(R.string.win)) {
+						mUserShowWin = true;
+						mWin.setChecked(true);
+						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToFocus = mWin;
+					}
+					setViewVisibility();
+					if (viewToFocus != null) {
+						viewToFocus.requestFocus();
+					}
+					if (viewToScroll != null) {
+						final View finalView = viewToScroll;
+						mScrollContainer.post(new Runnable() {
+							@Override
+							public void run() {
+								mScrollContainer.smoothScrollTo(0, finalView.getBottom());
+							}
+						});
+					}
+				}
+			}).show();
 	}
 
 	private CharSequence[] createAddFieldArray() {
@@ -358,7 +420,9 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 
 	private void save() {
 		captureForm();
-		setResult(RESULT_OK, mPlayer.toIntent());
+		Intent intent = new Intent();
+		intent.putExtra(KEY_PLAYER, mPlayer);
+		setResult(RESULT_OK, intent);
 		finish();
 	}
 
@@ -373,71 +437,13 @@ public class LogPlayerActivity extends SherlockFragmentActivity implements OnIte
 	}
 
 	private void captureForm() {
-		mPlayer.Name = mName.getText().toString().trim();
-		mPlayer.Username = mUsername.getText().toString().trim();
-		mPlayer.TeamColor = mTeamColor.getText().toString().trim();
+		mPlayer.name = mName.getText().toString().trim();
+		mPlayer.username = mUsername.getText().toString().trim();
+		mPlayer.color = mTeamColor.getText().toString().trim();
 		mPlayer.setStartingPosition(mPosition.getText().toString().trim());
-		mPlayer.Score = mScore.getText().toString().trim();
-		mPlayer.Rating = StringUtils.parseDouble(mRating.getText().toString().trim());
-		mPlayer.New = mNew.isChecked();
-		mPlayer.Win = mWin.isChecked();
-	}
-
-	private class UsernameAdapter extends CursorAdapter {
-		public UsernameAdapter(Context context) {
-			super(context, null, false);
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return getLayoutInflater().inflate(R.layout.dropdown_logplayer_buddy, parent, false);
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			String userName = cursor.getString(BuddiesQuery.NAME);
-			String firstName = cursor.getString(BuddiesQuery.FIRST_NAME);
-			String lastName = cursor.getString(BuddiesQuery.LAST_NAME);
-			String nickname = cursor.getString(BuddiesQuery.PLAY_NICKNAME);
-			String fullName = (firstName + " " + lastName).trim();
-
-			((TextView) view.findViewById(R.id.buddy_username)).setText(userName);
-			((TextView) view.findViewById(R.id.buddy_description)).setText(fullName);
-			((TextView) view.findViewById(R.id.buddy_nickname)).setText(nickname);
-			view.setTag(TextUtils.isEmpty(nickname) ? firstName : nickname);
-		}
-
-		@Override
-		public CharSequence convertToString(Cursor cursor) {
-			return cursor.getString(BuddiesQuery.NAME);
-		}
-
-		@Override
-		public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (!TextUtils.isEmpty(constraint)) {
-				selection = Buddies.BUDDY_NAME + " LIKE ? OR " + Buddies.BUDDY_FIRSTNAME + " LIKE ? OR "
-					+ Buddies.BUDDY_LASTNAME + " LIKE ? OR " + Buddies.PLAY_NICKNAME + " LIKE ?";
-				String selectionArg = constraint + "%";
-				selectionArgs = new String[] { selectionArg, selectionArg, selectionArg, selectionArg };
-			}
-			return getContentResolver().query(Buddies.CONTENT_URI, BuddiesQuery.PROJECTION, selection, selectionArgs,
-				Buddies.NAME_SORT);
-		}
-	}
-
-	private interface BuddiesQuery {
-		String[] PROJECTION = { Buddies._ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
-			Buddies.PLAY_NICKNAME };
-		int NAME = 1;
-		int FIRST_NAME = 2;
-		int LAST_NAME = 3;
-		int PLAY_NICKNAME = 4;
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		mName.setText((String) view.getTag());
+		mPlayer.score = mScore.getText().toString().trim();
+		mPlayer.rating = StringUtils.parseDouble(mRating.getText().toString().trim());
+		mPlayer.New(mNew.isChecked());
+		mPlayer.Win(mWin.isChecked());
 	}
 }

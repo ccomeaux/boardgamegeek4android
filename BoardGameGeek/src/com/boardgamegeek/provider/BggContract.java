@@ -35,6 +35,7 @@ public class BggContract {
 		String NUM_PLAYS = "num_of_plays";
 		String MINIMUM_AGE = "age";
 		String DESCRIPTION = "description";
+		String SUBTYPE = "subtype";
 		String STATS_USERS_RATED = "usersrated";
 		String STATS_AVERAGE = "average";
 		String STATS_BAYES_AVERAGE = "bayes_average";
@@ -50,6 +51,7 @@ public class BggContract {
 		String LAST_VIEWED = "last_viewed";
 		String STARRED = "starred";
 		String UPDATED_PLAYS = "updated_plays";
+		String CUSTOM_PLAYER_SORT = "custom_player_sort";
 	}
 
 	interface GameRanksColumns {
@@ -174,6 +176,7 @@ public class BggContract {
 		String COMMENTS = "comments";
 		String SYNC_STATUS = "sync_status";
 		String START_TIME = "start_time";
+		String PLAYER_COUNT = "player_count";
 	}
 
 	interface PlayItemsColumns {
@@ -191,7 +194,6 @@ public class BggContract {
 		String NEW = "new";
 		String RATING = "rating";
 		String WIN = "win";
-		String CHECKED = "checked";
 		String COUNT = "count";
 		String DESCRIPTION = "description";
 		String UNIQUE_NAME = "unique_name";
@@ -239,6 +241,8 @@ public class BggContract {
 	public static final String QUERY_KEY_GROUP_BY = "groupby";
 	public static final String QUERY_VALUE_NAME_NOT_USER = "namenotuser";
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
+	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
+	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
@@ -445,6 +449,15 @@ public class BggContract {
 			return getLimitedUriBuilder(gameId, path, 0);
 		}
 
+		public static Uri buildPathUri(int gameId, String path) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path).build();
+		}
+
+		public static Uri buildPathUri(int gameId, String path, int id) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path)
+				.appendPath(String.valueOf(id)).build();
+		}
+
 		private static Builder getLimitedUriBuilder(int gameId, String path, int limit) {
 			Builder builder = CONTENT_URI.buildUpon().appendPath(String.valueOf(gameId)).appendPath(path);
 			if (limit > 0) {
@@ -642,15 +655,15 @@ public class BggContract {
 		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
 		public static final String SORT_BY_RATING = GamesColumns.STATS_BAYES_AVERAGE + " DESC, " + DEFAULT_SORT;
 
-		public static Uri buildItemUri(int itemId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).build();
+		public static Uri buildUri(long id) {
+			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
 		}
 
 		public static Uri buildThumbnailUri(int itemId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).appendPath(PATH_THUMBNAILS).build();
 		}
 
-		public static int getItemId(Uri uri) {
+		public static long getId(Uri uri) {
 			return StringUtils.parseInt(uri.getPathSegments().get(1));
 		}
 	}
@@ -734,6 +747,9 @@ public class BggContract {
 		// TODO define table name in a better spot
 		public static final String DEFAULT_SORT = DATE + " DESC, plays." + PLAY_ID + " DESC";
 
+		/**
+		 * content://com.boardgamegeek/plays/#
+		 */
 		public static Uri buildPlayUri(int playId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(playId)).build();
 		}
@@ -766,6 +782,16 @@ public class BggContract {
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {
 			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
+				.build();
+		}
+
+		public static Uri buildPlayersByUniquePlayerUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER)
+				.build();
+		}
+
+		public static Uri buildPlayersByUniqueUserUri() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
 				.build();
 		}
 

@@ -98,6 +98,18 @@ public class LogUtils {
 		Log.e(tag, message, cause);
 	}
 
+	public static void LOGWTF(final String tag, String message) {
+		Log.wtf(tag, message);
+	}
+
+	public static void LOGWTF(final String tag, Throwable cause) {
+		Log.wtf(tag, cause);
+	}
+
+	public static void LOGWTF(final String tag, String message, Throwable cause) {
+		Log.wtf(tag, message, cause);
+	}
+
 	private LogUtils() {
 	}
 }

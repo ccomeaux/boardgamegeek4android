@@ -1,50 +1,40 @@
 package com.boardgamegeek.ui;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
-import com.boardgamegeek.io.RemoteCommentsParser;
-import com.boardgamegeek.io.RemoteExecutor;
-import com.boardgamegeek.model.Comment;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.Game.Comment;
+import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.widget.PaginatedData;
+import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class CommentsFragment extends SherlockListFragment implements OnScrollListener,
-	LoaderManager.LoaderCallbacks<List<Comment>> {
+public class CommentsFragment extends BggListFragment implements OnScrollListener,
+	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final int COMMENTS_LOADER_ID = 0;
-	private static final String STATE_POSITION = "position";
-	private static final String STATE_TOP = "top";
 	private static final String STATE_BY_RATING = "by_rating";
 
+	private CommentsAdapter mCommentsAdapter;
 	private int mGameId;
-	private List<Comment> mComments = new ArrayList<Comment>();
-	private CommentsAdapter mCommentsAdapter = new CommentsAdapter();
-	private int mListViewStatePosition;
-	private int mListViewStateTop;
 	private boolean mByRating = false;
 
 	@Override
@@ -54,53 +44,32 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = Games.getGameId(intent.getData());
-
-		setListAdapter(mCommentsAdapter);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			mListViewStatePosition = savedInstanceState.getInt(STATE_POSITION, -1);
-			mListViewStateTop = savedInstanceState.getInt(STATE_TOP, 0);
-			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
-		} else {
-			mListViewStatePosition = -1;
-			mListViewStateTop = 0;
-			mByRating = false;
-		}
-		return super.onCreateView(inflater, container, savedInstanceState);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		final ListView listView = getListView();
+		listView.setOnScrollListener(this);
+		listView.setSelector(android.R.color.transparent);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_comments));
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		getLoaderManager().initLoader(COMMENTS_LOADER_ID, null, this);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-
-		final ListView listView = getListView();
-		listView.setOnScrollListener(this);
-		listView.setFastScrollEnabled(true);
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setSelector(android.R.color.transparent);
-	}
-
-	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (isAdded()) {
-			View v = getListView().getChildAt(0);
-			int top = (v == null) ? 0 : v.getTop();
-			outState.putInt(STATE_POSITION, getListView().getFirstVisiblePosition());
-			outState.putInt(STATE_TOP, top);
-		}
-		outState.putBoolean(STATE_BY_RATING, mByRating);
 		super.onSaveInstanceState(outState);
+		outState.putBoolean(STATE_BY_RATING, mByRating);
 	}
 
 	@Override
@@ -120,8 +89,9 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		if ((id == R.id.menu_comments_by_user && mByRating) || (id == R.id.menu_comments_by_rating && !mByRating)) {
 			item.setChecked(true);
 			mByRating = !mByRating;
-			mComments.clear();
-			mCommentsAdapter.notifyDataSetChanged();
+			if (mCommentsAdapter != null) {
+				mCommentsAdapter.clear();
+			}
 			getLoaderManager().restartLoader(COMMENTS_LOADER_ID, null, this);
 			return true;
 		}
@@ -143,39 +113,36 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 
 	@Override
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (!isLoaderLoading() && loaderHasMoreResults() && visibleItemCount != 0
+		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
 			loadMoreResults();
 		}
 	}
 
 	@Override
-	public Loader<List<Comment>> onCreateLoader(int id, Bundle data) {
+	public Loader<PaginatedData<Comment>> onCreateLoader(int id, Bundle data) {
 		return new CommentsLoader(getActivity(), mGameId, mByRating);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<Comment>> loader, List<Comment> comments) {
+	public void onLoadFinished(Loader<PaginatedData<Comment>> loader, PaginatedData<Comment> data) {
 		if (getActivity() == null) {
 			return;
 		}
 
-		if (comments != null) {
-			mComments = comments;
-		}
-		mCommentsAdapter.notifyDataSetChanged();
-
-		if (mListViewStatePosition != -1 && isAdded()) {
-			getListView().setSelectionFromTop(mListViewStatePosition, mListViewStateTop);
-			mListViewStatePosition = -1;
+		if (mCommentsAdapter == null) {
+			mCommentsAdapter = new CommentsAdapter(getActivity(), R.layout.row_comment, data);
+			setListAdapter(mCommentsAdapter);
+		} else {
+			mCommentsAdapter.update(data);
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<Comment>> loader) {
+	public void onLoaderReset(Loader<PaginatedData<Comment>> loader) {
 	}
 
-	private boolean isLoaderLoading() {
+	private boolean isLoading() {
 		final CommentsLoader loader = getLoader();
 		return (loader != null) ? loader.isLoading() : true;
 	}
@@ -185,201 +152,72 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 		return (loader != null) ? loader.hasMoreResults() : false;
 	}
 
-	private boolean loaderHasError() {
-		final CommentsLoader loader = getLoader();
-		return (loader != null) ? loader.hasError() : false;
-	}
-
-	private String loaderErrorMessage() {
-		final CommentsLoader loader = getLoader();
-		return (loader != null) ? loader.getErrorMessage() : "";
-	}
-
 	private CommentsLoader getLoader() {
 		if (isAdded()) {
-			Loader<List<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
+			Loader<PaginatedData<Comment>> loader = getLoaderManager().getLoader(COMMENTS_LOADER_ID);
 			return (CommentsLoader) loader;
 		}
 		return null;
 	}
 
-	private static class CommentsLoader extends AsyncTaskLoader<List<Comment>> {
-		private static final int PAGE_SIZE = 100;
+	private static class CommentsLoader extends PaginatedLoader<Comment> {
+		BggService mService;
 		private int mGameId;
-		private List<Comment> mData;
-		private int mNextPage;
-		private boolean mIsLoading;
-		private String mErrorMessage;
-		private int mCommentCount;
 		private boolean mByRating;
 
 		public CommentsLoader(Context context, int gameId, boolean byRating) {
 			super(context);
-			init(gameId, byRating);
-		}
-
-		private void init(int gameId, boolean byRating) {
+			mService = Adapter.create();
 			mGameId = gameId;
-			mNextPage = 1;
-			mIsLoading = true;
-			mErrorMessage = "";
-			mData = null;
-			mCommentCount = 0;
 			mByRating = byRating;
 		}
 
 		@Override
-		public List<Comment> loadInBackground() {
-			mIsLoading = true;
-
-			RemoteExecutor executor = new RemoteExecutor(getContext());
-			RemoteCommentsParser parser = new RemoteCommentsParser(mGameId, mByRating, mNextPage);
-			executor.safelyExecuteGet(parser);
-			if (parser.hasError()) {
-				mErrorMessage = parser.getErrorMessage();
-				mNextPage = 1;
-				mCommentCount = 0;
-			} else {
-				mErrorMessage = "";
-				mNextPage++;
-				mCommentCount = parser.getCount();
-			}
-			return parser.getResults();
-		}
-
-		@Override
-		public void deliverResult(List<Comment> comments) {
-			mIsLoading = false;
-			if (comments != null) {
-				if (mData == null) {
-					mData = comments;
+		public PaginatedData<Comment> loadInBackground() {
+			super.loadInBackground();
+			CommentData data;
+			try {
+				int page = getNextPage();
+				if (mByRating) {
+					data = new CommentData(mService.thingWithRatings(mGameId, page), page);
 				} else {
-					mData.addAll(comments);
+					data = new CommentData(mService.thingWithComments(mGameId, page), page);
 				}
+			} catch (Exception e) {
+				data = new CommentData(e);
 			}
-			if (isStarted()) {
-				super.deliverResult(mData == null ? null : new ArrayList<Comment>(mData));
-			}
-		}
-
-		@Override
-		protected void onStartLoading() {
-			if (mData != null) {
-				deliverResult(null);
-			}
-			if (takeContentChanged() || mData == null) {
-				forceLoad();
-			}
-		}
-
-		@Override
-		protected void onStopLoading() {
-			mIsLoading = false;
-			cancelLoad();
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			onStopLoading();
-			mData = null;
-		}
-
-		public boolean isLoading() {
-			return mIsLoading;
-		}
-
-		public boolean hasMoreResults() {
-			return (mNextPage - 1) * PAGE_SIZE < mCommentCount;
-		}
-
-		public boolean hasError() {
-			return !TextUtils.isEmpty(mErrorMessage);
-		}
-
-		public String getErrorMessage() {
-			return mErrorMessage;
+			return data;
 		}
 	}
 
-	private class CommentsAdapter extends BaseAdapter {
-		private static final int VIEW_TYPE_COMMENT = 0;
-		private static final int VIEW_TYPE_LOADING = 1;
+	static class CommentData extends PaginatedData<Comment> {
+		public CommentData(ThingResponse response, int page) {
+			super(response.games.get(0).comments.comments, response.games.get(0).comments.totalitems, page,
+				ThingResponse.PAGE_SIZE);
+		}
 
-		@Override
-		public boolean areAllItemsEnabled() {
-			return false;
+		public CommentData(Exception e) {
+			super(e);
+		}
+	}
+
+	private class CommentsAdapter extends PaginatedArrayAdapter<Comment> {
+		public CommentsAdapter(Context context, int resource, PaginatedData<Comment> data) {
+			super(context, resource, data);
 		}
 
 		@Override
-		public boolean isEnabled(int position) {
-			return getItemViewType(position) == VIEW_TYPE_COMMENT;
+		protected boolean isLoaderLoading() {
+			return isLoading();
 		}
 
 		@Override
-		public int getViewTypeCount() {
-			return 2;
-		}
-
-		@Override
-		public boolean hasStableIds() {
-			return true;
-		}
-
-		@Override
-		public int getCount() {
-			return mComments.size()
-				+ (((isLoaderLoading() && mComments.size() == 0) || loaderHasMoreResults() || loaderHasError()) ? 1 : 0);
-		}
-
-		@Override
-		public int getItemViewType(int position) {
-			return (position >= mComments.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_COMMENT;
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_COMMENT) ? mComments.get(position) : null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return (getItemViewType(position) == VIEW_TYPE_COMMENT) ? mComments.get(position).Username.hashCode() : -1;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (getItemViewType(position) == VIEW_TYPE_LOADING) {
-				if (convertView == null) {
-					convertView = getLayoutInflater(null).inflate(R.layout.row_status, parent, false);
-				}
-
-				if (loaderHasError()) {
-					convertView.findViewById(android.R.id.progress).setVisibility(View.GONE);
-					((TextView) convertView.findViewById(android.R.id.text1)).setText(loaderErrorMessage());
-				} else {
-					convertView.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
-					((TextView) convertView.findViewById(android.R.id.text1)).setText(R.string.loading);
-				}
-
-				return convertView;
-
-			} else {
-				Comment comment = (Comment) getItem(position);
-				if (convertView == null) {
-					convertView = getLayoutInflater(null).inflate(R.layout.row_comment, parent, false);
-				}
-
-				CommentRowViewBinder.bindActivityView(convertView, comment);
-				return convertView;
-			}
+		protected void bind(View view, Comment item) {
+			CommentRowViewBinder.bindActivityView(view, item);
 		}
 	}
 
 	private static class CommentRowViewBinder {
-		private static final int backgroundColors[] = { Color.WHITE, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
-			0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00 };
-
 		private static class ViewHolder {
 			TextView username;
 			TextView rating;
@@ -402,11 +240,10 @@ public class CommentsFragment extends SherlockListFragment implements OnScrollLi
 				rootView.setTag(holder);
 			}
 
-			holder.username.setText(comment.Username);
-			holder.rating.setText(new DecimalFormat("#0.00").format(StringUtils.parseDouble(comment.Rating, 0.0)));
-			final int rating = (int) StringUtils.parseDouble(comment.Rating, 0.0);
-			holder.rating.setBackgroundColor(backgroundColors[rating]);
-			holder.comment.setText(comment.Value);
+			holder.username.setText(comment.username);
+			holder.rating.setText(comment.getRatingText());
+			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
+			holder.comment.setText(comment.value);
 		}
 	}
 }

@@ -31,10 +31,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -42,7 +44,6 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
@@ -168,61 +169,66 @@ public class ActivityUtils {
 		return name + " (" + BOARDGAME_URL_PREFIX + id + ")\n";
 	}
 
-	public static void launchPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl) {
-		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
+	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static Intent createPlayIntent(int playId, int gameId, String gameName) {
-		return createPlayIntent(playId, gameId, gameName, null);
-	}
-
-	public static Intent createPlayIntent(int playId, int gameId, String gameName, String thumbnailUrl) {
-		Uri playUri = Plays.buildPlayUri(playId);
-		Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
+	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,
+		String thumbnailUrl, String imageUrl) {
+		Intent intent = new Intent(context, PlayActivity.class);
+		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
 		intent.putExtra(PlayActivity.KEY_GAME_NAME, gameName);
 		intent.putExtra(PlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(PlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
-	public static void editPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
+	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
-	public static void endPlay(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
+	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
-	public static void logPlayAgain(Context context, int playId, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName);
+	public static void logPlayAgain(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+		String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_AGAIN, true);
 		context.startActivity(intent);
 	}
 
-	public static void logPlay(Context context, int gameId, String gameName) {
-		Intent intent = createEditPlayIntent(context, 0, gameId, gameName);
+	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,
+		boolean customPlayerSort) {
+		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
+		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
-	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName) {
-		return createEditPlayIntent(context, playId, gameId, gameName, null);
-	}
-
-	private static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
-		String thumbnailUrl) {
-		Intent intent = createPlayIntent(playId, gameId, gameName, thumbnailUrl);
-		intent.setAction(Intent.ACTION_EDIT);
+	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
+		String thumbnailUrl, String imageUrl) {
+		Intent intent = new Intent(context, LogPlayActivity.class);
+		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
+		intent.putExtra(LogPlayActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(LogPlayActivity.KEY_THUMBNAIL_URL, thumbnailUrl);
+		intent.putExtra(LogPlayActivity.KEY_IMAGE_URL, imageUrl);
 		return intent;
 	}
 
 	public static void logQuickPlay(Context context, int gameId, String gameName) {
 		Play play = new Play(gameId, gameName);
-		play.SyncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
-		PlayPersister.save(context.getContentResolver(), play);
+		play.setCurrentDate();
+		play.syncStatus = Play.SYNC_STATUS_PENDING_UPDATE;
+		PlayPersister.save(context, play);
 		SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
@@ -237,22 +243,21 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://boardgameprices.com/iphone/?s=" + HttpUtils.encode(gameName));
+		link(context, "http://boardgameprices.com/compare-prices-for-" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkAmazon(Context context, String gameName) {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://www.amazon.com/gp/aw/s.html/?m=aps&k=" + HttpUtils.encode(gameName)
-			+ "&i=toys-and-games&submitSearch=GO");
+		link(context, "http://www.amazon.com/gp/aw/s/?i=toys-and-games&keywords=" + HttpUtils.encode(gameName));
 	}
 
 	public static void linkEbay(Context context, String gameName) {
 		if (TextUtils.isEmpty(gameName)) {
 			return;
 		}
-		link(context, "http://shop.mobileweb.ebay.com/searchresults?kw=" + HttpUtils.encode(gameName));
+		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
 	public static void link(Context context, String link) {
@@ -390,5 +395,19 @@ public class ActivityUtils {
 				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
 			}
 		}
+	}
+
+	public static void setDoneCancelActionBarView(SherlockFragmentActivity activity, View.OnClickListener listener) {
+		activity.getSupportActionBar().setDisplayOptions(
+			ActionBar.DISPLAY_SHOW_CUSTOM,
+			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
+				| ActionBar.DISPLAY_SHOW_CUSTOM);
+		View actionBarButtons = activity.getLayoutInflater().inflate(R.layout.actionbar_done_cancel,
+			new LinearLayout(activity), false);
+		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
+		cancelActionView.setOnClickListener(listener);
+		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
+		doneActionView.setOnClickListener(listener);
+		activity.getSupportActionBar().setCustomView(actionBarButtons);
 	}
 }

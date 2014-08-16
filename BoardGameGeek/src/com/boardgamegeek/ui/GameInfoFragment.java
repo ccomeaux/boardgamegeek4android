@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -54,11 +53,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int REFRESH_THROTTLE_IN_HOURS = 1;
 	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
-	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 
 	private Uri mGameUri;
 	private String mGameName;
@@ -105,36 +102,22 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private StatBar mNumWantingBar;
 	private StatBar mNumWishingBar;
 	private StatBar mNumWeightingBar;
-	private TextView mLinksLabel;
-	private View mLinksContent;
-	private View mBggLinkView;
-	private View mBgPricesLinkView;
-	private View mAmazonLinkView;
-	private View mEbayLinkView;
 
 	boolean mIsDescriptionExpanded;
 	boolean mIsStatsExpanded;
-	boolean mIsLinksExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
 
-	private long mUpdated;
 	private boolean mMightNeedRefreshing;
 
 	public interface Callbacks {
-		public void onNameChanged(String gameName);
-
-		public void onThumbnailUrlChanged(String url);
+		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort);
 
 		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onNameChanged(String gameName) {
-		}
-
-		@Override
-		public void onThumbnailUrlChanged(String url) {
+		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
 		}
 
 		@Override
@@ -160,7 +143,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		if (savedInstanceState != null) {
 			mIsDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
-			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -168,7 +150,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_info, null);
+		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 
 		mScrollRoot = rootView.findViewById(R.id.game_info_scroll_root);
 		mProgressView = rootView.findViewById(R.id.game_info_progress);
@@ -227,41 +209,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_stats_wishing_bar);
 		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_stats_weighting_bar);
 
-		mLinksLabel = (TextView) rootView.findViewById(R.id.game_info_links_label);
-		mLinksContent = rootView.findViewById(R.id.game_info_links_content);
-		mBggLinkView = rootView.findViewById(R.id.game_info_link_bgg);
-		mBgPricesLinkView = rootView.findViewById(R.id.game_info_link_bg_prices);
-		mAmazonLinkView = rootView.findViewById(R.id.game_info_link_amazon);
-		mEbayLinkView = rootView.findViewById(R.id.game_info_link_ebay);
-
-		mBggLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkBgg(getActivity(), Games.getGameId(mGameUri));
-			}
-		});
-
-		mBgPricesLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkBgPrices(getActivity(), mGameName);
-			}
-		});
-
-		mAmazonLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkAmazon(getActivity(), mGameName);
-			}
-		});
-
-		mEbayLinkView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.linkEbay(getActivity(), mGameName);
-			}
-		});
-
 		mThumbnailView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -294,15 +241,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			}
 		});
 		openOrCloseStats();
-
-		mLinksLabel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mIsLinksExpanded = !mIsLinksExpanded;
-				openOrCloseLinks();
-			}
-		});
-		openOrCloseLinks();
 
 		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -355,17 +293,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
-		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
-			if (DateTimeUtils.howManyHoursOld(mUpdated) < REFRESH_THROTTLE_IN_HOURS) {
-				Toast.makeText(getActivity(), R.string.msg_refresh_recent, Toast.LENGTH_LONG).show();
-			} else {
-				triggerRefresh();
-			}
+			triggerRefresh();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -482,9 +415,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		Game game = new Game(cursor);
 
 		mGameName = game.Name;
-		mCallbacks.onNameChanged(mGameName);
 		mImageUrl = game.ImageUrl;
-		mCallbacks.onThumbnailUrlChanged(game.ThumbnailUrl);
+		mCallbacks.onGameInfoChanged(mGameName, game.ThumbnailUrl, mImageUrl, game.CustomPlayerSort);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
@@ -493,7 +425,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		formatRating(game);
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
-		mUpdated = game.Updated;
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
@@ -575,7 +506,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
-		LinearLayout layout = (LinearLayout) getLayoutInflater(null).inflate(R.layout.widget_rank_row, null);
+		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
+			.inflate(R.layout.widget_rank_row, mRankRoot, false);
 
 		TextView tv = (TextView) layout.findViewById(R.id.rank_row_label);
 		setText(tv, label, bold);
@@ -615,12 +547,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			: R.drawable.expander_open, 0);
 	}
 
-	private void openOrCloseLinks() {
-		mLinksContent.setVisibility(mIsLinksExpanded ? View.VISIBLE : View.GONE);
-		mLinksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsLinksExpanded ? R.drawable.expander_close
-			: R.drawable.expander_open, 0);
-	}
-
 	private void launchPoll(String type) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));
@@ -641,7 +567,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -667,6 +593,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int STATS_NUMBER_WISHING = 21;
 		int POLLS_COUNT = 22;
 		int IMAGE_URL = 23;
+		int SUBTYPE = 24;
+		int CUSTOM_PLAYER_SORT = 25;
 	}
 
 	private interface DesignerQuery {
@@ -746,6 +674,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int NumberWanting;
 		int NumberWishing;
 		int PollsCount;
+		String Subtype;
+		boolean CustomPlayerSort;
 
 		public Game(Cursor cursor) {
 			Name = cursor.getString(GameQuery.GAME_NAME);
@@ -772,6 +702,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			NumberWanting = cursor.getInt(GameQuery.STATS_NUMBER_WANTING);
 			NumberWishing = cursor.getInt(GameQuery.STATS_NUMBER_WISHING);
 			PollsCount = cursor.getInt(GameQuery.POLLS_COUNT);
+			Subtype = cursor.getString(GameQuery.SUBTYPE);
+			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
 		}
 
 		public String getAgeDescription() {

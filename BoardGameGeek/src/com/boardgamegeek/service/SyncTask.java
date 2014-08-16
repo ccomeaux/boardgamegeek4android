@@ -1,17 +1,19 @@
 package com.boardgamegeek.service;
 
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParserException;
+import com.boardgamegeek.io.BggService;
 
 import android.accounts.Account;
+import android.content.Context;
 import android.content.SyncResult;
 
-import com.boardgamegeek.io.RemoteExecutor;
-
 public abstract class SyncTask extends ServiceTask {
-	public abstract void execute(RemoteExecutor executor, Account account, SyncResult syncResult) throws IOException,
-		XmlPullParserException;
+	protected BggService mService;
+
+	public SyncTask(BggService service) {
+		mService = service;
+	}
+
+	public abstract void execute(Context context, Account account, SyncResult syncResult);
 
 	private boolean mIsCancelled = false;
 

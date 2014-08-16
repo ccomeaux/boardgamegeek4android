@@ -2,9 +2,10 @@ package com.boardgamegeek.data;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 
 public class ExpansionStatusFilterData extends CollectionFilterData {
 	private int mSelected;
@@ -26,29 +27,16 @@ public class ExpansionStatusFilterData extends CollectionFilterData {
 	private void init(Context context) {
 		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 		createDisplayText(context.getResources());
-		createPath();
+		setSelection(context.getResources());
 	}
 
 	private void createDisplayText(Resources resources) {
 		String text = "";
 		String[] statuses = resources.getStringArray(R.array.expansion_status_filter);
-		if (mSelected != 0 && mSelected < statuses.length) {
+		if (statuses != null && mSelected != 0 && mSelected < statuses.length) {
 			text = statuses[mSelected];
 		}
 		displayText(text);
-	}
-
-	private void createPath() {
-		String path = "";
-		switch (mSelected) {
-			case 1:
-				path = BggContract.PATH_NOEXPANSIONS;
-				break;
-			case 2:
-				path = BggContract.PATH_EXPANSIONS;
-				break;
-		}
-		path(path);
 	}
 
 	public int getSelected() {
@@ -58,5 +46,21 @@ public class ExpansionStatusFilterData extends CollectionFilterData {
 	@Override
 	public String flatten() {
 		return String.valueOf(mSelected);
+	}
+
+	private void setSelection(Resources resources) {
+		String value = "";
+		String[] values = resources.getStringArray(R.array.expansion_status_filter_values);
+		if (values != null && mSelected != 0 && mSelected < values.length) {
+			value = values[mSelected];
+		}
+
+		if (!TextUtils.isEmpty(value)) {
+			selection(Games.SUBTYPE + "=?");
+			selectionArgs(value);
+		} else {
+			selection("");
+			selectionArgs("");
+		}
 	}
 }

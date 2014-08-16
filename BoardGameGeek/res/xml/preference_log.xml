@@ -18,10 +18,10 @@
 	<PreferenceCategory android:title="@string/pref_general" >
 		<CheckBoxPreference
 			android:defaultValue="false"
-			android:key="logPlayQuantity"
+			android:key="logPlayLocation"
 			android:summaryOff="@string/pref_log_off"
 			android:summaryOn="@string/pref_log_on"
-			android:title="@string/pref_log_play_quantity" />
+			android:title="@string/pref_log_play_location" />
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayLength"
@@ -30,10 +30,10 @@
 			android:title="@string/pref_log_play_length" />
 		<CheckBoxPreference
 			android:defaultValue="false"
-			android:key="logPlayLocation"
+			android:key="logPlayQuantity"
 			android:summaryOff="@string/pref_log_off"
 			android:summaryOn="@string/pref_log_on"
-			android:title="@string/pref_log_play_location" />
+			android:title="@string/pref_log_play_quantity" />
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="logPlayIncomplete"

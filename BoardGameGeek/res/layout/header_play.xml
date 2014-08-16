@@ -57,6 +57,7 @@
 
 			<TableRow
 				android:id="@+id/length_root"
+				android:gravity="center_vertical"
 				android:paddingBottom="@dimen/padding_small"
 				android:paddingTop="@dimen/padding_small" >
 
@@ -64,37 +65,43 @@
 					style="@style/TextLabel"
 					android:text="@string/for_" />
 
-				<TextView
-					android:id="@+id/play_length"
-					style="@style/Text.Big"
-					android:textIsSelectable="false" />
+				<FrameLayout>
 
-				<LinearLayout
-					android:id="@+id/timer_root"
-					android:background="@color/background_light"
-					android:gravity="center_vertical" >
-
-					<Chronometer
-						android:id="@+id/timer"
-						style="@style/Text.Title2"
-						android:layout_width="0dp"
+					<TextView
+						android:id="@+id/play_length"
+						style="@style/Text.Big"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:gravity="center"
-						android:maxLines="1"
-						android:paddingLeft="@dimen/padding_extra"
-						android:paddingRight="@dimen/padding_extra"
 						android:textIsSelectable="false" />
 
-					<Button
-						android:id="@+id/timer_end"
-						android:layout_width="wrap_content"
+					<LinearLayout
+						android:id="@+id/timer_root"
+						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:gravity="center"
-						android:paddingLeft="@dimen/padding_extra"
-						android:paddingRight="@dimen/padding_extra"
-						android:text="@string/end_play" />
-				</LinearLayout>
+						android:gravity="center_vertical"
+						android:orientation="horizontal" >
+
+						<Chronometer
+							android:id="@+id/timer"
+							style="@style/Text.Title2"
+							android:layout_width="0dp"
+							android:layout_height="wrap_content"
+							android:layout_weight="1"
+							android:background="@color/background_light"
+							android:gravity="center"
+							android:maxLines="1"
+							android:paddingBottom="@dimen/padding_standard"
+							android:paddingTop="@dimen/padding_standard"
+							android:textIsSelectable="false" />
+
+						<ImageButton
+							android:id="@+id/timer_end"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:gravity="center"
+							android:src="@drawable/ic_action_timer_light" />
+					</LinearLayout>
+				</FrameLayout>
 			</TableRow>
 
 			<TableRow

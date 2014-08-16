@@ -80,6 +80,9 @@ public class SyncService extends Service {
 
 	public static boolean isActiveOrPending(Context context) {
 		Account account = Authenticator.getAccount(context);
+		if (account == null) {
+			return false;
+		}
 		boolean syncActive = ContentResolver.isSyncActive(account, BggContract.CONTENT_AUTHORITY);
 		boolean syncPending = ContentResolver.isSyncPending(account, BggContract.CONTENT_AUTHORITY);
 		return syncActive || syncPending;
