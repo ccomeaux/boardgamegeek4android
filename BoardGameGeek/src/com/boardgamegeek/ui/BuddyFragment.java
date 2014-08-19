@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,6 +47,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private int mDefaultTextColor;
 	private int mLightTextColor;
 
+	private ViewGroup mRootView;
 	private TextView mFullName;
 	private TextView mName;
 	private TextView mId;
@@ -56,22 +56,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private TextView mUpdated;
 
 	public interface Callbacks {
-		public void onNameChanged(String name);
-
 		public DetachableResultReceiver getReceiver();
 	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onNameChanged(String name) {
-		}
-
-		public DetachableResultReceiver getReceiver() {
-			return null;
-		};
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,38 +78,21 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
 
-		mFullName = (TextView) rootView.findViewById(R.id.buddy_full_name);
-		mName = (TextView) rootView.findViewById(R.id.buddy_name);
-		mId = (TextView) rootView.findViewById(R.id.buddy_id);
-		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
-		mNickname = (TextView) rootView.findViewById(R.id.nickname);
-		mUpdated = (TextView) rootView.findViewById(R.id.updated);
+		mFullName = (TextView) mRootView.findViewById(R.id.buddy_full_name);
+		mName = (TextView) mRootView.findViewById(R.id.buddy_name);
+		mId = (TextView) mRootView.findViewById(R.id.buddy_id);
+		mAvatar = (ImageView) mRootView.findViewById(R.id.buddy_avatar);
+		mNickname = (TextView) mRootView.findViewById(R.id.nickname);
+		mUpdated = (TextView) mRootView.findViewById(R.id.updated);
 
 		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
-		return rootView;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
+		return mRootView;
 	}
 
 	@Override
@@ -184,7 +153,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		Picasso.with(getActivity()).load(avatarUrl).placeholder(R.drawable.person_image_empty)
 			.error(R.drawable.person_image_empty).fit().into(mAvatar);
 		mFullName.setText(fullName);
-		mCallbacks.onNameChanged(fullName);
 		mName.setText(name);
 		mId.setText(String.valueOf(id));
 		if (TextUtils.isEmpty(nickname)) {
@@ -217,13 +185,13 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	public void showDialog(final Context context, final Uri uri, final String nickname, final String username) {
 		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_edit_nickname, null);
+		View view = inflater.inflate(R.layout.dialog_edit_nickname, mRootView, false);
 
-		final EditText mEditText = (EditText) view.findViewById(R.id.nickname);
-		final CheckBox mCheckBox = (CheckBox) view.findViewById(R.id.change_plays);
+		final EditText editText = (EditText) view.findViewById(R.id.edit_nickname);
+		final CheckBox checkBox = (CheckBox) view.findViewById(R.id.change_plays);
 		if (!TextUtils.isEmpty(nickname)) {
-			mEditText.setText(nickname);
-			mEditText.setSelection(0, nickname.length());
+			editText.setText(nickname);
+			editText.setSelection(0, nickname.length());
 		}
 
 		AlertDialog dialog = new AlertDialog.Builder(context).setView(view).setTitle(R.string.title_edit_nickname)
@@ -231,8 +199,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					String newNickname = mEditText.getText().toString();
-					new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
+					String newNickname = editText.getText().toString();
+					new Task(context, uri, username, checkBox.isChecked()).execute(newNickname);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);

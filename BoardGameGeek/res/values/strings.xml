@@ -121,7 +121,7 @@
 	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>
 	<string name="title_buddies">GeekBuddies</string>
-	<string name="title_buddy">GeekBuddy</string>
+	<string name="title_buddy">User</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
 	<string name="title_add_players">Add Players</string>

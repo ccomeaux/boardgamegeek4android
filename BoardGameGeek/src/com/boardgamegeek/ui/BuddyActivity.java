@@ -37,7 +37,7 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mName = getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		changeName(getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_FULL_NAME));
+		getSupportActionBar().setSubtitle(mName);
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
@@ -145,18 +145,6 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		public int getCount() {
 			return 3;
 		}
-	}
-
-	private void changeName(String name) {
-		if (!TextUtils.isEmpty(name)) {
-			getIntent().putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, name);
-			getSupportActionBar().setSubtitle(name);
-		}
-	}
-
-	@Override
-	public void onNameChanged(String name) {
-		changeName(name);
 	}
 
 	@Override
