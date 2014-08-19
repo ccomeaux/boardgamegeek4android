@@ -33,7 +33,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
@@ -80,12 +79,12 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int buddyId = intent.getIntExtra(BuddyUtils.KEY_BUDDY_ID, BggContract.INVALID_ID);
-		if (buddyId == BggContract.INVALID_ID) {
+		String buddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		if (TextUtils.isEmpty(buddyName)) {
 			return;
 		}
 
-		mBuddyUri = Buddies.buildBuddyUri(buddyId);
+		mBuddyUri = Buddies.buildBuddyUri(buddyName);
 		if (mBuddyUri == null) {
 			return;
 		}

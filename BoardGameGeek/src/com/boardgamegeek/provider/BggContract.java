@@ -679,16 +679,12 @@ public class BggContract {
 
 		public static final String NAME_SORT = BuddiesColumns.BUDDY_NAME + " COLLATE NOCASE ASC";
 
-		public static Uri buildBuddyUri(int buddyId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(buddyId)).build();
+		public static Uri buildBuddyUri(String buddyName) {
+			return CONTENT_URI.buildUpon().appendPath(buddyName).build();
 		}
 
-		public static Uri buildAvatarUri(int buddyId) {
-			return CONTENT_URI.buildUpon().appendPath(String.valueOf(buddyId)).appendPath(PATH_AVATARS).build();
-		}
-
-		public static int getBuddyId(Uri uri) {
-			return StringUtils.parseInt(uri.getPathSegments().get(1));
+		public static String getBuddyName(Uri uri) {
+			return uri.getPathSegments().get(1);
 		}
 
 		public static boolean isBuddyUri(Uri uri) {

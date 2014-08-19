@@ -7,12 +7,12 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 public class BuddiesIdAvatarProvider extends IndirectFileProvider {
 	@Override
 	protected String getPath() {
-		return "buddies/#/avatars";
+		return "buddies/*/avatars";
 	}
 
 	@Override
 	protected Uri getFileUri(Uri uri) {
-		return Buddies.buildBuddyUri(Buddies.getBuddyId(uri));
+		return Buddies.buildBuddyUri(Buddies.getBuddyName(uri));
 	}
 
 	@Override
