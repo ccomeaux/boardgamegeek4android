@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -33,6 +34,7 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ResolverUtils;
@@ -40,9 +42,10 @@ import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_REFRESHED = "REFRESHED";
+	private String mBuddyName;
 	private Uri mBuddyUri;
-	private int mDefaultTextColor;
-	private int mLightTextColor;
+	private boolean mRefreshed;
 
 	private ViewGroup mRootView;
 	private TextView mFullName;
@@ -50,25 +53,45 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private ImageView mAvatar;
 	private TextView mNickname;
 	private TextView mUpdated;
+	private int mDefaultTextColor;
+	private int mLightTextColor;
 
 	public interface Callbacks {
 		public DetachableResultReceiver getReceiver();
 	}
 
+	private static Callbacks sDummyCallbacks = new Callbacks() {
+		@Override
+		public DetachableResultReceiver getReceiver() {
+			return null;
+		}
+	};
+
+	private Callbacks mCallbacks = sDummyCallbacks;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			mRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
+		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		String buddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		if (TextUtils.isEmpty(buddyName)) {
+		mBuddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		if (TextUtils.isEmpty(mBuddyName)) {
 			return;
 		}
 
-		mBuddyUri = Buddies.buildBuddyUri(buddyName);
+		mBuddyUri = Buddies.buildBuddyUri(mBuddyName);
 		if (mBuddyUri == null) {
 			return;
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_REFRESHED, mRefreshed);
 	}
 
 	@Override
@@ -94,6 +117,23 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
 		return mRootView;
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (!(activity instanceof Callbacks)) {
+			throw new ClassCastException("Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -124,6 +164,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	private void onBuddyQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
+			requestRefresh();
 			return;
 		}
 
@@ -147,6 +188,17 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		mUpdated.setText((updated == 0 ? getResources().getString(R.string.needs_updating) : getResources().getString(
 			R.string.updated)
 			+ ": " + DateUtils.getRelativeTimeSpanString(updated)));
+	}
+
+	public void requestRefresh() {
+		if (!mRefreshed) {
+			forceRefresh();
+			mRefreshed = true;
+		}
+	}
+
+	public void forceRefresh() {
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName, mCallbacks.getReceiver());
 	}
 
 	private interface BuddyQuery {

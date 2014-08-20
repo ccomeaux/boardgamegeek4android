@@ -26,8 +26,12 @@ public abstract class BasicProvider extends BaseProvider {
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
 		mRowId = db.insert(getTable(), null, values);
 		if (mRowId != -1) {
-			return BggContract.buildBasicUri(getPath(), getInsertedId(values));
+			return insertedUri(values);
 		}
 		return null;
+	}
+
+	protected Uri insertedUri(ContentValues values) {
+		return BggContract.buildBasicUri(getPath(), getInsertedId(values));
 	}
 }
