@@ -70,6 +70,9 @@ public class Adapter {
 			// TODO handle this somehow; maybe just return create()
 		}
 
-		return builder.setRequestInterceptor(requestInterceptor);
+		if (requestInterceptor != null) {
+			builder.setRequestInterceptor(requestInterceptor);
+		}
+		return builder;
 	}
 }
