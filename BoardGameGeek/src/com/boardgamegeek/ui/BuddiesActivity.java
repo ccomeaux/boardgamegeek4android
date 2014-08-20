@@ -123,9 +123,7 @@ public class BuddiesActivity extends TopLevelActivity implements ActionBar.TabLi
 	@Override
 	public boolean onBuddySelected(int buddyId, String name, String fullName) {
 		Intent intent = new Intent(this, BuddyActivity.class);
-		intent.putExtra(BuddyUtils.KEY_BUDDY_ID, buddyId);
 		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);
-		intent.putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, fullName);
 		startActivity(intent);
 		return false;
 	}

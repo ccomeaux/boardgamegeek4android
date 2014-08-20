@@ -27,9 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -50,7 +47,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	private ViewGroup mRootView;
 	private TextView mFullName;
 	private TextView mName;
-	private TextView mId;
 	private ImageView mAvatar;
 	private TextView mNickname;
 	private TextView mUpdated;
@@ -62,7 +58,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		String buddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
@@ -82,10 +77,16 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 		mFullName = (TextView) mRootView.findViewById(R.id.buddy_full_name);
 		mName = (TextView) mRootView.findViewById(R.id.buddy_name);
-		mId = (TextView) mRootView.findViewById(R.id.buddy_id);
 		mAvatar = (ImageView) mRootView.findViewById(R.id.buddy_avatar);
 		mNickname = (TextView) mRootView.findViewById(R.id.nickname);
 		mUpdated = (TextView) mRootView.findViewById(R.id.updated);
+
+		mRootView.findViewById(R.id.edit_nickname_button).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
+			}
+		});
 
 		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
 		mLightTextColor = getResources().getColor(R.color.light_text);
@@ -93,23 +94,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
 		return mRootView;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.buddy, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		switch (id) {
-			case R.id.menu_edit:
-				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -143,7 +127,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			return;
 		}
 
-		int id = cursor.getInt(BuddyQuery.BUDDY_ID);
 		String name = cursor.getString(BuddyQuery.NAME);
 		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
@@ -154,7 +137,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			.error(R.drawable.person_image_empty).fit().into(mAvatar);
 		mFullName.setText(fullName);
 		mName.setText(name);
-		mId.setText(String.valueOf(id));
 		if (TextUtils.isEmpty(nickname)) {
 			mNickname.setTextColor(mLightTextColor);
 			mNickname.setText(fullName);
@@ -162,10 +144,9 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mNickname.setTextColor(mDefaultTextColor);
 			mNickname.setText(nickname);
 		}
-		mUpdated.setText(getResources().getString(R.string.updated)
-			+ ": "
-			+ (updated == 0 ? getResources().getString(R.string.needs_updating) : DateUtils
-				.getRelativeTimeSpanString(updated)));
+		mUpdated.setText((updated == 0 ? getResources().getString(R.string.needs_updating) : getResources().getString(
+			R.string.updated)
+			+ ": " + DateUtils.getRelativeTimeSpanString(updated)));
 	}
 
 	private interface BuddyQuery {
@@ -174,7 +155,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
 			Buddies.AVATAR_URL, Buddies.PLAY_NICKNAME, Buddies.UPDATED };
 
-		int BUDDY_ID = 0;
+		// int BUDDY_ID = 0;
 		int NAME = 1;
 		int FIRSTNAME = 2;
 		int LASTNAME = 3;
