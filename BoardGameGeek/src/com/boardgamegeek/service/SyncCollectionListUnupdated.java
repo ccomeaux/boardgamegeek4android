@@ -70,7 +70,6 @@ public class SyncCollectionListUnupdated extends SyncTask {
 
 	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
 		SyncResult syncResult) {
-		// TODO games with a status of played don't get returned with this request
 		CollectionResponse response = getCollectionResponse(mService, username, options);
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);

@@ -78,7 +78,7 @@ public class SyncCollectionListComplete extends SyncTask {
 					new String[] { String.valueOf(persister.getTimeStamp()) });
 				LOGI(TAG, "...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
-				// TODO: delete thumbnail images associated with this list (both collection and game
+				// TODO: delete thumbnail images associated with this list (both collection and game)
 
 				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
 				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
