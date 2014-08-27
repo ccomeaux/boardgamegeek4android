@@ -124,6 +124,8 @@
 
 	<style name="RowSeparator">
 		<item name="android:background">@color/background_dark</item>
+		<item name="android:clickable">false</item>
+		<item name="android:focusable">false</item>
 		<item name="android:gravity">center_horizontal</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
