@@ -102,7 +102,7 @@
 
 	<style name="Text.CheckboxLabel"></style>
 
-	<style name="Text.DrawerItem" parent="Text.Huge">
+	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
@@ -232,6 +232,15 @@
 		<item name="android:singleLine">true</item>
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
+	</style>
+
+	<style name="DrawerItemContainer">
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">@dimen/drawer_item_height</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
 </resources>
