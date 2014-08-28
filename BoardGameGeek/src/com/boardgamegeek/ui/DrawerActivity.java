@@ -1,9 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,12 +8,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -26,8 +19,8 @@ import com.boardgamegeek.auth.Authenticator;
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
 	protected DrawerLayout mDrawerLayout;
-	private ListView mDrawerList;
-	private NavigationAdapter mAdapter;
+	private View mDrawerListContainer;
+	private LinearLayout mDrawerList;
 
 	protected abstract int getContentViewId();
 
@@ -48,13 +41,8 @@ public abstract class DrawerActivity extends BaseActivity {
 		if (mDrawerLayout != null) {
 			mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		}
-
-		mDrawerList = (ListView) findViewById(R.id.left_drawer);
-		if (mDrawerList != null) {
-			mAdapter = new NavigationAdapter();
-			mDrawerList.setAdapter(mAdapter);
-			mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-		}
+		mDrawerListContainer = findViewById(R.id.drawer_container);
+		mDrawerList = (LinearLayout) findViewById(R.id.left_drawer);
 
 		// TODO open the drawer upon launch until user opens it themselves
 	}
@@ -66,7 +54,7 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	public boolean isDrawerOpen() {
-		return mDrawerLayout != null && mDrawerList != null && mDrawerLayout.isDrawerOpen(mDrawerList);
+		return mDrawerLayout != null && mDrawerList != null && mDrawerLayout.isDrawerOpen(mDrawerListContainer);
 	}
 
 	@Override
@@ -82,20 +70,27 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private void refreshDrawer() {
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
+		if (mDrawerList == null) {
+			return;
 		}
+
+		mDrawerList.removeAllViews();
+
+		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_my_geek, mDrawerList));
+		if (!Authenticator.isSignedIn(DrawerActivity.this)) {
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, mDrawerList));
+		} else {
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, mDrawerList));
+		}
+
+		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, mDrawerList));
 	}
 
-	private class DrawerItemClickListener implements ListView.OnItemClickListener {
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			selectItem(position);
-		}
-	}
-
-	private void selectItem(int position) {
-		Integer titleResId = mAdapter.getItem(position);
+	private void selectItem(int titleResId) {
 		if (titleResId != getDrawerResId()) {
 			Intent intent = null;
 			switch (titleResId) {
@@ -126,85 +121,35 @@ public abstract class DrawerActivity extends BaseActivity {
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 
-	private class NavigationAdapter extends BaseAdapter {
-		private LayoutInflater mInflater;
-		private List<Integer> mTitles;
+	private View makeNavDrawerSeparator(final int titleId, ViewGroup container) {
+		int layoutToInflate = R.layout.row_header;
+		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
+		TextView titleView = (TextView) view.findViewById(android.R.id.title);
+		titleView.setText(getString(titleId));
+		return view;
+	}
 
-		public NavigationAdapter() {
-			mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			init();
+	private View makeNavDrawerItem(final int titleId, ViewGroup container) {
+		int layoutToInflate = R.layout.row_drawer;
+		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
+
+		TextView titleView = (TextView) view.findViewById(android.R.id.title);
+		if (titleId == getDrawerResId()) {
+			String text = getString(titleId);
+			SpannableString ss = new SpannableString(text);
+			ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			titleView.setText(ss);
+		} else {
+			titleView.setText(titleId);
 		}
 
-		@Override
-		public void notifyDataSetChanged() {
-			super.notifyDataSetChanged();
-			init();
-		}
-
-		public void init() {
-			mTitles = new ArrayList<Integer>();
-			if (!Authenticator.isSignedIn(DrawerActivity.this)) {
-				mTitles.add(R.string.title_signin);
-			} else {
-				mTitles.add(R.string.title_collection);
-				mTitles.add(R.string.title_plays);
-				mTitles.add(R.string.title_buddies);
+		view.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				selectItem(titleId);
 			}
-			mTitles.add(R.string.title_hotness);
-			mTitles.add(R.string.title_forums);
-		}
+		});
 
-		@Override
-		public int getCount() {
-			return mTitles.size();
-		}
-
-		@Override
-		public Integer getItem(int position) {
-			return mTitles.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return getItem(position);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view;
-			if (convertView == null) {
-				view = mInflater.inflate(R.layout.row_drawer, parent, false);
-			} else {
-				view = convertView;
-			}
-
-			int titleResId = getItem(position);
-
-			TextView textView = (TextView) view.findViewById(android.R.id.text1);
-			TextView headerView = (TextView) view.findViewById(R.id.separator);
-
-			if (titleResId == getDrawerResId()) {
-				String text = getString(titleResId);
-				SpannableString ss = new SpannableString(text);
-				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				textView.setText(ss);
-			} else {
-				textView.setText(titleResId);
-			}
-
-			if (titleResId == R.string.title_hotness) {
-				// Always show the "Browse" header above hotness
-				headerView.setVisibility(View.VISIBLE);
-				headerView.setText(R.string.title_browse);
-			} else if (position == 0) {
-				// Show the "My Geek" header above the first non-hotness item
-				headerView.setVisibility(View.VISIBLE);
-				headerView.setText(R.string.title_my_geek);
-			} else {
-				headerView.setVisibility(View.GONE);
-			}
-
-			return view;
-		}
+		return view;
 	}
 }

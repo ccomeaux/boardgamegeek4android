@@ -103,9 +103,19 @@
 	<style name="Text.CheckboxLabel"></style>
 
 	<style name="Text.DrawerItem" parent="Text.Big">
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:layout_gravity">center_vertical</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
+	<style name="DrawerItemContainer">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">@dimen/drawer_item_height</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
 	<style name="RowContainer">
@@ -236,13 +246,18 @@
 		<item name="android:padding">4dp</item>
 	</style>
 
-	<style name="DrawerItemContainer">
-		<item name="android:gravity">center</item>
-		<item name="android:minHeight">@dimen/drawer_item_height</item>
-		<item name="android:paddingBottom">@dimen/padding_standard</item>
-		<item name="android:paddingLeft">@dimen/padding_standard</item>
-		<item name="android:paddingRight">@dimen/padding_standard</item>
-		<item name="android:paddingTop">@dimen/padding_standard</item>
+	<style name="DrawerListContainer">
+		<item name="android:layout_width">@dimen/drawer_width</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:layout_gravity">start</item>
+		<item name="android:background">@android:color/white</item>
+	</style>
+
+	<style name="DrawerList">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:divider">?android:dividerHorizontal</item>
+		<item name="android:orientation">vertical</item>
 	</style>
 
 </resources>

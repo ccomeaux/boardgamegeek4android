@@ -10,8 +10,8 @@
 
 	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
 		<item name="android:textIsSelectable">false</item>
 	</style>
 
@@ -68,6 +68,14 @@
 		<item name="android:singleLine">true</item>
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
+	</style>
+
+	<style name="DrawerList">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:divider">?android:dividerHorizontal</item>
+		<item name="android:orientation">vertical</item>
+		<item name="android:showDividers">middle</item>
 	</style>
 
 </resources>

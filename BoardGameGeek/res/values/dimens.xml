@@ -23,5 +23,6 @@
 	<dimen name="color_circle_diameter">36dp</dimen>
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">48dp</dimen>
+	<dimen name="drawer_width">240dp</dimen>
 
 </resources>
