@@ -28,16 +28,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ResolverUtils;
@@ -45,31 +42,29 @@ import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
 public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_REFRESHED = "REFRESHED";
+	private String mBuddyName;
 	private Uri mBuddyUri;
-	private int mDefaultTextColor;
-	private int mLightTextColor;
+	private boolean mRefreshed;
 
+	private ViewGroup mRootView;
 	private TextView mFullName;
 	private TextView mName;
-	private TextView mId;
 	private ImageView mAvatar;
 	private TextView mNickname;
 	private TextView mUpdated;
+	private int mDefaultTextColor;
+	private int mLightTextColor;
 
 	public interface Callbacks {
-		public void onNameChanged(String name);
-
 		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onNameChanged(String name) {
-		}
-
 		public DetachableResultReceiver getReceiver() {
 			return null;
-		};
+		}
 	};
 
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -77,37 +72,51 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
+		if (savedInstanceState != null) {
+			mRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
+		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int buddyId = intent.getIntExtra(BuddyUtils.KEY_BUDDY_ID, BggContract.INVALID_ID);
-		if (buddyId == BggContract.INVALID_ID) {
+		mBuddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		if (TextUtils.isEmpty(mBuddyName)) {
 			return;
 		}
 
-		mBuddyUri = Buddies.buildBuddyUri(buddyId);
+		mBuddyUri = Buddies.buildBuddyUri(mBuddyName);
 		if (mBuddyUri == null) {
 			return;
 		}
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_REFRESHED, mRefreshed);
+	}
 
-		mFullName = (TextView) rootView.findViewById(R.id.buddy_full_name);
-		mName = (TextView) rootView.findViewById(R.id.buddy_name);
-		mId = (TextView) rootView.findViewById(R.id.buddy_id);
-		mAvatar = (ImageView) rootView.findViewById(R.id.buddy_avatar);
-		mNickname = (TextView) rootView.findViewById(R.id.nickname);
-		mUpdated = (TextView) rootView.findViewById(R.id.updated);
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_buddy, container, false);
+
+		mFullName = (TextView) mRootView.findViewById(R.id.buddy_full_name);
+		mName = (TextView) mRootView.findViewById(R.id.buddy_name);
+		mAvatar = (ImageView) mRootView.findViewById(R.id.buddy_avatar);
+		mNickname = (TextView) mRootView.findViewById(R.id.nickname);
+		mUpdated = (TextView) mRootView.findViewById(R.id.updated);
+
+		mRootView.findViewById(R.id.edit_nickname_button).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
+			}
+		});
 
 		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
 
-		return rootView;
+		return mRootView;
 	}
 
 	@Override
@@ -125,23 +134,6 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.buddy, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		switch (id) {
-			case R.id.menu_edit:
-				showDialog(getActivity(), mBuddyUri, mNickname.getText().toString(), mName.getText().toString());
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -172,10 +164,10 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	private void onBuddyQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
+			requestRefresh();
 			return;
 		}
 
-		int id = cursor.getInt(BuddyQuery.BUDDY_ID);
 		String name = cursor.getString(BuddyQuery.NAME);
 		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
@@ -185,9 +177,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		Picasso.with(getActivity()).load(avatarUrl).placeholder(R.drawable.person_image_empty)
 			.error(R.drawable.person_image_empty).fit().into(mAvatar);
 		mFullName.setText(fullName);
-		mCallbacks.onNameChanged(fullName);
 		mName.setText(name);
-		mId.setText(String.valueOf(id));
 		if (TextUtils.isEmpty(nickname)) {
 			mNickname.setTextColor(mLightTextColor);
 			mNickname.setText(fullName);
@@ -195,10 +185,20 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			mNickname.setTextColor(mDefaultTextColor);
 			mNickname.setText(nickname);
 		}
-		mUpdated.setText(getResources().getString(R.string.updated)
-			+ ": "
-			+ (updated == 0 ? getResources().getString(R.string.needs_updating) : DateUtils
-				.getRelativeTimeSpanString(updated)));
+		mUpdated.setText((updated == 0 ? getResources().getString(R.string.needs_updating) : getResources().getString(
+			R.string.updated)
+			+ ": " + DateUtils.getRelativeTimeSpanString(updated)));
+	}
+
+	public void requestRefresh() {
+		if (!mRefreshed) {
+			forceRefresh();
+			mRefreshed = true;
+		}
+	}
+
+	public void forceRefresh() {
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName, mCallbacks.getReceiver());
 	}
 
 	private interface BuddyQuery {
@@ -207,7 +207,7 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 		String[] PROJECTION = { Buddies.BUDDY_ID, Buddies.BUDDY_NAME, Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME,
 			Buddies.AVATAR_URL, Buddies.PLAY_NICKNAME, Buddies.UPDATED };
 
-		int BUDDY_ID = 0;
+		// int BUDDY_ID = 0;
 		int NAME = 1;
 		int FIRSTNAME = 2;
 		int LASTNAME = 3;
@@ -218,13 +218,13 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 
 	public void showDialog(final Context context, final Uri uri, final String nickname, final String username) {
 		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_edit_nickname, null);
+		View view = inflater.inflate(R.layout.dialog_edit_nickname, mRootView, false);
 
-		final EditText mEditText = (EditText) view.findViewById(R.id.nickname);
-		final CheckBox mCheckBox = (CheckBox) view.findViewById(R.id.change_plays);
+		final EditText editText = (EditText) view.findViewById(R.id.edit_nickname);
+		final CheckBox checkBox = (CheckBox) view.findViewById(R.id.change_plays);
 		if (!TextUtils.isEmpty(nickname)) {
-			mEditText.setText(nickname);
-			mEditText.setSelection(0, nickname.length());
+			editText.setText(nickname);
+			editText.setSelection(0, nickname.length());
 		}
 
 		AlertDialog dialog = new AlertDialog.Builder(context).setView(view).setTitle(R.string.title_edit_nickname)
@@ -232,8 +232,8 @@ public class BuddyFragment extends SherlockFragment implements LoaderManager.Loa
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					String newNickname = mEditText.getText().toString();
-					new Task(context, uri, username, mCheckBox.isChecked()).execute(newNickname);
+					String newNickname = editText.getText().toString();
+					new Task(context, uri, username, checkBox.isChecked()).execute(newNickname);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);

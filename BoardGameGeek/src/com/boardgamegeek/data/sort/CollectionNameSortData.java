@@ -24,7 +24,7 @@ public class CollectionNameSortData extends CollectionSortData {
 
 	@Override
 	public String[] getColumns() {
-		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_BAYES_AVERAGE };
+		return new String[] { Collection.COLLECTION_SORT_NAME, Collection.STATS_AVERAGE };
 	}
 
 	@Override
@@ -34,6 +34,6 @@ public class CollectionNameSortData extends CollectionSortData {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, "?", true, mDisplayFormat);
+		return getDoubleAsString(cursor, Collection.STATS_AVERAGE, "?", true, mDisplayFormat);
 	}
 }

@@ -77,14 +77,15 @@ public class BuddyPersister {
 		}
 	}
 
-	private static void addToBatch(ContentResolver resolver, ContentValues values,
-		ArrayList<ContentProviderOperation> batch) {
-		int id = values.getAsInteger(Buddies.BUDDY_ID);
-		Uri uri = Buddies.buildBuddyUri(id);
+	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch) {
+		String name = values.getAsString(Buddies.BUDDY_NAME);
+		Uri uri = Buddies.buildBuddyUri(name);
 		if (!ResolverUtils.rowExists(resolver, uri)) {
+			values.put(Buddies.UPDATED_LIST, mUpdateTime);
 			batch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values).build());
 		} else {
 			maybeDeleteAvatar(values, uri, resolver);
+			values.remove(Buddies.BUDDY_NAME);
 			batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
 		}
 	}

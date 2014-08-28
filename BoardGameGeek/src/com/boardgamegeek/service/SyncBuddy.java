@@ -19,7 +19,7 @@ public class SyncBuddy extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync artist name=" + mName;
+		return "Sync buddy name=" + mName;
 	}
 
 	@Override

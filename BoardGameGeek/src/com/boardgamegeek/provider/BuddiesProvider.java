@@ -29,7 +29,7 @@ public class BuddiesProvider extends BasicProvider {
 	}
 
 	@Override
-	protected Integer getInsertedId(ContentValues values) {
-		return values.getAsInteger(Buddies.BUDDY_ID);
+	protected Uri insertedUri(ContentValues values) {
+		return Buddies.buildBuddyUri(values.getAsString(Buddies.BUDDY_NAME));
 	}
 }

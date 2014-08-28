@@ -127,7 +127,7 @@ public class Game {
 		private String usersRated;
 
 		public int usersRated() {
-			return StringUtils.parseInt(commenting);
+			return StringUtils.parseInt(usersRated);
 		}
 
 		@Path("ratings/average")
@@ -135,7 +135,7 @@ public class Game {
 		private String average;
 
 		public double average() {
-			return StringUtils.parseDouble(averageWeight);
+			return StringUtils.parseDouble(average);
 		}
 
 		@Path("ratings/bayesaverage")
@@ -143,7 +143,7 @@ public class Game {
 		private String bayesAverage;
 
 		public double bayesAverage() {
-			return StringUtils.parseDouble(averageWeight);
+			return StringUtils.parseDouble(bayesAverage);
 		}
 
 		@Path("ratings")
@@ -155,7 +155,7 @@ public class Game {
 		private String standardDeviation;
 
 		public double standardDeviation() {
-			return StringUtils.parseDouble(averageWeight);
+			return StringUtils.parseDouble(standardDeviation);
 		}
 
 		@Path("ratings/median")
@@ -163,7 +163,7 @@ public class Game {
 		private String median;
 
 		public double median() {
-			return StringUtils.parseDouble(averageWeight);
+			return StringUtils.parseDouble(median);
 		}
 
 		@Path("ratings/owned")
@@ -171,7 +171,7 @@ public class Game {
 		private String owned;
 
 		public int owned() {
-			return StringUtils.parseInt(commenting);
+			return StringUtils.parseInt(owned);
 		}
 
 		@Path("ratings/trading")
@@ -179,7 +179,7 @@ public class Game {
 		private String trading;
 
 		public int trading() {
-			return StringUtils.parseInt(commenting);
+			return StringUtils.parseInt(trading);
 		}
 
 		@Path("ratings/wanting")
@@ -187,7 +187,7 @@ public class Game {
 		private String wanting;
 
 		public int wanting() {
-			return StringUtils.parseInt(commenting);
+			return StringUtils.parseInt(wanting);
 		}
 
 		@Path("ratings/wishing")
@@ -195,7 +195,7 @@ public class Game {
 		private String wishing;
 
 		public int wishing() {
-			return StringUtils.parseInt(commenting);
+			return StringUtils.parseInt(wishing);
 		}
 
 		@Path("ratings/numcomments")

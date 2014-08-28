@@ -26,10 +26,12 @@ import com.boardgamegeek.util.UIUtils;
 
 public class BuddyActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
 	BuddyFragment.Callbacks, BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
+
 	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
 	private String mName;
+	private BuddyFragment mBuddyFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,7 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mName = getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		changeName(getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_FULL_NAME));
+		getSupportActionBar().setSubtitle(mName);
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
@@ -81,7 +83,9 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
-				UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY, mName, getReceiver());
+				if (mBuddyFragment != null) {
+					mBuddyFragment.forceRefresh();
+				}
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -125,7 +129,8 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 			Bundle bundle = UIUtils.intentToFragmentArguments(getIntent());
 			switch (position) {
 				case 0:
-					fragment = new BuddyFragment();
+					mBuddyFragment = new BuddyFragment();
+					fragment = mBuddyFragment;
 					break;
 				case 1:
 					fragment = new BuddyCollectionFragment();
@@ -145,18 +150,6 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 		public int getCount() {
 			return 3;
 		}
-	}
-
-	private void changeName(String name) {
-		if (!TextUtils.isEmpty(name)) {
-			getIntent().putExtra(BuddyUtils.KEY_BUDDY_FULL_NAME, name);
-			getSupportActionBar().setSubtitle(name);
-		}
-	}
-
-	@Override
-	public void onNameChanged(String name) {
-		changeName(name);
 	}
 
 	@Override
