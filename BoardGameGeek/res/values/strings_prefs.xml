@@ -85,9 +85,11 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body">
 <![CDATA[<h4>What\'s New?</h4>
-<h5>Coming soon...</h5>
+<h5>4.8.1</h5>
 <ul>
-<li>?</li>
+<li>Fixed incorrect statistics (including rating)</li>
+<li>Can now select a random game from a buddy\'s collection</li>
+<li>Miscellaneous bug fixes</li>
 </ul>
 <h5>4.8</h5>
 <ul>

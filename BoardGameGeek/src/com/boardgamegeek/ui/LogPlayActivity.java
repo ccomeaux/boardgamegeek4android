@@ -220,6 +220,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 					} else {
 						mCustomPlayerSort = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 					}
+					if ((mOutstandingQueries & TOKEN_ID) != 0) {
+						mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
+					}
 					setModelIfDone(token);
 					break;
 				case TOKEN_ID:
@@ -556,7 +559,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 				if (mPlayAgain) {
 					mDeleteOnCancel = true;
 					mOutstandingQueries |= TOKEN_ID;
-					mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 				}
 				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PLAY_PROJECTION, null, null, null);
 			} else {
