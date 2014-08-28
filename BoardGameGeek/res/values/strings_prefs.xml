@@ -89,6 +89,12 @@
 <ul>
 <li>?</li>
 </ul>
+<h5>4.8.1</h5>
+<ul>
+<li>Fixed incorrect statistics (including rating)</li>
+<li>Can now select a random game from a buddy\'s collection</li>
+<li>Miscellaneous bug fixes</li>
+</ul>
 <h5>4.8</h5>
 <ul>
 <li>Now syncs played games that aren\'t otherwise in your collection</li>

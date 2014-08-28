@@ -126,7 +126,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID
-			+ "!=?", new String[] { Authenticator.getUserId(getActivity()) }, null);
+			+ "!=? AND " + Buddies.BUDDY_FLAG + "=1", new String[] { Authenticator.getUserId(getActivity()) }, null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}

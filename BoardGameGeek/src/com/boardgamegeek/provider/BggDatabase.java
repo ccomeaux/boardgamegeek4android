@@ -65,7 +65,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAMES_SUBTYPE = 18;
 	private static final int VER_COLLECTION_ID_NULLABLE = 19;
 	private static final int VER_GAME_CUSTOM_PLAYER_SORT = 20;
-	private static final int DATABASE_VERSION = VER_GAME_CUSTOM_PLAYER_SORT;
+	private static final int VER_BUDDY_FLAG = 21;
+	private static final int DATABASE_VERSION = VER_BUDDY_FLAG;
 
 	private Context mContext;
 
@@ -375,7 +376,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Buddies.BUDDY_ID, COLUMN_TYPE.INTEGER, true, true)
 			.addColumn(Buddies.BUDDY_NAME, COLUMN_TYPE.TEXT, true).addColumn(Buddies.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
 			.addColumn(Buddies.BUDDY_LASTNAME, COLUMN_TYPE.TEXT).addColumn(Buddies.AVATAR_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT);
+			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT).addColumn(Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildGamePollsTable() {
@@ -577,6 +578,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_COLLECTION_ID_NULLABLE:
 				addColumn(db, Tables.GAMES, Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER);
 				version = VER_GAME_CUSTOM_PLAYER_SORT;
+			case VER_GAME_CUSTOM_PLAYER_SORT:
+				addColumn(db, Tables.BUDDIES, Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
+				version = VER_BUDDY_FLAG;
 		}
 
 		if (version != DATABASE_VERSION) {
