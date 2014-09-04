@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.app.SearchManager;
-import android.content.Intent;
 import android.support.v4.app.NavUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -11,7 +10,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.pref.Preferences;
 import com.boardgamegeek.service.SyncService;
 
 public abstract class BaseActivity extends SherlockFragmentActivity {
@@ -46,9 +44,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 					return false;
 				}
 				NavUtils.navigateUpFromSameTask(this);
-				return true;
-			case R.id.menu_settings:
-				startActivity(new Intent(this, Preferences.class));
 				return true;
 			case R.id.menu_cancel_sync:
 				SyncService.cancelSync(this);

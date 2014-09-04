@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.pref.Preferences;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
@@ -54,7 +55,8 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	public boolean isDrawerOpen() {
-		return mDrawerLayout != null && mDrawerList != null && mDrawerLayout.isDrawerOpen(mDrawerListContainer);
+		return mDrawerLayout != null && mDrawerListContainer != null
+			&& mDrawerLayout.isDrawerOpen(mDrawerListContainer);
 	}
 
 	@Override
@@ -88,6 +90,9 @@ public abstract class DrawerActivity extends BaseActivity {
 		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, mDrawerList));
+
+		mDrawerList.addView(makeNavDrawerSeparator(0, mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, mDrawerList));
 	}
 
 	private void selectItem(int titleResId) {
@@ -112,20 +117,25 @@ public abstract class DrawerActivity extends BaseActivity {
 				case R.string.title_signin:
 					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGNIN);
 					break;
+				case R.string.title_settings:
+					startActivity(new Intent(this, Preferences.class));
+					break;
 			}
 			if (intent != null) {
 				startActivity(intent);
 				finish();
 			}
 		}
-		mDrawerLayout.closeDrawer(mDrawerList);
+		mDrawerLayout.closeDrawer(mDrawerListContainer);
 	}
 
 	private View makeNavDrawerSeparator(final int titleId, ViewGroup container) {
 		int layoutToInflate = R.layout.row_header;
 		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
-		TextView titleView = (TextView) view.findViewById(android.R.id.title);
-		titleView.setText(getString(titleId));
+		if (titleId != 0) {
+			TextView titleView = (TextView) view.findViewById(android.R.id.title);
+			titleView.setText(getString(titleId));
+		}
 		return view;
 	}
 
