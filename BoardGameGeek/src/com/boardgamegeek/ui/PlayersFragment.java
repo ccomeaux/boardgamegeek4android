@@ -39,12 +39,18 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	public interface Callbacks {
 		public boolean onPlayerSelected(String name, String username);
+
+		public void onPlayerCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public boolean onPlayerSelected(String name, String username) {
 			return true;
+		}
+
+		@Override
+		public void onPlayerCountChanged(int count) {
 		}
 	};
 
@@ -135,6 +141,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
+			mCallbacks.onPlayerCountChanged(cursor.getCount());
 			restoreScrollState();
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
