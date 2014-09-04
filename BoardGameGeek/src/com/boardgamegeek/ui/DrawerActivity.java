@@ -84,6 +84,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		} else {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_players, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, mDrawerList));
 		}
 
@@ -107,6 +108,9 @@ public abstract class DrawerActivity extends BaseActivity {
 					break;
 				case R.string.title_plays:
 					intent = new Intent(this, PlaysActivity.class);
+					break;
+				case R.string.title_players:
+					intent = new Intent(this, PlayersActivity.class);
 					break;
 				case R.string.title_buddies:
 					intent = new Intent(this, BuddiesActivity.class);
@@ -140,8 +144,15 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private View makeNavDrawerItem(final int titleId, ViewGroup container) {
-		int layoutToInflate = R.layout.row_drawer;
-		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
+		return makeNavDrawerItem(R.layout.row_drawer, titleId, container);
+	}
+
+	private View makeNavDrawerItemIndent(final int titleId, ViewGroup container) {
+		return makeNavDrawerItem(R.layout.row_drawer_2, titleId, container);
+	}
+
+	private View makeNavDrawerItem(int layoutId, final int titleId, ViewGroup container) {
+		View view = getLayoutInflater().inflate(layoutId, container, false);
 
 		TextView titleView = (TextView) view.findViewById(android.R.id.title);
 		if (titleId == getDrawerResId()) {

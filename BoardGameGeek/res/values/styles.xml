@@ -118,6 +118,10 @@
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 	</style>
 
+	<style name="DrawerItemContainer.Indent">
+		<item name="android:paddingLeft">@dimen/padding_standard_indent</item>
+	</style>
+
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">?android:attr/listPreferredItemHeight</item>

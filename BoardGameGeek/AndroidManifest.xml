@@ -135,6 +135,14 @@
 				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
+			android:name=".ui.PlayersActivity"
+			android:exported="false"
+			android:label="@string/title_players" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
 			android:label="@string/title_play" >
