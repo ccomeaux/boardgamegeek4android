@@ -420,5 +420,9 @@
 		<item quantity="one">with %s player </item>
 		<item quantity="other">with %s players </item>
 	</plurals>
+	<plurals name="msg_logging_plays">
+		<item quantity="one">Logging play…</item>
+		<item quantity="other">Logging plays…</item>
+	</plurals>
 
 </resources>

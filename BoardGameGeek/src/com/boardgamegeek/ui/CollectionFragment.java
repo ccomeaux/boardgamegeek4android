@@ -766,7 +766,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
 		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(count == 1 && PreferencesUtils.showQuickLogPlay(getActivity()));
+		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
 		mBggLinkMenuItem.setVisible(count == 1);
 	}
 
@@ -785,8 +785,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				Toast.makeText(getActivity(), R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-				ActivityUtils.logQuickPlay(getActivity(), gameId, gameName);
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
+				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+				for (int position : mSelectedPositions) {
+					Cursor c = (Cursor) mAdapter.getItem(position);
+					ActivityUtils.logQuickPlay(getActivity(), c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME));
+				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();
