@@ -108,8 +108,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null,
-			Plays.LOCATION);
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, null);
 	}
 
 	@Override

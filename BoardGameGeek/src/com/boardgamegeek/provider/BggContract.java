@@ -730,7 +730,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamecolor";
 
-		public static final String DEFAULT_SORT = COLOR + " ASC";
+		public static final String DEFAULT_SORT = COLOR + " COLLATE NOCASE ASC";
 	}
 
 	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
@@ -806,7 +806,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playitem";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playitem";
 
-		public static final String DEFAULT_SORT = NAME + " ASC";
+		public static final String DEFAULT_SORT = NAME + " COLLATE NOCASE ASC";
 
 		public static int getPlayItemId(Uri uri) {
 			return StringUtils.parseInt(uri.getLastPathSegment());
@@ -817,7 +817,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer";
 
-		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + " ASC";
+		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + " COLLATE NOCASE ASC";
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
@@ -826,7 +826,7 @@ public class BggContract {
 	}
 
 	public static final class PlayLocations {
-		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + " ASC";
+		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + " COLLATE NOCASE ASC";
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {
@@ -835,7 +835,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionview";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionview";
 
-		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC";
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " COLLATE NOCASE ASC";
 
 		public static Uri buildViewUri(long viewId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(viewId)).build();
@@ -860,7 +860,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionviewfilter";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter";
 
-		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " ASC, " + TYPE + " ASC";
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " COLLATE NOCASE ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
 			return Integer.valueOf(uri.getLastPathSegment());
