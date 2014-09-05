@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
 
 public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
@@ -36,7 +35,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_PLAYER);
 		arguments.putString(PlaysFragment.KEY_PLAYER_NAME, intent.getStringExtra(KEY_PLAYER_NAME));
-		arguments.putString(BuddyUtils.KEY_BUDDY_NAME, intent.getStringExtra(KEY_PLAYER_USERNAME));
+		arguments.putString(PlaysFragment.KEY_USER_NAME, intent.getStringExtra(KEY_PLAYER_USERNAME));
 		return arguments;
 	}
 
