@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {
+public class LocationsActivity extends TopLevelSinglePaneActivity implements LocationsFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
 	private int mCount = -1;
 
@@ -28,7 +28,7 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 
 	@Override
 	protected Fragment onCreatePane() {
-		return new PlayersFragment();
+		return new LocationsFragment();
 	}
 
 	@Override
@@ -45,20 +45,19 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 
 	@Override
 	protected int getDrawerResId() {
-		return R.string.title_players;
+		return R.string.title_locations;
 	}
 
 	@Override
-	public boolean onPlayerSelected(String name, String username) {
-		Intent intent = new Intent(this, PlayerActivity.class);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_NAME, name);
-		intent.putExtra(PlayerActivity.KEY_PLAYER_USERNAME, username);
+	public boolean onLocationSelected(String name) {
+		Intent intent = new Intent(this, LocationActivity.class);
+		intent.putExtra(LocationActivity.KEY_LOCATION_NAME, name);
 		startActivity(intent);
 		return true;
 	}
 
 	@Override
-	public void onPlayerCountChanged(int count) {
+	public void onLocationCountChanged(int count) {
 		mCount = count;
 		supportInvalidateOptionsMenu();
 	}

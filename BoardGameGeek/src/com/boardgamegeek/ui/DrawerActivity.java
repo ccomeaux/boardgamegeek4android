@@ -85,6 +85,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_players, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_locations, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, mDrawerList));
 		}
 
@@ -111,6 +112,9 @@ public abstract class DrawerActivity extends BaseActivity {
 					break;
 				case R.string.title_players:
 					intent = new Intent(this, PlayersActivity.class);
+					break;
+				case R.string.title_locations:
+					intent = new Intent(this, LocationsActivity.class);
 					break;
 				case R.string.title_buddies:
 					intent = new Intent(this, BuddiesActivity.class);
