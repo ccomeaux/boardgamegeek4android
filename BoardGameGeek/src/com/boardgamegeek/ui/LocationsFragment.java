@@ -6,6 +6,11 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import java.util.Locale;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.UIUtils;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -21,34 +26,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.UIUtils;
-
-public class PlayersFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(PlayersFragment.class);
+public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String TAG = makeLogTag(LocationsFragment.class);
 	private static final String STATE_SELECTED_NAME = "selectedName";
-	private static final String STATE_SELECTED_USERNAME = "selectedUsername";
 
-	private PlayersAdapter mAdapter;
+	private LocationsAdapter mAdapter;
 	private String mSelectedName;
-	private String mSelectedUsername;
 
 	public interface Callbacks {
-		public boolean onPlayerSelected(String name, String username);
+		public boolean onLocationSelected(String name);
 
-		public void onPlayerCountChanged(int count);
+		public void onLocationCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public boolean onPlayerSelected(String name, String username) {
+		public boolean onLocationSelected(String name) {
 			return true;
 		}
 
 		@Override
-		public void onPlayerCountChanged(int count) {
+		public void onLocationCountChanged(int count) {
 		}
 	};
 
@@ -68,23 +66,21 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null) {
 			mSelectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
-			mSelectedUsername = savedInstanceState.getString(STATE_SELECTED_USERNAME);
 		}
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_players));
-		getLoaderManager().restartLoader(PlayersQuery._TOKEN, getArguments(), this);
+		setEmptyText(getString(R.string.empty_locations));
+		getLoaderManager().restartLoader(LocationsQuery._TOKEN, getArguments(), this);
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (!TextUtils.isEmpty(mSelectedName) || !TextUtils.isEmpty(mSelectedUsername)) {
+		if (!TextUtils.isEmpty(mSelectedName)) {
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
-			outState.putString(STATE_SELECTED_USERNAME, mSelectedUsername);
 		}
 	}
 
@@ -97,16 +93,14 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onListItemClick(View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final String name = cursor.getString(PlayersQuery.NAME);
-		final String username = cursor.getString(PlayersQuery.USER_NAME);
-		if (mCallbacks.onPlayerSelected(name, username)) {
-			setSelectedPlayer(name, username);
+		final String name = cursor.getString(LocationsQuery.LOCATION);
+		if (mCallbacks.onLocationSelected(name)) {
+			setSelectedLocation(name);
 		}
 	}
 
-	public void setSelectedPlayer(String name, String username) {
+	public void setSelectedLocation(String name) {
 		mSelectedName = name;
-		mSelectedUsername = username;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
@@ -114,9 +108,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-			PlayersQuery.PROJECTION, null, null, PlayPlayers.NAME);
-		return loader;
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, null);
 	}
 
 	@Override
@@ -126,13 +118,13 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		int token = loader.getId();
-		if (token == PlayersQuery._TOKEN) {
+		if (token == LocationsQuery._TOKEN) {
 			if (mAdapter == null) {
-				mAdapter = new PlayersAdapter(getActivity());
+				mAdapter = new LocationsAdapter(getActivity());
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
-			mCallbacks.onPlayerCountChanged(cursor.getCount());
+			mCallbacks.onLocationCountChanged(cursor.getCount());
 			restoreScrollState();
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
@@ -141,21 +133,21 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(Loader<Cursor> arg0) {
 		mAdapter.changeCursor(null);
 	}
 
-	public class PlayersAdapter extends CursorAdapter implements StickyListHeadersAdapter {
+	public class LocationsAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 
-		public PlayersAdapter(Context context) {
+		public LocationsAdapter(Context context) {
 			super(context, null, false);
 			mInflater = LayoutInflater.from(context);
 		}
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_players_player, parent, false);
+			View row = mInflater.inflate(R.layout.row_play_location, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -164,14 +156,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
-
-			String name = cursor.getString(PlayersQuery.NAME);
-			String userName = cursor.getString(PlayersQuery.USER_NAME);
-
-			UIUtils.setActivatedCompat(view, name.equals(mSelectedName) && userName.equals(mSelectedUsername));
-
+			String name = cursor.getString(LocationsQuery.LOCATION);
+			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
 			holder.name.setText(name);
-			holder.username.setText(userName);
 		}
 
 		@Override
@@ -201,7 +188,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			String missingLetter = "-";
 			int cur = getCursor().getPosition();
 			getCursor().moveToPosition(position);
-			String name = getCursor().getString(PlayersQuery.NAME);
+			String name = getCursor().getString(LocationsQuery.LOCATION);
 			getCursor().moveToPosition(cur);
 			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
 				Locale.getDefault());
@@ -210,11 +197,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 		class ViewHolder {
 			TextView name;
-			TextView username;
 
 			public ViewHolder(View view) {
 				name = (TextView) view.findViewById(R.id.name);
-				username = (TextView) view.findViewById(R.id.username);
 			}
 		}
 
@@ -223,12 +208,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 	}
 
-	private interface PlayersQuery {
+	private interface LocationsQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { BaseColumns._ID, PlayPlayers.NAME, PlayPlayers.USER_NAME };
+		String[] PROJECTION = { BaseColumns._ID, Plays.LOCATION };
 
-		int NAME = 1;
-		int USER_NAME = 2;
+		int LOCATION = 1;
 	}
 }
