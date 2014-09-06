@@ -13,7 +13,7 @@ public class PlaysLocationSorter extends PlaysSorter {
 		super(context);
 		mOrderByClause = getClause(Plays.LOCATION, false);
 		mDescriptionId = R.string.menu_plays_sort_location;
-		mNoLocation = "<" + context.getString(R.string.no_location) + ">";
+		mNoLocation = context.getString(R.string.no_location);
 	}
 
 	@Override

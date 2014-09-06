@@ -6,11 +6,6 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import java.util.Locale;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
-import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.util.UIUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -25,6 +20,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.UIUtils;
 
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(LocationsFragment.class);
@@ -158,6 +159,9 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			ViewHolder holder = (ViewHolder) view.getTag();
 			String name = cursor.getString(LocationsQuery.LOCATION);
 			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
+			if (TextUtils.isEmpty(name)) {
+				name = getString(R.string.no_location);
+			}
 			holder.name.setText(name);
 		}
 
@@ -196,10 +200,10 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		class ViewHolder {
-			TextView name;
+			@InjectView(R.id.name) TextView name;
 
 			public ViewHolder(View view) {
-				name = (TextView) view.findViewById(R.id.name);
+				ButterKnife.inject(this, view);
 			}
 		}
 

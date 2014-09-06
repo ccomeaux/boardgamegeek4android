@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 
 import com.actionbarsherlock.view.Menu;
 import com.boardgamegeek.R;
@@ -18,7 +19,9 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 
 		final Intent intent = getIntent();
 		String name = intent.getStringExtra(KEY_LOCATION_NAME);
-
+		if (TextUtils.isEmpty(name)) {
+			name = getString(R.string.no_location);
+		}
 		getSupportActionBar().setSubtitle(name);
 	}
 

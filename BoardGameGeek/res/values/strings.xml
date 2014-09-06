@@ -43,7 +43,7 @@
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
-	<string name="no_location">No location</string>
+	<string name="no_location">&lt;No location&gt;</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
