@@ -45,6 +45,7 @@ import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
+import com.boardgamegeek.data.PlayCountFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
@@ -62,6 +63,7 @@ import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
+import com.boardgamegeek.ui.dialog.PlayCountFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveView;
@@ -595,6 +597,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				new GeekRankingFilter().createDialog(getActivity(), this,
 					(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
+			case R.id.menu_play_count:
+			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
+				new PlayCountFilter().createDialog(getActivity(), this,
+					(PlayCountFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
+				return true;
+
 		}
 		return false;
 	}

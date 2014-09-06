@@ -241,6 +241,7 @@
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
 	<string name="menu_play_time">Playing Time</string>
+	<string name="menu_play_count">Play Count</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_geek_ranking">Geek Ranking</string>
 	<string name="menu_geek_rating">Geek Rating</string>
