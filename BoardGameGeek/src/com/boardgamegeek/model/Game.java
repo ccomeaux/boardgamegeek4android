@@ -369,8 +369,13 @@ public class Game {
 		return getLinks("boardgameimplementation");
 	}
 
-	public Rank getRank() {
-		return null;
+	public int getRank() {
+		for (Rank rank : statistics.ranks) {
+			if ("subtype".equals(rank.type)) {
+				return rank.getValue();
+			}
+		}
+		return 0;
 	}
 
 	private List<Link> getLinks(String type) {

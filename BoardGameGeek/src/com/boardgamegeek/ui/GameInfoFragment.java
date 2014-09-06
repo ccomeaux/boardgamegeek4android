@@ -564,7 +564,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
 			Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
-			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
+			Games.UPDATED, Games.GAME_RANK, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
 			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
@@ -579,7 +579,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int DESCRIPTION = 7;
 		int STATS_USERS_RATED = 8;
 		int UPDATED = 9;
-		int GAME_RANK_VALUE = 10;
+		int GAME_RANK = 10;
 		int GAME_NAME = 11;
 		int THUMBNAIL_URL = 12;
 		int STATS_BAYES_AVERAGE = 13;
@@ -691,7 +691,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Description = cursor.getString(GameQuery.DESCRIPTION);
 			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
 			Updated = cursor.getLong(GameQuery.UPDATED);
-			Rank = cursor.getInt(GameQuery.GAME_RANK_VALUE);
+			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
 			Median = cursor.getDouble(GameQuery.STATS_MEDIAN);
 			StandardDeviation = cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION);

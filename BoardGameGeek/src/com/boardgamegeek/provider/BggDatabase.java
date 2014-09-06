@@ -66,7 +66,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_COLLECTION_ID_NULLABLE = 19;
 	private static final int VER_GAME_CUSTOM_PLAYER_SORT = 20;
 	private static final int VER_BUDDY_FLAG = 21;
-	private static final int DATABASE_VERSION = VER_BUDDY_FLAG;
+	private static final int VER_GAME_RANK = 22;
+	private static final int DATABASE_VERSION = VER_GAME_RANK;
 
 	private Context mContext;
 
@@ -122,7 +123,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String COLLECTION_VIEW_FILTERS = "collection_filters_details";
 
 		String GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.GAME_ID);
-		String GAMES_JOIN_GAME_RANKS = createJoin(GAMES, GAME_RANKS, Games.GAME_ID);
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
 		String GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.ARTIST_ID);
 		String GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.PUBLISHER_ID);
@@ -135,9 +135,6 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String POLL_RESULTS_JOIN_POLL_RESULTS_RESULT = createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT,
 			GamePollResults._ID, GamePollResultsResult.POLL_RESULTS_ID);
 		String COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Collection.GAME_ID);
-		String COLLECTION_JOIN_GAMES_JOIN_GAME_RANKS = Tables.COLLECTION
-			+ createJoinSuffix(Tables.COLLECTION, Tables.GAMES, Games.GAME_ID)
-			+ createJoinSuffix(Tables.COLLECTION, Tables.GAME_RANKS, GameRanks.GAME_ID);
 		String PLAY_ITEMS_JOIN_PLAYS = createJoin(PLAY_ITEMS, PLAYS, Plays.PLAY_ID);
 		String PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES = Tables.PLAY_ITEMS
 			+ createJoinSuffix(PLAY_ITEMS, PLAYS, Plays.PLAY_ID)
@@ -278,7 +275,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(Games.STATS_NUMBER_WEIGHTS, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STATS_AVERAGE_WEIGHT, COLUMN_TYPE.REAL).addColumn(Games.LAST_VIEWED, COLUMN_TYPE.INTEGER)
 			.addColumn(Games.STARRED, COLUMN_TYPE.INTEGER).addColumn(Games.UPDATED_PLAYS, COLUMN_TYPE.INTEGER)
-			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER).setConflictResolution(CONFLICT_RESOLUTION.ABORT);
+			.addColumn(Games.CUSTOM_PLAYER_SORT, COLUMN_TYPE.INTEGER).addColumn(Games.GAME_RANK, COLUMN_TYPE.INTEGER)
+			.setConflictResolution(CONFLICT_RESOLUTION.ABORT);
 	}
 
 	private TableBuilder buildGameRanksTable() {
@@ -581,6 +579,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_GAME_CUSTOM_PLAYER_SORT:
 				addColumn(db, Tables.BUDDIES, Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
 				version = VER_BUDDY_FLAG;
+			case VER_BUDDY_FLAG:
+				addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
+				version = VER_GAME_RANK;
 		}
 
 		if (version != DATABASE_VERSION) {

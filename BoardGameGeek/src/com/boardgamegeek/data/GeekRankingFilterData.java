@@ -3,7 +3,7 @@ package com.boardgamegeek.data;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.boardgamegeek.provider.BggContract.GameRanks;
+import com.boardgamegeek.provider.BggContract.Games;
 
 public class GeekRankingFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 1;
@@ -78,14 +78,14 @@ public class GeekRankingFilterData extends CollectionFilterData {
 	private void setSelection() {
 		String selection = "";
 		if (mMin >= MAX_RANGE) {
-			selection = GameRanks.GAME_RANK_VALUE + ">=?";
+			selection = Games.GAME_RANK + ">=?";
 			selectionArgs(String.valueOf(MAX_RANGE));
 		} else {
-			selection = "(" + GameRanks.GAME_RANK_VALUE + ">=? AND " + GameRanks.GAME_RANK_VALUE + "<=?)";
+			selection = "(" + Games.GAME_RANK + ">=? AND " + Games.GAME_RANK + "<=?)";
 			selectionArgs(String.valueOf(mMin), String.valueOf(mMax));
 		}
 		if (mUnranked) {
-			selection += " OR " + GameRanks.GAME_RANK_VALUE + "=0 OR " + GameRanks.GAME_RANK_VALUE + " IS NULL";
+			selection += " OR " + Games.GAME_RANK + "=0 OR " + Games.GAME_RANK + " IS NULL";
 		}
 		selection(selection);
 	}
