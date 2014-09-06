@@ -316,6 +316,7 @@
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
 	<string name="name">Name</string>
+	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>

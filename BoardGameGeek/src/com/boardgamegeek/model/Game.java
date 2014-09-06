@@ -375,7 +375,7 @@ public class Game {
 				return rank.getValue();
 			}
 		}
-		return 0;
+		return Integer.MAX_VALUE;
 	}
 
 	private List<Link> getLinks(String type) {

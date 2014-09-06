@@ -11,6 +11,9 @@
 				android:id="@+id/menu_collection_sort_name"
 				android:title="@string/menu_collection_sort_name"/>
 			<item
+				android:id="@+id/menu_collection_sort_rank"
+				android:title="@string/menu_collection_sort_rank"/>
+			<item
 				android:id="@+id/menu_collection_sort_rating"
 				android:title="@string/menu_collection_sort_rating"/>
 			<item

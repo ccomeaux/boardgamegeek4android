@@ -18,6 +18,7 @@ public class CollectionSorterFactory extends SorterFactory {
 	public static final int TYPE_WISHLIST_PRIORITY = 13;
 	public static final int TYPE_LAST_VIEWED = 14;
 	public static final int TYPE_MY_RATING = 15;
+	public static final int TYPE_RANK = 16;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
 	public static Sorter create(int type, Context context) {
@@ -52,6 +53,8 @@ public class CollectionSorterFactory extends SorterFactory {
 				return new LastViewedSorter(context);
 			case TYPE_MY_RATING:
 				return new MyRatingSorter(context);
+			case TYPE_RANK:
+				return new RankSorter(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;
