@@ -27,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -225,61 +227,32 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 	}
 
 	static class ViewHolder {
-		ImageView thumbnail;
-		TextView name;
-		TextView rating;
-		RatingBar ratingBar;
-		TextView ratingDenominator;
-		TextView unrated;
-		TextView id;
-		TextView lastModified;
-		TextView updated;
-		TextView year;
-
-		TextView status;
-
-		TextView comment;
-
-		View privateInfoRoot;
-		TextView privateInfo;
-		TextView privateComments;
-
-		View wishlistRoot;
-		TextView wishlistContent;
-		View conditionRoot;
-		TextView conditionContent;
-		View wantPartsRoot;
-		TextView wantPartsContent;
-		View hasPartsRoot;
-		TextView hasPartsContent;
+		@InjectView(R.id.thumbnail) ImageView thumbnail;
+		@InjectView(R.id.name) TextView name;
+		@InjectView(R.id.rating) TextView rating;
+		@InjectView(R.id.rating_stars) RatingBar ratingBar;
+		@InjectView(R.id.rating_denominator) TextView ratingDenominator;
+		@InjectView(R.id.rating_unrated) TextView unrated;
+		@InjectView(R.id.collection_id) TextView id;
+		@InjectView(R.id.last_modified) TextView lastModified;
+		@InjectView(R.id.updated) TextView updated;
+		@InjectView(R.id.year) TextView year;
+		@InjectView(R.id.status) TextView status;
+		@InjectView(R.id.comment) TextView comment;
+		@InjectView(R.id.private_info_root) View privateInfoRoot;
+		@InjectView(R.id.private_info) TextView privateInfo;
+		@InjectView(R.id.private_comments) TextView privateComments;
+		@InjectView(R.id.wishlist_root) View wishlistRoot;
+		@InjectView(R.id.wishlist_content) TextView wishlistContent;
+		@InjectView(R.id.condition_root) View conditionRoot;
+		@InjectView(R.id.condition_content) TextView conditionContent;
+		@InjectView(R.id.want_parts_root) View wantPartsRoot;
+		@InjectView(R.id.want_parts_content) TextView wantPartsContent;
+		@InjectView(R.id.has_parts_root) View hasPartsRoot;
+		@InjectView(R.id.has_parts_content) TextView hasPartsContent;
 
 		public ViewHolder(View view) {
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-			name = (TextView) view.findViewById(R.id.name);
-			rating = (TextView) view.findViewById(R.id.rating);
-			ratingBar = (RatingBar) view.findViewById(R.id.rating_stars);
-			ratingDenominator = (TextView) view.findViewById(R.id.rating_denominator);
-			unrated = (TextView) view.findViewById(R.id.rating_unrated);
-			id = (TextView) view.findViewById(R.id.collection_id);
-			lastModified = (TextView) view.findViewById(R.id.last_modified);
-			updated = (TextView) view.findViewById(R.id.updated);
-			year = (TextView) view.findViewById(R.id.year);
-
-			status = (TextView) view.findViewById(R.id.status);
-			comment = (TextView) view.findViewById(R.id.comment);
-
-			privateInfoRoot = view.findViewById(R.id.private_info_root);
-			privateInfo = (TextView) view.findViewById(R.id.private_info);
-			privateComments = (TextView) view.findViewById(R.id.private_comments);
-
-			wishlistRoot = view.findViewById(R.id.wishlist_root);
-			wishlistContent = (TextView) view.findViewById(R.id.wishlist_content);
-			conditionRoot = view.findViewById(R.id.condition_root);
-			conditionContent = (TextView) view.findViewById(R.id.condition_content);
-			wantPartsRoot = view.findViewById(R.id.want_parts_root);
-			wantPartsContent = (TextView) view.findViewById(R.id.want_parts_content);
-			hasPartsRoot = view.findViewById(R.id.has_parts_root);
-			hasPartsContent = (TextView) view.findViewById(R.id.has_parts_content);
+			ButterKnife.inject(this, view);
 		}
 	}
 
