@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,11 +12,11 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class PlaysDateSortData extends PlaysSortData {
+public class PlaysDateSorter extends PlaysSorter {
 	SimpleDateFormat mFormatter = new SimpleDateFormat("MMMM", Locale.getDefault());
 	GregorianCalendar mCalendar = new GregorianCalendar();
 
-	public PlaysDateSortData(Context context) {
+	public PlaysDateSorter(Context context) {
 		super(context);
 		mOrderByClause = Plays.DEFAULT_SORT;
 		mDescriptionId = R.string.menu_plays_sort_date;

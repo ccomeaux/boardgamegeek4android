@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
@@ -10,16 +10,16 @@ public class PlaysSortDataFactory {
 	public static final int TYPE_PLAY_LENGTH = 4;
 	public static final int TYPE_DEFAULT = TYPE_PLAY_DATE;
 
-	public static SortData create(int type, Context context) {
+	public static Sorter create(int type, Context context) {
 		switch (type) {
 			case TYPE_PLAY_DATE:
-				return new PlaysDateSortData(context);
+				return new PlaysDateSorter(context);
 			case TYPE_PLAY_LOCATION:
-				return new PlaysLocationSortData(context);
+				return new PlaysLocationSorter(context);
 			case TYPE_PLAY_GAME:
-				return new PlaysGameSortData(context);
+				return new PlaysGameSorter(context);
 			case TYPE_PLAY_LENGTH:
-				return new PlaysLengthSortData(context);
+				return new PlaysLengthSorter(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

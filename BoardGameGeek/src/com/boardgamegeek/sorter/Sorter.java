@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
@@ -10,14 +10,14 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 
-public abstract class SortData {
+public abstract class Sorter {
 	protected Context mContext;
 	protected String mOrderByClause;
 	protected int mDescriptionId;
 	protected int mSubDescriptionId;
 	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
 
-	public SortData(Context context) {
+	public Sorter(Context context) {
 		mContext = context;
 	}
 
@@ -95,7 +95,7 @@ public abstract class SortData {
 	 * Get the unique type
 	 */
 	public int getType() {
-		return SortDataFactory.TYPE_UNKNOWN;
+		return SorterFactory.TYPE_UNKNOWN;
 	}
 
 	protected String getClause(String columnName, boolean isDescending) {

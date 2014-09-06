@@ -1,8 +1,8 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
-public class CollectionSortDataFactory extends SortDataFactory {
+public class CollectionSorterFactory extends SorterFactory {
 	public static final int TYPE_COLLECTION_NAME = 1;
 	public static final int TYPE_GEEK_RATING = 2;
 	public static final int TYPE_PLAY_COUNT_ASC = 3;
@@ -20,38 +20,38 @@ public class CollectionSortDataFactory extends SortDataFactory {
 	public static final int TYPE_MY_RATING = 15;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
-	public static SortData create(int type, Context context) {
+	public static Sorter create(int type, Context context) {
 		switch (type) {
 			case TYPE_COLLECTION_NAME:
-				return new CollectionNameSortData(context);
+				return new CollectionNameSorter(context);
 			case TYPE_GEEK_RATING:
-				return new GeekRatingSortData(context);
+				return new GeekRatingSorter(context);
 			case TYPE_YEAR_PUBLISHED_ASC:
-				return new YearPublishedAscendingSortData(context);
+				return new YearPublishedAscendingSorter(context);
 			case TYPE_YEAR_PUBLISHED_DESC:
-				return new YearPublishedDescendingSortData(context);
+				return new YearPublishedDescendingSorter(context);
 			case TYPE_PLAY_TIME_ASC:
-				return new PlayTimeAscendingSortData(context);
+				return new PlayTimeAscendingSorter(context);
 			case TYPE_PLAY_TIME_DESC:
-				return new PlayTimeDescendingSortData(context);
+				return new PlayTimeDescendingSorter(context);
 			case TYPE_AGE_ASC:
-				return new SuggestedAgeAscendingSortData(context);
+				return new SuggestedAgeAscendingSorter(context);
 			case TYPE_AGE_DESC:
-				return new SuggestedAgeDescendingSortData(context);
+				return new SuggestedAgeDescendingSorter(context);
 			case TYPE_AVERAGE_WEIGHT_ASC:
-				return new AverageWeightAscendingSortData(context);
+				return new AverageWeightAscendingSorter(context);
 			case TYPE_AVERAGE_WEIGHT_DESC:
-				return new AverageWeightDescendingSortData(context);
+				return new AverageWeightDescendingSorter(context);
 			case TYPE_PLAY_COUNT_ASC:
-				return new PlayCountAscendingSortData(context);
+				return new PlayCountAscendingSorter(context);
 			case TYPE_PLAY_COUNT_DESC:
-				return new PlayCountDescendingSortData(context);
+				return new PlayCountDescendingSorter(context);
 			case TYPE_WISHLIST_PRIORITY:
-				return new WishlistPrioritySortData(context);
+				return new WishlistPrioritySorter(context);
 			case TYPE_LAST_VIEWED:
-				return new LastViewedSortData(context);
+				return new LastViewedSorter(context);
 			case TYPE_MY_RATING:
-				return new MyRatingSortData(context);
+				return new MyRatingSorter(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,10 +6,10 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class SuggestedAgeSortData extends CollectionSortData {
+public class SuggestedAgeSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
 
-	public SuggestedAgeSortData(Context context) {
+	public SuggestedAgeSorter(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_age;
 	}

@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,10 +6,10 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class WishlistPrioritySortData extends CollectionSortData {
+public class WishlistPrioritySorter extends CollectionSorter {
 	String[] mPriorityText;
 
-	public WishlistPrioritySortData(Context context) {
+	public WishlistPrioritySorter(Context context) {
 		super(context);
 		mPriorityText = mContext.getResources().getStringArray(R.array.wishlist_priority);
 		mOrderByClause = getClause(Collection.STATUS_WISHLIST_PRIORITY, false);
@@ -18,7 +18,7 @@ public class WishlistPrioritySortData extends CollectionSortData {
 
 	@Override
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY;
+		return CollectionSorterFactory.TYPE_WISHLIST_PRIORITY;
 	}
 
 	@Override

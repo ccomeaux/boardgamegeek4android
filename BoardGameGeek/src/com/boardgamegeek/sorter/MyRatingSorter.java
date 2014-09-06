@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import java.text.DecimalFormat;
 
@@ -8,11 +8,11 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class MyRatingSortData extends CollectionSortData {
+public class MyRatingSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
 	private DecimalFormat mDisplayFormat = new DecimalFormat("0.0");
 
-	public MyRatingSortData(Context context) {
+	public MyRatingSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.RATING, true);
         mDescriptionId = R.string.menu_collection_sort_myrating;
@@ -20,7 +20,7 @@ public class MyRatingSortData extends CollectionSortData {
 
 	@Override
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_MY_RATING;
+		return CollectionSorterFactory.TYPE_MY_RATING;
 	}
 
 	@Override

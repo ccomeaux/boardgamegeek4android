@@ -1,12 +1,12 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class SuggestedAgeDescendingSortData extends SuggestedAgeSortData {
-	public SuggestedAgeDescendingSortData(Context context) {
+public class SuggestedAgeDescendingSorter extends SuggestedAgeSorter {
+	public SuggestedAgeDescendingSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.MINIMUM_AGE, true);
 		mSubDescriptionId = R.string.oldest;
@@ -14,6 +14,6 @@ public class SuggestedAgeDescendingSortData extends SuggestedAgeSortData {
 
 	@Override
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_AGE_DESC;
+		return CollectionSorterFactory.TYPE_AGE_DESC;
 	}
 }

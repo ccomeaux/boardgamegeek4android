@@ -35,8 +35,6 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.sort.PlaysSortDataFactory;
-import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -46,6 +44,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.sorter.PlaysSortDataFactory;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -76,7 +76,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String mPlayerName;
 	private String mLocation;
 	private int mFilter = Play.SYNC_STATUS_ALL;
-	private SortData mSort;
+	private Sorter mSort;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;

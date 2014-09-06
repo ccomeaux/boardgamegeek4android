@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import java.text.DecimalFormat;
 
@@ -8,11 +8,11 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class AverageWeightSortData extends CollectionSortData {
+public class AverageWeightSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
 	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 
-	public AverageWeightSortData(Context context) {
+	public AverageWeightSorter(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_weight;
 	}

@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,10 +6,10 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class PlaysLocationSortData extends PlaysSortData {
+public class PlaysLocationSorter extends PlaysSorter {
 	private final String mNoLocation;
 
-	public PlaysLocationSortData(Context context) {
+	public PlaysLocationSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(Plays.LOCATION, false);
 		mDescriptionId = R.string.menu_plays_sort_location;

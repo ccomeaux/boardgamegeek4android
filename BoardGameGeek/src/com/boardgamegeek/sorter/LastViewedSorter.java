@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,10 +7,10 @@ import android.text.format.DateUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class LastViewedSortData extends CollectionSortData {
+public class LastViewedSorter extends CollectionSorter {
 	private String mNever;
 
-	public LastViewedSortData(Context context) {
+	public LastViewedSorter(Context context) {
 		super(context);
 		mDescriptionId = R.string.menu_collection_sort_last_viewed;
 		mOrderByClause = getClause(Games.LAST_VIEWED, true);
@@ -19,7 +19,7 @@ public class LastViewedSortData extends CollectionSortData {
 
 	@Override
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_LAST_VIEWED;
+		return CollectionSorterFactory.TYPE_LAST_VIEWED;
 	}
 
 	@Override

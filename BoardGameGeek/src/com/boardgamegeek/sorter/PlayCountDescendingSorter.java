@@ -1,12 +1,12 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class PlayCountDescendingSortData extends PlayCountSortData {
-	public PlayCountDescendingSortData(Context context) {
+public class PlayCountDescendingSorter extends PlayCountSorter {
+	public PlayCountDescendingSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(Collection.NUM_PLAYS, true);
 		mDescriptionId = R.string.menu_collection_sort_played_most;
@@ -14,6 +14,6 @@ public class PlayCountDescendingSortData extends PlayCountSortData {
 
 	@Override
 	public int getType() {
-		return CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC;
+		return CollectionSorterFactory.TYPE_PLAY_COUNT_DESC;
 	}
 }

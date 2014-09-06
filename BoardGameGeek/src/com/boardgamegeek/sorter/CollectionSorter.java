@@ -1,11 +1,11 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import com.boardgamegeek.provider.BggContract.Collection;
 
 import android.content.Context;
 
-public abstract class CollectionSortData extends SortData {
-	public CollectionSortData(Context context) {
+public abstract class CollectionSorter extends Sorter {
+	public CollectionSorter(Context context) {
 		super(context);
 	}
 

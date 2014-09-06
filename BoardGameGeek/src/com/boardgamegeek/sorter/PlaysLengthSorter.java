@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,13 +6,13 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class PlaysLengthSortData extends PlaysSortData {
+public class PlaysLengthSorter extends PlaysSorter {
 	private static final String AND_MORE_SUFFIX = "+ ";
 	private final String mNoLength;
 	private final String mHoursSuffix;
 	private final String mMinutesSuffix;
 
-	public PlaysLengthSortData(Context context) {
+	public PlaysLengthSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(Plays.LENGTH, true);
 		mDescriptionId = R.string.menu_plays_sort_length;

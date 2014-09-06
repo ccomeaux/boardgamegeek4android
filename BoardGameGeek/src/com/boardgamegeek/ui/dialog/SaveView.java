@@ -21,15 +21,15 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionView;
-import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class SaveView {
 
-	public static void createDialog(final Context context, final CollectionView view, String name, final SortData sort,
+	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort,
 		final List<CollectionFilterData> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -170,7 +170,7 @@ public class SaveView {
 		});
 	}
 
-	private static void setDescription(Context context, View layout, SortData sort, List<CollectionFilterData> filters) {
+	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterData> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
 		for (CollectionFilterData filter : filters) {

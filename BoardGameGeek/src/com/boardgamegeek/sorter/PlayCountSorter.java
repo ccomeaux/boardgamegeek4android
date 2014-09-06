@@ -1,4 +1,4 @@
-package com.boardgamegeek.data.sort;
+package com.boardgamegeek.sorter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -6,8 +6,8 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public abstract class PlayCountSortData extends CollectionSortData {
-	public PlayCountSortData(Context context) {
+public abstract class PlayCountSorter extends CollectionSorter {
+	public PlayCountSorter(Context context) {
 		super(context);
 	}
 
