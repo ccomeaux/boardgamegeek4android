@@ -361,7 +361,7 @@
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
-	<string name="collection_modified">Collection modified</string>
+	<string name="last_modified">Last modified</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="price">Price</string>
 	<string name="value">Value</string>

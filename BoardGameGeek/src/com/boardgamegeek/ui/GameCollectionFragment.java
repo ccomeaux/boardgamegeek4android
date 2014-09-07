@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -37,6 +36,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -181,18 +181,17 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
+			if (!TextUtils.isEmpty(item.imageUrl)) {
+				Picasso.with(getActivity()).load(item.imageUrl).fit().centerCrop().into(holder.image);
+			}
 			holder.name.setText(item.name.trim());
+			holder.year.setText(item.getYearDescription());
+			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.rating.setText(item.getRatingDescription());
-			holder.ratingBar.setRating((float) item.rating);
-			holder.rating.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.ratingBar.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.ratingDenominator.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.unrated.setVisibility(item.hasRating() ? View.GONE : View.VISIBLE);
+			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(item.rating));
 			holder.id.setText(String.valueOf(item.id));
 			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.updated.setText(item.getUpdatedDescription());
-			holder.year.setText(item.getYearDescription());
 
 			holder.status.setText(item.getStatus());
 			holder.comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
@@ -218,21 +217,15 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.hasPartsRoot.setVisibility(TextUtils.isEmpty(item.hasParts) ? View.GONE : View.VISIBLE);
 			holder.hasPartsContent.setText(item.hasParts);
 
-			holder.thumbnail.setTag(R.id.image, item.imageUrl);
-			holder.thumbnail.setTag(R.id.name, item.name);
-			Picasso.with(context).load(item.thumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-				.centerCrop().into(holder.thumbnail);
+			holder.image.setTag(R.id.image, item.imageUrl);
+			holder.image.setTag(R.id.name, item.name);
 		}
 	}
 
 	static class ViewHolder {
-		@InjectView(R.id.thumbnail) ImageView thumbnail;
+		@InjectView(R.id.image) ImageView image;
 		@InjectView(R.id.name) TextView name;
 		@InjectView(R.id.rating) TextView rating;
-		@InjectView(R.id.rating_stars) RatingBar ratingBar;
-		@InjectView(R.id.rating_denominator) TextView ratingDenominator;
-		@InjectView(R.id.rating_unrated) TextView unrated;
 		@InjectView(R.id.collection_id) TextView id;
 		@InjectView(R.id.last_modified) TextView lastModified;
 		@InjectView(R.id.updated) TextView updated;
@@ -285,7 +278,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		int PRIVATE_INFO_ACQUIRED_FROM = 11;
 		int PRIVATE_INFO_COMMENT = 12;
 		int LAST_MODIFIED = 13;
-		int COLLECTION_THUMBNAIL_URL = 14;
+		// int COLLECTION_THUMBNAIL_URL = 14;
 		int COLLECTION_IMAGE_URL = 15;
 		int COLLECTION_YEAR_PUBLISHED = 16;
 		int CONDITION = 17;
@@ -324,7 +317,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		private String acquiredFrom;
 		private String acquisitionDate;
 		String privateComment;
-		String thumbnailUrl;
 		String imageUrl;
 		private int year;
 		String condition;
@@ -361,7 +353,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
 			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
-			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
@@ -395,7 +386,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		}
 
 		CharSequence getLastModifiedDescription() {
-			String s = r.getString(R.string.collection_modified) + ": ";
+			String s = r.getString(R.string.last_modified) + " ";
 			if (TextUtils.isEmpty(lastModifiedDateTime)) {
 				return s + DateUtils.getRelativeTimeSpanString(lastModified);
 			} else if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
@@ -411,12 +402,12 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			return r.getString(R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(updated);
 		}
 
-		boolean hasRating() {
-			return rating != 0.0;
-		}
-
 		String getRatingDescription() {
-			return new DecimalFormat("#0.00").format(rating);
+			if (rating > 0.0) {
+				return new DecimalFormat("#0.00").format(rating);
+			} else {
+				return getString(R.string.unrated);
+			}
 		}
 
 		String getYearDescription() {
