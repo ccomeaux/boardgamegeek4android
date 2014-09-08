@@ -192,7 +192,8 @@
 							android:layout_height="wrap_content"
 							android:contentDescription="@string/num_of_players"
 							android:onClick="onClick"
-							android:src="@drawable/info_users" />
+							android:src="@drawable/info_users"
+							android:tag="suggested_numplayers" />
 
 						<TextView
 							android:id="@+id/game_info_num_of_players"
@@ -221,7 +222,8 @@
 							android:layout_height="wrap_content"
 							android:contentDescription="@string/suggested_playerage"
 							android:onClick="onClick"
-							android:src="@drawable/info_user" />
+							android:src="@drawable/info_user"
+							android:tag="suggested_playerage" />
 
 						<TextView
 							android:id="@+id/game_info_suggested_ages"
@@ -245,7 +247,8 @@
 							android:layout_height="wrap_content"
 							android:contentDescription="@string/language_dependence"
 							android:onClick="onClick"
-							android:src="@drawable/info_mouth" />
+							android:src="@drawable/info_mouth"
+							android:tag="language_dependence" />
 
 						<TextView
 							style="@style/Text.InfoButton"
