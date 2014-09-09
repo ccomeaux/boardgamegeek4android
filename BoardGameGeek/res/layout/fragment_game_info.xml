@@ -25,82 +25,67 @@
 			android:background="@color/accent_light"
 			android:orientation="vertical" >
 
-			<FrameLayout
-				android:layout_width="match_parent"
-				android:layout_height="128dp"
-				android:layout_gravity="center" >
+			<FrameLayout style="@style/HeroContainer" >
 
 				<ImageView
 					android:id="@+id/game_info_image"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:scaleType="centerCrop" />
+					style="@style/HeroImage" />
 
 				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:background="#6000"
+					style="@style/HeroOverlay"
 					android:baselineAligned="false"
-					android:orientation="horizontal" >
+					android:orientation="horizontal"
+					android:padding="@dimen/padding_standard" >
 
 					<LinearLayout
 						android:layout_width="0dp"
 						android:layout_height="match_parent"
 						android:layout_weight="1"
-						android:orientation="vertical"
-						android:padding="@dimen/padding_standard" >
+						android:orientation="vertical" >
 
 						<TextView
 							android:id="@+id/game_info_name"
-							style="@style/Text.Title"
+							style="@style/Text.Title.Overlay"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:ellipsize="end"
-							android:maxLines="2"
-							android:textColor="#fff" />
+							android:maxLines="2" />
 
 						<TextView
 							android:id="@+id/game_info_year"
-							style="@style/Text"
+							style="@style/Text.Overlay"
 							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:textColor="#fff" />
+							android:layout_height="wrap_content" />
 					</LinearLayout>
 
 					<LinearLayout
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
-						android:orientation="vertical"
-						android:padding="@dimen/padding_standard" >
+						android:orientation="vertical" >
 
 						<TextView
 							android:id="@+id/game_info_rank"
-							style="@style/Text.Title"
+							style="@style/Text.Title.Overlay"
 							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:textColor="#fff" />
+							android:layout_height="wrap_content" />
 					</LinearLayout>
 				</LinearLayout>
 			</FrameLayout>
 
 			<LinearLayout
+				style="@style/InfoSectionContinued"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"
-				android:background="#fff"
 				android:gravity="center"
 				android:orientation="horizontal"
 				android:paddingTop="@dimen/padding_standard" >
 
 				<TextView
 					android:id="@+id/game_info_rating"
-					style="@style/Text.Title"
+					style="@style/RatingLarge"
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:paddingBottom="@dimen/padding_half"
-					android:paddingLeft="@dimen/padding_extra"
-					android:paddingRight="@dimen/padding_extra"
-					android:paddingTop="@dimen/padding_half" />
+					android:layout_height="wrap_content" />
 
 				<LinearLayout
 					android:layout_width="wrap_content"
@@ -122,6 +107,16 @@
 				</LinearLayout>
 			</LinearLayout>
 
+			<TextView
+				android:id="@+id/game_info_description"
+				style="@style/InfoSectionContinued"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:autoLink="web"
+				android:clickable="true"
+				android:drawableBottom="@drawable/expander_open"
+				android:maxLines="3" />
+
 			<LinearLayout
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
@@ -134,27 +129,14 @@
 					style="@style/Text.Footnote2"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:textIsSelectable="false" />
+					android:layout_weight="1" />
 
 				<TextView
 					android:id="@+id/game_info_last_updated"
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textIsSelectable="false" />
+					android:layout_height="wrap_content" />
 			</LinearLayout>
-
-			<TextView
-				android:id="@+id/game_info_description"
-				style="@style/InfoSection"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:autoLink="web"
-				android:clickable="true"
-				android:drawableBottom="@drawable/expander_open"
-				android:maxLines="3"
-				android:textIsSelectable="false" />
 
 			<TableLayout
 				android:id="@+id/game_info_panel_root"
@@ -173,8 +155,7 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
-						android:drawableLeft="@drawable/info_clock"
-						android:textIsSelectable="false" />
+						android:drawableLeft="@drawable/info_clock" />
 
 					<LinearLayout
 						android:layout_width="0dp"
@@ -197,8 +178,7 @@
 							style="@style/Text.InfoButton"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
-							android:layout_weight="1"
-							android:textIsSelectable="false" />
+							android:layout_weight="1" />
 					</LinearLayout>
 				</TableRow>
 
@@ -227,8 +207,7 @@
 							style="@style/Text.InfoButton"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
-							android:layout_weight="1"
-							android:textIsSelectable="false" />
+							android:layout_weight="1" />
 					</LinearLayout>
 
 					<LinearLayout

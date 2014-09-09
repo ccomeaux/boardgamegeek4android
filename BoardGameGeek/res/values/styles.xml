@@ -160,6 +160,12 @@
 		<item name="android:padding">@dimen/padding_standard</item>
 	</style>
 
+	<style name="InfoSectionContinued">
+		<item name="android:background">#fff</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>
@@ -177,6 +183,30 @@
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">2</item>
+	</style>
+
+	<style name="Text.Title.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">3</item>
+	</style>
+
+	<style name="Text.Footnote.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">1</item>
 	</style>
 
 	<style name="LoginFormContainer">
@@ -262,6 +292,31 @@
 		<item name="android:layout_height">match_parent</item>
 		<item name="android:divider">?android:dividerHorizontal</item>
 		<item name="android:orientation">vertical</item>
+	</style>
+
+	<style name="HeroContainer">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">128dp</item>
+		<item name="android:layout_gravity">center</item>
+	</style>
+
+	<style name="HeroImage">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:scaleType">centerCrop</item>
+	</style>
+
+	<style name="HeroOverlay">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:background">#6000</item>
+	</style>
+
+	<style name="RatingLarge" parent="@style/Text.Title">
+		<item name="android:paddingBottom">@dimen/padding_half</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingTop">@dimen/padding_half</item>
 	</style>
 
 </resources>

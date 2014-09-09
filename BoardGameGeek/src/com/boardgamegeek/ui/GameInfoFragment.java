@@ -187,6 +187,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	}
 
 	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		ButterKnife.reset(this);
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
@@ -658,8 +664,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 
 		private String getRankDescription() {
-			if (Rank == 0) {
-				return getString(R.string.text_not_available);
+			if (Rank == 0 || Rank == Integer.MAX_VALUE) {
+				return "";
 			} else {
 				return "#" + Rank;
 			}
