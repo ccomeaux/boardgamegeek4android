@@ -309,7 +309,7 @@
 	<style name="HeroOverlay">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">match_parent</item>
-		<item name="android:background">#6000</item>
+		<item name="android:background">@color/black_overlay</item>
 	</style>
 
 	<style name="RatingLarge" parent="@style/Text.Title">

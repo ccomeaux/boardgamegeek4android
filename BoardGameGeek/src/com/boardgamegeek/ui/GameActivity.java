@@ -357,11 +357,7 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		String imageUrl = (String) v.getTag(R.id.image);
 		if (!TextUtils.isEmpty(imageUrl)) {
 			final Intent intent = new Intent(this, ImageActivity.class);
-			intent.setAction(Intent.ACTION_VIEW);
 			intent.putExtra(ImageActivity.KEY_IMAGE_URL, imageUrl);
-			intent.putExtra(ImageActivity.KEY_GAME_ID, mGameId);
-			intent.putExtra(ImageActivity.KEY_GAME_NAME, mGameName);
-			intent.putExtra(ImageActivity.KEY_TITLE, (String) v.getTag(R.id.name));
 			startActivity(intent);
 		}
 	}

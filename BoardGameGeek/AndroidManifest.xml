@@ -84,11 +84,8 @@
 		</activity>
 		<activity
 			android:name=".ui.ImageActivity"
-			android:label="@string/title_image" >
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity" />
-		</activity>
+			android:label="@string/title_image"
+			android:theme="@style/android:Theme.NoTitleBar" />
 		<activity
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail" />
