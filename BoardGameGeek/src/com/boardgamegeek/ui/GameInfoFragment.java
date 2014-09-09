@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.ButterKnife.Setter;
@@ -50,6 +49,7 @@ import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
@@ -69,12 +69,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
 	@InjectView(R.id.game_info_progress) View mProgressView;
-	@InjectView(R.id.game_info_thumbnail) ImageView mThumbnailView;
+	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
-	@InjectView(R.id.game_info_rating_unrated) TextView mUnratedView;
-	@InjectView(R.id.game_info_rating_stars) RatingBar mRatingBar;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
-	@InjectView(R.id.game_info_rating_denominator) TextView mRatingDenomView;
 	@InjectView(R.id.game_info_rating_count) TextView mNumberRatingView;
 	@InjectView(R.id.game_info_id) TextView mIdView;
 	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
@@ -319,23 +316,19 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mImageUrl = game.ImageUrl;
 		mCallbacks.onGameInfoChanged(mGameName, game.ThumbnailUrl, mImageUrl, game.CustomPlayerSort);
 
-		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
-		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
-
+		Picasso.with(getActivity()).load(game.ImageUrl).fit().centerCrop().into(mImageView);
 		mNameView.setText(game.Name);
-		formatRating(game);
+		mRankView.setText(game.getRankDescription());
+		mYearPublishedView.setText(game.getYearPublished());
+		mRatingView.setText(game.getRatingDescription());
+		ColorUtils.setTextViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
+		mNumberRatingView.setText(mFormat.format(game.UsersRated));
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
-		mRankView.setText(game.getRankDescription());
-		mYearPublishedView.setText(game.getYearPublished());
 		mPlayingTimeView.setText(game.getPlayingTimeDescription());
 		mPlayersView.setText(game.getPlayerRangeDescription());
 		mSuggestedAgesView.setText(game.getAgeDescription());
-
-		Picasso.with(getActivity()).load(game.ThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-			.centerCrop().into(mThumbnailView);
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -362,6 +355,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
+		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
+		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
+
 		if (mMightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
@@ -377,19 +373,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			view.setVisibility(View.VISIBLE);
 			view.bind(cursor, nameColumnIndex, Games.getGameId(mGameUri), mGameName);
 		}
-	}
-
-	private void formatRating(Game game) {
-		mRatingBar.setRating(game.Rating);
-		mRatingView.setText(game.getRatingDescription());
-		mNumberRatingView.setText(String.valueOf(game.UsersRated));
-
-		mRatingBar.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingDenomView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingsCount.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mNumberRatingView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mUnratedView.setVisibility(game.UsersRated == 0 ? View.VISIBLE : View.GONE);
 	}
 
 	private void onRankQueryComplete(Cursor cursor) {
@@ -443,7 +426,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 	};
 
-	@OnClick(R.id.game_info_thumbnail)
+	@OnClick(R.id.game_info_image)
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
@@ -678,7 +661,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			if (Rank == 0) {
 				return getString(R.string.text_not_available);
 			} else {
-				return String.valueOf(Rank);
+				return "#" + Rank;
 			}
 		}
 

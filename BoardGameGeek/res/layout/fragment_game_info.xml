@@ -25,93 +25,116 @@
 			android:background="@color/accent_light"
 			android:orientation="vertical" >
 
-			<RelativeLayout
-				android:id="@+id/game_info_header_root"
-				style="@style/InfoSection"
+			<FrameLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content" >
+				android:layout_height="128dp"
+				android:layout_gravity="center" >
 
 				<ImageView
-					android:id="@+id/game_info_thumbnail"
-					android:layout_width="@dimen/thumbnail_size"
-					android:layout_height="@dimen/thumbnail_size"
-					android:layout_alignParentLeft="true"
-					android:layout_alignParentTop="true"
-					android:layout_marginBottom="@dimen/padding_standard"
-					android:layout_marginRight="@dimen/padding_standard"
-					android:clickable="true"
-					android:contentDescription="@string/thumbnail"
-					android:focusable="true"
-					android:scaleType="centerCrop"
-					android:src="@drawable/thumbnail_image_empty" />
-
-				<TextView
-					android:id="@+id/game_info_name"
-					style="@style/Text.Title"
+					android:id="@+id/game_info_image"
 					android:layout_width="match_parent"
-					android:layout_height="0dp"
-					android:layout_alignBottom="@+id/game_info_thumbnail"
-					android:layout_alignTop="@+id/game_info_thumbnail"
-					android:layout_toRightOf="@+id/game_info_thumbnail"
-					android:ellipsize="end"
-					android:gravity="center_vertical"
-					android:maxLines="2"
-					android:textIsSelectable="false" />
+					android:layout_height="match_parent"
+					android:scaleType="centerCrop" />
 
-				<TextView
-					android:id="@+id/game_info_rating_unrated"
-					style="@style/Text.Footnote"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_alignParentLeft="true"
-					android:layout_below="@+id/game_info_thumbnail"
-					android:text="@string/unrated" />
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:background="#6000"
+					android:baselineAligned="false"
+					android:orientation="horizontal" >
 
-				<RatingBar
-					android:id="@+id/game_info_rating_stars"
-					style="?android:attr/ratingBarStyleSmall"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_alignParentLeft="true"
-					android:layout_below="@+id/game_info_thumbnail"
-					android:isIndicator="true"
-					android:numStars="10"
-					android:stepSize="0.01" />
+					<LinearLayout
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
+						android:orientation="vertical"
+						android:padding="@dimen/padding_standard" >
+
+						<TextView
+							android:id="@+id/game_info_name"
+							style="@style/Text.Title"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:ellipsize="end"
+							android:maxLines="2"
+							android:textColor="#fff" />
+
+						<TextView
+							android:id="@+id/game_info_year"
+							style="@style/Text"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textColor="#fff" />
+					</LinearLayout>
+
+					<LinearLayout
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:orientation="vertical"
+						android:padding="@dimen/padding_standard" >
+
+						<TextView
+							android:id="@+id/game_info_rank"
+							style="@style/Text.Title"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textColor="#fff" />
+					</LinearLayout>
+				</LinearLayout>
+			</FrameLayout>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:background="#fff"
+				android:gravity="center"
+				android:orientation="horizontal"
+				android:paddingTop="@dimen/padding_standard" >
 
 				<TextView
 					android:id="@+id/game_info_rating"
-					style="@style/Text.Footnote"
+					style="@style/Text.Title"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_alignParentLeft="true"
-					android:layout_below="@+id/game_info_rating_stars"
-					android:textIsSelectable="false" />
+					android:paddingBottom="@dimen/padding_half"
+					android:paddingLeft="@dimen/padding_extra"
+					android:paddingRight="@dimen/padding_extra"
+					android:paddingTop="@dimen/padding_half" />
 
-				<TextView
-					android:id="@+id/game_info_rating_denominator"
-					style="@style/Text.Footnote2"
+				<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_alignBaseline="@+id/game_info_rating"
-					android:layout_toRightOf="@+id/game_info_rating"
-					android:text="@string/rating_denominator" />
+					android:orientation="vertical"
+					android:padding="@dimen/padding_standard" >
 
-				<TextView
-					android:id="@+id/game_info_rating_count"
-					style="@style/Text.Footnote2"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_alignBaseline="@+id/game_info_rating"
-					android:layout_alignRight="@+id/game_info_rating_stars"
-					android:textIsSelectable="false" />
+					<TextView
+						android:id="@+id/game_info_rating_count"
+						style="@style/Text"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content" />
+
+					<TextView
+						style="@style/Text.Secondary"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/votes" />
+				</LinearLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				style="@style/InfoSection"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:orientation="horizontal" >
 
 				<TextView
 					android:id="@+id/game_info_id"
 					style="@style/Text.Footnote2"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_alignParentRight="true"
-					android:layout_below="@+id/game_info_thumbnail"
+					android:layout_weight="1"
 					android:textIsSelectable="false" />
 
 				<TextView
@@ -119,10 +142,8 @@
 					style="@style/Text.Footnote2"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_alignParentRight="true"
-					android:layout_below="@+id/game_info_id"
 					android:textIsSelectable="false" />
-			</RelativeLayout>
+			</LinearLayout>
 
 			<TextView
 				android:id="@+id/game_info_description"
@@ -141,30 +162,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="vertical" >
-
-				<TableRow
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content" >
-
-					<TextView
-						android:id="@+id/game_info_rank"
-						style="@style/Text.Info.Table"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:drawableLeft="@drawable/info_trophy"
-						android:textIsSelectable="false"
-						android:textStyle="bold" />
-
-					<TextView
-						android:id="@+id/game_info_year"
-						style="@style/Text.Info.Table"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:drawableLeft="@drawable/info_calendar"
-						android:textIsSelectable="false" />
-				</TableRow>
 
 				<TableRow
 					android:layout_width="match_parent"

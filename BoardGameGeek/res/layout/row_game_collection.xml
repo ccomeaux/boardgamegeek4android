@@ -8,8 +8,7 @@
 	<FrameLayout
 		android:layout_width="match_parent"
 		android:layout_height="128dp"
-		android:layout_gravity="center"
-		android:background="@color/background_light" >
+		android:layout_gravity="center" >
 
 		<ImageView
 			android:id="@+id/image"
