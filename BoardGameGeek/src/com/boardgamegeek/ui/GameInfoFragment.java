@@ -114,15 +114,23 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private boolean mMightNeedRefreshing;
 
+	static class GameInfo {
+		String gameName;
+		String subtype;
+		String thumbnailUrl;
+		String imageUrl;
+		boolean customPlayerSort;
+	}
+
 	public interface Callbacks {
-		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort);
+		public void onGameInfoChanged(GameInfo gameInfo);
 
 		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
+		public void onGameInfoChanged(GameInfo gameInfo) {
 		}
 
 		@Override
@@ -318,9 +326,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		Game game = new Game(cursor);
 
+		notifyChange(game);
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
-		mCallbacks.onGameInfoChanged(mGameName, game.ThumbnailUrl, mImageUrl, game.CustomPlayerSort);
 
 		Picasso.with(getActivity()).load(game.ImageUrl).fit().centerCrop().into(mImageView);
 		mNameView.setText(game.Name);
@@ -369,6 +377,16 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			triggerRefresh();
 		}
 		mMightNeedRefreshing = false;
+	}
+
+	private void notifyChange(Game game) {
+		GameInfo gameInfo = new GameInfo();
+		gameInfo.gameName = game.Name;
+		gameInfo.subtype = game.Subtype;
+		gameInfo.thumbnailUrl = game.ThumbnailUrl;
+		gameInfo.imageUrl = game.ImageUrl;
+		gameInfo.customPlayerSort = game.CustomPlayerSort;
+		mCallbacks.onGameInfoChanged(gameInfo);
 	}
 
 	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex) {

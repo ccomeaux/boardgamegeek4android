@@ -18,38 +18,29 @@ import com.boardgamegeek.util.StringUtils;
 public class Game {
 	@Root(name = "name")
 	static class Name {
-		@Attribute
-		private String type;
+		@Attribute private String type;
 
-		@Attribute
-		private int sortindex;
+		@Attribute private int sortindex;
 
-		@Attribute
-		private String value;
+		@Attribute private String value;
 	}
 
 	@Root(name = "poll")
 	public static class Poll {
-		@Attribute
-		public String name;
+		@Attribute public String name;
 
-		@Attribute
-		public String title;
+		@Attribute public String title;
 
-		@Attribute
-		public int totalvotes;
+		@Attribute public int totalvotes;
 
-		@ElementList(required = false, inline = true, empty = false)
-		public List<Results> results;
+		@ElementList(required = false, inline = true, empty = false) public List<Results> results;
 	}
 
 	@Root(name = "results")
 	public static class Results {
-		@Attribute(required = false)
-		private String numplayers;
+		@Attribute(required = false) private String numplayers;
 
-		@ElementList(required = false, inline = true, empty = false)
-		public List<Result> result;
+		@ElementList(required = false, inline = true, empty = false) public List<Result> result;
 
 		public String getKey() {
 			if (TextUtils.isEmpty(numplayers)) {
@@ -61,28 +52,21 @@ public class Game {
 
 	@Root(name = "result")
 	public static class Result {
-		@Attribute(required = false)
-		public int level;
+		@Attribute(required = false) public int level;
 
-		@Attribute
-		public String value;
+		@Attribute public String value;
 
-		@Attribute
-		public int numvotes;
+		@Attribute public int numvotes;
 	}
 
 	public static class Link {
-		@Attribute
-		private String type;
+		@Attribute private String type;
 
-		@Attribute
-		public int id;
+		@Attribute public int id;
 
-		@Attribute
-		public String value;
+		@Attribute public String value;
 
-		@Attribute(required = false)
-		private String inbound;
+		@Attribute(required = false) private String inbound;
 
 		public boolean getInbound() {
 			return "true".equals(inbound);
@@ -91,26 +75,20 @@ public class Game {
 
 	@Root(name = "rank")
 	public static class Rank {
-		@Attribute
-		public String type;
+		@Attribute public String type;
 
-		@Attribute
-		public int id;
+		@Attribute public int id;
 
-		@Attribute
-		public String name;
+		@Attribute public String name;
 
-		@Attribute(name = "friendlyname")
-		public String friendlyName;
+		@Attribute(name = "friendlyname") public String friendlyName;
 
-		@Attribute
-		private String value;
+		@Attribute private String value;
 
-		@Attribute
-		private String bayesaverage;
+		@Attribute private String bayesaverage;
 
 		public int getValue() {
-			return StringUtils.parseInt(value);
+			return StringUtils.parseInt(value, Integer.MAX_VALUE);
 		}
 
 		public double getBayesAverage() {
@@ -119,104 +97,77 @@ public class Game {
 	}
 
 	public static class Statistics {
-		@Attribute
-		private int page;
+		@Attribute private int page;
 
-		@Path("ratings/usersrated")
-		@Attribute(name = "value")
-		private String usersRated;
+		@Path("ratings/usersrated") @Attribute(name = "value") private String usersRated;
 
 		public int usersRated() {
 			return StringUtils.parseInt(usersRated);
 		}
 
-		@Path("ratings/average")
-		@Attribute(name = "value")
-		private String average;
+		@Path("ratings/average") @Attribute(name = "value") private String average;
 
 		public double average() {
 			return StringUtils.parseDouble(average);
 		}
 
-		@Path("ratings/bayesaverage")
-		@Attribute(name = "value")
-		private String bayesAverage;
+		@Path("ratings/bayesaverage") @Attribute(name = "value") private String bayesAverage;
 
 		public double bayesAverage() {
 			return StringUtils.parseDouble(bayesAverage);
 		}
 
-		@Path("ratings")
-		@ElementList
-		public List<Rank> ranks;
+		@Path("ratings") @ElementList public List<Rank> ranks;
 
-		@Path("ratings/stddev")
-		@Attribute(name = "value")
-		private String standardDeviation;
+		@Path("ratings/stddev") @Attribute(name = "value") private String standardDeviation;
 
 		public double standardDeviation() {
 			return StringUtils.parseDouble(standardDeviation);
 		}
 
-		@Path("ratings/median")
-		@Attribute(name = "value")
-		private String median;
+		@Path("ratings/median") @Attribute(name = "value") private String median;
 
 		public double median() {
 			return StringUtils.parseDouble(median);
 		}
 
-		@Path("ratings/owned")
-		@Attribute(name = "value")
-		private String owned;
+		@Path("ratings/owned") @Attribute(name = "value") private String owned;
 
 		public int owned() {
 			return StringUtils.parseInt(owned);
 		}
 
-		@Path("ratings/trading")
-		@Attribute(name = "value")
-		private String trading;
+		@Path("ratings/trading") @Attribute(name = "value") private String trading;
 
 		public int trading() {
 			return StringUtils.parseInt(trading);
 		}
 
-		@Path("ratings/wanting")
-		@Attribute(name = "value")
-		private String wanting;
+		@Path("ratings/wanting") @Attribute(name = "value") private String wanting;
 
 		public int wanting() {
 			return StringUtils.parseInt(wanting);
 		}
 
-		@Path("ratings/wishing")
-		@Attribute(name = "value")
-		private String wishing;
+		@Path("ratings/wishing") @Attribute(name = "value") private String wishing;
 
 		public int wishing() {
 			return StringUtils.parseInt(wishing);
 		}
 
-		@Path("ratings/numcomments")
-		@Attribute(name = "value")
-		private String commenting;
+		@Path("ratings/numcomments") @Attribute(name = "value") private String commenting;
 
 		public int commenting() {
 			return StringUtils.parseInt(commenting);
 		}
 
-		@Path("ratings/numweights")
-		@Attribute(name = "value")
-		private String weighting;
+		@Path("ratings/numweights") @Attribute(name = "value") private String weighting;
 
 		public int weighting() {
 			return StringUtils.parseInt(weighting);
 		}
 
-		@Path("ratings/averageweight")
-		@Attribute(name = "value")
-		private String averageWeight;
+		@Path("ratings/averageweight") @Attribute(name = "value") private String averageWeight;
 
 		public double averageWeight() {
 			return StringUtils.parseDouble(averageWeight);
@@ -227,11 +178,9 @@ public class Game {
 	public static class Comment {
 		private static final DecimalFormat RATING_FORMAT = new DecimalFormat("#0.00");
 
-		@Attribute
-		public String username;
+		@Attribute public String username;
 
-		@Attribute
-		private String rating;
+		@Attribute private String rating;
 
 		public double getRating() {
 			return StringUtils.parseDouble(rating, 0.0);
@@ -245,73 +194,49 @@ public class Game {
 			return RATING_FORMAT.format(rating);
 		}
 
-		@Attribute
-		public String value;
+		@Attribute public String value;
 	}
 
-	@Attribute
-	private String type;
+	@Attribute private String type;
 
 	public String subtype() {
 		return type;
 	}
 
-	@Attribute
-	public int id;
+	@Attribute public int id;
 
-	@Element(required = false)
-	public String thumbnail;
+	@Element(required = false) public String thumbnail;
 
-	@Element(required = false)
-	public String image;
+	@Element(required = false) public String image;
 
-	@ElementList(inline = true)
-	private List<Name> names;
+	@ElementList(inline = true) private List<Name> names;
 
-	@Element
-	private String description;
+	@Element private String description;
 
-	@Path("yearpublished")
-	@Attribute(name = "value")
-	public int yearPublished;
+	@Path("yearpublished") @Attribute(name = "value") public int yearPublished;
 
-	@Path("minplayers")
-	@Attribute(name = "value")
-	public int minPlayers;
+	@Path("minplayers") @Attribute(name = "value") public int minPlayers;
 
-	@Path("maxplayers")
-	@Attribute(name = "value")
-	public int maxPlayers;
+	@Path("maxplayers") @Attribute(name = "value") public int maxPlayers;
 
-	@ElementList(inline = true, required = false)
-	public List<Poll> polls;
+	@ElementList(inline = true, required = false) public List<Poll> polls;
 
-	@Path("playingtime")
-	@Attribute(name = "value")
-	public int playingTime;
+	@Path("playingtime") @Attribute(name = "value") public int playingTime;
 
-	@Path("minage")
-	@Attribute(name = "value")
-	public int minAge;
+	@Path("minage") @Attribute(name = "value") public int minAge;
 
-	@ElementList(inline = true)
-	private List<Link> links;
+	@ElementList(inline = true) private List<Link> links;
 
-	@Element(name = "statistics", required = false)
-	public Statistics statistics;
+	@Element(name = "statistics", required = false) public Statistics statistics;
 
-	@Element(required = false)
-	public Comments comments;
+	@Element(required = false) public Comments comments;
 
 	public static class Comments {
-		@Attribute
-		public int page;
+		@Attribute public int page;
 
-		@Attribute
-		public int totalitems;
+		@Attribute public int totalitems;
 
-		@ElementList(inline = true)
-		public List<Comment> comments;
+		@ElementList(inline = true) public List<Comment> comments;
 	}
 
 	public String getName() {

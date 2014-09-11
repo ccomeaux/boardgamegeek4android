@@ -121,6 +121,9 @@
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
 	<string name="title_game">Game</string>
+	<string name="title_board_game">Board Game</string>
+	<string name="title_board_game_expansion">Board Game Expansion</string>
+	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>

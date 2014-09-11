@@ -27,8 +27,10 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.GameInfoFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -265,11 +267,12 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	}
 
 	@Override
-	public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
-		changeName(gameName);
-		mThumbnailUrl = thumbnailUrl;
-		mImageUrl = imageUrl;
-		mCustomPlayerSort = customPlayerSort;
+	public void onGameInfoChanged(GameInfo gameInfo) {
+		changeName(gameInfo.gameName);
+		changeSubtype(gameInfo.subtype);
+		mThumbnailUrl = gameInfo.thumbnailUrl;
+		mImageUrl = gameInfo.imageUrl;
+		mCustomPlayerSort = gameInfo.customPlayerSort;
 	}
 
 	@Override
@@ -281,8 +284,20 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(KEY_GAME_NAME, gameName);
-			getSupportActionBar().setSubtitle(gameName);
+			getSupportActionBar().setTitle(gameName);
 		}
+	}
+
+	private void changeSubtype(String subtype) {
+		int resId = R.string.title_game;
+		if (BggService.THING_SUBTYPE_BOARDGAME.equals(subtype)) {
+			resId = R.string.title_board_game;
+		} else if (BggService.THING_SUBTYPE_BOARDGAME_EXPANSION.equals(subtype)) {
+			resId = R.string.title_board_game_expansion;
+		} else if (BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY.equals(subtype)) {
+			resId = R.string.title_board_game_accessory;
+		}
+		getSupportActionBar().setSubtitle(getString(resId));
 	}
 
 	private void updateRefreshStatus(boolean refreshing) {
