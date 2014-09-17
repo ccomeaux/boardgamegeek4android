@@ -26,14 +26,28 @@ public abstract class PagedDrawerActivity extends DrawerActivity implements Acti
 
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		for (int text : getTabTextResIds()) {
-			actionBar.addTab(actionBar.newTab().setText(text).setTabListener(this));
-		}
+		setupActionBarTabs(actionBar);
 	}
 
 	protected abstract PagerAdapter getAdapter(FragmentManager fm);
 
-	protected abstract int[] getTabTextResIds();
+	protected void setupActionBarTabs(ActionBar actionBar) {
+		int[] tabTextResIds = getTabTextResIds();
+		if (tabTextResIds != null) {
+			for (int textId : tabTextResIds) {
+				createTab(actionBar, textId);
+			}
+		}
+	}
+
+	protected int[] getTabTextResIds() {
+		return null;
+	}
+
+	protected void createTab(ActionBar actionBar, int textId) {
+		Tab tab = actionBar.newTab().setText(textId).setTabListener(this);
+		actionBar.addTab(tab);
+	}
 
 	@Override
 	public void onPageScrollStateChanged(int state) {
@@ -61,4 +75,18 @@ public abstract class PagedDrawerActivity extends DrawerActivity implements Acti
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
 
+	protected void changeTab(final int item) {
+		mViewPager.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				// HACK prevent a blank fragment if this page is already selected
+				mViewPager.setCurrentItem(item);
+			}
+		}, 100);
+	}
+
+	protected void updateTabs() {
+		mViewPager.getAdapter().notifyDataSetChanged();
+		setupActionBarTabs(getSupportActionBar());
+	}
 }
