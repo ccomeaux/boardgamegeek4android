@@ -1,6 +1,11 @@
 package com.boardgamegeek.ui;
 
+import java.util.ArrayList;
+
 import android.app.AlertDialog;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderOperation.Builder;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,6 +28,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ResolverUtils;
 
 public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
@@ -99,10 +105,9 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 
 	public void showDialog(final String oldLocation) {
 		final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.dialog_edit_location, (ViewGroup) findViewById(R.id.root_container),
-			false);
+		View view = inflater.inflate(R.layout.dialog_edit_text, (ViewGroup) findViewById(R.id.root_container), false);
 
-		final EditText editText = (EditText) view.findViewById(R.id.edit_location);
+		final EditText editText = (EditText) view.findViewById(R.id.edit_text);
 		if (!TextUtils.isEmpty(oldLocation)) {
 			editText.setText(oldLocation);
 			editText.setSelection(0, oldLocation.length());
@@ -115,7 +120,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						String newLocation = editText.getText().toString();
-						new Task().execute(newLocation);
+						new Task().execute(oldLocation, newLocation);
 					}
 				}).create();
 			mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -129,17 +134,34 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 
 		@Override
 		protected String doInBackground(String... params) {
-			String newLocation = params[0];
+			String oldLocation = params[0];
+			String newLocation = params[1];
+			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 
-			ContentValues values = new ContentValues(2);
+			ContentValues values = new ContentValues();
 			values.put(Plays.LOCATION, newLocation);
+			Builder cpo = ContentProviderOperation
+				.newUpdate(Plays.CONTENT_URI)
+				.withValues(values)
+				.withSelection(
+					Plays.LOCATION + "=? AND (" + Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?)",
+					new String[] { oldLocation, String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
+						String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) });
+			batch.add(cpo.build());
+
 			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-			int count = getContentResolver().update(Plays.CONTENT_URI, values, Plays.LOCATION + "=?",
-				new String[] { mLocationName });
+			cpo = ContentProviderOperation
+				.newUpdate(Plays.CONTENT_URI)
+				.withValues(values)
+				.withSelection(Plays.LOCATION + "=? AND " + Plays.SYNC_STATUS + "=?",
+					new String[] { oldLocation, String.valueOf(Play.SYNC_STATUS_SYNCED) });
+			batch.add(cpo.build());
+
+			ContentProviderResult[] res = ResolverUtils.applyBatch(LocationActivity.this, batch);
 
 			String result = null;
-			if (count > 0) {
-				result = getString(R.string.msg_play_location_change, count, mLocationName, newLocation);
+			if (res.length > 0) {
+				result = getString(R.string.msg_play_location_change, res.length, oldLocation, newLocation);
 				SyncService.sync(LocationActivity.this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 			} else {
 				result = getString(R.string.msg_play_location_change);
