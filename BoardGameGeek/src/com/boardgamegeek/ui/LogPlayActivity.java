@@ -648,6 +648,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
 								triggerUpload();
+								NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
 							}
 							setResult(RESULT_CANCELED);
 							finish();
