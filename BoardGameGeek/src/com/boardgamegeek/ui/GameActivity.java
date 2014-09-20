@@ -13,16 +13,14 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.view.ViewPager;
+import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -36,8 +34,8 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class GameActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
-	GameInfoFragment.Callbacks, PlaysFragment.Callbacks, OnSharedPreferenceChangeListener {
+public class GameActivity extends PagedDrawerActivity implements GameInfoFragment.Callbacks, PlaysFragment.Callbacks,
+	OnSharedPreferenceChangeListener {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
@@ -48,7 +46,6 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	private String mThumbnailUrl;
 	private String mImageUrl;
 	private boolean mCustomPlayerSort;
-	private ViewPager mViewPager;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
 
@@ -79,18 +76,18 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
 		}
 
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(new GamePagerAdapter(getSupportFragmentManager()));
-		mViewPager.setOnPageChangeListener(this);
-		mViewPager.setPageMarginDrawable(R.drawable.grey_border_inset_lr);
-		mViewPager.setPageMargin(getResources().getDimensionPixelSize(R.dimen.page_margin_width));
-
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		setupActionBarTabs(actionBar);
 	}
 
-	private void setupActionBarTabs(final ActionBar actionBar) {
+	@Override
+	protected PagerAdapter getAdapter(FragmentManager fm) {
+		return new GamePagerAdapter(fm);
+	}
+
+	@Override
+	protected void setupActionBarTabs(ActionBar actionBar) {
 		actionBar.removeAllTabs();
 		createTab(actionBar, R.string.title_info);
 		if (showCollection()) {
@@ -102,11 +99,6 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 		}
 		createTab(actionBar, R.string.title_forums);
 		createTab(actionBar, R.string.title_comments);
-	}
-
-	private void createTab(final ActionBar actionBar, int textId) {
-		Tab tab = actionBar.newTab().setText(textId).setTabListener(this);
-		actionBar.addTab(tab);
 	}
 
 	@Override
@@ -179,44 +171,12 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
-			mViewPager.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					// HACK prevent a blank fragment if this page is already selected
-					mViewPager.setCurrentItem((showCollection() ? 1 : 0) + 1);
-				}
-			}, 100);
+			changeTab((showCollection() ? 1 : 0) + 1);
 		}
 	}
 
 	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
 		return activity.getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
-	}
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		mViewPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-	}
-
-	@Override
-	public void onPageScrollStateChanged(int state) {
-	}
-
-	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-	}
-
-	@Override
-	public void onPageSelected(int position) {
-		getSupportActionBar().setSelectedNavigationItem(position);
 	}
 
 	private class GamePagerAdapter extends FragmentPagerAdapter {
@@ -403,10 +363,5 @@ public class GameActivity extends DrawerActivity implements ActionBar.TabListene
 	protected void onSignInSuccess() {
 		super.onSignInSuccess();
 		updateTabs();
-	}
-
-	private void updateTabs() {
-		mViewPager.getAdapter().notifyDataSetChanged();
-		setupActionBarTabs(getSupportActionBar());
 	}
 }

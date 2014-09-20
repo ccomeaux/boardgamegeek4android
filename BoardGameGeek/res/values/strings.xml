@@ -147,6 +147,8 @@
 	<string name="title_publisher">Publisher</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
+	<string name="title_edit_location">Edit Location</string>
+	<string name="title_edit_player">Edit Player</string>
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
@@ -282,6 +284,9 @@
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_play_location_change">Changed %1$s plays from \"%2$s\" to \"%3$s\"</string>
+	<string name="msg_play_location_change_none">No locations to change.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>

@@ -332,15 +332,18 @@ public class SyncPlaysUpload extends SyncTask {
 	private void notifyUser(CharSequence message) {
 		mMessages.add(message);
 
-		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(message);
+		NotificationCompat.Builder builder = createNotificationBuilder();
 
 		if (mMessages.size() == 1) {
+			builder.setContentText(message);
 			NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 			detail.bigText(message);
 		} else {
+			String summary = String.format(mContext.getString(R.string.sync_notification_upload_summary),
+				mMessages.size());
+			builder.setContentText(summary);
 			NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
-			detail.setSummaryText(String.format(mContext.getString(R.string.sync_notification_upload_summary),
-				mMessages.size()));
+			detail.setSummaryText(summary);
 			for (int i = mMessages.size() - 1; i >= 0; i--) {
 				detail.addLine(mMessages.get(i));
 			}

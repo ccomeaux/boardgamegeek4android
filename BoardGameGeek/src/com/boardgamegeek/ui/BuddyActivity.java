@@ -8,13 +8,10 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
+import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
@@ -24,22 +21,19 @@ import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class BuddyActivity extends DrawerActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener,
-	BuddyFragment.Callbacks, BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
-
-	private ViewPager mViewPager;
+public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.Callbacks,
+	BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
+	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection,
+		R.string.title_plays };
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
-	private String mName;
 	private BuddyFragment mBuddyFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-		mName = getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		getSupportActionBar().setSubtitle(mName);
+		getSupportActionBar().setSubtitle(getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME));
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
@@ -47,18 +41,16 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
 			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
 		}
+	}
 
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(new BuddyPagerAdapter(getSupportFragmentManager()));
-		mViewPager.setOnPageChangeListener(this);
-		mViewPager.setPageMarginDrawable(R.drawable.grey_border_inset_lr);
-		mViewPager.setPageMargin(getResources().getDimensionPixelSize(R.dimen.page_margin_width));
+	@Override
+	protected PagerAdapter getAdapter(FragmentManager fm) {
+		return new BuddyPagerAdapter(fm);
+	}
 
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_info).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_collection).setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText(R.string.title_plays).setTabListener(this));
+	@Override
+	protected int[] getTabTextResIds() {
+		return TAB_TEXT_RES_IDS;
 	}
 
 	@Override
@@ -89,32 +81,6 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onPageScrollStateChanged(int state) {
-	}
-
-	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-	}
-
-	@Override
-	public void onPageSelected(int position) {
-		getSupportActionBar().setSelectedNavigationItem(position);
-	}
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		mViewPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
 
 	private class BuddyPagerAdapter extends FragmentPagerAdapter {
@@ -148,7 +114,7 @@ public class BuddyActivity extends DrawerActivity implements ActionBar.TabListen
 
 		@Override
 		public int getCount() {
-			return 3;
+			return TAB_TEXT_RES_IDS.length;
 		}
 	}
 
