@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.accounts.Account;
@@ -12,6 +13,7 @@ import android.content.Context;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
@@ -37,44 +39,60 @@ public class SyncGameCollection extends UpdateTask {
 			return;
 		}
 
+		List<CollectionItem> items = request(context, account);
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
+		persister.save(items);
+		LOGI(TAG, "Synced " + items.size() + " collection item(s) for game ID=" + mGameId);
+
+		int deleteCount = persister.delete(items, mGameId);
+		LOGI(TAG, "Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
+	}
+
+	protected List<CollectionItem> request(Context context, Account account) {
+		// Only one of these requests will return results
 		BggService service = Adapter.createWithAuth(context);
 
 		Map<String, String> options = new HashMap<String, String>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));
-		if (requestAndPersist(account, persister, service, options)) {
-			return;
+		List<CollectionItem> items;
+
+		items = requestItems(account, service, options);
+		if (items != null) {
+			return items;
 		}
 
 		options.put(STATUS_PLAYED, "1");
-		if (requestAndPersist(account, persister, service, options)) {
-			return;
+		items = requestItems(account, service, options);
+		if (items != null) {
+			return items;
 		}
 
 		options.remove(STATUS_PLAYED);
 		options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-		if (requestAndPersist(account, persister, service, options)) {
-			return;
+		items = requestItems(account, service, options);
+		if (items != null) {
+			return items;
 		}
 
 		options.put(STATUS_PLAYED, "1");
-		if (requestAndPersist(account, persister, service, options)) {
-			return;
+		items = requestItems(account, service, options);
+		if (items != null) {
+			return items;
 		}
+
+		LOGI(TAG, "No collection items for game ID=" + mGameId);
+		return null;
 	}
 
-	private boolean requestAndPersist(Account account, CollectionPersister persister, BggService service,
-		Map<String, String> options) {
+	private List<CollectionItem> requestItems(Account account, BggService service, Map<String, String> options) {
 		CollectionResponse response = getCollectionResponse(service, account.name, options);
 		if (response == null || response.items == null || response.items.size() == 0) {
-			LOGI(TAG, "No collection items for game ID=" + mGameId);
-			return false;
+			LOGI(TAG, "No collection items for game ID=" + mGameId + " with options=" + options);
+			return null;
 		} else {
-			persister.save(response.items);
-			LOGI(TAG, "Synced " + response.items.size() + " collection item(s) for game ID=" + mGameId);
-			return true;
+			return response.items;
 		}
 	}
 }
