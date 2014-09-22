@@ -554,6 +554,10 @@ public class BggContract {
 		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
+	public static Uri buildBasicUri(String path, long id) {
+		return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
+	}
+
 	public static boolean isUri(Uri uri, String path) {
 		if (uri == null || TextUtils.isEmpty(path)) {
 			return false;
