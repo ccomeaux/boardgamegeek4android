@@ -190,6 +190,38 @@ public class ResolverUtils {
 	}
 
 	/*
+	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 */
+	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName) {
+		return queryLongs(resolver, uri, columnName, null, null);
+	}
+
+	/*
+	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 */
+	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
+		String[] selectionArgs) {
+		return queryLongs(resolver, uri, columnName, selection, selectionArgs, null);
+	}
+
+	/*
+	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 */
+	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
+		String[] selectionArgs, String sortOrder) {
+		List<Long> list = new ArrayList<Long>();
+		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
+		try {
+			while (cursor.moveToNext()) {
+				list.add(cursor.getLong(0));
+			}
+		} finally {
+			closeCursor(cursor);
+		}
+		return list;
+	}
+
+	/*
 	 * Use the content resolver to get a list of strings from the specified column at the URI
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName) {

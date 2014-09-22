@@ -26,148 +26,92 @@ public class CollectionItem {
 	private long mLastModifiedDate = DateTimeUtils.UNPARSED_DATE;
 
 	public static class Statistics {
-		@Attribute(required = false)
-		public int minplayers;
+		@Attribute(required = false) public int minplayers;
 
-		@Attribute(required = false)
-		public int maxplayers;
+		@Attribute(required = false) public int maxplayers;
 
-		@Attribute(required = false)
-		public int playingtime;
+		@Attribute(required = false) public int playingtime;
 
-		@Attribute
-		private String numowned;
+		@Attribute private String numowned;
 
 		public int numberOwned() {
 			return StringUtils.parseInt(numowned);
 		}
 
-		@Path("rating")
-		@Attribute(name = "value")
-		private String rating;
+		@Path("rating") @Attribute(name = "value") private String rating;
 
 		public double getRating() {
 			return StringUtils.parseDouble(rating);
 		}
 
-		@Path("rating/usersrated")
-		@Attribute(name = "value")
-		private String usersRated;
+		@Path("rating/usersrated") @Attribute(name = "value") private String usersRated;
 
-		@Path("rating/average")
-		@Attribute(name = "value")
-		private String average;
+		@Path("rating/average") @Attribute(name = "value") private String average;
 
-		@Path("rating/bayesaverage")
-		@Attribute(name = "value")
-		private String bayesAverage;
+		@Path("rating/bayesaverage") @Attribute(name = "value") private String bayesAverage;
 
-		@Path("rating/stddev")
-		@Attribute(name = "value")
-		private String standardDeviation;
+		@Path("rating/stddev") @Attribute(name = "value") private String standardDeviation;
 
-		@Path("rating/median")
-		@Attribute(name = "value")
-		private String median;
+		@Path("rating/median") @Attribute(name = "value") private String median;
 
-		@Path("rating")
-		@ElementList
-		private List<Rank> ranks;
+		@Path("rating") @ElementList private List<Rank> ranks;
 	}
 
 	// "thing"
-	@Attribute
-	private String objecttype;
+	@Attribute private String objecttype;
 
-	@Attribute(name = "objectid")
-	public int gameId;
+	@Attribute(name = "objectid") public int gameId;
 
 	/**
 	 * Includes boardgame, boardgameexpansion, videogame, rpg, rpgitem
 	 */
-	@Attribute
-	private String subtype;
+	@Attribute private String subtype;
 
-	@Attribute
-	private String collid;
+	@Attribute private String collid;
 
 	public int collectionId() {
 		return StringUtils.parseInt(collid, BggContract.INVALID_ID);
 	}
 
-	@Path("name")
-	@Text
-	private String name;
+	@Path("name") @Text private String name;
 
-	@Element(required = false)
-	private String originalname;
+	@Element(required = false) private String originalname;
 
-	@Path("name")
-	@Attribute
-	private int sortindex;
+	@Path("name") @Attribute private int sortindex;
 
-	@Element(required = false)
-	public int yearpublished;
+	@Element(required = false) public int yearpublished;
 
-	@Path("status")
-	@Attribute
-	public String own;
+	@Path("status") @Attribute public String own;
 
-	@Path("status")
-	@Attribute
-	public String prevowned;
+	@Path("status") @Attribute public String prevowned;
 
-	@Path("status")
-	@Attribute
-	public String fortrade;
+	@Path("status") @Attribute public String fortrade;
 
-	@Path("status")
-	@Attribute
-	public String want;
+	@Path("status") @Attribute public String want;
 
-	@Path("status")
-	@Attribute
-	public String wanttoplay;
+	@Path("status") @Attribute public String wanttoplay;
 
-	@Path("status")
-	@Attribute
-	public String wanttobuy;
+	@Path("status") @Attribute public String wanttobuy;
 
-	@Path("status")
-	@Attribute
-	public String wishlist;
+	@Path("status") @Attribute public String wishlist;
 
-	@Path("status")
-	@Attribute(required = false)
-	public int wishlistpriority;
+	@Path("status") @Attribute(required = false) public int wishlistpriority;
 
-	@Path("status")
-	@Attribute
-	public String preordered;
+	@Path("status") @Attribute public String preordered;
 
-	@Path("status")
-	@Attribute
-	private String lastmodified;
+	@Path("status") @Attribute private String lastmodified;
 
-	@Element(required = false)
-	public String image;
+	@Element(required = false) public String image;
 
-	@Element(required = false)
-	public String thumbnail;
+	@Element(required = false) public String thumbnail;
 
-	@Element(name = "stats", required = false)
-	public Statistics statistics;
+	@Element(name = "stats", required = false) public Statistics statistics;
 
-	@Element(required = false)
-	public int numplays;
+	@Element(required = false) public int numplays;
 
-	@Path("privateinfo")
-	@Attribute(name = "pp_currency", required = false)
-	public String pricePaidCurrency;
+	@Path("privateinfo") @Attribute(name = "pp_currency", required = false) public String pricePaidCurrency;
 
-	@Path("privateinfo")
-	@Attribute(required = false, empty = "0.0")
-	private String pricepaid;
+	@Path("privateinfo") @Attribute(required = false, empty = "0.0") private String pricepaid;
 
 	public double pricePaid() {
 		try {
@@ -177,13 +121,9 @@ public class CollectionItem {
 		}
 	}
 
-	@Path("privateinfo")
-	@Attribute(name = "cv_currency", required = false)
-	public String currentValueCurrency;
+	@Path("privateinfo") @Attribute(name = "cv_currency", required = false) public String currentValueCurrency;
 
-	@Path("privateinfo")
-	@Attribute(required = false, empty = "0.0")
-	private String currvalue;
+	@Path("privateinfo") @Attribute(required = false, empty = "0.0") private String currvalue;
 
 	public double currentValue() {
 		try {
@@ -193,40 +133,27 @@ public class CollectionItem {
 		}
 	}
 
-	@Path("privateinfo")
-	@Attribute(required = false)
-	private String quantity;
+	@Path("privateinfo") @Attribute(required = false) private String quantity;
 
 	public int getQuantity() {
 		return StringUtils.parseInt(quantity, 1);
 	}
 
-	@Path("privateinfo")
-	@Attribute(name = "acquisitiondate", required = false)
-	public String acquisitionDate; // "2000-12-08"
+	@Path("privateinfo") @Attribute(name = "acquisitiondate", required = false) public String acquisitionDate; // "2000-12-08"
 
-	@Path("privateinfo")
-	@Attribute(name = "acquiredfrom", required = false)
-	public String acquiredFrom;
+	@Path("privateinfo") @Attribute(name = "acquiredfrom", required = false) public String acquiredFrom;
 
-	@Path("privateinfo")
-	@Element(required = false)
-	public String privatecomment;
+	@Path("privateinfo") @Element(required = false) public String privatecomment;
 
-	@Element(required = false)
-	public String comment;
+	@Element(required = false) public String comment;
 
-	@Element(required = false)
-	public String conditiontext;
+	@Element(required = false) public String conditiontext;
 
-	@Element(required = false)
-	public String wantpartslist;
+	@Element(required = false) public String wantpartslist;
 
-	@Element(required = false)
-	public String haspartslist;
+	@Element(required = false) public String haspartslist;
 
-	@Element(required = false)
-	public String wishlistcomment;
+	@Element(required = false) public String wishlistcomment;
 
 	public String collectionName() {
 		return name;
