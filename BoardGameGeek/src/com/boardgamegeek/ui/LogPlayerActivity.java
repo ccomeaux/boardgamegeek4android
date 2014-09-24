@@ -11,9 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
@@ -23,11 +21,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnTextChanged;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.widget.BuddyNameAdapter;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.PlayerNameAdapter;
@@ -61,19 +64,19 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
-	private ScrollView mScrollContainer;
-	private TextView mHeader;
-	private AutoCompleteTextView mUsername;
-	private AutoCompleteTextView mName;
-	private AutoCompleteTextView mTeamColor;
-	private ImageView mColorView;
-	private EditText mPosition;
-	private Button mPositionButton;
-	private EditText mScore;
-	private Button mScoreButton;
-	private EditText mRating;
-	private CheckBox mNew;
-	private CheckBox mWin;
+	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
+	@InjectView(R.id.header) TextView mHeader;
+	@InjectView(R.id.log_player_username) AutoCompleteTextView mUsername;
+	@InjectView(R.id.log_player_name) AutoCompleteTextView mName;
+	@InjectView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
+	@InjectView(R.id.color_view) ImageView mColorView;
+	@InjectView(R.id.log_player_position) EditText mPosition;
+	@InjectView(R.id.log_player_position_button) Button mPositionButton;
+	@InjectView(R.id.log_player_score) EditText mScore;
+	@InjectView(R.id.log_player_score_button) Button mScoreButton;
+	@InjectView(R.id.log_player_rating) EditText mRating;
+	@InjectView(R.id.log_player_new) CheckBox mNew;
+	@InjectView(R.id.log_player_win) CheckBox mWin;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -101,7 +104,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_logplayer);
-		setUiVariables();
+		ButterKnife.inject(this);
+		mName.setOnItemClickListener(nameClickListener());
 
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 
@@ -176,27 +180,6 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		cancel();
 	}
 
-	private void setUiVariables() {
-		mScrollContainer = (ScrollView) findViewById(R.id.scroll_container);
-		mHeader = (TextView) findViewById(R.id.header);
-		mUsername = (AutoCompleteTextView) findViewById(R.id.log_player_username);
-		mName = (AutoCompleteTextView) findViewById(R.id.log_player_name);
-		mTeamColor = (AutoCompleteTextView) findViewById(R.id.log_player_team_color);
-		mColorView = (ImageView) findViewById(R.id.color_view);
-		mPosition = (EditText) findViewById(R.id.log_player_position);
-		mPositionButton = (Button) findViewById(R.id.log_player_position_button);
-		mScore = (EditText) findViewById(R.id.log_player_score);
-		mScoreButton = (Button) findViewById(R.id.log_player_score_button);
-		mRating = (EditText) findViewById(R.id.log_player_rating);
-		mNew = (CheckBox) findViewById(R.id.log_player_new);
-		mWin = (CheckBox) findViewById(R.id.log_player_win);
-
-		mName.setOnItemClickListener(nameClickListener());
-		mTeamColor.addTextChangedListener(colorTextWatcher());
-		mPositionButton.setOnClickListener(numberToTextClick());
-		mScoreButton.setOnClickListener(numberToTextClick());
-	}
-
 	private OnItemClickListener nameClickListener() {
 		return new OnItemClickListener() {
 			@Override
@@ -206,54 +189,50 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		};
 	}
 
-	private TextWatcher colorTextWatcher() {
-		return new TextWatcher() {
+	@OnClick(R.id.color_view)
+	public void onColorClick(View v) {
+		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
+			ColorUtils.getColorList(), mTeamColor.getText().toString(), 4);
+
+		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			public void onColorSelected(String description, int color) {
+				mTeamColor.setText(description);
 			}
 
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
+		});
 
-			@Override
-			public void afterTextChanged(Editable s) {
-				int color = ColorUtils.parseColor(s.toString());
-				if (color != ColorUtils.TRANSPARENT) {
-					ColorUtils.setColorViewValue(mColorView, color);
-				} else {
-					mColorView.setImageDrawable(null);
-				}
-			}
-		};
+		colordashfragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
-	private OnClickListener numberToTextClick() {
-		return new Button.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				EditText editText = null;
-				if (v == mPositionButton) {
-					editText = mPosition;
-				} else if (v == mScoreButton) {
-					editText = mScore;
-				}
-				if (editText == null) {
-					return;
-				}
-				int type = editText.getInputType();
-				if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
-					editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
-						| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					((Button) v).setText(R.string.text_to_number);
-				} else {
-					editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
-						| InputType.TYPE_NUMBER_FLAG_SIGNED);
-					((Button) v).setText(R.string.number_to_text);
-				}
-				editText.requestFocus();
-			}
-		};
+	@OnTextChanged(R.id.log_player_team_color)
+	public void afterTextChanged(Editable s) {
+		int color = ColorUtils.parseColor(s.toString());
+		ColorUtils.setColorViewValue(mColorView, color);
+	}
+
+	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
+	public void onNumberToTextClick(View v) {
+		EditText editText = null;
+		if (v == mPositionButton) {
+			editText = mPosition;
+		} else if (v == mScoreButton) {
+			editText = mScore;
+		}
+		if (editText == null) {
+			return;
+		}
+		int type = editText.getInputType();
+		if ((type & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER) {
+			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS
+				| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+			((Button) v).setText(R.string.text_to_number);
+		} else {
+			editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+				| InputType.TYPE_NUMBER_FLAG_SIGNED);
+			((Button) v).setText(R.string.number_to_text);
+		}
+		editText.requestFocus();
 	}
 
 	private void bindUi() {

@@ -1,6 +1,8 @@
 package com.boardgamegeek.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.res.Resources;
@@ -8,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -55,8 +58,7 @@ public class ColorUtils {
 			}
 			return (int) color;
 		} else {
-			String key = colorString.toLowerCase(Locale.US);
-			Integer color = sColorNameMap.get(key);
+			Integer color = sColorNameMap.get(formatKey(colorString));
 			if (color != null) {
 				return color;
 			}
@@ -94,33 +96,47 @@ public class ColorUtils {
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
 	private static final HashMap<String, Integer> sColorNameMap;
+	private static final List<Pair<String, Integer>> sColorNameList;
 
 	static {
+		sColorNameList = new ArrayList<Pair<String, Integer>>();
+		sColorNameList.add(new Pair<String, Integer>("Red", RED));
+		sColorNameList.add(new Pair<String, Integer>("Yellow", YELLOW));
+		sColorNameList.add(new Pair<String, Integer>("Blue", BLUE));
+		sColorNameList.add(new Pair<String, Integer>("Green", GREEN));
+		sColorNameList.add(new Pair<String, Integer>("Purple", PURPLE));
+		sColorNameList.add(new Pair<String, Integer>("Orange", ORANGE));
+		sColorNameList.add(new Pair<String, Integer>("White", WHITE));
+		sColorNameList.add(new Pair<String, Integer>("Black", BLACK));
+		sColorNameList.add(new Pair<String, Integer>("Natural", NATURAL));
+		sColorNameList.add(new Pair<String, Integer>("Brown", BROWN));
+		sColorNameList.add(new Pair<String, Integer>("Tan", TAN));
+		sColorNameList.add(new Pair<String, Integer>("Gray", GRAY));
+		sColorNameList.add(new Pair<String, Integer>("Gold", GOLD));
+		sColorNameList.add(new Pair<String, Integer>("Silver", SILVER));
+		sColorNameList.add(new Pair<String, Integer>("Bronze", BRONZE));
+		sColorNameList.add(new Pair<String, Integer>("Ivory", IVORY));
+		sColorNameList.add(new Pair<String, Integer>("Rose", ROSE));
+		sColorNameList.add(new Pair<String, Integer>("Pink", PINK));
+		sColorNameList.add(new Pair<String, Integer>("Teal", TEAL));
+		// sColorNameList.add(new Pair<String, Integer>("Aqua", AQUA));
+		// sColorNameList.add(new Pair<String, Integer>("Cyan", CYAN));
+		// sColorNameList.add(new Pair<String, Integer>("Magenta", MAGENTA));
+		// sColorNameList.add(new Pair<String, Integer>("Light Gray", LTGRAY));
+		// sColorNameList.add(new Pair<String, Integer>("Dark Gray", DKGRAY));
+
 		sColorNameMap = new HashMap<String, Integer>();
-		sColorNameMap.put("black", BLACK);
-		sColorNameMap.put("darkgray", DKGRAY);
-		sColorNameMap.put("gray", GRAY);
-		sColorNameMap.put("lightgray", LTGRAY);
-		sColorNameMap.put("white", WHITE);
-		sColorNameMap.put("red", RED);
-		sColorNameMap.put("green", GREEN);
-		sColorNameMap.put("blue", BLUE);
-		sColorNameMap.put("yellow", YELLOW);
-		sColorNameMap.put("cyan", CYAN);
-		sColorNameMap.put("magenta", MAGENTA);
-		sColorNameMap.put("purple", PURPLE);
-		sColorNameMap.put("orange", ORANGE);
-		sColorNameMap.put("brown", BROWN);
-		sColorNameMap.put("natural", NATURAL);
-		sColorNameMap.put("tan", TAN);
-		sColorNameMap.put("ivory", IVORY);
-		sColorNameMap.put("rose", ROSE);
-		sColorNameMap.put("pink", PINK);
-		sColorNameMap.put("teal", TEAL);
-		sColorNameMap.put("aqua", AQUA);
-		sColorNameMap.put("bronze", BRONZE);
-		sColorNameMap.put("silver", SILVER);
-		sColorNameMap.put("gold", GOLD);
+		for (Pair<String, Integer> pair : sColorNameList) {
+			sColorNameMap.put(formatKey(pair.first), pair.second);
+		}
+	}
+
+	private static String formatKey(String name) {
+		return name.toLowerCase(Locale.US);
+	}
+
+	public static List<Pair<String, Integer>> getColorList() {
+		return sColorNameList;
 	}
 
 	@SuppressWarnings("deprecation")

@@ -108,6 +108,7 @@
 							android:layout_width="@dimen/color_circle_diameter"
 							android:layout_height="@dimen/color_circle_diameter"
 							android:layout_gravity="center"
+							android:background="?attr/selectableItemBackground"
 							android:scaleType="fitXY" />
 					</FrameLayout>
 				</TableRow>
