@@ -29,12 +29,16 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	protected static final String KEY_COLOR_COUNT = "color_count";
 	protected static final String KEY_COLORS_DESCRIPTION = "colors_desc";
 	protected static final String KEY_COLORS = "colors";
+	protected static final String KEY_FEATURED_COLORS = "featured_colors";
 	protected static final String KEY_SELECTED_COLOR = "selected_color";
 	protected static final String KEY_COLUMNS = "columns";
 	@InjectView(R.id.color_grid) GridView mColorGrid;
+	@InjectView(R.id.featured_color_grid) GridView mFeaturedColorGrid;
+	@InjectView(R.id.hr) View mDivider;
 	private ColorGridAdapter mAdapter;
+	private ColorGridAdapter mFeaturedAdapter;
 	private List<Pair<String, Integer>> mColorChoices = new ArrayList<Pair<String, Integer>>();
-	private int mItemLayoutId = R.layout.widget_color;
+	private ArrayList<String> mFeaturedColors = new ArrayList<String>();
 	private int mNumColumns = 3;
 	protected String mSelectedColor;
 	protected int mTitleResId = 0;
@@ -61,9 +65,9 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	 * @return new ColorPickerDialog
 	 */
 	public static ColorPickerDialogFragment newInstance(int titleResId, List<Pair<String, Integer>> colors,
-		String selectedColor, int columns) {
+		ArrayList<String> featuredColors, String selectedColor, int columns) {
 		ColorPickerDialogFragment colorPicker = ColorPickerDialogFragment.newInstance();
-		colorPicker.initialize(titleResId, colors, selectedColor, columns);
+		colorPicker.initialize(titleResId, colors, featuredColors, selectedColor, columns);
 		return colorPicker;
 	}
 
@@ -101,8 +105,10 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	 * @param columns
 	 *            number of columns
 	 */
-	public void initialize(int titleResId, List<Pair<String, Integer>> colors, String selectedColor, int columns) {
+	public void initialize(int titleResId, List<Pair<String, Integer>> colors, ArrayList<String> featuredColors,
+		String selectedColor, int columns) {
 		mColorChoices = colors;
+		mFeaturedColors = featuredColors;
 		mNumColumns = columns;
 		mSelectedColor = selectedColor;
 		if (titleResId > 0) {
@@ -127,6 +133,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			outState.putString(KEY_COLORS_DESCRIPTION + i, color.first);
 			outState.putInt(KEY_COLORS + i, color.second.intValue());
 		}
+		outState.putStringArrayList(KEY_FEATURED_COLORS, mFeaturedColors);
 		outState.putString(KEY_SELECTED_COLOR, mSelectedColor);
 	}
 
@@ -146,13 +153,16 @@ public class ColorPickerDialogFragment extends DialogFragment {
 				mColorChoices.add(new Pair<String, Integer>(savedInstanceState.getString(KEY_COLORS_DESCRIPTION + i),
 					savedInstanceState.getInt(KEY_COLORS + i)));
 			}
+			mFeaturedColors = savedInstanceState.getStringArrayList(KEY_FEATURED_COLORS);
 			mSelectedColor = savedInstanceState.getString(KEY_SELECTED_COLOR);
 		}
 
 		ButterKnife.inject(this, rootView);
 		mColorGrid.setNumColumns(mNumColumns);
+		mFeaturedColorGrid.setNumColumns(mNumColumns);
 
 		tryBindLists();
+		mDivider.setVisibility(mFeaturedColors == null ? View.GONE : View.VISIBLE);
 
 		Builder builder = new AlertDialog.Builder(getActivity()).setView(rootView);
 		if (mTitleResId > 0) {
@@ -161,10 +171,11 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		return builder.create();
 	}
 
-	@OnItemClick(R.id.color_grid)
+	@OnItemClick({ R.id.color_grid, R.id.featured_color_grid })
 	public void onItemClick(AdapterView<?> listView, View view, int position, long itemId) {
 		if (mListener != null) {
-			Pair<String, Integer> item = mAdapter.getItem(position);
+			@SuppressWarnings("unchecked")
+			Pair<String, Integer> item = (Pair<String, Integer>) listView.getAdapter().getItem(position);
 			mListener.onColorSelected(item.first, item.second);
 		}
 		dismiss();
@@ -172,12 +183,32 @@ public class ColorPickerDialogFragment extends DialogFragment {
 
 	private void tryBindLists() {
 		if (isAdded() && mAdapter == null) {
-			mAdapter = new ColorGridAdapter(mColorChoices);
+			if (mFeaturedColors == null) {
+				mAdapter = new ColorGridAdapter(mColorChoices);
+				mFeaturedAdapter = null;
+			} else {
+				ArrayList<Pair<String, Integer>> choices = new ArrayList<>(mColorChoices);
+				ArrayList<Pair<String, Integer>> features = new ArrayList<>();
+				for (int i = mColorChoices.size() - 1; i >= 0; i--) {
+					Pair<String, Integer> pair = choices.get(i);
+					if (mFeaturedColors.contains(pair.first)) {
+						choices.remove(i);
+						features.add(0, pair);
+					}
+				}
+				mAdapter = new ColorGridAdapter(choices);
+				mFeaturedAdapter = new ColorGridAdapter(features);
+			}
 		}
 
 		if (mAdapter != null && mColorGrid != null) {
 			mAdapter.setSelectedColor(mSelectedColor);
 			mColorGrid.setAdapter(mAdapter);
+		}
+
+		if (mFeaturedAdapter != null && mFeaturedColorGrid != null) {
+			mFeaturedAdapter.setSelectedColor(mSelectedColor);
+			mFeaturedColorGrid.setAdapter(mFeaturedAdapter);
 		}
 	}
 
@@ -207,7 +238,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		@Override
 		public View getView(int position, View convertView, ViewGroup container) {
 			if (convertView == null) {
-				convertView = LayoutInflater.from(getActivity()).inflate(mItemLayoutId, container, false);
+				convertView = LayoutInflater.from(getActivity()).inflate(R.layout.widget_color, container, false);
 			}
 
 			Pair<String, Integer> color = getItem(position);

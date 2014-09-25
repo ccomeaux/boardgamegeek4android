@@ -3,10 +3,14 @@ package com.boardgamegeek.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -30,6 +34,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.GameColors;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.widget.BuddyNameAdapter;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
@@ -57,6 +63,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 	private static final String KEY_WIN_SHOWN = "WIN_SHOWN";
 
 	private static final int HELP_VERSION = 1;
+	private static final int TOKEN_COLORS = 1;
 
 	private int mGameId;
 	private String mGameName;
@@ -91,6 +98,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 	private boolean mUserShowNew;
 	private boolean mUserShowWin;
 	private int mAutoPosition;
+	private ArrayList<String> mColors;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
 		@Override
@@ -98,6 +106,46 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 			onActionBarItemSelected(v.getId());
 		}
 	};
+
+	@SuppressLint("HandlerLeak")
+	private class QueryHandler extends AsyncQueryHandler {
+		public QueryHandler(ContentResolver cr) {
+			super(cr);
+		}
+
+		@Override
+		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+			if (cursor == null) {
+				return;
+			}
+			if (isFinishing()) {
+				cursor.close();
+				return;
+			}
+
+			switch (token) {
+				case TOKEN_COLORS:
+					if (cursor.getCount() == 0) {
+						cursor.close();
+						return;
+					}
+					try {
+						if (cursor.moveToFirst()) {
+							mColors = new ArrayList<String>();
+							do {
+								mColors.add(cursor.getString(0));
+							} while (cursor.moveToNext());
+						}
+					} finally {
+						cursor.close();
+					}
+					break;
+				default:
+					cursor.close();
+					break;
+			}
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +191,9 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 			Picasso.with(this).load(imageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
 		}
 		bindUi();
+
+		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(mGameId),
+			new String[] { GameColors.COLOR }, null, null, null);
 
 		mName.setAdapter(new PlayerNameAdapter(this));
 		mUsername.setAdapter(new BuddyNameAdapter(this));
@@ -192,7 +243,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick(View v) {
 		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), mTeamColor.getText().toString(), 4);
+			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), 4);
 
 		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
