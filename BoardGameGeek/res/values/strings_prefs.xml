@@ -89,7 +89,9 @@
 <ul>
 <li>New game UI</li>
 <li>Access and edit play locations and players from the navigation drawer</li>
-<li>Sort collectin by rank</li>
+<li>Search now looks for the the name in your collection, not the default game name</li>
+<li>Slightly better sync notification messages</li>
+<li>Sort collection by rank</li>
 <li>Filter collection by play count</li>
 <li>Quick log multiple plays when viewing a list</li>
 <li>Miscellaneous bug fixes</li>

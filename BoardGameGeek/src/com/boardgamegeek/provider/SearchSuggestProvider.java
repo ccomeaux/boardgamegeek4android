@@ -12,23 +12,27 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 
 public class SearchSuggestProvider extends BaseProvider {
-
 	public static final HashMap<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();
+	private static final String GROUP_BY = Collection.COLLECTION_NAME + ","
+		+ Collection.COLLECTION_YEAR_PUBLISHED;
 
 	private static HashMap<String, String> buildSuggestionProjectionMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Games.GAME_NAME + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, "IFNULL(CASE WHEN " + Games.YEAR_PUBLISHED + "=0 THEN NULL ELSE "
-			+ Games.YEAR_PUBLISHED + " END, '?') AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.GAMES + "." + Games.GAME_ID + " AS "
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Collection.COLLECTION_NAME + " AS "
+			+ SearchManager.SUGGEST_COLUMN_TEXT_1);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, "IFNULL(CASE WHEN " + Collection.COLLECTION_YEAR_PUBLISHED
+			+ "=0 THEN NULL ELSE " + Collection.COLLECTION_YEAR_PUBLISHED + " END, '?') AS "
+			+ SearchManager.SUGGEST_COLUMN_TEXT_2);
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, Tables.COLLECTION + "." + Collection.GAME_ID + " AS "
 			+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.GAMES + "."
-			+ Games.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
+		map.put(SearchManager.SUGGEST_COLUMN_ICON_2, "'" + Games.CONTENT_URI + "/' || " + Tables.COLLECTION + "."
+			+ Collection.GAME_ID + " || '/" + BggContract.PATH_THUMBNAILS + "'" + " AS "
 			+ SearchManager.SUGGEST_COLUMN_ICON_2);
 		return map;
 	}
@@ -52,13 +56,13 @@ public class SearchSuggestProvider extends BaseProvider {
 		}
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		qb.setTables(Tables.GAMES);
+		qb.setTables(Tables.COLLECTION);
 		qb.setProjectionMap(sSuggestionProjectionMap);
 		if (!TextUtils.isEmpty(query)) {
-			qb.appendWhere("(" + Tables.GAMES + "." + Games.GAME_NAME + " like '" + query + "%' OR " + Tables.GAMES
-				+ "." + Games.GAME_NAME + " like '% " + query + "%')");
+			qb.appendWhere("(" + Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '" + query + "%' OR "
+				+ Tables.COLLECTION + "." + Collection.COLLECTION_NAME + " like '% " + query + "%')");
 		}
-		Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, getSortOrder(sortOrder),
+		Cursor cursor = qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder),
 			uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT));
 		cursor.setNotificationUri(resolver, uri);
 		return cursor;
@@ -66,6 +70,6 @@ public class SearchSuggestProvider extends BaseProvider {
 
 	@Override
 	protected String getDefaultSortOrder() {
-		return Games.DEFAULT_SORT;
+		return Collection.DEFAULT_SORT;
 	}
 }
