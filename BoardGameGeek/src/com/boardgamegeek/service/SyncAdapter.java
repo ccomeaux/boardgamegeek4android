@@ -92,7 +92,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			} catch (Exception e) {
 				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				syncResult.stats.numIoExceptions++;
-				showError(e);
+				showError(mCurrentTask, e);
 			}
 		}
 		toggleReceiver(false);
@@ -178,7 +178,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			: PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 	}
 
-	private void showError(Throwable t) {
+	private void showError(SyncTask task, Throwable t) {
+		if (!mShowNotifications) {
+			return;
+		}
+
 		String message = t.getMessage();
 		if (TextUtils.isEmpty(message)) {
 			Throwable t1 = t.getCause();
@@ -186,15 +190,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				message = t1.toString();
 			}
 		}
-		showError(mContext.getString(R.string.sync_notification_error), message);
-	}
 
-	private void showError(String text, String message) {
-		if (!mShowNotifications)
-			return;
-
+		CharSequence text = mContext.getText(task.getNotification());
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
-			R.string.sync_notification_title).setContentText(text);
+			R.string.sync_notification_title_error).setContentText(text);
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		}

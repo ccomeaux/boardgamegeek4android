@@ -3,8 +3,8 @@
 
 	<string name="sync_notification_title">Syncing</string>
 	<string name="sync_notification_title_cancel">Sync Cancelled</string>
+	<string name="sync_notification_title_error">Sync Error</string>
 	<string name="sync_notification_title_play_upload">Uploaded Plays</string>
-	<string name="sync_notification_error">Sync Error</string>
 	<string name="sync_notification_collection_full">Syncing your entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Filling in some gaps in your collection</string>
