@@ -116,7 +116,7 @@ public class StringUtils {
 		return set.toArray(new String[set.size()]);
 	}
 
-	public static String formatList(List<String> list) {
+	public static <E> String formatList(List<E> list) {
 		StringBuilder sb = new StringBuilder();
 		if (list != null && list.size() > 0) {
 			if (list.size() == 1) {

@@ -18,33 +18,33 @@ import com.boardgamegeek.util.PreferencesUtils;
 
 public class SyncPlays extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlays.class);
-	private Context mContext;
 	private long mStartTime;
 
-	public SyncPlays(BggService service) {
-		super(service);
+	public SyncPlays(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing plays...");
 		try {
-			if (!PreferencesUtils.getSyncPlays(context)) {
+			if (!PreferencesUtils.getSyncPlays(mContext)) {
 				LOGI(TAG, "...plays not set to sync");
 				return;
 			}
 
-			mContext = context;
 			mStartTime = System.currentTimeMillis();
 
 			PlaysResponse response = null;
-			long newestSyncDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
+			long newestSyncDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
 				LOGI(TAG, "...syncing plays since " + date);
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
+					showNotification(paginateDetail("Updating plays since " + date, page));
+
 					response = mService.playsByMinDate(account.name, date, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
@@ -60,6 +60,8 @@ public class SyncPlays extends SyncTask {
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
+					showNotification(paginateDetail("Updating all plays", page));
+
 					response = mService.plays(account.name, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
@@ -71,13 +73,15 @@ public class SyncPlays extends SyncTask {
 				} while (response.hasMorePages());
 			}
 
-			long oldestDate = Authenticator.getLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
+			long oldestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
 				LOGI(TAG, "...syncing plays before " + date);
 				int page = 1;
 				do {
 					LOGI(TAG, "......syncing page " + page);
+					showNotification(paginateDetail("Updating plays before " + date, page));
+
 					response = mService.playsByMaxDate(account.name, date, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
@@ -88,12 +92,19 @@ public class SyncPlays extends SyncTask {
 					page++;
 				} while (response.hasMorePages());
 				deleteUnupdatedPlaysBefore(oldestDate, syncResult);
-				Authenticator.putLong(context, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
+				Authenticator.putLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, 0);
 			}
 			SyncService.hIndex(mContext);
 		} finally {
 			LOGI(TAG, "...complete!");
 		}
+	}
+
+	protected String paginateDetail(String detail, int page) {
+		if (page > 1) {
+			return detail + " (page " + page + ")";
+		}
+		return detail;
 	}
 
 	private void persist(PlaysResponse response, SyncResult syncResult) {

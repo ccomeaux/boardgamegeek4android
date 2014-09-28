@@ -11,7 +11,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SyncResult;
-import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -26,32 +25,34 @@ import com.boardgamegeek.util.PreferencesUtils;
 public class SyncCollectionListModifiedSince extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListModifiedSince.class);
 
-	public SyncCollectionListModifiedSince(BggService service) {
-		super(service);
+	public SyncCollectionListModifiedSince(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
-		AccountManager accountManager = AccountManager.get(context);
-		long date = getLong(account, accountManager, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
+	public void execute(Account account, SyncResult syncResult) {
+		AccountManager accountManager = AccountManager.get(mContext);
+		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context).includeStats();
+			CollectionPersister persister = new CollectionPersister(mContext).includeStats();
 			Map<String, String> options = new HashMap<String, String>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_FORMAT.format(new Date(date));
 
 			boolean cancelled = false;
-			String[] statuses = PreferencesUtils.getSyncStatuses(context);
+			String[] statuses = PreferencesUtils.getSyncStatuses(mContext);
 			for (int i = 0; i < statuses.length; i++) {
 				if (isCancelled()) {
 					cancelled = true;
 					break;
 				}
-				LOGI(TAG, "...syncing status [" + statuses[i] + "]");
+				String status = statuses[i];
+				LOGI(TAG, "...syncing status [" + status + "]");
+				showNotification(String.format("Syncing %1$s collection items since %2$s", status, modifiedSince));
 
 				options.clear();
-				options.put(statuses[i], "1");
+				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
 					options.put(statuses[j], "0");
 				}
@@ -59,11 +60,12 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 				requestAndPersist(account.name, persister, options, syncResult);
 
+				showNotification(String.format("Syncing %1$s collection accessories since %2$s", status, modifiedSince));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				requestAndPersist(account.name, persister, options, syncResult);
 			}
 			if (!cancelled) {
-				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
+				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");
@@ -86,10 +88,5 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 	@Override
 	public int getNotification() {
 		return R.string.sync_notification_collection_partial;
-	}
-
-	private long getLong(Account account, AccountManager accountManager, String key) {
-		String l = accountManager.getUserData(account, key);
-		return TextUtils.isEmpty(l) ? 0 : Long.parseLong(l);
 	}
 }

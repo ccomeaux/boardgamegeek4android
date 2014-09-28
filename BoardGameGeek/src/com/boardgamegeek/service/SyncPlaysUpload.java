@@ -42,25 +42,23 @@ import com.boardgamegeek.util.StringUtils;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
-	private Context mContext;
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
 	private BggService mPostService;
 
-	public SyncPlaysUpload(BggService service) {
-		super(service);
+	public SyncPlaysUpload(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
-		mContext = context;
+	public void execute(Account account, SyncResult syncResult) {
 		mPostService = Adapter.createForPost(mContext);
 		mMessages = new ArrayList<CharSequence>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
-		SyncService.hIndex(context);
+		SyncService.hIndex(mContext);
 	}
 
 	@Override
@@ -73,7 +71,10 @@ public class SyncPlaysUpload extends SyncTask {
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
-			LOGI(TAG, String.format("Updating %s play(s)", cursor.getCount()));
+			String detail = String.format("Uploading %s play(s)", cursor.getCount());
+			LOGI(TAG, detail);
+			showNotification(detail);
+
 			while (cursor.moveToNext()) {
 				if (isCancelled()) {
 					break;
@@ -122,7 +123,10 @@ public class SyncPlaysUpload extends SyncTask {
 		try {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
-			LOGI(TAG, String.format("Deleting %s play(s)", cursor.getCount()));
+			String detail = String.format("Deleting %s play(s)", cursor.getCount());
+			LOGI(TAG, detail);
+			showNotification(detail);
+
 			while (cursor.moveToNext()) {
 				if (isCancelled()) {
 					break;

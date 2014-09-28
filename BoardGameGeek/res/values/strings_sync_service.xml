@@ -11,7 +11,7 @@
 	<string name="sync_notification_games_oldest">Refeshing stale collection info</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
 	<string name="sync_notification_collection_missing">Removing items not in your collection</string>
-	<string name="sync_notification_buddies_list">Syncing your list of GeekBuddies</string>
+	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refeshing stale buddies</string>
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
 	<string name="sync_notification_plays">Downloading plays</string>

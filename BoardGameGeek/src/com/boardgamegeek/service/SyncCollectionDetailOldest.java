@@ -16,6 +16,7 @@ import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
 
 /**
  * Syncs a number of games that haven't been updated in a long time.
@@ -25,19 +26,21 @@ public class SyncCollectionDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);
 	private static final int SYNC_GAME_LIMIT = 8;
 
-	public SyncCollectionDetailOldest(BggService service) {
-		super(service);
+	public SyncCollectionDetailOldest(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing oldest games in the collection...");
 		try {
-			List<String> gameIds = ResolverUtils.queryStrings(context.getContentResolver(), Games.CONTENT_URI,
+			List<String> gameIds = ResolverUtils.queryStrings(mContext.getContentResolver(), Games.CONTENT_URI,
 				Games.GAME_ID, null, null, "games." + Games.UPDATED + " LIMIT " + SYNC_GAME_LIMIT);
 			if (gameIds.size() > 0) {
 				LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
-				GamePersister gp = new GamePersister(context);
+				showNotification(gameIds.size() + " games: " + StringUtils.formatList(gameIds));
+
+				GamePersister gp = new GamePersister(mContext);
 				ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
 				if (response.games != null && response.games.size() > 0) {
 					int count = gp.save(response.games);

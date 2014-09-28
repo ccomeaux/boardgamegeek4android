@@ -9,13 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.accounts.Account;
-import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -81,7 +79,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		toggleReceiver(true);
 		mShowNotifications = PreferencesUtils.getSyncShowNotifications(mContext);
-		NotificationCompat.Builder builder = createNotificationBuilder();
 		List<SyncTask> tasks = createTasks(mContext, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
@@ -90,18 +87,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 			mCurrentTask = tasks.get(i);
 			try {
-				if (mShowNotifications) {
-					builder.setProgress(tasks.size(), i, true);
-					builder.setContentText(mContext.getString(mCurrentTask.getNotification()));
-					NotificationCompat.InboxStyle detail = new NotificationCompat.InboxStyle(builder);
-					detail.setSummaryText(String.format(mContext.getString(R.string.sync_notification_step_summary),
-						i + 1, tasks.size()));
-					for (int j = i; j >= 0; j--) {
-						detail.addLine(mContext.getString(tasks.get(j).getNotification()));
-					}
-					NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
-				}
-				mCurrentTask.execute(mContext, account, syncResult);
+				mCurrentTask.showNotification();
+				mCurrentTask.execute(account, syncResult);
 			} catch (Exception e) {
 				LOGE(TAG, "Syncing " + mCurrentTask, e);
 				syncResult.stats.numIoExceptions++;
@@ -157,29 +144,29 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (PreferencesUtils.isSyncStatus(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionListModifiedSince(service));
+					tasks.add(new SyncCollectionListModifiedSince(context, service));
 				} else {
-					tasks.add(new SyncCollectionListComplete(service));
+					tasks.add(new SyncCollectionListComplete(context, service));
 				}
 			} else {
 				LOGI(TAG, "...no statuses set to sync");
 			}
 
-			tasks.add(new SyncCollectionListUnupdated(service));
-			tasks.add(new SyncCollectionDetailOldest(service));
-			tasks.add(new SyncCollectionDetailUnupdated(service));
-			tasks.add(new SyncCollectionDetailMissing(service));
+			tasks.add(new SyncCollectionListUnupdated(context, service));
+			tasks.add(new SyncCollectionDetailOldest(context, service));
+			tasks.add(new SyncCollectionDetailUnupdated(context, service));
+			tasks.add(new SyncCollectionDetailMissing(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList(service));
-			tasks.add(new SyncBuddiesDetailOldest(service));
-			tasks.add(new SyncBuddiesDetailUnupdated(service));
+			tasks.add(new SyncBuddiesList(context, service));
+			tasks.add(new SyncBuddiesDetailOldest(context, service));
+			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
-			tasks.add(new SyncPlaysUpload(service));
+			tasks.add(new SyncPlaysUpload(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
-			tasks.add(new SyncPlays(service));
+			tasks.add(new SyncPlays(context, service));
 		}
 		return tasks;
 	}
@@ -189,13 +176,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		PackageManager pm = mContext.getPackageManager();
 		pm.setComponentEnabledSetting(receiver, enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 			: PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-	}
-
-	private NotificationCompat.Builder createNotificationBuilder() {
-		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
-		return NotificationUtils.createNotificationBuilder(mContext, R.string.sync_notification_title)
-			.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(true)
-			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 	}
 
 	private void showError(Throwable t) {

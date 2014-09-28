@@ -222,6 +222,15 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		if (account == null) {
 			return defaultValue;
 		}
+		return getLong(accountManager, account, key, defaultValue);
+	}
+
+	public static long getLong(AccountManager accountManager, Account account, String key) {
+		String s = accountManager.getUserData(account, key);
+		return TextUtils.isEmpty(s) ? 0 : Long.parseLong(s);
+	}
+
+	public static long getLong(AccountManager accountManager, Account account, String key, long defaultValue) {
 		String s = accountManager.getUserData(account, key);
 		return TextUtils.isEmpty(s) ? defaultValue : Long.parseLong(s);
 	}

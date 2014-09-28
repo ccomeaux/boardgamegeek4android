@@ -17,6 +17,7 @@ import com.boardgamegeek.model.persister.BuddyPersister;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
 
 /**
  * Syncs a number of buddies that haven't been updated in a while.
@@ -25,25 +26,26 @@ public class SyncBuddiesDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesDetailOldest.class);
 	private static final int SYNC_LIMIT = 25;
 
-	public SyncBuddiesDetailOldest(BggService service) {
-		super(service);
+	public SyncBuddiesDetailOldest(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing oldest buddies...");
 		try {
-			if (!PreferencesUtils.getSyncBuddies(context)) {
+			if (!PreferencesUtils.getSyncBuddies(mContext)) {
 				LOGI(TAG, "...buddies not set to sync");
 				return;
 			}
 
-			List<String> names = ResolverUtils.queryStrings(context.getContentResolver(), Buddies.CONTENT_URI,
+			List<String> names = ResolverUtils.queryStrings(mContext.getContentResolver(), Buddies.CONTENT_URI,
 				Buddies.BUDDY_NAME, null, null, Buddies.UPDATED + " LIMIT " + SYNC_LIMIT);
 			LOGI(TAG, "...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
+				showNotification(StringUtils.formatList(names));
 				List<User> buddies = new ArrayList<User>(names.size());
-				BuddyPersister persister = new BuddyPersister(context);
+				BuddyPersister persister = new BuddyPersister(mContext);
 				for (String name : names) {
 					if (isCancelled()) {
 						LOGI(TAG, "...canceled while syncing buddies");

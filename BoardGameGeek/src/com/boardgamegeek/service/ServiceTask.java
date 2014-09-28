@@ -21,7 +21,7 @@ public class ServiceTask {
 		super();
 	}
 
-	public int getNotification() {
+	protected int getNotification() {
 		return NO_NOTIFICATION;
 	}
 

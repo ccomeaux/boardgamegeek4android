@@ -26,26 +26,28 @@ public class SyncCollectionDetailMissing extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailMissing.class);
 	private static final int HOURS_OLD = 72;
 
-	public SyncCollectionDetailMissing(BggService service) {
-		super(service);
+	public SyncCollectionDetailMissing(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Deleting missing games from the collection...");
 		try {
 			long hoursAgo = DateTimeUtils.hoursAgo(HOURS_OLD);
 
-			String date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE
+			String date = DateUtils.formatDateTime(mContext, hoursAgo, DateUtils.FORMAT_SHOW_DATE
 				| DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME);
 			LOGI(TAG, "...not viewed since " + date);
 
-			ContentResolver resolver = context.getContentResolver();
+			ContentResolver resolver = mContext.getContentResolver();
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, "collection."
 				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?",
 				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
 			if (gameIds.size() > 0) {
 				LOGI(TAG, "...found " + gameIds.size() + " games to delete");
+				showNotification("Deleting " + gameIds.size() + " games from your collection");
+
 				int count = 0;
 				// NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
 				for (Integer gameId : gameIds) {
