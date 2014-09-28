@@ -67,7 +67,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
-import com.squareup.picasso.Picasso;
 
 public class LogPlayActivity extends SherlockFragmentActivity implements OnDateSetListener {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -313,9 +312,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 			mHeaderView.setText(getTitle() + " - " + mGameName);
 		}
 
-		if (!TextUtils.isEmpty(mImageUrl)) {
-			Picasso.with(this).load(mImageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
-		}
+		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");

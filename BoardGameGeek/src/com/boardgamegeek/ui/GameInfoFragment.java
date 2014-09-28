@@ -53,7 +53,6 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
@@ -330,7 +329,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
 
-		Picasso.with(getActivity()).load(game.ImageUrl).fit().centerCrop().into(mImageView);
+		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl);
 		mNameView.setText(game.Name);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());

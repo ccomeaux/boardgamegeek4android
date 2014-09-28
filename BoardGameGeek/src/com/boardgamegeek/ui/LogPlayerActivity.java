@@ -46,7 +46,6 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 public class LogPlayerActivity extends SherlockFragmentActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -187,9 +186,7 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
-		if (!TextUtils.isEmpty(imageUrl)) {
-			Picasso.with(this).load(imageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
-		}
+		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(mGameId),

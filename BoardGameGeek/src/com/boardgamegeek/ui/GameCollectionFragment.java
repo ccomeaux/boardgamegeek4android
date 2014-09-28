@@ -36,12 +36,12 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 public class GameCollectionFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameCollectionFragment.class);
@@ -181,9 +181,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
-			if (!TextUtils.isEmpty(item.imageUrl)) {
-				Picasso.with(getActivity()).load(item.imageUrl).fit().centerCrop().into(holder.image);
-			}
+			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
 			holder.name.setText(item.name.trim());
 			holder.year.setText(item.getYearDescription());
 			holder.lastModified.setText(item.getLastModifiedDescription());

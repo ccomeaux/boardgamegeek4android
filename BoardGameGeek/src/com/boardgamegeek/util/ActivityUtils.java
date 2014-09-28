@@ -31,6 +31,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class ActivityUtils {
@@ -61,6 +63,11 @@ public class ActivityUtils {
 	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
+
+	private static final String SUFFIX_SQUARE = "_sq";
+	private static final String SUFFIX_SMALL = "_t";
+	private static final String SUFFIX_MEDIUM = "_md";
+	private static final String SUFFIX_LARGE = "_lg";
 
 	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -409,5 +416,49 @@ public class ActivityUtils {
 		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
 		doneActionView.setOnClickListener(listener);
 		activity.getSupportActionBar().setCustomView(actionBarButtons);
+	}
+
+	public static void safelyLoadImage(final ImageView imageView, final String imageUrl) {
+		if (TextUtils.isEmpty(imageUrl)) {
+			return;
+		}
+
+		final Context context = imageView.getContext();
+		Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_MEDIUM)).fit().centerCrop()
+			.into(imageView, new Callback() {
+				@Override
+				public void onSuccess() {
+				}
+
+				@Override
+				public void onError() {
+					Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_SMALL)).fit().centerCrop()
+						.into(imageView, new Callback() {
+							@Override
+							public void onSuccess() {
+							}
+
+							@Override
+							public void onError() {
+								Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView);
+							}
+						});
+				}
+			});
+	}
+
+	private static String appendImageUrl(String imageUrl, String suffix) {
+		if (TextUtils.isEmpty(imageUrl)) {
+			return "";
+		}
+		if (TextUtils.isEmpty(suffix)) {
+			return imageUrl;
+		}
+		int dot = imageUrl.lastIndexOf('.');
+		if (dot == -1) {
+			return imageUrl + suffix;
+		} else {
+			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
+		}
 	}
 }
