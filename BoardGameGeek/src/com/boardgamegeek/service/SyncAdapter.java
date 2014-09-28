@@ -82,7 +82,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		List<SyncTask> tasks = createTasks(mContext, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
-				showError(mContext.getString(R.string.sync_notification_error_cancel), null);
+				showCancel(mCurrentTask.getNotification());
 				break;
 			}
 			mCurrentTask = tasks.get(i);
@@ -198,6 +198,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		}
+		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
+	}
+
+	private void showCancel(int messageId) {
+		if (!mShowNotifications) {
+			return;
+		}
+
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
+			R.string.sync_notification_title_cancel).setContentText(mContext.getText(messageId));
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }

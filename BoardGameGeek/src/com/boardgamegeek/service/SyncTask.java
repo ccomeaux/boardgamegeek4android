@@ -17,6 +17,8 @@ public abstract class SyncTask extends ServiceTask {
 	protected Context mContext;
 	protected BggService mService;
 	private boolean mShowNotifications;
+	private boolean mIsCancelled = false;
+	private String mDetail;
 
 	public SyncTask(Context context, BggService service) {
 		mContext = context;
@@ -26,14 +28,16 @@ public abstract class SyncTask extends ServiceTask {
 
 	public abstract void execute(Account account, SyncResult syncResult);
 
-	private boolean mIsCancelled = false;
-
 	public void cancel() {
 		mIsCancelled = true;
 	}
 
 	public boolean isCancelled() {
 		return mIsCancelled;
+	}
+
+	public String lastDetail() {
+		return mDetail;
 	}
 
 	protected void showNotification() {
@@ -60,6 +64,7 @@ public abstract class SyncTask extends ServiceTask {
 			.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(true).setProgress(1, 0, true)
 			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
+			mDetail = detail;
 			builder.setStyle(new NotificationCompat.BigTextStyle().setSummaryText(message).bigText(detail));
 		}
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC, builder);
