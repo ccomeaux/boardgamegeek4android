@@ -154,6 +154,7 @@ public class GamePersister {
 		values.put(Games.STATS_NUMBER_COMMENTS, game.statistics.commenting());
 		values.put(Games.STATS_NUMBER_WEIGHTS, game.statistics.weighting());
 		values.put(Games.STATS_AVERAGE_WEIGHT, game.statistics.averageWeight());
+		values.put(Games.GAME_RANK, game.getRank());
 		return values;
 	}
 

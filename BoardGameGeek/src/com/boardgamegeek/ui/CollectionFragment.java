@@ -45,16 +45,17 @@ import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
 import com.boardgamegeek.data.GeekRankingFilterData;
 import com.boardgamegeek.data.GeekRatingFilterData;
+import com.boardgamegeek.data.PlayCountFilterData;
 import com.boardgamegeek.data.PlayTimeFilterData;
 import com.boardgamegeek.data.PlayerNumberFilterData;
 import com.boardgamegeek.data.SuggestedAgeFilterData;
 import com.boardgamegeek.data.YearPublishedFilterData;
-import com.boardgamegeek.data.sort.CollectionSortDataFactory;
-import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.sorter.CollectionSorterFactory;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
@@ -62,6 +63,7 @@ import com.boardgamegeek.ui.dialog.DeleteView;
 import com.boardgamegeek.ui.dialog.ExpansionStatusFilter;
 import com.boardgamegeek.ui.dialog.GeekRankingFilter;
 import com.boardgamegeek.ui.dialog.GeekRatingFilter;
+import com.boardgamegeek.ui.dialog.PlayCountFilter;
 import com.boardgamegeek.ui.dialog.PlayTimeFilter;
 import com.boardgamegeek.ui.dialog.PlayerNumberFilter;
 import com.boardgamegeek.ui.dialog.SaveView;
@@ -88,7 +90,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
-	private SortData mSort;
+	private Sorter mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
@@ -173,11 +175,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		int sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		int sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSort = CollectionSortDataFactory.create(sortType, getActivity());
+		mSort = CollectionSorterFactory.create(sortType, getActivity());
 		if (savedInstanceState != null || mShortcut) {
 			requery();
 		}
@@ -204,7 +206,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		super.onSaveInstanceState(outState);
 		outState.putLong(STATE_VIEW_ID, mViewId);
 		outState.putString(STATE_VIEW_NAME, mViewName);
-		outState.putInt(STATE_SORT_TYPE, mSort == null ? CollectionSortDataFactory.TYPE_UNKNOWN : mSort.getType());
+		outState.putInt(STATE_SORT_TYPE, mSort == null ? CollectionSorterFactory.TYPE_UNKNOWN : mSort.getType());
 		outState.putParcelableArrayList(STATE_FILTERS, (ArrayList<? extends Parcelable>) mFilters);
 		if (mSelectedCollectionId > 0) {
 			outState.putInt(STATE_SELECTED_ID, mSelectedCollectionId);
@@ -265,7 +267,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 				menu.findItem(R.id.menu_collection_view_save).setEnabled(
 					(mFilters != null && mFilters.size() > 0)
-						|| (mSort != null && mSort.getType() != CollectionSortDataFactory.TYPE_DEFAULT));
+						|| (mSort != null && mSort.getType() != CollectionSorterFactory.TYPE_DEFAULT));
 
 				boolean hasViews = false;
 				Activity activity = getActivity();
@@ -294,36 +296,39 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				DeleteView.createDialog(getActivity(), this);
 				return true;
 			case R.id.menu_collection_sort_name:
-				setSort(CollectionSortDataFactory.TYPE_COLLECTION_NAME);
+				setSort(CollectionSorterFactory.TYPE_COLLECTION_NAME);
+				return true;
+			case R.id.menu_collection_sort_rank:
+				setSort(CollectionSorterFactory.TYPE_RANK);
 				return true;
 			case R.id.menu_collection_sort_rating:
-				setSort(CollectionSortDataFactory.TYPE_GEEK_RATING);
+				setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
 				return true;
 			case R.id.menu_collection_sort_myrating:
-				setSort(CollectionSortDataFactory.TYPE_MY_RATING);
+				setSort(CollectionSorterFactory.TYPE_MY_RATING);
 				return true;
 			case R.id.menu_collection_sort_last_viewed:
-				setSort(CollectionSortDataFactory.TYPE_LAST_VIEWED);
+				setSort(CollectionSorterFactory.TYPE_LAST_VIEWED);
 				return true;
 			case R.id.menu_collection_sort_wishlist_priority:
-				setSort(CollectionSortDataFactory.TYPE_WISHLIST_PRIORITY);
+				setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
 			case R.id.menu_collection_sort_published:
-				setSort(CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_DESC,
-					CollectionSortDataFactory.TYPE_YEAR_PUBLISHED_ASC);
+				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC,
+					CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_TIME_ASC, CollectionSortDataFactory.TYPE_PLAY_TIME_DESC);
+				setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
 				return true;
 			case R.id.menu_collection_sort_age:
-				setSort(CollectionSortDataFactory.TYPE_AGE_ASC, CollectionSortDataFactory.TYPE_AGE_DESC);
+				setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
 				return true;
 			case R.id.menu_collection_sort_weight:
-				setSort(CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_ASC,
-					CollectionSortDataFactory.TYPE_AVERAGE_WEIGHT_DESC);
+				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC,
+					CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
-				setSort(CollectionSortDataFactory.TYPE_PLAY_COUNT_DESC, CollectionSortDataFactory.TYPE_PLAY_COUNT_ASC);
+				setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
 				return true;
 		}
 
@@ -387,7 +392,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		} else if (token == ViewQuery._TOKEN) {
 			if (cursor.moveToFirst()) {
 				mViewName = cursor.getString(ViewQuery.NAME);
-				mSort = CollectionSortDataFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
+				mSort = CollectionSorterFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
 				mFilters.clear();
 				do {
 					CollectionFilterData filter = CollectionFilterDataFactory.create(getActivity(),
@@ -448,10 +453,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	private void setSort(int sortType) {
-		if (sortType == CollectionSortDataFactory.TYPE_UNKNOWN) {
-			sortType = CollectionSortDataFactory.TYPE_DEFAULT;
+		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
+			sortType = CollectionSorterFactory.TYPE_DEFAULT;
 		}
-		mSort = CollectionSortDataFactory.create(sortType, getActivity());
+		mSort = CollectionSorterFactory.create(sortType, getActivity());
 		resetScrollState();
 		requery();
 	}
@@ -595,6 +600,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				new GeekRankingFilter().createDialog(getActivity(), this,
 					(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
+			case R.id.menu_play_count:
+			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
+				new PlayCountFilter().createDialog(getActivity(), this,
+					(PlayCountFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
+				return true;
+
 		}
 		return false;
 	}
@@ -618,7 +629,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		mViewName = "";
 		resetScrollState();
 		mFilters.clear();
-		mSort = CollectionSortDataFactory.create(CollectionSortDataFactory.TYPE_DEFAULT, getActivity());
+		mSort = CollectionSorterFactory.create(CollectionSorterFactory.TYPE_DEFAULT, getActivity());
 		requery();
 	}
 
@@ -674,7 +685,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = mInflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -766,7 +777,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_games_selected, count, count));
 
 		mLogPlayMenuItem.setVisible(count == 1 && PreferencesUtils.showLogPlay(getActivity()));
-		mLogPlayQuickMenuItem.setVisible(count == 1 && PreferencesUtils.showQuickLogPlay(getActivity()));
+		mLogPlayQuickMenuItem.setVisible(PreferencesUtils.showQuickLogPlay(getActivity()));
 		mBggLinkMenuItem.setVisible(count == 1);
 	}
 
@@ -785,8 +796,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 			case R.id.menu_log_play_quick:
 				mode.finish();
-				Toast.makeText(getActivity(), R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
-				ActivityUtils.logQuickPlay(getActivity(), gameId, gameName);
+				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
+				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+				for (int position : mSelectedPositions) {
+					Cursor c = (Cursor) mAdapter.getItem(position);
+					ActivityUtils.logQuickPlay(getActivity(), c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME));
+				}
 				return true;
 			case R.id.menu_share:
 				mode.finish();

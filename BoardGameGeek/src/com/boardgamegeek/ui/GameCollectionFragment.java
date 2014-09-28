@@ -25,8 +25,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RatingBar;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -35,11 +36,12 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 public class GameCollectionFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameCollectionFragment.class);
@@ -179,18 +181,15 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
+			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
 			holder.name.setText(item.name.trim());
+			holder.year.setText(item.getYearDescription());
+			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.rating.setText(item.getRatingDescription());
-			holder.ratingBar.setRating((float) item.rating);
-			holder.rating.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.ratingBar.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.ratingDenominator.setVisibility(item.hasRating() ? View.VISIBLE : View.GONE);
-			holder.unrated.setVisibility(item.hasRating() ? View.GONE : View.VISIBLE);
+			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(item.rating));
 			holder.id.setText(String.valueOf(item.id));
 			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.updated.setText(item.getUpdatedDescription());
-			holder.year.setText(item.getYearDescription());
 
 			holder.status.setText(item.getStatus());
 			holder.comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
@@ -216,70 +215,35 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			holder.hasPartsRoot.setVisibility(TextUtils.isEmpty(item.hasParts) ? View.GONE : View.VISIBLE);
 			holder.hasPartsContent.setText(item.hasParts);
 
-			holder.thumbnail.setTag(R.id.image, item.imageUrl);
-			holder.thumbnail.setTag(R.id.name, item.name);
-			Picasso.with(context).load(item.thumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-				.centerCrop().into(holder.thumbnail);
+			holder.image.setTag(R.id.image, item.imageUrl);
+			holder.image.setTag(R.id.name, item.name);
 		}
 	}
 
 	static class ViewHolder {
-		ImageView thumbnail;
-		TextView name;
-		TextView rating;
-		RatingBar ratingBar;
-		TextView ratingDenominator;
-		TextView unrated;
-		TextView id;
-		TextView lastModified;
-		TextView updated;
-		TextView year;
-
-		TextView status;
-
-		TextView comment;
-
-		View privateInfoRoot;
-		TextView privateInfo;
-		TextView privateComments;
-
-		View wishlistRoot;
-		TextView wishlistContent;
-		View conditionRoot;
-		TextView conditionContent;
-		View wantPartsRoot;
-		TextView wantPartsContent;
-		View hasPartsRoot;
-		TextView hasPartsContent;
+		@InjectView(R.id.image) ImageView image;
+		@InjectView(R.id.name) TextView name;
+		@InjectView(R.id.rating) TextView rating;
+		@InjectView(R.id.collection_id) TextView id;
+		@InjectView(R.id.last_modified) TextView lastModified;
+		@InjectView(R.id.updated) TextView updated;
+		@InjectView(R.id.year) TextView year;
+		@InjectView(R.id.status) TextView status;
+		@InjectView(R.id.comment) TextView comment;
+		@InjectView(R.id.private_info_root) View privateInfoRoot;
+		@InjectView(R.id.private_info) TextView privateInfo;
+		@InjectView(R.id.private_comments) TextView privateComments;
+		@InjectView(R.id.wishlist_root) View wishlistRoot;
+		@InjectView(R.id.wishlist_content) TextView wishlistContent;
+		@InjectView(R.id.condition_root) View conditionRoot;
+		@InjectView(R.id.condition_content) TextView conditionContent;
+		@InjectView(R.id.want_parts_root) View wantPartsRoot;
+		@InjectView(R.id.want_parts_content) TextView wantPartsContent;
+		@InjectView(R.id.has_parts_root) View hasPartsRoot;
+		@InjectView(R.id.has_parts_content) TextView hasPartsContent;
 
 		public ViewHolder(View view) {
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-			name = (TextView) view.findViewById(R.id.name);
-			rating = (TextView) view.findViewById(R.id.rating);
-			ratingBar = (RatingBar) view.findViewById(R.id.rating_stars);
-			ratingDenominator = (TextView) view.findViewById(R.id.rating_denominator);
-			unrated = (TextView) view.findViewById(R.id.rating_unrated);
-			id = (TextView) view.findViewById(R.id.collection_id);
-			lastModified = (TextView) view.findViewById(R.id.last_modified);
-			updated = (TextView) view.findViewById(R.id.updated);
-			year = (TextView) view.findViewById(R.id.year);
-
-			status = (TextView) view.findViewById(R.id.status);
-			comment = (TextView) view.findViewById(R.id.comment);
-
-			privateInfoRoot = view.findViewById(R.id.private_info_root);
-			privateInfo = (TextView) view.findViewById(R.id.private_info);
-			privateComments = (TextView) view.findViewById(R.id.private_comments);
-
-			wishlistRoot = view.findViewById(R.id.wishlist_root);
-			wishlistContent = (TextView) view.findViewById(R.id.wishlist_content);
-			conditionRoot = view.findViewById(R.id.condition_root);
-			conditionContent = (TextView) view.findViewById(R.id.condition_content);
-			wantPartsRoot = view.findViewById(R.id.want_parts_root);
-			wantPartsContent = (TextView) view.findViewById(R.id.want_parts_content);
-			hasPartsRoot = view.findViewById(R.id.has_parts_root);
-			hasPartsContent = (TextView) view.findViewById(R.id.has_parts_content);
+			ButterKnife.inject(this, view);
 		}
 	}
 
@@ -312,7 +276,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		int PRIVATE_INFO_ACQUIRED_FROM = 11;
 		int PRIVATE_INFO_COMMENT = 12;
 		int LAST_MODIFIED = 13;
-		int COLLECTION_THUMBNAIL_URL = 14;
+		// int COLLECTION_THUMBNAIL_URL = 14;
 		int COLLECTION_IMAGE_URL = 15;
 		int COLLECTION_YEAR_PUBLISHED = 16;
 		int CONDITION = 17;
@@ -351,7 +315,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		private String acquiredFrom;
 		private String acquisitionDate;
 		String privateComment;
-		String thumbnailUrl;
 		String imageUrl;
 		private int year;
 		String condition;
@@ -388,7 +351,6 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			privateComment = cursor.getString(PRIVATE_INFO_COMMENT);
 			acquiredFrom = cursor.getString(PRIVATE_INFO_ACQUIRED_FROM);
 			acquisitionDate = CursorUtils.getFormattedDate(cursor, getActivity(), PRIVATE_INFO_ACQUISITION_DATE);
-			thumbnailUrl = cursor.getString(COLLECTION_THUMBNAIL_URL);
 			imageUrl = cursor.getString(COLLECTION_IMAGE_URL);
 			year = cursor.getInt(COLLECTION_YEAR_PUBLISHED);
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
@@ -422,7 +384,7 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		}
 
 		CharSequence getLastModifiedDescription() {
-			String s = r.getString(R.string.collection_modified) + ": ";
+			String s = r.getString(R.string.last_modified) + " ";
 			if (TextUtils.isEmpty(lastModifiedDateTime)) {
 				return s + DateUtils.getRelativeTimeSpanString(lastModified);
 			} else if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
@@ -438,12 +400,12 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 			return r.getString(R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(updated);
 		}
 
-		boolean hasRating() {
-			return rating != 0.0;
-		}
-
 		String getRatingDescription() {
-			return new DecimalFormat("#0.00").format(rating);
+			if (rating > 0.0) {
+				return new DecimalFormat("#0.00").format(rating);
+			} else {
+				return getString(R.string.unrated);
+			}
 		}
 
 		String getYearDescription() {

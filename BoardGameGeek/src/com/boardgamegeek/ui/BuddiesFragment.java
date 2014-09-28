@@ -126,7 +126,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		CursorLoader loader = new CursorLoader(getActivity(), buddiesUri, BuddiesQuery.PROJECTION, Buddies.BUDDY_ID
-			+ "!=?", new String[] { Authenticator.getUserId(getActivity()) }, null);
+			+ "!=? AND " + Buddies.BUDDY_FLAG + "=1", new String[] { Authenticator.getUserId(getActivity()) }, null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}
@@ -204,7 +204,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = mInflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
@@ -248,13 +248,11 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			TextView fullname;
 			TextView name;
 			ImageView avatar;
-			TextView separator;
 
 			public ViewHolder(View view) {
 				fullname = (TextView) view.findViewById(R.id.list_fullname);
 				name = (TextView) view.findViewById(R.id.list_name);
 				avatar = (ImageView) view.findViewById(R.id.list_avatar);
-				separator = (TextView) view.findViewById(R.id.separator);
 			}
 		}
 

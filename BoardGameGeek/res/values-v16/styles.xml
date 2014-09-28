@@ -26,11 +26,11 @@
 		<item name="android:fontFamily">sans-serif-light</item>
 	</style>
 
-	<style name="Text.DrawerItem" parent="Text.Huge">
+	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:fontFamily">sans-serif</item>
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
 		<item name="android:textIsSelectable">false</item>
 	</style>
 

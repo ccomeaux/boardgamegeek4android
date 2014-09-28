@@ -5,6 +5,7 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,8 +26,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RatingBar;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.ButterKnife.Setter;
+import butterknife.InjectView;
+import butterknife.InjectViews;
+import butterknife.OnClick;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -44,10 +49,10 @@ import com.boardgamegeek.ui.widget.ExpandableListView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
@@ -61,47 +66,46 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	private String mGameName;
 	private String mImageUrl;
 
-	private View mScrollRoot;
-	private View mProgressView;
-	private ImageView mThumbnailView;
-	private TextView mNameView;
-	private TextView mUnratedView;
-	private RatingBar mRatingBar;
-	private TextView mRatingView;
-	private TextView mRatingDenomView;
-	private TextView mNumberRatingView;
-	private TextView mIdView;
-	private TextView mUpdatedView;
-	private TextView mDescriptionView;
-	private TextView mRankView;
-	private TextView mYearPublishedView;
-	private TextView mPlayersView;
-	private TextView mPlayingTimeView;
-	private TextView mSuggestedAgesView;
-	private ExpandableListView mDesignersView;
-	private ExpandableListView mArtistsView;
-	private ExpandableListView mPublishersView;
-	private ExpandableListView mCategoriesView;
-	private ExpandableListView mMechanicsView;
-	private ExpandableListView mExpansionsView;
-	private ExpandableListView mBaseGamesView;
-	private TextView mStatsLabel;
-	private View mStatsContent;
-	private LinearLayout mRankRoot;
-	private TextView mRatingsCount;
-	private StatBar mAverageStatBar;
-	private StatBar mBayesAverageBar;
-	private StatBar mMedianBar;
-	private StatBar mStdDevBar;
-	private TextView mWeightCount;
-	private StatBar mWeightBar;
-	private TextView mUserCount;
-	private StatBar mNumOwningBar;
-	private StatBar mNumRatingBar;
-	private StatBar mNumTradingBar;
-	private StatBar mNumWantingBar;
-	private StatBar mNumWishingBar;
-	private StatBar mNumWeightingBar;
+	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
+	@InjectView(R.id.game_info_progress) View mProgressView;
+	@InjectView(R.id.game_info_image) ImageView mImageView;
+	@InjectView(R.id.game_info_name) TextView mNameView;
+	@InjectView(R.id.game_info_rating) TextView mRatingView;
+	@InjectView(R.id.game_info_rating_count) TextView mNumberRatingView;
+	@InjectView(R.id.game_info_id) TextView mIdView;
+	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
+	@InjectView(R.id.game_info_description) TextView mDescriptionView;
+	@InjectView(R.id.game_info_rank) TextView mRankView;
+	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
+	@InjectView(R.id.game_info_num_of_players) TextView mPlayersView;
+	@InjectView(R.id.game_info_playing_time) TextView mPlayingTimeView;
+	@InjectView(R.id.game_info_suggested_ages) TextView mSuggestedAgesView;
+	@InjectView(R.id.game_info_designers) ExpandableListView mDesignersView;
+	@InjectView(R.id.game_info_artists) ExpandableListView mArtistsView;
+	@InjectView(R.id.game_info_publishers) ExpandableListView mPublishersView;
+	@InjectView(R.id.game_info_categories) ExpandableListView mCategoriesView;
+	@InjectView(R.id.game_info_mechanics) ExpandableListView mMechanicsView;
+	@InjectView(R.id.game_info_expansions) ExpandableListView mExpansionsView;
+	@InjectView(R.id.game_info_base_games) ExpandableListView mBaseGamesView;
+	@InjectViews({ R.id.game_info_designers, R.id.game_info_artists, R.id.game_info_publishers,
+		R.id.game_info_categories, R.id.game_info_mechanics, R.id.game_info_expansions, R.id.game_info_base_games }) List<ExpandableListView> mExpandableViews;
+	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
+	@InjectView(R.id.game_stats_content) View mStatsContent;
+	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
+	@InjectView(R.id.game_stats_rating_count) TextView mRatingsCount;
+	@InjectView(R.id.game_stats_average_bar) StatBar mAverageStatBar;
+	@InjectView(R.id.game_stats_bayes_bar) StatBar mBayesAverageBar;
+	@InjectView(R.id.game_stats_median_bar) StatBar mMedianBar;
+	@InjectView(R.id.game_stats_stddev_bar) StatBar mStdDevBar;
+	@InjectView(R.id.game_stats_weight_count) TextView mWeightCount;
+	@InjectView(R.id.game_stats_weight_bar) StatBar mWeightBar;
+	@InjectView(R.id.game_stats_users_count) TextView mUserCount;
+	@InjectView(R.id.game_stats_owning_bar) StatBar mNumOwningBar;
+	@InjectView(R.id.game_stats_rating_bar) StatBar mNumRatingBar;
+	@InjectView(R.id.game_stats_trading_bar) StatBar mNumTradingBar;
+	@InjectView(R.id.game_stats_wanting_bar) StatBar mNumWantingBar;
+	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
+	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
 
 	boolean mIsDescriptionExpanded;
 	boolean mIsStatsExpanded;
@@ -109,15 +113,23 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 	private boolean mMightNeedRefreshing;
 
+	static class GameInfo {
+		String gameName;
+		String subtype;
+		String thumbnailUrl;
+		String imageUrl;
+		boolean customPlayerSort;
+	}
+
 	public interface Callbacks {
-		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort);
+		public void onGameInfoChanged(GameInfo gameInfo);
 
 		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onGameInfoChanged(String gameName, String thumbnailUrl, String imageUrl, boolean customPlayerSort) {
+		public void onGameInfoChanged(GameInfo gameInfo) {
 		}
 
 		@Override
@@ -151,117 +163,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
-
-		mScrollRoot = rootView.findViewById(R.id.game_info_scroll_root);
-		mProgressView = rootView.findViewById(R.id.game_info_progress);
-
-		mNameView = (TextView) rootView.findViewById(R.id.game_info_name);
-		mThumbnailView = (ImageView) rootView.findViewById(R.id.game_info_thumbnail);
-		mUnratedView = (TextView) rootView.findViewById(R.id.game_info_rating_unrated);
-		mRatingBar = (RatingBar) rootView.findViewById(R.id.game_info_rating_stars);
-		mRatingView = (TextView) rootView.findViewById(R.id.game_info_rating);
-		mRatingDenomView = (TextView) rootView.findViewById(R.id.game_info_rating_denominator);
-		mNumberRatingView = (TextView) rootView.findViewById(R.id.game_info_rating_count);
-		mIdView = (TextView) rootView.findViewById(R.id.game_info_id);
-		mUpdatedView = (TextView) rootView.findViewById(R.id.game_info_last_updated);
-		mDescriptionView = (TextView) rootView.findViewById(R.id.game_info_description);
-
-		mRankView = (TextView) rootView.findViewById(R.id.game_info_rank);
-		mYearPublishedView = (TextView) rootView.findViewById(R.id.game_info_year);
-		mPlayersView = (TextView) rootView.findViewById(R.id.game_info_num_of_players);
-		mPlayingTimeView = (TextView) rootView.findViewById(R.id.game_info_playing_time);
-		mSuggestedAgesView = (TextView) rootView.findViewById(R.id.game_info_suggested_ages);
-
-		mDesignersView = (ExpandableListView) rootView.findViewById(R.id.game_info_designers);
-		mDesignersView.setLimit(CHILD_LIMIT_COUNT);
-		mArtistsView = (ExpandableListView) rootView.findViewById(R.id.game_info_artists);
-		mArtistsView.setLimit(CHILD_LIMIT_COUNT);
-		mPublishersView = (ExpandableListView) rootView.findViewById(R.id.game_info_publishers);
-		mPublishersView.setLimit(CHILD_LIMIT_COUNT);
-		mCategoriesView = (ExpandableListView) rootView.findViewById(R.id.game_info_categories);
-		mCategoriesView.setLimit(CHILD_LIMIT_COUNT);
-		mMechanicsView = (ExpandableListView) rootView.findViewById(R.id.game_info_mechanics);
-		mMechanicsView.setLimit(CHILD_LIMIT_COUNT);
-		mExpansionsView = (ExpandableListView) rootView.findViewById(R.id.game_info_expansions);
-		mExpansionsView.setLimit(CHILD_LIMIT_COUNT);
-		mBaseGamesView = (ExpandableListView) rootView.findViewById(R.id.game_info_base_games);
-		mBaseGamesView.setLimit(CHILD_LIMIT_COUNT);
-
-		mStatsLabel = (TextView) rootView.findViewById(R.id.game_stats_label);
-		mStatsContent = rootView.findViewById(R.id.game_stats_content);
-
-		mRankRoot = (LinearLayout) rootView.findViewById(R.id.game_stats_rank_root);
-
-		mRatingsCount = (TextView) rootView.findViewById(R.id.game_stats_rating_count);
-		mAverageStatBar = (StatBar) rootView.findViewById(R.id.game_stats_average_bar);
-		mBayesAverageBar = (StatBar) rootView.findViewById(R.id.game_stats_bayes_bar);
-		mMedianBar = (StatBar) rootView.findViewById(R.id.game_stats_median_bar);
-		mStdDevBar = (StatBar) rootView.findViewById(R.id.game_stats_stddev_bar);
-
-		mWeightCount = (TextView) rootView.findViewById(R.id.game_stats_weight_count);
-		mWeightBar = (StatBar) rootView.findViewById(R.id.game_stats_weight_bar);
-
-		mUserCount = (TextView) rootView.findViewById(R.id.game_stats_users_count);
-		mNumOwningBar = (StatBar) rootView.findViewById(R.id.game_stats_owning_bar);
-		mNumRatingBar = (StatBar) rootView.findViewById(R.id.game_stats_rating_bar);
-		mNumTradingBar = (StatBar) rootView.findViewById(R.id.game_stats_trading_bar);
-		mNumWantingBar = (StatBar) rootView.findViewById(R.id.game_stats_wanting_bar);
-		mNumWishingBar = (StatBar) rootView.findViewById(R.id.game_stats_wishing_bar);
-		mNumWeightingBar = (StatBar) rootView.findViewById(R.id.game_stats_weighting_bar);
-
-		mThumbnailView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!TextUtils.isEmpty(mImageUrl)) {
-					final Intent intent = new Intent(getActivity(), ImageActivity.class);
-					intent.setData(mGameUri);
-					intent.setAction(Intent.ACTION_VIEW);
-					intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
-					intent.putExtra(ImageActivity.KEY_GAME_ID, Games.getGameId(mGameUri));
-					intent.putExtra(ImageActivity.KEY_GAME_NAME, mGameName);
-					startActivity(intent);
-				}
-			}
-		});
-
-		mDescriptionView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mIsDescriptionExpanded = !mIsDescriptionExpanded;
-				openOrCloseDescription();
-			}
-		});
+		ButterKnife.inject(this, rootView);
+		ButterKnife.apply(mExpandableViews, LIMIT, CHILD_LIMIT_COUNT);
 		openOrCloseDescription();
-
-		mStatsLabel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mIsStatsExpanded = !mIsStatsExpanded;
-				openOrCloseStats();
-			}
-		});
 		openOrCloseStats();
-
-		rootView.findViewById(R.id.game_info_num_of_players_button).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				launchPoll(PollFragment.SUGGESTED_NUMPLAYERS);
-			}
-		});
-
-		rootView.findViewById(R.id.game_info_suggested_ages_button).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				launchPoll(PollFragment.SUGGESTED_PLAYERAGE);
-			}
-		});
-
-		rootView.findViewById(R.id.game_info_languages_button).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				launchPoll(PollFragment.LANGUAGE_DEPENDENCE);
-			}
-		});
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -286,6 +191,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		ButterKnife.reset(this);
 	}
 
 	@Override
@@ -414,27 +325,23 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		Game game = new Game(cursor);
 
+		notifyChange(game);
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
-		mCallbacks.onGameInfoChanged(mGameName, game.ThumbnailUrl, mImageUrl, game.CustomPlayerSort);
 
-		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
-		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
-
+		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl);
 		mNameView.setText(game.Name);
-		formatRating(game);
+		mRankView.setText(game.getRankDescription());
+		mYearPublishedView.setText(game.getYearPublished());
+		mRatingView.setText(game.getRatingDescription());
+		ColorUtils.setTextViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
+		mNumberRatingView.setText(mFormat.format(game.UsersRated));
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
-		mRankView.setText(game.getRankDescription());
-		mYearPublishedView.setText(game.getYearPublished());
 		mPlayingTimeView.setText(game.getPlayingTimeDescription());
 		mPlayersView.setText(game.getPlayerRangeDescription());
 		mSuggestedAgesView.setText(game.getAgeDescription());
-
-		Picasso.with(getActivity()).load(game.ThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-			.centerCrop().into(mThumbnailView);
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -461,11 +368,24 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
+		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
+		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
+
 		if (mMightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {
 			triggerRefresh();
 		}
 		mMightNeedRefreshing = false;
+	}
+
+	private void notifyChange(Game game) {
+		GameInfo gameInfo = new GameInfo();
+		gameInfo.gameName = game.Name;
+		gameInfo.subtype = game.Subtype;
+		gameInfo.thumbnailUrl = game.ThumbnailUrl;
+		gameInfo.imageUrl = game.ImageUrl;
+		gameInfo.customPlayerSort = game.CustomPlayerSort;
+		mCallbacks.onGameInfoChanged(gameInfo);
 	}
 
 	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex) {
@@ -476,19 +396,6 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			view.setVisibility(View.VISIBLE);
 			view.bind(cursor, nameColumnIndex, Games.getGameId(mGameUri), mGameName);
 		}
-	}
-
-	private void formatRating(Game game) {
-		mRatingBar.setRating(game.Rating);
-		mRatingView.setText(game.getRatingDescription());
-		mNumberRatingView.setText(String.valueOf(game.UsersRated));
-
-		mRatingBar.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingDenomView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mRatingsCount.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mNumberRatingView.setVisibility(game.UsersRated == 0 ? View.GONE : View.VISIBLE);
-		mUnratedView.setVisibility(game.UsersRated == 0 ? View.VISIBLE : View.GONE);
 	}
 
 	private void onRankQueryComplete(Cursor cursor) {
@@ -535,6 +442,34 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 	}
 
+	static final Setter<ExpandableListView, Integer> LIMIT = new Setter<ExpandableListView, Integer>() {
+		@Override
+		public void set(ExpandableListView view, Integer value, int index) {
+			view.setLimit(value);
+		}
+	};
+
+	@OnClick(R.id.game_info_image)
+	public void onThumbnailClick(View v) {
+		if (!TextUtils.isEmpty(mImageUrl)) {
+			final Intent intent = new Intent(getActivity(), ImageActivity.class);
+			intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+			startActivity(intent);
+		}
+	}
+
+	@OnClick(R.id.game_info_description)
+	public void onDescriptionClick(View v) {
+		mIsDescriptionExpanded = !mIsDescriptionExpanded;
+		openOrCloseDescription();
+	}
+
+	@OnClick(R.id.game_info_stats_root)
+	public void onStatsClick(View v) {
+		mIsStatsExpanded = !mIsStatsExpanded;
+		openOrCloseStats();
+	}
+
 	private void openOrCloseDescription() {
 		mDescriptionView.setMaxLines(mIsDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
@@ -547,10 +482,12 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			: R.drawable.expander_open, 0);
 	}
 
-	private void launchPoll(String type) {
+	@OnClick({ R.id.game_info_num_of_players_button, R.id.game_info_suggested_ages_button,
+		R.id.game_info_languages_button })
+	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));
-		arguments.putString(PollFragment.KEY_TYPE, type);
+		arguments.putString(PollFragment.KEY_TYPE, (String) v.getTag());
 		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
@@ -564,7 +501,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 
 		String[] PROJECTION = { Games.GAME_ID, Games.STATS_AVERAGE, Games.YEAR_PUBLISHED, Games.MIN_PLAYERS,
 			Games.MAX_PLAYERS, Games.PLAYING_TIME, Games.MINIMUM_AGE, Games.DESCRIPTION, Games.STATS_USERS_RATED,
-			Games.UPDATED, GameRanks.GAME_RANK_VALUE, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
+			Games.UPDATED, Games.GAME_RANK, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
 			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
@@ -579,7 +516,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		int DESCRIPTION = 7;
 		int STATS_USERS_RATED = 8;
 		int UPDATED = 9;
-		int GAME_RANK_VALUE = 10;
+		int GAME_RANK = 10;
 		int GAME_NAME = 11;
 		int THUMBNAIL_URL = 12;
 		int STATS_BAYES_AVERAGE = 13;
@@ -691,7 +628,7 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 			Description = cursor.getString(GameQuery.DESCRIPTION);
 			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
 			Updated = cursor.getLong(GameQuery.UPDATED);
-			Rank = cursor.getInt(GameQuery.GAME_RANK_VALUE);
+			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);
 			Median = cursor.getDouble(GameQuery.STATS_MEDIAN);
 			StandardDeviation = cursor.getDouble(GameQuery.STATS_STANDARD_DEVIATION);
@@ -740,10 +677,10 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 
 		private String getRankDescription() {
-			if (Rank == 0) {
-				return getString(R.string.text_not_available);
+			if (Rank == 0 || Rank == Integer.MAX_VALUE) {
+				return "";
 			} else {
-				return String.valueOf(Rank);
+				return "#" + Rank;
 			}
 		}
 

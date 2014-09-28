@@ -109,7 +109,6 @@ public abstract class TopLevelActivity extends DrawerActivity {
 
 			@Override
 			public ActionProvider getActionProvider() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -155,7 +154,6 @@ public abstract class TopLevelActivity extends DrawerActivity {
 
 			@Override
 			public SubMenu getSubMenu() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -196,7 +194,6 @@ public abstract class TopLevelActivity extends DrawerActivity {
 
 			@Override
 			public android.view.MenuItem setActionProvider(ActionProvider actionProvider) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -262,13 +259,11 @@ public abstract class TopLevelActivity extends DrawerActivity {
 
 			@Override
 			public android.view.MenuItem setOnActionExpandListener(OnActionExpandListener listener) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public android.view.MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 

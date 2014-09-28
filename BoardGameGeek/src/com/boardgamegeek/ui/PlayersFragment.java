@@ -9,7 +9,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
@@ -23,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
@@ -39,12 +37,18 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	public interface Callbacks {
 		public boolean onPlayerSelected(String name, String username);
+
+		public void onPlayerCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public boolean onPlayerSelected(String name, String username) {
 			return true;
+		}
+
+		@Override
+		public void onPlayerCountChanged(int count) {
 		}
 	};
 
@@ -62,8 +66,6 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-
 		if (savedInstanceState != null) {
 			mSelectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
 			mSelectedUsername = savedInstanceState.getString(STATE_SELECTED_USERNAME);
@@ -73,7 +75,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_buddies));
+		setEmptyText(getString(R.string.empty_players));
 		getLoaderManager().restartLoader(PlayersQuery._TOKEN, getArguments(), this);
 	}
 
@@ -112,11 +114,6 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		Uri buddiesUri = UIUtils.fragmentArgumentsToIntent(data).getData();
-		if (buddiesUri == null) {
-			buddiesUri = Buddies.CONTENT_URI;
-		}
-
 		CursorLoader loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
 			PlayersQuery.PROJECTION, null, null, PlayPlayers.NAME);
 		return loader;
@@ -135,6 +132,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
+			mCallbacks.onPlayerCountChanged(cursor.getCount());
 			restoreScrollState();
 		} else {
 			LOGD(TAG, "Query complete, Not Actionable: " + token);
@@ -190,7 +188,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = mInflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

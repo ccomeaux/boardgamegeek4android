@@ -10,13 +10,13 @@ public class BuddiesIdProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		int buddyId = Buddies.getBuddyId(uri);
-		return mProvider.buildSimpleSelection(uri).whereEquals(Buddies.BUDDY_ID, buddyId);
+		String buddyName = Buddies.getBuddyName(uri);
+		return mProvider.buildSimpleSelection(uri).whereEquals(Buddies.BUDDY_NAME, buddyName);
 	}
 
 	@Override
 	protected String getPath() {
-		return addIdToPath(mProvider.getPath());
+		return addWildCardToPath(mProvider.getPath());
 	}
 
 	@Override

@@ -8,11 +8,25 @@
 
 	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Holo.Dialog" />
 
-	<style name="Text.DrawerItem" parent="Text.Huge">
+	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:textIsSelectable">false</item>
+	</style>
+
+	<style name="RowSeparator">
+		<item name="android:background">@color/background_dark</item>
+		<item name="android:clickable">false</item>
+		<item name="android:focusable">false</item>
+		<item name="android:gravity">center_horizontal</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+		<item name="android:textColor">#FFF</item>
 		<item name="android:textIsSelectable">false</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
 	<style name="BottomButton" parent="@android:style/Widget.Holo.Button.Borderless">
@@ -42,6 +56,25 @@
 		<item name="android:divider">?android:attr/dividerVertical</item>
 		<item name="android:dividerPadding">12dp</item>
 		<item name="android:orientation">horizontal</item>
+		<item name="android:showDividers">middle</item>
+	</style>
+
+	<style name="ActionBarButtonText">
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:textAppearance">?android:attr/actionMenuTextAppearance</item>
+		<item name="android:textColor">?android:attr/actionMenuTextColor</item>
+		<item name="android:orientation">horizontal</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:ellipsize">none</item>
+		<item name="android:padding">4dp</item>
+	</style>
+
+	<style name="DrawerList">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:divider">?android:dividerHorizontal</item>
+		<item name="android:orientation">vertical</item>
 		<item name="android:showDividers">middle</item>
 	</style>
 

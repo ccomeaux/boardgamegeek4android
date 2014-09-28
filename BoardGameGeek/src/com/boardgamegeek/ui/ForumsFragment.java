@@ -250,7 +250,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public TextView header;
 
 		public HeaderViewHolder(View view) {
-			header = (TextView) view.findViewById(R.id.separator);
+			header = (TextView) view.findViewById(android.R.id.title);
 		}
 	}
 }

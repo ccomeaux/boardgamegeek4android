@@ -23,47 +23,49 @@ import com.boardgamegeek.util.PreferencesUtils;
 public class SyncBuddiesList extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesList.class);
 
-	public SyncBuddiesList(BggService service) {
-		super(service);
+	public SyncBuddiesList(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing list of buddies in the collection...");
 		try {
-			if (!PreferencesUtils.getSyncBuddies(context)) {
+			if (!PreferencesUtils.getSyncBuddies(mContext)) {
 				LOGI(TAG, "...buddies not set to sync");
 				return;
 			}
 
-			long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_BUDDIES);
+			long lastCompleteSync = Authenticator.getLong(mContext, SyncService.TIMESTAMP_BUDDIES);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
 				LOGI(TAG, "...skipping; we synced already within the last 3 days");
 				return;
 			}
 
-			BuddyPersister persister = new BuddyPersister(context);
+			showNotification("Downloading list of GeekBuddies");
+			User user = mService.user(account.name, 1, 1);// XXX: buddies don't seem to be paged at 100
 
-			// XXX: buddies don't seem to be paged at 100. I get 204 on the first page
-			User user = mService.user(account.name, 1, 1);
+			showNotification("Storing list of GeekBuddies");
 
-			Authenticator.putInt(context, Authenticator.KEY_USER_ID, user.id);
+			Authenticator.putInt(mContext, Authenticator.KEY_USER_ID, user.id);
 
+			BuddyPersister persister = new BuddyPersister(mContext);
 			int count = 0;
 			count += persister.saveList(Buddy.fromUser(user));
 			count += persister.saveList(user.getBuddies());
 			syncResult.stats.numEntries += count;
 			LOGI(TAG, "Synced " + count + " buddies");
 
+			showNotification("Discarding old GeekBuddies");
 			// TODO: delete avatar images associated with this list
 			// Actually, these are now only in the cache!
-			ContentResolver resolver = context.getContentResolver();
+			ContentResolver resolver = mContext.getContentResolver();
 			count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(persister.getTimestamp()) });
 			syncResult.stats.numDeletes += count;
 			LOGI(TAG, "Removed " + count + " people who are no longer buddies");
 
-			Authenticator.putLong(context, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
+			Authenticator.putLong(mContext, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {
 			LOGI(TAG, "...complete!");
 		}

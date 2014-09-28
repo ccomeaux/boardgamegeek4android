@@ -102,10 +102,24 @@
 
 	<style name="Text.CheckboxLabel"></style>
 
-	<style name="Text.DrawerItem" parent="Text.Huge">
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">@dimen/padding_extra</item>
-		<item name="android:paddingRight">@dimen/padding_extra</item>
+	<style name="Text.DrawerItem" parent="Text.Big">
+		<item name="android:layout_gravity">center_vertical</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
+	<style name="DrawerItemContainer">
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">@dimen/drawer_item_height</item>
+		<item name="android:paddingBottom">@dimen/padding_standard</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:paddingTop">@dimen/padding_standard</item>
+	</style>
+
+	<style name="DrawerItemContainer.Indent">
+		<item name="android:paddingLeft">@dimen/padding_standard_indent</item>
 	</style>
 
 	<style name="RowContainer">
@@ -124,6 +138,8 @@
 
 	<style name="RowSeparator">
 		<item name="android:background">@color/background_dark</item>
+		<item name="android:clickable">false</item>
+		<item name="android:focusable">false</item>
 		<item name="android:gravity">center_horizontal</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
@@ -144,6 +160,12 @@
 		<item name="android:padding">@dimen/padding_standard</item>
 	</style>
 
+	<style name="InfoSectionContinued">
+		<item name="android:background">#fff</item>
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+		<item name="android:paddingRight">@dimen/padding_standard</item>
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>
@@ -161,6 +183,30 @@
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:textStyle">bold</item>
+	</style>
+
+	<style name="Text.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">2</item>
+	</style>
+
+	<style name="Text.Title.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">3</item>
+	</style>
+
+	<style name="Text.Footnote.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">1</item>
 	</style>
 
 	<style name="LoginFormContainer">
@@ -227,11 +273,50 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:textAppearance">?android:attr/actionMenuTextAppearance</item>
-		<item name="android:textColor">?android:attr/actionMenuTextColor</item>
+		<item name="android:textColor">#000000</item>
 		<item name="android:orientation">horizontal</item>
 		<item name="android:singleLine">true</item>
 		<item name="android:ellipsize">none</item>
 		<item name="android:padding">4dp</item>
+	</style>
+
+	<style name="DrawerListContainer">
+		<item name="android:layout_width">@dimen/drawer_width</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:layout_gravity">start</item>
+		<item name="android:background">@android:color/white</item>
+	</style>
+
+	<style name="DrawerList">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:divider">?android:dividerHorizontal</item>
+		<item name="android:orientation">vertical</item>
+	</style>
+
+	<style name="HeroContainer">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">128dp</item>
+		<item name="android:layout_gravity">center</item>
+	</style>
+
+	<style name="HeroImage">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:scaleType">centerCrop</item>
+	</style>
+
+	<style name="HeroOverlay">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:background">@color/black_overlay</item>
+	</style>
+
+	<style name="RatingLarge" parent="@style/Text.Title">
+		<item name="android:paddingBottom">@dimen/padding_half</item>
+		<item name="android:paddingLeft">@dimen/padding_extra</item>
+		<item name="android:paddingRight">@dimen/padding_extra</item>
+		<item name="android:paddingTop">@dimen/padding_half</item>
 	</style>
 
 </resources>

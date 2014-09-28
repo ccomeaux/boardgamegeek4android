@@ -1,7 +1,7 @@
 package com.boardgamegeek.model.persister;
 
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,7 @@ public class CollectionPersister {
 	private static final String TAG = makeLogTag(CollectionPersister.class);
 
 	private Context mContext;
+	private ContentResolver mResolver;
 	private long mUpdateTime;
 	private boolean mBrief;
 	private boolean mIncludePrivateInfo;
@@ -35,6 +36,7 @@ public class CollectionPersister {
 
 	public CollectionPersister(Context context) {
 		mContext = context;
+		mResolver = mContext.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
 		mGameIds = new ArrayList<Integer>();
 	}
@@ -58,20 +60,40 @@ public class CollectionPersister {
 		return this;
 	}
 
-	public int save(CollectionItem item) {
-		List<CollectionItem> items = new ArrayList<CollectionItem>(1);
-		items.add(item);
-		return save(items);
+	public int delete(List<CollectionItem> items, int gameId) {
+		if (items == null || items.size() == 0) {
+			return 0;
+		}
+
+		// determine the collection IDs that are no longer in the collection
+		List<Integer> collectionIds = ResolverUtils.queryInts(mResolver, Collection.CONTENT_URI,
+			Collection.COLLECTION_ID, "collection." + Collection.GAME_ID + "=?",
+			new String[] { String.valueOf(gameId) });
+		for (CollectionItem item : items) {
+			collectionIds.remove(Integer.valueOf(item.collectionId()));
+		}
+
+		// remove them
+		if (collectionIds.size() > 0) {
+			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			for (Integer collectionId : collectionIds) {
+				batch.add(ContentProviderOperation.newDelete(Collection.CONTENT_URI)
+					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
+					.build());
+			}
+			ResolverUtils.applyBatch(mContext, batch);
+		}
+
+		return collectionIds.size();
 	}
 
 	public int save(List<CollectionItem> items) {
-		if (items != null) {
-			ContentResolver resolver = mContext.getContentResolver();
+		if (items != null && items.size() > 0) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			mGameIds.clear();
 			for (CollectionItem item : items) {
-				insertOrUpdateGame(resolver, toGameValues(item), batch);
-				insertOrUpdateCollection(resolver, toCollectionValues(item), batch);
+				insertOrUpdateGame(toGameValues(item), batch);
+				insertOrUpdateCollection(toCollectionValues(item), batch);
 				LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
@@ -87,10 +109,6 @@ public class CollectionPersister {
 		values.put(Games.GAME_ID, item.gameId);
 		values.put(Games.GAME_NAME, item.gameName());
 		values.put(Games.GAME_SORT_NAME, item.gameSortName());
-		// don't overwrite the game's value
-		// values.put(Games.YEAR_PUBLISHED, item.yearpublished);
-		// values.put(Collection.IMAGE_URL, item.image);
-		// values.put(Collection.THUMBNAIL_URL, item.thumbnail);
 		if (!mBrief) {
 			values.put(Games.NUM_PLAYS, item.numplays);
 		}
@@ -149,15 +167,14 @@ public class CollectionPersister {
 		return values;
 	}
 
-	private void insertOrUpdateGame(ContentResolver resolver, ContentValues values,
-		ArrayList<ContentProviderOperation> batch) {
+	private void insertOrUpdateGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		int gameId = values.getAsInteger(Games.GAME_ID);
 		if (mGameIds.contains(gameId)) {
-			LOGI(TAG, "Already inserted/updated game ID=" + gameId);
+			LOGI(TAG, "Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
 		} else {
 			Builder cpo = null;
 			Uri uri = Games.buildGameUri(gameId);
-			if (ResolverUtils.rowExists(resolver, uri)) {
+			if (ResolverUtils.rowExists(mResolver, uri)) {
 				values.remove(Games.GAME_ID);
 				cpo = ContentProviderOperation.newUpdate(uri);
 			} else {
@@ -168,40 +185,32 @@ public class CollectionPersister {
 		}
 	}
 
-	private void insertOrUpdateCollection(ContentResolver resolver, ContentValues values,
-		ArrayList<ContentProviderOperation> batch) {
+	private void insertOrUpdateCollection(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		Builder cpo = null;
 		long existingId = BggContract.INVALID_ID;
 		int collId = values.getAsInteger(Collection.COLLECTION_ID);
 		if (collId == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);
-			existingId = ResolverUtils.queryInt(resolver, Collection.CONTENT_URI, Collection._ID,
+			existingId = ResolverUtils.queryLong(mResolver, Collection.CONTENT_URI, Collection._ID,
 				BggContract.INVALID_ID, "collection." + Collection.GAME_ID + "=? AND " + Collection.COLLECTION_ID
 					+ " IS NULL", new String[] { values.getAsString(Collection.GAME_ID) });
 		} else {
-			existingId = ResolverUtils.queryLong(resolver, Collection.CONTENT_URI, Collection._ID,
+			existingId = ResolverUtils.queryLong(mResolver, Collection.CONTENT_URI, Collection._ID,
 				BggContract.INVALID_ID, Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collId) });
 		}
 		if (existingId != BggContract.INVALID_ID) {
 			Uri uri = Collection.buildUri(existingId);
 			cpo = ContentProviderOperation.newUpdate(uri);
-			maybeDeleteThumbnail(resolver, values, uri, batch);
+			maybeDeleteThumbnail(values, uri, batch);
 		} else {
 			cpo = ContentProviderOperation.newInsert(Collection.CONTENT_URI);
 		}
 		batch.add(cpo.withValues(values).withYieldAllowed(true).build());
 	}
 
-	private void maybeDeleteThumbnail(ContentResolver resolver, ContentValues values, Uri uri,
-		ArrayList<ContentProviderOperation> batch) {
-
+	private void maybeDeleteThumbnail(ContentValues values, Uri uri, ArrayList<ContentProviderOperation> batch) {
 		if (mBrief) {
 			// thumbnail not returned in brief mode
-			return;
-		}
-
-		if (!values.containsKey(Collection.COLLECTION_THUMBNAIL_URL)) {
-			// nothing to do - no thumbnail
 			return;
 		}
 
@@ -210,7 +219,7 @@ public class CollectionPersister {
 			newThumbnailUrl = "";
 		}
 
-		String oldThumbnailUrl = ResolverUtils.queryString(resolver, uri, Collection.COLLECTION_THUMBNAIL_URL);
+		String oldThumbnailUrl = ResolverUtils.queryString(mResolver, uri, Collection.COLLECTION_THUMBNAIL_URL);
 		if (newThumbnailUrl.equals(oldThumbnailUrl)) {
 			// nothing to do - thumbnail hasn't changed
 			return;

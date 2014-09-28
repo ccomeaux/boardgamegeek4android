@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Mechanics;
@@ -14,8 +13,8 @@ public class MechanicsProvider extends BasicProvider {
 	}
 
 	@Override
-	protected Integer getInsertedId(ContentValues values) {
-		return values.getAsInteger(Mechanics.MECHANIC_ID);
+	protected String getInsertedIdColumn() {
+		return Mechanics.MECHANIC_ID;
 	}
 
 	@Override

@@ -11,6 +11,9 @@
 				android:id="@+id/menu_collection_sort_name"
 				android:title="@string/menu_collection_sort_name"/>
 			<item
+				android:id="@+id/menu_collection_sort_rank"
+				android:title="@string/menu_collection_sort_rank"/>
+			<item
 				android:id="@+id/menu_collection_sort_rating"
 				android:title="@string/menu_collection_sort_rating"/>
 			<item
@@ -57,6 +60,9 @@
 			<item
 				android:id="@+id/menu_play_time"
 				android:title="@string/menu_play_time"/>
+			<item
+				android:id="@+id/menu_play_count"
+				android:title="@string/menu_play_count"/>
 			<item
 				android:id="@+id/menu_suggested_age"
 				android:title="@string/menu_suggested_age"/>

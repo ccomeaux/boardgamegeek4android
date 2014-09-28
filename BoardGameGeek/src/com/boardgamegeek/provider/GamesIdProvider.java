@@ -3,7 +3,6 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.GamePolls;
-import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -17,10 +16,8 @@ public class GamesIdProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		int gameId = Games.getGameId(uri);
-		return new SelectionBuilder().table(Tables.GAMES_JOIN_GAME_RANKS).mapToTable(Games._ID, Tables.GAMES)
-			.mapToTable(Games.GAME_ID, Tables.GAMES).map(Games.POLLS_COUNT, GAME_POLLS_COUNT)
-			.whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId)
-			.whereEqualsOrNull(GameRanks.GAME_RANK_TYPE, "subtype");
+		return new SelectionBuilder().table(Tables.GAMES).map(Games.POLLS_COUNT, GAME_POLLS_COUNT)
+			.whereEquals(Tables.GAMES + "." + Games.GAME_ID, gameId);
 	}
 
 	@Override

@@ -67,7 +67,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
-import com.squareup.picasso.Picasso;
 
 public class LogPlayActivity extends SherlockFragmentActivity implements OnDateSetListener {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -220,6 +219,9 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 					} else {
 						mCustomPlayerSort = getIntent().getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false);
 					}
+					if ((mOutstandingQueries & TOKEN_ID) != 0) {
+						mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
+					}
 					setModelIfDone(token);
 					break;
 				case TOKEN_ID:
@@ -310,9 +312,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 			mHeaderView.setText(getTitle() + " - " + mGameName);
 		}
 
-		if (!TextUtils.isEmpty(mImageUrl)) {
-			Picasso.with(this).load(mImageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
-		}
+		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
@@ -556,7 +556,6 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 				if (mPlayAgain) {
 					mDeleteOnCancel = true;
 					mOutstandingQueries |= TOKEN_ID;
-					mHandler.startQuery(TOKEN_ID, null, Plays.CONTENT_SIMPLE_URI, ID_PROJECTION, null, null, null);
 				}
 				mHandler.startQuery(TOKEN_PLAY, null, Plays.buildPlayUri(mPlayId), PLAY_PROJECTION, null, null, null);
 			} else {
@@ -646,6 +645,7 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
 								triggerUpload();
+								NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
 							}
 							setResult(RESULT_CANCELED);
 							finish();

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.boardgamegeek"
 	android:installLocation="auto"
-	android:versionCode="36"
+	android:versionCode="38"
 	android:versionName="develop" >
 
 	<uses-sdk
@@ -84,11 +84,8 @@
 		</activity>
 		<activity
 			android:name=".ui.ImageActivity"
-			android:label="@string/title_image" >
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.HomeActivity" />
-		</activity>
+			android:label="@string/title_image"
+			android:theme="@style/android:Theme.NoTitleBar" />
 		<activity
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail" />
@@ -135,6 +132,22 @@
 				android:value=".ui.HomeActivity" />
 		</activity>
 		<activity
+			android:name=".ui.PlayersActivity"
+			android:exported="false"
+			android:label="@string/title_players" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
+			android:name=".ui.LocationsActivity"
+			android:exported="false"
+			android:label="@string/title_locations" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
 			android:name=".ui.PlayActivity"
 			android:exported="false"
 			android:label="@string/title_play" >
@@ -148,7 +161,15 @@
 			android:label="@string/title_player" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.BuddiesActivity" />
+				android:value=".ui.PlayersActivity" />
+		</activity>
+		<activity
+			android:name=".ui.LocationActivity"
+			android:exported="false"
+			android:label="@string/title_location" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.Locations" />
 		</activity>
 		<activity
 			android:name=".ui.SearchResultsActivity"

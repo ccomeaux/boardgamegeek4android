@@ -17,14 +17,7 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		if (savedInstanceState == null) {
-			mFragment = onCreatePane(getIntent());
-			if (mFragment != null) {
-				Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
-				arguments = onBeforeArgumentsSet(arguments);
-				mFragment.setArguments(arguments);
-				getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
-					.commit();
-			}
+			createFragment();
 		} else {
 			mFragment = getSupportFragmentManager().findFragmentByTag(TAG_SINGLE_PANE);
 		}
@@ -33,6 +26,17 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 	@Override
 	protected int getContentViewId() {
 		return R.layout.activity_singlepane_empty;
+	}
+
+	protected void createFragment() {
+		mFragment = onCreatePane(getIntent());
+		if (mFragment != null) {
+			Bundle arguments = UIUtils.intentToFragmentArguments(getIntent());
+			arguments = onBeforeArgumentsSet(arguments);
+			mFragment.setArguments(arguments);
+			getSupportFragmentManager().beginTransaction().add(R.id.root_container, mFragment, TAG_SINGLE_PANE)
+				.commit();
+		}
 	}
 
 	/**

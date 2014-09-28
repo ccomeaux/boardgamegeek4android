@@ -1,10 +1,12 @@
 package com.boardgamegeek.pref;
 
 import android.content.Context;
+import android.content.Intent;
 import android.preference.Preference;
 import android.util.AttributeSet;
 
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.ui.BuddyActivity;
+import com.boardgamegeek.util.BuddyUtils;
 
 public class BuddyPreference extends Preference {
 
@@ -22,6 +24,8 @@ public class BuddyPreference extends Preference {
 
 	@Override
 	protected void onClick() {
-		ActivityUtils.link(getContext(), "http://boardgamegeek.com/user/" + getSummary());
+		Intent intent = new Intent(getContext(), BuddyActivity.class);
+		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, getSummary());
+		getContext().startActivity(intent);
 	}
 }

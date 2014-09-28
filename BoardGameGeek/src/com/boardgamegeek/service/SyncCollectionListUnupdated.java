@@ -18,6 +18,7 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
 
 /**
  * Syncs a limited number of collection items that have not yet been updated completely.
@@ -26,16 +27,16 @@ public class SyncCollectionListUnupdated extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListUnupdated.class);
 	private static final int GAME_PER_FETCH = 25;
 
-	public SyncCollectionListUnupdated(BggService service) {
-		super(service);
+	public SyncCollectionListUnupdated(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing unupdated collection list...");
 		try {
 			int numberOfFetches = 0;
-			CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
+			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
 			Map<String, String> options = new HashMap<String, String>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
@@ -45,11 +46,17 @@ public class SyncCollectionListUnupdated extends SyncTask {
 					break;
 				}
 				numberOfFetches++;
-				List<Integer> gameIds = ResolverUtils.queryInts(context.getContentResolver(), Collection.CONTENT_URI,
+				List<Integer> gameIds = ResolverUtils.queryInts(mContext.getContentResolver(), Collection.CONTENT_URI,
 					Collection.GAME_ID, "collection." + Collection.UPDATED + "=0 OR collection." + Collection.UPDATED
-						+ " IS NULL", null, "collection." + Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
+						+ " IS NULL AND " + Collection.COLLECTION_ID + " IS NOT NULL", null, "collection."
+						+ Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 				if (gameIds.size() > 0) {
 					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
+					String detail = gameIds.size() + " games: " + StringUtils.formatList(gameIds);
+					if (numberOfFetches > 1) {
+						detail += detail + " (page" + numberOfFetches + ")";
+					}
+					showNotification(detail);
 
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
@@ -69,7 +76,6 @@ public class SyncCollectionListUnupdated extends SyncTask {
 
 	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
 		SyncResult syncResult) {
-		// TODO games with a status of played don't get returned with this request
 		CollectionResponse response = getCollectionResponse(mService, username, options);
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);

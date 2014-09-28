@@ -6,7 +6,7 @@
 	android:padding="@dimen/padding_standard" >
 
 	<EditText
-		android:id="@+id/nickname"
+		android:id="@+id/edit_nickname"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:imeOptions="actionDone"

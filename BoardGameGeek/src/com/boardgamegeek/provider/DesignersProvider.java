@@ -1,6 +1,5 @@
 package com.boardgamegeek.provider;
 
-import android.content.ContentValues;
 import android.net.Uri;
 
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -14,8 +13,8 @@ public class DesignersProvider extends BasicProvider {
 	}
 
 	@Override
-	protected Integer getInsertedId(ContentValues values) {
-		return values.getAsInteger(Designers.DESIGNER_ID);
+	protected String getInsertedIdColumn() {
+		return Designers.DESIGNER_ID;
 	}
 
 	@Override

@@ -18,6 +18,7 @@ public class TableBuilder {
 	private List<Column> mColumns = new ArrayList<Column>();
 	private List<String> mUniqueColumnNames = new ArrayList<String>();
 	private CONFLICT_RESOLUTION mResolution = CONFLICT_RESOLUTION.IGNORE;
+	private boolean mFtsTable = false;
 
 	public enum COLUMN_TYPE {
 		INTEGER, TEXT, REAL
@@ -43,9 +44,9 @@ public class TableBuilder {
 		if (mPrimaryKey == null) {
 			throw new IllegalStateException("Primary key not specified");
 		}
-
+		String table = mFtsTable ? "CREATE VIRTUAL TABLE " + mTable + " USING fts3" : "CREATE TABLE " + mTable;
 		StringBuilder sb = new StringBuilder();
-		sb.append("CREATE TABLE " + mTable + " (" + mPrimaryKey.build() + " PRIMARY KEY AUTOINCREMENT,");
+		sb.append(table + " (" + mPrimaryKey.build() + " PRIMARY KEY AUTOINCREMENT,");
 		for (Column column : mColumns) {
 			sb.append(column.build()).append(",");
 		}
@@ -111,6 +112,13 @@ public class TableBuilder {
 
 	public TableBuilder setTable(String table) {
 		mTable = table;
+		mFtsTable = false;
+		return this;
+	}
+
+	public TableBuilder setFtsTable(String table) {
+		mTable = table;
+		mFtsTable = true;
 		return this;
 	}
 

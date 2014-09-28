@@ -43,7 +43,7 @@
 	<string name="no_length">\?</string>
 	<string name="location">Location</string>
 	<string name="location_hint">Location</string>
-	<string name="no_location">No location</string>
+	<string name="no_location">&lt;No location&gt;</string>
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
@@ -70,12 +70,15 @@
 	<string name="play_again">Play again</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
 	<string name="title_players">Players</string>
+	<string name="title_location">Location</string>
+	<string name="title_locations">Locations</string>
 	<string name="title_player">Player</string>
 	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
 	<string name="add">Add</string>
 	<string name="delete">Delete</string>
+	<string name="edit">Edit</string>
 	<string name="add_player">Add player…</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
@@ -116,12 +119,16 @@
 	<string name="title_search_results">Search Results</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
+	<string name="title_settings">Settings</string>
 	<string name="title_game">Game</string>
+	<string name="title_board_game">Board Game</string>
+	<string name="title_board_game_expansion">Board Game Expansion</string>
+	<string name="title_board_game_accessory">Board Game Accessory</string>
 	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>
 	<string name="title_buddies">GeekBuddies</string>
-	<string name="title_buddy">GeekBuddy</string>
+	<string name="title_buddy">User</string>
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
 	<string name="title_add_players">Add Players</string>
@@ -141,6 +148,8 @@
 	<string name="title_publisher">Publisher</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
+	<string name="title_edit_location">Edit Location</string>
+	<string name="title_edit_player">Edit Player</string>
 	<string name="title_error">Error!</string>
 	<string name="title_save_view">Save View</string>
 	<string name="title_delete_view">Delete View</string>
@@ -156,6 +165,8 @@
 	<string name="pref_warning_username">Please sign in first.</string>
 	<string name="loading">Loading…</string>
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
+	<string name="empty_players">It appears as if you have played against no one.</string>
+	<string name="empty_locations">It appears as if you have played nowhere.</string>
 	<string name="empty_buddies_sync_off">If you want to see your GeekBuddies, go to Settings > Sync and check the box next to GeekBuddies.</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
@@ -167,6 +178,7 @@
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
 	<string name="empty_plays_player">You haven\'t logged any plays with this player.</string>
+	<string name="empty_plays_location">You haven\'t logged any plays at this location.</string>
 	<string name="empty_plays_game">You haven\'t logged any plays of this game.</string>
 	<string name="empty_plays_draft">You have no plays you\'re working on.</string>
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
@@ -197,7 +209,7 @@
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
-	<string name="menu_links">Links...</string>
+	<string name="menu_links">Links…</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
 	<string name="menu_link_bg_prices">Board Game Prices</string>
 	<string name="menu_link_amazon">Amazon</string>
@@ -207,6 +219,7 @@
 	<string name="menu_collection_filter_add">Add filter…</string>
 	<string name="menu_collection_view_save">Save view…</string>
 	<string name="menu_collection_view_delete">Delete view…</string>
+	<string name="menu_collection_status_">Collection status…</string>
 	<string name="menu_collection_status">Collection Status</string>
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
@@ -235,6 +248,7 @@
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
 	<string name="menu_play_time">Playing Time</string>
+	<string name="menu_play_count">Play Count</string>
 	<string name="menu_suggested_age">Suggested Age</string>
 	<string name="menu_geek_ranking">Geek Ranking</string>
 	<string name="menu_geek_rating">Geek Rating</string>
@@ -257,7 +271,6 @@
 	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>
-	<string name="menu_settings">Settings</string>
 	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="sort_description">by %s</string>
 	<string name="image_too_large">Sorry, but this image is too large to load.</string>
@@ -273,6 +286,9 @@
 	<string name="msg_play_deleted">Deleted a play of</string>
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
+	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
+	<string name="msg_play_location_change">Changed %1$s plays from \"%2$s\" to \"%3$s\"</string>
+	<string name="msg_play_location_change_none">No locations to change.</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
@@ -310,10 +326,12 @@
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
 	<string name="name">Name</string>
+	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
+	<string name="votes">votes</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_player_order">Player order&#8230;</string>
@@ -354,7 +372,7 @@
 	<string name="forum_last_post">Last post: %s</string>
 	<string name="forum_thread_created">Created: %s</string>
 	<string name="forum_thread_author">by %s</string>
-	<string name="collection_modified">Collection modified</string>
+	<string name="last_modified">Last modified</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="price">Price</string>
 	<string name="value">Value</string>
@@ -414,6 +432,10 @@
 	<plurals name="player_description">
 		<item quantity="one">with %s player </item>
 		<item quantity="other">with %s players </item>
+	</plurals>
+	<plurals name="msg_logging_plays">
+		<item quantity="one">Logging play…</item>
+		<item quantity="other">Logging plays…</item>
 	</plurals>
 
 </resources>

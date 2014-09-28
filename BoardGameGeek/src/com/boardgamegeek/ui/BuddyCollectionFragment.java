@@ -136,22 +136,36 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		mSubMenu = menu.addSubMenu(1, Menu.FIRST + 99, 0, R.string.menu_collection_status);
-		for (int i = 0; i < mStatusEntries.length; i++) {
-			mSubMenu.add(1, Menu.FIRST + i, i, mStatusEntries[i]);
+		inflater.inflate(R.menu.buddy_collection, menu);
+		MenuItem mi = menu.findItem(R.id.menu_collection_status);
+		if (mi != null) {
+			mSubMenu = mi.getSubMenu();
+			if (mSubMenu != null) {
+				for (int i = 0; i < mStatusEntries.length; i++) {
+					mSubMenu.add(1, Menu.FIRST + i, i, mStatusEntries[i]);
+				}
+				mSubMenu.setGroupCheckable(1, true, true);
+			}
 		}
-		mSubMenu.setGroupCheckable(1, true, true);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
+		MenuItem mi = menu.findItem(R.id.menu_collection_random_game);
+		if (mi != null) {
+			if (mAdapter != null && mAdapter.getCount() > 0) {
+				mi.setVisible(true);
+			} else {
+				mi.setVisible(false);
+			}
+		}
 		// check the proper submenu item
 		if (mSubMenu != null) {
 			for (int i = 0; i < mSubMenu.size(); i++) {
-				MenuItem mi = mSubMenu.getItem(i);
-				if (mi.getTitle().equals(mStatusLabel)) {
-					mi.setChecked(true);
+				MenuItem smi = mSubMenu.getItem(i);
+				if (smi.getTitle().equals(mStatusLabel)) {
+					smi.setChecked(true);
 					break;
 				}
 			}
@@ -166,6 +180,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		int i = id - Menu.FIRST;
 		if (i >= 0 && i < mStatusValues.length) {
 			status = mStatusValues[i];
+		} else if (id == R.id.menu_collection_random_game) {
+			CollectionItem ci = mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
+			ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
+			return true;
 		}
 
 		if (!TextUtils.isEmpty(status) && !status.equals(mStatusValue)) {
@@ -180,6 +198,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 
 	private void reload() {
 		mCallbacks.onCollectionStatusChanged(mStatusLabel);
+		if (mAdapter != null) {
+			mAdapter.clear();
+		}
+		getActivity().supportInvalidateOptionsMenu();
 		setListShown(false);
 		getLoaderManager().restartLoader(BUDDY_GAMES_LOADER_ID, null, this);
 	}
@@ -198,8 +220,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (mAdapter == null) {
 			mAdapter = new BuddyCollectionAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
+		} else {
+			mAdapter.setCollection(data.list());
 		}
 		mAdapter.notifyDataSetChanged();
+		getActivity().supportInvalidateOptionsMenu();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -333,7 +358,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = mInflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

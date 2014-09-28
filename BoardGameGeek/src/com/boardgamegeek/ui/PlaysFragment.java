@@ -35,8 +35,6 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.sort.PlaysSortDataFactory;
-import com.boardgamegeek.data.sort.SortData;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -46,6 +44,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.sorter.PlaysSortDataFactory;
+import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CursorUtils;
@@ -61,18 +61,22 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private static final String TAG = makeLogTag(PlaysFragment.class);
 	public static final String KEY_MODE = "MODE";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
+	public static final String KEY_USER_NAME = "USER_NAME";
+	public static final String KEY_LOCATION = "LOCATION";
 	private static final int MODE_ALL = 0;
 	private static final int MODE_GAME = 1;
 	public static final int MODE_BUDDY = 2;
 	public static final int MODE_PLAYER = 3;
+	public static final int MODE_LOCATION = 4;
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
 	private String mBuddyName;
 	private String mPlayerName;
+	private String mLocation;
 	private int mFilter = Play.SYNC_STATUS_ALL;
-	private SortData mSort;
+	private Sorter mSort;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
@@ -145,9 +149,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				mUri = Plays.buildPlayersUri();
 				break;
 			case MODE_PLAYER:
-				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
+				mBuddyName = getArguments().getString(KEY_USER_NAME);
 				mPlayerName = getArguments().getString(KEY_PLAYER_NAME);
 				mUri = Plays.buildPlayersUri();
+				break;
+			case MODE_LOCATION:
+				mLocation = getArguments().getString(KEY_LOCATION);
 				break;
 		}
 
@@ -158,7 +165,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	private void requery() {
-		if (mMode == MODE_ALL) {
+		if (mMode == MODE_ALL || mMode == MODE_LOCATION) {
 			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
 		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
@@ -304,6 +311,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return R.string.empty_plays_buddy;
 			case MODE_PLAYER:
 				return R.string.empty_plays_player;
+			case MODE_LOCATION:
+				return R.string.empty_plays_location;
 			case MODE_GAME:
 				return R.string.empty_plays_game;
 			case MODE_ALL:
@@ -370,6 +379,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return PlayPlayers.USER_NAME + "=?";
 			case MODE_PLAYER:
 				return PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME + "=?";
+			case MODE_LOCATION:
+				return Plays.LOCATION + "=?";
 		}
 		return null;
 	}
@@ -391,6 +402,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return new String[] { mBuddyName };
 			case MODE_PLAYER:
 				return new String[] { mBuddyName, mPlayerName };
+			case MODE_LOCATION:
+				return new String[] { mLocation };
 		}
 		return null;
 	}
@@ -445,6 +458,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			case MODE_ALL:
 			case MODE_BUDDY:
 			case MODE_PLAYER:
+			case MODE_LOCATION:
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
@@ -516,8 +530,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				int minutes = length % 60;
 				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
 			}
-			if (playerCount > 0 && mMode != MODE_BUDDY && mMode != MODE_PLAYER) {
-				// TODO make this work for budddies and players
+			if (playerCount > 0) {
 				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
 			holder.location.setText(info.trim());
@@ -557,7 +570,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (convertView == null) {
 				holder = new HeaderViewHolder();
 				convertView = mInflater.inflate(R.layout.row_header, parent, false);
-				holder.text = (TextView) convertView.findViewById(R.id.separator);
+				holder.text = (TextView) convertView.findViewById(android.R.id.title);
 				convertView.setTag(holder);
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();

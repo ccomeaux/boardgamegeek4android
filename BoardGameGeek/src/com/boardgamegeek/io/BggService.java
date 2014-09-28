@@ -34,6 +34,8 @@ public interface BggService {
 	// boardgamecompany
 	// rpgcompany
 	// videogamecompany
+	public static final String THING_SUBTYPE_BOARDGAME = "boardgame";
+	public static final String THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion";
 	public static final String THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory";
 
 	public static final String PERSON_TYPE_ARTIST = "boardgameartist";

@@ -29,18 +29,18 @@ public class SyncCollectionListComplete extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
 	private static final String STATUS_PLAYED = "played";
 
-	public SyncCollectionListComplete(BggService service) {
-		super(service);
+	public SyncCollectionListComplete(Context context, BggService service) {
+		super(context, service);
 	}
 
 	@Override
-	public void execute(Context context, Account account, SyncResult syncResult) {
+	public void execute(Account account, SyncResult syncResult) {
 		LOGI(TAG, "Syncing full collection list...");
 		boolean success = true;
 		try {
-			CollectionPersister persister = new CollectionPersister(context).brief();
+			CollectionPersister persister = new CollectionPersister(mContext).brief();
 
-			List<String> statuses = new ArrayList<String>(Arrays.asList(PreferencesUtils.getSyncStatuses(context)));
+			List<String> statuses = new ArrayList<String>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
 			if (statuses.remove(STATUS_PLAYED)) {
 				statuses.add(0, STATUS_PLAYED);
 			}
@@ -57,6 +57,7 @@ public class SyncCollectionListComplete extends SyncTask {
 					continue;
 				}
 				LOGI(TAG, "...syncing status [" + status + "]");
+				showNotification(String.format("Syncing %s collection items", status));
 
 				Map<String, String> options = new HashMap<String, String>();
 				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
@@ -67,6 +68,7 @@ public class SyncCollectionListComplete extends SyncTask {
 
 				requestAndPersist(account.name, persister, options, syncResult);
 
+				showNotification(String.format("Syncing %s collection accessories", status));
 				options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
 				requestAndPersist(account.name, persister, options, syncResult);
 			}
@@ -74,14 +76,14 @@ public class SyncCollectionListComplete extends SyncTask {
 			if (success) {
 				LOGI(TAG, "...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
-				int count = context.getContentResolver().delete(Collection.CONTENT_URI, Collection.UPDATED_LIST + "<?",
-					new String[] { String.valueOf(persister.getTimeStamp()) });
+				int count = mContext.getContentResolver().delete(Collection.CONTENT_URI,
+					Collection.UPDATED_LIST + "<?", new String[] { String.valueOf(persister.getTimeStamp()) });
 				LOGI(TAG, "...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
-				// TODO: delete thumbnail images associated with this list (both collection and game
+				// TODO: delete thumbnail images associated with this list (both collection and game)
 
-				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
-				Authenticator.putLong(context, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
+				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_COMPLETE, persister.getTimeStamp());
+				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
 			LOGI(TAG, "...complete!");

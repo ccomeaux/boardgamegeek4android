@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_standard" >
+
+	<GridView
+		android:id="@+id/featured_color_grid"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:stretchMode="columnWidth" />
+
+	<View
+		android:id="@+id/hr"
+		android:layout_width="match_parent"
+		android:layout_height="1px"
+		android:background="@color/background_dark" />
+
+	<GridView
+		android:id="@+id/color_grid"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:stretchMode="columnWidth" />
+
+</LinearLayout>
