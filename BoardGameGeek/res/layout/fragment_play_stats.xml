@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+
+	<ProgressBar
+		android:id="@+id/progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center" />
+
+	<TextView
+		android:id="@+id/empty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:text="@string/empty_play_stats"
+		android:visibility="gone" />
+
+	<ScrollView
+		android:id="@+id/data"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone" >
+
+		<TableLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/padding_standard" >
+
+			<TableRow>
+
+				<TextView
+					style="@style/TextLabel.Edit"
+					android:text="H-Index" />
+
+				<TextView android:id="@+id/hindex" />
+			</TableRow>
+		</TableLayout>
+	</ScrollView>
+
+</FrameLayout>
