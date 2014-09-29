@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="38"
-	android:versionName="develop" >
+	android:versionName="feature/play-stats" >
 
 	<uses-sdk
 		android:minSdkVersion="9"

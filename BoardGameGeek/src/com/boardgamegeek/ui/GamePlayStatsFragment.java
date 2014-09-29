@@ -31,7 +31,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
 
-public class PlayStatsFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GamePlayStatsFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private int mGameId;
 
 	private int mPlayingTime;
@@ -64,7 +64,7 @@ public class PlayStatsFragment extends SherlockFragment implements LoaderManager
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
 		mProgress = rootView.findViewById(R.id.progress);
 		mEmpty = rootView.findViewById(R.id.empty);
 		mData = rootView.findViewById(R.id.data);

@@ -206,7 +206,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 					fragment = new PlaysFragment();
 					break;
 				case 3:
-					fragment = new PlayStatsFragment();
+					fragment = new GamePlayStatsFragment();
 					break;
 				case 4:
 					fragment = new ColorsFragment();
