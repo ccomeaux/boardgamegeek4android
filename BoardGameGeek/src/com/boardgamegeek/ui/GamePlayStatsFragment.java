@@ -21,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
@@ -37,22 +39,22 @@ public class GamePlayStatsFragment extends SherlockFragment implements LoaderMan
 	private int mPlayingTime;
 	private double mRating;
 
-	private View mProgress;
-	private View mEmpty;
-	private View mData;
-	private TextView mPlayCountView;
-	private TextView mPlayHoursView;
-	private TextView mPlayMonthsView;
-	private TextView mFhmView;
-	private TextView mHhmView;
-	private TextView mRuhmView;
-	private TextView mUtilization;
-	private View mNickelRoot;
-	private TextView mNickel;
-	private View mDimeRoot;
-	private TextView mDime;
-	private View mQuarterRoot;
-	private TextView mQuarter;
+	@InjectView(R.id.progress) View mProgress;
+	@InjectView(R.id.empty) View mEmpty;
+	@InjectView(R.id.data) View mData;
+	@InjectView(R.id.play_count) TextView mPlayCountView;
+	@InjectView(R.id.play_hours) TextView mPlayHoursView;
+	@InjectView(R.id.play_months) TextView mPlayMonthsView;
+	@InjectView(R.id.fhm) TextView mFhmView;
+	@InjectView(R.id.hhm) TextView mHhmView;
+	@InjectView(R.id.ruhm) TextView mRuhmView;
+	@InjectView(R.id.utilization) TextView mUtilization;
+	@InjectView(R.id.nickel_container) View mNickelRoot;
+	@InjectView(R.id.nickel) TextView mNickel;
+	@InjectView(R.id.dime_container) View mDimeRoot;
+	@InjectView(R.id.dime) TextView mDime;
+	@InjectView(R.id.quarter_container) View mQuarterRoot;
+	@InjectView(R.id.quarter) TextView mQuarter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,24 +67,7 @@ public class GamePlayStatsFragment extends SherlockFragment implements LoaderMan
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
-		mProgress = rootView.findViewById(R.id.progress);
-		mEmpty = rootView.findViewById(R.id.empty);
-		mData = rootView.findViewById(R.id.data);
-
-		mFhmView = (TextView) rootView.findViewById(R.id.fhm);
-		mHhmView = (TextView) rootView.findViewById(R.id.hhm);
-		mRuhmView = (TextView) rootView.findViewById(R.id.ruhm);
-		mUtilization = (TextView) rootView.findViewById(R.id.utilization);
-
-		mPlayCountView = (TextView) rootView.findViewById(R.id.play_count);
-		mNickelRoot = rootView.findViewById(R.id.nickel_container);
-		mNickel = (TextView) rootView.findViewById(R.id.nickel);
-		mDimeRoot = rootView.findViewById(R.id.dime_container);
-		mDime = (TextView) rootView.findViewById(R.id.dime);
-		mQuarterRoot = rootView.findViewById(R.id.quarter_container);
-		mQuarter = (TextView) rootView.findViewById(R.id.quarter);
-		mPlayHoursView = (TextView) rootView.findViewById(R.id.play_hours);
-		mPlayMonthsView = (TextView) rootView.findViewById(R.id.play_months);
+		ButterKnife.inject(this, rootView);
 		return rootView;
 	}
 
