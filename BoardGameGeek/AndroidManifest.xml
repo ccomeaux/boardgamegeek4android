@@ -208,6 +208,17 @@
 			android:name=".ui.ForumActivity"
 			android:label="@string/title_forum" />
 		<activity
+			android:name=".ui.GeeklistsActivity"
+			android:exported="false"
+			android:label="@string/title_geeklists" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
+			android:name=".ui.GeeklistActivity"
+			android:label="@string/title_geeklist" />
+		<activity
 			android:name=".ui.ThreadActivity"
 			android:label="@string/title_thread" />
 		<activity
