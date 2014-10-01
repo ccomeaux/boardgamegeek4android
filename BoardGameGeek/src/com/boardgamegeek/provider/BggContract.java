@@ -665,6 +665,10 @@ public class BggContract {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
 		}
 
+		public static Uri buildUniqueGameUri() {
+			return CONTENT_URI.buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, GAME_ID).build();
+		}
+
 		public static Uri buildThumbnailUri(int itemId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(itemId)).appendPath(PATH_THUMBNAILS).build();
 		}

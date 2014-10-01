@@ -43,6 +43,15 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="Text.NumberStat">
+		<item name="android:textStyle">bold</item>
+		<item name="android:gravity">right</item>
+	</style>
+
+	<style name="Text.NumberStatLabel">
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
+	</style>
+
 	<style name="Text.Big">
 		<item name="android:textSize">16sp</item>
 	</style>

@@ -11,10 +11,15 @@ public class CollectionProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		return new SelectionBuilder().table(getExpandedTable()).mapToTable(Collection._ID, Tables.COLLECTION)
+		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
+		SelectionBuilder builder = new SelectionBuilder().table(getExpandedTable()).mapToTable(Collection._ID, Tables.COLLECTION)
 			.mapToTable(Collection.GAME_ID, Tables.COLLECTION).mapToTable(Collection.UPDATED, Tables.COLLECTION)
 			.mapToTable(Collection.UPDATED_LIST, Tables.COLLECTION)
 			.map(Games.GAME_RANK, "IFNULL(" + Games.GAME_RANK + "," + Integer.MAX_VALUE + ")");
+		if (Collection.GAME_ID.equals(groupBy)){
+			builder.groupBy(groupBy);
+		}
+		return builder;
 	}
 
 	protected String getExpandedTable() {
