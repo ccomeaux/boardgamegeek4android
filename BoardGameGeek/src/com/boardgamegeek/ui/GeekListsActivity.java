@@ -4,10 +4,10 @@ import android.support.v4.app.Fragment;
 
 import com.boardgamegeek.R;
 
-public class GeeklistsActivity extends TopLevelSinglePaneActivity {
+public class GeekListsActivity extends TopLevelSinglePaneActivity {
 	@Override
 	protected Fragment onCreatePane() {
-		return new GeeklistsFragment();
+		return new GeekListsFragment();
 	}
 
 	@Override

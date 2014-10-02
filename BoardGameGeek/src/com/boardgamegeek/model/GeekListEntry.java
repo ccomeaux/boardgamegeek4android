@@ -1,6 +1,6 @@
 package com.boardgamegeek.model;
 
-public class GeeklistEntry {
+public class GeekListEntry {
 	public int id;
 	public int thumbs;
 	public String title;

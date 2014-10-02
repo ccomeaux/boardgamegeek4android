@@ -120,8 +120,8 @@
 	<string name="title_collection">Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>
-	<string name="title_geeklists">Geek Lists</string>
-	<string name="title_geeklist">Geek List</string>
+	<string name="title_geeklists">GeekLists</string>
+	<string name="title_geeklist">GeekList</string>
 	<string name="title_game">Game</string>
 	<string name="title_board_game">Board Game</string>
 	<string name="title_board_game_expansion">Board Game Expansion</string>
@@ -186,11 +186,11 @@
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play">No play ID %s."</string>
-	<string name="empty_geeklists">Error loading geek lists.</string>
+	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
 	<string name="empty_thread">No posts in this thread.</string>
-	<string name="empty_geeklist">No items in this geek list.</string>
+	<string name="empty_geeklist">No items in this GeekList.</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="search_label">BoardGameGeek</string>

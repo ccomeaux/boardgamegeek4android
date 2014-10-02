@@ -18,36 +18,37 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.model.Geeklist;
-import com.boardgamegeek.model.GeeklistItem;
+import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.BoardGameGeekConstants;
-import com.boardgamegeek.util.GeeklistUtils;
+import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeeklistFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<GeeklistFragment.GeeklistData> {
+public class GeekListFragment extends BggListFragment implements
+	LoaderManager.LoaderCallbacks<GeekListFragment.GeeklistData> {
 	private static final int GEEKLIST_LOADER_ID = 99103;
-
-	private GeeklistAdapter mGeeklistAdapter;
-	private int mGeeklistId;
+	private int mGeekListId;
+	private GeeklistAdapter mGeekListAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeeklistId = intent.getIntExtra(GeeklistUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
+		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
+		// TODO: enable smooth scroll?
 		listView.setSmoothScrollbarEnabled(false);
 		listView.setSelector(android.R.color.transparent);
 	}
@@ -67,7 +68,7 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 
 	@Override
 	public Loader<GeeklistData> onCreateLoader(int id, Bundle data) {
-		return new GeeklistLoader(getActivity(), mGeeklistId);
+		return new GeeklistLoader(getActivity(), mGeekListId);
 	}
 
 	@Override
@@ -76,11 +77,11 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 			return;
 		}
 
-		if (mGeeklistAdapter == null) {
-			mGeeklistAdapter = new GeeklistAdapter(getActivity(), data.list());
-			setListAdapter(mGeeklistAdapter);
+		if (mGeekListAdapter == null) {
+			mGeekListAdapter = new GeeklistAdapter(getActivity(), data.list());
+			setListAdapter(mGeekListAdapter);
 		}
-		mGeeklistAdapter.notifyDataSetChanged();
+		mGeekListAdapter.notifyDataSetChanged();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -98,7 +99,7 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 	public void onLoaderReset(Loader<GeeklistData> loader) {
 	}
 
-    private static class GeeklistLoader extends BggLoader<GeeklistData> {
+	private static class GeeklistLoader extends BggLoader<GeeklistData> {
 		private BggService mService;
 		private int mGeeklistId;
 
@@ -120,10 +121,10 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 		}
 	}
 
-	static class GeeklistData extends Data<GeeklistItem> {
-		private Geeklist mGeeklist;
+	static class GeeklistData extends Data<GeekListItem> {
+		private GeekList mGeeklist;
 
-		public GeeklistData(Geeklist geeklist) {
+		public GeeklistData(GeekList geeklist) {
 			super();
 			mGeeklist = geeklist;
 		}
@@ -133,7 +134,7 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 		}
 
 		@Override
-		protected List<GeeklistItem> list() {
+		protected List<GeekListItem> list() {
 			if (mGeeklist == null || mGeeklist.items == null) {
 				return new ArrayList<>();
 			}
@@ -141,10 +142,10 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 		}
 	}
 
-	public class GeeklistAdapter extends ArrayAdapter<GeeklistItem> {
+	public class GeeklistAdapter extends ArrayAdapter<GeekListItem> {
 		private LayoutInflater mInflater;
 
-		public GeeklistAdapter(Activity activity, List<GeeklistItem> items) {
+		public GeeklistAdapter(Activity activity, List<GeekListItem> items) {
 			super(activity, R.layout.row_geeklist_item, items);
 			mInflater = activity.getLayoutInflater();
 		}
@@ -160,21 +161,23 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			GeeklistItem item;
+			GeekListItem item;
 			try {
 				item = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return convertView;
 			}
 			if (item != null) {
-				String content = GeeklistUtils.convertBoardGameGeekXmlText(item.body);
-				
-				holder.username.setText("Posted by " + item.username);
-                holder.postedDate.setText("Posted " + item.postdate);
-                holder.editedDate.setText("Edited " + item.editdate);
-                holder.gameName.setText(item.objectname);
+				String content = GeekListUtils.convertBoardGameGeekXmlText(item.body);
 
-                loadThumbnail(BoardGameGeekConstants.BGG_BOARDGAME_IMAGE + item.imageid + "_t.jpg", holder.thumbnail);
+				// TODO externalize strings
+				holder.username.setText("Posted by " + item.username);
+				// TODO format dates
+				holder.postedDate.setText("Posted " + item.postdate);
+				holder.editedDate.setText("Edited " + item.editdate);
+				holder.gameName.setText(item.objectname);
+
+				loadThumbnail(BoardGameGeekConstants.BGG_BOARDGAME_IMAGE + item.imageid + "_t.jpg", holder.thumbnail);
 
 				UIUtils.setWebViewText(holder.body, content);
 			}
@@ -186,16 +189,17 @@ public class GeeklistFragment extends BggListFragment implements LoaderManager.L
 		TextView username;
 		TextView postedDate;
 		TextView editedDate;
-        TextView gameName;
-        ImageView thumbnail;
+		TextView gameName;
+		ImageView thumbnail;
 		WebView body;
 
 		public ViewHolder(View view) {
+			// TODO: use ButterKnife
 			username = (TextView) view.findViewById(R.id.geeklist_item_username);
-            postedDate = (TextView) view.findViewById(R.id.geeklist_item_posted_date);
-            editedDate = (TextView) view.findViewById(R.id.geeklist_item_edited_date);
-            gameName = (TextView) view.findViewById(R.id.game_name);
-            thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+			postedDate = (TextView) view.findViewById(R.id.geeklist_item_posted_date);
+			editedDate = (TextView) view.findViewById(R.id.geeklist_item_edited_date);
+			gameName = (TextView) view.findViewById(R.id.game_name);
+			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
 			body = (WebView) view.findViewById(R.id.geeklist_item_body);
 		}
 	}

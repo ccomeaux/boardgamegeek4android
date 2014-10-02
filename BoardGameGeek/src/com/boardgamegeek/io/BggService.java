@@ -16,7 +16,7 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
-import com.boardgamegeek.model.Geeklist;
+import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlayPostResponse;
@@ -76,7 +76,7 @@ public interface BggService {
 	ForumResponse forum(@Query("id") int id, @Query("page") int page);
 
 	@GET("/xmlapi/geeklist/{id}?comments=1")
-	Geeklist geeklist(@Path("id") int id);
+	GeekList geeklist(@Path("id") int id);
 
 	// minarticleid=NNN Filters the results so that only articles with an equal or higher id than NNN will be returned.
 	// minarticledate=YYYY-MM-DD Filters the results so that only articles on the specified date or later will be
