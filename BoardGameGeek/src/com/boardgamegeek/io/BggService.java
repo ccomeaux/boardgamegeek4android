@@ -17,6 +17,7 @@ import com.boardgamegeek.model.Company;
 import com.boardgamegeek.model.ForumListResponse;
 import com.boardgamegeek.model.ForumResponse;
 import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.model.HotnessResponse;
 import com.boardgamegeek.model.Person;
 import com.boardgamegeek.model.PlayPostResponse;
@@ -48,6 +49,10 @@ public interface BggService {
 	public static final String SEARCH_TYPE_RPG_ITEM = "rpgitem";
 	public static final String SEARCH_TYPE_VIDEO_GAME = "videogame";
 	// other search types: boardgameartist, boardgamedesigner, boardgamepublisher
+	
+	public static String GEEKLIST_SORT_HOT = "hot";
+	public static String GEEKLIST_SORT_RECENT = "recent";
+	public static String GEEKLIST_SORT_ACTIVE = "active";
 
 	public static String FORUM_TYPE_REGION = "region";
 	public static String FORUM_TYPE_THING = "thing";
@@ -75,8 +80,11 @@ public interface BggService {
 	@GET("/xmlapi2/forum")
 	ForumResponse forum(@Query("id") int id, @Query("page") int page);
 
+	@GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&showcount=12&tradelists=0&version=v2")
+	GeekListsResponse geekLists(@Query("pageid") int page, @Query("sort") String sort);
+
 	@GET("/xmlapi/geeklist/{id}?comments=1")
-	GeekList geeklist(@Path("id") int id);
+	GeekList geekList(@Path("id") int id);
 
 	// minarticleid=NNN Filters the results so that only articles with an equal or higher id than NNN will be returned.
 	// minarticledate=YYYY-MM-DD Filters the results so that only articles on the specified date or later will be

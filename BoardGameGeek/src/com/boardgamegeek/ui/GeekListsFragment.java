@@ -1,18 +1,7 @@
 package com.boardgamegeek.ui;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,10 +19,12 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.io.Adapter;
+import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
+import com.boardgamegeek.model.GeekListsResponse;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
-import com.boardgamegeek.util.BoardGameGeekConstants;
 import com.boardgamegeek.util.GeekListUtils;
 
 public class GeekListsFragment extends BggListFragment implements
@@ -110,9 +101,9 @@ public class GeekListsFragment extends BggListFragment implements
 				// TODO implement paginated data
 				geekListsData = new GeekListsData();
 				List<GeekListEntry> geekLists = new ArrayList<>();
-				geekLists.addAll(getGeekLists(1, "hot"));
-				geekLists.addAll(getGeekLists(2, "hot"));
-				geekLists.addAll(getGeekLists(3, "hot"));
+				geekLists.addAll(getGeekLists(1, BggService.GEEKLIST_SORT_HOT));
+				geekLists.addAll(getGeekLists(2, BggService.GEEKLIST_SORT_HOT));
+				geekLists.addAll(getGeekLists(3, BggService.GEEKLIST_SORT_HOT));
 				geekListsData.geekLists = geekLists;
 			} catch (Exception e) {
 				geekListsData = new GeekListsData(e);
@@ -120,72 +111,10 @@ public class GeekListsFragment extends BggListFragment implements
 			return geekListsData;
 		}
 
-		// TODO use okhttp/retrofit
 		private List<GeekListEntry> getGeekLists(int page, String sort) {
-			List<GeekListEntry> geeklists = new ArrayList<>();
-
-			String url = BoardGameGeekConstants.BGG_GEEKLIST
-				+ "module?ajax=1&domain=boardgame&nosession=1&objectid=0&objecttype=&pageid=" + page
-				+ "&showcontrols=1&showcount=12&sort=" + sort + "&tradelists=0&version=v2";
-
-			StringBuilder sb = new StringBuilder();
-			try {
-				URLConnection connection = new URL(url).openConnection();
-				connection.setRequestProperty("Accept", "application/json, text/plain, */*");
-				connection.setRequestProperty("Accept-Charset", "UTF-8");
-				InputStream response = connection.getInputStream();
-
-				if ("gzip".equals(connection.getContentEncoding())) {
-					response = new GZIPInputStream(response);
-				}
-
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response,
-					Charset.forName("UTF-8")));
-
-				String line = null;
-				while ((line = bufferedReader.readLine()) != null) {
-					sb.append(line + "\n");
-				}
-				bufferedReader.close();
-			} catch (Exception e) {
-				// TODO LOGE()
-			}
-
-			String json = sb.toString();
-
-			if (!json.isEmpty()) {
-				try {
-					JSONObject jsonObject = new JSONObject(json);
-
-					JSONArray lists = jsonObject.getJSONArray("lists");
-
-					for (int i = 0; i < lists.length(); i++) {
-						JSONObject geeklistJson = lists.getJSONObject(i);
-						GeekListEntry geeklist = getGeekList(geeklistJson);
-						geeklists.add(geeklist);
-					}
-				} catch (JSONException e) {
-				}
-			}
-
-			return geeklists;
-		}
-
-		private GeekListEntry getGeekList(JSONObject item) throws JSONException {
-			GeekListEntry geekList = new GeekListEntry();
-			geekList.thumbs = Integer.parseInt(item.getString("numpositive"));
-			geekList.title = item.getString("title");
-			String link = BoardGameGeekConstants.BGG_WEBSITE + item.getString("href");
-			geekList.id = getId(link);
-			geekList.link = link;
-			geekList.creator = item.getString("username");
-			geekList.entries = Integer.parseInt(item.getString("numitems"));
-			return geekList;
-		}
-
-		private int getId(String link) {
-			int start = link.indexOf("/geeklist/");
-			return Integer.valueOf(link.substring(start + 10, link.lastIndexOf("/")));
+			BggService mService = Adapter.createWithJson();
+			GeekListsResponse res = mService.geekLists(page, sort);
+			return res.getGeekListEntries();
 		}
 	}
 
@@ -233,10 +162,10 @@ public class GeekListsFragment extends BggListFragment implements
 
 			if (geeklist != null) {
 				Context context = parent.getContext();
-				holder.id = geeklist.id;
-				holder.title.setText(geeklist.title);
-				holder.creator.setText(context.getString(R.string.by_prefix, geeklist.creator));
-				holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.thumbs));
+				holder.id = geeklist.getId();
+				holder.title.setText(geeklist.getTitle());
+				holder.creator.setText(context.getString(R.string.by_prefix, geeklist.getAuthor()));
+				holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.getNumberOfThumbs()));
 			}
 			return convertView;
 		}

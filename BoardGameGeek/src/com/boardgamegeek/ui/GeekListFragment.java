@@ -116,7 +116,7 @@ public class GeekListFragment extends BggListFragment implements
 		public GeeklistData loadInBackground() {
 			GeeklistData geeklistData;
 			try {
-				geeklistData = new GeeklistData(mService.geeklist(mGeeklistId));
+				geeklistData = new GeeklistData(mService.geekList(mGeeklistId));
 			} catch (Exception e) {
 				geeklistData = new GeeklistData(e);
 			}
