@@ -5,11 +5,18 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import com.boardgamegeek.util.DateTimeUtils;
+
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 @Root(name = "item")
 public class GeekListItem {
-	@Attribute public String editdate;
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+
+	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
+	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
 
 	@Attribute public String id;
 
@@ -21,7 +28,19 @@ public class GeekListItem {
 
 	@Attribute public String objecttype;
 
-	@Attribute public String postdate;
+	@Attribute private String postdate;
+
+	public long postDate() {
+		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
+		return mPostDateTime;
+	}
+
+	@Attribute private String editdate;
+
+	public long editDate() {
+		mEditDateTime = DateTimeUtils.tryParseDate(mEditDateTime, editdate, FORMAT);
+		return mEditDateTime;
+	}
 
 	@Attribute public String subtype;
 

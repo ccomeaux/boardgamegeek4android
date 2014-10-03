@@ -26,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekListEntry;
@@ -87,11 +89,11 @@ public class GeekListsFragment extends BggListFragment implements
 
 	@Override
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		GeeklistViewHolder holder = (GeeklistViewHolder) convertView.getTag();
+		ViewHolder holder = (ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), GeekListActivity.class);
-			intent.putExtra(GeekListUtils.KEY_GEEKLIST_ID, holder.geeklistId);
-			intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, holder.geeklistTitle.getText());
+			intent.putExtra(GeekListUtils.KEY_GEEKLIST_ID, holder.id);
+			intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, holder.title.getText());
 			startActivity(intent);
 		}
 	}
@@ -220,37 +222,34 @@ public class GeekListsFragment extends BggListFragment implements
 				return convertView;
 			}
 
-			GeeklistViewHolder holder;
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.row_geeklist, parent, false);
-				holder = new GeeklistViewHolder(convertView);
+				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
-				holder = (GeeklistViewHolder) convertView.getTag();
+				holder = (ViewHolder) convertView.getTag();
 			}
 
-			// TODO: move text to string resources
 			if (geeklist != null) {
-				holder.geeklistId = geeklist.id;
-				holder.geeklistTitle.setText(geeklist.title);
-				holder.creator.setText("by " + geeklist.creator);
-				holder.numThumbs.setText(geeklist.thumbs + " thumbs");
+				Context context = parent.getContext();
+				holder.id = geeklist.id;
+				holder.title.setText(geeklist.title);
+				holder.creator.setText(context.getString(R.string.by_prefix, geeklist.creator));
+				holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.thumbs));
 			}
 			return convertView;
 		}
 	}
 
-	static class GeeklistViewHolder {
-		public int geeklistId;
-		public TextView geeklistTitle;
-		public TextView creator;
-		public TextView numThumbs;
+	static class ViewHolder {
+		public int id;
+		@InjectView(R.id.geeklist_title) TextView title;
+		@InjectView(R.id.geeklist_creator) TextView creator;
+		@InjectView(R.id.geeklist_thumbs) TextView numThumbs;
 
-		public GeeklistViewHolder(View view) {
-			// TODO: use ButterKnife
-			geeklistTitle = (TextView) view.findViewById(R.id.geeklist_title);
-			creator = (TextView) view.findViewById(R.id.geeklist_creator);
-			numThumbs = (TextView) view.findViewById(R.id.geeklist_thumbs);
+		public ViewHolder(View view) {
+			ButterKnife.inject(this, view);
 		}
 	}
 }

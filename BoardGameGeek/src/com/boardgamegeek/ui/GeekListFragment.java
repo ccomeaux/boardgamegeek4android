@@ -14,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -24,6 +26,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.BoardGameGeekConstants;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -168,17 +171,18 @@ public class GeekListFragment extends BggListFragment implements
 				return convertView;
 			}
 			if (item != null) {
-				String content = GeekListUtils.convertBoardGameGeekXmlText(item.body);
-
-				// TODO externalize strings
-				holder.username.setText("Posted by " + item.username);
-				// TODO format dates
-				holder.postedDate.setText("Posted " + item.postdate);
-				holder.editedDate.setText("Edited " + item.editdate);
+				Context context = convertView.getContext();
+				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
+				holder.postedDate.setText(context.getString(R.string.posted_prefix,
+					DateTimeUtils.formatForumDate(context, item.postDate())));
+				holder.editedDate.setText(context.getString(R.string.edited_prefix,
+					DateTimeUtils.formatForumDate(context, item.editDate())));
 				holder.gameName.setText(item.objectname);
 
 				loadThumbnail(BoardGameGeekConstants.BGG_BOARDGAME_IMAGE + item.imageid + "_t.jpg", holder.thumbnail);
 
+				// TODO: change to textview
+				String content = GeekListUtils.convertBoardGameGeekXmlText(item.body);
 				UIUtils.setWebViewText(holder.body, content);
 			}
 			return convertView;
@@ -186,21 +190,15 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	public static class ViewHolder {
-		TextView username;
-		TextView postedDate;
-		TextView editedDate;
-		TextView gameName;
-		ImageView thumbnail;
-		WebView body;
+		@InjectView(R.id.geeklist_item_username) TextView username;
+		@InjectView(R.id.geeklist_item_posted_date) TextView postedDate;
+		@InjectView(R.id.geeklist_item_edited_date) TextView editedDate;
+		@InjectView(R.id.game_name) TextView gameName;
+		@InjectView(R.id.thumbnail) ImageView thumbnail;
+		@InjectView(R.id.geeklist_item_body) WebView body;
 
 		public ViewHolder(View view) {
-			// TODO: use ButterKnife
-			username = (TextView) view.findViewById(R.id.geeklist_item_username);
-			postedDate = (TextView) view.findViewById(R.id.geeklist_item_posted_date);
-			editedDate = (TextView) view.findViewById(R.id.geeklist_item_edited_date);
-			gameName = (TextView) view.findViewById(R.id.game_name);
-			thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-			body = (WebView) view.findViewById(R.id.geeklist_item_body);
+			ButterKnife.inject(this, view);
 		}
 	}
 }

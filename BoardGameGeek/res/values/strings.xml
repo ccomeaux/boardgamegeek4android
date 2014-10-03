@@ -335,6 +335,11 @@
 	<string name="create">Create</string>
 	<string name="votes">votes</string>
 	<string name="votes_suffix">"%s votes"</string>
+	<string name="thumbs_suffix">%s thumbs</string>
+	<string name="by_prefix">by %s</string>
+	<string name="posted_by_prefix">Posted by %s</string>
+	<string name="posted_prefix">Posted %s</string>
+	<string name="edited_prefix">Edited %s</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_player_order">Player order&#8230;</string>
 	<string name="menu_custom_player_order">Custom</string>
