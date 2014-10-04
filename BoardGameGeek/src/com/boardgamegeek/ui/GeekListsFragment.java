@@ -77,6 +77,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
+			saveScrollState();
 			loadMoreResults();
 		}
 	}
@@ -98,6 +99,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		} else {
 			mGeekListsAdapter.update(data);
 		}
+		restoreScrollState();
 	}
 
 	@Override
