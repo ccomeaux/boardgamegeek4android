@@ -29,7 +29,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BoardGameGeekConstants;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -178,7 +177,7 @@ public class GeekListFragment extends BggListFragment implements
 					DateTimeUtils.formatForumDate(context, item.editDate())));
 				holder.gameName.setText(item.objectname);
 
-				loadThumbnail(BoardGameGeekConstants.BGG_BOARDGAME_IMAGE + item.imageid + "_t.jpg", holder.thumbnail);
+				loadThumbnail(item.imageId(), holder.thumbnail);
 
 				// TODO: change to textview
 				String content = GeekListUtils.convertBoardGameGeekXmlText(item.body);

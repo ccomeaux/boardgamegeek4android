@@ -59,6 +59,7 @@ public class ActivityUtils {
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	public static final String IMAGE_URL_PREFIX = "http://cf.geekdo-images.com/images/pic";
 
 	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
@@ -416,6 +417,14 @@ public class ActivityUtils {
 		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
 		doneActionView.setOnClickListener(listener);
 		activity.getSupportActionBar().setCustomView(actionBarButtons);
+	}
+
+	public static String createThumbnailPath(int imageId) {
+		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
+	}
+
+	public static String createThumbnailPath(String imageId) {
+		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
 	}
 
 	public static void safelyLoadImage(final ImageView imageView, final String imageUrl) {

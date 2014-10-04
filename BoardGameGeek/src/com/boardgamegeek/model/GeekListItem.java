@@ -21,7 +21,11 @@ public class GeekListItem {
 
 	@Attribute private String id;
 
-	@Attribute public String imageid;
+	@Attribute private String imageid;
+
+	public int imageId() {
+		return Integer.valueOf(imageid);
+	}
 
 	@Attribute private String objectid;
 

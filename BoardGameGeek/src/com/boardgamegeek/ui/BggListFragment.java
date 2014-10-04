@@ -8,6 +8,7 @@ import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
 import com.squareup.picasso.Picasso;
 
 public abstract class BggListFragment extends SherlockListFragment {
@@ -72,6 +73,10 @@ public abstract class BggListFragment extends SherlockListFragment {
 	protected void resetScrollState() {
 		mListViewStatePosition = 0;
 		mListViewStateTop = LIST_VIEW_STATE_TOP_DEFAULT;
+	}
+
+	protected void loadThumbnail(int imageId, ImageView target) {
+		loadThumbnail(ActivityUtils.createThumbnailPath(imageId), target, R.drawable.thumbnail_image_empty);
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {
