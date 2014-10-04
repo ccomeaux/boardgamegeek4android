@@ -1,5 +1,8 @@
 package com.boardgamegeek.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,10 +15,10 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -25,13 +28,11 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BoardGameGeekConstants;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeeklistData> {
@@ -50,10 +51,7 @@ public class GeekListFragment extends BggListFragment implements
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		// TODO: enable smooth scroll?
-		listView.setSmoothScrollbarEnabled(false);
-		listView.setSelector(android.R.color.transparent);
+		getListView().setSelector(android.R.color.transparent);
 	}
 
 	@Override
@@ -172,6 +170,7 @@ public class GeekListFragment extends BggListFragment implements
 			}
 			if (item != null) {
 				Context context = convertView.getContext();
+				holder.gameId = item.getGameId();
 				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
 				holder.postedDate.setText(context.getString(R.string.posted_prefix,
 					DateTimeUtils.formatForumDate(context, item.postDate())));
@@ -190,15 +189,25 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	public static class ViewHolder {
-		@InjectView(R.id.geeklist_item_username) TextView username;
-		@InjectView(R.id.geeklist_item_posted_date) TextView postedDate;
-		@InjectView(R.id.geeklist_item_edited_date) TextView editedDate;
-		@InjectView(R.id.game_name) TextView gameName;
+		private Context mContext;
+		public int gameId;
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
-		@InjectView(R.id.geeklist_item_body) WebView body;
+		@InjectView(R.id.game_name) TextView gameName;
+		@InjectView(R.id.username) TextView username;
+		@InjectView(R.id.posted_date) TextView postedDate;
+		@InjectView(R.id.edited_date) TextView editedDate;
+		@InjectView(R.id.body) WebView body;
 
 		public ViewHolder(View view) {
+			mContext = view.getContext();
 			ButterKnife.inject(this, view);
+		}
+
+		@OnClick(R.id.header)
+		public void onHeaderClick(View v) {
+			if (gameId != BggContract.INVALID_ID) {
+				ActivityUtils.launchGame(mContext, gameId, gameName.getText().toString());
+			}
 		}
 	}
 }

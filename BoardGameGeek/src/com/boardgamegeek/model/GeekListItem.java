@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
@@ -18,15 +19,22 @@ public class GeekListItem {
 	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
 	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
 
-	@Attribute public String id;
+	@Attribute private String id;
 
 	@Attribute public String imageid;
 
-	@Attribute public String objectid;
+	@Attribute private String objectid;
+
+	public int getGameId() {
+		if ("thing".equals(objecttype) && "boardgame".equals(subtype)) {
+			return Integer.valueOf(objectid);
+		}
+		return BggContract.INVALID_ID;
+	}
 
 	@Attribute public String objectname;
 
-	@Attribute public String objecttype;
+	@Attribute private String objecttype;
 
 	@Attribute private String postdate;
 
@@ -42,13 +50,13 @@ public class GeekListItem {
 		return mEditDateTime;
 	}
 
-	@Attribute public String subtype;
+	@Attribute private String subtype;
 
-	@Attribute public String thumbs;
+	@Attribute private String thumbs;
 
 	@Attribute public String username;
 
 	@Element(required = false) public String body;
 
-	@ElementList(name = "comment", inline = true, required = false) public List<GeekListComment> comments;
+	@ElementList(name = "comment", inline = true, required = false) private List<GeekListComment> comments;
 }
