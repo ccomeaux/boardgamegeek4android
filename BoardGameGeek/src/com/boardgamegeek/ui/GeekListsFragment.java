@@ -1,18 +1,15 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
@@ -23,64 +20,47 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.model.GeekListsResponse;
-import com.boardgamegeek.ui.widget.BggLoader;
-import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.widget.PaginatedData;
+import com.boardgamegeek.ui.widget.PaginatedLoader;
 import com.boardgamegeek.util.GeekListUtils;
 
-public class GeekListsFragment extends BggListFragment implements
-	LoaderManager.LoaderCallbacks<GeekListsFragment.GeekListsData> {
+public class GeekListsFragment extends BggListFragment implements OnScrollListener,
+	LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
 	private static final int GEEKLISTS_LOADER_ID = 0;
 
-	private GeeklistsAdapter mGeeklistsAdapter;
+	private GeekListsAdapter mGeekListsAdapter;
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		setEmptyText(getString(R.string.empty_geeklists));
+		getListView().setOnScrollListener(this);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getString(R.string.empty_geeklists));
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		getLoaderManager().initLoader(GEEKLISTS_LOADER_ID, null, this);
 	}
 
-	@Override
-	public Loader<GeekListsData> onCreateLoader(int id, Bundle data) {
-		return new GeekListsLoader(getActivity());
-	}
-
-	@Override
-	public void onLoadFinished(Loader<GeekListsData> loader, GeekListsData data) {
-		if (getActivity() == null) {
-			return;
-		}
-
-		if (mGeeklistsAdapter == null) {
-			mGeeklistsAdapter = new GeeklistsAdapter(getActivity(), data.list());
-			setListAdapter(mGeeklistsAdapter);
-		}
-		mGeeklistsAdapter.notifyDataSetChanged();
-
-		if (data.hasError()) {
-			setEmptyText(data.getErrorMessage());
-		} else {
-			if (isResumed()) {
-				setListShown(true);
-			} else {
-				setListShownNoAnimation(true);
+	public void loadMoreResults() {
+		if (isAdded()) {
+			Loader<List<GeekListEntry>> loader = getLoaderManager().getLoader(GEEKLISTS_LOADER_ID);
+			if (loader != null) {
+				loader.forceLoad();
 			}
-			restoreScrollState();
 		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<GeekListsData> loader) {
 	}
 
 	@Override
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
-		ViewHolder holder = (ViewHolder) convertView.getTag();
+		GeekListRowViewBinder.ViewHolder holder = (GeekListRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), GeekListActivity.class);
 			intent.putExtra(GeekListUtils.KEY_GEEKLIST_ID, holder.id);
@@ -89,96 +69,134 @@ public class GeekListsFragment extends BggListFragment implements
 		}
 	}
 
-	private static class GeekListsLoader extends BggLoader<GeekListsData> {
-		public GeekListsLoader(Context context) {
-			super(context);
-		}
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+	}
 
-		@Override
-		public GeekListsData loadInBackground() {
-			GeekListsData geekListsData = null;
-			try {
-				// TODO implement paginated data
-				geekListsData = new GeekListsData();
-				List<GeekListEntry> geekLists = new ArrayList<>();
-				geekLists.addAll(getGeekLists(1, BggService.GEEKLIST_SORT_HOT));
-				geekLists.addAll(getGeekLists(2, BggService.GEEKLIST_SORT_HOT));
-				geekLists.addAll(getGeekLists(3, BggService.GEEKLIST_SORT_HOT));
-				geekListsData.geekLists = geekLists;
-			} catch (Exception e) {
-				geekListsData = new GeekListsData(e);
-			}
-			return geekListsData;
-		}
-
-		private List<GeekListEntry> getGeekLists(int page, String sort) {
-			BggService mService = Adapter.createWithJson();
-			GeekListsResponse res = mService.geekLists(page, sort);
-			return res.getGeekListEntries();
+	@Override
+	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
+			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
+			loadMoreResults();
 		}
 	}
 
-	static class GeekListsData extends Data<GeekListEntry> {
-		List<GeekListEntry> geekLists = new ArrayList<>();
+	@Override
+	public Loader<PaginatedData<GeekListEntry>> onCreateLoader(int id, Bundle data) {
+		return new GeekListsLoader(getActivity());
+	}
 
-		public GeekListsData() {
+	@Override
+	public void onLoadFinished(Loader<PaginatedData<GeekListEntry>> loader, PaginatedData<GeekListEntry> data) {
+		if (getActivity() == null) {
+			return;
+		}
+
+		if (mGeekListsAdapter == null) {
+			mGeekListsAdapter = new GeekListsAdapter(getActivity(), R.layout.row_geeklist, data);
+			setListAdapter(mGeekListsAdapter);
+		} else {
+			mGeekListsAdapter.update(data);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<PaginatedData<GeekListEntry>> loader) {
+	}
+
+	private boolean isLoading() {
+		final GeekListsLoader loader = getLoader();
+		return (loader != null) ? loader.isLoading() : true;
+	}
+
+	private boolean loaderHasMoreResults() {
+		final GeekListsLoader loader = getLoader();
+		return (loader != null) ? loader.hasMoreResults() : false;
+	}
+
+	private GeekListsLoader getLoader() {
+		if (isAdded()) {
+			Loader<PaginatedData<GeekListEntry>> loader = getLoaderManager().getLoader(GEEKLISTS_LOADER_ID);
+			return (GeekListsLoader) loader;
+		}
+		return null;
+	}
+
+	private static class GeekListsLoader extends PaginatedLoader<GeekListEntry> {
+		private BggService mService;
+
+		public GeekListsLoader(Context context) {
+			super(context);
+			mService = Adapter.createWithJson();
+		}
+
+		@Override
+		public PaginatedData<GeekListEntry> loadInBackground() {
+			super.loadInBackground();
+			GeekListsData data;
+			try {
+				int page = getNextPage();
+				data = new GeekListsData(mService.geekLists(page, BggService.GEEKLIST_SORT_HOT), page);
+			} catch (Exception e) {
+				data = new GeekListsData(e);
+			}
+			return data;
+		}
+	}
+
+	static class GeekListsData extends PaginatedData<GeekListEntry> {
+		public GeekListsData(GeekListsResponse response, int page) {
+			super(response.getGeekListEntries(), response.getTotalCount(), page, GeekListsResponse.PAGE_SIZE);
 		}
 
 		public GeekListsData(Exception e) {
 			super(e);
 		}
+	}
+
+	private class GeekListsAdapter extends PaginatedArrayAdapter<GeekListEntry> {
+		public GeekListsAdapter(Context context, int resource, PaginatedData<GeekListEntry> data) {
+			super(context, resource, data);
+		}
 
 		@Override
-		public List<GeekListEntry> list() {
-			return geekLists;
+		protected boolean isLoaderLoading() {
+			return isLoading();
+		}
+
+		@Override
+		protected void bind(View view, GeekListEntry item) {
+			GeekListRowViewBinder.bindActivityView(view, item);
 		}
 	}
 
-	public static class GeeklistsAdapter extends ArrayAdapter<GeekListEntry> {
-		private LayoutInflater mInflater;
+	public static class GeekListRowViewBinder {
+		public static class ViewHolder {
+			public int id;
+			@InjectView(R.id.geeklist_title) TextView title;
+			@InjectView(R.id.geeklist_creator) TextView creator;
+			@InjectView(R.id.geeklist_thumbs) TextView numThumbs;
 
-		public GeeklistsAdapter(Activity activity, List<GeekListEntry> geeklists) {
-			super(activity, R.layout.row_geeklist, geeklists);
-			mInflater = activity.getLayoutInflater();
+			public ViewHolder(View view) {
+				ButterKnife.inject(this, view);
+			}
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			GeekListEntry geeklist;
-			try {
-				geeklist = getItem(position);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return convertView;
-			}
-
-			ViewHolder holder;
-			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_geeklist, parent, false);
-				holder = new ViewHolder(convertView);
-				convertView.setTag(holder);
+		public static void bindActivityView(View rootView, GeekListEntry geeklist) {
+			ViewHolder tag = (ViewHolder) rootView.getTag();
+			final ViewHolder holder;
+			if (tag != null) {
+				holder = tag;
 			} else {
-				holder = (ViewHolder) convertView.getTag();
+				holder = new ViewHolder(rootView);
+				rootView.setTag(holder);
 			}
 
-			if (geeklist != null) {
-				Context context = parent.getContext();
-				holder.id = geeklist.getId();
-				holder.title.setText(geeklist.getTitle());
-				holder.creator.setText(context.getString(R.string.by_prefix, geeklist.getAuthor()));
-				holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.getNumberOfThumbs()));
-			}
-			return convertView;
-		}
-	}
-
-	static class ViewHolder {
-		public int id;
-		@InjectView(R.id.geeklist_title) TextView title;
-		@InjectView(R.id.geeklist_creator) TextView creator;
-		@InjectView(R.id.geeklist_thumbs) TextView numThumbs;
-
-		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+			Context context = rootView.getContext();
+			holder.id = geeklist.getId();
+			holder.title.setText(geeklist.getTitle());
+			holder.creator.setText(context.getString(R.string.by_prefix, geeklist.getAuthor()));
+			holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.getNumberOfThumbs()));
 		}
 	}
 }
