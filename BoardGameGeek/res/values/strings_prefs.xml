@@ -55,12 +55,14 @@
 	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
 	<string name="pref_sync_reset_collection">Sync entire collection</string>
 	<string name="pref_sync_reset_plays">Sync all plays</string>
+	<string name="pref_sync_reset_buddies">Re-sync GeekBuddies</string>
 	<string name="pref_sync_reset_pos">Sync</string>
 	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
 	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
+	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
 	<string name="pref_sync_reset_success">Sync started</string>
 	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
-	<string name="pref_sync_timestamps">Sync timestamps</string>
+	<string name="pref_sync_timestamps">View sync timestamps</string>
 	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
 	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
 	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>
