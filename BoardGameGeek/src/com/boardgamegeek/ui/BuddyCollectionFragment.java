@@ -217,11 +217,16 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			return;
 		}
 
+		List<CollectionItem> list = new ArrayList<CollectionItem>();
+		if (data != null) {
+			list = data.list();
+		}
+
 		if (mAdapter == null) {
-			mAdapter = new BuddyCollectionAdapter(getActivity(), data.list());
+			mAdapter = new BuddyCollectionAdapter(getActivity(), list);
 			setListAdapter(mAdapter);
 		} else {
-			mAdapter.setCollection(data.list());
+			mAdapter.setCollection(list);
 		}
 		mAdapter.notifyDataSetChanged();
 		getActivity().supportInvalidateOptionsMenu();
