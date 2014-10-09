@@ -44,6 +44,10 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = Games.getGameId(intent.getData());
+
+		if (savedInstanceState != null) {
+			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
+		}
 	}
 
 	@Override
