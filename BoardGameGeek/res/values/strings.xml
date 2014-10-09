@@ -270,6 +270,10 @@
 	<string name="menu_sort_comments">Sort comments by…</string>
 	<string name="menu_sort_comments_user">User</string>
 	<string name="menu_sort_comments_rating">Rating</string>
+	<string name="menu_sort_by">Sort by…</string>
+	<string name="menu_sort_geeklists_hot">Hot</string>
+	<string name="menu_sort_geeklists_recent">Recent</string>
+	<string name="menu_sort_geeklists_active">Active</string>
 	<string name="menu_edit_nickname">Edit nickname…</string>
 	<string name="menu_colors_add">Add color</string>
 	<string name="menu_colors_generate">Generate colors</string>

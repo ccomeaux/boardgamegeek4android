@@ -15,6 +15,9 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -28,8 +31,23 @@ import com.boardgamegeek.util.GeekListUtils;
 public class GeekListsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
 	private static final int GEEKLISTS_LOADER_ID = 0;
+	private static final String STATE_SORT = "SORT";
+	private static final int SORT_INVALID = -1;
+	private static final int SORT_HOT = 0;
+	private static final int SORT_RECENT = 1;
+	private static final int SORT_ACTIVE = 2;
+	private int mSort = 0;
 
 	private GeekListsAdapter mGeekListsAdapter;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		if (savedInstanceState != null) {
+			mSort = savedInstanceState.getInt(STATE_SORT);
+		}
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -47,6 +65,63 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	public void onResume() {
 		super.onResume();
 		getLoaderManager().initLoader(GEEKLISTS_LOADER_ID, null, this);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(STATE_SORT, mSort);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.geeklists, menu);
+		switch (mSort) {
+			case SORT_RECENT:
+				menu.findItem(R.id.menu_sort_geeklists_recent).setChecked(true);
+				break;
+			case SORT_ACTIVE:
+				menu.findItem(R.id.menu_sort_geeklists_active).setChecked(true);
+				break;
+			case SORT_HOT:
+			default:
+				menu.findItem(R.id.menu_sort_geeklists_hot).setChecked(true);
+				break;
+		}
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int sort = SORT_INVALID;
+		int id = item.getItemId();
+		switch (id) {
+			case R.id.menu_sort_geeklists_recent:
+				if (mSort != SORT_RECENT) {
+					sort = SORT_RECENT;
+				}
+				break;
+			case R.id.menu_sort_geeklists_active:
+				if (mSort != SORT_ACTIVE) {
+					sort = SORT_ACTIVE;
+				}
+				break;
+			case R.id.menu_sort_geeklists_hot:
+				if (mSort != SORT_HOT) {
+					sort = SORT_HOT;
+				}
+				break;
+		}
+		if (sort != SORT_INVALID) {
+			mSort = sort;
+			item.setChecked(true);
+			if (mGeekListsAdapter != null) {
+				mGeekListsAdapter.clear();
+			}
+			getLoaderManager().restartLoader(GEEKLISTS_LOADER_ID, null, this);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	public void loadMoreResults() {
@@ -84,7 +159,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	@Override
 	public Loader<PaginatedData<GeekListEntry>> onCreateLoader(int id, Bundle data) {
-		return new GeekListsLoader(getActivity());
+		return new GeekListsLoader(getActivity(), mSort);
 	}
 
 	@Override
@@ -126,10 +201,12 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	private static class GeekListsLoader extends PaginatedLoader<GeekListEntry> {
 		private BggService mService;
+		private int mSort;
 
-		public GeekListsLoader(Context context) {
+		public GeekListsLoader(Context context, int sort) {
 			super(context);
 			mService = Adapter.createWithJson();
+			mSort = sort;
 		}
 
 		@Override
@@ -138,7 +215,16 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			GeekListsData data;
 			try {
 				int page = getNextPage();
-				data = new GeekListsData(mService.geekLists(page, BggService.GEEKLIST_SORT_HOT), page);
+				String sort = BggService.GEEKLIST_SORT_HOT;
+				switch (mSort) {
+					case SORT_RECENT:
+						sort = BggService.GEEKLIST_SORT_RECENT;
+						break;
+					case SORT_ACTIVE:
+						sort = BggService.GEEKLIST_SORT_ACTIVE;
+						break;
+				}
+				data = new GeekListsData(mService.geekLists(page, sort), page);
 			} catch (Exception e) {
 				data = new GeekListsData(e);
 			}
