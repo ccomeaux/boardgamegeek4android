@@ -6,9 +6,9 @@ public class GeekListEntry {
 	private String username;
 	private int numitems;
 	private String title;
-	private String postdate;
-	private String lastreplydate;
-	private String pagination;
+	private String postdate; // always null
+	private String lastreplydate; // always null
+	private String pagination; // not useful
 
 	public String getTitle() {
 		return title;
@@ -21,6 +21,10 @@ public class GeekListEntry {
 
 	public String getAuthor() {
 		return username;
+	}
+
+	public int getNumberOfItems() {
+		return numitems;
 	}
 
 	public int getNumberOfThumbs() {

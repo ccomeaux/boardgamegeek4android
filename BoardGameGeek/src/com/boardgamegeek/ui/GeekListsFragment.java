@@ -263,6 +263,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			public int id;
 			@InjectView(R.id.geeklist_title) TextView title;
 			@InjectView(R.id.geeklist_creator) TextView creator;
+			@InjectView(R.id.geeklist_items) TextView numItems;
 			@InjectView(R.id.geeklist_thumbs) TextView numThumbs;
 
 			public ViewHolder(View view) {
@@ -284,6 +285,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			holder.id = geeklist.getId();
 			holder.title.setText(geeklist.getTitle());
 			holder.creator.setText(context.getString(R.string.by_prefix, geeklist.getAuthor()));
+			holder.numItems.setText(context.getString(R.string.items_suffix, geeklist.getNumberOfItems()));
 			holder.numThumbs.setText(context.getString(R.string.thumbs_suffix, geeklist.getNumberOfThumbs()));
 		}
 	}
