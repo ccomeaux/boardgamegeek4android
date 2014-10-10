@@ -298,6 +298,7 @@
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
+	<string name="title_share">Share</string>
 	<string name="title_share_game">Share Game</string>
 	<string name="title_share_games">Share Games</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
@@ -309,6 +310,8 @@
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
 	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
 	<string name="share_thread_article_text">I found this reply in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android:</string>
+	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
+	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
 	<string name="times_abbr">x</string>
 	<string name="on">on</string>

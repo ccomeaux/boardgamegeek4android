@@ -268,6 +268,10 @@ public class ActivityUtils {
 		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
+	public static void link(Context context, Uri link) {
+		context.startActivity(new Intent(Intent.ACTION_VIEW, link));
+	}
+
 	public static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
@@ -277,7 +281,11 @@ public class ActivityUtils {
 	}
 
 	public static Uri createBggUri(String path) {
-		return Uri.withAppendedPath(BGG_URI, path);
+		return BGG_URI.buildUpon().appendPath(path).build();
+	}
+
+	public static Uri createBggUri(String path, int id) {
+		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
 	public static void setActionBarText(Menu menu, int id, String text) {

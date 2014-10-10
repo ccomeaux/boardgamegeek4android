@@ -76,7 +76,7 @@ public class ArticleActivity extends SimpleSinglePaneActivity {
 				String description = String.format(getString(R.string.share_thread_article_text), mThreadSubject,
 					mForumTitle, mGameName);
 				ActivityUtils.share(this, getString(R.string.share_thread_subject), description + "\n\n" + mLink,
-					R.string.title_share_game);
+					R.string.title_share);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

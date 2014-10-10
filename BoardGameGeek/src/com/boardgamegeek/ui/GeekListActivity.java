@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -12,13 +13,15 @@ import com.boardgamegeek.util.GeekListUtils;
 
 public class GeekListActivity extends SimpleSinglePaneActivity {
 	private int mGeekListId;
+	private String mGeekListTitle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
 		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
-		getSupportActionBar().setTitle(intent.getStringExtra(GeekListUtils.KEY_GEEKLIST_TITLE));
+		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_GEEKLIST_TITLE);
+		getSupportActionBar().setTitle(mGeekListTitle);
 	}
 
 	@Override
@@ -28,14 +31,20 @@ public class GeekListActivity extends SimpleSinglePaneActivity {
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.search_view;
+		return R.menu.search_view_share;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Uri uri = ActivityUtils.createBggUri("geeklist", mGeekListId);
 		switch (item.getItemId()) {
 			case R.id.menu_view:
-				ActivityUtils.linkToBgg(this, "geeklist/" + mGeekListId);
+				ActivityUtils.link(this, uri);
+				return true;
+			case R.id.menu_share:
+				String description = String.format(getString(R.string.share_geeklist_text), mGeekListTitle);
+				ActivityUtils.share(this, getString(R.string.share_geeklist_subject), description + "\n\n" + uri,
+					R.string.title_share);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
