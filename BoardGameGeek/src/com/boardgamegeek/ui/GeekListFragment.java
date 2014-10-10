@@ -12,7 +12,6 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,7 +27,6 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -170,6 +168,7 @@ public class GeekListFragment extends BggListFragment implements
 			if (item != null) {
 				Context context = convertView.getContext();
 				holder.gameId = item.getGameId();
+				holder.body = item.body;
 				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
 				holder.postedDate.setText(context.getString(R.string.posted_prefix,
 					DateTimeUtils.formatForumDate(context, item.postDate())));
@@ -179,9 +178,6 @@ public class GeekListFragment extends BggListFragment implements
 
 				loadThumbnail(item.imageId(), holder.thumbnail);
 
-				// TODO: change to textview
-				String content = GeekListUtils.convertBoardGameGeekXmlText(item.body);
-				UIUtils.setWebViewText(holder.body, content);
 			}
 			return convertView;
 		}
@@ -190,12 +186,12 @@ public class GeekListFragment extends BggListFragment implements
 	public static class ViewHolder {
 		private Context mContext;
 		public int gameId;
+		public String body;
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
 		@InjectView(R.id.game_name) TextView gameName;
 		@InjectView(R.id.username) TextView username;
 		@InjectView(R.id.posted_date) TextView postedDate;
 		@InjectView(R.id.edited_date) TextView editedDate;
-		@InjectView(R.id.body) WebView body;
 
 		public ViewHolder(View view) {
 			mContext = view.getContext();
@@ -205,7 +201,10 @@ public class GeekListFragment extends BggListFragment implements
 		@OnClick(R.id.header)
 		public void onHeaderClick(View v) {
 			if (gameId != BggContract.INVALID_ID) {
-				ActivityUtils.launchGame(mContext, gameId, gameName.getText().toString());
+				Intent intent = new Intent(mContext, GeekListItemActivity.class);
+				intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, gameName.getText().toString());
+				intent.putExtra(GeekListUtils.KEY_GEEKLIST_BODY, body);
+				mContext.startActivity(intent);
 			}
 		}
 	}

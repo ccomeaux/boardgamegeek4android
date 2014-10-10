@@ -10,7 +10,7 @@
 		<item name="android:textStyle">bold</item>
 	</style>
 
-	<style name="Text.Secondary" parent="Text">
+	<style name="Text.Secondary">
 		<item name="android:textColor">@color/light_text</item>
 	</style>
 

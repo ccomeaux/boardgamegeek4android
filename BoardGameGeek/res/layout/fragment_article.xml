@@ -11,8 +11,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
-		android:paddingBottom="@dimen/padding_small"
-		android:textIsSelectable="false" />
+		android:paddingBottom="@dimen/padding_small" />
 
 	<TextView
 		android:id="@+id/article_editdate"
@@ -22,7 +21,7 @@
 		android:layout_alignBaseline="@id/article_username"
 		android:layout_alignParentRight="true"
 		android:paddingLeft="@dimen/padding_small"
-		android:textIsSelectable="false" />
+		android:paddingRight="0dp" />
 
 	<View
 		android:id="@+id/article_divider"
@@ -35,7 +34,6 @@
 		android:id="@+id/article_body"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:layout_below="@id/article_divider"
-		android:textIsSelectable="true" />
+		android:layout_below="@id/article_divider" />
 
 </RelativeLayout>

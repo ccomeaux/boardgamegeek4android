@@ -198,7 +198,6 @@
 			android:label="@string/title_log_player" />
 		<activity
 			android:name=".ui.ForumsActivity"
-			android:exported="false"
 			android:label="@string/title_forums" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -209,7 +208,6 @@
 			android:label="@string/title_forum" />
 		<activity
 			android:name=".ui.GeekListsActivity"
-			android:exported="false"
 			android:label="@string/title_geeklists" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -221,6 +219,10 @@
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.GeekListsActivity" />
+		</activity>
+		<activity
+			android:name=".ui.GeekListItemActivity"
+			android:label="@string/title_geeklist" >
 		</activity>
 		<activity
 			android:name=".ui.ThreadActivity"

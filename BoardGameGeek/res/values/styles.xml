@@ -56,7 +56,7 @@
 		<item name="android:lineSpacingMultiplier">0.9</item>
 	</style>
 
-	<style name="Text.Secondary" parent="Text">
+	<style name="Text.Secondary">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">12sp</item>
 	</style>

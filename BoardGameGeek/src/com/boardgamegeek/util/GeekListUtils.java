@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class GeekListUtils {
 	public static final String KEY_GEEKLIST_ID = "GEEKLIST_ID";
 	public static final String KEY_GEEKLIST_TITLE = "GEEKLIST_TITLE";
+	public static final String KEY_GEEKLIST_BODY = "GEEKLIST_BODY";
 
 	private static final String BASE_URL = "http://boardgamegeek.com/";
 	private static final String GEEKLIST_URL = BASE_URL + "geeklist/";
