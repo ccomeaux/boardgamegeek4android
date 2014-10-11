@@ -19,8 +19,8 @@ public class GeekListActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
-		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
-		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_GEEKLIST_TITLE);
+		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
+		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
 		getSupportActionBar().setTitle(mGeekListTitle);
 	}
 

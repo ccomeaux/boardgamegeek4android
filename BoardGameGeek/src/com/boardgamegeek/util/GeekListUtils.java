@@ -4,9 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GeekListUtils {
-	public static final String KEY_GEEKLIST_ID = "GEEKLIST_ID";
-	public static final String KEY_GEEKLIST_TITLE = "GEEKLIST_TITLE";
-	public static final String KEY_GEEKLIST_BODY = "GEEKLIST_BODY";
+	public static final String KEY_ID = "GEEKLIST_ID";
+	public static final String KEY_TITLE = "GEEKLIST_TITLE";
+	public static final String KEY_BODY = "GEEKLIST_BODY";
+	public static final String KEY_IMAGE_ID = "GEEKLIST_IMAGE_ID";
+	public static final String KEY_POSTED_DATE = "GEEKLIST_POSTED_DATE";
+	public static final String KEY_EDITED_DATE = "GEEKLIST_EDITED_DATE";
 
 	private static final String BASE_URL = "http://boardgamegeek.com/";
 	private static final String GEEKLIST_URL = BASE_URL + "geeklist/";

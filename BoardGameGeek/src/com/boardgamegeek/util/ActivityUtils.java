@@ -427,6 +427,10 @@ public class ActivityUtils {
 		activity.getSupportActionBar().setCustomView(actionBarButtons);
 	}
 
+	public static String createImagePath(int imageId) {
+		return IMAGE_URL_PREFIX + imageId + ".jpg";
+	}
+
 	public static String createThumbnailPath(int imageId) {
 		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
 	}

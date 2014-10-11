@@ -138,8 +138,8 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		GeekListRowViewBinder.ViewHolder holder = (GeekListRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), GeekListActivity.class);
-			intent.putExtra(GeekListUtils.KEY_GEEKLIST_ID, holder.id);
-			intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, holder.title.getText());
+			intent.putExtra(GeekListUtils.KEY_ID, holder.id);
+			intent.putExtra(GeekListUtils.KEY_TITLE, holder.title.getText());
 			startActivity(intent);
 		}
 	}

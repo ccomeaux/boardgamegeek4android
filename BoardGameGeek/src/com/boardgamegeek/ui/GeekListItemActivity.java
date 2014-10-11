@@ -20,8 +20,8 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mId = intent.getIntExtra(GeekListUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
-		mTitle = intent.getStringExtra(GeekListUtils.KEY_GEEKLIST_TITLE);
+		mId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
+		mTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (!TextUtils.isEmpty(mTitle)) {
@@ -45,8 +45,8 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 			case android.R.id.home:
 				if (mId != BggContract.INVALID_ID) {
 					Intent intent = new Intent(this, GeekListActivity.class);
-					intent.putExtra(GeekListUtils.KEY_GEEKLIST_ID, mId);
-					intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, mTitle);
+					intent.putExtra(GeekListUtils.KEY_ID, mId);
+					intent.putExtra(GeekListUtils.KEY_TITLE, mTitle);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();

@@ -42,13 +42,7 @@ public class GeekListFragment extends BggListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_GEEKLIST_ID, BggContract.INVALID_ID);
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setSelector(android.R.color.transparent);
+		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -169,14 +163,12 @@ public class GeekListFragment extends BggListFragment implements
 				Context context = convertView.getContext();
 				holder.gameId = item.getGameId();
 				holder.body = item.body;
+				holder.postedDate = item.postDate();
+				holder.editedDate = item.editDate();
 				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
 				holder.thumbs.setText(context.getString(R.string.thumbs_suffix, item.getThumbCount()));
-				holder.postedDate.setText(context.getString(R.string.posted_prefix,
-					DateTimeUtils.formatForumDate(context, item.postDate())));
-				holder.editedDate.setText(context.getString(R.string.edited_prefix,
-					DateTimeUtils.formatForumDate(context, item.editDate())));
 				holder.gameName.setText(item.objectname);
-
+				holder.thumbnail.setTag(item.imageId());
 				loadThumbnail(item.imageId(), holder.thumbnail);
 			}
 			return convertView;
@@ -187,12 +179,12 @@ public class GeekListFragment extends BggListFragment implements
 		private Context mContext;
 		public int gameId;
 		public String body;
+		public long postedDate;
+		public long editedDate;
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
 		@InjectView(R.id.game_name) TextView gameName;
 		@InjectView(R.id.username) TextView username;
 		@InjectView(R.id.thumbs) TextView thumbs;
-		@InjectView(R.id.posted_date) TextView postedDate;
-		@InjectView(R.id.edited_date) TextView editedDate;
 
 		public ViewHolder(View view) {
 			mContext = view.getContext();
@@ -203,8 +195,11 @@ public class GeekListFragment extends BggListFragment implements
 		public void onHeaderClick(View v) {
 			if (gameId != BggContract.INVALID_ID) {
 				Intent intent = new Intent(mContext, GeekListItemActivity.class);
-				intent.putExtra(GeekListUtils.KEY_GEEKLIST_TITLE, gameName.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_GEEKLIST_BODY, body);
+				intent.putExtra(GeekListUtils.KEY_TITLE, gameName.getText().toString());
+				intent.putExtra(GeekListUtils.KEY_IMAGE_ID, (Integer) thumbnail.getTag());
+				intent.putExtra(GeekListUtils.KEY_POSTED_DATE, postedDate);
+				intent.putExtra(GeekListUtils.KEY_EDITED_DATE, editedDate);
+				intent.putExtra(GeekListUtils.KEY_BODY, body);
 				mContext.startActivity(intent);
 			}
 		}
