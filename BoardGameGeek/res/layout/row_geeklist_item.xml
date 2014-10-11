@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/container"
 	style="@style/RowContainer"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
 	android:orientation="vertical" >
 
 	<LinearLayout
-		android:id="@+id/header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
 		android:orientation="horizontal" >
 
 		<ImageView
@@ -43,16 +42,8 @@
 				android:maxLines="1" />
 
 			<TextView
-				android:id="@+id/posted_date"
-				style="@style/Text.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ellipsize="end"
-				android:maxLines="1" />
-
-			<TextView
-				android:id="@+id/edited_date"
-				style="@style/Text.Secondary"
+				android:id="@+id/thumbs"
+				style="@style/Text"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
@@ -60,10 +51,28 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<WebView
-		android:id="@+id/body"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:textIsSelectable="true" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingTop="@dimen/padding_standard" >
+
+		<TextView
+			android:id="@+id/posted_date"
+			style="@style/Text.Secondary"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:ellipsize="end"
+			android:maxLines="1" />
+
+		<TextView
+			android:id="@+id/edited_date"
+			style="@style/Text.Secondary"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:maxLines="1" />
+	</LinearLayout>
 
 </LinearLayout>

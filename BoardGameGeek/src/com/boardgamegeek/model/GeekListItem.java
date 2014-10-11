@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -57,6 +58,10 @@ public class GeekListItem {
 	@Attribute private String subtype;
 
 	@Attribute private String thumbs;
+
+	public int getThumbCount() {
+		return StringUtils.parseInt(thumbs, 0);
+	}
 
 	@Attribute public String username;
 

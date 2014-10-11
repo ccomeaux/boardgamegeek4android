@@ -170,6 +170,7 @@ public class GeekListFragment extends BggListFragment implements
 				holder.gameId = item.getGameId();
 				holder.body = item.body;
 				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
+				holder.thumbs.setText(context.getString(R.string.thumbs_suffix, item.getThumbCount()));
 				holder.postedDate.setText(context.getString(R.string.posted_prefix,
 					DateTimeUtils.formatForumDate(context, item.postDate())));
 				holder.editedDate.setText(context.getString(R.string.edited_prefix,
@@ -177,7 +178,6 @@ public class GeekListFragment extends BggListFragment implements
 				holder.gameName.setText(item.objectname);
 
 				loadThumbnail(item.imageId(), holder.thumbnail);
-
 			}
 			return convertView;
 		}
@@ -190,6 +190,7 @@ public class GeekListFragment extends BggListFragment implements
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
 		@InjectView(R.id.game_name) TextView gameName;
 		@InjectView(R.id.username) TextView username;
+		@InjectView(R.id.thumbs) TextView thumbs;
 		@InjectView(R.id.posted_date) TextView postedDate;
 		@InjectView(R.id.edited_date) TextView editedDate;
 
@@ -198,7 +199,7 @@ public class GeekListFragment extends BggListFragment implements
 			ButterKnife.inject(this, view);
 		}
 
-		@OnClick(R.id.header)
+		@OnClick(R.id.container)
 		public void onHeaderClick(View v) {
 			if (gameId != BggContract.INVALID_ID) {
 				Intent intent = new Intent(mContext, GeekListItemActivity.class);
