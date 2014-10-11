@@ -14,10 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -27,7 +27,6 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
-import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -35,6 +34,7 @@ public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeeklistData> {
 	private static final int GEEKLIST_LOADER_ID = 99103;
 	private int mGeekListId;
+	private String mGeekListTitle;
 	private GeeklistAdapter mGeekListAdapter;
 
 	@Override
@@ -43,6 +43,7 @@ public class GeekListFragment extends BggListFragment implements
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
+		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
 	}
 
 	@Override
@@ -56,6 +57,25 @@ public class GeekListFragment extends BggListFragment implements
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
 		getLoaderManager().initLoader(GEEKLIST_LOADER_ID, null, this);
+	}
+
+	@Override
+	public void onListItemClick(ListView listView, View convertView, int position, long id) {
+		ViewHolder holder = (ViewHolder) convertView.getTag();
+		if (holder != null && holder.objectId != BggContract.INVALID_ID) {
+			Intent intent = new Intent(getActivity(), GeekListItemActivity.class);
+			intent.putExtra(GeekListUtils.KEY_TITLE, mGeekListTitle);
+			intent.putExtra(GeekListUtils.KEY_ORDER, holder.order.getText().toString());
+			intent.putExtra(GeekListUtils.KEY_NAME, holder.name.getText().toString());
+			intent.putExtra(GeekListUtils.KEY_TYPE, holder.type.getText().toString());
+			intent.putExtra(GeekListUtils.KEY_IMAGE_ID, holder.imageId);
+			intent.putExtra(GeekListUtils.KEY_USERNAME, holder.username.getText().toString());
+			intent.putExtra(GeekListUtils.KEY_THUMBS, holder.thumbs);
+			intent.putExtra(GeekListUtils.KEY_POSTED_DATE, holder.postedDate);
+			intent.putExtra(GeekListUtils.KEY_EDITED_DATE, holder.editedDate);
+			intent.putExtra(GeekListUtils.KEY_BODY, holder.body);
+			startActivity(intent);
+		}
 	}
 
 	@Override
@@ -161,47 +181,41 @@ public class GeekListFragment extends BggListFragment implements
 			}
 			if (item != null) {
 				Context context = convertView.getContext();
-				holder.gameId = item.getGameId();
+				holder.imageId = item.imageId();
+				holder.objectId = item.getObjectId();
 				holder.body = item.body;
-				holder.postedDate = item.postDate();
-				holder.editedDate = item.editDate();
-				holder.username.setText(context.getString(R.string.posted_by_prefix, item.username));
-				holder.thumbs.setText(context.getString(R.string.thumbs_suffix, item.getThumbCount()));
-				holder.gameName.setText(item.objectname);
-				holder.thumbnail.setTag(item.imageId());
-				loadThumbnail(item.imageId(), holder.thumbnail);
+				holder.thumbs = item.getThumbCount();
+				holder.postedDate = item.getPostDate();
+				holder.editedDate = item.getEditDate();
+
+				holder.order.setText(String.valueOf(position + 1));
+				loadThumbnail(holder.imageId, holder.thumbnail);
+				holder.name.setText(item.getObjectName());
+				int objectTypeId = item.getObjectTypeId();
+				if (objectTypeId != 0) {
+					holder.type.setText(objectTypeId);
+				}
+				holder.username.setText(context.getString(R.string.by_prefix, item.username));
 			}
 			return convertView;
 		}
 	}
 
 	public static class ViewHolder {
-		private Context mContext;
-		public int gameId;
+		public int imageId;
+		public int objectId;
 		public String body;
+		public int thumbs;
 		public long postedDate;
 		public long editedDate;
+		@InjectView(R.id.order) TextView order;
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
-		@InjectView(R.id.game_name) TextView gameName;
+		@InjectView(R.id.game_name) TextView name;
 		@InjectView(R.id.username) TextView username;
-		@InjectView(R.id.thumbs) TextView thumbs;
+		@InjectView(R.id.type) TextView type;
 
 		public ViewHolder(View view) {
-			mContext = view.getContext();
 			ButterKnife.inject(this, view);
-		}
-
-		@OnClick(R.id.container)
-		public void onHeaderClick(View v) {
-			if (gameId != BggContract.INVALID_ID) {
-				Intent intent = new Intent(mContext, GeekListItemActivity.class);
-				intent.putExtra(GeekListUtils.KEY_TITLE, gameName.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_IMAGE_ID, (Integer) thumbnail.getTag());
-				intent.putExtra(GeekListUtils.KEY_POSTED_DATE, postedDate);
-				intent.putExtra(GeekListUtils.KEY_EDITED_DATE, editedDate);
-				intent.putExtra(GeekListUtils.KEY_BODY, body);
-				mContext.startActivity(intent);
-			}
 		}
 	}
 }

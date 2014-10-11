@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/container"
 	style="@style/RowContainer.WithThumbnail"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal" >
+
+	<TextView
+		android:id="@+id/order"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="right"
+		android:minWidth="32dp"
+		android:paddingLeft="0dp"
+		android:paddingRight="@dimen/padding_standard"
+		android:textSize="22sp" />
 
 	<ImageView
 		android:id="@+id/thumbnail"
@@ -29,7 +38,7 @@
 			android:maxLines="2" />
 
 		<TextView
-			android:id="@+id/username"
+			android:id="@+id/type"
 			style="@style/Text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -37,7 +46,7 @@
 			android:maxLines="1" />
 
 		<TextView
-			android:id="@+id/thumbs"
+			android:id="@+id/username"
 			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

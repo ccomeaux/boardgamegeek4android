@@ -126,6 +126,13 @@
 	<string name="title_board_game">Board Game</string>
 	<string name="title_board_game_expansion">Board Game Expansion</string>
 	<string name="title_board_game_accessory">Board Game Accessory</string>
+	<string name="title_board_game_publisher">Board Game Publisher</string>
+	<string name="title_board_game_designer">Board Game Designer</string>
+	<string name="title_thing">Thing</string>
+	<string name="title_company">Company</string>
+	<string name="title_person">Person</string>
+	<string name="title_family">Family</string>
+	<string name="title_file">File</string>
 	<string name="title_game_shortcut">BGG Game</string>
 	<string name="title_game_detail">Game Details</string>
 	<string name="title_image">Image</string>

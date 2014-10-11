@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -30,27 +31,57 @@ public class GeekListItem {
 
 	@Attribute private String objectid;
 
-	public int getGameId() {
-		if ("thing".equals(objecttype) && "boardgame".equals(subtype)) {
-			return Integer.valueOf(objectid);
-		}
-		return BggContract.INVALID_ID;
+	public int getObjectId() {
+		return StringUtils.parseInt(objectid, BggContract.INVALID_ID);
 	}
 
-	@Attribute public String objectname;
+	@Attribute private String objectname;
+
+	public String getObjectName() {
+		return objectname;
+	}
 
 	@Attribute private String objecttype;
 
+	public int getObjectTypeId() {
+		if ("thing".equals(objecttype)) {
+			if ("boardgame".equals(subtype)) {
+				return R.string.title_board_game;
+			} else if ("boardgameaccessory".equals(subtype)) {
+				return R.string.title_board_game_accessory;
+			}
+			return R.string.title_thing;
+		} else if ("company".equals(objecttype)) {
+			if ("boardgamepublisher".equals(subtype)) {
+				return R.string.title_board_game_publisher;
+			}
+			return R.string.title_company;
+		} else if ("person".equals(objecttype)) {
+			if ("boardgamedesigner".equals(subtype)) {
+				return R.string.title_board_game_designer;
+			}
+			return R.string.title_person;
+		} else if ("family".equals(objecttype)) {
+			return R.string.title_family;
+			// subtype="boardgamefamily"
+		} else if ("filepage".equals(objecttype)) {
+			return R.string.title_file;
+		} else if ("geeklist".equals(objecttype)) {
+			return R.string.title_geeklist;
+		}
+		return 0;
+	}
+
 	@Attribute private String postdate;
 
-	public long postDate() {
+	public long getPostDate() {
 		mPostDateTime = DateTimeUtils.tryParseDate(mPostDateTime, postdate, FORMAT);
 		return mPostDateTime;
 	}
 
 	@Attribute private String editdate;
 
-	public long editDate() {
+	public long getEditDate() {
 		mEditDateTime = DateTimeUtils.tryParseDate(mEditDateTime, editdate, FORMAT);
 		return mEditDateTime;
 	}
