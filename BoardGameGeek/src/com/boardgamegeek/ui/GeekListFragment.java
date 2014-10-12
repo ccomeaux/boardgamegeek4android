@@ -27,6 +27,7 @@ import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -36,6 +37,11 @@ public class GeekListFragment extends BggListFragment implements
 	private int mGeekListId;
 	private String mGeekListTitle;
 	private GeeklistAdapter mGeekListAdapter;
+	@InjectView(R.id.username) TextView mUsernameView;
+	@InjectView(R.id.items) TextView mItemsView;
+	@InjectView(R.id.thumbs) TextView mThumbsView;
+	@InjectView(R.id.posted_date) TextView mPostDateView;
+	@InjectView(R.id.edited_date) TextView mEditDateView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,14 @@ public class GeekListFragment extends BggListFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_geeklist));
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		View header = View.inflate(getActivity(), R.layout.header_geeklist, null);
+		getListView().addHeaderView(header);
+		ButterKnife.inject(this, header);
 	}
 
 	@Override
@@ -96,6 +110,7 @@ public class GeekListFragment extends BggListFragment implements
 		if (mGeekListAdapter == null) {
 			mGeekListAdapter = new GeeklistAdapter(getActivity(), data.list());
 			setListAdapter(mGeekListAdapter);
+			bindHeader(data);
 		}
 		mGeekListAdapter.notifyDataSetChanged();
 
@@ -108,6 +123,19 @@ public class GeekListFragment extends BggListFragment implements
 				setListShownNoAnimation(true);
 			}
 			restoreScrollState();
+		}
+	}
+
+	private void bindHeader(GeeklistData data) {
+		GeekList geekList = data.getGeekList();
+		if (geekList != null) {
+			mUsernameView.setText(getString(R.string.by_prefix, geekList.getUsername()));
+			mItemsView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
+			mThumbsView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
+			mPostDateView.setText(getString(R.string.posted_prefix,
+				DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
+			mEditDateView.setText(getString(R.string.edited_prefix,
+				DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
 		}
 	}
 
@@ -138,11 +166,11 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	static class GeeklistData extends Data<GeekListItem> {
-		private GeekList mGeeklist;
+		private GeekList mGeekList;
 
 		public GeeklistData(GeekList geeklist) {
 			super();
-			mGeeklist = geeklist;
+			mGeekList = geeklist;
 		}
 
 		public GeeklistData(Exception e) {
@@ -151,10 +179,14 @@ public class GeekListFragment extends BggListFragment implements
 
 		@Override
 		protected List<GeekListItem> list() {
-			if (mGeeklist == null || mGeeklist.items == null) {
+			if (mGeekList == null || mGeekList.getItems() == null) {
 				return new ArrayList<>();
 			}
-			return mGeeklist.items;
+			return mGeekList.getItems();
+		}
+
+		public GeekList getGeekList() {
+			return mGeekList;
 		}
 	}
 
