@@ -5,6 +5,8 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import android.text.TextUtils;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -70,6 +72,14 @@ public class GeekListItem {
 			return R.string.title_geeklist;
 		}
 		return 0;
+	}
+
+	public boolean isBoardGame() {
+		return "thing".equals(objecttype);
+	}
+
+	public String getObejctUrl() {
+		return "http://www.boardgamegeek.com/" + (TextUtils.isEmpty(subtype) ? objecttype : subtype) + "/" + objectid;
 	}
 
 	@Attribute private String postdate;

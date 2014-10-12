@@ -15,6 +15,9 @@ public class GeekListUtils {
 	public static final String KEY_IMAGE_ID = "GEEKLIST_IMAGE_ID";
 	public static final String KEY_POSTED_DATE = "GEEKLIST_POSTED_DATE";
 	public static final String KEY_EDITED_DATE = "GEEKLIST_EDITED_DATE";
+	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
+	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
+	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
 
 	private static final String BASE_URL = "http://boardgamegeek.com/";
 	private static final String GEEKLIST_URL = BASE_URL + "geeklist/";

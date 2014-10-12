@@ -64,6 +64,7 @@ public class GeekListFragment extends BggListFragment implements
 		ViewHolder holder = (ViewHolder) convertView.getTag();
 		if (holder != null && holder.objectId != BggContract.INVALID_ID) {
 			Intent intent = new Intent(getActivity(), GeekListItemActivity.class);
+			intent.putExtra(GeekListUtils.KEY_ID, mGeekListId);
 			intent.putExtra(GeekListUtils.KEY_TITLE, mGeekListTitle);
 			intent.putExtra(GeekListUtils.KEY_ORDER, holder.order.getText().toString());
 			intent.putExtra(GeekListUtils.KEY_NAME, holder.name.getText().toString());
@@ -74,6 +75,9 @@ public class GeekListFragment extends BggListFragment implements
 			intent.putExtra(GeekListUtils.KEY_POSTED_DATE, holder.postedDate);
 			intent.putExtra(GeekListUtils.KEY_EDITED_DATE, holder.editedDate);
 			intent.putExtra(GeekListUtils.KEY_BODY, holder.body);
+			intent.putExtra(GeekListUtils.KEY_OBJECT_URL, holder.objectUrl);
+			intent.putExtra(GeekListUtils.KEY_OBJECT_ID, holder.objectId);
+			intent.putExtra(GeekListUtils.KEY_IS_BOARD_GAME, holder.isBoardGame);
 			startActivity(intent);
 		}
 	}
@@ -187,6 +191,8 @@ public class GeekListFragment extends BggListFragment implements
 				holder.thumbs = item.getThumbCount();
 				holder.postedDate = item.getPostDate();
 				holder.editedDate = item.getEditDate();
+				holder.objectUrl = item.getObejctUrl();
+				holder.isBoardGame = item.isBoardGame();
 
 				holder.order.setText(String.valueOf(position + 1));
 				loadThumbnail(holder.imageId, holder.thumbnail);
@@ -208,6 +214,8 @@ public class GeekListFragment extends BggListFragment implements
 		public int thumbs;
 		public long postedDate;
 		public long editedDate;
+		public String objectUrl;
+		public boolean isBoardGame;
 		@InjectView(R.id.order) TextView order;
 		@InjectView(R.id.thumbnail) ImageView thumbnail;
 		@InjectView(R.id.game_name) TextView name;
