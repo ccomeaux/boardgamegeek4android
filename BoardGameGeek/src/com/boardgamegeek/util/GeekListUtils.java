@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GeekListUtils {
+	public static final String KEY_GEEKLIST = "GEEKLIST";
 	public static final String KEY_ID = "GEEKLIST_ID";
 	public static final String KEY_TITLE = "GEEKLIST_TITLE";
 	public static final String KEY_ORDER = "GEEKLIST_ORDER";

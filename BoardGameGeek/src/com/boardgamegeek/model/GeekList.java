@@ -9,14 +9,20 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 
 @Root(name = "geeklist")
-public class GeekList {
+public class GeekList implements Parcelable {
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 	private long mPostDateTime = DateTimeUtils.UNPARSED_DATE;
 	private long mEditDateTime = DateTimeUtils.UNPARSED_DATE;
+
+	public GeekList() {
+	}
 
 	@Attribute private int id;
 
@@ -62,11 +68,53 @@ public class GeekList {
 
 	@Element private String description;
 
+	public String getDescription() {
+		return description;
+	}
+
 	@ElementList(name = "comment", inline = true, required = false) private List<GeekListComment> comments;
 
 	@ElementList(name = "item", inline = true, required = false) private List<GeekListItem> items;
 
 	public List<GeekListItem> getItems() {
 		return items;
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel out, int flags) {
+		out.writeInt(id);
+		out.writeString(postdate);
+		out.writeString(editdate);
+		out.writeString(thumbs);
+		out.writeString(numitems);
+		out.writeString(username);
+		out.writeString(title);
+		out.writeString(description);
+	}
+
+	public static final Parcelable.Creator<GeekList> CREATOR = new Parcelable.Creator<GeekList>() {
+		public GeekList createFromParcel(Parcel in) {
+			return new GeekList(in);
+		}
+
+		public GeekList[] newArray(int size) {
+			return new GeekList[size];
+		}
+	};
+
+	private GeekList(Parcel in) {
+		id = in.readInt();
+		postdate = in.readString();
+		editdate = in.readString();
+		thumbs = in.readString();
+		numitems = in.readString();
+		username = in.readString();
+		title = in.readString();
+		description = in.readString();
 	}
 }

@@ -221,6 +221,13 @@
 				android:value=".ui.GeekListsActivity" />
 		</activity>
 		<activity
+			android:name=".ui.GeekListDescriptionActivity"
+			android:label="@string/title_geeklist" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.GeekListActivity" />
+		</activity>
+		<activity
 			android:name=".ui.GeekListItemActivity"
 			android:label="@string/title_geeklist" >
 		</activity>
