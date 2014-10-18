@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -427,45 +429,52 @@ public class ActivityUtils {
 		activity.getSupportActionBar().setCustomView(actionBarButtons);
 	}
 
-	public static String createImagePath(int imageId) {
-		return IMAGE_URL_PREFIX + imageId + ".jpg";
-	}
-
-	public static String createThumbnailPath(int imageId) {
+	public static String createThumbnailJpg(int imageId) {
 		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
 	}
 
-	public static String createThumbnailPath(String imageId) {
-		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
+	public static String createThumbnailPng(int imageId) {
+		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".png";
 	}
 
-	public static void safelyLoadImage(final ImageView imageView, final String imageUrl) {
+	public static void safelyLoadImage(ImageView imageView, int imageId) {
+		Queue<String> imageUrls = new LinkedList<String>();
+		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		imageUrl = IMAGE_URL_PREFIX + imageId + ".png";
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		safelyLoadImage(imageView, imageUrls);
+	}
+
+	public static void safelyLoadImage(ImageView imageView, String imageUrl) {
+		Queue<String> imageUrls = new LinkedList<String>();
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		safelyLoadImage(imageView, imageUrls);
+	}
+
+	public static void safelyLoadImage(final ImageView imageView, final Queue<String> imageUrls) {
+		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
 
 		final Context context = imageView.getContext();
-		Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_MEDIUM)).fit().centerCrop()
-			.into(imageView, new Callback() {
-				@Override
-				public void onSuccess() {
-				}
+		Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView, new Callback() {
+			@Override
+			public void onSuccess() {
+			}
 
-				@Override
-				public void onError() {
-					Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_SMALL)).fit().centerCrop()
-						.into(imageView, new Callback() {
-							@Override
-							public void onSuccess() {
-							}
-
-							@Override
-							public void onError() {
-								Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView);
-							}
-						});
-				}
-			});
+			@Override
+			public void onError() {
+				safelyLoadImage(imageView, imageUrls);
+			}
+		});
 	}
 
 	private static String appendImageUrl(String imageUrl, String suffix) {

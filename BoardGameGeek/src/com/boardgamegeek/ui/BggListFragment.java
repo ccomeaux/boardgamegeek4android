@@ -1,7 +1,12 @@
 package com.boardgamegeek.ui;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -9,6 +14,7 @@ import android.widget.ListView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public abstract class BggListFragment extends SherlockListFragment {
@@ -76,7 +82,10 @@ public abstract class BggListFragment extends SherlockListFragment {
 	}
 
 	protected void loadThumbnail(int imageId, ImageView target) {
-		loadThumbnail(ActivityUtils.createThumbnailPath(imageId), target, R.drawable.thumbnail_image_empty);
+		Queue<String> queue = new LinkedList<String>();
+		queue.add(ActivityUtils.createThumbnailJpg(imageId));
+		queue.add(ActivityUtils.createThumbnailPng(imageId));
+		safelyLoadThumnail(target, queue, R.drawable.thumbnail_image_empty);
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {
@@ -84,7 +93,30 @@ public abstract class BggListFragment extends SherlockListFragment {
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Picasso.with(getActivity()).load(path).placeholder(placeholderResId).error(placeholderResId)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop().into(target);
+		Queue<String> queue = new LinkedList<String>();
+		queue.add(path);
+		safelyLoadThumnail(target, queue, placeholderResId);
+	}
+
+	private static void safelyLoadThumnail(final ImageView imageView, final Queue<String> imageUrls,
+		final int placeholderResId) {
+		String imageUrl = imageUrls.poll();
+		if (TextUtils.isEmpty(imageUrl)) {
+			return;
+		}
+
+		final Context context = imageView.getContext();
+		Picasso.with(context).load(imageUrl).placeholder(placeholderResId).error(placeholderResId)
+			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
+			.into(imageView, new Callback() {
+				@Override
+				public void onSuccess() {
+				}
+
+				@Override
+				public void onError() {
+					safelyLoadThumnail(imageView, imageUrls, placeholderResId);
+				}
+			});
 	}
 }

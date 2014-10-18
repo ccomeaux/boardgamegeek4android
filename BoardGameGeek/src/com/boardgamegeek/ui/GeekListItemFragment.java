@@ -23,7 +23,7 @@ public class GeekListItemFragment extends SherlockFragment {
 	private String mOrder;
 	private String mTitle;
 	private String mType;
-	private String mImageUrl;
+	private int mImageId;
 	private String mUsername;
 	private int mThumbs;
 	private long mPostedDate;
@@ -48,10 +48,7 @@ public class GeekListItemFragment extends SherlockFragment {
 		mOrder = intent.getStringExtra(GeekListUtils.KEY_ORDER);
 		mTitle = intent.getStringExtra(GeekListUtils.KEY_NAME);
 		mType = intent.getStringExtra(GeekListUtils.KEY_TYPE);
-		int imageId = intent.getIntExtra(GeekListUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
-		if (imageId != BggContract.INVALID_ID) {
-			mImageUrl = ActivityUtils.createImagePath(imageId);
-		}
+		mImageId = intent.getIntExtra(GeekListUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
 		mUsername = intent.getStringExtra(GeekListUtils.KEY_USERNAME);
 		mThumbs = intent.getIntExtra(GeekListUtils.KEY_THUMBS, 0);
 		mPostedDate = intent.getLongExtra(GeekListUtils.KEY_POSTED_DATE, 0);
@@ -67,7 +64,7 @@ public class GeekListItemFragment extends SherlockFragment {
 		mOrderView.setText(mOrder);
 		mTitleView.setText(mTitle);
 		mTypeView.setText(mType);
-		ActivityUtils.safelyLoadImage(mImageView, mImageUrl);
+		ActivityUtils.safelyLoadImage(mImageView, mImageId);
 		mUsernameView.setText(mUsername);
 		mThumbsView.setText(getString(R.string.thumbs_suffix, mThumbs));
 		mPostedDateView.setText(getString(R.string.posted_prefix,
