@@ -11,6 +11,9 @@
 			android:summary="ccomeaux"
 			android:title="Chris Comeaux" />
 		<com.boardgamegeek.pref.BuddyPreference
+			android:summary="icesphere"
+			android:title="John" />
+		<com.boardgamegeek.pref.BuddyPreference
 			android:summary="Marc6"
 			android:title="Marek Jeszka" />
 		<com.boardgamegeek.pref.BuddyPreference

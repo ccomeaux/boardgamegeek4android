@@ -40,7 +40,7 @@ public class GeekListDescriptionFragment extends SherlockFragment {
 		ButterKnife.inject(this, rootView);
 
 		mUsernameView.setText(mGeekList.getUsername());
-		mItemsView.setText(getString(R.string.items_suffix, mGeekList.getItems()));
+		mItemsView.setText(getString(R.string.items_suffix, mGeekList.getNumberOfItems()));
 		mThumbsView.setText(getString(R.string.thumbs_suffix, mGeekList.getThumbs()));
 		mPostedDateView.setText(getString(R.string.posted_prefix,
 			DateTimeUtils.formatForumDate(getActivity(), mGeekList.getPostDate())));
