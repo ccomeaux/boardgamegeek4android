@@ -16,6 +16,7 @@ import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.XmlConverter;
 
 public class GeekListDescriptionFragment extends SherlockFragment {
 	@InjectView(R.id.username) TextView mUsernameView;
@@ -45,7 +46,7 @@ public class GeekListDescriptionFragment extends SherlockFragment {
 			DateTimeUtils.formatForumDate(getActivity(), mGeekList.getPostDate())));
 		mEditedDateView.setText(getString(R.string.edited_prefix,
 			DateTimeUtils.formatForumDate(getActivity(), mGeekList.getEditDate())));
-		String content = GeekListUtils.convertBoardGameGeekXmlText(mGeekList.getDescription());
+		String content = new XmlConverter().toHtml(mGeekList.getDescription());
 		UIUtils.setWebViewText(mBodyView, content);
 
 		return rootView;

@@ -18,6 +18,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.XmlConverter;
 
 public class GeekListItemFragment extends SherlockFragment {
 	private String mOrder;
@@ -71,7 +72,7 @@ public class GeekListItemFragment extends SherlockFragment {
 			DateTimeUtils.formatForumDate(getActivity(), mPostedDate)));
 		mEditedDateView.setText(getString(R.string.edited_prefix,
 			DateTimeUtils.formatForumDate(getActivity(), mEditedDate)));
-		String content = GeekListUtils.convertBoardGameGeekXmlText(mBody);
+		String content = new XmlConverter().toHtml(mBody);
 		UIUtils.setWebViewText(mBodyView, content);
 
 		return rootView;
