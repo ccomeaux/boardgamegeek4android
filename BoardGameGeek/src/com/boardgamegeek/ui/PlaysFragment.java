@@ -214,16 +214,42 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (activity != null) {
 			showOptions = !activity.isDrawerOpen();
 		}
-		showMenuItemsSafely(menu, R.id.menu_sort, showOptions);
-		showMenuItemsSafely(menu, R.id.menu_refresh, showOptions);
-		showMenuItemsSafely(menu, R.id.menu_refresh_on, showOptions);
+		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
+		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
+		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
+		if (showOptions) {
+			switch (mSort.getType()) {
+				case PlaysSortDataFactory.TYPE_PLAY_DATE:
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					break;
+				case PlaysSortDataFactory.TYPE_PLAY_GAME:
+					checkMenuItemSafely(menu, R.id.menu_sort_game);
+					break;
+				case PlaysSortDataFactory.TYPE_PLAY_LENGTH:
+					checkMenuItemSafely(menu, R.id.menu_sort_length);
+					break;
+				case PlaysSortDataFactory.TYPE_PLAY_LOCATION:
+					checkMenuItemSafely(menu, R.id.menu_sort_location);
+					break;
+				default:
+					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					break;
+			}
+		}
 		super.onPrepareOptionsMenu(menu);
 	}
 
-	private void showMenuItemsSafely(com.actionbarsherlock.view.Menu menu, int resourceId, boolean visible) {
+	private void showMenuItemSafely(com.actionbarsherlock.view.Menu menu, int resourceId, boolean visible) {
 		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
 		if (menuItem != null) {
 			menuItem.setVisible(visible);
+		}
+	}
+
+	private void checkMenuItemSafely(com.actionbarsherlock.view.Menu menu, int resourceId) {
+		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
+		if (menuItem != null) {
+			menuItem.setChecked(true);
 		}
 	}
 

@@ -61,7 +61,9 @@
 					<LinearLayout
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
-						android:orientation="vertical" >
+						android:orientation="vertical"
+						android:paddingLeft="@dimen/padding_standard"
+						android:paddingRight="0dp" >
 
 						<TextView
 							android:id="@+id/game_info_rank"

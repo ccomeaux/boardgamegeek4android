@@ -11,22 +11,23 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:orientation="vertical"
+		android:paddingLeft="0dp"
 		android:paddingRight="@dimen/padding_half" >
 
 		<LinearLayout
 			android:id="@+id/game_stats_rank_root"
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical" />
 
 		<View
 			android:id="@+id/game_stats_rank_rule"
 			style="@style/BodySeparator"
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="1dp" />
 
 		<LinearLayout
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
 			android:paddingBottom="@dimen/padding_small"
@@ -77,10 +78,11 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:orientation="vertical"
-		android:paddingLeft="@dimen/padding_half" >
+		android:paddingLeft="@dimen/padding_half"
+		android:paddingRight="0dp" >
 
 		<LinearLayout
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
 			android:paddingBottom="@dimen/padding_small"
@@ -112,7 +114,7 @@
 			android:layout_height="1dp" />
 
 		<LinearLayout
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
 			android:paddingBottom="@dimen/padding_small"

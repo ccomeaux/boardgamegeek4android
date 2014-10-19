@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
@@ -19,9 +21,9 @@ public class ArticleFragment extends SherlockFragment {
 	private long mDate;
 	private String mBody;
 
-	private TextView mUserView;
-	private TextView mDateView;
-	private WebView mBodyView;
+	@InjectView(R.id.article_username) TextView mUserView;
+	@InjectView(R.id.article_editdate) TextView mDateView;
+	@InjectView(R.id.article_body) WebView mBodyView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,8 @@ public class ArticleFragment extends SherlockFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, null);
-
-		mUserView = (TextView) rootView.findViewById(R.id.article_username);
-		mDateView = (TextView) rootView.findViewById(R.id.article_editdate);
-		mBodyView = (WebView) rootView.findViewById(R.id.article_body);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
+		ButterKnife.inject(this, rootView);
 
 		mUserView.setText(mUser);
 		mDateView.setText(mDate == 0 ? getString(R.string.text_not_available) : DateTimeUtils.formatForumDate(

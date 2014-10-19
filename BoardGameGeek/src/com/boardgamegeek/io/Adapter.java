@@ -25,6 +25,10 @@ public class Adapter {
 		return createBuilder().build().create(BggService.class);
 	}
 
+	public static BggService createWithJson() {
+		return createBuilder().setConverter(new JsonConverter()).build().create(BggService.class);
+	}
+
 	public static BggService createWithAuth(Context context) {
 		return addAuth(context, createBuilder()).build().create(BggService.class);
 	}

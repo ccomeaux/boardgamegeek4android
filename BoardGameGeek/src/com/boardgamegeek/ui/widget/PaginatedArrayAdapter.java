@@ -13,11 +13,11 @@ import com.boardgamegeek.R;
 public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private static final int VIEW_TYPE_ITEM = 0;
 	private static final int VIEW_TYPE_LOADING = 1;
-	private static final int PAGE_SIZE = 50;
 	private int mResource;
 	private String mErrorMessage;
 	private int mTotalCount;
 	private int mCurrentPage;
+	private int mPageSize;
 
 	public PaginatedArrayAdapter(Context context, int resource, PaginatedData<T> data) {
 		super(context, resource, data.getData());
@@ -25,6 +25,7 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 		mErrorMessage = data.getErrorMessage();
 		mTotalCount = data.getTotalCount();
 		mCurrentPage = data.getCurrentPage();
+		mPageSize = data.getPageSize();
 	}
 
 	public void update(PaginatedData<T> data) {
@@ -114,7 +115,7 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	}
 
 	private boolean hasMoreResults() {
-		return mCurrentPage * PAGE_SIZE < mTotalCount;
+		return mCurrentPage * mPageSize < mTotalCount;
 	}
 
 	private boolean hasError() {

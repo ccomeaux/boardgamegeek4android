@@ -98,6 +98,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
+			saveScrollState();
 			loadMoreResults();
 		}
 	}
