@@ -3,8 +3,7 @@
 	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:paddingBottom="@dimen/padding_small" >
+	android:orientation="vertical" >
 
 	<TextView
 		android:id="@+id/thread_title"

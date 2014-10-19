@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -59,6 +61,7 @@ public class ActivityUtils {
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	public static final String IMAGE_URL_PREFIX = "http://cf.geekdo-images.com/images/pic";
 
 	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
@@ -267,6 +270,10 @@ public class ActivityUtils {
 		link(context, "http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName));
 	}
 
+	public static void link(Context context, Uri link) {
+		context.startActivity(new Intent(Intent.ACTION_VIEW, link));
+	}
+
 	public static void link(Context context, String link) {
 		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
 	}
@@ -276,7 +283,11 @@ public class ActivityUtils {
 	}
 
 	public static Uri createBggUri(String path) {
-		return Uri.withAppendedPath(BGG_URI, path);
+		return BGG_URI.buildUpon().appendPath(path).build();
+	}
+
+	public static Uri createBggUri(String path, int id) {
+		return BGG_URI.buildUpon().appendPath(path).appendPath(String.valueOf(id)).build();
 	}
 
 	public static void setActionBarText(Menu menu, int id, String text) {
@@ -418,33 +429,52 @@ public class ActivityUtils {
 		activity.getSupportActionBar().setCustomView(actionBarButtons);
 	}
 
-	public static void safelyLoadImage(final ImageView imageView, final String imageUrl) {
+	public static String createThumbnailJpg(int imageId) {
+		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
+	}
+
+	public static String createThumbnailPng(int imageId) {
+		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".png";
+	}
+
+	public static void safelyLoadImage(ImageView imageView, int imageId) {
+		Queue<String> imageUrls = new LinkedList<String>();
+		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		imageUrl = IMAGE_URL_PREFIX + imageId + ".png";
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		safelyLoadImage(imageView, imageUrls);
+	}
+
+	public static void safelyLoadImage(ImageView imageView, String imageUrl) {
+		Queue<String> imageUrls = new LinkedList<String>();
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
+		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
+		imageUrls.add(imageUrl);
+		safelyLoadImage(imageView, imageUrls);
+	}
+
+	public static void safelyLoadImage(final ImageView imageView, final Queue<String> imageUrls) {
+		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
 
 		final Context context = imageView.getContext();
-		Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_MEDIUM)).fit().centerCrop()
-			.into(imageView, new Callback() {
-				@Override
-				public void onSuccess() {
-				}
+		Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView, new Callback() {
+			@Override
+			public void onSuccess() {
+			}
 
-				@Override
-				public void onError() {
-					Picasso.with(context).load(appendImageUrl(imageUrl, SUFFIX_SMALL)).fit().centerCrop()
-						.into(imageView, new Callback() {
-							@Override
-							public void onSuccess() {
-							}
-
-							@Override
-							public void onError() {
-								Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView);
-							}
-						});
-				}
-			});
+			@Override
+			public void onError() {
+				safelyLoadImage(imageView, imageUrls);
+			}
+		});
 	}
 
 	private static String appendImageUrl(String imageUrl, String suffix) {
