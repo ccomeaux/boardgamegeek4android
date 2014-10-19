@@ -12,18 +12,20 @@
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_sort">
 		<menu>
-			<item
-				android:id="@+id/menu_sort_date"
-				android:title="@string/menu_plays_sort_date"/>
-			<item
-				android:id="@+id/menu_sort_location"
-				android:title="@string/menu_plays_sort_location"/>
-			<item
-				android:id="@+id/menu_sort_game"
-				android:title="@string/menu_plays_sort_game"/>
-			<item
-				android:id="@+id/menu_sort_length"
-				android:title="@string/menu_plays_sort_length"/>
+			<group android:checkableBehavior="single" >
+				<item
+					android:id="@+id/menu_sort_date"
+					android:title="@string/menu_plays_sort_date"/>
+				<item
+					android:id="@+id/menu_sort_location"
+					android:title="@string/menu_plays_sort_location"/>
+				<item
+					android:id="@+id/menu_sort_game"
+					android:title="@string/menu_plays_sort_game"/>
+				<item
+					android:id="@+id/menu_sort_length"
+					android:title="@string/menu_plays_sort_length"/>
+			</group>
 		</menu>
 	</item>
 	<item

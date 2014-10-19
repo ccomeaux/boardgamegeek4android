@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	style="@style/RowContainer"
-	android:layout_width="fill_parent"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:gravity="center" >
 
@@ -10,8 +10,7 @@
 		style="@style/Text.Primary"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:textIsSelectable="false" />
+		android:ellipsize="end" />
 
 	<TextView
 		android:id="@+id/article_editdate"
@@ -19,8 +18,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/article_username"
-		android:paddingBottom="@dimen/padding_small"
-		android:textIsSelectable="false" />
+		android:paddingBottom="@dimen/padding_small" />
 
 	<ImageView
 		android:id="@+id/article_view"
@@ -37,16 +35,15 @@
 
 	<View
 		android:id="@+id/article_divider"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="1dp"
 		android:layout_below="@+id/article_view"
 		android:background="@color/background_light" />
 
 	<TextView
 		android:id="@+id/article_body"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/article_divider"
-		android:textIsSelectable="true" />
+		android:layout_below="@id/article_divider" />
 
 </RelativeLayout>

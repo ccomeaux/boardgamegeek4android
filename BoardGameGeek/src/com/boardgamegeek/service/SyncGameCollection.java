@@ -42,7 +42,7 @@ public class SyncGameCollection extends UpdateTask {
 		List<CollectionItem> items = request(context, account);
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		persister.save(items);
-		LOGI(TAG, "Synced " + items.size() + " collection item(s) for game ID=" + mGameId);
+		LOGI(TAG, "Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + mGameId);
 
 		// XXX: this deleted more games that I expected. need to rework
 		// int deleteCount = persister.delete(items, mGameId);

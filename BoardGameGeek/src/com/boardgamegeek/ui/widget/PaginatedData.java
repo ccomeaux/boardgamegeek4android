@@ -77,7 +77,7 @@ public class PaginatedData<T> {
 		return mCurrentPage + 1;
 	}
 
-	private int getPageSize() {
+	public int getPageSize() {
 		return mPageSize;
 	}
 

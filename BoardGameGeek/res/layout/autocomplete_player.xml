@@ -23,7 +23,7 @@
 		<TextView
 			android:id="@+id/player_title"
 			style="@style/Text"
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true" />
@@ -31,7 +31,7 @@
 		<TextView
 			android:id="@+id/player_subtitle"
 			style="@style/Text.Footnote"
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true" />
