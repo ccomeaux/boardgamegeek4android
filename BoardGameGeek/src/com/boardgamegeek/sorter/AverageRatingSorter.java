@@ -8,20 +8,20 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class GeekRatingSorter extends CollectionSorter {
-	private static final String COLUMN = Collection.STATS_BAYES_AVERAGE;
+public class AverageRatingSorter extends CollectionSorter {
+	private static final String COLUMN = Collection.STATS_AVERAGE;
 	private static final String DEFAULT_VALUE = "?";
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
+	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
 
-	public GeekRatingSorter(Context context) {
+	public AverageRatingSorter(Context context) {
 		super(context);
 		mOrderByClause = getClause(COLUMN, true);
-		mDescriptionId = R.string.menu_collection_sort_geek_rating;
+		mDescriptionId = R.string.menu_collection_sort_rating;
 	}
 
 	@Override
 	public int getType() {
-		return CollectionSorterFactory.TYPE_GEEK_RATING;
+		return CollectionSorterFactory.TYPE_AVERAGE_RATING;
 	}
 
 	@Override

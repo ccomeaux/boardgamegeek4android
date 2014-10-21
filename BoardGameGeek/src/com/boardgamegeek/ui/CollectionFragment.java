@@ -301,8 +301,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			case R.id.menu_collection_sort_rank:
 				setSort(CollectionSorterFactory.TYPE_RANK);
 				return true;
-			case R.id.menu_collection_sort_rating:
+			case R.id.menu_collection_sort_geek_rating:
 				setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
+				return true;
+			case R.id.menu_collection_sort_rating:
+				setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
 				return true;
 			case R.id.menu_collection_sort_myrating:
 				setSort(CollectionSorterFactory.TYPE_MY_RATING);

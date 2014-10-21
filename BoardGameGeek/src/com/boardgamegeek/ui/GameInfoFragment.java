@@ -420,7 +420,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		setText(tv, label, bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		String rankText = (rank == 0) ? getResources().getString(R.string.text_not_available) : String.valueOf(rank);
+		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(
+			R.string.text_not_available) : String.valueOf(rank);
 		setText(tv, rankText, bold);
 
 		StatBar sb = new StatBar(getActivity());
