@@ -220,6 +220,14 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.GeekListsActivity" />
 		</activity>
+        <activity
+            android:name=".ui.SubscriptionsActivity"
+            android:exported="false"
+            android:label="@string/title_subscriptions" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.HomeActivity" />
+        </activity>
 		<activity
 			android:name=".ui.GeekListDescriptionActivity"
 			android:label="@string/title_geeklist" >

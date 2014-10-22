@@ -147,6 +147,7 @@
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
+    <string name="title_subscriptions">Subscriptions</string>
 	<string name="title_generalforumlist">General Forums</string>
 	<string name="title_poll">Poll Information</string>
 	<string name="title_plays">Plays</string>
@@ -194,6 +195,7 @@
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
+    <string name="empty_subscriptions">No subscriptions.</string>
 	<string name="empty_forums">No forums.</string>
 	<string name="empty_forum">No threads in this forum.</string>
 	<string name="empty_thread">No posts in this thread.</string>

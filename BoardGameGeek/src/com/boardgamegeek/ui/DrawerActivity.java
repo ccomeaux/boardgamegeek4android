@@ -87,6 +87,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_players, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_locations, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, mDrawerList));
+            mDrawerList.addView(makeNavDrawerItem(R.string.title_subscriptions, mDrawerList));
 		}
 
 		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
@@ -132,6 +133,9 @@ public abstract class DrawerActivity extends BaseActivity {
 				case R.string.title_settings:
 					startActivity(new Intent(this, Preferences.class));
 					break;
+                case R.string.title_subscriptions:
+                    intent = new Intent(this, SubscriptionsActivity.class);
+                    break;
 			}
 			if (intent != null) {
 				startActivity(intent);

@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import android.content.Context;
@@ -86,4 +87,46 @@ public class DateTimeUtils {
 		}
 		return time;
 	}
+
+    public static Date getDateFromBggString(String lastUpdatedString) throws ParseException
+    {
+        lastUpdatedString = DateTimeUtils.fixDateString(lastUpdatedString);
+        SimpleDateFormat sdf;
+        Date lastUpdated;
+        if (lastUpdatedString.startsWith("Today")) {
+            lastUpdated = getTodayDate(lastUpdatedString);
+        }
+        else {
+            sdf = new SimpleDateFormat("EEE MMM d, yyyy h:mm a");
+            lastUpdated = sdf.parse(lastUpdatedString);
+        }
+        return lastUpdated;
+    }
+
+    private static Date getTodayDate(String dateString) throws ParseException {
+        //todo
+        return new Date();
+        /*dateString = dateString.substring(6);
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
+        DateTime parsedDate = new DateTime(sdf.parse(dateString));
+        DateTime now = DateTime.now();
+        DateTime todayWithParsedTime = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), parsedDate.getHourOfDay(), parsedDate.getMinuteOfHour());
+        return todayWithParsedTime.toDate();*/
+    }
+
+    public static String fixDateString(String dateString)
+    {
+        String fixedString = "";
+        for (char c : dateString.toCharArray()) {
+            if (c < 194) {
+                if (c == 160) {
+                    fixedString += " ";
+                }
+                else {
+                    fixedString += c;
+                }
+            }
+        }
+        return fixedString;
+    }
 }
