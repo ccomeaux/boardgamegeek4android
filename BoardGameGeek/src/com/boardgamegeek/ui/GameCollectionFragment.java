@@ -409,10 +409,13 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 		}
 
 		String getYearDescription() {
-			if (year == 0) {
-				return "?";
+			if (year > 0) {
+				return getString(R.string.year_positive, year);
+			} else if (year == 0) {
+				return getString(R.string.year_zero, year);
+			} else {
+				return getString(R.string.year_negative, -year);
 			}
-			return String.valueOf(year);
 		}
 
 		String getWishlistPriority() {

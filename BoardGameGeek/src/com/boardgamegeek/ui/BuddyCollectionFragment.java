@@ -351,7 +351,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			}
 			if (game != null) {
 				holder.name.setText(game.gameName());
-				holder.year.setText(String.valueOf(game.gameId));
+				holder.year.setText(String.valueOf(game.gameId)); // year isn't available
 				holder.id = game.gameId;
 			}
 			return convertView;

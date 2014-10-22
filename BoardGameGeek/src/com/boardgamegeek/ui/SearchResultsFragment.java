@@ -248,9 +248,16 @@ public class SearchResultsFragment extends BggListFragment implements
 						break;
 				}
 				holder.name.setTypeface(holder.name.getTypeface(), style);
-				if (game.yearPublished > 0) {
-					holder.year.setText("" + game.yearPublished);
+				int year = game.getYearPublished();
+				String yearText;
+				if (year > 0) {
+					yearText = mResources.getString(R.string.year_positive, year);
+				} else if (year == 0) {
+					yearText = mResources.getString(R.string.year_zero, year);
+				} else {
+					yearText = mResources.getString(R.string.year_negative, -year);
 				}
+				holder.year.setText(yearText);
 				holder.gameId.setText(String.format(mResources.getString(R.string.id_list_text), game.id));
 			}
 

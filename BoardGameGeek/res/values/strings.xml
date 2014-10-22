@@ -257,6 +257,9 @@
 	<string name="menu_collection_sort_weight">Average Weight</string>
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
+	<string name="year_positive">%s</string>
+	<string name="year_zero">\?</string>
+	<string name="year_negative">%s BC</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_play_count">Play Count</string>
 	<string name="menu_suggested_age">Suggested Age</string>

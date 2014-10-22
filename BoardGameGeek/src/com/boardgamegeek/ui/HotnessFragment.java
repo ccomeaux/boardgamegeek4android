@@ -159,9 +159,15 @@ public class HotnessFragment extends BggListFragment implements
 			HotGame game = getItem(position);
 			if (game != null) {
 				holder.name.setText(game.name);
+				String yearText;
 				if (game.yearPublished > 0) {
-					holder.year.setText(String.valueOf(game.yearPublished));
+					yearText = getString(R.string.year_positive, game.yearPublished);
+				} else if (game.yearPublished == 0) {
+					yearText = getString(R.string.year_zero, game.yearPublished);
+				} else {
+					yearText = getString(R.string.year_negative, -game.yearPublished);
 				}
+				holder.year.setText(yearText);
 				holder.rank.setText(String.valueOf(game.rank));
 				loadThumbnail(game.thumbnailUrl, holder.thumbnail);
 			}

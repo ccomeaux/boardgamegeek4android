@@ -638,7 +638,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
-		private final String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
@@ -662,13 +661,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (year == 0) {
 				year = cursor.getInt(Query.YEAR_PUBLISHED);
 			}
+			String yearText;
+			if (year > 0) {
+				yearText = getString(R.string.year_positive, year);
+			} else if (year == 0) {
+				yearText = getString(R.string.year_zero, year);
+			} else {
+				yearText = getString(R.string.year_negative, -year);
+			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
 
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
-			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
+			holder.year.setText(yearText);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
 				holder.thumbnail);

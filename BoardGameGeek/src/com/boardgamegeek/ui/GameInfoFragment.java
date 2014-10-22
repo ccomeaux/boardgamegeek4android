@@ -690,10 +690,13 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 
 		public String getYearPublished() {
-			if (YearPublished == 0) {
-				return getResources().getString(R.string.text_unknown);
+			if (YearPublished > 0) {
+				return getString(R.string.year_positive, YearPublished);
+			} else if (YearPublished == 0) {
+				return getString(R.string.year_zero, YearPublished);
+			} else {
+				return getString(R.string.year_negative, -YearPublished);
 			}
-			return String.valueOf(YearPublished);
 		}
 
 		public CharSequence getUpdatedDescription() {
