@@ -29,7 +29,7 @@
 			dslv:drag_handle_id="@+id/drag_handle"
 			dslv:drag_start_mode="onDown"
 			dslv:float_alpha="0.75"
-			dslv:float_background_color="@color/abs__background_holo_light"
+			dslv:float_background_color="@color/background_light"
 			dslv:remove_enabled="false"
 			dslv:sort_enabled="true"
 			dslv:use_default_controller="true" />

@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -18,7 +18,7 @@ import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
-public class GeekListDescriptionFragment extends SherlockFragment {
+public class GeekListDescriptionFragment extends Fragment {
 	@InjectView(R.id.username) TextView mUsernameView;
 	@InjectView(R.id.items) TextView mItemsView;
 	@InjectView(R.id.thumbs) TextView mThumbsView;

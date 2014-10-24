@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="Theme.bgglight" parent="@style/Theme.Sherlock.Light">
+	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light">
 		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
@@ -38,7 +38,7 @@
 	</style>
 
 	<!-- this style is only referenced in a Light.DarkActionBar based theme -->
-	<style name="Theme.bgglight.widget" parent="@style/Theme.Sherlock">
+	<style name="Theme.bgglight.widget" parent="@style/Theme.AppCompat">
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
 		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>

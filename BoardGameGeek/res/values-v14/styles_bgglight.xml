@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="Theme.bgglight" parent="@style/Theme.Sherlock.Light">
+	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light">
 		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
@@ -38,7 +38,7 @@
 		<item name="ic_action_web_site">@drawable/ic_action_web_site_light</item>
 	</style>
 
-	<style name="bgglight_solid_ActionBar" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
+	<style name="bgglight_solid_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
 		<item name="background">@drawable/ab_solid_bgglight</item>
 		<item name="backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
 		<item name="backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>

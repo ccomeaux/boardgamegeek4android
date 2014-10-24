@@ -1,15 +1,15 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
 
-public class TextFragment extends SherlockFragment {
+public class TextFragment extends Fragment {
 	public static final String KEY_TEXT = "KEY_TEXT";
 	TextView mTextView;
 
