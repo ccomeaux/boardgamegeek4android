@@ -299,7 +299,6 @@ public class ActivityUtils {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
 			View actionView = MenuItemCompat.getActionView(item);
-			// TODO why is this always null?
 			if (actionView != null) {
 				TextView tv1 = (TextView) actionView.findViewById(android.R.id.text1);
 				if (tv1 != null) {
