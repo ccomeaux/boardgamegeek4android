@@ -14,7 +14,7 @@
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
-     limitations under the License.
+     limitations under the License.
 -->
 
 <resources>
@@ -26,12 +26,7 @@
 		<item name="actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
 		<item name="actionDropDownStyle">@style/bgglight_DropDownNav</item>
 		<item name="actionBarStyle">@style/bgglight_solid_ActionBar</item>
-		<item name="android:actionBarItemBackground">@drawable/selectable_background_bgglight</item>
-		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="android:actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
-		<item name="android:actionDropDownStyle">@style/bgglight_DropDownNav</item>
-		<item name="android:actionBarStyle">@style/bgglight_solid_ActionBar</item>
 		<item name="android:panelBackground">@drawable/menu_hardkey_panel_bgglight</item>
 		<item name="ic_action_add">@drawable/ic_action_add_light</item>
 		<item name="ic_action_calendar">@drawable/ic_action_calendar_light</item>
@@ -62,8 +57,6 @@
 		<item name="backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>
 		<item name="progressBarStyle">@style/bgglight_ProgressBar</item>
 		<item name="android:background">@drawable/ab_solid_bgglight</item>
-		<item name="android:backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
-		<item name="android:backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>
 		<item name="android:progressBarStyle">@style/bgglight_ProgressBar</item>
 	</style>
 
@@ -102,7 +95,6 @@
 	<style name="Theme.bgglight.widget" parent="@style/Theme.Sherlock">
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
 	</style>
 
