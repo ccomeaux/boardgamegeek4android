@@ -77,7 +77,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, null);
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
 
 		mProgress = rootView.findViewById(R.id.progress);
 		mScrollView = (ScrollView) rootView.findViewById(R.id.poll_scroll);
