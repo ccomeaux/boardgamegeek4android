@@ -2,19 +2,9 @@
 <resources>
 
 	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light">
-		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
-		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
-		<item name="actionDropDownStyle">@style/bgglight_DropDownNav</item>
-		<item name="actionBarStyle">@style/bgglight_solid_ActionBar</item>
-		<item name="android:actionBarItemBackground">@drawable/selectable_background_bgglight</item>
-		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
-		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
-		<item name="android:actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
-		<item name="android:actionDropDownStyle">@style/bgglight_DropDownNav</item>
-		<item name="android:actionBarStyle">@style/bgglight_solid_ActionBar</item>
-		<item name="android:panelBackground">@drawable/menu_hardkey_panel_bgglight</item>
+		<item name="colorPrimary">@color/background_light</item>
+		<item name="colorPrimaryDark">@color/background_dark</item>
+		<item name="colorAccent">@color/background_medium</item>
 		<item name="ic_action_add">@drawable/ic_action_add_light</item>
 		<item name="ic_action_calendar">@drawable/ic_action_calendar_light</item>
 		<item name="ic_action_cancel">@drawable/ic_action_cancel_light</item>
@@ -36,17 +26,6 @@
 		<item name="ic_action_timer">@drawable/ic_action_timer_light</item>
 		<item name="ic_action_today">@drawable/ic_action_today_light</item>
 		<item name="ic_action_web_site">@drawable/ic_action_web_site_light</item>
-	</style>
-
-	<style name="bgglight_solid_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
-		<item name="background">@drawable/ab_solid_bgglight</item>
-		<item name="backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
-		<item name="backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>
-		<item name="progressBarStyle">@style/bgglight_ProgressBar</item>
-		<item name="android:background">@drawable/ab_solid_bgglight</item>
-		<item name="android:backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
-		<item name="android:backgroundSplit">@drawable/ab_bottom_solid_bgglight</item>
-		<item name="android:progressBarStyle">@style/bgglight_ProgressBar</item>
 	</style>
 
 </resources>
