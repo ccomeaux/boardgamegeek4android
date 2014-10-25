@@ -192,10 +192,12 @@
 		<activity
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.bgglight.NoActionBar" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
-			android:label="@string/title_log_player" />
+			android:label="@string/title_log_player"
+			android:theme="@style/Theme.bgglight.NoActionBar" />
 		<activity
 			android:name=".ui.ForumsActivity"
 			android:label="@string/title_forums" >

@@ -14,7 +14,7 @@
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
-     limitations under the License.
+     limitations under the License.
 -->
 
 <resources>
@@ -49,6 +49,11 @@
 		<item name="ic_action_timer">@drawable/ic_action_timer_light</item>
 		<item name="ic_action_today">@drawable/ic_action_today_light</item>
 		<item name="ic_action_web_site">@drawable/ic_action_web_site_light</item>
+	</style>
+
+	<style name="Theme.bgglight.NoActionBar">
+		<item name="windowActionBar">false</item>
+		<item name="android:windowNoTitle">true</item>
 	</style>
 
 	<style name="bgglight_solid_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">

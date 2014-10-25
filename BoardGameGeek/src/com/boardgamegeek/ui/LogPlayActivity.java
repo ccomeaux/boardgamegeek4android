@@ -286,8 +286,8 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setContentView(R.layout.activity_logplay);
+		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setUiVariables();
 		mHandler = new QueryHandler(getContentResolver());
 

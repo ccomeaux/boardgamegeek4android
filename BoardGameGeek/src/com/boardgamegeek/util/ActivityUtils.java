@@ -33,13 +33,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -420,17 +420,16 @@ public class ActivityUtils {
 	}
 
 	public static void setDoneCancelActionBarView(ActionBarActivity activity, View.OnClickListener listener) {
-		activity.getSupportActionBar().setDisplayOptions(
-			ActionBar.DISPLAY_SHOW_CUSTOM,
-			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
-				| ActionBar.DISPLAY_SHOW_CUSTOM);
-		View actionBarButtons = activity.getLayoutInflater().inflate(R.layout.actionbar_done_cancel,
-			new LinearLayout(activity), false);
-		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
+		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_done_cancel);
+		if (toolbar == null) {
+			return;
+		}
+		toolbar.setContentInsetsAbsolute(0, 0);
+		View cancelActionView = toolbar.findViewById(R.id.menu_cancel);
 		cancelActionView.setOnClickListener(listener);
-		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
+		View doneActionView = toolbar.findViewById(R.id.menu_done);
 		doneActionView.setOnClickListener(listener);
-		activity.getSupportActionBar().setCustomView(actionBarButtons);
+		activity.setSupportActionBar(toolbar);
 	}
 
 	public static String createThumbnailJpg(int imageId) {
