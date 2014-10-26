@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="38"
-	android:versionName="feature/abs2appcompat" >
+	android:versionName="develop" >
 
 	<uses-sdk
 		android:minSdkVersion="9"
@@ -169,7 +169,7 @@
 			android:label="@string/title_location" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.Locations" />
+				android:value=".ui.LocationsActivity" />
 		</activity>
 		<activity
 			android:name=".ui.SearchResultsActivity"
