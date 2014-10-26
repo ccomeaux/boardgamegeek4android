@@ -85,7 +85,7 @@
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/android:Theme.NoTitleBar" />
+			android:theme="@style/Theme.AppCompat.NoActionBar" />
 		<activity
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail" />
