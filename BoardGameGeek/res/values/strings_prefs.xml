@@ -91,6 +91,7 @@
 <ul>
 <li>GeekLists!</li>
 <li>New game UI</li>
+<li>Support for Android Lollipop</li>
 <li>Access and edit play locations and players from the navigation drawer</li>
 <li>Search now looks for the the name in your collection, not the default game name</li>
 <li>Slightly better sync notification messages</li>
