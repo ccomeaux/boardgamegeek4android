@@ -4,11 +4,12 @@ import android.content.ContentResolver;
 import android.content.SyncStatusObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
@@ -36,8 +37,8 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		ArrayAdapter<CharSequence> mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.plays_filter,
-			R.layout.sherlock_spinner_item);
-		mSpinnerAdapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+			android.R.layout.simple_spinner_item);
+		mSpinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 		actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
 	}
 
@@ -123,9 +124,9 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
 			if (refreshing) {
-				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
-				refreshItem.setActionView(null);
+				MenuItemCompat.setActionView(refreshItem, null);
 			}
 		}
 	}

@@ -5,9 +5,10 @@ import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -112,9 +113,9 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
 			if (refreshing) {
-				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
-				refreshItem.setActionView(null);
+				MenuItemCompat.setActionView(refreshItem, null);
 			}
 		}
 	}

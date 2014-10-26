@@ -3,21 +3,20 @@ package com.boardgamegeek.ui;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-public abstract class BggListFragment extends SherlockListFragment {
+public abstract class BggListFragment extends ListFragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
 	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
 	private static final String STATE_POSITION = "position";
@@ -104,10 +103,8 @@ public abstract class BggListFragment extends SherlockListFragment {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
-
-		final Context context = imageView.getContext();
-		Picasso.with(context).load(imageUrl).placeholder(placeholderResId).error(placeholderResId)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
+		Picasso.with(imageView.getContext()).load(ActivityUtils.fixImageUrl(imageUrl)).placeholder(placeholderResId)
+			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
 			.into(imageView, new Callback() {
 				@Override
 				public void onSuccess() {

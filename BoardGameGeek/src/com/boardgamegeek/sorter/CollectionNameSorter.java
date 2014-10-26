@@ -9,7 +9,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class CollectionNameSorter extends CollectionSorter {
-	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
+	private DecimalFormat mDisplayFormat = new DecimalFormat("0.00");
 
 	public CollectionNameSorter(Context context) {
 		super(context);

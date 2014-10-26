@@ -9,13 +9,14 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 public class GeekRatingSorter extends CollectionSorter {
+	private static final String COLUMN = Collection.STATS_BAYES_AVERAGE;
 	private static final String DEFAULT_VALUE = "?";
 	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 
 	public GeekRatingSorter(Context context) {
 		super(context);
-		mOrderByClause = Collection.SORT_BY_RATING;
-        mDescriptionId = R.string.menu_collection_sort_rating;
+		mOrderByClause = getClause(COLUMN, true);
+		mDescriptionId = R.string.menu_collection_sort_geek_rating;
 	}
 
 	@Override
@@ -25,7 +26,7 @@ public class GeekRatingSorter extends CollectionSorter {
 
 	@Override
 	public String[] getColumns() {
-		return new String[] { Collection.STATS_BAYES_AVERAGE };
+		return new String[] { COLUMN };
 	}
 
 	@Override
@@ -39,6 +40,6 @@ public class GeekRatingSorter extends CollectionSorter {
 	}
 
 	private String getInfo(Cursor cursor, DecimalFormat format) {
-		return getDoubleAsString(cursor, Collection.STATS_BAYES_AVERAGE, DEFAULT_VALUE, true, format);
+		return getDoubleAsString(cursor, COLUMN, DEFAULT_VALUE, true, format);
 	}
 }

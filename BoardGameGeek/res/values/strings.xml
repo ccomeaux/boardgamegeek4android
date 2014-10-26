@@ -235,7 +235,8 @@
 	<string name="menu_expansion_status">Subtype</string>
 	<string name="menu_number_of_players">Number of Players</string>
 	<string name="menu_collection_sort_name">Name</string>
-	<string name="menu_collection_sort_rating">Rating</string>
+	<string name="menu_collection_sort_rating">Average Rating</string>
+	<string name="menu_collection_sort_geek_rating">Geek Rating</string>
 	<string name="menu_collection_sort_rank">Rank</string>
 	<string name="menu_collection_sort_myrating">My Rating</string>
 	<string name="menu_collection_sort_last_viewed">Last Viewed</string>
@@ -258,10 +259,13 @@
 	<string name="menu_collection_sort_weight">Average Weight</string>
 	<string name="heaviest">Heaviest</string>
 	<string name="lightest">Lightest</string>
+	<string name="year_positive">%s</string>
+	<string name="year_zero">\?</string>
+	<string name="year_negative">%s BC</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_play_count">Play Count</string>
 	<string name="menu_suggested_age">Suggested Age</string>
-	<string name="menu_geek_ranking">Geek Ranking</string>
+	<string name="menu_geek_ranking">Rank</string>
 	<string name="menu_geek_rating">Geek Rating</string>
 	<string name="menu_average_rating">Average Rating</string>
 	<string name="menu_average_weight">Average Weight</string>

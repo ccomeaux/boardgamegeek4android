@@ -24,6 +24,9 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,9 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.data.AverageRatingFilterData;
 import com.boardgamegeek.data.AverageWeightFilterData;
@@ -301,8 +301,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			case R.id.menu_collection_sort_rank:
 				setSort(CollectionSorterFactory.TYPE_RANK);
 				return true;
-			case R.id.menu_collection_sort_rating:
+			case R.id.menu_collection_sort_geek_rating:
 				setSort(CollectionSorterFactory.TYPE_GEEK_RATING);
+				return true;
+			case R.id.menu_collection_sort_rating:
+				setSort(CollectionSorterFactory.TYPE_AVERAGE_RATING);
 				return true;
 			case R.id.menu_collection_sort_myrating:
 				setSort(CollectionSorterFactory.TYPE_MY_RATING);
@@ -635,7 +638,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
-		private final String mUnknownYear = getResources().getString(R.string.text_unknown);
 
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
@@ -659,13 +661,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (year == 0) {
 				year = cursor.getInt(Query.YEAR_PUBLISHED);
 			}
+			String yearText;
+			if (year > 0) {
+				yearText = getString(R.string.year_positive, year);
+			} else if (year == 0) {
+				yearText = getString(R.string.year_zero, year);
+			} else {
+				yearText = getString(R.string.year_negative, -year);
+			}
 			String collectionThumbnailUrl = cursor.getString(Query.COLLECTION_THUMBNAIL_URL);
 			String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 
 			UIUtils.setActivatedCompat(view, collectionId == mSelectedCollectionId);
 
 			holder.name.setText(cursor.getString(Query.COLLECTION_NAME));
-			holder.year.setText((year > 0) ? String.valueOf(year) : mUnknownYear);
+			holder.year.setText(yearText);
 			holder.info.setText(mSort == null ? "" : mSort.getDisplayInfo(cursor));
 			loadThumbnail(!TextUtils.isEmpty(collectionThumbnailUrl) ? collectionThumbnailUrl : thumbnailUrl,
 				holder.thumbnail);

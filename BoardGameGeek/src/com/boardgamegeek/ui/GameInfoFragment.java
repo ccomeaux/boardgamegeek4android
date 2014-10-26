@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -22,6 +23,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,8 +35,6 @@ import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
@@ -54,7 +54,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
-public class GameInfoFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(GameInfoFragment.class);
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -420,7 +420,8 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		setText(tv, label, bold);
 
 		tv = (TextView) layout.findViewById(R.id.rank_row_rank);
-		String rankText = (rank == 0) ? getResources().getString(R.string.text_not_available) : String.valueOf(rank);
+		String rankText = (rank == 0 || rank == Integer.MAX_VALUE) ? getResources().getString(
+			R.string.text_not_available) : String.valueOf(rank);
 		setText(tv, rankText, bold);
 
 		StatBar sb = new StatBar(getActivity());
@@ -689,10 +690,13 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		}
 
 		public String getYearPublished() {
-			if (YearPublished == 0) {
-				return getResources().getString(R.string.text_unknown);
+			if (YearPublished > 0) {
+				return getString(R.string.year_positive, YearPublished);
+			} else if (YearPublished == 0) {
+				return getString(R.string.year_zero, YearPublished);
+			} else {
+				return getString(R.string.year_negative, -YearPublished);
 			}
-			return String.valueOf(YearPublished);
 		}
 
 		public CharSequence getUpdatedDescription() {

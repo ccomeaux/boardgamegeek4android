@@ -18,15 +18,15 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.SubMenu;
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -351,7 +351,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			}
 			if (game != null) {
 				holder.name.setText(game.gameName());
-				holder.year.setText(String.valueOf(game.gameId));
+				holder.year.setText(String.valueOf(game.gameId)); // year isn't available
 				holder.id = game.gameId;
 			}
 			return convertView;

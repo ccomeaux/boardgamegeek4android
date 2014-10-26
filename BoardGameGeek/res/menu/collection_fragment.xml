@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto" >
 
 	<item
 		android:id="@+id/menu_collection_sort"
 		android:icon="?attr/ic_action_sort"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_sort">
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
 		<menu>
 			<item
 				android:id="@+id/menu_collection_sort_name"
@@ -13,6 +14,9 @@
 			<item
 				android:id="@+id/menu_collection_sort_rank"
 				android:title="@string/menu_collection_sort_rank"/>
+			<item
+				android:id="@+id/menu_collection_sort_geek_rating"
+				android:title="@string/menu_collection_sort_geek_rating"/>
 			<item
 				android:id="@+id/menu_collection_sort_rating"
 				android:title="@string/menu_collection_sort_rating"/>
@@ -45,8 +49,8 @@
 	<item
 		android:id="@+id/menu_collection_filter"
 		android:icon="?attr/ic_action_filter_on"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_collection_filter_add">
+		android:title="@string/menu_collection_filter_add"
+		app:showAsAction="ifRoom">
 		<menu>
 			<item
 				android:id="@+id/menu_collection_status"
@@ -54,21 +58,6 @@
 			<item
 				android:id="@+id/menu_expansion_status"
 				android:title="@string/menu_expansion_status"/>
-			<item
-				android:id="@+id/menu_number_of_players"
-				android:title="@string/menu_number_of_players"/>
-			<item
-				android:id="@+id/menu_play_time"
-				android:title="@string/menu_play_time"/>
-			<item
-				android:id="@+id/menu_play_count"
-				android:title="@string/menu_play_count"/>
-			<item
-				android:id="@+id/menu_suggested_age"
-				android:title="@string/menu_suggested_age"/>
-			<item
-				android:id="@+id/menu_year_published"
-				android:title="@string/menu_year_published"/>
 			<item
 				android:id="@+id/menu_geek_ranking"
 				android:title="@string/menu_geek_ranking"/>
@@ -79,6 +68,21 @@
 				android:id="@+id/menu_average_rating"
 				android:title="@string/menu_average_rating"/>
 			<item
+				android:id="@+id/menu_number_of_players"
+				android:title="@string/menu_number_of_players"/>
+			<item
+				android:id="@+id/menu_play_count"
+				android:title="@string/menu_play_count"/>
+			<item
+				android:id="@+id/menu_year_published"
+				android:title="@string/menu_year_published"/>
+			<item
+				android:id="@+id/menu_play_time"
+				android:title="@string/menu_play_time"/>
+			<item
+				android:id="@+id/menu_suggested_age"
+				android:title="@string/menu_suggested_age"/>
+			<item
 				android:id="@+id/menu_average_weight"
 				android:title="@string/menu_average_weight"/>
 		</menu>
@@ -86,17 +90,17 @@
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="?attr/ic_action_help"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_collection_random_game"/>
+		android:title="@string/menu_collection_random_game"
+		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_collection_view_save"
 		android:icon="?attr/ic_action_save"
-		android:showAsAction="never"
-		android:title="@string/menu_collection_view_save"/>
+		android:title="@string/menu_collection_view_save"
+		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_collection_view_delete"
 		android:icon="?attr/ic_action_delete"
-		android:showAsAction="never"
-		android:title="@string/menu_collection_view_delete"/>
+		android:title="@string/menu_collection_view_delete"
+		app:showAsAction="never"/>
 
 </menu>

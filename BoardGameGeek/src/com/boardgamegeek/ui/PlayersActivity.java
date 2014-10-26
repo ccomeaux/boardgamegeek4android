@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui;
 
-import com.actionbarsherlock.view.Menu;
-import com.boardgamegeek.R;
-import com.boardgamegeek.util.ActivityUtils;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Menu;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
 
 public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";

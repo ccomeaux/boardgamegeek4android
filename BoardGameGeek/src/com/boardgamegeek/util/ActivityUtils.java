@@ -30,18 +30,19 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
@@ -297,13 +298,16 @@ public class ActivityUtils {
 	public static void setActionBarText(Menu menu, int id, String text1, String text2) {
 		MenuItem item = menu.findItem(id);
 		if (item != null) {
-			TextView tv1 = (TextView) item.getActionView().findViewById(android.R.id.text1);
-			if (tv1 != null) {
-				tv1.setText(text1);
-			}
-			TextView tv2 = (TextView) item.getActionView().findViewById(android.R.id.text2);
-			if (tv2 != null) {
-				tv2.setText(text2);
+			View actionView = MenuItemCompat.getActionView(item);
+			if (actionView != null) {
+				TextView tv1 = (TextView) actionView.findViewById(android.R.id.text1);
+				if (tv1 != null) {
+					tv1.setText(text1);
+				}
+				TextView tv2 = (TextView) actionView.findViewById(android.R.id.text2);
+				if (tv2 != null) {
+					tv2.setText(text2);
+				}
 			}
 		}
 	}
@@ -366,7 +370,7 @@ public class ActivityUtils {
 		public shortcutTask(Context context, int gameId, String gameName, String thumbnailUrl) {
 			mContext = context;
 			mShortcut = createGameShortcut(context, gameId, gameName);
-			mThumbnailUrl = thumbnailUrl;
+			mThumbnailUrl = fixImageUrl(thumbnailUrl);
 		}
 
 		@Override
@@ -415,18 +419,17 @@ public class ActivityUtils {
 		}
 	}
 
-	public static void setDoneCancelActionBarView(SherlockFragmentActivity activity, View.OnClickListener listener) {
-		activity.getSupportActionBar().setDisplayOptions(
-			ActionBar.DISPLAY_SHOW_CUSTOM,
-			ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE
-				| ActionBar.DISPLAY_SHOW_CUSTOM);
-		View actionBarButtons = activity.getLayoutInflater().inflate(R.layout.actionbar_done_cancel,
-			new LinearLayout(activity), false);
-		View cancelActionView = actionBarButtons.findViewById(R.id.menu_cancel);
+	public static void setDoneCancelActionBarView(ActionBarActivity activity, View.OnClickListener listener) {
+		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_done_cancel);
+		if (toolbar == null) {
+			return;
+		}
+		toolbar.setContentInsetsAbsolute(0, 0);
+		View cancelActionView = toolbar.findViewById(R.id.menu_cancel);
 		cancelActionView.setOnClickListener(listener);
-		View doneActionView = actionBarButtons.findViewById(R.id.menu_done);
+		View doneActionView = toolbar.findViewById(R.id.menu_done);
 		doneActionView.setOnClickListener(listener);
-		activity.getSupportActionBar().setCustomView(actionBarButtons);
+		activity.setSupportActionBar(toolbar);
 	}
 
 	public static String createThumbnailJpg(int imageId) {
@@ -463,18 +466,17 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
+		Picasso.with(imageView.getContext()).load(fixImageUrl(imageUrl)).fit().centerCrop()
+			.into(imageView, new Callback() {
+				@Override
+				public void onSuccess() {
+				}
 
-		final Context context = imageView.getContext();
-		Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView, new Callback() {
-			@Override
-			public void onSuccess() {
-			}
-
-			@Override
-			public void onError() {
-				safelyLoadImage(imageView, imageUrls);
-			}
-		});
+				@Override
+				public void onError() {
+					safelyLoadImage(imageView, imageUrls);
+				}
+			});
 	}
 
 	private static String appendImageUrl(String imageUrl, String suffix) {
@@ -490,5 +492,12 @@ public class ActivityUtils {
 		} else {
 			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
 		}
+	}
+
+	public static String fixImageUrl(String url) {
+		if (url.startsWith("//")) {
+			return "http:" + url;
+		}
+		return url;
 	}
 }
