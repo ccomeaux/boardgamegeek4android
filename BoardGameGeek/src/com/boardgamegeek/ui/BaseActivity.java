@@ -2,17 +2,18 @@ package com.boardgamegeek.ui;
 
 import android.app.SearchManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 
-public abstract class BaseActivity extends SherlockFragmentActivity {
+public abstract class BaseActivity extends ActionBarActivity {
 	protected int getOptionsMenuId() {
 		return 0;
 	}
@@ -20,7 +21,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		MenuInflater menuInflater = getSupportMenuInflater();
+		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.base, menu);
 		if (getOptionsMenuId() != 0) {
 			menuInflater.inflate(getOptionsMenuId(), menu);
@@ -59,7 +60,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {
-			SearchView searchView = (SearchView) searchItem.getActionView();
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 			if (searchView != null) {
 				SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
 				searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));

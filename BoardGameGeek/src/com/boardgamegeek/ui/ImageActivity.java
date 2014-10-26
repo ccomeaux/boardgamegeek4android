@@ -1,13 +1,13 @@
 package com.boardgamegeek.ui;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.ImageView;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.boardgamegeek.R;
 import com.squareup.picasso.Picasso;
 
-public class ImageActivity extends SherlockActivity {
+public class ImageActivity extends ActionBarActivity {
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 
 	@Override

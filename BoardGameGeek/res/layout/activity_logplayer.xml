@@ -4,6 +4,8 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical" >
 
+	<include layout="@layout/actionbar_done_cancel" />
+
 	<ScrollView
 		android:id="@+id/scroll_container"
 		android:layout_width="match_parent"

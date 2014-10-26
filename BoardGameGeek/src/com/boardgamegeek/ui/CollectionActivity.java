@@ -10,16 +10,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.service.SyncService;
@@ -237,9 +238,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
 			if (refreshing) {
-				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
-				refreshItem.setActionView(null);
+				MenuItemCompat.setActionView(refreshItem, null);
 			}
 		}
 	}
@@ -260,9 +261,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		private LayoutInflater mInflater;
 
 		public CollectionViewAdapter(Context context, Cursor cursor) {
-			super(context, R.layout.sherlock_spinner_item, cursor, new String[] { CollectionViews._ID,
+			super(context, android.R.layout.simple_spinner_item, cursor, new String[] { CollectionViews._ID,
 				CollectionViews.NAME }, new int[] { 0, android.R.id.text1 }, 0);
-			setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+			setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
@@ -274,7 +275,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
-				return createDefaultItem(convertView, parent, R.layout.sherlock_spinner_item);
+				return createDefaultItem(convertView, parent, android.R.layout.simple_spinner_item);
 			} else {
 				return super.getView(position - 1, convertView, parent);
 			}
@@ -283,7 +284,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		@Override
 		public View getDropDownView(int position, View convertView, ViewGroup parent) {
 			if (position == 0) {
-				return createDefaultItem(convertView, parent, R.layout.sherlock_spinner_dropdown_item);
+				return createDefaultItem(convertView, parent, R.layout.support_simple_spinner_dropdown_item);
 			} else {
 				return super.getDropDownView(position - 1, convertView, parent);
 			}

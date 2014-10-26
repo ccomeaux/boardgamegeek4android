@@ -208,7 +208,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(com.actionbarsherlock.view.Menu menu) {
+	public void onPrepareOptionsMenu(Menu menu) {
 		DrawerActivity activity = (DrawerActivity) getActivity();
 		boolean showOptions = true;
 		if (activity != null) {
@@ -239,22 +239,22 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		super.onPrepareOptionsMenu(menu);
 	}
 
-	private void showMenuItemSafely(com.actionbarsherlock.view.Menu menu, int resourceId, boolean visible) {
-		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
+	private void showMenuItemSafely(Menu menu, int resourceId, boolean visible) {
+		MenuItem menuItem = menu.findItem(resourceId);
 		if (menuItem != null) {
 			menuItem.setVisible(visible);
 		}
 	}
 
-	private void checkMenuItemSafely(com.actionbarsherlock.view.Menu menu, int resourceId) {
-		com.actionbarsherlock.view.MenuItem menuItem = menu.findItem(resourceId);
+	private void checkMenuItemSafely(Menu menu, int resourceId) {
+		MenuItem menuItem = menu.findItem(resourceId);
 		if (menuItem != null) {
 			menuItem.setChecked(true);
 		}
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_sort_date:
 				setSort(PlaysSortDataFactory.TYPE_PLAY_DATE);

@@ -72,14 +72,13 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	public void onCreateOptionsMenu(com.actionbarsherlock.view.Menu menu,
-		com.actionbarsherlock.view.MenuInflater inflater) {
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.game_colors, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_colors_add:
 				final EditText editText = new EditText(getActivity());

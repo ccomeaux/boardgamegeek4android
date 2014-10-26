@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto" >
 
 	<item
 		android:id="@+id/menu_collection_sort"
 		android:icon="?attr/ic_action_sort"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_sort">
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
 		<menu>
 			<item
 				android:id="@+id/menu_collection_sort_name"
@@ -48,8 +49,8 @@
 	<item
 		android:id="@+id/menu_collection_filter"
 		android:icon="?attr/ic_action_filter_on"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_collection_filter_add">
+		android:title="@string/menu_collection_filter_add"
+		app:showAsAction="ifRoom">
 		<menu>
 			<item
 				android:id="@+id/menu_collection_status"
@@ -89,17 +90,17 @@
 	<item
 		android:id="@+id/menu_collection_random_game"
 		android:icon="?attr/ic_action_help"
-		android:showAsAction="ifRoom"
-		android:title="@string/menu_collection_random_game"/>
+		android:title="@string/menu_collection_random_game"
+		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_collection_view_save"
 		android:icon="?attr/ic_action_save"
-		android:showAsAction="never"
-		android:title="@string/menu_collection_view_save"/>
+		android:title="@string/menu_collection_view_save"
+		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_collection_view_delete"
 		android:icon="?attr/ic_action_delete"
-		android:showAsAction="never"
-		android:title="@string/menu_collection_view_delete"/>
+		android:title="@string/menu_collection_view_delete"
+		app:showAsAction="never"/>
 
 </menu>

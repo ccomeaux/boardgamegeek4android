@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -30,7 +31,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -44,7 +44,7 @@ import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
-public class BuddyFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
 	private String mBuddyName;
 	private boolean mRefreshed;

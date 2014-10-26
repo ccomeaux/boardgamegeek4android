@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -30,7 +31,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
@@ -47,7 +47,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
-public class LogPlayerActivity extends SherlockFragmentActivity {
+public class LogPlayerActivity extends ActionBarActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
