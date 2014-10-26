@@ -381,9 +381,9 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			mThumbnailView.setVisibility(View.GONE);
 		} else {
 			mThumbnailView.setVisibility(View.VISIBLE);
-			Picasso.with(getActivity()).load(mThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-				.centerCrop().into(mThumbnailView);
+			Picasso.with(getActivity()).load(ActivityUtils.fixImageUrl(mThumbnailUrl))
+				.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty)
+				.resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size).centerCrop().into(mThumbnailView);
 		}
 
 		List<Player> players = mPlay.getPlayers();

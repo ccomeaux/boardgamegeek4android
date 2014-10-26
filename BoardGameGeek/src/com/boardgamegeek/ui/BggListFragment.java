@@ -3,7 +3,6 @@ package com.boardgamegeek.ui;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -104,10 +103,8 @@ public abstract class BggListFragment extends ListFragment {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
-
-		final Context context = imageView.getContext();
-		Picasso.with(context).load(imageUrl).placeholder(placeholderResId).error(placeholderResId)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
+		Picasso.with(imageView.getContext()).load(ActivityUtils.fixImageUrl(imageUrl)).placeholder(placeholderResId)
+			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
 			.into(imageView, new Callback() {
 				@Override
 				public void onSuccess() {

@@ -370,7 +370,7 @@ public class ActivityUtils {
 		public shortcutTask(Context context, int gameId, String gameName, String thumbnailUrl) {
 			mContext = context;
 			mShortcut = createGameShortcut(context, gameId, gameName);
-			mThumbnailUrl = thumbnailUrl;
+			mThumbnailUrl = fixImageUrl(thumbnailUrl);
 		}
 
 		@Override
@@ -466,18 +466,17 @@ public class ActivityUtils {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
+		Picasso.with(imageView.getContext()).load(fixImageUrl(imageUrl)).fit().centerCrop()
+			.into(imageView, new Callback() {
+				@Override
+				public void onSuccess() {
+				}
 
-		final Context context = imageView.getContext();
-		Picasso.with(context).load(imageUrl).fit().centerCrop().into(imageView, new Callback() {
-			@Override
-			public void onSuccess() {
-			}
-
-			@Override
-			public void onError() {
-				safelyLoadImage(imageView, imageUrls);
-			}
-		});
+				@Override
+				public void onError() {
+					safelyLoadImage(imageView, imageUrls);
+				}
+			});
 	}
 
 	private static String appendImageUrl(String imageUrl, String suffix) {
@@ -493,5 +492,12 @@ public class ActivityUtils {
 		} else {
 			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
 		}
+	}
+
+	public static String fixImageUrl(String url) {
+		if (url.startsWith("//")) {
+			return "http:" + url;
+		}
+		return url;
 	}
 }
