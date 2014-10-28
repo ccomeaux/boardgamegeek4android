@@ -124,4 +124,11 @@ public class HttpUtils {
 		store.addCookie(new BasicClientCookie("SessionID", "token"));
 		return store;
 	}
+
+	public static String ensureScheme(String url) {
+		if (url.startsWith("//")) {
+			return "http:" + url;
+		}
+		return url;
+	}
 }

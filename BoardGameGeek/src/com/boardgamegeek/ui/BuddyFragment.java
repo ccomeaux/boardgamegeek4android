@@ -38,9 +38,9 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
@@ -165,8 +165,8 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		long updated = cursor.getLong(BuddyQuery.UPDATED);
 		String fullName = BuddyUtils.buildFullName(cursor, BuddyQuery.FIRSTNAME, BuddyQuery.LASTNAME);
 
-		Picasso.with(getActivity()).load(ActivityUtils.fixImageUrl(avatarUrl))
-			.placeholder(R.drawable.person_image_empty).error(R.drawable.person_image_empty).fit().into(mAvatar);
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(avatarUrl)).placeholder(R.drawable.person_image_empty)
+			.error(R.drawable.person_image_empty).fit().into(mAvatar);
 		mFullName.setText(fullName);
 		mName.setText(mBuddyName);
 		if (TextUtils.isEmpty(nickname)) {

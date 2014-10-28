@@ -60,6 +60,7 @@ public class XmlConverter {
 		mReplacers.add(new SimpleReplacer("\\[/o\\]", "</span>"));
 		createPair("c", "tt");
 		mReplacers.add(new UrlReplacer());
+		mReplacers.add(new UrlReplacer2());
 		// TODO: roll
 		// TODO: size isn't working
 		mReplacers.add(new Replacer("\\[size=(.*?)\\]", "<span font-size=\"", "px\">"));
@@ -333,8 +334,33 @@ public class XmlConverter {
 			Matcher matcher = mPattern.matcher(text);
 			StringBuffer result = new StringBuffer();
 			while (matcher.find()) {
-				// TODO: ensure url has scheme
-				matcher.appendReplacement(result, "<a href=\"" + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+				String url = HttpUtils.ensureScheme(matcher.group(1));
+				matcher.appendReplacement(result, "<a href=\"" + url + "\">" + url + "</a>");
+			}
+			matcher.appendTail(result);
+			return result.toString();
+		}
+	}
+
+	public static class UrlReplacer2 implements Replacable {
+		private Pattern mPattern;
+
+		public UrlReplacer2() {
+			mPattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
+		}
+
+		@Override
+		public String replace(String text) {
+			Matcher matcher = mPattern.matcher(text);
+			StringBuffer result = new StringBuffer();
+			while (matcher.find()) {
+				String url = HttpUtils.ensureScheme(matcher.group(1));
+				String displayText = matcher.group(2);
+				if (TextUtils.isEmpty(displayText)) {
+					matcher.appendReplacement(result, "<a href=\"" + url + "\">" + url + "</a>");
+				} else {
+					matcher.appendReplacement(result, "<a href=\"" + url + "\">" + displayText + "</a>");
+				}
 			}
 			matcher.appendTail(result);
 			return result.toString();
