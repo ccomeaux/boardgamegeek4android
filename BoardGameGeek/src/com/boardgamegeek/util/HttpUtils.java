@@ -28,6 +28,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import android.text.TextUtils;
+
 public class HttpUtils {
 	private static final String TAG = makeLogTag(HttpUtils.class);
 	private static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
@@ -123,5 +125,15 @@ public class HttpUtils {
 		store.addCookie(new BasicClientCookie("bggpassword", "password"));
 		store.addCookie(new BasicClientCookie("SessionID", "token"));
 		return store;
+	}
+
+	public static String ensureScheme(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return url;
+		}
+		if (url.startsWith("//")) {
+			return "http:" + url;
+		}
+		return url;
 	}
 }

@@ -8,6 +8,7 @@ import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
 public abstract class BggListFragment extends SherlockListFragment {
@@ -79,7 +80,8 @@ public abstract class BggListFragment extends SherlockListFragment {
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Picasso.with(getActivity()).load(path).placeholder(placeholderResId).error(placeholderResId)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop().into(target);
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(path)).placeholder(placeholderResId)
+			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
+			.into(target);
 	}
 }

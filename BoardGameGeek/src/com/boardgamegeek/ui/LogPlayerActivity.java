@@ -34,6 +34,7 @@ import com.boardgamegeek.ui.widget.PlayerNameAdapter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -136,7 +137,8 @@ public class LogPlayerActivity extends SherlockFragmentActivity {
 		}
 
 		if (!TextUtils.isEmpty(imageUrl)) {
-			Picasso.with(this).load(imageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
+			Picasso.with(this).load(HttpUtils.ensureScheme(imageUrl)).fit().centerCrop()
+				.into((ImageView) findViewById(R.id.thumbnail));
 		}
 		bindUi();
 
