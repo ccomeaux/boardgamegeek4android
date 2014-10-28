@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -103,7 +104,7 @@ public abstract class BggListFragment extends ListFragment {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
-		Picasso.with(imageView.getContext()).load(ActivityUtils.fixImageUrl(imageUrl)).placeholder(placeholderResId)
+		Picasso.with(imageView.getContext()).load(HttpUtils.ensureScheme(imageUrl)).placeholder(placeholderResId)
 			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
 			.into(imageView, new Callback() {
 				@Override

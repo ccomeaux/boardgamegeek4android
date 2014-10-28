@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
 public abstract class StickyHeaderListFragment extends Fragment {
@@ -204,7 +204,7 @@ public abstract class StickyHeaderListFragment extends Fragment {
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Picasso.with(getActivity()).load(ActivityUtils.fixImageUrl(path)).placeholder(placeholderResId)
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(path)).placeholder(placeholderResId)
 			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
 			.into(target);
 	}
