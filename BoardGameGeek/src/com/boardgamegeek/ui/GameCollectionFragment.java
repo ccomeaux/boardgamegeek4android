@@ -37,6 +37,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
@@ -218,9 +219,9 @@ public class GameCollectionFragment extends SherlockListFragment implements Load
 
 			holder.thumbnail.setTag(R.id.image, item.imageUrl);
 			holder.thumbnail.setTag(R.id.name, item.name);
-			Picasso.with(context).load(item.thumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-				.centerCrop().into(holder.thumbnail);
+			Picasso.with(context).load(HttpUtils.ensureScheme(item.thumbnailUrl))
+				.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty)
+				.resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size).centerCrop().into(holder.thumbnail);
 		}
 	}
 

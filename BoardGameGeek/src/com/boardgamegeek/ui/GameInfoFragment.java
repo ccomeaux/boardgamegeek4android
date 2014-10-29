@@ -46,6 +46,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
@@ -432,9 +433,9 @@ public class GameInfoFragment extends SherlockFragment implements LoaderManager.
 		mPlayersView.setText(game.getPlayerRangeDescription());
 		mSuggestedAgesView.setText(game.getAgeDescription());
 
-		Picasso.with(getActivity()).load(game.ThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-			.centerCrop().into(mThumbnailView);
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(game.ThumbnailUrl))
+			.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty)
+			.resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size).centerCrop().into(mThumbnailView);
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));

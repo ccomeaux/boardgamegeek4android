@@ -61,6 +61,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -314,7 +315,8 @@ public class LogPlayActivity extends SherlockFragmentActivity implements OnDateS
 		}
 
 		if (!TextUtils.isEmpty(mImageUrl)) {
-			Picasso.with(this).load(mImageUrl).fit().centerCrop().into((ImageView) findViewById(R.id.thumbnail));
+			Picasso.with(this).load(HttpUtils.ensureScheme(mImageUrl)).fit().centerCrop()
+				.into((ImageView) findViewById(R.id.thumbnail));
 		}
 
 		if (savedInstanceState != null) {

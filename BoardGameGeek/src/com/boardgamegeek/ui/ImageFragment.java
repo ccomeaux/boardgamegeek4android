@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
 
@@ -34,8 +35,8 @@ public class ImageFragment extends SherlockFragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_image, null);
 
 		mImageView = (ImageView) rootView.findViewById(R.id.image);
-		Picasso.with(getActivity()).load(mImageUrl).placeholder(R.drawable.thumbnail_image_empty)
-			.error(R.drawable.thumbnail_image_empty).into(mImageView);
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(mImageUrl))
+			.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty).into(mImageView);
 
 		return rootView;
 	}

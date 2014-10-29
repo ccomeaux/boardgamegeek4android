@@ -42,6 +42,7 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -381,9 +382,9 @@ public class PlayFragment extends SherlockListFragment implements LoaderManager.
 			mThumbnailView.setVisibility(View.GONE);
 		} else {
 			mThumbnailView.setVisibility(View.VISIBLE);
-			Picasso.with(getActivity()).load(mThumbnailUrl).placeholder(R.drawable.thumbnail_image_empty)
-				.error(R.drawable.thumbnail_image_empty).resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size)
-				.centerCrop().into(mThumbnailView);
+			Picasso.with(getActivity()).load(HttpUtils.ensureScheme(mThumbnailUrl))
+				.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty)
+				.resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size).centerCrop().into(mThumbnailView);
 		}
 
 		List<Player> players = mPlay.getPlayers();

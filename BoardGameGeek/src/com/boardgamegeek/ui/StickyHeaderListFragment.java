@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
 public abstract class StickyHeaderListFragment extends SherlockFragment {
@@ -203,8 +204,9 @@ public abstract class StickyHeaderListFragment extends SherlockFragment {
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Picasso.with(getActivity()).load(path).placeholder(placeholderResId).error(placeholderResId)
-			.resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop().into(target);
+		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(path)).placeholder(placeholderResId)
+			.error(placeholderResId).resizeDimen(R.dimen.thumbnail_list_size, R.dimen.thumbnail_list_size).centerCrop()
+			.into(target);
 	}
 
 	private void ensureList() {
