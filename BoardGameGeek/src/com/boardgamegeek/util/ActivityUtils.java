@@ -383,7 +383,8 @@ public class ActivityUtils {
 					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 				} else {
 					try {
-						bitmap = Picasso.with(mContext).load(mThumbnailUrl).resize(128, 128).centerCrop().get();
+						bitmap = Picasso.with(mContext).load(HttpUtils.ensureScheme(mThumbnailUrl)).resize(128, 128)
+							.centerCrop().get();
 					} catch (IOException e) {
 						LOGE(TAG, "Error downloading the thumbnail.", e);
 					}
