@@ -49,7 +49,7 @@ public class Adapter {
 			}
 		};
 
-		Builder builder = new RestAdapter.Builder().setEndpoint("http://www.boardgamegeek.com/")
+		Builder builder = new RestAdapter.Builder().setEndpoint("https://www.boardgamegeek.com/")
 			.setConverter(new SimpleXMLConverter()).setErrorHandler(errorHandler);
 		if (DEBUG) {
 			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);

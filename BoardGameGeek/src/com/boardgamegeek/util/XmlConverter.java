@@ -9,9 +9,9 @@ import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
 public class XmlConverter {
-	private static final String BASE_URL = "http://boardgamegeek.com";
-	private static final String STATIC_IMAGES_URL = "http://cf.geekdo-static.com/images/";
-	private static final String IMAGES_URL = "http://cf.geekdo-images.com/images/";
+	private static final String BASE_URL = "https://boardgamegeek.com";
+	private static final String STATIC_IMAGES_URL = "https://cf.geekdo-static.com/images/";
+	private static final String IMAGES_URL = "https://cf.geekdo-images.com/images/";
 	private List<Replacable> mReplacers;
 
 	public XmlConverter() {
