@@ -3,7 +3,7 @@
 	package="com.boardgamegeek"
 	android:installLocation="auto"
 	android:versionCode="39"
-	android:versionName="develop" >
+	android:versionName="feature/play-stats" >
 
 	<uses-sdk
 		android:minSdkVersion="9"
@@ -143,6 +143,14 @@
 			android:name=".ui.LocationsActivity"
 			android:exported="false"
 			android:label="@string/title_locations" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
+			android:name=".ui.PlayStatsActivity"
+			android:exported="false"
+			android:label="@string/title_play_stats" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />

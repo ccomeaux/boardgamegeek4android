@@ -150,6 +150,7 @@
 	<string name="title_generalforumlist">General Forums</string>
 	<string name="title_poll">Poll Information</string>
 	<string name="title_plays">Plays</string>
+	<string name="title_play_stats">Play Stats</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
 	<string name="title_artist">Artist</string>
@@ -192,6 +193,7 @@
 	<string name="empty_plays_update">No plays are waiting to be updated.</string>
 	<string name="empty_plays_delete">No plays are waiting to be deleted.</string>
 	<string name="empty_plays_pending">No plays are waiting to be sent to the \'Geek.</string>
+	<string name="empty_play_stats">You have no plays to analyze.</string>
 	<string name="empty_play">No play ID %s."</string>
 	<string name="empty_geeklists">Error loading GeekLists.</string>
 	<string name="empty_forums">No forums.</string>
@@ -415,6 +417,19 @@
 	<string name="title_custom_player_order">Custom Player Order</string>
 	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
 	<string name="title_h_index">H-index</string>
+	<string name="play_stat_distinct_games">Distinct games</string>
+	<string name="play_stat_quarters">Quarters</string>
+	<string name="play_stat_dimes">Dimes</string>
+	<string name="play_stat_nickels">Nickels</string>
+	<string name="play_stat_h_index">H-index</string>
+	<string name="play_stat_ffm">Friendless Happiness Metric (FHM)</string>
+	<string name="play_stat_hhm">Huber Happiness Metric (HHM)</string>
+	<string name="play_stat_r_uhm">Randy Cox not-Unhappiness Metric (R!UHM)</string>
+	<string name="play_stat_utilization">Utilization</string>
+	<string name="play_stat_play_count">Plays</string>
+	<string name="play_stat_date_suffix">on %s</string>
+	<string name="play_stat_hours_played">Hours played</string>
+	<string name="play_stat_months_played">Months played</string>
 	<string name="message_h_index">Your h-index is</string>
 	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
 	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
