@@ -25,77 +25,12 @@
 		android:visibility="gone" >
 
 		<TableLayout
-			android:layout_width="wrap_content"
+			android:id="@+id/table"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:padding="@dimen/padding_standard" >
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/total_plays"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="Total Plays" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/distinct_games"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="Distinct Games" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/quarters"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="Quarters" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/dimes"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="Dimes" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/nickels"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="Nickels" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					android:id="@+id/hindex"
-					style="@style/Text.NumberStat" />
-
-				<TextView
-					style="@style/Text.NumberStatLabel"
-					android:text="H-Index" />
-			</TableRow>
-		</TableLayout>
+			android:padding="@dimen/padding_standard"
+			android:stretchColumns="0,1" />
 	</ScrollView>
 
 </FrameLayout>

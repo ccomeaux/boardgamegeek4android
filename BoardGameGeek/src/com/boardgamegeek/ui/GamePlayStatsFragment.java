@@ -59,7 +59,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_play_stats, container, false);
 		ButterKnife.inject(this, rootView);
 		return rootView;
 	}

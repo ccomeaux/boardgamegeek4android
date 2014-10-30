@@ -12,13 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
+import android.widget.TableLayout;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.ui.widget.PlayStatView;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = makeLogTag(PlayStatsFragment.class);
@@ -26,12 +27,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
-	@InjectView(R.id.total_plays) TextView mTotalPlays;
-	@InjectView(R.id.distinct_games) TextView mDistinctGames;
-	@InjectView(R.id.quarters) TextView mQuarters;
-	@InjectView(R.id.dimes) TextView mDimes;
-	@InjectView(R.id.nickels) TextView mNickels;
-	@InjectView(R.id.hindex) TextView mHIndex;
+	@InjectView(R.id.table) TableLayout mTable;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,12 +110,12 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				LOGI(TAG, currentCount + " Plays: " + currentCounter);
 
 				// Populate UI
-				mTotalPlays.setText(String.valueOf(numberOfPlays));
-				mDistinctGames.setText(String.valueOf(numberOfGames));
-				mQuarters.setText(String.valueOf(quarters));
-				mDimes.setText(String.valueOf(dimes));
-				mNickels.setText(String.valueOf(nickels));
-				mHIndex.setText(String.valueOf(hIndex));
+				addStatRow(R.string.play_stat_play_count, numberOfPlays);
+				addStatRow(R.string.play_stat_distinct_games, numberOfGames);
+				addStatRow(R.string.play_stat_quarters, quarters);
+				addStatRow(R.string.play_stat_dimes, dimes);
+				addStatRow(R.string.play_stat_nickels, nickels);
+				addStatRow(R.string.play_stat_h_index, hIndex);
 
 				showData();
 				break;
@@ -147,6 +143,13 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		mProgressView.setVisibility(View.GONE);
 		mEmptyView.setVisibility(View.GONE);
 		mDataView.setVisibility(View.VISIBLE);
+	}
+
+	private void addStatRow(int labelId, int value) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(labelId);
+		view.setValue(String.valueOf(value));
+		mTable.addView(view);
 	}
 
 	private interface PlayCountQuery {

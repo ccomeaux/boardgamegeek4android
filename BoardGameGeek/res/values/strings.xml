@@ -417,6 +417,11 @@
 	<string name="title_custom_player_order">Custom Player Order</string>
 	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
 	<string name="title_h_index">H-index</string>
+	<string name="play_stat_distinct_games">Distinct games</string>
+	<string name="play_stat_quarters">Quarters</string>
+	<string name="play_stat_dimes">Dimes</string>
+	<string name="play_stat_nickels">Nickels</string>
+	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_ffm">Friendless Happiness Metric (FHM)</string>
 	<string name="play_stat_hhm">Huber Happiness Metric (HHM)</string>
 	<string name="play_stat_r_uhm">Randy Cox not-Unhappiness Metric (R!UHM)</string>
