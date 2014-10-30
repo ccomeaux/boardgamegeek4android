@@ -26,6 +26,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
 
 public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> implements Filterable {
@@ -112,8 +113,8 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		ImageView avatarView = (ImageView) view.findViewById(R.id.player_avatar);
 		if (avatarView != null) {
-			Picasso.with(getContext()).load(result.mAvatarUrl).placeholder(R.drawable.person_image_empty)
-				.error(R.drawable.person_image_empty)
+			Picasso.with(getContext()).load(HttpUtils.ensureScheme(result.mAvatarUrl))
+				.placeholder(R.drawable.person_image_empty).error(R.drawable.person_image_empty)
 				.resizeDimen(R.dimen.dropdownitem_min_height, R.dimen.dropdownitem_min_height).centerCrop()
 				.into(avatarView);
 		}

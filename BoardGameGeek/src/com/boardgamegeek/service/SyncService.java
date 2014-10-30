@@ -172,7 +172,7 @@ public class SyncService extends Service {
 			messageId = R.string.sync_notification_h_index_decrease;
 		}
 		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://boardgamegeek.com/thread/953084"));
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://boardgamegeek.com/thread/953084"));
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)

@@ -28,10 +28,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import android.text.TextUtils;
+
 public class HttpUtils {
 	private static final String TAG = makeLogTag(HttpUtils.class);
 	private static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
-	private static final String SITE_URL = "http://www.boardgamegeek.com/";
+	private static final String SITE_URL = "https://www.boardgamegeek.com/";
 
 	private static boolean mMockLogin = false;
 
@@ -126,8 +128,11 @@ public class HttpUtils {
 	}
 
 	public static String ensureScheme(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return url;
+		}
 		if (url.startsWith("//")) {
-			return "http:" + url;
+			return "https:" + url;
 		}
 		return url;
 	}

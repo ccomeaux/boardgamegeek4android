@@ -79,7 +79,7 @@ public class GeekListItem {
 	}
 
 	public String getObejctUrl() {
-		return "http://www.boardgamegeek.com/" + (TextUtils.isEmpty(subtype) ? objecttype : subtype) + "/" + objectid;
+		return "https://www.boardgamegeek.com/" + (TextUtils.isEmpty(subtype) ? objecttype : subtype) + "/" + objectid;
 	}
 
 	@Attribute private String postdate;

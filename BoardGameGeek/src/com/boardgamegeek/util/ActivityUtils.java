@@ -62,9 +62,9 @@ public class ActivityUtils {
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
-	public static final String IMAGE_URL_PREFIX = "http://cf.geekdo-images.com/images/pic";
+	public static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
 
-	private static final String BGG_URL_BASE = "http://www.boardgamegeek.com/";
+	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
 
@@ -383,7 +383,8 @@ public class ActivityUtils {
 					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 				} else {
 					try {
-						bitmap = Picasso.with(mContext).load(mThumbnailUrl).resize(128, 128).centerCrop().get();
+						bitmap = Picasso.with(mContext).load(HttpUtils.ensureScheme(mThumbnailUrl)).resize(128, 128)
+							.centerCrop().get();
 					} catch (IOException e) {
 						LOGE(TAG, "Error downloading the thumbnail.", e);
 					}
