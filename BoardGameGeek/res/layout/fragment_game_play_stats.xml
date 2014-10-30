@@ -25,104 +25,12 @@
 		android:visibility="gone" >
 
 		<TableLayout
+			android:id="@+id/table"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:padding="@dimen/padding_standard" >
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Friendless Happiness Metric (FHM)" />
-
-				<TextView android:id="@+id/fhm" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Huber Happiness Metric (HHM)" />
-
-				<TextView android:id="@+id/hhm" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Randy Cox not-Unhappiness Metric (R!UHM)" />
-
-				<TextView android:id="@+id/ruhm" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Utilization" />
-
-				<TextView android:id="@+id/utilization" />
-			</TableRow>
-
-			<View
-				android:layout_height="1dp"
-				android:background="@color/background_dark" />
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Number of plays" />
-
-				<TextView android:id="@+id/play_count" />
-			</TableRow>
-
-			<TableRow android:id="@+id/nickel_container" >
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Nickel on" />
-
-				<TextView android:id="@+id/nickel" />
-			</TableRow>
-
-			<TableRow android:id="@+id/dime_container" >
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Dime on" />
-
-				<TextView android:id="@+id/dime" />
-			</TableRow>
-
-			<TableRow android:id="@+id/quarter_container" >
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Quarter on" />
-
-				<TextView android:id="@+id/quarter" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Hours played" />
-
-				<TextView android:id="@+id/play_hours" />
-			</TableRow>
-
-			<TableRow>
-
-				<TextView
-					style="@style/TextLabel.Edit"
-					android:text="Months played" />
-
-				<TextView android:id="@+id/play_months" />
-			</TableRow>
-		</TableLayout>
+			android:layout_gravity="center_horizontal"
+			android:padding="@dimen/padding_standard"
+			android:stretchColumns="0,1" />
 	</ScrollView>
 
 </FrameLayout>

@@ -18,10 +18,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.view.animation.AnimationUtils;
+import android.widget.TableLayout;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -31,30 +33,21 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.widget.PlayStatView;
 import com.boardgamegeek.util.UIUtils;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");;
+	private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("0.0");
 	private int mGameId;
 
 	private int mPlayingTime;
 	private double mRating;
 
-	@InjectView(R.id.progress) View mProgress;
-	@InjectView(R.id.empty) View mEmpty;
-	@InjectView(R.id.data) View mData;
-	@InjectView(R.id.play_count) TextView mPlayCountView;
-	@InjectView(R.id.play_hours) TextView mPlayHoursView;
-	@InjectView(R.id.play_months) TextView mPlayMonthsView;
-	@InjectView(R.id.fhm) TextView mFhmView;
-	@InjectView(R.id.hhm) TextView mHhmView;
-	@InjectView(R.id.ruhm) TextView mRuhmView;
-	@InjectView(R.id.utilization) TextView mUtilization;
-	@InjectView(R.id.nickel_container) View mNickelRoot;
-	@InjectView(R.id.nickel) TextView mNickel;
-	@InjectView(R.id.dime_container) View mDimeRoot;
-	@InjectView(R.id.dime) TextView mDime;
-	@InjectView(R.id.quarter_container) View mQuarterRoot;
-	@InjectView(R.id.quarter) TextView mQuarter;
+	@InjectView(R.id.progress) View mProgressView;
+	@InjectView(R.id.empty) View mEmptyView;
+	@InjectView(R.id.data) View mDataView;
+	@InjectView(R.id.table) TableLayout mTable;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,9 +94,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		if (cursor == null || !cursor.moveToFirst()) {
-			mProgress.setVisibility(View.GONE);
-			mEmpty.setVisibility(View.VISIBLE);
-			mData.setVisibility(View.GONE);
+			showEmpty();
 			return;
 		}
 
@@ -128,48 +119,80 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				getLoaderManager().restartLoader(PlayQuery._TOKEN, getArguments(), this);
 				break;
 			case PlayQuery._TOKEN:
-				DecimalFormat doubleFormat = new DecimalFormat("0.00");
-				DecimalFormat percentageFormat = new DecimalFormat("0.0");
+				mTable.removeAllViews();
 
 				Stats stats = new Stats(cursor);
 
-				mFhmView.setText(String.valueOf(stats.calculateFhm()));
-				mHhmView.setText(String.valueOf(stats.calculateHhm()));
-				mRuhmView.setText(doubleFormat.format(stats.calculateRuhm()));
-				mUtilization.setText(percentageFormat.format(stats.calculateUtilization() * 100) + "%");
+				addStatRow(R.string.play_stat_ffm, stats.calculateFhm());
+				addStatRow(R.string.play_stat_hhm, stats.calculateHhm());
+				addStatRow(R.string.play_stat_r_uhm, stats.calculateRuhm());
+				addStatRowPercentage(R.string.play_stat_utilization, stats.calculateUtilization());
 
-				String pcd = null;// stats.getPlayCountDescription();
-				mPlayCountView.setText(String.valueOf(stats.getPlayCount())
-					+ (!TextUtils.isEmpty(pcd) ? " - " + pcd : ""));
-				mPlayHoursView.setText(String.valueOf((int) stats.getHoursPlayed()));
-				mPlayMonthsView.setText(String.valueOf(stats.getMonthsPlayed()));
-				if (stats.mNickelDate == null) {
-					mNickelRoot.setVisibility(View.GONE);
-				} else {
-					mNickelRoot.setVisibility(View.VISIBLE);
-					mNickel.setText(stats.mNickelDate);
-				}
-				if (stats.mDimeDate == null) {
-					mDimeRoot.setVisibility(View.GONE);
-				} else {
-					mDimeRoot.setVisibility(View.VISIBLE);
-					mDime.setText(stats.mDimeDate);
-				}
-				if (stats.mQuarterDate == null) {
-					mQuarterRoot.setVisibility(View.GONE);
-				} else {
-					mQuarterRoot.setVisibility(View.VISIBLE);
-					mQuarter.setText(stats.mQuarterDate);
-				}
+				addDivider();
 
-				mProgress.setVisibility(View.GONE);
-				mEmpty.setVisibility(View.GONE);
-				mData.setVisibility(View.VISIBLE);
+				addStatRow(R.string.play_stat_play_count, stats.getPlayCount());
+				String pcd = stats.getPlayCountDescription();
+				if (!TextUtils.isEmpty(pcd)) {
+					addStatRow(getString(R.string.play_stat_date_suffix, stats.getPlayCountDate()), pcd);
+				}
+				addStatRow(R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
+				addStatRow(R.string.play_stat_months_played, stats.getMonthsPlayed());
+
+				showData();
 				break;
 			default:
 				cursor.close();
 				break;
 		}
+	}
+
+	private void showEmpty() {
+		mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		mEmptyView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		mProgressView.setVisibility(View.GONE);
+		mEmptyView.setVisibility(View.VISIBLE);
+		mDataView.setVisibility(View.GONE);
+	}
+
+	private void showData() {
+		mProgressView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		mDataView.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		mProgressView.setVisibility(View.GONE);
+		mEmptyView.setVisibility(View.GONE);
+		mDataView.setVisibility(View.VISIBLE);
+	}
+
+	private void addStatRow(int labelId, int value) {
+		addStatRow(labelId, String.valueOf(value));
+	}
+
+	private void addStatRow(int labelId, double value) {
+		addStatRow(labelId, DOUBLE_FORMAT.format(value));
+	}
+
+	private void addStatRowPercentage(int labelId, double value) {
+		addStatRow(labelId, PERCENTAGE_FORMAT.format(value * 100) + "%");
+	}
+
+	private void addStatRow(int labelId, String value) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(labelId);
+		view.setValue(value);
+		mTable.addView(view);
+	}
+
+	private void addStatRow(String label, String value) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(label);
+		view.setValue(value);
+		mTable.addView(view);
+	}
+
+	private void addDivider() {
+		View view = new View(getActivity());
+		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
+		view.setBackgroundResource(R.color.background_dark);
+		mTable.addView(view);
 	}
 
 	@Override
@@ -252,6 +275,28 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 				return "Dime";
 			} else if (playCount > 5) {
 				return "Nickel";
+			}
+			return "";
+		}
+
+		public String getPlayCountDate() {
+			String s = getPlayCountDateString();
+			try {
+				long l = FORMAT.parse(s).getTime();
+				return DateUtils.formatDateTime(getActivity(), l, DateUtils.FORMAT_SHOW_DATE
+					| DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
+			} catch (ParseException e) {
+				return "";
+			}
+		}
+
+		private String getPlayCountDateString() {
+			if (!TextUtils.isEmpty(mQuarterDate)) {
+				return mQuarterDate;
+			} else if (!TextUtils.isEmpty(mDimeDate)) {
+				return mDimeDate;
+			} else if (!TextUtils.isEmpty(mNickelDate)) {
+				return mNickelDate;
 			}
 			return "";
 		}

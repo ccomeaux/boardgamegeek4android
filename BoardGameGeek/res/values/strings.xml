@@ -417,6 +417,14 @@
 	<string name="title_custom_player_order">Custom Player Order</string>
 	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
 	<string name="title_h_index">H-index</string>
+	<string name="play_stat_ffm">Friendless Happiness Metric (FHM)</string>
+	<string name="play_stat_hhm">Huber Happiness Metric (HHM)</string>
+	<string name="play_stat_r_uhm">Randy Cox not-Unhappiness Metric (R!UHM)</string>
+	<string name="play_stat_utilization">Utilization</string>
+	<string name="play_stat_play_count">Plays</string>
+	<string name="play_stat_date_suffix">on %s</string>
+	<string name="play_stat_hours_played">Hours played</string>
+	<string name="play_stat_months_played">Months played</string>
 	<string name="message_h_index">Your h-index is</string>
 	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
 	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
