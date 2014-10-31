@@ -14,6 +14,7 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends SimpleSinglePaneActivity implements SearchResultsFragment.Callbacks {
+	private static final String VOICE_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION";
 	private static final String SEARCH_TEXT = "search_text";
 	private static final int HELP_VERSION = 1;
 	private String mSearchText;
@@ -55,7 +56,8 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		Fragment fragment = null;
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+		String action = intent.getAction();
+		if (Intent.ACTION_SEARCH.equals(action) || VOICE_SEARCH_ACTION.equals(action)) {
 			mSearchText = intent.getExtras().getString(SearchManager.QUERY);
 			if (TextUtils.isEmpty(mSearchText)) {
 				fragment = buildTextFragment(getString(R.string.search_error_no_text));
@@ -64,7 +66,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 					String.format(getResources().getString(R.string.search_searching), mSearchText));
 				fragment = new SearchResultsFragment();
 			}
-		} else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+		} else if (Intent.ACTION_VIEW.equals(action)) {
 			Uri uri = intent.getData();
 			if (uri == null) {
 				fragment = buildTextFragment(getString(R.string.search_error_no_data));
@@ -74,7 +76,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 				return null;
 			}
 		} else {
-			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + intent.getAction());
+			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
 		}
 		return fragment;
 	}

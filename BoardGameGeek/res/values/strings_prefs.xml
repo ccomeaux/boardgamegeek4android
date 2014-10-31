@@ -93,6 +93,7 @@
 <li>Play stats</li>
 <li>New game UI</li>
 <li>Support for Android Lollipop</li>
+<li>Use Google Now to search by voice by saying \"search <i>game name</i> on BoardGameGeek\"</li>
 <li>Access and edit play locations, players, and stats from the navigation drawer</li>
 <li>Search now looks for the the name in your collection, not the default game name</li>
 <li>Slightly better sync notification messages</li>
