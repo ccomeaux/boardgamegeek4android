@@ -127,7 +127,7 @@ public abstract class BaseProvider {
 
 	protected void notifyException(Context context, SQLException e) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, R.string.title_error)
-			.setContentText(e.getLocalizedMessage());
+			.setContentText(e.getLocalizedMessage()).setCategory(NotificationCompat.CATEGORY_ERROR);
 		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
 			e.getLocalizedMessage()));
 		NotificationUtils.notify(context, NotificationUtils.ID_PROVIDER_ERROR, builder);

@@ -131,7 +131,7 @@ public class UpdateService extends IntentService {
 			}
 			if (DEBUG) {
 				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
-					R.string.title_error);
+					R.string.title_error).setCategory(NotificationCompat.CATEGORY_ERROR);
 				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}

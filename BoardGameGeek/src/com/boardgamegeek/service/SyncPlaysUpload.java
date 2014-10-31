@@ -336,7 +336,8 @@ public class SyncPlaysUpload extends SyncTask {
 	private void notifyUser(CharSequence message) {
 		mMessages.add(message);
 
-		NotificationCompat.Builder builder = createNotificationBuilder();
+		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(
+			NotificationCompat.CATEGORY_SERVICE);
 
 		if (mMessages.size() == 1) {
 			builder.setContentText(message);
@@ -356,7 +357,8 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private void notifyError(String error) {
-		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(error);
+		NotificationCompat.Builder builder = createNotificationBuilder().setContentText(error).setCategory(
+			NotificationCompat.CATEGORY_ERROR);
 		NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 		detail.bigText(error);
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_PLAY_UPLOAD_ERROR, builder);

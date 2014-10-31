@@ -20,7 +20,7 @@ public class NotificationUtils {
 	public static final int ID_PROVIDER_ERROR = -2;
 	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
 	public static final int ID_PERSIST_ERROR = -4;
-	
+
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
 		return createNotificationBuilder(context, titleId, HomeActivity.class);
 	}
@@ -32,7 +32,7 @@ public class NotificationUtils {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg)
 			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.title_logo))
-			.setContentTitle(context.getString(titleId));
+			.setContentTitle(context.getString(titleId)).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
 			PendingIntent.FLAG_UPDATE_CURRENT);

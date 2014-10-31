@@ -192,8 +192,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 
 		CharSequence text = mContext.getText(task.getNotification());
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
-			R.string.sync_notification_title_error).setContentText(text);
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(mContext, R.string.sync_notification_title_error).setContentText(text)
+			.setCategory(NotificationCompat.CATEGORY_ERROR);
 		if (!TextUtils.isEmpty(message)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text));
 		}
@@ -205,8 +206,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return;
 		}
 
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(mContext,
-			R.string.sync_notification_title_cancel).setContentText(mContext.getText(messageId));
+		NotificationCompat.Builder builder = NotificationUtils
+			.createNotificationBuilder(mContext, R.string.sync_notification_title_cancel)
+			.setContentText(mContext.getText(messageId)).setCategory(NotificationCompat.CATEGORY_SERVICE);
 		NotificationUtils.notify(mContext, NotificationUtils.ID_SYNC_ERROR, builder);
 	}
 }

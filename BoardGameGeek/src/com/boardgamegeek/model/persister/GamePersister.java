@@ -107,6 +107,7 @@ public class GamePersister {
 						NotificationCompat.Builder builder = NotificationUtils
 							.createNotificationBuilder(mContext, R.string.sync_notification_title)
 							.setContentText(e.getMessage())
+							.setCategory(NotificationCompat.CATEGORY_ERROR)
 							.setStyle(
 								new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
 									e.getMessage()));

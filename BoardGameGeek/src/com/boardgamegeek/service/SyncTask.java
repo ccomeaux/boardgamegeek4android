@@ -56,7 +56,8 @@ public abstract class SyncTask extends ServiceTask {
 		PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, new Intent(SyncService.ACTION_CANCEL_SYNC), 0);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(mContext, R.string.sync_notification_title).setContentText(message)
-			.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(true).setProgress(1, 0, true)
+			.setPriority(NotificationCompat.PRIORITY_LOW).setCategory(NotificationCompat.CATEGORY_SERVICE)
+			.setOngoing(true).setProgress(1, 0, true)
 			.addAction(R.drawable.ic_stat_cancel, mContext.getString(R.string.cancel), pi);
 		if (!TextUtils.isEmpty(detail)) {
 			builder.setStyle(new NotificationCompat.BigTextStyle().setSummaryText(message).bigText(detail));
