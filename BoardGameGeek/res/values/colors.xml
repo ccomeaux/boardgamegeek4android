@@ -14,5 +14,6 @@
 	<color name="accent">#ff336699</color>
 	<color name="actionbar_text">#99333333</color>
 	<color name="black_overlay">#66000000</color>
+	<color name="text_inverse">#deffffff</color>
 
 </resources>

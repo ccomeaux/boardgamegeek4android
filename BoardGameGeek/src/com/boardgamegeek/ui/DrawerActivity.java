@@ -1,17 +1,15 @@
 package com.boardgamegeek.ui;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -19,9 +17,9 @@ import com.boardgamegeek.pref.Preferences;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
-	protected DrawerLayout mDrawerLayout;
-	private View mDrawerListContainer;
-	private LinearLayout mDrawerList;
+	@InjectView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+	@InjectView(R.id.drawer_container) View mDrawerListContainer;
+	@InjectView(R.id.left_drawer) LinearLayout mDrawerList;
 
 	protected abstract int getContentViewId();
 
@@ -37,13 +35,10 @@ public abstract class DrawerActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getContentViewId());
-
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		ButterKnife.inject(this);
 		if (mDrawerLayout != null) {
 			mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		}
-		mDrawerListContainer = findViewById(R.id.drawer_container);
-		mDrawerList = (LinearLayout) findViewById(R.id.left_drawer);
 
 		// TODO open the drawer upon launch until user opens it themselves
 	}
@@ -167,13 +162,9 @@ public abstract class DrawerActivity extends BaseActivity {
 		View view = getLayoutInflater().inflate(layoutId, container, false);
 
 		TextView titleView = (TextView) view.findViewById(android.R.id.title);
+		titleView.setText(titleId);
 		if (titleId == getDrawerResId()) {
-			String text = getString(titleId);
-			SpannableString ss = new SpannableString(text);
-			ss.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			titleView.setText(ss);
-		} else {
-			titleView.setText(titleId);
+			titleView.setTextColor(getResources().getColor(R.color.background_dark));
 		}
 
 		view.setOnClickListener(new View.OnClickListener() {

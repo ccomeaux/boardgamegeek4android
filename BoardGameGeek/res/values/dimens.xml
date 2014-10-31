@@ -24,6 +24,11 @@
 	<dimen name="color_circle_diameter">36dp</dimen>
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">48dp</dimen>
-	<dimen name="drawer_width">240dp</dimen>
+	<dimen name="drawer_width">304dp</dimen>
+	<dimen name="drawer_max_width">340dp</dimen>
+	<dimen name="drawer_min_width">260dp</dimen>
+	<dimen name="material_margin_horizontal">16dp</dimen>
+	<dimen name="material_margin_vertical">8dp</dimen>
+	<dimen name="material_indent_horizontal">72dp</dimen>
 
 </resources>
