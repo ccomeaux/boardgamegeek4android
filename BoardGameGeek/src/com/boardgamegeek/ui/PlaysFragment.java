@@ -33,6 +33,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -217,7 +219,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
-		if (showOptions) {
+		if (showOptions && mSort != null) {
 			switch (mSort.getType()) {
 				case PlaysSortDataFactory.TYPE_PLAY_DATE:
 					checkMenuItemSafely(menu, R.id.menu_sort_date);
@@ -291,7 +293,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	private void setSort(int sortType) {
-		if (sortType == mSort.getType()) {
+		if (mSort != null && sortType == mSort.getType()) {
 			return;
 		}
 		if (sortType == PlaysSortDataFactory.TYPE_UNKNOWN) {
@@ -584,7 +586,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 		@Override
 		public long getHeaderId(int position) {
-			if (position < 0) {
+			if (position < 0 || mSort == null) {
 				return 0;
 			}
 			return mSort.getHeaderId(getCursor(), position);
@@ -601,21 +603,18 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			holder.text.setText(mSort.getHeaderText(getCursor(), position));
+			holder.text.setText(mSort == null ? "" : mSort.getHeaderText(getCursor(), position));
 			return convertView;
 		}
 
 		class ViewHolder {
-			TextView name;
-			TextView date;
-			TextView location;
-			TextView status;
+			@InjectView(R.id.list_name) TextView name;
+			@InjectView(R.id.list_date) TextView date;
+			@InjectView(R.id.list_location) TextView location;
+			@InjectView(R.id.list_status) TextView status;
 
 			public ViewHolder(View view) {
-				name = (TextView) view.findViewById(R.id.list_name);
-				date = (TextView) view.findViewById(R.id.list_date);
-				location = (TextView) view.findViewById(R.id.list_location);
-				status = (TextView) view.findViewById(R.id.list_status);
+				ButterKnife.inject(this, view);
 			}
 		}
 
