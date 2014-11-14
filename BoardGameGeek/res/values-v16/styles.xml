@@ -9,8 +9,4 @@
 		<item name="android:fontFamily">sans-serif</item>
 	</style>
 
-	<style name="Text.Subtitle" parent="Text.Big">
-		<item name="android:fontFamily">sans-serif-light</item>
-	</style>
-
 </resources>

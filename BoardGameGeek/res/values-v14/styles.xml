@@ -69,6 +69,10 @@
 
 	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Headline"></style>
 
+	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Title">
+		<item name="android:textColor">@color/secondary_text_default_material_light</item>
+	</style>
+
 	<style name="Text.NumberStat" parent="@style/Text.Primary">
 		<item name="android:textStyle">bold</item>
 		<item name="android:gravity">right</item>
