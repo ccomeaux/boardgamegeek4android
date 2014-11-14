@@ -13,6 +13,7 @@
 
 	<TextView
 		android:id="@+id/summary"
+		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignBaseline="@+id/label"
@@ -37,6 +38,7 @@
 
 	<TextView
 		android:id="@+id/detail"
+		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/label"
