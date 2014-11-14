@@ -48,6 +48,7 @@ public class PaginatedData<T> {
 		this.mErrorMessage = data.mErrorMessage;
 		this.mTotalCount = data.mTotalCount;
 		this.mCurrentPage = data.mCurrentPage;
+		this.mPageSize = data.mPageSize;
 	}
 
 	protected void updateErrorMessage(String errorMessage) {
