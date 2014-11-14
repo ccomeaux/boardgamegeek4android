@@ -31,6 +31,7 @@ public abstract class BggListFragment extends ListFragment {
 		super.onViewCreated(view, savedInstanceState);
 		view.setBackgroundColor(Color.WHITE);
 		final ListView listView = getListView();
+		listView.setDivider(null);
 		listView.setCacheColorHint(Color.WHITE);
 		listView.setFastScrollEnabled(true);
 	}

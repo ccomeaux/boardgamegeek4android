@@ -236,6 +236,7 @@ public abstract class StickyHeaderListFragment extends Fragment {
 			mEmptyView.setText(mEmptyText);
 			mList.setEmptyView(mEmptyView);
 		}
+		mList.setDivider(null);
 		mListShown = true;
 		mList.setOnItemClickListener(mOnClickListener);
 		if (mAdapter != null) {

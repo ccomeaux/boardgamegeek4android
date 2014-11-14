@@ -503,7 +503,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	private class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
+	class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 		private int mRowResId = R.layout.row_play;
 
@@ -539,7 +539,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
 
-			holder.date.setText(CursorUtils.getFormettedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
+			holder.date.setText(CursorUtils.getFormattedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
 			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
 			String location = cursor.getString(PlaysQuery.LOCATION);
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);

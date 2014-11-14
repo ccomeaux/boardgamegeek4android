@@ -240,11 +240,13 @@ public class SearchResultsFragment extends BggListFragment implements
 				holder.name.setText(game.name);
 				int style = Typeface.NORMAL;
 				switch (game.getNameType()) {
-					case SearchResult.NAME_TYPE_PRIMARY:
-						style = Typeface.BOLD;
-						break;
 					case SearchResult.NAME_TYPE_ALTERNATE:
 						style = Typeface.ITALIC;
+						break;
+					case SearchResult.NAME_TYPE_PRIMARY:
+					case SearchResult.NAME_TYPE_UNKNOWN:
+					default:
+						style = Typeface.NORMAL;
 						break;
 				}
 				holder.name.setTypeface(holder.name.getTypeface(), style);

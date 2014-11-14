@@ -88,7 +88,7 @@ public class CursorUtils {
 		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
 	}
 
-	public static String getFormettedDateAbbreviated(Cursor cursor, Context context, int columnIndex) {
+	public static String getFormattedDateAbbreviated(Cursor cursor, Context context, int columnIndex) {
 		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
 	}
 
