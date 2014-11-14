@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<style name="RowSeparator" parent="TextAppearance.AppCompat.Menu">
+	<style name="RowContainer">
+		<item name="android:gravity">center</item>
+		<item name="android:minHeight">48dp</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+	</style>
+
+	<style name="RowContainer.Medium">
+		<item name="android:minHeight">56dp</item>
+	</style>
+
+	<style name="RowContainer.Tall">
+		<item name="android:minHeight">72dp</item>
+	</style>
+
+	<style name="RowContainer.WithThumbnail">
+		<item name="android:paddingLeft">@dimen/material_margin_vertical</item>
+	</style>
+
+	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
 		<item name="android:background">@color/background_dark</item>
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">32dp</item>
@@ -12,9 +33,49 @@
 		<item name="android:textIsSelectable">false</item>
 	</style>
 
-	<style name="Text.Header">
+	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">#000</item>
+		<!-- <item name="android:textColor">@color/primary_text_default_material_light</item> -->
+	</style>
+
+	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
+		<item name="android:textColor">@color/secondary_text_default_material_light</item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="Text.Footnote" parent="@style/TextAppearance.AppCompat.Caption">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
+	</style>
+
+	<style name="Text.Footnote2" parent="@style/TextAppearance.AppCompat.Caption">
+		<item name="android:textColor">@color/secondary_text_default_material_light</item>
+	</style>
+
+	<style name="Text.Header" parent="@style/TextAppearance.AppCompat.Button">
 		<item name="android:textAllCaps">true</item>
 		<item name="android:textColor">@color/accent</item>
+	</style>
+
+	<style name="Text.Header.2">
+		<item name="android:textAllCaps">false</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
+	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Headline"></style>
+
+	<style name="Text.NumberStat" parent="@style/Text.Primary">
+		<item name="android:textStyle">bold</item>
+		<item name="android:gravity">right</item>
+	</style>
+
+	<style name="Text.NumberStatLabel">
+		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
 	<style name="DrawerList">
@@ -40,6 +101,11 @@
 	<style name="Text.DrawerItem" parent="TextAppearance.AppCompat.Subhead">
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:textIsSelectable">false</item>
+	</style>
+
+	<style name="ImageList">
+		<item name="android:layout_marginRight">@dimen/material_margin_vertical</item>
+		<item name="android:scaleType">centerCrop</item>
 	</style>
 
 </resources>

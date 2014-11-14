@@ -5,9 +5,9 @@
 	android:background="@drawable/checkable_background" >
 
 	<RelativeLayout
-		style="@style/RowContainer"
+		style="@style/RowContainer.Tall"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content" >
+		android:layout_height="match_parent" >
 
 		<TextView
 			android:id="@+id/list_name"
@@ -20,7 +20,7 @@
 
 		<TextView
 			android:id="@+id/list_location"
-			style="@style/Text"
+			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
@@ -32,7 +32,7 @@
 
 		<TextView
 			android:id="@+id/list_date"
-			style="@style/Text"
+			style="@style/Text.Secondary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"

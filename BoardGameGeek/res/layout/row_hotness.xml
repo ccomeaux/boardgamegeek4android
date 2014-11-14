@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer.WithThumbnail"
+	style="@style/RowContainer"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/checkable_background" >
@@ -13,13 +13,12 @@
 
 		<TextView
 			android:id="@+id/rank"
+			style="@style/Text.Title"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:gravity="right|center_vertical"
 			android:minWidth="32dp"
-			android:paddingRight="@dimen/padding_standard"
-			android:textIsSelectable="false"
-			android:textSize="22sp" />
+			android:paddingRight="@dimen/padding_standard" />
 
 		<ImageView
 			android:id="@+id/thumbnail"
