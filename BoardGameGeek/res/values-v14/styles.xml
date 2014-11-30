@@ -67,10 +67,10 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Headline"></style>
+	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"></style>
 
-	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Title">
-		<item name="android:textColor">@color/secondary_text_default_material_light</item>
+	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
 	</style>
 
 	<style name="Text.NumberStat" parent="@style/Text.Primary">
@@ -110,6 +110,15 @@
 	<style name="ImageList">
 		<item name="android:layout_marginRight">@dimen/material_margin_vertical</item>
 		<item name="android:scaleType">centerCrop</item>
+	</style>
+
+	<style name="InfoSection">
+		<item name="android:background">@drawable/grey_frame_on_white_b</item>
+		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 	</style>
 
 </resources>

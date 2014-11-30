@@ -149,8 +149,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
-		rootView.setPadding(padding, padding, padding, padding);
 
 		mPlayers = (ListView) rootView.findViewById(android.R.id.list);
 		mPlayers.setHeaderDividersEnabled(false);
