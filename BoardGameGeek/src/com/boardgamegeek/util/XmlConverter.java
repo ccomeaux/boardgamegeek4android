@@ -36,7 +36,9 @@ public class XmlConverter {
 		// TODO: determine when image is a PNG
 		mReplacers.add(new Replacer("\\[ImageID=(\\d+).*?\\]", "<div style=\"display:inline\"><img src=\"" + IMAGES_URL
 			+ "pic", "_t.jpg\"/></div>"));
-		// TODO: image, YouTube, Vimeo, tweet, mp3
+		mReplacers.add(new Replacer("\\[IMG\\](.*?)\\[/IMG\\]", "<div style=\"display:inline\"><img src=\"",
+			"\"/></div>"));
+		// TODO: YouTube, Vimeo, tweet, mp3
 		mReplacers.add(new GeekUrlReplacer());
 		mReplacers.add(GeekLinkReplacer.createNumeric("thing"));
 		mReplacers.add(GeekLinkReplacer.createNumeric("thread"));
