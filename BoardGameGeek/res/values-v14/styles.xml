@@ -121,4 +121,10 @@
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 	</style>
 
+	<style name="InfoSectionContinued">
+		<item name="android:background">#fff</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+	</style>
+
 </resources>

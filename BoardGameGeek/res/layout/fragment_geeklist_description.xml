@@ -7,9 +7,19 @@
 
 	<include layout="@layout/header_geeklist" />
 
-	<WebView
-		android:id="@+id/body"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="#fff"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_vertical"
+		android:paddingTop="@dimen/material_margin_vertical" >
+
+		<WebView
+			android:id="@+id/body"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+	</FrameLayout>
 
 </LinearLayout>
