@@ -91,7 +91,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		TextView titleView = (TextView) view.findViewById(R.id.player_title);
 		if (titleView != null) {
-			if (result.mName == null) {
+			if (TextUtils.isEmpty(result.mName)) {
 				titleView.setVisibility(View.GONE);
 			} else {
 				titleView.setVisibility(View.VISIBLE);
@@ -101,7 +101,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		TextView subtitleView = (TextView) view.findViewById(R.id.player_subtitle);
 		if (subtitleView != null) {
-			if (result.mSubtitle == null) {
+			if (TextUtils.isEmpty(result.mSubtitle)) {
 				subtitleView.setVisibility(View.GONE);
 			} else {
 				subtitleView.setVisibility(View.VISIBLE);

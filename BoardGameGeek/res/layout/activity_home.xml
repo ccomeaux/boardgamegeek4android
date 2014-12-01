@@ -15,7 +15,10 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
 			android:gravity="center"
-			android:padding="@dimen/padding_extra"
+			android:paddingBottom="@dimen/material_margin_vertical"
+			android:paddingLeft="@dimen/material_margin_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			android:paddingTop="@dimen/material_margin_vertical"
 			android:text="@string/welcome_text" />
 	</FrameLayout>
 
