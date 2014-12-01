@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -104,7 +106,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	public void onListItemClick(View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
-		final String name = cursor.getString(BuddiesQuery.NAME);
+		final String name = cursor.getString(BuddiesQuery.BUDDY_NAME);
 		final String fullName = BuddyUtils.buildFullName(cursor, BuddiesQuery.FIRSTNAME, BuddiesQuery.LASTNAME);
 		if (mCallbacks.onBuddySelected(buddyId, name, fullName)) {
 			setSelectedBuddyId(buddyId);
@@ -180,13 +182,20 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
 			String firstName = cursor.getString(BuddiesQuery.FIRSTNAME);
 			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
-			String name = cursor.getString(BuddiesQuery.NAME);
+			String buddyName = cursor.getString(BuddiesQuery.BUDDY_NAME);
 			String avatarUrl = cursor.getString(BuddiesQuery.AVATAR_URL);
 
 			UIUtils.setActivatedCompat(view, buddyId == mSelectedBuddyId);
 
-			holder.fullname.setText(buildFullName(firstName, lastName, name).trim());
-			holder.name.setText(buildName(firstName, lastName, name).trim());
+			holder.fullname.setText(buildFullName(firstName, lastName, buddyName).trim());
+			String name = buildName(firstName, lastName, buddyName).trim();
+			if (TextUtils.isEmpty(name)) {
+				holder.name.setVisibility(View.GONE);
+			} else {
+				holder.name.setVisibility(View.VISIBLE);
+				holder.name.setText(name);
+			}
+
 			loadThumbnail(avatarUrl, holder.avatar, R.drawable.person_image_empty);
 		}
 
@@ -245,14 +254,12 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			TextView fullname;
-			TextView name;
-			ImageView avatar;
+			@InjectView(R.id.list_fullname) TextView fullname;
+			@InjectView(R.id.list_name) TextView name;
+			@InjectView(R.id.list_avatar) ImageView avatar;
 
 			public ViewHolder(View view) {
-				fullname = (TextView) view.findViewById(R.id.list_fullname);
-				name = (TextView) view.findViewById(R.id.list_name);
-				avatar = (ImageView) view.findViewById(R.id.list_avatar);
+				ButterKnife.inject(this, view);
 			}
 		}
 
@@ -268,7 +275,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			Buddies.BUDDY_LASTNAME, Buddies.AVATAR_URL };
 
 		int BUDDY_ID = 1;
-		int NAME = 2;
+		int BUDDY_NAME = 2;
 		int FIRSTNAME = 3;
 		int LASTNAME = 4;
 		int AVATAR_URL = 5;

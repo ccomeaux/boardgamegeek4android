@@ -19,6 +19,7 @@
 	<style name="StatsCount">
 		<item name="android:gravity">right</item>
 		<item name="android:paddingLeft">@dimen/padding_small</item>
+		<item name="android:textColor">#000</item>
 	</style>
 
 	<style name="Button.Info" parent="android:Widget.ImageButton">
