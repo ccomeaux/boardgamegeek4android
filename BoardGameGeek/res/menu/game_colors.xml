@@ -9,7 +9,7 @@
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_colors_generate"
-		android:icon="?attr/ic_action_flash"
+		android:icon="?attr/ic_action_colors"
 		android:title="@string/menu_colors_generate"
 		app:showAsAction="ifRoom"/>
 

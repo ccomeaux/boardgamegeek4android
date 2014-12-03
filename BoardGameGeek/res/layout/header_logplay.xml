@@ -107,8 +107,8 @@
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackground"
-				android:gravity="center"
 				android:onClick="onTimer"
+				android:scaleType="center"
 				android:src="@drawable/ic_action_timer_light" />
 		</TableRow>
 
