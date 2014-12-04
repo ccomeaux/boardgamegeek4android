@@ -9,6 +9,7 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,11 +19,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	private int mGameId;
 	private GameColorAdapter mAdapter;
 	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<Integer>();
+	private AlertDialog mDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -81,21 +84,28 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_colors_add:
-				final EditText editText = new EditText(getActivity());
-				editText.setInputType(EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES);
-				new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(editText)
-					.setNegativeButton(android.R.string.cancel, null)
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							String color = editText.getText().toString();
-							if (!TextUtils.isEmpty(color)) {
-								ContentValues values = new ContentValues();
-								values.put(GameColors.COLOR, color);
-								getActivity().getContentResolver().insert(Games.buildColorsUri(mGameId), values);
+				final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(
+					Context.LAYOUT_INFLATER_SERVICE);
+				View view = inflater.inflate(R.layout.dialog_edit_text, getListView(), false);
+				final EditText editText = (EditText) view.findViewById(R.id.edit_text);
+
+				if (mDialog == null) {
+					mDialog = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(view)
+						.setNegativeButton(android.R.string.cancel, null)
+						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								String color = editText.getText().toString();
+								if (!TextUtils.isEmpty(color)) {
+									ContentValues values = new ContentValues();
+									values.put(GameColors.COLOR, color);
+									getActivity().getContentResolver().insert(Games.buildColorsUri(mGameId), values);
+								}
 							}
-						}
-					}).create().show();
+						}).create();
+					mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				}
+				mDialog.show();
 				return true;
 			case R.id.menu_colors_generate:
 				new Task().execute();
