@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
 import com.boardgamegeek.R;
@@ -30,8 +29,7 @@ public class NotificationUtils {
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-			.setSmallIcon(R.drawable.ic_stat_bgg)
-			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.title_logo))
+			.setSmallIcon(R.drawable.ic_stat_bgg).setColor(context.getResources().getColor(R.color.background_dark))
 			.setContentTitle(context.getString(titleId)).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
