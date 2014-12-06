@@ -39,9 +39,5 @@
 		android:icon="?attr/ic_action_refresh"
 		android:title="@string/menu_refresh_on"
 		app:showAsAction="never"/>
-	<item
-		android:id="@+id/menu_h_index"
-		android:title="@string/menu_h_index"
-		app:showAsAction="never"/>
 
 </menu>

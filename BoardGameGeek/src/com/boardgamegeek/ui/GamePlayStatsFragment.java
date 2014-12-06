@@ -269,11 +269,11 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 		public String getPlayCountDescription() {
 			int playCount = getPlayCount();
-			if (playCount > 25) {
+			if (playCount >= 25) {
 				return "Quarter";
-			} else if (playCount > 10) {
+			} else if (playCount >= 10) {
 				return "Dime";
-			} else if (playCount > 5) {
+			} else if (playCount >= 5) {
 				return "Nickel";
 			}
 			return "";

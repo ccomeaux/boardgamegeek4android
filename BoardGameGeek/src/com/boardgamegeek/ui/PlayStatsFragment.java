@@ -110,6 +110,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				LOGI(TAG, currentCount + " Plays: " + currentCounter);
 
 				// Populate UI
+				mTable.removeAllViews();
 				addStatRow(R.string.play_stat_play_count, numberOfPlays);
 				addStatRow(R.string.play_stat_distinct_games, numberOfGames);
 				addStatRow(R.string.play_stat_quarters, quarters);

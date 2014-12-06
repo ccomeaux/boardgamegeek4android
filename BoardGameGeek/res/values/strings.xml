@@ -218,7 +218,6 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
-	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links…</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -416,7 +415,6 @@
 	<string name="drawer_close">Close navigation drawer</string>
 	<string name="title_custom_player_order">Custom Player Order</string>
 	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
-	<string name="title_h_index">H-index</string>
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
 	<string name="play_stat_dimes">Dimes</string>
@@ -430,9 +428,6 @@
 	<string name="play_stat_date_suffix">on %s</string>
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
-	<string name="message_h_index">Your h-index is</string>
-	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
-	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>
