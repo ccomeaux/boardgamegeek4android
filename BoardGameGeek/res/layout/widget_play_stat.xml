@@ -3,10 +3,28 @@
 
 	<TextView
 		android:id="@+id/value"
-		style="@style/Text.NumberStat" />
+		style="@style/Text.NumberStat"
+		android:layout_gravity="center_vertical" />
 
-	<TextView
-		android:id="@+id/label"
-		style="@style/Text.NumberStatLabel" />
+	<LinearLayout
+		android:id="@+id/label_container"
+		android:gravity="center_vertical"
+		android:orientation="horizontal" >
+
+		<TextView
+			android:id="@+id/label"
+			style="@style/Text.NumberStatLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ellipsize="end" />
+
+		<ImageView
+			android:id="@+id/info"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:scaleType="center"
+			android:src="@drawable/ic_action_info_light"
+			android:visibility="invisible" />
+	</LinearLayout>
 
 </merge>

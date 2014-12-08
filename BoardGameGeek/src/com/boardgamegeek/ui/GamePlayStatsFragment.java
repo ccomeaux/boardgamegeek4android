@@ -39,6 +39,7 @@ import com.boardgamegeek.util.UIUtils;
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.00");;
 	private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("0.0");
+	private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private int mGameId;
 
 	private int mPlayingTime;
@@ -123,20 +124,27 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 
 				Stats stats = new Stats(cursor);
 
-				addStatRow(R.string.play_stat_ffm, stats.calculateFhm());
-				addStatRow(R.string.play_stat_hhm, stats.calculateHhm());
-				addStatRow(R.string.play_stat_r_uhm, stats.calculateRuhm());
-				addStatRowPercentage(R.string.play_stat_utilization, stats.calculateUtilization());
+				if (!TextUtils.isEmpty(stats.getQuarterDate())) {
+					addStatRow("", getString(R.string.play_stat_quarter));
+				} else if (!TextUtils.isEmpty(stats.getDimeDate())) {
+					addStatRow("", getString(R.string.play_stat_dime));
+				} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
+					addStatRow("", getString(R.string.play_stat_nickel));
+				}
+				addStatRow(R.string.play_stat_play_count, stats.getPlayCount());
+				addStatRow(R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
+				addStatRow(R.string.play_stat_months_played, stats.getMonthsPlayed());
+				addDateRow(stats.getNickelDate(), R.string.play_stat_nickel);
+				addDateRow(stats.getDimeDate(), R.string.play_stat_dime);
+				addDateRow(stats.getQuarterDate(), R.string.play_stat_quarter);
 
 				addDivider();
 
-				addStatRow(R.string.play_stat_play_count, stats.getPlayCount());
-				String pcd = stats.getPlayCountDescription();
-				if (!TextUtils.isEmpty(pcd)) {
-					addStatRow(getString(R.string.play_stat_date_suffix, stats.getPlayCountDate()), pcd);
-				}
-				addStatRow(R.string.play_stat_hours_played, (int) stats.getHoursPlayed());
-				addStatRow(R.string.play_stat_months_played, stats.getMonthsPlayed());
+				addStatRow(R.string.play_stat_fhm, stats.calculateFhm(), R.string.play_stat_fhm_info);
+				addStatRow(R.string.play_stat_hhm, stats.calculateHhm(), R.string.play_stat_hhm_info);
+				addStatRow(R.string.play_stat_ruhm, stats.calculateRuhm(), R.string.play_stat_ruhm_info);
+				addStatRowPercentage(R.string.play_stat_utilization, stats.calculateUtilization(),
+					R.string.play_stat_utilization_info);
 
 				showData();
 				break;
@@ -162,22 +170,47 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		mDataView.setVisibility(View.VISIBLE);
 	}
 
+	private void addDateRow(String date, int resId) {
+		if (!TextUtils.isEmpty(date)) {
+			try {
+				long l = FORMAT.parse(date).getTime();
+				String d = DateUtils.formatDateTime(getActivity(), l, DateUtils.FORMAT_SHOW_DATE
+					| DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
+				addStatRow(getString(resId), d);
+			} catch (ParseException e) {
+				// just don't add the row
+			}
+		}
+	}
+
 	private void addStatRow(int labelId, int value) {
 		addStatRow(labelId, String.valueOf(value));
 	}
 
-	private void addStatRow(int labelId, double value) {
-		addStatRow(labelId, DOUBLE_FORMAT.format(value));
+	private void addStatRow(int labelId, int value, int infoId) {
+		addStatRow(labelId, String.valueOf(value), infoId);
 	}
 
-	private void addStatRowPercentage(int labelId, double value) {
-		addStatRow(labelId, PERCENTAGE_FORMAT.format(value * 100) + "%");
+	private void addStatRow(int labelId, double value, int infoId) {
+		addStatRow(labelId, DOUBLE_FORMAT.format(value), infoId);
+	}
+
+	private void addStatRowPercentage(int labelId, double value, int infoId) {
+		addStatRow(labelId, PERCENTAGE_FORMAT.format(value * 100) + "%", infoId);
 	}
 
 	private void addStatRow(int labelId, String value) {
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(labelId);
 		view.setValue(value);
+		mTable.addView(view);
+	}
+
+	private void addStatRow(int labelId, String value, int infoId) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(labelId);
+		view.setValue(value);
+		view.setInfoText(infoId);
 		mTable.addView(view);
 	}
 
@@ -200,7 +233,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private class Stats {
-		final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 		private double mLambda;
 		private String mCurrentYear;
 
@@ -267,38 +299,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			return mPlayCount;
 		}
 
-		public String getPlayCountDescription() {
-			int playCount = getPlayCount();
-			if (playCount >= 25) {
-				return "Quarter";
-			} else if (playCount >= 10) {
-				return "Dime";
-			} else if (playCount >= 5) {
-				return "Nickel";
-			}
-			return "";
+		private String getNickelDate() {
+			return mNickelDate;
 		}
 
-		public String getPlayCountDate() {
-			String s = getPlayCountDateString();
-			try {
-				long l = FORMAT.parse(s).getTime();
-				return DateUtils.formatDateTime(getActivity(), l, DateUtils.FORMAT_SHOW_DATE
-					| DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
-			} catch (ParseException e) {
-				return "";
-			}
+		private String getDimeDate() {
+			return mDimeDate;
 		}
 
-		private String getPlayCountDateString() {
-			if (!TextUtils.isEmpty(mQuarterDate)) {
-				return mQuarterDate;
-			} else if (!TextUtils.isEmpty(mDimeDate)) {
-				return mDimeDate;
-			} else if (!TextUtils.isEmpty(mNickelDate)) {
-				return mNickelDate;
-			}
-			return "";
+		private String getQuarterDate() {
+			return mQuarterDate;
 		}
 
 		public double getHoursPlayed() {

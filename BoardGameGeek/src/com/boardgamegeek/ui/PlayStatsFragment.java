@@ -116,7 +116,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 				addStatRow(R.string.play_stat_quarters, quarters);
 				addStatRow(R.string.play_stat_dimes, dimes);
 				addStatRow(R.string.play_stat_nickels, nickels);
-				addStatRow(R.string.play_stat_h_index, hIndex);
+				addStatRow(R.string.play_stat_h_index, hIndex, R.string.play_stat_h_index_info);
 
 				showData();
 				break;
@@ -150,6 +150,14 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 		PlayStatView view = new PlayStatView(getActivity());
 		view.setLabel(labelId);
 		view.setValue(String.valueOf(value));
+		mTable.addView(view);
+	}
+
+	private void addStatRow(int labelId, int value, int infoId) {
+		PlayStatView view = new PlayStatView(getActivity());
+		view.setLabel(labelId);
+		view.setValue(String.valueOf(value));
+		view.setInfoText(infoId);
 		mTable.addView(view);
 	}
 
