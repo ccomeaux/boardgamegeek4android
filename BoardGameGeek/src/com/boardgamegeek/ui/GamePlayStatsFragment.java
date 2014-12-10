@@ -328,7 +328,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		}
 
 		public int calculateHhm() {
-			return (int) ((mRating - 4.5) * getHoursPlayed());
+			return (int) ((mRating - 5) * getHoursPlayed());
 		}
 
 		public double calculateRuhm() {

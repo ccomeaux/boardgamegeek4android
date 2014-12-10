@@ -423,11 +423,11 @@
 	<string name="play_stat_nickels">Nickels</string>
 	<string name="play_stat_nickel">Nickel</string>
 	<string name="play_stat_h_index">H-index</string>
-	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more.</string>
+	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
 	<string name="play_stat_fhm">FHM</string>
-	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\npersonal rating * 5 + plays + months played * 4 + hours played</string>
+	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
 	<string name="play_stat_hhm">HHM</string>
-	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 4.5) * hours played</string>
+	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 5) * hours played</string>
 	<string name="play_stat_ruhm">R!UHM</string>
 	<string name="play_stat_ruhm_info">The Randy Cox not-Unhappiness Metric (R!UHM) is a measure of the happiness this game has provided, as defined by Randy Cox.\n\nln(flash / lag * months played * rating)\nflash = time between first and last plays\nlag = time between last play and today</string>
 	<string name="play_stat_utilization">Utilization</string>
