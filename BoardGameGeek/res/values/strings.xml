@@ -218,7 +218,6 @@
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
-	<string name="menu_h_index">H-index</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="menu_links">Links…</string>
 	<string name="menu_link_bgg">BoardGameGeek</string>
@@ -416,23 +415,27 @@
 	<string name="drawer_close">Close navigation drawer</string>
 	<string name="title_custom_player_order">Custom Player Order</string>
 	<string name="message_custom_player_order">What do you want to do with the current starting positions - keep them as they are or clear them?</string>
-	<string name="title_h_index">H-index</string>
 	<string name="play_stat_distinct_games">Distinct games</string>
 	<string name="play_stat_quarters">Quarters</string>
+	<string name="play_stat_quarter">Quarter</string>
 	<string name="play_stat_dimes">Dimes</string>
+	<string name="play_stat_dime">Dime</string>
 	<string name="play_stat_nickels">Nickels</string>
+	<string name="play_stat_nickel">Nickel</string>
 	<string name="play_stat_h_index">H-index</string>
-	<string name="play_stat_ffm">Friendless Happiness Metric (FHM)</string>
-	<string name="play_stat_hhm">Huber Happiness Metric (HHM)</string>
-	<string name="play_stat_r_uhm">Randy Cox not-Unhappiness Metric (R!UHM)</string>
+	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
+	<string name="play_stat_fhm">FHM</string>
+	<string name="play_stat_fhm_info">The Friendless Happiness Metric (FHM) is a measure of the happiness this game has provided, as defined by Friendless.\n\nSee his awesome site for Extended Stats: http://friendlessstats.dtdns.net/dynamic/index.html\n\nrating * 5 + plays + months played * 4 + hours played</string>
+	<string name="play_stat_hhm">HHM</string>
+	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 5) * hours played</string>
+	<string name="play_stat_ruhm">R!UHM</string>
+	<string name="play_stat_ruhm_info">The Randy Cox not-Unhappiness Metric (R!UHM) is a measure of the happiness this game has provided, as defined by Randy Cox.\n\nln(flash / lag * months played * rating)\nflash = time between first and last plays\nlag = time between last play and today</string>
 	<string name="play_stat_utilization">Utilization</string>
+	<string name="play_stat_utilization_info">Utilization (as proposed by Friendless) assumes that if you play a game 10 more times, you gain 90% of the remaining utility.</string>
 	<string name="play_stat_play_count">Plays</string>
 	<string name="play_stat_date_suffix">on %s</string>
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
-	<string name="message_h_index">Your h-index is</string>
-	<string name="message_h_index_description">This means you\'ve played at least %1$s games at least %1$s times.</string>
-	<string name="message_h_index_missing">You\'ve haven\'t played enough games yet to have an h-index.</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

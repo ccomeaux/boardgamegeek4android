@@ -8,8 +8,6 @@ import java.util.LinkedHashSet;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -275,18 +273,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
-				return true;
-			case R.id.menu_h_index:
-				int hIndex = PreferencesUtils.getHIndex(getActivity());
-				Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setTitle(R.string.sync_notification_title_h_index).setNegativeButton(R.string.close, null);
-				if (hIndex != -1) {
-					builder.setMessage(StringUtils.boldSecondString(getString(R.string.message_h_index),
-						String.valueOf(hIndex), "\n\n" + getString(R.string.message_h_index_description, hIndex)));
-				} else {
-					builder.setMessage(R.string.message_h_index_missing);
-				}
-				builder.create().show();
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

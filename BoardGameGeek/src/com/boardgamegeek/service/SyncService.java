@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +18,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.ui.PlayStatsActivity;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -172,7 +172,7 @@ public class SyncService extends Service {
 			messageId = R.string.sync_notification_h_index_decrease;
 		}
 		SpannableString ss = StringUtils.boldSecondString(context.getString(messageId), String.valueOf(hIndex));
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://boardgamegeek.com/thread/953084"));
+		Intent intent = new Intent(context, PlayStatsActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.sync_notification_title_h_index, PlaysActivity.class)
