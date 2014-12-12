@@ -15,13 +15,17 @@ public abstract class Data<T> {
 		if (e instanceof RetrofitError) {
 			RetrofitError re = (RetrofitError) e;
 			if (re.isNetworkError() && re.getResponse() == null) {
-				mErrorMessage = "You need to be online to read forums.";
+				mErrorMessage = getOfflineMessage();
 			} else {
 				mErrorMessage = re.getMessage();
 			}
 		} else {
 			mErrorMessage = e.getMessage();
 		}
+	}
+
+	protected String getOfflineMessage() {
+		return "Looks like you're offline.";
 	}
 
 	protected abstract List<T> list();
