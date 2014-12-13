@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+	<item
+		android:id="@+id/menu_list_count"
+		android:title=""
+		app:actionLayout="@layout/actionbar_text_2line"
+		app:showAsAction="always"/>
+	<item
+		android:id="@+id/menu_sort"
+		android:icon="?attr/ic_action_sort"
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
+		<menu>
+			<group android:checkableBehavior="single" >
+				<item
+					android:id="@+id/menu_sort_date"
+					android:title="@string/menu_plays_sort_date"/>
+				<item
+					android:id="@+id/menu_sort_location"
+					android:title="@string/menu_plays_sort_location"/>
+				<item
+					android:id="@+id/menu_sort_game"
+					android:title="@string/menu_plays_sort_game"/>
+				<item
+					android:id="@+id/menu_sort_length"
+					android:title="@string/menu_plays_sort_length"/>
+			</group>
+		</menu>
+	</item>
+	<item
+		android:id="@+id/menu_refresh"
+		android:icon="?attr/ic_action_refresh"
+		android:title="@string/menu_refresh"
+		app:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/menu_refresh_on"
+		android:icon="?attr/ic_action_refresh"
+		android:title="@string/menu_refresh_on"
+		app:showAsAction="never"/>
+
+</menu>

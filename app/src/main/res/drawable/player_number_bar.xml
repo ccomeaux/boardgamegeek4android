@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item android:id="@+id/notRecommended">
+		<shape>
+			<corners android:radius="4dp" />
+
+			<gradient
+				android:angle="270.0"
+				android:centerColor="#ffff0000"
+				android:centerY="0.4"
+				android:endColor="#ffdd0000"
+				android:startColor="#ffdd0000" />
+		</shape>
+	</item>
+	<item android:id="@+id/background">
+		<clip>
+			<shape>
+				<corners android:radius="4dp" />
+
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ff5a5d5a"
+					android:centerY="0.4"
+					android:endColor="#ff727272"
+					android:startColor="#ff727272" />
+			</shape>
+		</clip>
+	</item>
+	<item android:id="@+id/recommended">
+		<clip>
+			<shape>
+				<corners android:radius="4dp" />
+
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ffffff00"
+					android:centerY="0.4"
+					android:endColor="#ffdddd00"
+					android:startColor="#ffdddd00" />
+			</shape>
+		</clip>
+	</item>
+	<item android:id="@+id/best">
+		<clip>
+			<shape>
+				<corners android:radius="4dp" />
+
+				<gradient
+					android:angle="270.0"
+					android:centerColor="#ff4cc417"
+					android:centerY="0.4"
+					android:endColor="#ff42A513"
+					android:startColor="#ff42A513" />
+			</shape>
+		</clip>
+	</item>
+
+</layer-list>

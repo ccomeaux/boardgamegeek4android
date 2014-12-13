@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	style="?attr/actionButtonStyle"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="right"
+	android:gravity="center_vertical"
+	android:orientation="vertical" >
+
+	<TextView
+		android:id="@android:id/text1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:singleLine="true"
+		android:textColor="@color/actionbar_text"
+		android:textIsSelectable="false"
+		android:textSize="18sp" />
+
+	<TextView
+		android:id="@android:id/text2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:singleLine="true"
+		android:textColor="@color/actionbar_text"
+		android:textIsSelectable="false"
+		android:textSize="@dimen/actionbar_text_small" />
+
+</LinearLayout>
