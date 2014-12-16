@@ -87,7 +87,7 @@ public class PlayBuilder {
 		return copy;
 	}
 
-	public static Play playAgain(Play play) {
+	public static Play rematch(Play play) {
 		Play copy = new Play(play.gameId, play.gameName);
 		copy.setCurrentDate();
 		copy.location = play.location;

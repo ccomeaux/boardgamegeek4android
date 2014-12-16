@@ -282,9 +282,9 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 					}).show();
 				return true;
 			}
-			case R.id.menu_play_again:
-				ActivityUtils.logPlayAgain(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
+			case R.id.menu_rematch:
+				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
+                        mImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:

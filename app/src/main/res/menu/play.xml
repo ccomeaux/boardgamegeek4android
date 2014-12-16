@@ -13,8 +13,8 @@
 		android:title="@string/menu_delete"
 		app:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/menu_play_again"
-		android:title="@string/play_again"
+		android:id="@+id/menu_rematch"
+		android:title="@string/rematch"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_share"

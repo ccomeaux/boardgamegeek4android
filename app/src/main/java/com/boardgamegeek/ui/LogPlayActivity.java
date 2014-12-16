@@ -78,7 +78,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_END_PLAY = "END_PLAY";
-	public static final String KEY_PLAY_AGAIN = "PLAY_AGAIN";
+	public static final String KEY_REMATCH = "REMATCH";
 	public static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT";
@@ -107,7 +107,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private int mGameId;
 	private String mGameName;
 	private boolean mEndPlay;
-	private boolean mPlayAgain;
+	private boolean mRematch;
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
@@ -262,9 +262,9 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						mPlay.pickStartPlayer(0);
 					}
 				}
-				if (mPlayAgain) {
+				if (mRematch) {
 					mPlay.playId = mPlayId;
-					mPlay = PlayBuilder.playAgain(mPlay);
+					mPlay = PlayBuilder.rematch(mPlay);
 				}
 				mOriginalPlay = PlayBuilder.copy(mPlay);
 				finishDataLoad();
@@ -296,7 +296,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		mEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false);
-		mPlayAgain = intent.getBooleanExtra(KEY_PLAY_AGAIN, false);
+		mRematch = intent.getBooleanExtra(KEY_REMATCH, false);
 		mThumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL);
 		mImageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 
@@ -553,7 +553,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 				// Editing or copying an existing play, so retrieve it
 				mDeleteOnCancel = false;
 				mOutstandingQueries = TOKEN_PLAY | TOKEN_PLAYERS;
-				if (mPlayAgain) {
+				if (mRematch) {
 					mDeleteOnCancel = true;
 					mOutstandingQueries |= TOKEN_ID;
 				}

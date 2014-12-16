@@ -210,10 +210,10 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
-	public static void logPlayAgain(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-		String imageUrl) {
+	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
+                               String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_PLAY_AGAIN, true);
+		intent.putExtra(LogPlayActivity.KEY_REMATCH, true);
 		context.startActivity(intent);
 	}
 
