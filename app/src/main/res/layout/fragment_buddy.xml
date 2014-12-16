@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/root"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@color/accent_light"
+	android:orientation="vertical" >
+
+	<LinearLayout
+		style="@style/InfoSection"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical" >
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal" >
+
+			<ImageView
+				android:id="@+id/avatar"
+				android:layout_width="@dimen/avatar_size"
+				android:layout_height="@dimen/avatar_size"
+				android:layout_marginRight="@dimen/padding_standard"
+				android:contentDescription="@string/avatar"
+				android:scaleType="fitCenter"
+				android:src="@drawable/person_image_empty" />
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical" >
+
+				<TextView
+					android:id="@+id/full_name"
+					style="@style/Text.Title"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+
+				<TextView
+					android:id="@+id/username"
+					style="@style/Text.Subtitle"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+			</LinearLayout>
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/updated"
+			style="@style/Text.Footnote2"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="end" />
+	</LinearLayout>
+
+	<LinearLayout
+		style="@style/InfoSection"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal" >
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:orientation="vertical" >
+
+			<TextView
+				style="@style/Text.Header"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:labelFor="@+id/nickname"
+				android:text="@string/nickname" />
+
+			<TextView
+				android:id="@+id/nickname"
+				style="@style/Text.Title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<TextView
+				style="@style/Text.Footnote2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/nickname_description" />
+		</LinearLayout>
+
+		<ImageView
+			android:id="@+id/edit_nickname_button"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:background="?attr/selectableItemBackground"
+			android:contentDescription="@string/edit"
+			android:focusable="false"
+			android:onClick="onEditClick"
+			android:scaleType="center"
+			android:src="@drawable/ic_action_edit_light" />
+	</LinearLayout>
+
+</LinearLayout>

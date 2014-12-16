@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#fff"
+	android:orientation="vertical" >
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical" >
+
+		<TextView
+			android:id="@+id/article_username"
+			style="@style/Text.Primary"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:ellipsize="end"
+			android:text="ccomeaux" />
+
+		<TextView
+			android:id="@+id/article_editdate"
+			style="@style/Text.Secondary"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingLeft="@dimen/padding_small"
+			android:text="Today" />
+	</LinearLayout>
+
+	<View
+		android:id="@+id/article_divider"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:background="@color/background_light" />
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_vertical"
+		android:paddingTop="@dimen/material_margin_vertical" >
+
+		<WebView
+			android:id="@+id/article_body"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+	</FrameLayout>
+
+</LinearLayout>

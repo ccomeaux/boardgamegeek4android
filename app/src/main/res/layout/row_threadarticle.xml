@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	style="@style/RowContainer"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center" >
+
+	<TextView
+		android:id="@+id/article_username"
+		style="@style/Text.Primary"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:ellipsize="end" />
+
+	<TextView
+		android:id="@+id/article_editdate"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/article_username"
+		android:paddingBottom="@dimen/padding_small" />
+
+	<ImageView
+		android:id="@+id/article_view"
+		android:layout_width="@dimen/icon_width"
+		android:layout_height="@dimen/icon_width"
+		android:layout_alignBottom="@+id/article_editdate"
+		android:layout_alignParentRight="true"
+		android:layout_alignTop="@+id/article_username"
+		android:layout_marginBottom="@dimen/padding_small"
+		android:background="?attr/selectableItemBackground"
+		android:contentDescription="@string/view"
+		android:onClick="onButtonClick"
+		android:src="@drawable/view_thread" />
+
+	<View
+		android:id="@+id/article_divider"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_below="@+id/article_view"
+		android:background="@color/background_light" />
+
+	<TextView
+		android:id="@+id/article_body"
+		style="@style/Text.Secondary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/article_divider" />
+
+</RelativeLayout>
