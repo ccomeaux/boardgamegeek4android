@@ -37,7 +37,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 
 		LOGI(TAG, "Syncing collection list modified since " + new Date(date) + "...");
 		try {
-			CollectionPersister persister = new CollectionPersister(context).includeStats();
+			CollectionPersister persister = new CollectionPersister(context).includeStats().includePrivateInfo();
 			Map<String, String> options = new HashMap<String, String>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_FORMAT.format(new Date(date));
 
@@ -56,6 +56,7 @@ public class SyncCollectionListModifiedSince extends SyncTask {
 					options.put(statuses[j], "0");
 				}
 				options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
+				options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 				options.put(BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE, modifiedSince);
 				requestAndPersist(account.name, persister, options, syncResult);
 
