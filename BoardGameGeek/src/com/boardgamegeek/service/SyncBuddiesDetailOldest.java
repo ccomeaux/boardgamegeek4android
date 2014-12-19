@@ -23,7 +23,7 @@ import com.boardgamegeek.util.ResolverUtils;
  */
 public class SyncBuddiesDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncBuddiesDetailOldest.class);
-	private static final int SYNC_LIMIT = 25;
+	private static final int SYNC_LIMIT = 1;
 
 	public SyncBuddiesDetailOldest(BggService service) {
 		super(service);
