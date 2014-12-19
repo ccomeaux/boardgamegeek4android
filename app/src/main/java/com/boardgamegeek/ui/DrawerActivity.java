@@ -78,19 +78,24 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, mDrawerList));
 		} else {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, mDrawerList));
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+			mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_players, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_locations, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItemIndent(R.string.title_play_stats, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_players, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_locations, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_play_stats, mDrawerList));
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+			mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, mDrawerList));
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 		}
 
 		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_geeklists, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, mDrawerList));
-
-		mDrawerList.addView(makeNavDrawerSeparator(0, mDrawerList));
+		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+		mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, mDrawerList));
 	}
 
@@ -140,6 +145,14 @@ public abstract class DrawerActivity extends BaseActivity {
 		mDrawerLayout.closeDrawer(mDrawerListContainer);
 	}
 
+	private View makeNavDrawerSpacer(ViewGroup container) {
+		return getLayoutInflater().inflate(R.layout.row_spacer, container, false);
+	}
+
+	private View makeNavDrawerDivider(ViewGroup container) {
+		return getLayoutInflater().inflate(R.layout.row_divider, container, false);
+	}
+
 	private View makeNavDrawerSeparator(final int titleId, ViewGroup container) {
 		int layoutToInflate = R.layout.row_header;
 		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
@@ -152,10 +165,6 @@ public abstract class DrawerActivity extends BaseActivity {
 
 	private View makeNavDrawerItem(final int titleId, ViewGroup container) {
 		return makeNavDrawerItem(R.layout.row_drawer, titleId, container);
-	}
-
-	private View makeNavDrawerItemIndent(final int titleId, ViewGroup container) {
-		return makeNavDrawerItem(R.layout.row_drawer_2, titleId, container);
 	}
 
 	private View makeNavDrawerItem(int layoutId, final int titleId, ViewGroup container) {
