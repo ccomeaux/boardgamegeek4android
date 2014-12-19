@@ -8,8 +8,8 @@ android {
         applicationId "com.boardgamegeek"
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode 39
-        versionName "studio"
+        versionCode 40
+        versionName "develop"
     }
     buildTypes {
         release {

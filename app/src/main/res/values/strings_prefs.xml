@@ -102,6 +102,10 @@
 <li>Quick log multiple plays when viewing a list</li>
 <li>Miscellaneous bug fixes</li>
 </ul>
+<h5>4.8.3</h5>
+<ul>
+<li>Syncing improvements (fewer 503s)</li>
+</ul>
 <h5>4.8.2</h5>
 <ul>
 <li>Fixed displaying images</li>

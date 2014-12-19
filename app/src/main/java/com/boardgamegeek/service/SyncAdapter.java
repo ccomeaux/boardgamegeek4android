@@ -157,16 +157,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionDetailUnupdated(context, service));
 			tasks.add(new SyncCollectionDetailMissing(context, service));
 		}
-		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
-			tasks.add(new SyncBuddiesList(context, service));
-			tasks.add(new SyncBuddiesDetailOldest(context, service));
-			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
-		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
 			tasks.add(new SyncPlaysUpload(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) == SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) {
 			tasks.add(new SyncPlays(context, service));
+		}
+		if ((type & SyncService.FLAG_SYNC_BUDDIES) == SyncService.FLAG_SYNC_BUDDIES) {
+			tasks.add(new SyncBuddiesList(context, service));
+			tasks.add(new SyncBuddiesDetailOldest(context, service));
+			tasks.add(new SyncBuddiesDetailUnupdated(context, service));
 		}
 		return tasks;
 	}
