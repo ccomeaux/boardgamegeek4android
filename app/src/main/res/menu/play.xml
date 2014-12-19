@@ -14,8 +14,9 @@
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_rematch"
+        android:icon="@drawable/ic_replay_black_24dp"
 		android:title="@string/rematch"
-		app:showAsAction="never"/>
+		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_share"
 		android:icon="?attr/ic_action_share"

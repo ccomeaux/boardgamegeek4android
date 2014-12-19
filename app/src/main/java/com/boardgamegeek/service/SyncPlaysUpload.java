@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import retrofit.RetrofitError;
+
 import android.accounts.Account;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,6 +38,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -94,14 +97,14 @@ public class SyncPlaysUpload extends SyncTask {
 
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
-								getPlayCountDescription(response.getPlayCount(), play.quantity));
-						notifyUser(StringUtils.boldSecondString(message, play.gameName));
+							getPlayCountDescription(response.getPlayCount(), play.quantity));
+						notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
 					} else {
 						notifyError(error);
 					}
 				} else if (response.hasInvalidIdError()) {
 					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_update_bad_id),
-						String.valueOf(play.playId)));
+						String.valueOf(play.playId)), null);
 				} else if (response.hasAuthError()) {
 					syncResult.stats.numAuthExceptions++;
 					Authenticator.clearPassword(mContext);
@@ -137,12 +140,10 @@ public class SyncPlaysUpload extends SyncTask {
 					if (!response.hasError()) {
 						decreaseGamePlayCount(play);
 						deletePlay(play);
-						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
-							play.gameName));
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
 						deletePlay(play);
-						notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted),
-							play.gameName));
+						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasAuthError()) {
 						syncResult.stats.numAuthExceptions++;
 						Authenticator.clearPassword(mContext);
@@ -152,8 +153,7 @@ public class SyncPlaysUpload extends SyncTask {
 					}
 				} else {
 					deletePlay(play);
-					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_deleted_draft),
-						play.gameName));
+					notifyUserOfDelete(R.string.msg_play_deleted_draft, play);
 				}
 			}
 		} finally {
@@ -267,7 +267,7 @@ public class SyncPlaysUpload extends SyncTask {
 
 	/**
 	 * Syncs the specified game from the 'Geek to the local DB.
-	 * 
+	 *
 	 * @return An error message, or blank if no error.
 	 */
 	private String syncGame(String username, Play play, SyncResult syncResult) {
@@ -304,7 +304,7 @@ public class SyncPlaysUpload extends SyncTask {
 				&& (play.gameId == parsedPlay.gameId)
 				&& (play.getDate().equals(parsedPlay.getDate()))
 				&& ((play.location == null && parsedPlay.location == null) || (play.location
-					.equals(parsedPlay.location))) && (play.length == parsedPlay.length)
+				.equals(parsedPlay.location))) && (play.length == parsedPlay.length)
 				&& (play.quantity == parsedPlay.quantity) && (play.Incomplete() == parsedPlay.Incomplete())
 				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
@@ -333,16 +333,26 @@ public class SyncPlaysUpload extends SyncTask {
 		return countDescription;
 	}
 
-	private void notifyUser(CharSequence message) {
+	private void notifyUserOfDelete(int messageId, Play play) {
+		notifyUser(StringUtils.boldSecondString(mContext.getString(messageId), play.gameName), null);
+	}
+
+	private void notifyUser(CharSequence message, Play play) {
 		mMessages.add(message);
 
-		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(
-			NotificationCompat.CATEGORY_SERVICE);
+		NotificationCompat.Builder builder = createNotificationBuilder().setCategory(NotificationCompat.CATEGORY_SERVICE);
 
 		if (mMessages.size() == 1) {
 			builder.setContentText(message);
 			NotificationCompat.BigTextStyle detail = new NotificationCompat.BigTextStyle(builder);
 			detail.bigText(message);
+			if (play != null) {
+				Intent intent = ActivityUtils.createRematchIntent(mContext, play.playId, play.gameId, play.gameName, null, null);
+				PendingIntent pi = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				NotificationCompat.Action.Builder b = new NotificationCompat.Action.Builder(
+					R.drawable.ic_replay_black_24dp, mContext.getString(R.string.rematch), pi);
+				builder.addAction(b.build());
+			}
 		} else {
 			String summary = String.format(mContext.getString(R.string.sync_notification_upload_summary),
 				mMessages.size());

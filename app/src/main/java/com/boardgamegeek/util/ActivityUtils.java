@@ -97,17 +97,17 @@ public class ActivityUtils {
 	}
 
 	public static Dialog createConfirmationDialog(Context context, String message,
-		DialogInterface.OnClickListener okListener) {
+												  DialogInterface.OnClickListener okListener) {
 		return createConfirmationDialog(context, -1, message, null, okListener, null);
 	}
 
 	public static Dialog createConfirmationDialog(Context context, int messageId,
-		DialogInterface.OnClickListener okListener) {
+												  DialogInterface.OnClickListener okListener) {
 		return createConfirmationDialog(context, messageId, null, null, okListener, null);
 	}
 
 	private static Dialog createConfirmationDialog(Context context, int messageId, String message, View view,
-		DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
+												   DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context).setCancelable(true)
 			.setNegativeButton(android.R.string.cancel, cancelListener)
 			.setPositiveButton(android.R.string.ok, okListener).setTitle(R.string.are_you_sure_title);
@@ -181,13 +181,13 @@ public class ActivityUtils {
 	}
 
 	public static void startPlayActivity(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-		String imageUrl) {
+										 String imageUrl) {
 		Intent intent = createPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
 	public static Intent createPlayIntent(Context context, int playId, int gameId, String gameName,
-		String thumbnailUrl, String imageUrl) {
+										  String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, PlayActivity.class);
 		intent.putExtra(PlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(PlayActivity.KEY_GAME_ID, gameId);
@@ -198,34 +198,39 @@ public class ActivityUtils {
 	}
 
 	public static void editPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-		String imageUrl) {
+								String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
 	public static void endPlay(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-		String imageUrl) {
+							   String imageUrl) {
 		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_END_PLAY, true);
 		context.startActivity(intent);
 	}
 
 	public static void rematch(Context context, int playId, int gameId, String gameName, String thumbnailUrl,
-                               String imageUrl) {
-		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		intent.putExtra(LogPlayActivity.KEY_REMATCH, true);
+							   String imageUrl) {
+		Intent intent = createRematchIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
 		context.startActivity(intent);
 	}
 
+	public static Intent createRematchIntent(Context context, int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
+		Intent intent = createEditPlayIntent(context, playId, gameId, gameName, thumbnailUrl, imageUrl);
+		intent.putExtra(LogPlayActivity.KEY_REMATCH, true);
+		return intent;
+	}
+
 	public static void logPlay(Context context, int gameId, String gameName, String thumbnailUrl, String imageUrl,
-		boolean customPlayerSort) {
+							   boolean customPlayerSort) {
 		Intent intent = createEditPlayIntent(context, 0, gameId, gameName, thumbnailUrl, imageUrl);
 		intent.putExtra(LogPlayActivity.KEY_CUSTOM_PLAYER_SORT, customPlayerSort);
 		context.startActivity(intent);
 	}
 
 	public static Intent createEditPlayIntent(Context context, int playId, int gameId, String gameName,
-		String thumbnailUrl, String imageUrl) {
+											  String thumbnailUrl, String imageUrl) {
 		Intent intent = new Intent(context, LogPlayActivity.class);
 		intent.putExtra(LogPlayActivity.KEY_PLAY_ID, playId);
 		intent.putExtra(LogPlayActivity.KEY_GAME_ID, gameId);
