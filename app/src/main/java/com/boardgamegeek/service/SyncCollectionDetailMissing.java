@@ -13,18 +13,20 @@ import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 /**
- * Deletes games that aren't in the collection and haven't been viewed in 72 hours. NOTE: This will probably remove
- * games that are marked as played, but not otherwise in the collection.
+ * Deletes games that aren't in the collection and haven't been viewed in 72 hours.
  */
 public class SyncCollectionDetailMissing extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailMissing.class);
 	private static final int HOURS_OLD = 72;
+	private static final String STATUS_PLAYED = "played";
 
 	public SyncCollectionDetailMissing(Context context, BggService service) {
 		super(context, service);
@@ -41,9 +43,12 @@ public class SyncCollectionDetailMissing extends SyncTask {
 			LOGI(TAG, "...not viewed since " + date);
 
 			ContentResolver resolver = mContext.getContentResolver();
-			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, "collection."
-				+ Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + " < ?",
-				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
+			String selection = "collection." + Collection.GAME_ID + " IS NULL AND games." + Games.LAST_VIEWED + "<?";
+			if (PreferencesUtils.isSyncStatus(mContext, STATUS_PLAYED)) {
+				selection += " AND games." + Games.NUM_PLAYS + "=0";
+			}
+			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,
+				new String[]{String.valueOf(hoursAgo)}, "games." + Games.UPDATED);
 			if (gameIds.size() > 0) {
 				LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 				showNotification("Deleting " + gameIds.size() + " games from your collection");
