@@ -15,5 +15,6 @@
 	<color name="actionbar_text">#99333333</color>
 	<color name="black_overlay">#66000000</color>
 	<color name="text_inverse">#deffffff</color>
+	<color name="navdrawer_icon_tint">#88FFFFFF</color>
 
 </resources>

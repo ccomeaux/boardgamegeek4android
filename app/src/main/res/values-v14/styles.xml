@@ -84,7 +84,7 @@
 
 	<style name="DrawerItemContainer">
 		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:gravity">center</item>
+		<item name="android:gravity">center_vertical</item>
 		<item name="android:minHeight">@dimen/drawer_item_height</item>
 		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
@@ -92,13 +92,10 @@
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 	</style>
 
-	<style name="DrawerItemContainer.Indent">
-		<item name="android:paddingLeft">@dimen/material_indent_horizontal</item>
-	</style>
-
 	<style name="Text.DrawerItem" parent="TextAppearance.AppCompat.Subhead">
-		<item name="android:gravity">center_vertical</item>
+		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:textIsSelectable">false</item>
+		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
 	<style name="ImageList">

@@ -120,16 +120,12 @@
 
 	<style name="DrawerItemContainer">
 		<item name="android:background">?attr/selectableItemBackground</item>
-		<item name="android:gravity">center</item>
+		<item name="android:gravity">center_vertical</item>
 		<item name="android:minHeight">@dimen/drawer_item_height</item>
 		<item name="android:paddingBottom">@dimen/padding_standard</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
 		<item name="android:paddingTop">@dimen/padding_standard</item>
-	</style>
-
-	<style name="DrawerItemContainer.Indent">
-		<item name="android:paddingLeft">@dimen/padding_standard_indent</item>
 	</style>
 
 	<style name="RowContainer">
