@@ -67,7 +67,7 @@ public class PlayCountFilterData extends CollectionFilterData {
 		String selection = "";
 		if (mMax >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
-			selectionArgs(String.valueOf(MAX_RANGE));
+			selectionArgs(String.valueOf(mMin));
 		} else {
 			selection = "(" + Collection.NUM_PLAYS + ">=? AND " + Collection.NUM_PLAYS + "<=?)";
 			selectionArgs(String.valueOf(mMin), String.valueOf(mMax));

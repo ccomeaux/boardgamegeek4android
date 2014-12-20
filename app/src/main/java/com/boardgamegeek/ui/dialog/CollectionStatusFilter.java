@@ -22,7 +22,7 @@ public class CollectionStatusFilter {
 				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 					mSelected[which] = isChecked;
 				}
-			}).setNeutralButton(R.string.or, new DialogInterface.OnClickListener() {
+			}).setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					view.addFilter(new CollectionStatusFilterData(context, mSelected, true));
@@ -32,7 +32,7 @@ public class CollectionStatusFilter {
 				public void onClick(DialogInterface dialog, int which) {
 					view.addFilter(new CollectionStatusFilterData(context, mSelected, false));
 				}
-			}).setNegativeButton(R.string.clear, new DialogInterface.OnClickListener() {
+			}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					view.removeFilter(new CollectionStatusFilterData());
