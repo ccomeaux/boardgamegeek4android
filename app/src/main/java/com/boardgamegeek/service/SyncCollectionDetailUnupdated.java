@@ -50,7 +50,7 @@ public class SyncCollectionDetailUnupdated extends SyncTask {
 
 					try {
 						GamePersister persister = new GamePersister(mContext);
-						ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
+						ThingResponse response = getThingResponse(mService, gameIds);
 						if (response.games != null && response.games.size() > 0) {
 							int count = persister.save(response.games);
 							syncResult.stats.numUpdates += response.games.size();

@@ -20,7 +20,6 @@ import com.boardgamegeek.util.StringUtils;
 
 /**
  * Syncs a number of games that haven't been updated in a long time.
- * 
  */
 public class SyncCollectionDetailOldest extends SyncTask {
 	private static final String TAG = makeLogTag(SyncCollectionDetailOldest.class);
@@ -41,7 +40,7 @@ public class SyncCollectionDetailOldest extends SyncTask {
 				showNotification(gameIds.size() + " games: " + StringUtils.formatList(gameIds));
 
 				GamePersister gp = new GamePersister(mContext);
-				ThingResponse response = mService.thing(TextUtils.join(",", gameIds), 1);
+				ThingResponse response = getThingResponse(mService, gameIds);
 				if (response.games != null && response.games.size() > 0) {
 					int count = gp.save(response.games);
 					syncResult.stats.numUpdates += response.games.size();

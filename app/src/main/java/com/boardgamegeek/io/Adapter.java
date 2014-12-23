@@ -10,6 +10,7 @@ import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
 import retrofit.client.Response;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
@@ -20,6 +21,8 @@ import com.boardgamegeek.auth.Authenticator;
 
 public class Adapter {
 	private static final boolean DEBUG = false;
+	public static final int COLLECTION_REQUEST_PROCESSING = 202;
+	public static final int API_RATE_EXCEEDED = 503;
 
 	public static BggService create() {
 		return createBuilder().build().create(BggService.class);
@@ -42,8 +45,12 @@ public class Adapter {
 			@Override
 			public Throwable handleError(RetrofitError cause) {
 				Response r = cause.getResponse();
-				if (r != null && r.getStatus() == 202) {
-					return new RetryableException(cause);
+				if (r != null) {
+					if (r.getStatus() == COLLECTION_REQUEST_PROCESSING) {
+						return new RetryableException(cause);
+					} else if (r.getStatus() == API_RATE_EXCEEDED) {
+						return new RetryableException(cause);
+					}
 				}
 				return cause;
 			}

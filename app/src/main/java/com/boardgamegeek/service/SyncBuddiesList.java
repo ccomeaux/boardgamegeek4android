@@ -29,7 +29,7 @@ public class SyncBuddiesList extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Syncing list of buddies in the collection...");
+		LOGI(TAG, "Syncing list of buddies...");
 		try {
 			if (!PreferencesUtils.getSyncBuddies(mContext)) {
 				LOGI(TAG, "...buddies not set to sync");
