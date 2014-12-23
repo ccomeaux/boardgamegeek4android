@@ -155,7 +155,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			tasks.add(new SyncCollectionListUnupdated(context, service));
 			tasks.add(new SyncCollectionDetailOldest(context, service));
 			tasks.add(new SyncCollectionDetailUnupdated(context, service));
-			tasks.add(new SyncCollectionDetailMissing(context, service));
+			tasks.add(new SyncCollectionRemove(context, service));
 		}
 		if ((type & SyncService.FLAG_SYNC_PLAYS_UPLOAD) == SyncService.FLAG_SYNC_PLAYS_UPLOAD) {
 			tasks.add(new SyncPlaysUpload(context, service));

@@ -13,7 +13,6 @@ import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.BggService;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -21,20 +20,20 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 /**
- * Deletes games that aren't in the collection and haven't been viewed in 72 hours.
+ * Removes games that aren't in the collection and haven't been viewed in 72 hours.
  */
-public class SyncCollectionDetailMissing extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionDetailMissing.class);
+public class SyncCollectionRemove extends SyncTask {
+	private static final String TAG = makeLogTag(SyncCollectionRemove.class);
 	private static final int HOURS_OLD = 72;
 	private static final String STATUS_PLAYED = "played";
 
-	public SyncCollectionDetailMissing(Context context, BggService service) {
+	public SyncCollectionRemove(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Deleting missing games from the collection...");
+		LOGI(TAG, "Removing games not in the collection...");
 		try {
 			long hoursAgo = DateTimeUtils.hoursAgo(HOURS_OLD);
 
@@ -48,7 +47,7 @@ public class SyncCollectionDetailMissing extends SyncTask {
 				selection += " AND games." + Games.NUM_PLAYS + "=0";
 			}
 			List<Integer> gameIds = ResolverUtils.queryInts(resolver, Games.CONTENT_URI, Games.GAME_ID, selection,
-				new String[]{String.valueOf(hoursAgo)}, "games." + Games.UPDATED);
+				new String[] { String.valueOf(hoursAgo) }, "games." + Games.UPDATED);
 			if (gameIds.size() > 0) {
 				LOGI(TAG, "...found " + gameIds.size() + " games to delete");
 				showNotification("Deleting " + gameIds.size() + " games from your collection");
@@ -58,6 +57,7 @@ public class SyncCollectionDetailMissing extends SyncTask {
 				for (Integer gameId : gameIds) {
 					LOGI(TAG, "...deleting game ID=" + gameId);
 					count += resolver.delete(Games.buildGameUri(gameId), null, null);
+					count += resolver.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) });
 				}
 				syncResult.stats.numDeletes += count;
 				LOGI(TAG, "...deleted " + count + " games");
