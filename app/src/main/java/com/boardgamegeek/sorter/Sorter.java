@@ -70,7 +70,11 @@ public abstract class Sorter {
 	}
 
 	protected long getHeaderId(Cursor cursor) {
-		return getHeaderText(cursor).hashCode();
+		String headerText = getHeaderText(cursor);
+		if (headerText == null){
+			headerText = "";
+		}
+		return headerText.hashCode();
 	}
 
 	public long getHeaderId(Cursor cursor, int position) {
