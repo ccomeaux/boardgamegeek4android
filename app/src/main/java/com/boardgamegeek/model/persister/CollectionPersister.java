@@ -4,6 +4,7 @@ import static com.boardgamegeek.util.LogUtils.LOGI;
 import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.content.ContentProviderOperation;
@@ -21,6 +22,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.util.FileUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class CollectionPersister {
@@ -33,6 +35,7 @@ public class CollectionPersister {
 	private boolean mIncludePrivateInfo;
 	private boolean mIncludeStats;
 	private List<Integer> mGameIds;
+	private List<String> mSyncStatuses;
 
 	public CollectionPersister(Context context) {
 		mContext = context;
@@ -57,6 +60,12 @@ public class CollectionPersister {
 
 	public CollectionPersister includeStats() {
 		mIncludeStats = true;
+		return this;
+	}
+
+	public CollectionPersister validStatusesOnly() {
+		String[] syncStatuses = PreferencesUtils.getSyncStatuses(mContext);
+		mSyncStatuses = Arrays.asList(syncStatuses);
 		return this;
 	}
 
@@ -92,15 +101,50 @@ public class CollectionPersister {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			mGameIds.clear();
 			for (CollectionItem item : items) {
-				insertOrUpdateGame(toGameValues(item), batch);
-				insertOrUpdateCollection(toCollectionValues(item), batch);
-				LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+				if (isValid(item)) {
+					insertOrUpdateGame(toGameValues(item), batch);
+					insertOrUpdateCollection(toCollectionValues(item), batch);
+					LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+				} else {
+					LOGI(TAG, "Skipped invalid game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+				}
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 			LOGI(TAG, "Saved " + items.size() + " collection items");
 			return result.length;
 		}
 		return 0;
+	}
+
+	private boolean isValid(CollectionItem item) {
+		if (mSyncStatuses == null) {
+			return true;
+		}
+		if (item.own.equals("1") && mSyncStatuses.contains("own")) {
+			return true;
+		}
+		if (item.prevowned.equals("1") && mSyncStatuses.contains("prevowned")) {
+			return true;
+		}
+		if (item.fortrade.equals("1") && mSyncStatuses.contains("fortrade")) {
+			return true;
+		}
+		if (item.want.equals("1") && mSyncStatuses.contains("want")) {
+			return true;
+		}
+		if (item.wanttoplay.equals("1") && mSyncStatuses.contains("wanttoplay")) {
+			return true;
+		}
+		if (item.wanttobuy.equals("1") && mSyncStatuses.contains("wanttobuy")) {
+			return true;
+		}
+		if (item.wishlist.equals("1") && mSyncStatuses.contains("wishlist")) {
+			return true;
+		}
+		if (item.preordered.equals("1") && mSyncStatuses.contains("preordered")) {
+			return true;
+		}
+		return false;
 	}
 
 	private ContentValues toGameValues(CollectionItem item) {
