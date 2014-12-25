@@ -144,15 +144,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			if (PreferencesUtils.isSyncStatus(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);
 				if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 7) {
-					tasks.add(new SyncCollectionListModifiedSince(context, service));
+					tasks.add(new SyncCollectionModifiedSince(context, service));
 				} else {
-					tasks.add(new SyncCollectionListComplete(context, service));
+					tasks.add(new SyncCollectionComplete(context, service));
 				}
 			} else {
 				LOGI(TAG, "...no statuses set to sync");
 			}
 
-			tasks.add(new SyncCollectionListUnupdated(context, service));
+			tasks.add(new SyncCollectionUnupdated(context, service));
 			tasks.add(new SyncGamesOldest(context, service));
 			tasks.add(new SyncGamesUnupdated(context, service));
 			tasks.add(new SyncCollectionRemove(context, service));

@@ -21,10 +21,10 @@ import static com.boardgamegeek.util.LogUtils.makeLogTag;
 /**
  * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
  */
-public class SyncCollectionListModifiedSince extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionListModifiedSince.class);
+public class SyncCollectionModifiedSince extends SyncTask {
+	private static final String TAG = makeLogTag(SyncCollectionModifiedSince.class);
 
-	public SyncCollectionListModifiedSince(Context context, BggService service) {
+	public SyncCollectionModifiedSince(Context context, BggService service) {
 		super(context, service);
 	}
 

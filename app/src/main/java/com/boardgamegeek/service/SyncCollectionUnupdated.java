@@ -23,11 +23,11 @@ import com.boardgamegeek.util.StringUtils;
 /**
  * Syncs a limited number of collection items that have not yet been updated completely.
  */
-public class SyncCollectionListUnupdated extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionListUnupdated.class);
+public class SyncCollectionUnupdated extends SyncTask {
+	private static final String TAG = makeLogTag(SyncCollectionUnupdated.class);
 	private static final int GAME_PER_FETCH = 25;
 
-	public SyncCollectionListUnupdated(Context context, BggService service) {
+	public SyncCollectionUnupdated(Context context, BggService service) {
 		super(context, service);
 	}
 

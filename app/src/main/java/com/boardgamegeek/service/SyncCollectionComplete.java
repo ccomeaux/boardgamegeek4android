@@ -25,11 +25,11 @@ import com.boardgamegeek.util.PreferencesUtils;
 /**
  * Syncs the user's collection in brief mode, one collection status at a time.
  */
-public class SyncCollectionListComplete extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionListComplete.class);
+public class SyncCollectionComplete extends SyncTask {
+	private static final String TAG = makeLogTag(SyncCollectionComplete.class);
 	private static final String STATUS_PLAYED = "played";
 
-	public SyncCollectionListComplete(Context context, BggService service) {
+	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
 
