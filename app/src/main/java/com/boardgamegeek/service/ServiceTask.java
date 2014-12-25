@@ -57,32 +57,4 @@ public class ServiceTask {
 		response.items = new ArrayList<CollectionItem>();
 		return response;
 	}
-
-	protected ThingResponse getThingResponse(BggService service, List<String> gameIds) {
-		int retries = 0;
-		while (true) {
-			try {
-				return service.thing(TextUtils.join(",", gameIds), 1);
-			} catch (Exception e) {
-				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
-					retries++;
-					if (retries > MAX_RETRIES) {
-						break;
-					}
-					try {
-						LOGI(TAG, "...retrying #" + retries);
-						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
-					} catch (InterruptedException e1) {
-						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
-						break;
-					}
-				} else {
-					throw e;
-				}
-			}
-		}
-		ThingResponse response = new ThingResponse();
-		response.games = new ArrayList<Game>();
-		return response;
-	}
 }
