@@ -22,12 +22,12 @@ import com.boardgamegeek.util.ResolverUtils;
 /**
  * Removes games that aren't in the collection and haven't been viewed in 72 hours.
  */
-public class SyncCollectionRemove extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionRemove.class);
+public class SyncGamesRemove extends SyncTask {
+	private static final String TAG = makeLogTag(SyncGamesRemove.class);
 	private static final int HOURS_OLD = 72;
 	private static final String STATUS_PLAYED = "played";
 
-	public SyncCollectionRemove(Context context, BggService service) {
+	public SyncGamesRemove(Context context, BggService service) {
 		super(context, service);
 	}
 
@@ -57,7 +57,6 @@ public class SyncCollectionRemove extends SyncTask {
 				for (Integer gameId : gameIds) {
 					LOGI(TAG, "...deleting game ID=" + gameId);
 					count += resolver.delete(Games.buildGameUri(gameId), null, null);
-					count += resolver.delete(Collection.CONTENT_URI, Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) });
 				}
 				syncResult.stats.numDeletes += count;
 				LOGI(TAG, "...deleted " + count + " games");
