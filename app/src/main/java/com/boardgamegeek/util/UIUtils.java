@@ -1,7 +1,5 @@
 package com.boardgamegeek.util;
 
-import java.util.Random;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -23,6 +21,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 
+import java.util.Random;
+
 public class UIUtils {
 	public static final String HELP_GAME_KEY = "help.game";
 
@@ -38,7 +38,7 @@ public class UIUtils {
 	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
 		if (HelpUtils.showHelp(context, key, version)) {
 			Builder builder = new Builder(context);
-			builder.setTitle(R.string.help_title).setCancelable(false).setIcon(android.R.drawable.ic_dialog_info)
+			builder.setTitle(R.string.help_title).setCancelable(false)
 				.setMessage(messageId).setPositiveButton(R.string.help_button_close, null)
 				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
 					@Override
@@ -46,6 +46,7 @@ public class UIUtils {
 						HelpUtils.updateHelp(context, key, version);
 					}
 				});
+			builder = ActivityUtils.addAlertIcon(builder);
 			builder.create().show();
 		}
 	}
