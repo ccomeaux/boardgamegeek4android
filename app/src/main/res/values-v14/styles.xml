@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
+		<item name="android:windowNoTitle">false</item>
+	</style>
+
 	<style name="RowContainer">
 		<item name="android:gravity">center</item>
 		<item name="android:minHeight">48dp</item>

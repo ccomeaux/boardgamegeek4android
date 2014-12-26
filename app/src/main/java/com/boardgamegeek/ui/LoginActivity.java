@@ -1,10 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import org.apache.http.client.CookieStore;
-
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
@@ -32,6 +27,14 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.VersionUtils;
 
+import org.apache.http.client.CookieStore;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
+
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
@@ -43,11 +46,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String mUsername;
 	private String mPassword;
 
-	private EditText mUsernameView;
-	private EditText mPasswordView;
-	private View mLoginFormView;
-	private View mLoginStatusView;
-	private TextView mLoginStatusMessageView;
+	@InjectView(R.id.username) EditText mUsernameView;
+	@InjectView(R.id.password) EditText mPasswordView;
+	@InjectView(R.id.login_form) View mLoginFormView;
+	@InjectView(R.id.login_status) View mLoginStatusView;
+	@InjectView(R.id.login_status_message) TextView mLoginStatusMessageView;
 
 	private UserLoginTask mAuthTask = null;
 	private AccountManager mAccountManager;
@@ -59,11 +62,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
 		setContentView(R.layout.activity_login);
 
-		mUsernameView = (EditText) findViewById(R.id.username);
-		mPasswordView = (EditText) findViewById(R.id.password);
-		mLoginFormView = findViewById(R.id.login_form);
-		mLoginStatusView = findViewById(R.id.login_status);
-		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
+		ButterKnife.inject(this);
 
 		mAccountManager = AccountManager.get(this);
 		mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
