@@ -1,15 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import retrofit.RetrofitError;
-
 import android.accounts.Account;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -18,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -36,12 +25,23 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.PlaysActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import retrofit.RetrofitError;
+
+import static com.boardgamegeek.util.LogUtils.LOGI;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 public class SyncPlaysUpload extends SyncTask {
 	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
@@ -90,10 +90,10 @@ public class SyncPlaysUpload extends SyncTask {
 					String error = syncGame(username, play, syncResult);
 
 					if (TextUtils.isEmpty(error)) {
-						increaseGamePlayCount(play);
 						if (!play.hasBeenSynced()) {
 							deletePlay(play);
 						}
+						updateGamePlayCount(play);
 
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
@@ -138,8 +138,8 @@ public class SyncPlaysUpload extends SyncTask {
 				if (play.hasBeenSynced()) {
 					PlayPostResponse response = postPlayDelete(play.playId);
 					if (!response.hasError()) {
-						decreaseGamePlayCount(play);
 						deletePlay(play);
+						updateGamePlayCount(play);
 						notifyUserOfDelete(R.string.msg_play_deleted, play);
 					} else if (response.hasInvalidIdError()) {
 						deletePlay(play);
@@ -163,31 +163,25 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 	}
 
-	private void increaseGamePlayCount(Play play) {
-		updateGamePlayCount(play, true);
-	}
-
-	private void decreaseGamePlayCount(Play play) {
-		updateGamePlayCount(play, false);
-	}
-
-	private void updateGamePlayCount(Play play, boolean add) {
+	private void updateGamePlayCount(Play play) {
 		ContentResolver resolver = mContext.getContentResolver();
-		Uri uri = Games.buildGameUri(play.gameId);
-		Cursor cursor = resolver.query(uri, new String[] { Games.NUM_PLAYS }, null, null, null);
-		if (cursor.moveToFirst()) {
-			int newPlayCount = cursor.getInt(0);
-			if (add) {
-				newPlayCount += play.quantity;
-			} else {
-				newPlayCount -= play.quantity;
-				if (newPlayCount < 0) {
-					newPlayCount = 0;
-				}
+		Cursor cursor = null;
+		try {
+			cursor = resolver.query(Plays.CONTENT_SUM_URI,
+				new String[] { "SUM(" + Plays.QUANTITY + ") as count" },
+				PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?)",
+				new String[] { String.valueOf(play.gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
+				null);
+			if (cursor != null && cursor.moveToFirst()) {
+				int newPlayCount = cursor.getInt(0);
+				ContentValues values = new ContentValues();
+				values.put(Collection.NUM_PLAYS, newPlayCount);
+				resolver.update(Games.buildGameUri(play.gameId), values, null, null);
 			}
-			ContentValues values = new ContentValues();
-			values.put(Collection.NUM_PLAYS, newPlayCount);
-			resolver.update(uri, values, null, null);
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
 	}
 
