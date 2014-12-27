@@ -51,19 +51,24 @@ public class SyncCollectionUnupdated extends SyncTask {
 						+ " IS NULL AND " + Collection.COLLECTION_ID + " IS NOT NULL", null, "collection."
 						+ Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 				if (gameIds.size() > 0) {
-					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
-					String detail = gameIds.size() + " games: " + StringUtils.formatList(gameIds);
+					String gameIdDescription = StringUtils.formatList(gameIds);
+					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
+					String detail = gameIds.size() + " games: " + gameIdDescription;
 					if (numberOfFetches > 1) {
-						detail += detail + " (page" + numberOfFetches + ")";
+						detail += " (page " + numberOfFetches + ")";
 					}
 					showNotification(detail);
 
 					options.put(BggService.COLLECTION_QUERY_KEY_ID, TextUtils.join(",", gameIds));
 					options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE);
-					requestAndPersist(account.name, persister, options, syncResult);
+					boolean success = requestAndPersist(account.name, persister, options, syncResult);
 
 					options.put(BggService.COLLECTION_QUERY_KEY_SUBTYPE, BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY);
-					requestAndPersist(account.name, persister, options, syncResult);
+					success |= requestAndPersist(account.name, persister, options, syncResult);
+
+					if (!success) {
+						break;
+					}
 				} else {
 					LOGI(TAG, "...no more unupdated collection items");
 					break;
@@ -74,15 +79,17 @@ public class SyncCollectionUnupdated extends SyncTask {
 		}
 	}
 
-	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-		SyncResult syncResult) {
+	private boolean requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
+									  SyncResult syncResult) {
 		CollectionResponse response = getCollectionResponse(mService, username, options);
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();
 			LOGI(TAG, "...saved " + count + " records for " + response.items.size() + " collection items");
+			return true;
 		} else {
 			LOGI(TAG, "...no collection items found for these games");
+			return false;
 		}
 	}
 

@@ -43,8 +43,14 @@ public abstract class SyncGames extends SyncTask {
 				numberOfFetches++;
 				List<String> gameIds = getGameIds(mGamesPerFetch);
 				if (gameIds.size() > 0) {
-					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + TextUtils.join(", ", gameIds) + "]");
-					showNotification(mGamesPerFetch + " games: " + StringUtils.formatList(gameIds));
+					String gameIdDescription = StringUtils.formatList(gameIds);
+					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
+					String detail = mGamesPerFetch + " games: " + gameIdDescription;
+					if (numberOfFetches > 1) {
+						detail += " (page " + numberOfFetches + ")";
+					}
+					showNotification(detail);
+
 					GamePersister persister = new GamePersister(mContext);
 					ThingResponse response = getThingResponse(mService, gameIds);
 					if (response.games != null && response.games.size() > 0) {

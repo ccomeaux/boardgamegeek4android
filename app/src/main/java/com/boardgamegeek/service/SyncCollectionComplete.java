@@ -38,7 +38,7 @@ public class SyncCollectionComplete extends SyncTask {
 		LOGI(TAG, "Syncing full collection list...");
 		boolean success = true;
 		try {
-			CollectionPersister persister = new CollectionPersister(mContext).brief();
+			CollectionPersister persister = new CollectionPersister(mContext);
 
 			List<String> statuses = new ArrayList<String>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
 			if (statuses.remove(STATUS_PLAYED)) {
@@ -60,7 +60,6 @@ public class SyncCollectionComplete extends SyncTask {
 				showNotification(String.format("Syncing %s collection items", status));
 
 				Map<String, String> options = new HashMap<String, String>();
-				options.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
 					options.put(statuses.get(j), "0");
@@ -91,7 +90,7 @@ public class SyncCollectionComplete extends SyncTask {
 	}
 
 	private void requestAndPersist(String username, CollectionPersister persister, Map<String, String> options,
-		SyncResult syncResult) {
+								   SyncResult syncResult) {
 		CollectionResponse response = getCollectionResponse(mService, username, options);
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
