@@ -16,5 +16,6 @@
 	<color name="black_overlay">#66000000</color>
 	<color name="text_inverse">#deffffff</color>
 	<color name="navdrawer_icon_tint">#88FFFFFF</color>
+	<color name="disabled">#cccc</color>
 
 </resources>

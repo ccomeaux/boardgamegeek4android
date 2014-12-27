@@ -747,7 +747,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			list.add(r.getString(R.string.title_players));
 		}
 
-		CharSequence[] array = {};
+		CharSequence[] array = { };
 		array = list.toArray(array);
 		return array;
 	}
@@ -813,7 +813,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			return false;
 		}
 
-		CharSequence[] array = {};
+		CharSequence[] array = { };
 		mAddPlayersBuilder
 			.setMultiChoiceItems(descriptions.toArray(array), null, new DialogInterface.OnMultiChoiceClickListener() {
 				@Override
@@ -1034,7 +1034,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}
 			list.add(name);
 		}
-		CharSequence[] array = {};
+		CharSequence[] array = { };
 		array = list.toArray(array);
 		return array;
 	}
@@ -1072,6 +1072,11 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
+		List<String> colors = new ArrayList<String>();
+		for (Player player : mPlay.getPlayers()) {
+			colors.add(player.color);
+		}
+		intent.putExtra(LogPlayerActivity.KEY_USED_COLORS, colors.toArray(new String[colors.size()]));
 		startActivityForResult(intent, requestCode);
 	}
 
@@ -1144,13 +1149,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
 			builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
 				.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						Player player = (Player) mPlayAdapter.getItem(mPosition);
-						Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-						mPlay.removePlayer(player, !mCustomPlayerSort);
-						bindUiPlayers();
-					}
-				}).setNegativeButton(R.string.no, null);
+				public void onClick(DialogInterface dialog, int id) {
+					Player player = (Player) mPlayAdapter.getItem(mPosition);
+					Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+					mPlay.removePlayer(player, !mCustomPlayerSort);
+					bindUiPlayers();
+				}
+			}).setNegativeButton(R.string.no, null);
 			builder.create().show();
 		}
 	}

@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Pair;
@@ -17,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
@@ -25,24 +27,28 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.util.ColorUtils;
 
 public class ColorPickerDialogFragment extends DialogFragment {
-	protected static final String KEY_TITLE_ID = "title_id";
-	protected static final String KEY_COLOR_COUNT = "color_count";
-	protected static final String KEY_COLORS_DESCRIPTION = "colors_desc";
-	protected static final String KEY_COLORS = "colors";
-	protected static final String KEY_FEATURED_COLORS = "featured_colors";
-	protected static final String KEY_SELECTED_COLOR = "selected_color";
-	protected static final String KEY_COLUMNS = "columns";
+	private static final String KEY_TITLE_ID = "title_id";
+	private static final String KEY_COLOR_COUNT = "color_count";
+	private static final String KEY_COLORS_DESCRIPTION = "colors_desc";
+	private static final String KEY_COLORS = "colors";
+	private static final String KEY_FEATURED_COLORS = "featured_colors";
+	private static final String KEY_USED_COLORS = "used_colors";
+	private static final String KEY_SELECTED_COLOR = "selected_color";
+	private static final String KEY_COLUMNS = "columns";
+
 	@InjectView(R.id.color_grid) GridView mColorGrid;
 	@InjectView(R.id.featured_color_grid) GridView mFeaturedColorGrid;
 	@InjectView(R.id.hr) View mDivider;
+
 	private ColorGridAdapter mAdapter;
 	private ColorGridAdapter mFeaturedAdapter;
 	private List<Pair<String, Integer>> mColorChoices = new ArrayList<Pair<String, Integer>>();
 	private ArrayList<String> mFeaturedColors = new ArrayList<String>();
 	private int mNumColumns = 3;
-	protected String mSelectedColor;
-	protected int mTitleResId = 0;
-	protected OnColorSelectedListener mListener;
+	private String mSelectedColor;
+	private ArrayList<String> mUsedColors;
+	private int mTitleResId = 0;
+	private OnColorSelectedListener mListener;
 
 	public ColorPickerDialogFragment() {
 	}
@@ -53,21 +59,20 @@ public class ColorPickerDialogFragment extends DialogFragment {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param titleResId
-	 *            title resource id
-	 * @param colors
-	 *            list of colors and their description
-	 * @param selectedColor
-	 *            selected color
-	 * @param columns
-	 *            number of columns
+	 *
+	 * @param titleResId     title resource id
+	 * @param colors         list of colors and their description
+	 * @param featuredColors subset of the list of colors that should be featured above the rest
+	 * @param selectedColor  selected color
+	 * @param usedColors     colors already used in this context
+	 * @param columns        number of columns
 	 * @return new ColorPickerDialog
 	 */
 	public static ColorPickerDialogFragment newInstance(int titleResId, List<Pair<String, Integer>> colors,
-		ArrayList<String> featuredColors, String selectedColor, int columns) {
+														ArrayList<String> featuredColors, String selectedColor,
+														ArrayList<String> usedColors, int columns) {
 		ColorPickerDialogFragment colorPicker = ColorPickerDialogFragment.newInstance();
-		colorPicker.initialize(titleResId, colors, featuredColors, selectedColor, columns);
+		colorPicker.initialize(titleResId, colors, featuredColors, selectedColor, usedColors, columns);
 		return colorPicker;
 	}
 
@@ -95,22 +100,19 @@ public class ColorPickerDialogFragment extends DialogFragment {
 
 	/**
 	 * Initialize the dialog picker
-	 * 
-	 * @param titleResId
-	 *            title resource id
-	 * @param colors
-	 *            list of colors and their description
-	 * @param selectedColor
-	 *            selected color
-	 * @param columns
-	 *            number of columns
+	 *
+	 * @param titleResId    title resource id
+	 * @param colors        list of colors and their description
+	 * @param selectedColor selected color
+	 * @param columns       number of columns
 	 */
 	public void initialize(int titleResId, List<Pair<String, Integer>> colors, ArrayList<String> featuredColors,
-		String selectedColor, int columns) {
+						   String selectedColor, ArrayList<String> usedColors, int columns) {
 		mColorChoices = colors;
 		mFeaturedColors = featuredColors;
 		mNumColumns = columns;
 		mSelectedColor = selectedColor;
+		mUsedColors = usedColors;
 		if (titleResId > 0) {
 			mTitleResId = titleResId;
 		}
@@ -134,6 +136,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			outState.putInt(KEY_COLORS + i, color.second.intValue());
 		}
 		outState.putStringArrayList(KEY_FEATURED_COLORS, mFeaturedColors);
+		outState.putStringArrayList(KEY_USED_COLORS, mUsedColors);
 		outState.putString(KEY_SELECTED_COLOR, mSelectedColor);
 	}
 
@@ -154,6 +157,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 					savedInstanceState.getInt(KEY_COLORS + i)));
 			}
 			mFeaturedColors = savedInstanceState.getStringArrayList(KEY_FEATURED_COLORS);
+			mUsedColors = savedInstanceState.getStringArrayList(KEY_USED_COLORS);
 			mSelectedColor = savedInstanceState.getString(KEY_SELECTED_COLOR);
 		}
 
@@ -244,8 +248,12 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			Pair<String, Integer> color = getItem(position);
 			((TextView) convertView.findViewById(R.id.color_description)).setText(color.first);
 			ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), color.second);
-			convertView.setBackgroundColor(color.first.equals(mSelectedColor) ? getResources().getColor(
-				R.color.background_light_transparent) : 0);
+			View frame = convertView.findViewById(R.id.color_frame);
+			if (color.first.equals(mSelectedColor)) {
+				frame.setBackgroundColor(getResources().getColor(R.color.accent_light));
+			} else if (mUsedColors != null && mUsedColors.contains(color.first)) {
+				frame.setBackgroundColor(getResources().getColor(R.color.disabled));
+			}
 
 			return convertView;
 		}

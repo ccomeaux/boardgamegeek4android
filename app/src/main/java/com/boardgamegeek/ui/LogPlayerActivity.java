@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.AsyncQueryHandler;
@@ -26,10 +23,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
-import butterknife.OnTextChanged;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
@@ -47,11 +40,21 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnTextChanged;
+
 public class LogPlayerActivity extends ActionBarActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
 	public static final String KEY_AUTO_POSITION = "AUTO_POSITION";
+	public static final String KEY_USED_COLORS = "USED_COLORS";
 	public static final String KEY_END_PLAY = "SCORE_SHOWN";
 	public static final String KEY_PLAYER = "PLAYER";
 	private static final String KEY_TEAM_COLOR_SHOWN = "TEAM_COLOR_SHOWN";
@@ -97,6 +100,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 	private boolean mUserShowNew;
 	private boolean mUserShowWin;
 	private int mAutoPosition;
+	private ArrayList<String> mUsedColors;
 	private ArrayList<String> mColors;
 
 	private final View.OnClickListener mActionBarListener = new View.OnClickListener() {
@@ -161,6 +165,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
+		String[] usedColors = intent.getStringArrayExtra(KEY_USED_COLORS);
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			mUserShowScore = true;
 			mScore.requestFocus();
@@ -185,6 +190,9 @@ public class LogPlayerActivity extends ActionBarActivity {
 
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
+
+		mUsedColors = new ArrayList<String>(Arrays.asList(usedColors));
+		mUsedColors.remove(mPlayer.color);
 
 		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
@@ -240,7 +248,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 	@OnClick(R.id.color_view)
 	public void onColorClick(View v) {
 		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
-			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), 4);
+			ColorUtils.getColorList(), mColors, mTeamColor.getText().toString(), mUsedColors, 4);
 
 		colordashfragment.setOnColorSelectedListener(new ColorPickerDialogFragment.OnColorSelectedListener() {
 			@Override
@@ -440,7 +448,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			list.add(r.getString(R.string.win));
 		}
 
-		CharSequence[] csa = {};
+		CharSequence[] csa = { };
 		csa = list.toArray(csa);
 		return csa;
 	}

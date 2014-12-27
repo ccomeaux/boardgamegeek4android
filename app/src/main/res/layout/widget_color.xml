@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical"
-	android:padding="@dimen/padding_standard" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			 android:layout_width="match_parent"
+			 android:layout_height="match_parent"
+			 android:padding="@dimen/padding_half">
 
-	<ImageView
-		android:id="@+id/color_view"
-		android:layout_width="@dimen/color_circle_diameter"
-		android:layout_height="@dimen/color_circle_diameter"
-		android:layout_gravity="center"
-		android:scaleType="fitXY" />
+	<LinearLayout
+		android:id="@+id/color_frame"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:padding="@dimen/padding_half">
 
-	<TextView
-		android:id="@+id/color_description"
-		style="@style/Text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center" />
+		<ImageView
+			android:id="@+id/color_view"
+			android:layout_width="@dimen/color_circle_diameter"
+			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_gravity="center"
+			android:scaleType="fitXY"/>
 
-</LinearLayout>
+		<TextView
+			android:id="@+id/color_description"
+			style="@style/Text"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"/>
+
+	</LinearLayout>
+</FrameLayout>
