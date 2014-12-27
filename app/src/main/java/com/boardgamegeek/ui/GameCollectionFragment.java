@@ -64,7 +64,7 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		final ListView listView = getListView();
 		listView.setSelector(android.R.color.transparent);
 		listView.setCacheColorHint(Color.WHITE);
-		listView.setDivider(new ColorDrawable(getResources().getColor(R.color.background_medium)));
+		listView.setDivider(new ColorDrawable(getResources().getColor(R.color.accent)));
 		listView.setDividerHeight(getResources().getDimensionPixelSize(R.dimen.padding_standard));
 		listView.setFooterDividersEnabled(false);
 	}

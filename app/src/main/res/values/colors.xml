@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<color name="primary">#ffe0e0ef</color>
+	<color name="primary_dark">#ff4c6099</color>
+	<color name="accent">#ff2a2c70</color>
+
 	<color name="light_text">#6000</color>
 	<color name="dialog_text">#ffffffff</color>
-	<color name="background_light_transparent">#aae0e0ef</color>
-	<color name="background_light">#ffe0e0ef</color>
-	<color name="background_medium">#ff2a2c70</color>
-	<color name="background_dark">#ff4c6099</color>
-	<!-- NEW -->
-	<color name="accent_light">#ffe0e0ef</color>
-	<color name="accent_light_2">#ffeceff6</color>
-	<color name="accent_light_3">#ffe5e5e5</color>
-	<color name="accent">#ff336699</color>
+	<color name="inverse_text">#deffffff</color>
 	<color name="actionbar_text">#99333333</color>
+
 	<color name="black_overlay">#66000000</color>
-	<color name="text_inverse">#deffffff</color>
 	<color name="navdrawer_icon_tint">#88FFFFFF</color>
 	<color name="disabled">#cccc</color>
+	<color name="pressed">#CC4c6199</color>
 
 </resources>

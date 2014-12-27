@@ -250,7 +250,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 			ColorUtils.setColorViewValue(convertView.findViewById(R.id.color_view), color.second);
 			View frame = convertView.findViewById(R.id.color_frame);
 			if (color.first.equals(mSelectedColor)) {
-				frame.setBackgroundColor(getResources().getColor(R.color.accent_light));
+				frame.setBackgroundColor(getResources().getColor(R.color.primary));
 			} else if (mUsedColors != null && mUsedColors.contains(color.first)) {
 				frame.setBackgroundColor(getResources().getColor(R.color.disabled));
 			}

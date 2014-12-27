@@ -68,7 +68,7 @@
 					android:id="@+id/poll_key_divider"
 					android:layout_width="1dp"
 					android:layout_height="match_parent"
-					android:background="@color/background_light_transparent"
+					android:background="@color/primary"
 					android:visibility="gone" />
 
 				<LinearLayout

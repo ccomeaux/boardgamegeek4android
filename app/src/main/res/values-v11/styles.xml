@@ -16,7 +16,7 @@
 	</style>
 
 	<style name="RowSeparator">
-		<item name="android:background">@color/background_dark</item>
+		<item name="android:background">@color/primary_dark</item>
 		<item name="android:clickable">false</item>
 		<item name="android:focusable">false</item>
 		<item name="android:gravity">center_horizontal</item>

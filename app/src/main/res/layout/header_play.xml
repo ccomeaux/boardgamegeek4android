@@ -90,7 +90,7 @@
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_weight="1"
-							android:background="@color/background_light"
+							android:background="@color/primary"
 							android:gravity="center"
 							android:maxLines="1"
 							android:paddingBottom="@dimen/padding_standard"

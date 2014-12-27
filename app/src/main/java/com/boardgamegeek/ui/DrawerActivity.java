@@ -179,9 +179,9 @@ public abstract class DrawerActivity extends BaseActivity {
 			iconView.setVisibility(View.GONE);
 		}
 		if (titleId == getDrawerResId()) {
-			view.setBackgroundResource(R.color.background_light);
-			titleView.setTextColor(getResources().getColor(R.color.background_dark));
-			iconView.setColorFilter(getResources().getColor(R.color.background_dark));
+			view.setBackgroundResource(R.color.primary);
+			titleView.setTextColor(getResources().getColor(R.color.primary_dark));
+			iconView.setColorFilter(getResources().getColor(R.color.primary_dark));
 		} else {
 			iconView.setColorFilter(getResources().getColor(R.color.navdrawer_icon_tint));
 		}

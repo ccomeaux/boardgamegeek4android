@@ -17,7 +17,7 @@
 		android:id="@+id/hr"
 		android:layout_width="match_parent"
 		android:layout_height="1px"
-		android:background="@color/background_dark" />
+		android:background="@color/primary_dark" />
 
 	<GridView
 		android:id="@+id/color_grid"

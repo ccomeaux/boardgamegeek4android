@@ -224,7 +224,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private void addDivider() {
 		View view = new View(getActivity());
 		view.setLayoutParams(new TableLayout.LayoutParams(0, 1));
-		view.setBackgroundResource(R.color.background_dark);
+		view.setBackgroundResource(R.color.primary_dark);
 		mTable.addView(view);
 	}
 

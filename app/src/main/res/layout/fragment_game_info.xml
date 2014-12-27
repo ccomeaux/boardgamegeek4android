@@ -22,7 +22,7 @@
 			android:id="@+id/game_info_root"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/accent_light"
+			android:background="@color/primary"
 			android:orientation="vertical" >
 
 			<FrameLayout style="@style/HeroContainer" >
