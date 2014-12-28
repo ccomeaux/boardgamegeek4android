@@ -169,7 +169,7 @@ public class SyncPlaysUpload extends SyncTask {
 		try {
 			cursor = resolver.query(Plays.CONTENT_SUM_URI,
 				new String[] { "SUM(" + Plays.QUANTITY + ") as count" },
-				PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?)",
+				PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(play.gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 				null);
 			if (cursor != null && cursor.moveToFirst()) {
