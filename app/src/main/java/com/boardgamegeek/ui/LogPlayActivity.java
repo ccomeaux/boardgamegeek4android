@@ -904,7 +904,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlay.start();
 		bindLength();
 		setViewVisibility();
-		NotificationUtils.launchStartNotificationWithTicker(this, mPlay, mThumbnailUrl, mImageUrl);
+		NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
 	}
 
 	public void onPlayerSort(View v) {

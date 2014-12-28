@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -20,17 +21,25 @@ public class NotificationUtils {
 	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
 	public static final int ID_PERSIST_ERROR = -4;
 
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title) {
+		return createNotificationBuilder(context, title, HomeActivity.class);
+	}
+
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
 		return createNotificationBuilder(context, titleId, HomeActivity.class);
+	}
+
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
+		return createNotificationBuilder(context, context.getString(titleId), cls);
 	}
 
 	/**
 	 * Creates a notification builder with the correct icons, specified title, and pending intent.
 	 */
-	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
+	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setSmallIcon(R.drawable.ic_stat_bgg).setColor(context.getResources().getColor(R.color.primary_dark))
-			.setContentTitle(context.getString(titleId)).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+			.setContentTitle(title).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		Intent intent = new Intent(context, cls);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent,
 			PendingIntent.FLAG_UPDATE_CURRENT);
@@ -49,27 +58,26 @@ public class NotificationUtils {
 	}
 
 	public static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl) {
-		launchStartNotification(context, play, thumbnailUrl, imageUrl, false);
-	}
+		String title = String.format(context.getString(R.string.notification_playing_game), play.gameName);
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, title);
 
-	public static void launchStartNotificationWithTicker(Context context, Play play, String thumbnailUrl,
-		String imageUrl) {
-		launchStartNotification(context, play, thumbnailUrl, imageUrl, true);
-	}
-
-	private static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl,
-		boolean includeTicker) {
 		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl,
 			imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context,
-			R.string.notification_playing);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-		builder.setContentText(play.gameName).setOnlyAlertOnce(true)
-			.setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
-		if (includeTicker) {
-			builder.setTicker(String.format(context.getString(R.string.notification_playing_game), play.gameName));
+		String info = "";
+		if (!TextUtils.isEmpty(play.location)) {
+			info += context.getString(R.string.at) + " " + play.location + " ";
 		}
+		if (play.getPlayerCount() > 0) {
+			info += context.getResources().getQuantityString(R.plurals.player_description, play.getPlayerCount(), play.getPlayerCount());
+		}
+
+		builder
+			.setContentText(info.trim())
+			.setOnlyAlertOnce(true)
+			.setContentIntent(pendingIntent);
 		if (play.startTime > 0) {
 			builder.setWhen(play.startTime).setUsesChronometer(true);
 		}
