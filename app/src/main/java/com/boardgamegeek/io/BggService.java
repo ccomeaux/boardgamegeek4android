@@ -70,8 +70,6 @@ public interface BggService {
 	public static final SimpleDateFormat COLLECTION_QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	public static final SimpleDateFormat COLLECTION_QUERY_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
-	// TODO: add HH:MM:SS
-
 	@GET("/xmlapi2/hot")
 	HotnessResponse getHotness(@Query("type") String type);
 

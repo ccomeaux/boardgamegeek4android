@@ -238,7 +238,7 @@
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 	</style>
 
-	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Dialog" />
+	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Dialog"/>
 
 	<style name="BottomButton">
 		<item name="android:layout_height">wrap_content</item>
@@ -260,8 +260,11 @@
 	</style>
 
 	<style name="ActionBar">
-		<item name="android:divider">?android:attr/dividerVertical</item>
-		<item name="android:orientation">horizontal</item>
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:background">?attr/colorPrimary</item>
+		<item name="android:elevation">8dp</item>
+		<item name="android:minHeight">?attr/actionBarSize</item>
 	</style>
 
 	<style name="ActionBarButton" parent="android:style/Widget.Holo.Light.ActionButton">

@@ -2,7 +2,7 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
 	<header
-		android:fragment="com.boardgamegeek.pref.Preferences$PrefFragment"
+		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_search_light"
 		android:title="@string/pref_search" >
 		<extra
@@ -10,7 +10,7 @@
 			android:value="com.boardgamegeek.prefs.SEARCH" />
 	</header>
 	<header
-		android:fragment="com.boardgamegeek.pref.Preferences$PrefFragment"
+		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/pref_sync" >
 		<extra
@@ -18,7 +18,7 @@
 			android:value="com.boardgamegeek.prefs.SYNC" />
 	</header>
 	<header
-		android:fragment="com.boardgamegeek.pref.Preferences$PrefFragment"
+		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_calendar_light"
 		android:title="@string/pref_log" >
 		<extra
@@ -26,7 +26,7 @@
 			android:value="com.boardgamegeek.prefs.LOG" />
 	</header>
 	<header
-		android:fragment="com.boardgamegeek.pref.Preferences$PrefFragment"
+		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_alert_light"
 		android:title="@string/pref_advanced" >
 		<extra
@@ -34,7 +34,7 @@
 			android:value="com.boardgamegeek.prefs.ADVANCED" />
 	</header>
 	<header
-		android:fragment="com.boardgamegeek.pref.Preferences$PrefFragment"
+		android:fragment="com.boardgamegeek.pref.SettingsActivity$PrefFragment"
 		android:icon="@drawable/ic_action_info_light"
 		android:title="@string/pref_about" >
 		<extra

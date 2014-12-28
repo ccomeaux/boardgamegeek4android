@@ -15,7 +15,7 @@ import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.pref.Preferences;
+import com.boardgamegeek.pref.SettingsActivity;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
@@ -136,7 +136,7 @@ public abstract class DrawerActivity extends BaseActivity {
 					startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_SIGNIN);
 					break;
 				case R.string.title_settings:
-					startActivity(new Intent(this, Preferences.class));
+					startActivity(new Intent(this, SettingsActivity.class));
 					break;
 			}
 			if (intent != null) {

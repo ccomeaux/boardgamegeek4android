@@ -1,42 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.v7.widget.Toolbar
 	android:id="@+id/toolbar_done_cancel"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:background="?attr/colorPrimary"
-	android:minHeight="?attr/actionBarSize"
-	app:theme="@style/ThemeOverlay.AppCompat.ActionBar" >
+	style="@style/ActionBar"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	app:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
 	<LinearLayout
 		style="@style/ActionBar"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" >
+		android:layout_height="match_parent">
 
 		<LinearLayout
 			android:id="@+id/menu_cancel"
-			style="@style/ActionBarButton" >
+			style="@style/ActionBarButton">
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/ic_action_cancel_light" />
+				android:src="@drawable/ic_action_cancel_light"/>
 
 			<TextView
 				style="@style/ActionBarButtonText"
-				android:text="@string/cancel" />
+				android:text="@string/cancel"/>
 		</LinearLayout>
 
 		<LinearLayout
 			android:id="@+id/menu_done"
-			style="@style/ActionBarButton" >
+			style="@style/ActionBarButton">
 
 			<ImageView
 				style="@style/ActionBarButtonImage"
-				android:src="@drawable/ic_action_accept_light" />
+				android:src="@drawable/ic_action_accept_light"/>
 
 			<TextView
 				style="@style/ActionBarButtonText"
-				android:text="@string/done" />
+				android:text="@string/done"/>
 		</LinearLayout>
 	</LinearLayout>
 

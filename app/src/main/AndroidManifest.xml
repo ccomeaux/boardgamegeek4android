@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.boardgamegeek"
-    android:installLocation="auto">
+    android:installLocation="auto" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -21,11 +21,11 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:logo="@drawable/title_logo"
-        android:theme="@style/Theme.bgglight">
+        android:theme="@style/Theme.bgglight" >
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,7 +36,7 @@
             android:name=".ui.CollectionActivity"
             android:exported="false"
             android:label="@string/title_collection"
-            android:uiOptions="splitActionBarWhenNarrow">
+            android:uiOptions="splitActionBarWhenNarrow" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -45,7 +45,7 @@
         <activity-alias
             android:name="CreateShortcutActivity"
             android:label="@string/title_game_shortcut"
-            android:targetActivity=".ui.CollectionActivity">
+            android:targetActivity=".ui.CollectionActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
 
@@ -59,7 +59,7 @@
 
         <activity
             android:name=".ui.HotnessActivity"
-            android:label="@string/title_hotness">
+            android:label="@string/title_hotness" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -67,7 +67,7 @@
         <activity
             android:name=".ui.GameActivity"
             android:exported="true"
-            android:label="@string/title_game">
+            android:label="@string/title_game" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -86,7 +86,7 @@
         <activity
             android:name=".ui.ProducerActivity"
             android:exported="false"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -104,7 +104,7 @@
         <activity
             android:name=".ui.BuddiesActivity"
             android:exported="false"
-            android:label="@string/title_buddies">
+            android:label="@string/title_buddies" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -112,7 +112,7 @@
         <activity
             android:name=".ui.BuddyActivity"
             android:exported="false"
-            android:label="@string/title_buddy">
+            android:label="@string/title_buddy" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.BuddiesActivity" />
@@ -120,7 +120,7 @@
         <activity
             android:name=".ui.PlaysActivity"
             android:exported="false"
-            android:label="@string/title_plays">
+            android:label="@string/title_plays" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -128,7 +128,7 @@
         <activity
             android:name=".ui.PlayersActivity"
             android:exported="false"
-            android:label="@string/title_players">
+            android:label="@string/title_players" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -136,7 +136,7 @@
         <activity
             android:name=".ui.LocationsActivity"
             android:exported="false"
-            android:label="@string/title_locations">
+            android:label="@string/title_locations" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -144,7 +144,7 @@
         <activity
             android:name=".ui.PlayStatsActivity"
             android:exported="false"
-            android:label="@string/title_play_stats">
+            android:label="@string/title_play_stats" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -152,7 +152,7 @@
         <activity
             android:name=".ui.PlayActivity"
             android:exported="false"
-            android:label="@string/title_play">
+            android:label="@string/title_play" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.PlaysActivity" />
@@ -160,7 +160,7 @@
         <activity
             android:name=".ui.PlayerActivity"
             android:exported="false"
-            android:label="@string/title_player">
+            android:label="@string/title_player" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.PlayersActivity" />
@@ -168,7 +168,7 @@
         <activity
             android:name=".ui.LocationActivity"
             android:exported="false"
-            android:label="@string/title_location">
+            android:label="@string/title_location" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.LocationsActivity" />
@@ -177,7 +177,7 @@
             android:name=".ui.SearchResultsActivity"
             android:configChanges="keyboardHidden|orientation"
             android:exported="true"
-            android:label="@string/search_label">
+            android:label="@string/search_label" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
 
@@ -207,7 +207,7 @@
             android:theme="@style/Theme.bgglight.NoActionBar" />
         <activity
             android:name=".ui.ForumsActivity"
-            android:label="@string/title_forums">
+            android:label="@string/title_forums" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -217,28 +217,28 @@
             android:label="@string/title_forum" />
         <activity
             android:name=".ui.GeekListsActivity"
-            android:label="@string/title_geeklists">
+            android:label="@string/title_geeklists" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
         </activity>
         <activity
             android:name=".ui.GeekListActivity"
-            android:label="@string/title_geeklist">
+            android:label="@string/title_geeklist" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.GeekListsActivity" />
         </activity>
         <activity
             android:name=".ui.GeekListDescriptionActivity"
-            android:label="@string/title_geeklist">
+            android:label="@string/title_geeklist" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.GeekListActivity" />
         </activity>
         <activity
             android:name=".ui.GeekListItemActivity"
-            android:label="@string/title_geeklist"></activity>
+            android:label="@string/title_geeklist" />
         <activity
             android:name=".ui.ThreadActivity"
             android:label="@string/title_thread" />
@@ -246,9 +246,8 @@
             android:name=".ui.ArticleActivity"
             android:label="Article" />
         <activity
-            android:name=".pref.Preferences"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.bgglight.Settings">
+            android:name=".pref.SettingsActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
 
@@ -257,7 +256,7 @@
         </activity>
         <activity
             android:name=".ui.AboutActivity"
-            android:label="@string/title_about">
+            android:label="@string/title_about" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.HomeActivity" />
@@ -276,7 +275,7 @@
 
         <service
             android:name=".service.SyncService"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -288,7 +287,7 @@
         <service android:name=".service.UpdateService" />
         <service
             android:name=".auth.AuthenticationService"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -306,7 +305,7 @@
 
         <receiver
             android:name=".service.CancelReceiver"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.boardgamegeek.ACTION_SYNC_CANCEL" />
                 <action android:name="android.intent.action.ACTION_BATTERY_LOW" />
