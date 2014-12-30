@@ -4,12 +4,19 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class NotificationUtils {
 	public static final int ID_SYNC = 0;
@@ -57,7 +64,17 @@ public class NotificationUtils {
 		nm.cancel(id);
 	}
 
-	public static void launchStartNotification(Context context, Play play, String thumbnailUrl, String imageUrl) {
+	public static void launchStartNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
+		Queue<String> imageUrls = new LinkedList<String>();
+		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
+		imageUrls.add(imageUrl);
+		imageUrls.add(thumbnailUrl);
+		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
+		tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
+	}
+
+	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap bigIcon) {
 		String title = String.format(context.getString(R.string.notification_playing_game), play.gameName);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, title);
 
@@ -76,12 +93,39 @@ public class NotificationUtils {
 
 		builder
 			.setContentText(info.trim())
+			.setLargeIcon(bigIcon)
 			.setOnlyAlertOnce(true)
 			.setContentIntent(pendingIntent);
 		if (play.startTime > 0) {
 			builder.setWhen(play.startTime).setUsesChronometer(true);
 		}
 		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
-		// TODO - set large icon with game thumbnail
+	}
+
+	private static void tryLoadLargeIcon(final Context context, final Play play, final String thumbnailUrl,
+										 final String imageUrl, final Queue<String> imageUrls) {
+		String path = imageUrls.poll();
+		if (TextUtils.isEmpty(path)) {
+			return;
+		}
+		Picasso.with(context)
+			.load(HttpUtils.ensureScheme(path))
+			.resize(400, 400) // recommended size for wearables
+			.centerCrop()
+			.into(new Target() {
+				@Override
+				public void onPrepareLoad(Drawable placeHolderDrawable) {
+				}
+
+				@Override
+				public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+					buildAndNotify(context, play, thumbnailUrl, imageUrl, bitmap);
+				}
+
+				@Override
+				public void onBitmapFailed(Drawable errorDrawable) {
+					tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
+				}
+			});
 	}
 }

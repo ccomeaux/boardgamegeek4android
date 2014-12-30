@@ -70,7 +70,7 @@ public class ActivityUtils {
 
 	private static final String SUFFIX_SQUARE = "_sq";
 	private static final String SUFFIX_SMALL = "_t";
-	private static final String SUFFIX_MEDIUM = "_md";
+	public static final String SUFFIX_MEDIUM = "_md";
 	private static final String SUFFIX_LARGE = "_lg";
 
 	@SuppressLint("CommitTransaction")
@@ -485,7 +485,7 @@ public class ActivityUtils {
 			});
 	}
 
-	private static String appendImageUrl(String imageUrl, String suffix) {
+	public static String appendImageUrl(String imageUrl, String suffix) {
 		if (TextUtils.isEmpty(imageUrl)) {
 			return "";
 		}
