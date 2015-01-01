@@ -420,8 +420,14 @@
 	<string name="play_stat_quarter">Quarter</string>
 	<string name="play_stat_dimes">Dimes</string>
 	<string name="play_stat_dime">Dime</string>
+	<string name="play_stat_average_play_time">Average play time</string>
+	<string name="play_stat_average_play_time_faster">Faster than advertised</string>
+	<string name="play_stat_average_play_time_slower">Slower than advertised</string>
+	<string name="play_stat_average_play_time_per_player">Average play time per player</string>
 	<string name="play_stat_nickels">Nickels</string>
 	<string name="play_stat_nickel">Nickel</string>
+	<string name="play_stat_first_play">First play</string>
+	<string name="play_stat_last_play">Last play</string>
 	<string name="play_stat_h_index">H-index</string>
 	<string name="play_stat_h_index_info">You\'ve played at least this number of games this number of times or more. (see https://boardgamegeek.com/thread/953084 )</string>
 	<string name="play_stat_fhm">FHM</string>
@@ -433,9 +439,11 @@
 	<string name="play_stat_utilization">Utilization</string>
 	<string name="play_stat_utilization_info">Utilization (as proposed by Friendless) assumes that if you play a game 10 more times, you gain 90% of the remaining utility.</string>
 	<string name="play_stat_play_count">Plays</string>
+	<string name="play_stat_play_count_incomplete">Incomplete plays (excluded from stats)</string>
 	<string name="play_stat_date_suffix">on %s</string>
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
+	<string name="play_stat_play_rate">Plays per month</string>
 
 	<plurals name="msg_colors_deleted">
 		<item quantity="one">Deleted %s color</item>

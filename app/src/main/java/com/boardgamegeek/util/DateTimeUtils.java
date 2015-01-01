@@ -1,11 +1,5 @@
 package com.boardgamegeek.util;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
@@ -13,14 +7,22 @@ import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 public class DateTimeUtils {
 	public static final long UNPARSED_DATE = -2;
 	public static final long UNKNOWN_DATE = -1;
 	private static final DateFormat FORMAT_API = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private static final String FORMAT_MINUTES = "%d:%02d";
 
 	private DateTimeUtils() {
 	}
 
+	/* Format minutes as H hrs MM mins */
 	public static String describeMinutes(Context context, int minutes) {
 		Resources r = context.getResources();
 		if (minutes < 60) {
@@ -31,6 +33,16 @@ public class DateTimeUtils {
 			return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr) + " " + String.valueOf(mins) + " "
 				+ r.getString(R.string.minutes_abbr);
 		}
+	}
+
+	/* Format minutes as H:MM */
+	public static String formatMinutes(int time) {
+		if (time > 0) {
+			int hours = time / 60;
+			int minutes = time % 60;
+			return String.format(FORMAT_MINUTES, hours, minutes);
+		}
+		return "0:00";
 	}
 
 	public static int howManyDaysOld(long time) {

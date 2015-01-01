@@ -540,9 +540,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				info += mAt + " " + location + " ";
 			}
 			if (length > 0) {
-				int hours = length / 60;
-				int minutes = length % 60;
-				info += mFor + " " + String.format("%d:%02d", hours, minutes) + " ";
+				info += mFor + " " + DateTimeUtils.formatMinutes(length) + " ";
 			}
 			if (playerCount > 0) {
 				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
