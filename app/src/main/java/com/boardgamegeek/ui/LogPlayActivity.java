@@ -1,12 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,6 +60,13 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static com.boardgamegeek.util.LogUtils.LOGW;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 public class LogPlayActivity extends ActionBarActivity implements OnDateSetListener {
 	private static final String TAG = makeLogTag(LogPlayActivity.class);
@@ -276,6 +276,8 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mOutstandingQueries = 0;
 		if (mEndPlay) {
 			NotificationUtils.cancel(LogPlayActivity.this, NotificationUtils.ID_PLAY_TIMER);
+		} else {
+			maybeShowNotification();
 		}
 
 		bindUi();
@@ -388,6 +390,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			Player player = data.getParcelableExtra(LogPlayerActivity.KEY_PLAYER);
 			if (requestCode == REQUEST_ADD_PLAYER) {
 				mPlay.addPlayer(player);
+				maybeShowNotification();
 				// prompt for another player
 				Intent intent = new Intent();
 				editPlayer(intent, REQUEST_ADD_PLAYER);
@@ -472,6 +475,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlayerList.setDragEnabled(!mCustomPlayerSort);
 		mPlayAdapter.notifyDataSetChanged();
 		setViewVisibility();
+		maybeShowNotification();
 	}
 
 	private void setViewVisibility() {
@@ -904,7 +908,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlay.start();
 		bindLength();
 		setViewVisibility();
-		NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
+		maybeShowNotification();
 	}
 
 	public void onPlayerSort(View v) {
@@ -1095,6 +1099,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlay.setNoWinStats(mNoWinStatsView.isChecked());
 		mPlay.comments = mCommentsView.getText().toString().trim();
 		// player info already captured
+		maybeShowNotification();
+	}
+
+	private void maybeShowNotification() {
+		if (mPlay != null && mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
+		}
 	}
 
 	private class PlayAdapter extends BaseAdapter implements DropListener {

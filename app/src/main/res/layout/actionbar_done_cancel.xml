@@ -7,7 +7,7 @@
 	app:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
 	<LinearLayout
-		style="@style/ActionBar"
+		style="@style/ActionBarButtonContainer"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 

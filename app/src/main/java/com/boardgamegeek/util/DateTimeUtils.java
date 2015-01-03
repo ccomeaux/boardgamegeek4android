@@ -54,7 +54,7 @@ public class DateTimeUtils {
 	}
 
 	public static int howManyMinutesOld(long time) {
-		return (int) ((System.currentTimeMillis() - time) / DateUtils.MINUTE_IN_MILLIS);
+		return (int) ((System.currentTimeMillis() - time + 30000) / DateUtils.MINUTE_IN_MILLIS);
 	}
 
 	public static long hoursAgo(int hours) {

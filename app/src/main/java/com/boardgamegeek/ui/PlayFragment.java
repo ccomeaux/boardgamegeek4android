@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -47,6 +45,8 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
@@ -284,7 +284,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			}
 			case R.id.menu_rematch:
 				ActivityUtils.rematch(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-                        mImageUrl);
+					mImageUrl);
 				getActivity().finish(); // don't want to show the "old" play upon return
 				return true;
 			case R.id.menu_share:
@@ -343,6 +343,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				mPlay.setPlayers(cursor);
 				mPlayersLabel.setVisibility(mPlay.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				mAdapter.notifyDataSetChanged();
+				maybeShowNotification();
 				setListShown(true);
 				break;
 			default:
@@ -389,11 +390,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		mPlay = PlayBuilder.fromCursor(cursor);
 		mPlay.setPlayers(players);
 
-		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
-		} else if (mNotified) {
-			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
-		}
 		mCallbacks.onNameChanged(mPlay.gameName);
 
 		mGameName.setText(mPlay.gameName);
@@ -466,6 +462,14 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		}
 
 		return false;
+	}
+
+	private void maybeShowNotification() {
+		if (mPlay.hasStarted()) {
+			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+		} else if (mNotified) {
+			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
+		}
 	}
 
 	private void triggerRefresh() {

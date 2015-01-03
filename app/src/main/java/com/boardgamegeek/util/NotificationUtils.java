@@ -108,7 +108,7 @@ public class NotificationUtils {
 		if (TextUtils.isEmpty(path)) {
 			return;
 		}
-		Picasso.with(context)
+		Picasso.with(context.getApplicationContext())
 			.load(HttpUtils.ensureScheme(path))
 			.resize(400, 400) // recommended size for wearables
 			.centerCrop()
