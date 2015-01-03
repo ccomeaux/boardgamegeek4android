@@ -1,12 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.Calendar;
-import java.util.LinkedHashSet;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -31,8 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -55,6 +46,16 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
+
+import java.util.Calendar;
+import java.util.LinkedHashSet;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+
+import static com.boardgamegeek.util.LogUtils.LOGD;
+import static com.boardgamegeek.util.LogUtils.makeLogTag;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
@@ -432,9 +433,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (token == PlaysQuery._TOKEN) {
 			if (mAdapter == null) {
 				mAdapter = new PlayAdapter(getActivity());
-				if (mMode == MODE_GAME) {
-					mAdapter.setRowResId(R.layout.row_play_game);
-				}
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
@@ -491,8 +489,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	class PlayAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
-		private int mRowResId = R.layout.row_play;
-
+		private String mOn;
 		private String mTimes;
 		private String mAt;
 		private String mFor;
@@ -501,18 +498,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
 
+			mOn = context.getString(R.string.on);
 			mTimes = context.getString(R.string.times);
 			mAt = context.getString(R.string.at);
 			mFor = context.getString(R.string.for_);
 		}
 
-		public void setRowResId(int resId) {
-			mRowResId = resId;
-		}
-
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(mRowResId, parent, false);
+			View row = mInflater.inflate(R.layout.row_play, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -525,16 +519,21 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int playId = cursor.getInt(PlaysQuery.PLAY_ID);
 			UIUtils.setActivatedCompat(view, playId == mSelectedPlayId);
 
-			holder.date.setText(CursorUtils.getFormattedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE));
-			holder.name.setText(cursor.getString(PlaysQuery.GAME_NAME));
+			String name = cursor.getString(PlaysQuery.GAME_NAME);
+			String date = CursorUtils.getFormattedDateAbbreviated(cursor, getActivity(), PlaysQuery.DATE);
 			String location = cursor.getString(PlaysQuery.LOCATION);
 			int quantity = cursor.getInt(PlaysQuery.QUANTITY);
 			int length = cursor.getInt(PlaysQuery.LENGTH);
 			int playerCount = cursor.getInt(PlaysQuery.PLAYER_COUNT);
+			String comments = cursor.getString(PlaysQuery.COMMENTS).trim();
+			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
 
 			String info = "";
 			if (quantity > 1) {
 				info += quantity + " " + mTimes + " ";
+			}
+			if (mMode != MODE_GAME) {
+				info = mOn + " " + date + " ";
 			}
 			if (!TextUtils.isEmpty(location)) {
 				info += mAt + " " + location + " ";
@@ -545,11 +544,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (playerCount > 0) {
 				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
-			holder.location.setText(info.trim());
 
-			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
+			int messageId = 0;
 			if (status != Play.SYNC_STATUS_SYNCED) {
-				int messageId = 0;
 				if (status == Play.SYNC_STATUS_IN_PROGRESS) {
 					if (Play.hasBeenSynced(playId)) {
 						messageId = R.string.sync_editing;
@@ -561,10 +558,25 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				} else if (status == Play.SYNC_STATUS_PENDING_DELETE) {
 					messageId = R.string.sync_pending_delete;
 				}
-				holder.status.setText(messageId);
-				holder.status.setVisibility(View.VISIBLE);
+			}
+
+			if (mMode != MODE_GAME) {
+				holder.title.setText(name);
 			} else {
+				holder.title.setText(date);
+			}
+			holder.text1.setText(info.trim());
+			if (TextUtils.isEmpty(comments)) {
+				holder.text2.setVisibility(View.GONE);
+			} else {
+				holder.text2.setVisibility(View.VISIBLE);
+				holder.text2.setText(comments.trim());
+			}
+			if (messageId == 0) {
 				holder.status.setVisibility(View.GONE);
+			} else {
+				holder.status.setVisibility(View.VISIBLE);
+				holder.status.setText(messageId);
 			}
 		}
 
@@ -592,10 +604,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 
 		class ViewHolder {
-			@InjectView(R.id.list_name) TextView name;
-			@InjectView(R.id.list_date) TextView date;
-			@InjectView(R.id.list_location) TextView location;
-			@InjectView(R.id.list_status) TextView status;
+			@InjectView(android.R.id.title) TextView title;
+			@InjectView(android.R.id.text1) TextView text1;
+			@InjectView(android.R.id.text2) TextView text2;
+			@InjectView(android.R.id.message) TextView status;
 
 			public ViewHolder(View view) {
 				ButterKnife.inject(this, view);
@@ -611,7 +623,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		int _TOKEN = 0x21;
 		String[] PROJECTION = { Plays._ID, Plays.PLAY_ID, Plays.DATE, PlayItems.NAME, PlayItems.OBJECT_ID,
 			Plays.LOCATION, Plays.QUANTITY, Plays.LENGTH, Plays.SYNC_STATUS, Plays.PLAYER_COUNT, Games.THUMBNAIL_URL,
-			Games.IMAGE_URL };
+			Games.IMAGE_URL, Plays.COMMENTS };
 		int PLAY_ID = 1;
 		int DATE = 2;
 		int GAME_NAME = 3;
@@ -623,6 +635,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		int PLAYER_COUNT = 9;
 		int THUMBNAIL_URL = 10;
 		int IMAGE_URL = 11;
+		int COMMENTS = 12;
 	}
 
 	private interface GameQuery {
