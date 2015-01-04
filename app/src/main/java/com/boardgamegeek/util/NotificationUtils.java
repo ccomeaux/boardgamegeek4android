@@ -74,7 +74,7 @@ public class NotificationUtils {
 		tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
 	}
 
-	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap bigIcon) {
+	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		String title = String.format(context.getString(R.string.notification_playing_game), play.gameName);
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, title);
 
@@ -93,12 +93,16 @@ public class NotificationUtils {
 
 		builder
 			.setContentText(info.trim())
-			.setLargeIcon(bigIcon)
+			.setLargeIcon(largeIcon)
 			.setOnlyAlertOnce(true)
 			.setContentIntent(pendingIntent);
 		if (play.startTime > 0) {
 			builder.setWhen(play.startTime).setUsesChronometer(true);
 		}
+		if (largeIcon != null) {
+			builder.extend(new NotificationCompat.WearableExtender().setBackground(largeIcon));
+		}
+
 		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
 	}
 
