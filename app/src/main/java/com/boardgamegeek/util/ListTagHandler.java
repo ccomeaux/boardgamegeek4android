@@ -3,21 +3,19 @@
  */
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.Stack;
-
-import org.xml.sax.XMLReader;
-
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
 
+import org.xml.sax.XMLReader;
+
+import java.util.Stack;
+
+import timber.log.Timber;
+
 public class ListTagHandler implements Html.TagHandler {
-	private static final String TAG = makeLogTag(ListTagHandler.class);
 	private static final String UL = "ul";
 	private static final String OL = "ol";
 	private static final String LI = "li";
@@ -91,7 +89,7 @@ public class ListTagHandler implements Html.TagHandler {
 			}
 		} else {
 			if (opening) {
-				LOGD(TAG, "Found an unsupported tag: " + tag);
+				Timber.d("Found an unsupported tag: " + tag);
 			}
 		}
 	}

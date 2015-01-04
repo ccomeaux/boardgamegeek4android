@@ -1,16 +1,5 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.Closeable;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
@@ -25,9 +14,16 @@ import android.provider.BaseColumns;
 
 import com.boardgamegeek.provider.BggContract;
 
-public class ResolverUtils {
-	private static final String TAG = makeLogTag(ResolverUtils.class);
+import java.io.Closeable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import timber.log.Timber;
+
+public class ResolverUtils {
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch.size() > 0) {
@@ -41,16 +37,16 @@ public class ResolverUtils {
 				try {
 					ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
 					if (result == null) {
-						return new ContentProviderResult[] {};
+						return new ContentProviderResult[] { };
 					}
 					return result;
 				} catch (OperationApplicationException | RemoteException e) {
-					LOGE(TAG, batch.toString(), e);
+					Timber.e(batch.toString(), e);
 					throw new RuntimeException(batch.toString(), e);
 				}
 			}
 		}
-		return new ContentProviderResult[] {};
+		return new ContentProviderResult[] { };
 	}
 
 	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
@@ -62,7 +58,7 @@ public class ResolverUtils {
 				return result[0];
 			}
 		} catch (OperationApplicationException | RemoteException e) {
-			LOGE(TAG, cpo.toString(), e);
+			Timber.e(cpo.toString(), e);
 			throw new RuntimeException(cpo.toString(), e);
 		}
 		return null;
@@ -108,7 +104,7 @@ public class ResolverUtils {
 	 * not exactly one row at the URI.
 	 */
 	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
-		String selection, String[] selectionArgs) {
+							   String selection, String[] selectionArgs) {
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
 			int count = cursor.getCount();
@@ -143,7 +139,7 @@ public class ResolverUtils {
 	 * exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
-		String selection, String[] selectionArgs) {
+								 String selection, String[] selectionArgs) {
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, null);
 		try {
 			int count = cursor.getCount();
@@ -168,7 +164,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of integers from the specified column at the URI
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs) {
+										  String[] selectionArgs) {
 		return queryInts(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
@@ -176,7 +172,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of integers from the specified column at the URI
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs, String sortOrder) {
+										  String[] selectionArgs, String sortOrder) {
 		List<Integer> list = new ArrayList<Integer>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
@@ -200,7 +196,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of longs from the specified column at the URI
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs) {
+										String[] selectionArgs) {
 		return queryLongs(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
@@ -208,7 +204,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of longs from the specified column at the URI
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs, String sortOrder) {
+										String[] selectionArgs, String sortOrder) {
 		List<Long> list = new ArrayList<Long>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
@@ -232,7 +228,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of strings from the specified column at the URI
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs) {
+											String[] selectionArgs) {
 		return queryStrings(resolver, uri, columnName, selection, selectionArgs, null);
 	}
 
@@ -240,7 +236,7 @@ public class ResolverUtils {
 	 * Use the content resolver to get a list of strings from the specified column at the URI
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
-		String[] selectionArgs, String sortOrder) {
+											String[] selectionArgs, String sortOrder) {
 		List<String> list = new ArrayList<String>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
@@ -281,7 +277,7 @@ public class ResolverUtils {
 		try {
 			stream = resolver.openInputStream(uri);
 		} catch (FileNotFoundException e) {
-			LOGD(TAG, "Couldn't find drawable: " + uri, e);
+			Timber.d("Couldn't find drawable: " + uri, e);
 		}
 		if (stream != null) {
 			Bitmap bitmap = BitmapFactory.decodeStream(stream);
@@ -302,7 +298,7 @@ public class ResolverUtils {
 			try {
 				stream.close();
 			} catch (IOException e) {
-				LOGE(TAG, "Could not close stream", e);
+				Timber.e("Could not close stream", e);
 			}
 		}
 	}

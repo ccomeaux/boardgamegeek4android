@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -22,8 +21,6 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PlayStatView;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(PlayStatsFragment.class);
-
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
@@ -86,7 +83,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					numberOfGames++;
 
 					if (playCount != currentCount) {
-						LOGI(TAG, currentCount + " Plays: " + currentCounter);
+						Timber.i(currentCount + " Plays: " + currentCounter);
 						currentCount = playCount;
 						currentCounter = 1;
 					} else {
@@ -107,7 +104,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 					hIndexCounter++;
 
 				} while (cursor.moveToNext());
-				LOGI(TAG, currentCount + " Plays: " + currentCounter);
+				Timber.i(currentCount + " Plays: " + currentCounter);
 
 				// Populate UI
 				mTable.removeAllViews();

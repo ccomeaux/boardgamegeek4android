@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui.widget;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,9 +23,9 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 
-public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> implements Filterable {
-	private static final String TAG = makeLogTag(BuddyNameAdapter.class);
+import timber.log.Timber;
 
+public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> implements Filterable {
 	public static class Result {
 		private final String mUsername;
 
@@ -130,9 +127,9 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 						resultList.add(player);
 				}
 			} catch (ExecutionException e) {
-				LOGE(TAG, "Failed waiting for player query results.", e);
+				Timber.e("Failed waiting for player query results.", e);
 			} catch (InterruptedException e) {
-				LOGE(TAG, "Failed waiting for player query results.", e);
+				Timber.e("Failed waiting for player query results.", e);
 			}
 
 			final FilterResults filterResults = new FilterResults();

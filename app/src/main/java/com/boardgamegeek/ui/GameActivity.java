@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -34,6 +32,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import timber.log.Timber;
 
 public class GameActivity extends PagedDrawerActivity implements GameInfoFragment.Callbacks, PlaysFragment.Callbacks,
 	OnSharedPreferenceChangeListener {
@@ -281,7 +281,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	}
 
 	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
+		private static final String TAG = SyncStatusUpdaterFragment.class.toString();
 
 		private boolean mSyncing = false;
 		private DetachableResultReceiver mReceiver;
@@ -314,7 +314,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				default: {
 					final String error = resultData.getString(Intent.EXTRA_TEXT);
 					if (error != null) {
-						LOGW(TAG, "Received unexpected result: " + error);
+						Timber.d("Received unexpected result: " + error);
 						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
 					}
 					break;

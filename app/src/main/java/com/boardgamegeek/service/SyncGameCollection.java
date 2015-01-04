@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +14,9 @@ import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
 
+import timber.log.Timber;
+
 public class SyncGameCollection extends UpdateTask {
-	private static final String TAG = makeLogTag(SyncGameCollection.class);
 	private static final String STATUS_PLAYED = "played";
 
 	private int mGameId;
@@ -42,7 +40,7 @@ public class SyncGameCollection extends UpdateTask {
 		List<CollectionItem> items = request(context, account);
 		CollectionPersister persister = new CollectionPersister(context).includePrivateInfo().includeStats();
 		persister.save(items);
-		LOGI(TAG, "Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + mGameId);
+		Timber.i("Synced " + (items == null ? 0 : items.size()) + " collection item(s) for game ID=" + mGameId);
 
 		// XXX: this deleted more games that I expected. need to rework
 		// int deleteCount = persister.delete(items, mGameId);
@@ -83,14 +81,14 @@ public class SyncGameCollection extends UpdateTask {
 			return items;
 		}
 
-		LOGI(TAG, "No collection items for game ID=" + mGameId);
+		Timber.i("No collection items for game ID=" + mGameId);
 		return null;
 	}
 
 	private List<CollectionItem> requestItems(Account account, BggService service, Map<String, String> options) {
 		CollectionResponse response = getCollectionResponse(service, account.name, options);
 		if (response == null || response.items == null || response.items.size() == 0) {
-			LOGI(TAG, "No collection items for game ID=" + mGameId + " with options=" + options);
+			Timber.i("No collection items for game ID=" + mGameId + " with options=" + options);
 			return null;
 		} else {
 			return response.items;

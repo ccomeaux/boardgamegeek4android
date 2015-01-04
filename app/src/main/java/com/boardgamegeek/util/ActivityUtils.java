@@ -1,17 +1,5 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -55,9 +43,18 @@ import com.boardgamegeek.ui.PlayActivity;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-public class ActivityUtils {
-	private static final String TAG = makeLogTag(ActivityUtils.class);
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
+import timber.log.Timber;
+
+public class ActivityUtils {
 	public final static String KEY_TITLE = "TITLE";
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
@@ -391,7 +388,7 @@ public class ActivityUtils {
 						bitmap = Picasso.with(mContext).load(HttpUtils.ensureScheme(mThumbnailUrl)).resize(128, 128)
 							.centerCrop().get();
 					} catch (IOException e) {
-						LOGE(TAG, "Error downloading the thumbnail.", e);
+						Timber.e("Error downloading the thumbnail.", e);
 					}
 					try {
 						if (bitmap != null) {
@@ -406,7 +403,7 @@ public class ActivityUtils {
 							}
 						}
 					} catch (IOException e) {
-						LOGE(TAG, "Error saving the thumbnail file.", e);
+						Timber.e("Error saving the thumbnail file.", e);
 					}
 				}
 			}

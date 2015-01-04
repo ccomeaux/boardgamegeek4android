@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,8 +25,9 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import timber.log.Timber;
+
 public class GameDetailFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(GameDetailFragment.class);
 	private CursorAdapter mAdapter;
 	private int mGameId;
 	private int mQueryToken;
@@ -89,7 +88,7 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		if (token == mQueryToken) {
 			mAdapter.changeCursor(cursor);
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 

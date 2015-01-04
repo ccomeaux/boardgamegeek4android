@@ -21,7 +21,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:logo="@drawable/title_logo"
-        android:theme="@style/Theme.bgglight" >
+		android:name=".BggApplication"
+		android:theme="@style/Theme.bgglight" >
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/app_name"

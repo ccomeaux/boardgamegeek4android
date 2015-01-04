@@ -1,15 +1,6 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import android.text.TextUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,10 +19,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import android.text.TextUtils;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import timber.log.Timber;
 
 public class HttpUtils {
-	private static final String TAG = makeLogTag(HttpUtils.class);
 	private static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String SITE_URL = "https://www.boardgamegeek.com/";
 
@@ -41,7 +37,7 @@ public class HttpUtils {
 		try {
 			return URLEncoder.encode(s, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			LOGE(TAG, "What do you mean UTF-8 isn't supported?!", e);
+			Timber.e("What do you mean UTF-8 isn't supported?!", e);
 		}
 		return s;
 	}
@@ -65,20 +61,20 @@ public class HttpUtils {
 			// this should never happen.
 			throw new IllegalStateException(e);
 		}
-		LOGI(TAG, "Authenticating to: " + AUTH_URI);
+		Timber.i("Authenticating to: " + AUTH_URI);
 		final HttpPost post = new HttpPost(AUTH_URI);
 		post.addHeader(entity.getContentType());
 		post.setEntity(entity);
 		try {
 			final DefaultHttpClient client = (DefaultHttpClient) getHttpClient();
 			resp = client.execute(post);
-			LOGW(TAG, resp.toString());
+			Timber.w(resp.toString());
 			CookieStore cookieStore = null;
 			int code = resp.getStatusLine().getStatusCode();
 			if (code == HttpStatus.SC_OK) {
 				List<Cookie> cookies = client.getCookieStore().getCookies();
 				if (cookies == null || cookies.isEmpty()) {
-					LOGW(TAG, "missing cookies");
+					Timber.w("missing cookies");
 				} else {
 					for (Cookie cookie : cookies) {
 						if (cookie.getName().equals("bggpassword")) {
@@ -88,20 +84,20 @@ public class HttpUtils {
 					}
 				}
 			} else {
-				LOGW(TAG, "Bad response code - " + code);
+				Timber.w("Bad response code - " + code);
 			}
 			if (cookieStore != null) {
-				LOGW(TAG, "Successful authentication");
+				Timber.w("Successful authentication");
 				return cookieStore;
 			} else {
-				LOGW(TAG, "Error authenticating - " + resp.getStatusLine());
+				Timber.w("Error authenticating - " + resp.getStatusLine());
 				return null;
 			}
 		} catch (final IOException e) {
-			LOGW(TAG, "IOException when getting authtoken", e);
+			Timber.w("IOException when getting authtoken", e);
 			return null;
 		} finally {
-			LOGW(TAG, "Authenticate complete");
+			Timber.w("Authenticate complete");
 		}
 	}
 

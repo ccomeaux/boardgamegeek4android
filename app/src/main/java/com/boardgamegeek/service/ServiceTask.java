@@ -2,9 +2,6 @@ package com.boardgamegeek.service;
 
 import android.text.TextUtils;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +13,10 @@ import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 
+import timber.log.Timber;
+
 public class ServiceTask {
 	public static final int NO_NOTIFICATION = 0;
-	private static final String TAG = makeLogTag(ServiceTask.class);
 	private static final int MAX_RETRIES = 5;
 	private static final int RETRY_BACKOFF_IN_MS = 500;
 
@@ -42,10 +40,10 @@ public class ServiceTask {
 						break;
 					}
 					try {
-						LOGI(TAG, "...retrying #" + retries);
+						Timber.i("...retrying #" + retries);
 						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
 					} catch (InterruptedException e1) {
-						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+						Timber.i("Interrupted while sleeping before retry " + retries);
 						break;
 					}
 				} else {

@@ -1,12 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,11 +22,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.ButterKnife.Setter;
-import butterknife.InjectView;
-import butterknife.InjectViews;
-import butterknife.OnClick;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Artists;
@@ -54,8 +42,18 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.ButterKnife.Setter;
+import butterknife.InjectView;
+import butterknife.InjectViews;
+import butterknife.OnClick;
+import timber.log.Timber;
+
 public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(GameInfoFragment.class);
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int CHILD_LIMIT_COUNT = 11;
@@ -257,7 +255,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 					RankQuery.PROJECTION, null, null, null);
 				break;
 			default:
-				LOGW(TAG, "Invalid query token=" + id);
+				Timber.w("Invalid query token=" + id);
 				break;
 		}
 		return loader;

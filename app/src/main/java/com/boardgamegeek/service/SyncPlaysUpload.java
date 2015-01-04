@@ -39,12 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 import retrofit.RetrofitError;
-
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 public class SyncPlaysUpload extends SyncTask {
-	private static final String TAG = makeLogTag(SyncPlaysUpload.class);
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
 	private BggService mPostService;
@@ -75,7 +72,7 @@ public class SyncPlaysUpload extends SyncTask {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE) }, null);
 			String detail = String.format("Uploading %s play(s)", cursor.getCount());
-			LOGI(TAG, detail);
+			Timber.i(detail);
 			showNotification(detail);
 
 			while (cursor.moveToNext()) {
@@ -127,7 +124,7 @@ public class SyncPlaysUpload extends SyncTask {
 			cursor = mContext.getContentResolver().query(Plays.CONTENT_SIMPLE_URI, null, Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) }, null);
 			String detail = String.format("Deleting %s play(s)", cursor.getCount());
-			LOGI(TAG, detail);
+			Timber.i(detail);
 			showNotification(detail);
 
 			while (cursor.moveToNext()) {

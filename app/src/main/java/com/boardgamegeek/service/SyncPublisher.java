@@ -1,7 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -11,8 +9,9 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
+import timber.log.Timber;
+
 public class SyncPublisher extends UpdateTask {
-	private static final String TAG = makeLogTag(SyncPublisher.class);
 	private int mPublisherId;
 
 	public SyncPublisher(int publisherId) {
@@ -30,7 +29,7 @@ public class SyncPublisher extends UpdateTask {
 		Company company = service.company(BggService.COMPANY_TYPE_PUBLISHER, mPublisherId);
 		Uri uri = Publishers.buildPublisherUri(mPublisherId);
 		context.getContentResolver().update(uri, toValues(company), null, null);
-		LOGI(TAG, "Synced Publisher " + mPublisherId);
+		Timber.i("Synced Publisher " + mPublisherId);
 	}
 
 	private static ContentValues toValues(Company company) {

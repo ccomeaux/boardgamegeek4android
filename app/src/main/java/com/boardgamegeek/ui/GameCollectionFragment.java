@@ -1,11 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -28,8 +22,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
@@ -43,8 +35,14 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import timber.log.Timber;
+
 public class GameCollectionFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(GameCollectionFragment.class);
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	private int mGameId = BggContract.INVALID_ID;
@@ -135,7 +133,7 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 				cursor.moveToPosition(-1);
 			}
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 

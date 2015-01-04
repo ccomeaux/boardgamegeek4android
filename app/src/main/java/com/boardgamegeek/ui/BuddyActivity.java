@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +18,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
+
+import timber.log.Timber;
 
 public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.Callbacks,
 	BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
@@ -163,8 +163,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 	}
 
 	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = makeLogTag(SyncStatusUpdaterFragment.class);
-
+		private static final String TAG = SyncStatusUpdaterFragment.class.toString();
 		private boolean mSyncing = false;
 		private DetachableResultReceiver mReceiver;
 
@@ -176,7 +175,9 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 			mReceiver.setReceiver(this);
 		}
 
-		/** {@inheritDoc} */
+		/**
+		 * {@inheritDoc}
+		 */
 		public void onReceiveResult(int resultCode, Bundle resultData) {
 			BuddyActivity activity = (BuddyActivity) getActivity();
 			if (activity == null) {
@@ -196,7 +197,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 				default: {
 					final String error = resultData.getString(Intent.EXTRA_TEXT);
 					if (error != null) {
-						LOGW(TAG, "Received unexpected result: " + error);
+						Timber.w("Received unexpected result: " + error);
 						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
 					}
 					break;

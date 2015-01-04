@@ -1,12 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -25,9 +18,12 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.ResolverUtils;
 
-public class PlayPersister {
-	private static final String TAG = makeLogTag(PlayPersister.class);
+import java.util.ArrayList;
+import java.util.List;
 
+import timber.log.Timber;
+
+public class PlayPersister {
 	/**
 	 * A new play was inserted into the database
 	 */
@@ -100,13 +96,10 @@ public class PlayPersister {
 				}
 			}
 		}
-		LOGI(
-			TAG,
-			String
-				.format(
-					"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
-					updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
-					pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount));
+		Timber.i(String.format(
+			"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
+			updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
+			pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount));
 	}
 
 	/*
@@ -117,7 +110,7 @@ public class PlayPersister {
 	}
 
 	/*
-     * Save the play. If syncing, the play will not be saved if it is being modified on the device.
+	 * Save the play. If syncing, the play will not be saved if it is being modified on the device.
 	 */
 	public static int save(Context context, Play play, boolean isSyncing) {
 		ContentResolver resolver = context.getContentResolver();
@@ -173,7 +166,7 @@ public class PlayPersister {
 		}
 
 		ResolverUtils.applyBatch(context, batch);
-		LOGI(TAG, "Saved play ID=" + play.playId);
+		Timber.i("Saved play ID=" + play.playId);
 		return status;
 	}
 
@@ -206,9 +199,9 @@ public class PlayPersister {
 						status = STATUS_IN_PROGRESS;
 					} else {
 						status = STATUS_ERROR;
-						LOGE(TAG, "Unknown sync status!");
+						Timber.e("Unknown sync status!");
 					}
-					LOGI(TAG, "Not saving during the sync due to status=" + status);
+					Timber.i("Not saving during the sync due to status=" + status);
 				} else {
 					status = STATUS_UPDATE;
 				}
@@ -262,7 +255,7 @@ public class PlayPersister {
 	}
 
 	private static List<Integer> removeDuplicatePlayerUserIds(Play play, List<Integer> ids,
-		ArrayList<ContentProviderOperation> batch) {
+															  ArrayList<ContentProviderOperation> batch) {
 		if (ids == null || ids.size() == 0) {
 			return new ArrayList<Integer>();
 		}
@@ -291,7 +284,7 @@ public class PlayPersister {
 	}
 
 	private static void updateOrInsertItem(Play play, List<Integer> itemObjectIds,
-		ArrayList<ContentProviderOperation> batch) {
+										   ArrayList<ContentProviderOperation> batch) {
 		int objectId = play.gameId;
 		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, play.gameName);
@@ -305,7 +298,7 @@ public class PlayPersister {
 	}
 
 	private static void updateOrInsertPlayers(Play play, List<Integer> playerUserIds,
-		ArrayList<ContentProviderOperation> batch) {
+											  ArrayList<ContentProviderOperation> batch) {
 		ContentValues values = new ContentValues();
 		for (Player player : play.getPlayers()) {
 
@@ -333,7 +326,7 @@ public class PlayPersister {
 	}
 
 	private static void removeUnusedItems(Play play, List<Integer> itemObjectIds,
-		ArrayList<ContentProviderOperation> batch) {
+										  ArrayList<ContentProviderOperation> batch) {
 		if (itemObjectIds != null) {
 			for (Integer itemObjectId : itemObjectIds) {
 				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
@@ -342,7 +335,7 @@ public class PlayPersister {
 	}
 
 	private static void removeUnusedPlayers(Play play, List<Integer> playerUserIds,
-		ArrayList<ContentProviderOperation> batch) {
+											ArrayList<ContentProviderOperation> batch) {
 		if (playerUserIds != null) {
 			for (Integer playerUserId : playerUserIds) {
 				batch.add(ContentProviderOperation.newDelete(play.playerUri())
@@ -387,7 +380,7 @@ public class PlayPersister {
 			}
 		}
 		if (values.size() > 0) {
-			ContentValues[] array = {};
+			ContentValues[] array = { };
 			resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 		}
 	}

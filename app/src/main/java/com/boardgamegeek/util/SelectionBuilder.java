@@ -18,8 +18,6 @@
 
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-import static com.boardgamegeek.util.LogUtils.LOGV;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,13 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * Helper for building selection clauses for {@link SQLiteDatabase}. Each appended clause is combined using {@code AND}.
  * This class is <em>not</em> thread safe.
  */
 public class SelectionBuilder {
-	private static final String TAG = makeLogTag(SelectionBuilder.class);
-
 	private String mTable = null;
 	private Map<String, String> mProjectionMap = new HashMap<String, String>();
 	private StringBuilder mSelection = new StringBuilder();
@@ -180,7 +178,7 @@ public class SelectionBuilder {
 
 	/**
 	 * Return selection string for current internal state.
-	 * 
+	 *
 	 * @see #getSelectionArgs()
 	 */
 	public String getSelection() {
@@ -189,7 +187,7 @@ public class SelectionBuilder {
 
 	/**
 	 * Return selection arguments for current internal state.
-	 * 
+	 *
 	 * @see #getSelection()
 	 */
 	public String[] getSelectionArgs() {
@@ -247,9 +245,9 @@ public class SelectionBuilder {
 		if (columns != null) {
 			mapColumns(columns);
 		}
-		LOGV(TAG, "QUERY: columns=" + Arrays.toString(columns) + ", " + this);
+		Timber.v("QUERY: columns=" + Arrays.toString(columns) + ", " + this);
 		Cursor c = db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
-		LOGV(TAG, "queried " + c.getCount() + " rows");
+		Timber.v("queried " + c.getCount() + " rows");
 		return c;
 	}
 
@@ -258,9 +256,9 @@ public class SelectionBuilder {
 	 */
 	public int update(SQLiteDatabase db, ContentValues values) {
 		assertTable();
-		LOGV(TAG, "UPDATE: " + this);
+		Timber.v("UPDATE: " + this);
 		int count = db.update(mTable, values, getSelection(), getSelectionArgs());
-		LOGV(TAG, "updated " + count + " rows");
+		Timber.v("updated " + count + " rows");
 		return count;
 	}
 
@@ -269,14 +267,14 @@ public class SelectionBuilder {
 	 */
 	public int delete(SQLiteDatabase db) {
 		assertTable();
-		LOGV(TAG, "DELETE: " + this);
+		Timber.v("DELETE: " + this);
 		String selection = getSelection();
 		if (TextUtils.isEmpty(selection)) {
 			// this forces delete to return the count
 			selection = "1";
 		}
 		int count = db.delete(mTable, selection, getSelectionArgs());
-		LOGV(TAG, "deleted " + count + " rows");
+		Timber.v("deleted " + count + " rows");
 		return count;
 	}
 }

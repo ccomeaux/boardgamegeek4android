@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,11 +19,12 @@ import com.boardgamegeek.model.persister.CollectionPersister;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import timber.log.Timber;
+
 /**
  * Syncs the user's collection in brief mode, one collection status at a time.
  */
 public class SyncCollectionComplete extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionComplete.class);
 	private static final String STATUS_PLAYED = "played";
 
 	public SyncCollectionComplete(Context context, BggService service) {
@@ -35,7 +33,7 @@ public class SyncCollectionComplete extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Syncing full collection list...");
+		Timber.i("Syncing full collection list...");
 		boolean success = true;
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext);
@@ -53,10 +51,10 @@ public class SyncCollectionComplete extends SyncTask {
 
 				String status = statuses.get(i);
 				if (TextUtils.isEmpty(status)) {
-					LOGI(TAG, "...skipping blank status");
+					Timber.i("...skipping blank status");
 					continue;
 				}
-				LOGI(TAG, "...syncing status [" + status + "]");
+				Timber.i("...syncing status [" + status + "]");
 				showNotification(String.format("Syncing %s collection items", status));
 
 				Map<String, String> options = new HashMap<String, String>();
@@ -73,11 +71,11 @@ public class SyncCollectionComplete extends SyncTask {
 			}
 
 			if (success) {
-				LOGI(TAG, "...deleting old collection entries");
+				Timber.i("...deleting old collection entries");
 				// Delete all collection items that weren't updated in the sync above
 				int count = mContext.getContentResolver().delete(Collection.CONTENT_URI,
 					Collection.UPDATED_LIST + "<?", new String[] { String.valueOf(persister.getTimeStamp()) });
-				LOGI(TAG, "...deleted " + count + " old collection entries");
+				Timber.i("...deleted " + count + " old collection entries");
 				// TODO: delete games as well?!
 				// TODO: delete thumbnail images associated with this list (both collection and game)
 
@@ -85,7 +83,7 @@ public class SyncCollectionComplete extends SyncTask {
 				Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 			}
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -95,9 +93,9 @@ public class SyncCollectionComplete extends SyncTask {
 		if (response.items != null && response.items.size() > 0) {
 			int rows = persister.save(response.items);
 			syncResult.stats.numEntries += response.items.size();
-			LOGI(TAG, "...saved " + rows + " records for " + response.items.size() + " collection items");
+			Timber.i("...saved " + rows + " records for " + response.items.size() + " collection items");
 		} else {
-			LOGI(TAG, "...no collection items to save");
+			Timber.i("...no collection items to save");
 		}
 	}
 

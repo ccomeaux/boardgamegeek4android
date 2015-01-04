@@ -1,8 +1,5 @@
 package com.boardgamegeek.provider;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.io.IOException;
 
 import android.content.Context;
@@ -11,9 +8,9 @@ import android.net.Uri;
 
 import com.boardgamegeek.util.FileUtils;
 
-public class ThumbnailsProvider extends BaseProvider {
-	private static final String TAG = makeLogTag(ThumbnailsProvider.class);
+import timber.log.Timber;
 
+public class ThumbnailsProvider extends BaseProvider {
 	@Override
 	protected String getPath() {
 		return BggContract.PATH_THUMBNAILS;
@@ -23,7 +20,7 @@ public class ThumbnailsProvider extends BaseProvider {
 		try {
 			return FileUtils.deleteContents(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS));
 		} catch (IOException e) {
-			LOGE(TAG, "Couldn't delete avatars", e);
+			Timber.e("Couldn't delete avatars", e);
 			return 0;
 		}
 	}

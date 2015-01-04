@@ -1,16 +1,5 @@
 package com.boardgamegeek.model;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
-
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -20,10 +9,18 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Root;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import timber.log.Timber;
+
 @Root(name = "player")
 public class Player implements Parcelable {
-	private static final String TAG = makeLogTag(Player.class);
-
 	public static final double DEFAULT_RATING = 0.0;
 	public static final int SEAT_UNKNOWN = -1;
 	public static final int SEAT_UNPARSED = -2;
@@ -195,7 +192,7 @@ public class Player implements Parcelable {
 		addPair(nvps, index, "rating", String.valueOf(rating));
 		addPair(nvps, index, "new", String.valueOf(new_));
 		addPair(nvps, index, "win", String.valueOf(win));
-		LOGD(TAG, nvps.toString());
+		Timber.d(nvps.toString());
 		return nvps;
 	}
 

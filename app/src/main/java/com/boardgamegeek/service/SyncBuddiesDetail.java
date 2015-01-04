@@ -14,11 +14,9 @@ import com.boardgamegeek.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
-	private static final String TAG = makeLogTag(SyncBuddiesDetail.class);
 	private static final int MAX_RETRIES = 4;
 	private static final int RETRY_BACKOFF_IN_MS = 5000;
 
@@ -28,22 +26,22 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, getLogMessage());
+		Timber.i(getLogMessage());
 		try {
 			if (!PreferencesUtils.getSyncBuddies(mContext)) {
-				LOGI(TAG, "...buddies not set to sync");
+				Timber.i("...buddies not set to sync");
 				return;
 			}
 
 			List<String> names = getBuddyNames();
-			LOGI(TAG, "...found " + names.size() + " buddies to update");
+			Timber.i("...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				showNotification(StringUtils.formatList(names));
 				List<User> buddies = new ArrayList<User>(names.size());
 				BuddyPersister persister = new BuddyPersister(mContext);
 				for (String name : names) {
 					if (isCancelled()) {
-						LOGI(TAG, "...canceled while syncing buddies");
+						Timber.i("...canceled while syncing buddies");
 						break;
 					}
 					User user = getUser(mService, name);
@@ -54,12 +52,12 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 
 				int count = persister.save(buddies);
 				syncResult.stats.numUpdates += buddies.size();
-				LOGI(TAG, "...saved " + count + " records for " + buddies.size() + " buddies");
+				Timber.i("...saved " + count + " records for " + buddies.size() + " buddies");
 			} else {
-				LOGI(TAG, "...no buddies to update");
+				Timber.i("...no buddies to update");
 			}
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -75,10 +73,10 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						break;
 					}
 					try {
-						LOGI(TAG, "...retrying #" + retries);
+						Timber.i("...retrying #" + retries);
 						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
 					} catch (InterruptedException e1) {
-						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+						Timber.i("Interrupted while sleeping before retry " + retries);
 						break;
 					}
 				} else {

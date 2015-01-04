@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +17,12 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import timber.log.Timber;
+
 /**
  * Syncs a limited number of collection items that have not yet been updated completely.
  */
 public class SyncCollectionUnupdated extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionUnupdated.class);
 	private static final int GAME_PER_FETCH = 25;
 
 	public SyncCollectionUnupdated(Context context, BggService service) {
@@ -33,7 +31,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Syncing unupdated collection list...");
+		Timber.i("Syncing unupdated collection list...");
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
@@ -52,7 +50,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 						+ Collection.UPDATED_LIST + " DESC LIMIT " + GAME_PER_FETCH);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
-					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
+					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
 					String detail = gameIds.size() + " games: " + gameIdDescription;
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
@@ -70,12 +68,12 @@ public class SyncCollectionUnupdated extends SyncTask {
 						break;
 					}
 				} else {
-					LOGI(TAG, "...no more unupdated collection items");
+					Timber.i("...no more unupdated collection items");
 					break;
 				}
 			} while (numberOfFetches < 100);
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -85,10 +83,10 @@ public class SyncCollectionUnupdated extends SyncTask {
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();
-			LOGI(TAG, "...saved " + count + " records for " + response.items.size() + " collection items");
+			Timber.i("...saved " + count + " records for " + response.items.size() + " collection items");
 			return true;
 		} else {
-			LOGI(TAG, "...no collection items found for these games");
+			Timber.i("...no collection items found for these games");
 			return false;
 		}
 	}

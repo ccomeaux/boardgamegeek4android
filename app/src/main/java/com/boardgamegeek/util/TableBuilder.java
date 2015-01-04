@@ -1,18 +1,15 @@
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
-public class TableBuilder {
-	private static final String TAG = makeLogTag(TableBuilder.class);
+import java.util.ArrayList;
+import java.util.List;
 
+import timber.log.Timber;
+
+public class TableBuilder {
 	private String mTable = null;
 	private Column mPrimaryKey = null;
 	private List<Column> mColumns = new ArrayList<Column>();
@@ -64,7 +61,7 @@ public class TableBuilder {
 			sb = new StringBuilder(sb.substring(0, sb.length() - 1));
 		}
 		sb.append(")");
-		LOGD(TAG, sb.toString());
+		Timber.d(sb.toString());
 		db.execSQL(sb.toString());
 	}
 
@@ -102,7 +99,7 @@ public class TableBuilder {
 		}
 		String sql = "INSERT INTO " + mTable + "(" + sb.toString() + ") SELECT " + sb.toString() + " FROM "
 			+ tempTable();
-		LOGD(TAG, sql);
+		Timber.d(sql);
 		db.execSQL(sql);
 	}
 
@@ -158,17 +155,17 @@ public class TableBuilder {
 	}
 
 	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
-		String referenceTable, String referenceColumn) {
+								  String referenceTable, String referenceColumn) {
 		return addColumn(name, type, notNull, unique, referenceTable, referenceColumn, false, null);
 	}
 
 	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
-		String referenceTable, String referenceColumn, boolean onCascadeDelete) {
+								  String referenceTable, String referenceColumn, boolean onCascadeDelete) {
 		return addColumn(name, type, notNull, unique, referenceTable, referenceColumn, onCascadeDelete, null);
 	}
 
 	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
-		String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
+								  String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
 		Column c = new Column();
 		c.name = name;
 		c.type = type;

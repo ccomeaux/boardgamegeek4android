@@ -1,8 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,9 +40,9 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
-public class GamePersister {
-	private static final String TAG = makeLogTag(GamePersister.class);
+import timber.log.Timber;
 
+public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private ArrayList<ContentProviderOperation> mBatch;
@@ -102,7 +99,7 @@ public class GamePersister {
 				if (debug) {
 					try {
 						length += ResolverUtils.applyBatch(mContext, mBatch).length;
-						LOGI(TAG, "Saved game ID=" + game.id);
+						Timber.i("Saved game ID=" + game.id);
 					} catch (Exception e) {
 						NotificationCompat.Builder builder = NotificationUtils
 							.createNotificationBuilder(mContext, R.string.sync_notification_title)

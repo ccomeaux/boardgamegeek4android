@@ -1,8 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.Account;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,8 +11,9 @@ import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 
+import timber.log.Timber;
+
 public class SyncGamePlays extends UpdateTask {
-	private static final String TAG = makeLogTag(SyncGamePlays.class);
 	private int mGameId;
 
 	public SyncGamePlays(int gameId) {
@@ -43,10 +41,10 @@ public class SyncGamePlays extends UpdateTask {
 			PlayPersister.save(context, response.plays, startTime);
 			updateGameTimestamp(context);
 			SyncService.hIndex(context);
-			LOGI(TAG, "Synced plays for game id=" + mGameId);
+			Timber.i("Synced plays for game id=" + mGameId);
 		} catch (Exception e) {
 			// TODO bubble error up?
-			LOGW(TAG, "Problem syncing plays for game id=" + mGameId, e);
+			Timber.w("Problem syncing plays for game id=" + mGameId, e);
 		}
 	}
 

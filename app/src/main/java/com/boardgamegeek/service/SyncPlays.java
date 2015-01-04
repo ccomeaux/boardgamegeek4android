@@ -1,7 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
@@ -16,8 +14,9 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import timber.log.Timber;
+
 public class SyncPlays extends SyncTask {
-	private static final String TAG = makeLogTag(SyncPlays.class);
 	private long mStartTime;
 
 	public SyncPlays(Context context, BggService service) {
@@ -26,10 +25,10 @@ public class SyncPlays extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Syncing plays...");
+		Timber.i("Syncing plays...");
 		try {
 			if (!PreferencesUtils.getSyncPlays(mContext)) {
-				LOGI(TAG, "...plays not set to sync");
+				Timber.i("...plays not set to sync");
 				return;
 			}
 
@@ -39,34 +38,34 @@ public class SyncPlays extends SyncTask {
 			long newestSyncDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
-				LOGI(TAG, "...syncing plays since " + date);
+				Timber.i("...syncing plays since " + date);
 				int page = 1;
 				do {
-					LOGI(TAG, "......syncing page " + page);
+					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays since " + date, page));
 
 					response = mService.playsByMinDate(account.name, date, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
-						LOGI(TAG, "...cancelled early");
+						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
 				} while (response.hasMorePages());
 				deleteUnupdatedPlaysSince(newestSyncDate, syncResult);
 			} else {
-				LOGI(TAG, "...syncing all plays");
+				Timber.i("...syncing all plays");
 				int page = 1;
 				do {
-					LOGI(TAG, "......syncing page " + page);
+					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating all plays", page));
 
 					response = mService.plays(account.name, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
-						LOGI(TAG, "...cancelled early");
+						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
@@ -76,17 +75,17 @@ public class SyncPlays extends SyncTask {
 			long oldestDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE);
 			if (oldestDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(oldestDate);
-				LOGI(TAG, "...syncing plays before " + date);
+				Timber.i("...syncing plays before " + date);
 				int page = 1;
 				do {
-					LOGI(TAG, "......syncing page " + page);
+					Timber.i("......syncing page " + page);
 					showNotification(paginateDetail("Updating plays before " + date, page));
 
 					response = mService.playsByMaxDate(account.name, date, page);
 					persist(response, syncResult);
 					updateTimeStamps(response);
 					if (isCancelled()) {
-						LOGI(TAG, "...cancelled early");
+						Timber.i("...cancelled early");
 						return;
 					}
 					page++;
@@ -96,7 +95,7 @@ public class SyncPlays extends SyncTask {
 			}
 			SyncService.hIndex(mContext);
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -111,9 +110,9 @@ public class SyncPlays extends SyncTask {
 		if (response.plays != null && response.plays.size() > 0) {
 			PlayPersister.save(mContext, response.plays, mStartTime);
 			syncResult.stats.numEntries += response.plays.size();
-			LOGI(TAG, "...saved " + response.plays);
+			Timber.i("...saved " + response.plays);
 		} else {
-			LOGI(TAG, "...no plays to update");
+			Timber.i("...no plays to update");
 		}
 	}
 
@@ -133,7 +132,7 @@ public class SyncPlays extends SyncTask {
 		int count = mContext.getContentResolver().delete(Plays.CONTENT_URI, selection, selectionArgs);
 		// TODO: verify this number is correct
 		syncResult.stats.numDeletes += count;
-		LOGI(TAG, "...deleted " + count + " unupdated plays");
+		Timber.i("...deleted " + count + " unupdated plays");
 	}
 
 	private void updateTimeStamps(PlaysResponse response) {

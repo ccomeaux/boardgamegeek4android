@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0-rc2'
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
+     }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'hugo'
 
 android {
     compileSdkVersion 21
@@ -34,4 +45,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile 'se.emilsjolander:stickylistheaders:2.5.2'
     compile 'com.jakewharton:butterknife:6.0.0'
+    compile 'com.jakewharton.timber:timber:2.5.0'
 }

@@ -18,12 +18,11 @@
 
 package com.boardgamegeek.util;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+
+import timber.log.Timber;
 
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
@@ -31,8 +30,6 @@ import android.os.ResultReceiver;
  * listening {@link Activity} can be swapped out during configuration changes.
  */
 public class DetachableResultReceiver extends ResultReceiver {
-	private static final String TAG = makeLogTag(DetachableResultReceiver.class);
-
 	private Receiver mReceiver;
 
 	public DetachableResultReceiver(Handler handler) {
@@ -56,7 +53,7 @@ public class DetachableResultReceiver extends ResultReceiver {
 		if (mReceiver != null) {
 			mReceiver.onReceiveResult(resultCode, resultData);
 		} else {
-			LOGW(TAG, "Dropping result on floor for code " + resultCode + ": " + resultData.toString());
+			Timber.w("Dropping result on floor for code " + resultCode + ": " + resultData.toString());
 		}
 	}
 }

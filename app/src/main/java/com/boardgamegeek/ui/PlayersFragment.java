@@ -1,11 +1,10 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.Locale;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -27,7 +26,6 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
 
 public class PlayersFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(PlayersFragment.class);
 	private static final String STATE_SELECTED_NAME = "selectedName";
 	private static final String STATE_SELECTED_USERNAME = "selectedUsername";
 
@@ -135,7 +133,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			mCallbacks.onPlayerCountChanged(cursor.getCount());
 			restoreScrollState();
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 	}
