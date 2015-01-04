@@ -29,6 +29,8 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import hugo.weaving.DebugLog;
+
 public class CollectionActivity extends TopLevelSinglePaneActivity implements LoaderManager.LoaderCallbacks<Cursor>,
 	CollectionFragment.Callbacks, OnNavigationListener {
 	private static final int HELP_VERSION = 1;
@@ -46,6 +48,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private boolean mIsTitleHidden;
 
 	@Override
+	@DebugLog
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -74,6 +77,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	protected void onSaveInstanceState(Bundle outState) {
 		if (mAdapter != null) {
 			outState.putLong(STATE_VIEW_ID, mAdapter.getItemId(getSupportActionBar().getSelectedNavigationIndex()));
@@ -84,6 +88,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	protected void onPause() {
 		super.onPause();
 		if (mSyncObserverHandle != null) {
@@ -93,6 +98,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	protected void onResume() {
 		super.onResume();
 		mSyncStatusObserver.onStatusChanged(0);
@@ -106,6 +112,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public boolean onCreateOptionsMenu(Menu menu) {
 		mOptionsMenu = menu;
 		mSyncStatusObserver.onStatusChanged(0);
@@ -113,6 +120,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean hide = (isDrawerOpen() || mCount <= 0);
 		ActivityUtils.setCustomActionBarText(getSupportActionBar(), hide ? "" : String.valueOf(mCount), hide ? ""
@@ -125,6 +133,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	protected Fragment onCreatePane() {
 		return new CollectionFragment();
 	}
@@ -140,6 +149,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public boolean onGameSelected(int gameId, String gameName) {
 		ActivityUtils.launchGame(this, gameId, gameName);
 		return false;
@@ -169,6 +179,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
@@ -178,6 +189,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (loader.getId() == Query._TOKEN) {
 			if (mAdapter == null) {
@@ -197,11 +209,13 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.changeCursor(null);
 	}
 
 	@Override
+	@DebugLog
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		CollectionFragment fragment = (CollectionFragment) getFragment();
 		long oldId = fragment.getViewId();
@@ -215,6 +229,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return true;
 	}
 
+	@DebugLog
 	private int findViewIndex(long viewId) {
 		int index = 0;
 		if (viewId > 0) {
@@ -230,6 +245,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		return index;
 	}
 
+	@DebugLog
 	private void setRefreshActionButtonState(boolean refreshing) {
 		if (mOptionsMenu == null) {
 			return;

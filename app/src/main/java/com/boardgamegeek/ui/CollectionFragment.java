@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
@@ -141,6 +142,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -157,18 +159,21 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_collection, container, false);
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mFilterLinearLayout = (LinearLayout) getView().findViewById(R.id.filter_linear_layout);
-		setEmptyText();
+ 		setEmptyText();
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -183,11 +188,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
+	@DebugLog
 	private void requery() {
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
 	}
 
 	@Override
+	@DebugLog
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
@@ -199,6 +206,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putLong(STATE_VIEW_ID, mViewId);
@@ -211,12 +219,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
+	@DebugLog
 	public void onListItemClick(View view, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		final int gameId = cursor.getInt(Query.GAME_ID);
@@ -233,12 +243,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.collection_fragment, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
+	@DebugLog
 	public void onPrepareOptionsMenu(Menu menu) {
 		if (mCallbacks.isDrawerOpen()) {
 			menu.findItem(R.id.menu_collection_sort).setVisible(false);
@@ -279,6 +291,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
@@ -340,6 +353,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
@@ -371,6 +385,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
@@ -409,10 +424,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.changeCursor(null);
 	}
 
+	@DebugLog
 	public void setSelectedGameId(int id) {
 		mSelectedCollectionId = id;
 		if (mAdapter != null) {
@@ -421,6 +438,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void removeFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
 		setEmptyText();
@@ -429,6 +447,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void addFilter(CollectionFilterData filter) {
 		mFilters.remove(filter);
 		if (filter.isValid()) {
@@ -439,6 +458,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		requery();
 	}
 
+	@DebugLog
 	private void setEmptyText() {
 		int resId = R.string.empty_collection;
 		if (mFilters != null && mFilters.size() > 0) {
@@ -452,6 +472,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		setEmptyText(getString(resId));
 	}
 
+	@DebugLog
 	private void setSort(int sortType) {
 		if (sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
 			sortType = CollectionSorterFactory.TYPE_DEFAULT;
@@ -461,6 +482,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		requery();
 	}
 
+	@DebugLog
 	private void setSort(int sortType, int sortType2) {
 		if (mSort.getType() == sortType) {
 			setSort(sortType2);
@@ -470,12 +492,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public void createView(long id, String name) {
 		Toast.makeText(getActivity(), R.string.msg_saved, Toast.LENGTH_SHORT).show();
 		mCallbacks.onViewRequested(id);
 	}
 
 	@Override
+	@DebugLog
 	public void deleteView(long id) {
 		Toast.makeText(getActivity(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT).show();
 		if (mViewId == id) {
@@ -483,6 +507,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
+	@DebugLog
 	private CollectionFilterData findFilter(int type) {
 		for (CollectionFilterData filter : mFilters) {
 			if (filter != null && filter.getType() == type) {
@@ -492,6 +517,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return null;
 	}
 
+	@DebugLog
 	private void bindFilterButtons() {
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
 		for (CollectionFilterData filter : mFilters) {
@@ -516,6 +542,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
+	@DebugLog
 	private Button createFilterButton(LayoutInflater layoutInflater, final int type, String text) {
 		final Button button = (Button) layoutInflater
 			.inflate(R.layout.widget_button_filter, mFilterLinearLayout, false);
@@ -542,6 +569,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return button;
 	}
 
+	@DebugLog
 	private boolean launchFilterDialog(int id) {
 		switch (id) {
 			case R.id.menu_collection_status:
@@ -610,10 +638,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		return false;
 	}
 
+	@DebugLog
 	public long getViewId() {
 		return mViewId;
 	}
 
+	@DebugLog
 	public void setView(long viewId) {
 		if (mViewId != viewId) {
 			setProgessShown(true);
@@ -623,6 +653,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 	}
 
+	@DebugLog
 	public void clearView() {
 		setProgessShown(true);
 		mViewId = 0;
@@ -636,12 +667,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private class CollectionAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 
+		@DebugLog
 		public CollectionAdapter(Context context) {
 			super(context, null, false);
 			mInflater = getActivity().getLayoutInflater();
 		}
 
 		@Override
+		@DebugLog
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			View row = mInflater.inflate(R.layout.row_collection, parent, false);
 			ViewHolder holder = new ViewHolder(row);
@@ -650,6 +683,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		@Override
+		@DebugLog
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
@@ -753,6 +787,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public boolean onCreateActionMode(ActionMode mode, android.view.Menu menu) {
 		android.view.MenuInflater inflater = mode.getMenuInflater();
 		inflater.inflate(R.menu.game_context, menu);
@@ -764,15 +799,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public boolean onPrepareActionMode(ActionMode mode, android.view.Menu menu) {
 		return false;
 	}
 
 	@Override
+	@DebugLog
 	public void onDestroyActionMode(ActionMode mode) {
 	}
 
 	@Override
+	@DebugLog
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
 			mSelectedPositions.add(position);
@@ -789,6 +827,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	@DebugLog
 	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
 		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
