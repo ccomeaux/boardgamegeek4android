@@ -75,8 +75,7 @@ public class NotificationUtils {
 	}
 
 	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
-		String title = String.format(context.getString(R.string.notification_playing_game), play.gameName);
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, title);
+		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
 
 		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl,
 			imageUrl);

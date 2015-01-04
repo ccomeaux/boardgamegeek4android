@@ -170,7 +170,6 @@
 	<string name="title_browse">Browse</string>
 	<string name="title_signin">Sign In</string>
 	<string name="notification_playing">Playing</string>
-	<string name="notification_playing_game">Playing %s</string>
 	<string name="pref_warning_username">Please sign in first.</string>
 	<string name="loading">Loading…</string>
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
