@@ -1,15 +1,5 @@
 package com.boardgamegeek.auth;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGV;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.io.IOException;
-
-import org.apache.http.client.CookieStore;
-
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -29,9 +19,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
 import com.boardgamegeek.util.HttpUtils;
 
-public class Authenticator extends AbstractAccountAuthenticator {
-	private static final String TAG = makeLogTag(Authenticator.class);
+import org.apache.http.client.CookieStore;
 
+import java.io.IOException;
+
+import timber.log.Timber;
+
+public class Authenticator extends AbstractAccountAuthenticator {
 	public static final String ACCOUNT_TYPE = "com.boardgamegeek";
 	public static final String AUTHTOKEN_TYPE = "com.boardgamegeek";
 	public static final String KEY_AUTHTOKEN_EXPIRY = "AUTHTOKEN_EXPIRY";
@@ -48,8 +42,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Override
 	public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
-		String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-		LOGV(TAG, "Adding account: accountType=" + accountType + ", authTokenType=" + authTokenType);
+							 String[] requiredFeatures, Bundle options) throws NetworkErrorException {
+		Timber.v("Adding account: accountType=" + accountType + ", authTokenType=" + authTokenType);
 		return createLoginIntent(response, null);
 	}
 
@@ -57,20 +51,20 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options)
 		throws NetworkErrorException {
 		// TODO: is this needed? if so prompt for password only
-		LOGV(TAG, "confirmCredentials - not supported");
+		Timber.v("confirmCredentials - not supported");
 		return null;
 	}
 
 	@Override
 	public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
-		LOGV(TAG, "editProperties");
+		Timber.v("editProperties");
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType,
-		Bundle options) throws NetworkErrorException {
-		LOGV(TAG, "getting auth token...");
+							   Bundle options) throws NetworkErrorException {
+		Timber.v("getting auth token...");
 
 		// If the caller requested an authToken type we don't support, then return an error
 		if (!authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
@@ -102,7 +96,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
 		// credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
-		LOGI(TAG, "Expired credentials...");
+		Timber.i("Expired credentials...");
 		return createLoginIntent(response, account.name);
 	}
 
@@ -132,14 +126,14 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Override
 	public String getAuthTokenLabel(String authTokenType) {
-		LOGV(TAG, "getAuthTokenLabel - we don't support multiple auth tokens");
+		Timber.v("getAuthTokenLabel - we don't support multiple auth tokens");
 		return null;
 	}
 
 	@Override
 	public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features)
 		throws NetworkErrorException {
-		LOGV(TAG, "hasFeatures - we don't support any features");
+		Timber.v("hasFeatures - we don't support any features");
 		final Bundle result = new Bundle();
 		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
 		return result;
@@ -147,16 +141,16 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
 	@Override
 	public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType,
-		Bundle options) throws NetworkErrorException {
+									Bundle options) throws NetworkErrorException {
 		// TODO: is this needed? if so prompt for password only
-		LOGV(TAG, "updateCredentials - not supported");
+		Timber.v("updateCredentials - not supported");
 		return null;
 	}
 
 	@Override
 	public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account)
 		throws NetworkErrorException {
-		LOGV(TAG, "getAccountRemovalAllowed - yes, always");
+		Timber.v("getAccountRemovalAllowed - yes, always");
 		final Bundle result = new Bundle();
 		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
 		return result;
@@ -169,10 +163,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	public static Account getAccount(AccountManager accountManager) {
 		Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 		if (accounts == null || accounts.length == 0) {
-			LOGW(TAG, "no account!");
+			Timber.w("no account!");
 			return null;
 		} else if (accounts.length != 1) {
-			LOGW(TAG, "multiple accounts!");
+			Timber.w("multiple accounts!");
 			return null;
 		}
 		return accounts[0];
@@ -259,11 +253,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
 							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
 						}
 					} catch (OperationCanceledException e) {
-						LOGE(TAG, "removeAccount", e);
+						Timber.e("removeAccount", e);
 					} catch (IOException e) {
-						LOGE(TAG, "removeAccount", e);
+						Timber.e("removeAccount", e);
 					} catch (AuthenticatorException e) {
-						LOGE(TAG, "removeAccount", e);
+						Timber.e("removeAccount", e);
 					}
 				}
 			}

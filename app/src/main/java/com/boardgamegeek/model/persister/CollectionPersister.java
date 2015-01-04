@@ -1,8 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,9 +22,9 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
-public class CollectionPersister {
-	private static final String TAG = makeLogTag(CollectionPersister.class);
+import timber.log.Timber;
 
+public class CollectionPersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private long mUpdateTime;
@@ -104,13 +101,13 @@ public class CollectionPersister {
 				if (isValid(item)) {
 					insertOrUpdateGame(toGameValues(item), batch);
 					insertOrUpdateCollection(toCollectionValues(item), batch);
-					LOGI(TAG, "Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.i("Batched game ID=" + item.gameId + "; collection ID=" + item.collectionId());
 				} else {
-					LOGI(TAG, "Skipped invalid game ID=" + item.gameId + "; collection ID=" + item.collectionId());
+					Timber.i("Skipped invalid game ID=" + item.gameId + "; collection ID=" + item.collectionId());
 				}
 			}
 			ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
-			LOGI(TAG, "Saved " + items.size() + " collection items");
+			Timber.i("Saved " + items.size() + " collection items");
 			return result.length;
 		}
 		return 0;
@@ -214,7 +211,7 @@ public class CollectionPersister {
 	private void insertOrUpdateGame(ContentValues values, ArrayList<ContentProviderOperation> batch) {
 		int gameId = values.getAsInteger(Games.GAME_ID);
 		if (mGameIds.contains(gameId)) {
-			LOGI(TAG, "Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
+			Timber.i("Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
 		} else {
 			Builder cpo = null;
 			Uri uri = Games.buildGameUri(gameId);

@@ -16,11 +16,9 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
-	private static final String TAG = makeLogTag(SyncGames.class);
 	private static final int GAMES_PER_FETCH = 16;
 	private static final int MAX_RETRIES = 5;
 	private static final int RETRY_BACKOFF_IN_MS = 500;
@@ -32,7 +30,7 @@ public abstract class SyncGames extends SyncTask {
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, getIntroLogMessage());
+		Timber.i(getIntroLogMessage());
 		try {
 			mGamesPerFetch = GAMES_PER_FETCH;
 			int numberOfFetches = 0;
@@ -44,7 +42,7 @@ public abstract class SyncGames extends SyncTask {
 				List<String> gameIds = getGameIds(mGamesPerFetch);
 				if (gameIds.size() > 0) {
 					String gameIdDescription = StringUtils.formatList(gameIds);
-					LOGI(TAG, "...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
+					Timber.i("...found " + gameIds.size() + " games to update [" + gameIdDescription + "]");
 					String detail = mGamesPerFetch + " games: " + gameIdDescription;
 					if (numberOfFetches > 1) {
 						detail += " (page " + numberOfFetches + ")";
@@ -56,17 +54,17 @@ public abstract class SyncGames extends SyncTask {
 					if (response.games != null && response.games.size() > 0) {
 						int count = persister.save(response.games);
 						syncResult.stats.numUpdates += response.games.size();
-						LOGI(TAG, "...saved " + count + " rows for " + response.games.size() + " games");
+						Timber.i("...saved " + count + " rows for " + response.games.size() + " games");
 					} else {
-						LOGI(TAG, "...no games returned (shouldn't happen)");
+						Timber.i("...no games returned (shouldn't happen)");
 					}
 				} else {
-					LOGI(TAG, getExitLogMessage());
+					Timber.i(getExitLogMessage());
 					break;
 				}
 			} while (numberOfFetches < getMaxFetchCount());
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -82,21 +80,21 @@ public abstract class SyncGames extends SyncTask {
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {
 					if (mGamesPerFetch == 1) {
-						LOGI(TAG, "...timeout with only 1 game; aborting.");
+						Timber.i("...timeout with only 1 game; aborting.");
 						break;
 					}
 					mGamesPerFetch = mGamesPerFetch / 2;
-					LOGI(TAG, "...timeout - reducing games per fetch to " + mGamesPerFetch);
+					Timber.i("...timeout - reducing games per fetch to " + mGamesPerFetch);
 				} else if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
 						break;
 					}
 					try {
-						LOGI(TAG, "...retrying #" + retries);
+						Timber.i("...retrying #" + retries);
 						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
 					} catch (InterruptedException e1) {
-						LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+						Timber.i("Interrupted while sleeping before retry " + retries);
 						break;
 					}
 				} else {

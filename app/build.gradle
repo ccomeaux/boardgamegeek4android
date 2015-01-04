@@ -9,7 +9,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 40
-        versionName "develop"
+        versionName "feature/timber"
     }
     buildTypes {
         release {
@@ -34,4 +34,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile 'se.emilsjolander:stickylistheaders:2.5.2'
     compile 'com.jakewharton:butterknife:6.0.0'
+    compile 'com.jakewharton.timber:timber:2.5.0'
 }

@@ -1,14 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -77,9 +68,15 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
+
 public class CollectionFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	CollectionView, MultiChoiceModeListener {
-	private static final String TAG = makeLogTag(CollectionFragment.class);
 	private static final String STATE_SELECTED_ID = "STATE_SELECTED_ID";
 	private static final String STATE_VIEW_ID = "STATE_VIEW_ID";
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
@@ -347,7 +344,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
-			String[] args = {};
+			String[] args = { };
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			for (CollectionFilterData filter : mFilters) {
 				if (filter != null) {
@@ -406,7 +403,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				requery();
 			}
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 	}
@@ -554,7 +551,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 					filter = (CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 				} catch (ClassCastException e) {
 					// Getting reports of this, but don't know why
-					LOGI(TAG, "ClassCastException when attempting to display the CollectionStatusFilter dialog.");
+					Timber.i("ClassCastException when attempting to display the CollectionStatusFilter dialog.");
 				}
 				new CollectionStatusFilter().createDialog(getActivity(), this, filter);
 				return true;

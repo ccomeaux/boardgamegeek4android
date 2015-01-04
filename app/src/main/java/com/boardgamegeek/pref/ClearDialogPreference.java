@@ -1,7 +1,5 @@
 package com.boardgamegeek.pref;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
@@ -21,9 +19,9 @@ import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.provider.BggContract.Thumbnails;
 import com.boardgamegeek.service.SyncService;
 
-public class ClearDialogPreference extends AsyncDialogPreference {
-	private static final String TAG = makeLogTag(ClearDialogPreference.class);
+import timber.log.Timber;
 
+public class ClearDialogPreference extends AsyncDialogPreference {
 	public ClearDialogPreference(Context context) {
 		super(context);
 	}
@@ -71,19 +69,19 @@ public class ClearDialogPreference extends AsyncDialogPreference {
 			count += delete(Buddies.CONTENT_URI);
 			count += delete(Plays.CONTENT_URI);
 			count += delete(CollectionViews.CONTENT_URI);
-			LOGI(TAG, "Removed " + count + " records");
+			Timber.i("Removed " + count + " records");
 
 			count = 0;
 			count += mResolver.delete(Thumbnails.CONTENT_URI, null, null);
 			count += mResolver.delete(Avatars.CONTENT_URI, null, null);
-			LOGI(TAG, "Removed " + count + " files");
+			Timber.i("Removed " + count + " files");
 
 			return success;
 		}
 
 		private int delete(Uri uri) {
 			int count = mResolver.delete(uri, null, null);
-			LOGI(TAG, "Removed " + count + " " + uri.getLastPathSegment());
+			Timber.i("Removed " + count + " " + uri.getLastPathSegment());
 			return count;
 		}
 	}

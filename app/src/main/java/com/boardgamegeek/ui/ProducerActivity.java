@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,9 +10,9 @@ import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
-public class ProducerActivity extends SimpleSinglePaneActivity {
-	private static final String TAG = makeLogTag(ProducerActivity.class);
+import timber.log.Timber;
 
+public class ProducerActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,7 +26,7 @@ public class ProducerActivity extends SimpleSinglePaneActivity {
 		} else if (Publishers.isPublisherUri(uri)) {
 			getSupportActionBar().setTitle(R.string.title_publisher);
 		} else {
-			LOGW(TAG, "Unexpected URI: " + uri);
+			Timber.w("Unexpected URI: " + uri);
 			finish();
 		}
 	}

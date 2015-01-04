@@ -31,16 +31,12 @@ import org.apache.http.client.CookieStore;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class LoginActivity extends AccountAuthenticatorActivity {
-	private static final String TAG = makeLogTag(LoginActivity.class);
-
 	public static final String EXTRA_USERNAME = "USERNAME";
 
 	private String mUsername;
@@ -217,7 +213,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	}
 
 	private void createAccount(CookieStore cs) {
-		LOGI(TAG, "Creating account");
+		Timber.i("Creating account");
 		final Account account = new Account(mUsername, Authenticator.ACCOUNT_TYPE);
 		AuthProfile ap = new AuthProfile(cs);
 

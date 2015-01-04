@@ -1,8 +1,5 @@
 package com.boardgamegeek.provider;
 
-import static com.boardgamegeek.util.LogUtils.LOGV;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,11 +13,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
+import timber.log.Timber;
+
 public class BggProvider extends ContentProvider {
-	private static final String TAG = makeLogTag(BggProvider.class);
-
 	private BggDatabase mOpenHelper;
-
 	private static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	private static HashMap<Integer, BaseProvider> providers = buildProviderMap();
 	private static int sCode = 1;
@@ -133,7 +129,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		LOGV(TAG, "query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
+		Timber.v("query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		Cursor cursor = getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection,
 			selectionArgs, sortOrder);
@@ -143,7 +139,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		LOGV(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
+		Timber.v("insert(uri=" + uri + ", values=" + values.toString() + ")");
 
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Uri newUri = getProvider(uri).insert(getContext(), db, uri, values);
@@ -155,25 +151,25 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		LOGV(TAG, "update(uri=" + uri + ", values=" + values.toString() + ")");
+		Timber.v("update(uri=" + uri + ", values=" + values.toString() + ")");
 		int rowCount = getProvider(uri).update(getContext(), mOpenHelper.getWritableDatabase(), uri, values, selection,
 			selectionArgs);
-		LOGV(TAG, "updated " + rowCount + " rows");
+		Timber.v("updated " + rowCount + " rows");
 		return rowCount;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		LOGV(TAG, "delete(uri=" + uri + ")");
+		Timber.v("delete(uri=" + uri + ")");
 		BaseProvider provider = getProvider(uri);
 		int rowCount = provider.delete(getContext(), mOpenHelper.getWritableDatabase(), uri, selection, selectionArgs);
-		LOGV(TAG, "deleted " + rowCount + " rows");
+		Timber.v("deleted " + rowCount + " rows");
 		return rowCount;
 	}
 
 	@Override
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-		LOGV(TAG, "Open file: " + uri);
+		Timber.v("Open file: " + uri);
 
 		BaseProvider provider = getProvider(uri);
 		return provider.openFile(getContext(), uri, mode);

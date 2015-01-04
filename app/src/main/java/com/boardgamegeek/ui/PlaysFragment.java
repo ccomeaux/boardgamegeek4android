@@ -53,13 +53,10 @@ import java.util.LinkedHashSet;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 public class PlaysFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
-	private static final String TAG = makeLogTag(PlaysFragment.class);
 	public static final String KEY_MODE = "MODE";
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_USER_NAME = "USER_NAME";
@@ -453,7 +450,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 			mCallbacks.onPlayCountChanged(count);
 		} else {
-			LOGD(TAG, "Query complete, Not Actionable: " + token);
+			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 	}

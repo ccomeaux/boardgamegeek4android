@@ -15,15 +15,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 /**
  * Syncs the user's collection modified since the date stored in the sync service, one collection status at a time.
  */
 public class SyncCollectionModifiedSince extends SyncTask {
-	private static final String TAG = makeLogTag(SyncCollectionModifiedSince.class);
-
 	public SyncCollectionModifiedSince(Context context, BggService service) {
 		super(context, service);
 	}
@@ -33,7 +30,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		AccountManager accountManager = AccountManager.get(mContext);
 		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);
 
-		LOGI(TAG, "Syncing collection list modified since " + new Date(date) + "...");
+		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
 			Map<String, String> options = new HashMap<String, String>();
@@ -59,7 +56,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 
 			Authenticator.putLong(mContext, SyncService.TIMESTAMP_COLLECTION_PARTIAL, persister.getTimeStamp());
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 
@@ -70,9 +67,9 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		if (response.items != null && response.items.size() > 0) {
 			int count = persister.save(response.items);
 			syncResult.stats.numUpdates += response.items.size();
-			LOGI(TAG, "...saved " + count + " records for " + response.items.size() + " collection items");
+			Timber.i("...saved " + count + " records for " + response.items.size() + " collection items");
 		} else {
-			LOGI(TAG, "...no new collection modifications");
+			Timber.i("...no new collection modifications");
 		}
 	}
 

@@ -1,10 +1,5 @@
 package com.boardgamegeek.provider;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -39,9 +34,9 @@ import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
 
-public class BggDatabase extends SQLiteOpenHelper {
-	private static final String TAG = makeLogTag(BggDatabase.class);
+import timber.log.Timber;
 
+public class BggDatabase extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "bgg.db";
 
 	// NOTE: carefully update onUpgrade() when bumping database versions to make sure user data is saved.
@@ -468,7 +463,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		LOGD(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
+		Timber.d("Upgrading database from " + oldVersion + " to " + newVersion);
 
 		// NOTE: This switch statement is designed to handle cascading database
 		// updates, starting at the current version and falling through to all
@@ -534,7 +529,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					FileUtils.deleteContents(oldCacheDirectory);
 					oldCacheDirectory.delete();
 				} catch (IOException e) {
-					LOGE(TAG, "Error clearing the cache", e);
+					Timber.e("Error clearing the cache", e);
 				}
 				version = VER_IMAGE_CACHE;
 			case VER_IMAGE_CACHE:
@@ -585,7 +580,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		}
 
 		if (version != DATABASE_VERSION) {
-			LOGW(TAG, "Destroying old data during upgrade");
+			Timber.w("Destroying old data during upgrade");
 
 			dropTable(db, Tables.DESIGNERS);
 			dropTable(db, Tables.ARTISTS);
@@ -624,7 +619,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		try {
 			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
 		} catch (SQLException e) {
-			LOGW(TAG, "Probably just trying to add an existing column.\n" + e.toString());
+			Timber.w("Probably just trying to add an existing column.\n" + e.toString());
 		}
 	}
 }

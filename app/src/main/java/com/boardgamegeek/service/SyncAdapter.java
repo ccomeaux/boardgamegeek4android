@@ -1,10 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +25,9 @@ import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
-public class SyncAdapter extends AbstractThreadedSyncAdapter {
-	private static final String TAG = makeLogTag(SyncAdapter.class);
+import timber.log.Timber;
 
+public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final Context mContext;
 	private boolean mShowNotifications = true;
 	private SyncTask mCurrentTask;
@@ -48,7 +43,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 				@Override
 				public void uncaughtException(Thread thread, Throwable throwable) {
-					LOGE(TAG, "Uncaught sync exception, suppressing UI in release build.", throwable);
+					Timber.e("Uncaught sync exception, suppressing UI in release build.", throwable);
 				}
 			});
 		}
@@ -63,7 +58,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final boolean initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false);
 		final int type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL);
 
-		LOGI(TAG, "Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
+		Timber.i("Beginning sync for account " + account.name + "," + " uploadOnly=" + uploadOnly + " manualSync="
 			+ manualSync + " initialize=" + initialize + ", type=" + type);
 
 		if (initialize) {
@@ -90,7 +85,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				mCurrentTask.showNotification();
 				mCurrentTask.execute(account, syncResult);
 			} catch (Exception e) {
-				LOGE(TAG, "Syncing " + mCurrentTask, e);
+				Timber.e("Syncing " + mCurrentTask, e);
 				syncResult.stats.numIoExceptions++;
 				showError(mCurrentTask, e);
 			}
@@ -110,27 +105,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	private boolean shouldContinueSync(boolean uploadOnly) {
 		if (uploadOnly) {
-			LOGW(TAG, "Upload only, returning.");
+			Timber.w("Upload only, returning.");
 			return false;
 		}
 
 		if (!NetworkUtils.isOnline(mContext)) {
-			LOGI(TAG, "Skipping sync; offline");
+			Timber.i("Skipping sync; offline");
 			return false;
 		}
 
 		if (PreferencesUtils.getSyncOnlyCharging(mContext) && !NetworkUtils.isCharging(mContext)) {
-			LOGI(TAG, "Skipping sync; not charging");
+			Timber.i("Skipping sync; not charging");
 			return false;
 		}
 
 		if (PreferencesUtils.getSyncOnlyWifi(mContext) && !NetworkUtils.isOnWiFi(mContext)) {
-			LOGI(TAG, "Skipping sync; not on wifi");
+			Timber.i("Skipping sync; not on wifi");
 			return false;
 		}
 
 		if (NetworkUtils.isBatteryLow(mContext)) {
-			LOGI(TAG, "Skipping sync; battery low");
+			Timber.i("Skipping sync; battery low");
 			return false;
 		}
 
@@ -149,7 +144,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 					tasks.add(new SyncCollectionComplete(context, service));
 				}
 			} else {
-				LOGI(TAG, "...no statuses set to sync");
+				Timber.i("...no statuses set to sync");
 			}
 
 			tasks.add(new SyncCollectionUnupdated(context, service));

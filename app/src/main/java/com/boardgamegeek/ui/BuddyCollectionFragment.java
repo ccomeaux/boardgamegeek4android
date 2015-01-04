@@ -1,15 +1,13 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +40,6 @@ import com.boardgamegeek.util.UIUtils;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
-	private static final String TAG = makeLogTag(BuddyCollectionFragment.class);
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 	private static final String STATE_STATUS_VALUE = "buddy_collection_status_value";
 	private static final String STATE_STATUS_LABEL = "buddy_collection_status_entry";
@@ -88,7 +85,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		mName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(mName)) {
-			LOGW(TAG, "Missing buddy name.");
+			Timber.w("Missing buddy name.");
 			return;
 		}
 
@@ -276,10 +273,10 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 							break;
 						}
 						try {
-							LOGI(TAG, "...retrying #" + retries);
+							Timber.i("...retrying #" + retries);
 							Thread.sleep(retries * retries * RETRY_BACKOFF);
 						} catch (InterruptedException e1) {
-							LOGI(TAG, "Interrupted while sleeping before retry " + retries);
+							Timber.i("Interrupted while sleeping before retry " + retries);
 							break;
 						}
 					} else {

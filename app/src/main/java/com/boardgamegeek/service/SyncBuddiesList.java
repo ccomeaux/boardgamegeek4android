@@ -1,7 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -17,28 +15,28 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
+import timber.log.Timber;
+
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
 public class SyncBuddiesList extends SyncTask {
-	private static final String TAG = makeLogTag(SyncBuddiesList.class);
-
 	public SyncBuddiesList(Context context, BggService service) {
 		super(context, service);
 	}
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
-		LOGI(TAG, "Syncing list of buddies...");
+		Timber.i("Syncing list of buddies...");
 		try {
 			if (!PreferencesUtils.getSyncBuddies(mContext)) {
-				LOGI(TAG, "...buddies not set to sync");
+				Timber.i("...buddies not set to sync");
 				return;
 			}
 
 			long lastCompleteSync = Authenticator.getLong(mContext, SyncService.TIMESTAMP_BUDDIES);
 			if (lastCompleteSync >= 0 && DateTimeUtils.howManyDaysOld(lastCompleteSync) < 3) {
-				LOGI(TAG, "...skipping; we synced already within the last 3 days");
+				Timber.i("...skipping; we synced already within the last 3 days");
 				return;
 			}
 
@@ -54,7 +52,7 @@ public class SyncBuddiesList extends SyncTask {
 			count += persister.saveList(Buddy.fromUser(user));
 			count += persister.saveList(user.getBuddies());
 			syncResult.stats.numEntries += count;
-			LOGI(TAG, "Synced " + count + " buddies");
+			Timber.i("Synced " + count + " buddies");
 
 			showNotification("Discarding old GeekBuddies");
 			// TODO: delete avatar images associated with this list
@@ -63,11 +61,11 @@ public class SyncBuddiesList extends SyncTask {
 			count = resolver.delete(Buddies.CONTENT_URI, Buddies.UPDATED_LIST + "<?",
 				new String[] { String.valueOf(persister.getTimestamp()) });
 			syncResult.stats.numDeletes += count;
-			LOGI(TAG, "Removed " + count + " people who are no longer buddies");
+			Timber.i("Removed " + count + " people who are no longer buddies");
 
 			Authenticator.putLong(mContext, SyncService.TIMESTAMP_BUDDIES, persister.getTimestamp());
 		} finally {
-			LOGI(TAG, "...complete!");
+			Timber.i("...complete!");
 		}
 	}
 

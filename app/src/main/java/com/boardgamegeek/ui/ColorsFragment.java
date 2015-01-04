@@ -1,12 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGWTF;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -40,9 +33,14 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import timber.log.Timber;
+
 public class ColorsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	MultiChoiceModeListener {
-	private static final String TAG = makeLogTag(ColorsFragment.class);
 	private static final int TOKEN = 0x20;
 	private int mGameId;
 	private GameColorAdapter mAdapter;
@@ -135,7 +133,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		if (token == TOKEN) {
 			mAdapter.changeCursor(cursor);
 		} else {
-			LOGWTF(TAG, "Query complete, Not Actionable: " + token);
+			Timber.w("Query complete, Not Actionable: " + token);
 			cursor.close();
 		}
 
@@ -219,7 +217,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 						}
 					} while (cursor.moveToNext());
 					if (values.size() > 0) {
-						ContentValues[] array = {};
+						ContentValues[] array = { };
 						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId),
 							values.toArray(array));
 					}

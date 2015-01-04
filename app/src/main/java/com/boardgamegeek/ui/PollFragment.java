@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
-
 import java.util.ArrayList;
 
 import android.content.Intent;
@@ -34,9 +31,9 @@ import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.UIUtils;
 
-public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String TAG = makeLogTag(PollFragment.class);
+import timber.log.Timber;
 
+public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_TYPE = "TYPE";
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
@@ -195,7 +192,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 			} else if (NOT_RECOMMENDED.equals(value)) {
 				row.setNotRecommended(votes);
 			} else {
-				LOGW(TAG, "Bad key: " + value);
+				Timber.w("Bad key: " + value);
 			}
 		} while (cursor.moveToNext());
 	}

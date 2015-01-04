@@ -65,12 +65,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
+import timber.log.Timber;
 
 public class LogPlayActivity extends ActionBarActivity implements OnDateSetListener {
-	private static final String TAG = makeLogTag(LogPlayActivity.class);
-
 	private static final int HELP_VERSION = 2;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
@@ -304,7 +301,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 		if (mGameId <= 0) {
 			String message = "Can't log a play without a game ID.";
-			LOGW(TAG, message);
+			Timber.w(message);
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}

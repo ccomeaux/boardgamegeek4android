@@ -1,10 +1,5 @@
 package com.boardgamegeek.service;
 
-import static com.boardgamegeek.util.LogUtils.LOGD;
-import static com.boardgamegeek.util.LogUtils.LOGE;
-import static com.boardgamegeek.util.LogUtils.LOGI;
-import static com.boardgamegeek.util.LogUtils.LOGW;
-import static com.boardgamegeek.util.LogUtils.makeLogTag;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +15,9 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 
-public class UpdateService extends IntentService {
-	private static final String TAG = makeLogTag(UpdateService.class);
+import timber.log.Timber;
 
+public class UpdateService extends IntentService {
 	public static final String KEY_SYNC_TYPE = "KEY_SYNC_TYPE";
 	public static final String KEY_SYNC_ID = "KEY_SYNC_ID";
 	public static final String KEY_SYNC_KEY = "KEY_SYNC_KEY";
@@ -60,15 +55,15 @@ public class UpdateService extends IntentService {
 	}
 
 	public UpdateService() {
-		super(TAG);
+		super("BGG-UpdateService");
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		LOGD(TAG, "onHandleIntent(intent=" + intent + ")");
+		Timber.d("onHandleIntent(intent=" + intent + ")");
 
 		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
-			LOGW(TAG, "Invalid intent action: " + intent.getAction());
+			Timber.w("Invalid intent action: " + intent.getAction());
 			return;
 		}
 		int syncType = intent.getIntExtra(KEY_SYNC_TYPE, SYNC_TYPE_UNKNOWN);
@@ -135,10 +130,10 @@ public class UpdateService extends IntentService {
 				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}
-			LOGE(TAG, message);
+			Timber.e(message);
 			sendResultToReceiver(STATUS_ERROR, error);
 		} finally {
-			LOGD(TAG, "Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
+			Timber.d("Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
 			sendResultToReceiver(STATUS_COMPLETE);
 			mResultReceiver = null;
@@ -154,7 +149,7 @@ public class UpdateService extends IntentService {
 		if (!TextUtils.isEmpty(message)) {
 			logMessage += ", message=" + message;
 		}
-		LOGI(TAG, "Update Result: " + logMessage);
+		Timber.i("Update Result: " + logMessage);
 		if (mResultReceiver != null) {
 			Bundle bundle = Bundle.EMPTY;
 			if (!TextUtils.isEmpty(message)) {
