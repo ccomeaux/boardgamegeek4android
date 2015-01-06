@@ -139,6 +139,7 @@ public class BggContract {
 		String AVATAR_URL = "avatar_url";
 		String PLAY_NICKNAME = "play_nickname";
 		String BUDDY_FLAG = "buddy_flag";
+		String SYNC_HASH_CODE = "sync_hash_code";
 	}
 
 	interface GamePollsColumns {

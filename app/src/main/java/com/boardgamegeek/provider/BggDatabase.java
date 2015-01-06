@@ -62,7 +62,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_CUSTOM_PLAYER_SORT = 20;
 	private static final int VER_BUDDY_FLAG = 21;
 	private static final int VER_GAME_RANK = 22;
-	private static final int DATABASE_VERSION = VER_GAME_RANK;
+	private static final int VER_BUDDY_SYNC_HASH_CODE = 23;
+	private static final int DATABASE_VERSION = VER_BUDDY_SYNC_HASH_CODE;
 
 	private Context mContext;
 
@@ -365,11 +366,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 
 	private TableBuilder buildBuddiesTable() {
 		return new TableBuilder().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
-			.addColumn(Buddies.UPDATED, COLUMN_TYPE.INTEGER).addColumn(Buddies.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Buddies.UPDATED, COLUMN_TYPE.INTEGER)
+			.addColumn(Buddies.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Buddies.BUDDY_ID, COLUMN_TYPE.INTEGER, true, true)
-			.addColumn(Buddies.BUDDY_NAME, COLUMN_TYPE.TEXT, true).addColumn(Buddies.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
-			.addColumn(Buddies.BUDDY_LASTNAME, COLUMN_TYPE.TEXT).addColumn(Buddies.AVATAR_URL, COLUMN_TYPE.TEXT)
-			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT).addColumn(Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER);
+			.addColumn(Buddies.BUDDY_NAME, COLUMN_TYPE.TEXT, true)
+			.addColumn(Buddies.BUDDY_FIRSTNAME, COLUMN_TYPE.TEXT)
+			.addColumn(Buddies.BUDDY_LASTNAME, COLUMN_TYPE.TEXT)
+			.addColumn(Buddies.AVATAR_URL, COLUMN_TYPE.TEXT)
+			.addColumn(Buddies.PLAY_NICKNAME, COLUMN_TYPE.TEXT)
+			.addColumn(Buddies.BUDDY_FLAG, COLUMN_TYPE.INTEGER)
+			.addColumn(Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildGamePollsTable() {
@@ -577,6 +583,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_BUDDY_FLAG:
 				addColumn(db, Tables.GAMES, Games.GAME_RANK, COLUMN_TYPE.INTEGER);
 				version = VER_GAME_RANK;
+			case VER_GAME_RANK:
+				addColumn(db, Tables.BUDDIES, Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
+				version = VER_BUDDY_SYNC_HASH_CODE;
 		}
 
 		if (version != DATABASE_VERSION) {
