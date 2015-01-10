@@ -52,6 +52,10 @@ public class PlayPersister {
 	 * An unexpected error occurred while trying to sync
 	 */
 	private static final int STATUS_ERROR = -1;
+	/**
+	 * This play is unchanged from what's currently in the database
+	 */
+	private static final int STATUS_UNCHANGED = -2;
 
 	private Context mContext;
 	private ContentResolver mResolver;
@@ -72,14 +76,16 @@ public class PlayPersister {
 	public void save(List<Play> plays, long startTime) {
 		int updateCount = 0;
 		int insertCount = 0;
+		int unchangedCount = 0;
 		int pendingUpdateCount = 0;
 		int pendingDeleteCount = 0;
 		int inProgressCount = 0;
 		int errorCount = 0;
 		if (plays != null) {
+			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 			for (Play play : plays) {
 				play.updated = startTime;
-				int status = determineStatus(play, true);
+				int status = determineSyncStatus(play);
 				switch (status) {
 					case PlayPersister.STATUS_UPDATE:
 						save(play, status);
@@ -88,6 +94,13 @@ public class PlayPersister {
 					case PlayPersister.STATUS_INSERT:
 						save(play, status);
 						insertCount++;
+						break;
+					case PlayPersister.STATUS_UNCHANGED:
+						ContentProviderOperation.Builder builder = ContentProviderOperation
+							.newUpdate(play.uri())
+							.withValue(Plays.UPDATED, startTime);
+						batch.add(builder.build());
+						unchangedCount++;
 						break;
 					case PlayPersister.STATUS_PENDING_UPDATE:
 						pendingUpdateCount++;
@@ -106,11 +119,12 @@ public class PlayPersister {
 						break;
 				}
 			}
+			ResolverUtils.applyBatch(mContext, batch);
 		}
 		Timber.i(String.format(
-			"Updated %1$s, inserted %2$s, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
+			"Updated %1$s, inserted %2$s, %8$s unchanged, skipped %3$s (%4$s pending update, %5$s pending delete, %6$s draft, %7$s errors)",
 			updateCount, insertCount, (pendingUpdateCount + pendingDeleteCount + inProgressCount + errorCount),
-			pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount));
+			pendingUpdateCount, pendingDeleteCount, inProgressCount, errorCount, unchangedCount));
 	}
 
 	/*
@@ -132,8 +146,7 @@ public class PlayPersister {
 
 		if (status == STATUS_UPDATE) {
 			deletePlayerWithNullUserId(play);
-			playerUserIds = ResolverUtils.queryInts(mResolver, play.playerUri(), PlayPlayers.USER_ID);
-			playerUserIds = removeDuplicatePlayerUserIds(play, playerUserIds);
+			playerUserIds = determineUniqueUserIds(play);
 			itemObjectIds = ResolverUtils.queryInts(mResolver, play.itemUri(), PlayItems.OBJECT_ID);
 			mBatch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
@@ -185,31 +198,32 @@ public class PlayPersister {
 		return id;
 	}
 
-	private int determineStatus(Play play, boolean isSyncing) {
+	private int determineSyncStatus(Play play) {
 		int status = STATUS_UNKNOWN;
 		if (playExistsInDatabase(play)) {
-			if (isSyncing) {
-				// don't replace the play in the database if there are unsynced changes
-				int currentSyncStatus = getCurrentSyncStatus(play);
-				if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {
-					if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-						status = STATUS_IN_PROGRESS;
-					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-						status = STATUS_PENDING_UPDATE;
-					} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
-						status = STATUS_PENDING_DELETE;
-					} else if (currentSyncStatus == Play.SYNC_STATUS_NOT_STORED) {
-						status = STATUS_IN_PROGRESS;
-					} else {
-						status = STATUS_ERROR;
-						Timber.e("Unknown sync status!");
-					}
-					Timber.i("Not saving during the sync due to status=" + status);
+			int currentSyncStatus = getCurrentSyncStatus(play);
+			if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {
+				if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+					status = STATUS_IN_PROGRESS;
+				} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
+					status = STATUS_PENDING_UPDATE;
+				} else if (currentSyncStatus == Play.SYNC_STATUS_PENDING_DELETE) {
+					status = STATUS_PENDING_DELETE;
+				} else if (currentSyncStatus == Play.SYNC_STATUS_NOT_STORED) {
+					status = STATUS_IN_PROGRESS;
+				} else {
+					status = STATUS_ERROR;
+					Timber.e("Unknown sync status!");
+				}
+				Timber.i("Not saving during the sync due to status=" + status);
+			} else {
+				int oldSyncHashCode = ResolverUtils.queryInt(mResolver, play.uri(), Plays.SYNC_HASH_CODE);
+				int newSyncHashCode = generateSyncHashCode(play);
+				if (oldSyncHashCode == newSyncHashCode) {
+					status = STATUS_UNCHANGED;
 				} else {
 					status = STATUS_UPDATE;
 				}
-			} else {
-				status = STATUS_UPDATE;
 			}
 		} else {
 			status = STATUS_INSERT;
@@ -237,6 +251,29 @@ public class PlayPersister {
 		return ResolverUtils.queryInt(mResolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
 	}
 
+	private static int generateSyncHashCode(Play play) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(play.getDate()).append("\n");
+		sb.append(play.quantity).append("\n");
+		sb.append(play.length).append("\n");
+		sb.append(play.Incomplete()).append("\n");
+		sb.append(play.NoWinStats()).append("\n");
+		sb.append(play.location).append("\n");
+		sb.append(play.comments).append("\n");
+		for (Player player : play.getPlayers()) {
+			sb.append(player.username).append("\n");
+			sb.append(player.userid).append("\n");
+			sb.append(player.name).append("\n");
+			sb.append(player.startposition).append("\n");
+			sb.append(player.color).append("\n");
+			sb.append(player.score).append("\n");
+			sb.append(player.New()).append("\n");
+			sb.append(player.rating).append("\n");
+			sb.append(player.Win()).append("\n");
+		}
+		return sb.toString().hashCode();
+	}
+
 	private static ContentValues createContentValues(Play play) {
 		ContentValues values = new ContentValues();
 		values.put(Plays.DATE, play.getDate());
@@ -254,10 +291,13 @@ public class PlayPersister {
 		// only store start time if there's no length
 		values.put(Plays.START_TIME, play.length > 0 ? 0 : play.startTime);
 		values.put(Plays.UPDATED, System.currentTimeMillis());
+		values.put(Plays.SYNC_HASH_CODE, generateSyncHashCode(play));
 		return values;
 	}
 
-	private List<Integer> removeDuplicatePlayerUserIds(Play play, List<Integer> ids) {
+	private List<Integer> determineUniqueUserIds(Play play) {
+		List<Integer> ids = ResolverUtils.queryInts(mResolver, play.playerUri(), PlayPlayers.USER_ID);
+
 		if (ids == null || ids.size() == 0) {
 			return new ArrayList<Integer>();
 		}

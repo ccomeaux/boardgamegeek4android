@@ -180,6 +180,7 @@ public class BggContract {
 		String SYNC_STATUS = "sync_status";
 		String START_TIME = "start_time";
 		String PLAYER_COUNT = "player_count";
+		String SYNC_HASH_CODE = "sync_hash_code";
 	}
 
 	interface PlayItemsColumns {

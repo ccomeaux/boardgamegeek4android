@@ -541,6 +541,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (playerCount > 0) {
 				info += getResources().getQuantityString(R.plurals.player_description, playerCount, playerCount);
 			}
+			info = info.trim();
 
 			int messageId = 0;
 			if (status != Play.SYNC_STATUS_SYNCED) {
@@ -562,8 +563,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else {
 				holder.title.setText(date);
 			}
-			holder.text1.setText(info.trim());
-			if (TextUtils.isEmpty(comments)) {
+			if (TextUtils.isEmpty(info)) {
+				holder.text1.setVisibility(View.GONE);
+			} else {
+				holder.text1.setVisibility(View.VISIBLE);
+				holder.text1.setText(info);
+			}
+			if (TextUtils.isEmpty(comments.trim())) {
 				holder.text2.setVisibility(View.GONE);
 			} else {
 				holder.text2.setVisibility(View.VISIBLE);

@@ -26,7 +26,7 @@ import timber.log.Timber;
 public class ResolverUtils {
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
 		ContentResolver resolver = context.getContentResolver();
-		if (batch.size() > 0) {
+		if (batch != null && batch.size() > 0) {
 			if (PreferencesUtils.getDebug(context)) {
 				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
 				for (int i = 0; i < batch.size(); i++) {

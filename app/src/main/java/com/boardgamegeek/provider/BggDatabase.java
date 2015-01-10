@@ -63,7 +63,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_BUDDY_FLAG = 21;
 	private static final int VER_GAME_RANK = 22;
 	private static final int VER_BUDDY_SYNC_HASH_CODE = 23;
-	private static final int DATABASE_VERSION = VER_BUDDY_SYNC_HASH_CODE;
+	private static final int VER_PLAY_SYNC_HASH_CODE = 24;
+	private static final int DATABASE_VERSION = VER_PLAY_SYNC_HASH_CODE;
 
 	private Context mContext;
 
@@ -426,13 +427,19 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private TableBuilder buildPlaysTable() {
 		return new TableBuilder().setTable(Tables.PLAYS).useDefaultPrimaryKey()
 			.addColumn(Plays.UPDATED_LIST, COLUMN_TYPE.INTEGER, true)
-			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true).addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
-			.addColumn(Plays.QUANTITY, COLUMN_TYPE.INTEGER, true).addColumn(Plays.LENGTH, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Plays.PLAY_ID, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(Plays.DATE, COLUMN_TYPE.TEXT, true)
+			.addColumn(Plays.QUANTITY, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Plays.LENGTH, COLUMN_TYPE.INTEGER, true)
 			.addColumn(Plays.INCOMPLETE, COLUMN_TYPE.INTEGER, true)
-			.addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true).addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
-			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT).addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER).addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
-			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER);
+			.addColumn(Plays.NO_WIN_STATS, COLUMN_TYPE.INTEGER, true)
+			.addColumn(Plays.LOCATION, COLUMN_TYPE.TEXT)
+			.addColumn(Plays.COMMENTS, COLUMN_TYPE.TEXT)
+			.addColumn(Plays.SYNC_STATUS, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.START_TIME, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.PLAYER_COUNT, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.UPDATED, COLUMN_TYPE.INTEGER)
+			.addColumn(Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
 	}
 
 	private TableBuilder buildPlayItemsTable() {
@@ -586,6 +593,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_GAME_RANK:
 				addColumn(db, Tables.BUDDIES, Buddies.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
 				version = VER_BUDDY_SYNC_HASH_CODE;
+			case VER_BUDDY_SYNC_HASH_CODE:
+				addColumn(db, Tables.PLAYS, Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
+				version = VER_PLAY_SYNC_HASH_CODE;
 		}
 
 		if (version != DATABASE_VERSION) {
