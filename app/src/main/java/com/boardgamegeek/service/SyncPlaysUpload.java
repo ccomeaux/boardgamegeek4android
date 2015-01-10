@@ -45,6 +45,7 @@ public class SyncPlaysUpload extends SyncTask {
 	private List<CharSequence> mMessages;
 	private LocalBroadcastManager mBroadcaster;
 	private BggService mPostService;
+	private PlayPersister mPersister;
 
 	public SyncPlaysUpload(Context context, BggService service) {
 		super(context, service);
@@ -55,6 +56,7 @@ public class SyncPlaysUpload extends SyncTask {
 		mPostService = Adapter.createForPost(mContext);
 		mMessages = new ArrayList<CharSequence>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
+		mPersister = new PlayPersister(mContext);
 
 		updatePendingPlays(account.name, syncResult);
 		deletePendingPlays(syncResult);
@@ -245,7 +247,7 @@ public class SyncPlaysUpload extends SyncTask {
 	 */
 	private void setStatusToSynced(Play play) {
 		play.syncStatus = Play.SYNC_STATUS_SYNCED;
-		PlayPersister.save(mContext, play);
+		mPersister.save(mContext, play);
 		// syncResult.stats.numUpdates++;
 	}
 
@@ -253,7 +255,7 @@ public class SyncPlaysUpload extends SyncTask {
 	 * Deletes the specified play from the content provider
 	 */
 	private void deletePlay(Play play) {
-		PlayPersister.delete(mContext.getContentResolver(), play);
+		mPersister.delete(play);
 	}
 
 	/**
@@ -271,7 +273,7 @@ public class SyncPlaysUpload extends SyncTask {
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
-			PlayPersister.save(mContext, response.plays, startTime);
+			mPersister.save(response.plays, startTime);
 		} catch (Exception e) {
 			if (e instanceof RetrofitError) {
 				syncResult.stats.numIoExceptions++;

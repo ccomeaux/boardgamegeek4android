@@ -31,12 +31,12 @@ public class SyncPlaysByDate extends UpdateTask {
 		}
 
 		BggService service = Adapter.create();
-
+		PlayPersister persister = new PlayPersister(context);
 		PlaysResponse response = null;
 		try {
 			long startTime = System.currentTimeMillis();
 			response = service.playsByDate(account.name, mDate, mDate);
-			PlayPersister.save(context, response.plays, startTime);
+			persister.save(response.plays, startTime);
 			SyncService.hIndex(context);
 			Timber.i("Synced plays for date " + mDate);
 		} catch (Exception e) {

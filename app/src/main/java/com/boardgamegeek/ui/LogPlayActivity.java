@@ -624,7 +624,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			captureForm();
 		}
 		mPlay.syncStatus = syncStatus;
-		PlayPersister.save(this, mPlay);
+		new PlayPersister(this).save(this, mPlay);
 		return true;
 	}
 

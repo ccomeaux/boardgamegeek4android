@@ -17,6 +17,7 @@ import com.boardgamegeek.util.PreferencesUtils;
 import timber.log.Timber;
 
 public class SyncPlays extends SyncTask {
+	private PlayPersister mPersister;
 	private long mStartTime;
 
 	public SyncPlays(Context context, BggService service) {
@@ -33,7 +34,7 @@ public class SyncPlays extends SyncTask {
 			}
 
 			mStartTime = System.currentTimeMillis();
-
+			mPersister = new PlayPersister(mContext);
 			PlaysResponse response = null;
 			long newestSyncDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
@@ -108,7 +109,7 @@ public class SyncPlays extends SyncTask {
 
 	private void persist(PlaysResponse response, SyncResult syncResult) {
 		if (response.plays != null && response.plays.size() > 0) {
-			PlayPersister.save(mContext, response.plays, mStartTime);
+			mPersister.save(response.plays, mStartTime);
 			syncResult.stats.numEntries += response.plays.size();
 			Timber.i("...saved " + response.plays);
 		} else {

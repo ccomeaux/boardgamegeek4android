@@ -478,7 +478,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 	private void save(int status) {
 		mPlay.syncStatus = status;
-		PlayPersister.save(getActivity(), mPlay);
+		new PlayPersister(getActivity()).save(null, mPlay);
 		triggerRefresh();
 	}
 

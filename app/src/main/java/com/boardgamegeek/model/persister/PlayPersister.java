@@ -27,40 +27,49 @@ public class PlayPersister {
 	/**
 	 * A new play was inserted into the database
 	 */
-	public static final int STATUS_INSERT = 1;
+	private static final int STATUS_INSERT = 1;
 	/**
 	 * An existing play was updated in the database
 	 */
-	public static final int STATUS_UPDATE = 2;
+	private static final int STATUS_UPDATE = 2;
 	/**
 	 * The play is being edited, therefore wasn't saved
 	 */
-	public static final int STATUS_IN_PROGRESS = 3;
+	private static final int STATUS_IN_PROGRESS = 3;
 	/**
 	 * The play is pending update, therefore wasn't saved
 	 */
-	public static final int STATUS_PENDING_UPDATE = 4;
+	private static final int STATUS_PENDING_UPDATE = 4;
 	/**
 	 * The play is pending delete, therefore wasn't saved
 	 */
-	public static final int STATUS_PENDING_DELETE = 5;
+	private static final int STATUS_PENDING_DELETE = 5;
 	/**
 	 * The save status is unknown, most likely because it hasn't finished executing yet.
 	 */
-	public static final int STATUS_UNKNOWN = 0;
+	private static final int STATUS_UNKNOWN = 0;
 	/**
 	 * An unexpected error occurred while trying to sync
 	 */
-	public static final int STATUS_ERROR = -1;
+	private static final int STATUS_ERROR = -1;
+
+	private Context mContext;
+	private ContentResolver mResolver;
+	private ArrayList<ContentProviderOperation> mBatch;
+
+	public PlayPersister(Context context) {
+		mContext = context;
+		mResolver = context.getContentResolver();
+	}
 
 	/*
 	 * Delete the play from the content provider.
 	 */
-	public static boolean delete(ContentResolver resolver, Play play) {
-		return resolver.delete(play.uri(), null, null) > 0;
+	public boolean delete(Play play) {
+		return mResolver.delete(play.uri(), null, null) > 0;
 	}
 
-	public static void save(Context context, List<Play> plays, long startTime) {
+	public void save(List<Play> plays, long startTime) {
 		int updateCount = 0;
 		int insertCount = 0;
 		int pendingUpdateCount = 0;
@@ -70,12 +79,14 @@ public class PlayPersister {
 		if (plays != null) {
 			for (Play play : plays) {
 				play.updated = startTime;
-				int status = PlayPersister.save(context, play, true);
+				int status = determineStatus(play, true);
 				switch (status) {
 					case PlayPersister.STATUS_UPDATE:
+						save(play, status);
 						updateCount++;
 						break;
 					case PlayPersister.STATUS_INSERT:
+						save(play, status);
 						insertCount++;
 						break;
 					case PlayPersister.STATUS_PENDING_UPDATE:
@@ -105,33 +116,26 @@ public class PlayPersister {
 	/*
 	 * Save the play while not syncing.
 	 */
-	public static void save(Context context, Play play) {
-		save(context, play, false);
+	public void save(Context context, Play play) {
+		if (playExistsInDatabase(play)) {
+			save(play, STATUS_UPDATE);
+		} else {
+			save(play, STATUS_INSERT);
+		}
 	}
 
-	/*
-	 * Save the play. If syncing, the play will not be saved if it is being modified on the device.
-	 */
-	public static int save(Context context, Play play, boolean isSyncing) {
-		ContentResolver resolver = context.getContentResolver();
-
-		int status = determineStatus(resolver, play, isSyncing);
-
-		if (status != STATUS_UPDATE && status != STATUS_INSERT) {
-			return status;
-		}
-
-		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+	private void save(Play play, int status) {
+		mBatch = new ArrayList<ContentProviderOperation>();
 		ContentValues values = createContentValues(play);
 		List<Integer> itemObjectIds = null;
 		List<Integer> playerUserIds = null;
 
 		if (status == STATUS_UPDATE) {
-			deletePlayerWithNullUserId(play, batch);
-			playerUserIds = ResolverUtils.queryInts(resolver, play.playerUri(), PlayPlayers.USER_ID);
-			playerUserIds = removeDuplicatePlayerUserIds(play, playerUserIds, batch);
-			itemObjectIds = ResolverUtils.queryInts(resolver, play.itemUri(), PlayItems.OBJECT_ID);
-			batch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
+			deletePlayerWithNullUserId(play);
+			playerUserIds = ResolverUtils.queryInts(mResolver, play.playerUri(), PlayPlayers.USER_ID);
+			playerUserIds = removeDuplicatePlayerUserIds(play, playerUserIds);
+			itemObjectIds = ResolverUtils.queryInts(mResolver, play.itemUri(), PlayItems.OBJECT_ID);
+			mBatch.add(ContentProviderOperation.newUpdate(play.uri()).withValues(values).build());
 		} else if (status == STATUS_INSERT) {
 			if (!play.hasBeenSynced()) {
 				// If a sync isn't pending, mark it as draft
@@ -145,49 +149,48 @@ public class PlayPersister {
 			values.put(Plays.SYNC_STATUS, play.syncStatus);
 
 			if (play.playId == BggContract.INVALID_ID) {
-				play.playId = getTemporaryId(resolver);
+				play.playId = getTemporaryId();
 			}
 			values.put(Plays.PLAY_ID, play.playId);
 
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
 				values.put(Plays.UPDATED_LIST, play.updated);
 			}
-			batch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
+			mBatch.add(ContentProviderOperation.newInsert(Plays.CONTENT_URI).withValues(values).build());
 		}
 
-		updateOrInsertItem(play, itemObjectIds, batch);
-		updateOrInsertPlayers(play, playerUserIds, batch);
-		removeUnusedItems(play, itemObjectIds, batch);
-		removeUnusedPlayers(play, playerUserIds, batch);
+		updateOrInsertItem(play, itemObjectIds);
+		updateOrInsertPlayers(play, playerUserIds);
+		removeUnusedItems(play, itemObjectIds);
+		removeUnusedPlayers(play, playerUserIds);
 		if (play.syncStatus == Play.SYNC_STATUS_SYNCED || play.syncStatus == Play.SYNC_STATUS_PENDING_UPDATE) {
-			updateGameSortOrder(resolver, play);
-			updateColors(resolver, play);
-			updateBuddyNicknames(resolver, play);
+			updateGameSortOrder(play);
+			updateColors(play);
+			updateBuddyNicknames(play);
 		}
 
-		ResolverUtils.applyBatch(context, batch);
+		ResolverUtils.applyBatch(mContext, mBatch);
 		Timber.i("Saved play ID=" + play.playId);
-		return status;
 	}
 
 	/*
 	 * Gets an ID to use as a temporary placeholder until the game is synced with the 'Geek.
 	 */
-	private static int getTemporaryId(ContentResolver resolver) {
+	private int getTemporaryId() {
 		int id = Play.UNSYNCED_PLAY_ID;
-		int lastId = ResolverUtils.queryInt(resolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
+		int lastId = ResolverUtils.queryInt(mResolver, Plays.CONTENT_SIMPLE_URI, "MAX(plays." + Plays.PLAY_ID + ")");
 		if (lastId >= id) {
 			id = lastId + 1;
 		}
 		return id;
 	}
 
-	private static int determineStatus(ContentResolver resolver, Play play, boolean isSyncing) {
+	private int determineStatus(Play play, boolean isSyncing) {
 		int status = STATUS_UNKNOWN;
-		if (playExistsInDatabase(resolver, play)) {
+		if (playExistsInDatabase(play)) {
 			if (isSyncing) {
 				// don't replace the play in the database if there are unsynced changes
-				int currentSyncStatus = getCurrentSyncStatus(resolver, play);
+				int currentSyncStatus = getCurrentSyncStatus(play);
 				if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {
 					if (currentSyncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 						status = STATUS_IN_PROGRESS;
@@ -214,24 +217,24 @@ public class PlayPersister {
 		return status;
 	}
 
-	private static void deletePlayerWithNullUserId(Play play, ArrayList<ContentProviderOperation> batch) {
-		batch.add(ContentProviderOperation.newDelete(play.playerUri())
+	private void deletePlayerWithNullUserId(Play play) {
+		mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
 			.withSelection(PlayPlayers.USER_ID + " IS NULL", null).build());
 	}
 
-	private static boolean playExistsInDatabase(ContentResolver resolver, Play play) {
+	private boolean playExistsInDatabase(Play play) {
 		if (play.playId == BggContract.INVALID_ID) {
 			return false;
 		}
 
-		return ResolverUtils.rowExists(resolver, play.uri());
+		return ResolverUtils.rowExists(mResolver, play.uri());
 	}
 
-	private static int getCurrentSyncStatus(ContentResolver resolver, Play play) {
+	private int getCurrentSyncStatus(Play play) {
 		if (play.playId == BggContract.INVALID_ID) {
 			return Play.SYNC_STATUS_NOT_STORED;
 		}
-		return ResolverUtils.queryInt(resolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
+		return ResolverUtils.queryInt(mResolver, play.uri(), Plays.SYNC_STATUS, Play.SYNC_STATUS_NOT_STORED);
 	}
 
 	private static ContentValues createContentValues(Play play) {
@@ -254,8 +257,7 @@ public class PlayPersister {
 		return values;
 	}
 
-	private static List<Integer> removeDuplicatePlayerUserIds(Play play, List<Integer> ids,
-															  ArrayList<ContentProviderOperation> batch) {
+	private List<Integer> removeDuplicatePlayerUserIds(Play play, List<Integer> ids) {
 		if (ids == null || ids.size() == 0) {
 			return new ArrayList<Integer>();
 		}
@@ -275,7 +277,7 @@ public class PlayPersister {
 		}
 
 		for (Integer id : idsToDelete) {
-			batch.add(ContentProviderOperation.newDelete(play.playerUri())
+			mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
 				.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(id) }).build());
 			uniqueIds.remove(id);
 		}
@@ -283,22 +285,20 @@ public class PlayPersister {
 		return uniqueIds;
 	}
 
-	private static void updateOrInsertItem(Play play, List<Integer> itemObjectIds,
-										   ArrayList<ContentProviderOperation> batch) {
+	private void updateOrInsertItem(Play play, List<Integer> itemObjectIds) {
 		int objectId = play.gameId;
 		ContentValues values = new ContentValues();
 		values.put(PlayItems.NAME, play.gameName);
 
 		if (itemObjectIds != null && itemObjectIds.remove(Integer.valueOf(objectId))) {
-			batch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
+			mBatch.add(ContentProviderOperation.newUpdate(play.itemIdUri()).withValues(values).build());
 		} else {
 			values.put(PlayItems.OBJECT_ID, objectId);
-			batch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
+			mBatch.add(ContentProviderOperation.newInsert(play.itemUri()).withValues(values).build());
 		}
 	}
 
-	private static void updateOrInsertPlayers(Play play, List<Integer> playerUserIds,
-											  ArrayList<ContentProviderOperation> batch) {
+	private void updateOrInsertPlayers(Play play, List<Integer> playerUserIds) {
 		ContentValues values = new ContentValues();
 		for (Player player : play.getPlayers()) {
 
@@ -315,58 +315,56 @@ public class PlayPersister {
 			values.put(PlayPlayers.WIN, player.Win());
 
 			if (playerUserIds != null && playerUserIds.remove(Integer.valueOf(userId))) {
-				batch.add(ContentProviderOperation.newUpdate(play.playerUri())
+				mBatch.add(ContentProviderOperation.newUpdate(play.playerUri())
 					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(userId) })
 					.withValues(values).build());
 			} else {
 				values.put(PlayPlayers.USER_ID, userId);
-				batch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
+				mBatch.add(ContentProviderOperation.newInsert(play.playerUri()).withValues(values).build());
 			}
 		}
 	}
 
-	private static void removeUnusedItems(Play play, List<Integer> itemObjectIds,
-										  ArrayList<ContentProviderOperation> batch) {
+	private void removeUnusedItems(Play play, List<Integer> itemObjectIds) {
 		if (itemObjectIds != null) {
 			for (Integer itemObjectId : itemObjectIds) {
-				batch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
+				mBatch.add(ContentProviderOperation.newDelete(Plays.buildItemUri(play.playId, itemObjectId)).build());
 			}
 		}
 	}
 
-	private static void removeUnusedPlayers(Play play, List<Integer> playerUserIds,
-											ArrayList<ContentProviderOperation> batch) {
+	private void removeUnusedPlayers(Play play, List<Integer> playerUserIds) {
 		if (playerUserIds != null) {
 			for (Integer playerUserId : playerUserIds) {
-				batch.add(ContentProviderOperation.newDelete(play.playerUri())
+				mBatch.add(ContentProviderOperation.newDelete(play.playerUri())
 					.withSelection(PlayPlayers.USER_ID + "=?", new String[] { String.valueOf(playerUserId) }).build());
 			}
 		}
 	}
 
-	private static void updateGameSortOrder(ContentResolver resolver, Play play) {
+	private void updateGameSortOrder(Play play) {
 		if (play.getPlayerCount() == 0) {
 			return;
 		}
 
 		Uri gameUri = Games.buildGameUri(play.gameId);
-		if (!ResolverUtils.rowExists(resolver, gameUri)) {
+		if (!ResolverUtils.rowExists(mResolver, gameUri)) {
 			return;
 		}
 
 		ContentValues values = new ContentValues(1);
 		values.put(Games.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted());
-		resolver.update(gameUri, values, null, null);
+		mResolver.update(gameUri, values, null, null);
 	}
 
 	/**
 	 * Add the current players' team/colors to the permanent list for the game.
 	 */
-	private static void updateColors(ContentResolver resolver, Play play) {
+	private void updateColors(Play play) {
 		if (play.getPlayerCount() == 0) {
 			return;
 		}
-		if (!ResolverUtils.rowExists(resolver, Games.buildGameUri(play.gameId))) {
+		if (!ResolverUtils.rowExists(mResolver, Games.buildGameUri(play.gameId))) {
 			return;
 		}
 
@@ -381,21 +379,20 @@ public class PlayPersister {
 		}
 		if (values.size() > 0) {
 			ContentValues[] array = { };
-			resolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
+			mResolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 		}
 	}
 
 	/**
 	 * Update GeekBuddies' nicknames with the names used here.
 	 */
-	private static void updateBuddyNicknames(ContentResolver resolver, Play play) {
+	private void updateBuddyNicknames(Play play) {
 		if (play.getPlayers().size() > 0) {
 			for (Player player : play.getPlayers()) {
 				if (!TextUtils.isEmpty(player.username) && !TextUtils.isEmpty(player.name)) {
 					ContentValues values = new ContentValues();
 					values.put(Buddies.PLAY_NICKNAME, player.name);
-					resolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?",
-						new String[] { player.username });
+					mResolver.update(Buddies.CONTENT_URI, values, Buddies.BUDDY_NAME + "=?", new String[] { player.username });
 				}
 			}
 		}
