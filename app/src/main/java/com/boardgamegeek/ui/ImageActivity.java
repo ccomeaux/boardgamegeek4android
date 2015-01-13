@@ -20,7 +20,7 @@ public class ImageActivity extends ActionBarActivity {
 
 		String imageUrl = getIntent().getStringExtra(KEY_IMAGE_URL);
 
-		Picasso.with(this).load(HttpUtils.ensureScheme(imageUrl)).placeholder(R.drawable.progress)
+		Picasso.with(this).load(HttpUtils.ensureScheme(imageUrl)).placeholder(R.drawable.gradient)
 			.error(R.drawable.thumbnail_image_empty).fit().centerInside().into(imageView);
 	}
 }
