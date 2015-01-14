@@ -305,11 +305,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 			finish();
 		}
-		if (TextUtils.isEmpty(mGameName)) {
-			mHeaderView.setText(getTitle());
-		} else {
-			mHeaderView.setText(getTitle() + " - " + mGameName);
-		}
+		mHeaderView.setText(mGameName);
 
 		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
 

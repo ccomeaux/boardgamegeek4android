@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical" >
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical">
 
 	<FrameLayout
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/image_header_height"
 		android:layout_gravity="center"
-		android:background="@color/primary" >
+		android:background="@color/primary_dark">
 
 		<ImageView
 			android:id="@+id/thumbnail"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:scaleType="centerCrop" />
+			android:scaleType="centerCrop"/>
 
 		<TextView
 			android:id="@+id/header"
-			style="@style/Text.Primary"
+			style="@style/Text.Title.Overlay"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_gravity="center"
 			android:background="#6000"
-			android:gravity="center"
-			android:textColor="#fff" />
+			android:ellipsize="end"
+			android:gravity="left|center_vertical"
+			android:maxLines="2"
+			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			tools:text="Puerto Rico"/>
 	</FrameLayout>
 
 	<TableLayout
@@ -36,30 +40,30 @@
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
 		android:paddingTop="@dimen/padding_small"
-		android:stretchColumns="1" >
+		android:stretchColumns="1">
 
-		<TableRow android:gravity="center_vertical" >
+		<TableRow android:gravity="center_vertical">
 
 			<TextView
 				style="@style/TextLabel.Edit"
 				android:labelFor="@+id/log_play_date"
-				android:text="@string/on" />
+				android:text="@string/on"/>
 
 			<Button
 				android:id="@+id/log_play_date"
 				android:layout_span="2"
 				android:gravity="left|center_vertical"
-				android:onClick="onDateClick" />
+				android:onClick="onDateClick"/>
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_location_root"
-			android:gravity="center_vertical" >
+			android:gravity="center_vertical">
 
 			<TextView
 				style="@style/TextLabel.Edit"
 				android:labelFor="@+id/log_play_location"
-				android:text="@string/at" />
+				android:text="@string/at"/>
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
@@ -68,26 +72,26 @@
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
 				android:inputType="textCapWords"
-				android:textColor="#000" />
+				android:textColor="#000"/>
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_length_root"
-			android:gravity="center_vertical" >
+			android:gravity="center_vertical">
 
 			<TextView
 				style="@style/TextLabel.Edit"
 				android:labelFor="@+id/log_play_length_container_inner"
-				android:text="@string/for_" />
+				android:text="@string/for_"/>
 
-			<FrameLayout android:id="@+id/log_play_length_container_inner" >
+			<FrameLayout android:id="@+id/log_play_length_container_inner">
 
 				<EditText
 					android:id="@+id/log_play_length"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:hint="@string/length_hint"
-					android:inputType="number" />
+					android:inputType="number"/>
 
 				<Chronometer
 					android:id="@+id/timer"
@@ -99,7 +103,7 @@
 					android:maxLines="1"
 					android:paddingBottom="@dimen/padding_standard"
 					android:paddingTop="@dimen/padding_standard"
-					android:textIsSelectable="false" />
+					android:textIsSelectable="false"/>
 			</FrameLayout>
 
 			<ImageView
@@ -109,28 +113,28 @@
 				android:background="?attr/selectableItemBackground"
 				android:onClick="onTimer"
 				android:scaleType="center"
-				android:src="@drawable/ic_action_timer_light" />
+				android:src="@drawable/ic_action_timer_light"/>
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_quantity_root"
-			android:gravity="center_vertical" >
+			android:gravity="center_vertical">
 
 			<TextView
 				style="@style/TextLabel.Edit"
 				android:labelFor="@+id/log_play_quantity"
-				android:text="@string/times_abbr" />
+				android:text="@string/times_abbr"/>
 
 			<EditText
 				android:id="@+id/log_play_quantity"
 				android:layout_span="2"
 				android:hint="@string/quantity_hint"
-				android:inputType="number" />
+				android:inputType="number"/>
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_incomplete_root"
-			android:gravity="center_vertical" >
+			android:gravity="center_vertical">
 
 			<CheckBox
 				android:id="@+id/log_play_incomplete"
@@ -138,12 +142,12 @@
 				android:layout_column="1"
 				android:layout_span="2"
 				android:checked="false"
-				android:text="@string/incomplete" />
+				android:text="@string/incomplete"/>
 		</TableRow>
 
 		<TableRow
 			android:id="@+id/log_play_no_win_stats_root"
-			android:gravity="center_vertical" >
+			android:gravity="center_vertical">
 
 			<CheckBox
 				android:id="@+id/log_play_no_win_stats"
@@ -151,12 +155,12 @@
 				android:layout_column="1"
 				android:layout_span="2"
 				android:checked="false"
-				android:text="@string/noWinStats" />
+				android:text="@string/noWinStats"/>
 		</TableRow>
 
 		<LinearLayout
 			android:id="@+id/log_play_comments_root"
-			android:orientation="vertical" >
+			android:orientation="vertical">
 
 			<TextView
 				android:id="@+id/log_play_comments_label"
@@ -164,19 +168,19 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:labelFor="@+id/log_play_comments"
-				android:text="@string/comments" />
+				android:text="@string/comments"/>
 
 			<EditText
 				android:id="@+id/log_play_comments"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/comments_hint"
-				android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
+				android:inputType="textMultiLine|textAutoCorrect|textCapSentences"/>
 		</LinearLayout>
 
 		<TableRow
 			android:id="@+id/log_play_players_header"
-			android:gravity="bottom" >
+			android:gravity="bottom">
 
 			<ImageView
 				android:id="@+id/player_sort"
@@ -185,12 +189,12 @@
 				android:background="?attr/selectableItemBackground"
 				android:onClick="onPlayerSort"
 				android:scaleType="center"
-				android:src="@drawable/ic_action_sort_light" />
+				android:src="@drawable/ic_action_sort_light"/>
 
 			<TextView
 				android:id="@+id/log_play_players_label"
 				style="@style/Text.Header.Underline"
-				android:text="@string/title_players" />
+				android:text="@string/title_players"/>
 
 			<ImageView
 				android:id="@+id/clear_players"
@@ -199,7 +203,7 @@
 				android:background="?attr/selectableItemBackground"
 				android:onClick="onClearPlayers"
 				android:scaleType="center"
-				android:src="@drawable/ic_action_cancel_light" />
+				android:src="@drawable/ic_action_cancel_light"/>
 		</TableRow>
 	</TableLayout>
 

@@ -75,6 +75,9 @@ public class LogPlayerActivity extends ActionBarActivity {
 
 	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
 	@InjectView(R.id.header) TextView mHeader;
+	@InjectView(R.id.two_line_container) View mTwoLineContainer;
+	@InjectView(R.id.header2) TextView mHeader2;
+	@InjectView(R.id.subheader) TextView mSubheader;
 	@InjectView(R.id.log_player_username) AutoCompleteTextView mUsername;
 	@InjectView(R.id.log_player_name) AutoCompleteTextView mName;
 	@InjectView(R.id.log_player_team_color) AutoCompleteTextView mTeamColor;
@@ -292,8 +295,16 @@ public class LogPlayerActivity extends ActionBarActivity {
 	}
 
 	private void bindUi() {
-		CharSequence title = getTitle() + (hasAutoPosition() ? " #" + mAutoPosition : "") + " - " + mGameName;
-		mHeader.setText(title);
+		if (hasAutoPosition()) {
+			mHeader2.setText(mGameName);
+			mSubheader.setText(getString(R.string.title_player) + " #" + mAutoPosition);
+			mHeader.setVisibility(View.GONE);
+			mTwoLineContainer.setVisibility(View.VISIBLE);
+		} else {
+			mHeader.setText(mGameName);
+			mHeader.setVisibility(View.VISIBLE);
+			mTwoLineContainer.setVisibility(View.GONE);
+		}
 		mName.setTextKeepState(mPlayer.name);
 		mUsername.setTextKeepState(mPlayer.username);
 		mTeamColor.setTextKeepState(mPlayer.color);

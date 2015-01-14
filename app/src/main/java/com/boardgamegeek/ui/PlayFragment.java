@@ -48,6 +48,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -160,8 +162,8 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
 		mPlayers.addFooterView(footer);
 
-		mThumbnailView = (ImageView) rootView.findViewById(R.id.game_info_thumbnail);
-		mGameName = (TextView) header.findViewById(R.id.game_name);
+		mThumbnailView = (ImageView) rootView.findViewById(R.id.thumbnail);
+		mGameName = (TextView) header.findViewById(R.id.header);
 		mDate = (TextView) header.findViewById(R.id.play_date);
 
 		mQuantityRoot = header.findViewById(R.id.quantity_root);
@@ -377,14 +379,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			return true;
 		}
 
-		if (TextUtils.isEmpty(mThumbnailUrl)) {
-			mThumbnailView.setVisibility(View.GONE);
-		} else {
-			mThumbnailView.setVisibility(View.VISIBLE);
-			Picasso.with(getActivity()).load(HttpUtils.ensureScheme(mThumbnailUrl))
-				.placeholder(R.drawable.thumbnail_image_empty).error(R.drawable.thumbnail_image_empty)
-				.resizeDimen(R.dimen.thumbnail_size, R.dimen.thumbnail_size).centerCrop().into(mThumbnailView);
-		}
+		ActivityUtils.safelyLoadImage(mThumbnailView, mImageUrl);
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
