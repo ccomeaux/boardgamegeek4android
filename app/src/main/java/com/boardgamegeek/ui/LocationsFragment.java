@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.Locale;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,13 +14,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import timber.log.Timber;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
 
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
@@ -154,12 +155,17 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
+
 			String name = cursor.getString(LocationsQuery.LOCATION);
-			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
 			if (TextUtils.isEmpty(name)) {
 				name = getString(R.string.no_location);
 			}
+			int quantity = cursor.getInt(LocationsQuery.SUM_QUANTITY);
+
 			holder.name.setText(name);
+			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, quantity, quantity));
+
+			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
 		}
 
 		@Override
@@ -198,6 +204,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 		class ViewHolder {
 			@InjectView(R.id.name) TextView name;
+			@InjectView(R.id.quantity) TextView quantity;
 
 			public ViewHolder(View view) {
 				ButterKnife.inject(this, view);
@@ -212,8 +219,9 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	private interface LocationsQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { BaseColumns._ID, Plays.LOCATION };
+		String[] PROJECTION = { BaseColumns._ID, Plays.LOCATION, Plays.SUM_QUANTITY };
 
 		int LOCATION = 1;
+		int SUM_QUANTITY = 2;
 	}
 }

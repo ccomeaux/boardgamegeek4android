@@ -476,7 +476,10 @@
 		<item quantity="one">%s reply</item>
 		<item quantity="other">%s replies</item>
 	</plurals>
-	<plurals name="msg_updated_plays">
+	<plurals name="plays">
+		<item quantity="one">%s plays</item>
+		<item quantity="other">%s plays</item>
+	</plurals>	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
