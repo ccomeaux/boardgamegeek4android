@@ -1,10 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.Locale;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import timber.log.Timber;
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -24,6 +19,13 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
 
 public class PlayersFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
@@ -153,7 +155,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_players_player, parent, false);
+			View row = mInflater.inflate(R.layout.row_text_2, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -208,12 +210,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			TextView name;
-			TextView username;
+			@InjectView(android.R.id.title) TextView name;
+			@InjectView(android.R.id.text1) TextView username;
 
 			public ViewHolder(View view) {
-				name = (TextView) view.findViewById(R.id.name);
-				username = (TextView) view.findViewById(R.id.username);
+				ButterKnife.inject(this, view);
 			}
 		}
 

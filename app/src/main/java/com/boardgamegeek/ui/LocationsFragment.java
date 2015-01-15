@@ -146,7 +146,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_play_location, parent, false);
+			View row = mInflater.inflate(R.layout.row_text_2, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -203,8 +203,8 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		class ViewHolder {
-			@InjectView(R.id.name) TextView name;
-			@InjectView(R.id.quantity) TextView quantity;
+			@InjectView(android.R.id.title) TextView name;
+			@InjectView(android.R.id.text1) TextView quantity;
 
 			public ViewHolder(View view) {
 				ButterKnife.inject(this, view);
