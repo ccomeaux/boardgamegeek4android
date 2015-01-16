@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
@@ -15,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +28,13 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
+	private int mCount;
 	private String mName;
 	private String mUsername;
 	private AlertDialog mDialog;
@@ -76,7 +78,14 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.edit;
+		return R.menu.player;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+			(isDrawerOpen() || mCount < 0) ? "" : String.valueOf(mCount));
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -96,7 +105,8 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 
 	@Override
 	public void onPlayCountChanged(int count) {
-		// TODO display in action bar
+		mCount = count;
+		supportInvalidateOptionsMenu();
 	}
 
 	@Override

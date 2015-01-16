@@ -165,6 +165,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private void requery() {
 		if (mMode == MODE_ALL || mMode == MODE_LOCATION) {
 			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		} else if (mMode == MODE_PLAYER) {
+			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
 		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
@@ -371,6 +373,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (loader != null) {
 				loader.setUpdateThrottle(0);
 			}
+		} else if (id == PlayerSumQuery._TOKEN) {
+			loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
+				PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
+			if (loader != null) {
+				loader.setUpdateThrottle(0);
+			}
 		}
 		return loader;
 	}
@@ -447,6 +455,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int count = 0;
 			if (cursor != null && cursor.moveToFirst()) {
 				count = cursor.getInt(SumQuery.TOTAL_COUNT);
+			}
+			mCallbacks.onPlayCountChanged(count);
+		} else if (token == PlayerSumQuery._TOKEN) {
+			int count = 0;
+			if (cursor != null && cursor.moveToFirst()) {
+				count = cursor.getInt(PlayerSumQuery.SUM_QUANTITY);
 			}
 			mCallbacks.onPlayCountChanged(count);
 		} else {
@@ -651,6 +665,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		int _TOKEN = 0x23;
 		String[] PROJECTION = { "SUM(" + Plays.QUANTITY + ")" };
 		int TOTAL_COUNT = 0;
+	}
+
+	private interface PlayerSumQuery {
+		int _TOKEN = 0x24;
+		String[] PROJECTION = { PlayPlayers.SUM_QUANTITY };
+
+		int SUM_QUANTITY = 0;
 	}
 
 	// TODO Add support for share option
