@@ -1,8 +1,8 @@
 package com.boardgamegeek.provider;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
-import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
@@ -11,17 +11,25 @@ public class PlaysProvider extends BasicProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		String fragment = uri.getFragment();
-		if (BggContract.FRAGMENT_SIMPLE.equals(fragment)) {
-			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).mapToTable(Plays._ID, getTable())
-				.mapToTable(Plays.PLAY_ID, getTable());
-		} else if (BggContract.FRAGMENT_SUM.equals(fragment)) {
-			return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS).groupBy(PlayItems.OBJECT_ID)
-				.mapToTable(Plays._ID, getTable()).mapToTable(Plays.PLAY_ID, getTable());
+		SelectionBuilder builder = new SelectionBuilder();
+
+		if (BggContract.FRAGMENT_SIMPLE.equals(uri.getFragment())) {
+			builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS);
+		} else {
+			builder.table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES);
 		}
-		return new SelectionBuilder().table(Tables.PLAY_ITEMS_JOIN_PLAYS_JOIN_GAMES).mapToTable(Plays._ID, getTable())
-			.mapToTable(Plays.PLAY_ID, getTable()).mapToTable(Plays.UPDATED, Tables.PLAYS)
-			.mapToTable(Plays.UPDATED_LIST, Tables.PLAYS);
+
+		builder.mapToTable(Plays._ID, getTable())
+			.mapToTable(Plays.PLAY_ID, getTable())
+			.mapToTable(Plays.UPDATED, Tables.PLAYS)
+			.mapToTable(Plays.UPDATED_LIST, Tables.PLAYS)
+			.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")");
+
+		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
+		if (!TextUtils.isEmpty(groupBy)) {
+			builder.groupBy(groupBy);
+		}
+		return builder;
 	}
 
 	@Override

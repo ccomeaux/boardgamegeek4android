@@ -249,7 +249,6 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
 	public static final String FRAGMENT_SIMPLE = "simple";
-	public static final String FRAGMENT_SUM = "sum";
 	public static final String PARAM_LIMIT = "limit";
 
 	public static class Thumbnails {
@@ -748,7 +747,6 @@ public class BggContract {
 	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
 		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build();
 		public static final Uri CONTENT_SIMPLE_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build();
-		public static final Uri CONTENT_SUM_URI = CONTENT_URI.buildUpon().fragment(FRAGMENT_SUM).build();
 
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play";

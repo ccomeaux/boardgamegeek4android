@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -135,9 +136,13 @@ public class SyncService extends Service {
 		int hIndex = INVALID_H_INDEX;
 		Cursor cursor = null;
 		try {
-			cursor = context.getContentResolver().query(Plays.CONTENT_SUM_URI,
-				new String[] { "SUM(" + Plays.QUANTITY + ") as count" }, Plays.SYNC_STATUS + "=?",
-				new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) }, "count DESC");
+			Uri uri = Plays.CONTENT_SIMPLE_URI.buildUpon()
+				.appendQueryParameter(BggContract.QUERY_KEY_GROUP_BY, BggContract.PlayItems.OBJECT_ID)
+				.build();
+			cursor = context.getContentResolver().query(
+				uri, new String[] { Plays.SUM_QUANTITY },
+				Plays.SYNC_STATUS + "=?", new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED) },
+				Plays.SUM_QUANTITY + " DESC");
 			if (cursor != null) {
 				int i = 1;
 				while (cursor.moveToNext()) {

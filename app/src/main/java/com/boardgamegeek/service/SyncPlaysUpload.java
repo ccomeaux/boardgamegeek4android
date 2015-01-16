@@ -166,8 +166,8 @@ public class SyncPlaysUpload extends SyncTask {
 		ContentResolver resolver = mContext.getContentResolver();
 		Cursor cursor = null;
 		try {
-			cursor = resolver.query(Plays.CONTENT_SUM_URI,
-				new String[] { "SUM(" + Plays.QUANTITY + ") as count" },
+			cursor = resolver.query(Plays.CONTENT_SIMPLE_URI,
+				new String[] { Plays.SUM_QUANTITY },
 				PlayItems.OBJECT_ID + "=? AND " + Plays.SYNC_STATUS + "=?",
 				new String[] { String.valueOf(play.gameId), String.valueOf(Play.SYNC_STATUS_SYNCED) },
 				null);
