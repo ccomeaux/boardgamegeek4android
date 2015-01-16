@@ -142,6 +142,18 @@
 		<item name="android:paddingTop">0dp</item>
 	</style>
 
+	<style name="RowContainer.Medium">
+		<item name="android:minHeight">56dp</item>
+	</style>
+
+	<style name="RowContainer.Tall">
+		<item name="android:minHeight">72dp</item>
+	</style>
+
+	<style name="RowContainer.VeryTall">
+		<item name="android:minHeight">88dp</item>
+	</style>
+
 	<style name="RowSeparator">
 		<item name="android:background">@color/primary_dark</item>
 		<item name="android:clickable">false</item>

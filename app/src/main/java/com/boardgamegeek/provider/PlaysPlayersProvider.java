@@ -24,24 +24,31 @@ public class PlaysPlayersProvider extends BaseProvider {
 				.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
 		} else if (BggContract.QUERY_VALUE_UNIQUE_NAME.equals(groupBy)) {
 			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS).mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
 				.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
 				.groupBy(PlayPlayers.UNIQUE_NAME);
 		} else if (BggContract.QUERY_VALUE_UNIQUE_PLAYER.equals(groupBy)) {
 			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS).mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+				.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
 				.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
 				.groupBy(PlayPlayers.NAME + "," + PlayPlayers.USER_NAME);
 		} else if (BggContract.QUERY_VALUE_UNIQUE_USER.equals(groupBy)) {
 			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS).mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
 				.where(PlayPlayers.USER_NAME + "!=''").groupBy(PlayPlayers.USER_NAME);
 		} else {
 			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
-				.mapToTable(Plays._ID, Tables.PLAYS).mapToTable(Plays.PLAY_ID, Tables.PLAYS)
+				.mapToTable(Plays._ID, Tables.PLAYS)
+				.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
 				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
 		}
-		builder.map(PlayPlayers.COUNT, "count(*)").map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
+		builder
+			.map(PlayPlayers.COUNT, "count(*)")
+			.map(PlayPlayers.UNIQUE_NAME, "IFNULL(NULLIF(user_name,''), name)")
 			.map(PlayPlayers.DESCRIPTION, "name || IFNULL(NULLIF(' ('||user_name||')', ' ()'), '')");
 		return builder;
 	}

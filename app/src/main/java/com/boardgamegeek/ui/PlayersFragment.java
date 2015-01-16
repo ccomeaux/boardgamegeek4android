@@ -155,7 +155,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_text_2, parent, false);
+			View row = mInflater.inflate(R.layout.row_text_3, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
@@ -167,12 +167,14 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 			String name = cursor.getString(PlayersQuery.NAME);
 			String userName = cursor.getString(PlayersQuery.USER_NAME);
+			int quantity = cursor.getInt(PlayersQuery.SUM_QUANTITY);
 
 			UIUtils.setActivatedCompat(view, name.equals(mSelectedName) && userName.equals(mSelectedUsername));
 
 			holder.name.setText(name);
 			holder.username.setText(userName);
 			holder.username.setVisibility(TextUtils.isEmpty(userName) ? View.GONE : View.VISIBLE);
+			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, quantity, quantity));
 		}
 
 		@Override
@@ -212,6 +214,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		class ViewHolder {
 			@InjectView(android.R.id.title) TextView name;
 			@InjectView(android.R.id.text1) TextView username;
+			@InjectView(android.R.id.text2) TextView quantity;
 
 			public ViewHolder(View view) {
 				ButterKnife.inject(this, view);
@@ -226,9 +229,10 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private interface PlayersQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { BaseColumns._ID, PlayPlayers.NAME, PlayPlayers.USER_NAME };
+		String[] PROJECTION = { BaseColumns._ID, PlayPlayers.NAME, PlayPlayers.USER_NAME, PlayPlayers.SUM_QUANTITY };
 
 		int NAME = 1;
 		int USER_NAME = 2;
+		int SUM_QUANTITY = 3;
 	}
 }
