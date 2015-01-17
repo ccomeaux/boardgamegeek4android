@@ -28,7 +28,7 @@ public class PlaysDateSorter extends PlaysSorter {
 
 	@Override
 	public int getType() {
-		return PlaysSortDataFactory.TYPE_PLAY_DATE;
+		return PlaysSorterFactory.TYPE_PLAY_DATE;
 	}
 
 	@Override

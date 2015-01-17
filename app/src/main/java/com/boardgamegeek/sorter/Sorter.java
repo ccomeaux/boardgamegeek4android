@@ -1,8 +1,5 @@
 package com.boardgamegeek.sorter;
 
-import java.text.DecimalFormat;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,11 +7,13 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 
+import java.text.DecimalFormat;
+import java.util.Locale;
+
 public abstract class Sorter {
 	protected Context mContext;
 	protected String mOrderByClause;
 	protected int mDescriptionId;
-	protected int mSubDescriptionId;
 	private DecimalFormat mDoubleFormat = new DecimalFormat("#.0");
 
 	public Sorter(Context context) {
@@ -26,12 +25,8 @@ public abstract class Sorter {
 	 * mSubDescriptionId to control this value.
 	 */
 	public String getDescription() {
-		String decription = String.format(mContext.getString(R.string.sort_description),
+		return String.format(mContext.getString(R.string.sort_description),
 			mContext.getString(mDescriptionId));
-		if (mSubDescriptionId > 0) {
-			decription += " - " + mContext.getString(mSubDescriptionId);
-		}
-		return decription;
 	}
 
 	/**
@@ -51,13 +46,6 @@ public abstract class Sorter {
 	/**
 	 * Get the text to display in the section header.
 	 */
-	protected String getHeaderText(Cursor cursor) {
-		return "";
-	}
-
-	/**
-	 * Get the text to display in the section header.
-	 */
 	public String getHeaderText(Cursor cursor, int position) {
 		if (cursor == null || position < 0) {
 			return "";
@@ -69,12 +57,11 @@ public abstract class Sorter {
 		return text;
 	}
 
-	protected long getHeaderId(Cursor cursor) {
-		String headerText = getHeaderText(cursor);
-		if (headerText == null){
-			headerText = "";
-		}
-		return headerText.hashCode();
+	/**
+	 * Get the text to display in the section header.
+	 */
+	protected String getHeaderText(Cursor cursor) {
+		return "";
 	}
 
 	public long getHeaderId(Cursor cursor, int position) {
@@ -88,21 +75,23 @@ public abstract class Sorter {
 		return id;
 	}
 
-	/**
-	 * Gets the text to display on each row.
-	 */
-	public String getDisplayInfo(Cursor cursor) {
-		return getHeaderText(cursor);
+	protected long getHeaderId(Cursor cursor) {
+		String headerText = getHeaderText(cursor);
+		if (headerText == null) {
+			headerText = "";
+		}
+		return headerText.hashCode();
 	}
 
 	/**
 	 * Get the unique type
 	 */
-	public int getType() {
-		return SorterFactory.TYPE_UNKNOWN;
-	}
+	public abstract int getType();
 
 	protected String getClause(String columnName, boolean isDescending) {
+		if (TextUtils.isEmpty(columnName)){
+			return getDefaultSort();
+		}
 		return columnName + (isDescending ? " DESC, " : " ASC, ") + getDefaultSort();
 	}
 
@@ -159,7 +148,7 @@ public abstract class Sorter {
 	}
 
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
-		DecimalFormat format) {
+									   DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
 		if (index == -1) {
 			return defaultValue;
@@ -179,12 +168,7 @@ public abstract class Sorter {
 
 	@SuppressLint("DefaultLocale")
 	protected String getFirstChar(Cursor cursor, String columnName) {
-		int index = cursor.getColumnIndex(columnName);
-		if (index != -1) {
-			char firstLetter = cursor.getString(index).toUpperCase(Locale.getDefault()).charAt(0);
-			return String.valueOf(firstLetter);
-		}
-		return null;
+		return getString(cursor, columnName, "-").substring(0, 1).toUpperCase(Locale.getDefault());
 	}
 
 	protected String getString(Cursor cursor, String columnName) {

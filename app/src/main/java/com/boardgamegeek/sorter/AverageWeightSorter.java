@@ -8,7 +8,7 @@ import android.database.Cursor;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class AverageWeightSorter extends CollectionSorter {
+public abstract class AverageWeightSorter extends CollectionSorter {
 	private static final String DEFAULT_VALUE = "?";
 	private DecimalFormat mDisplayFormat = new DecimalFormat("0.000");
 

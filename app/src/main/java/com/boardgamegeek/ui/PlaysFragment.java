@@ -35,7 +35,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.sorter.PlaysSortDataFactory;
+import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.BuddyUtils;
@@ -74,7 +74,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String mPlayerName;
 	private String mLocation;
 	private int mFilter = Play.SYNC_STATUS_ALL;
-	private Sorter mSort;
+	private Sorter mSorter;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
@@ -116,11 +116,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		int sortType = PlaysSortDataFactory.TYPE_DEFAULT;
+		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		if (savedInstanceState != null) {
 			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
 		}
-		mSort = PlaysSortDataFactory.create(sortType, getActivity());
+		mSorter = PlaysSorterFactory.create(sortType, getActivity());
 
 		mUri = Plays.CONTENT_URI;
 		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
@@ -188,7 +188,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_SORT_TYPE, mSort == null ? PlaysSortDataFactory.TYPE_UNKNOWN : mSort.getType());
+		outState.putInt(STATE_SORT_TYPE, mSorter == null ? PlaysSorterFactory.TYPE_UNKNOWN : mSorter.getType());
 		super.onSaveInstanceState(outState);
 	}
 
@@ -217,18 +217,18 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
-		if (showOptions && mSort != null) {
-			switch (mSort.getType()) {
-				case PlaysSortDataFactory.TYPE_PLAY_DATE:
+		if (showOptions && mSorter != null) {
+			switch (mSorter.getType()) {
+				case PlaysSorterFactory.TYPE_PLAY_DATE:
 					checkMenuItemSafely(menu, R.id.menu_sort_date);
 					break;
-				case PlaysSortDataFactory.TYPE_PLAY_GAME:
+				case PlaysSorterFactory.TYPE_PLAY_GAME:
 					checkMenuItemSafely(menu, R.id.menu_sort_game);
 					break;
-				case PlaysSortDataFactory.TYPE_PLAY_LENGTH:
+				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
 					checkMenuItemSafely(menu, R.id.menu_sort_length);
 					break;
-				case PlaysSortDataFactory.TYPE_PLAY_LOCATION:
+				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
 					checkMenuItemSafely(menu, R.id.menu_sort_location);
 					break;
 				default:
@@ -257,16 +257,16 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_sort_date:
-				setSort(PlaysSortDataFactory.TYPE_PLAY_DATE);
+				setSort(PlaysSorterFactory.TYPE_PLAY_DATE);
 				return true;
 			case R.id.menu_sort_location:
-				setSort(PlaysSortDataFactory.TYPE_PLAY_LOCATION);
+				setSort(PlaysSorterFactory.TYPE_PLAY_LOCATION);
 				return true;
 			case R.id.menu_sort_game:
-				setSort(PlaysSortDataFactory.TYPE_PLAY_GAME);
+				setSort(PlaysSorterFactory.TYPE_PLAY_GAME);
 				return true;
 			case R.id.menu_sort_length:
-				setSort(PlaysSortDataFactory.TYPE_PLAY_LENGTH);
+				setSort(PlaysSorterFactory.TYPE_PLAY_LENGTH);
 				return true;
 			case R.id.menu_refresh:
 				triggerRefresh();
@@ -279,13 +279,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	private void setSort(int sortType) {
-		if (mSort != null && sortType == mSort.getType()) {
+		if (mSorter != null && sortType == mSorter.getType()) {
 			return;
 		}
-		if (sortType == PlaysSortDataFactory.TYPE_UNKNOWN) {
-			sortType = PlaysSortDataFactory.TYPE_DEFAULT;
+		if (sortType == PlaysSorterFactory.TYPE_UNKNOWN) {
+			sortType = PlaysSorterFactory.TYPE_DEFAULT;
 		}
-		mSort = PlaysSortDataFactory.create(sortType, getActivity());
+		mSorter = PlaysSorterFactory.create(sortType, getActivity());
 		resetScrollState();
 		requery();
 	}
@@ -355,9 +355,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == PlaysQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), mUri, mSort == null ? PlaysQuery.PROJECTION
-				: StringUtils.unionArrays(PlaysQuery.PROJECTION, mSort.getColumns()), selection(), selectionArgs(),
-				mSort == null ? null : mSort.getOrderByClause());
+			loader = new CursorLoader(getActivity(), mUri, mSorter == null ? PlaysQuery.PROJECTION
+				: StringUtils.unionArrays(PlaysQuery.PROJECTION, mSorter.getColumns()), selection(), selectionArgs(),
+				mSorter == null ? null : mSorter.getOrderByClause());
 			if (loader != null) {
 				loader.setUpdateThrottle(2000);
 			}
@@ -442,7 +442,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
-			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
+			mCallbacks.onSortChanged(mSorter == null ? "" : mSorter.getDescription());
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;
@@ -599,10 +599,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 		@Override
 		public long getHeaderId(int position) {
-			if (position < 0 || mSort == null) {
+			if (position < 0 || mSorter == null) {
 				return 0;
 			}
-			return mSort.getHeaderId(getCursor(), position);
+			return mSorter.getHeaderId(getCursor(), position);
 		}
 
 		@Override
@@ -616,7 +616,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			} else {
 				holder = (HeaderViewHolder) convertView.getTag();
 			}
-			holder.text.setText(mSort == null ? "" : mSort.getHeaderText(getCursor(), position));
+			holder.text.setText(mSorter == null ? "" : mSorter.getHeaderText(getCursor(), position));
 			return convertView;
 		}
 

@@ -2,7 +2,8 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
-public class CollectionSorterFactory extends SorterFactory {
+public class CollectionSorterFactory {
+	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_COLLECTION_NAME = 1;
 	public static final int TYPE_GEEK_RATING = 2;
 	public static final int TYPE_PLAY_COUNT_ASC = 3;
@@ -22,7 +23,7 @@ public class CollectionSorterFactory extends SorterFactory {
 	public static final int TYPE_AVERAGE_RATING = 17;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
-	public static Sorter create(int type, Context context) {
+	public static CollectionSorter create(int type, Context context) {
 		switch (type) {
 			case TYPE_COLLECTION_NAME:
 				return new CollectionNameSorter(context);

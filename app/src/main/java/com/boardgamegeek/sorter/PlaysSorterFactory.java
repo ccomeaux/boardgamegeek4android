@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter;
 
 import android.content.Context;
 
-public class PlaysSortDataFactory {
+public class PlaysSorterFactory {
 	public static final int TYPE_UNKNOWN = 0;
 	public static final int TYPE_PLAY_DATE = 1;
 	public static final int TYPE_PLAY_LOCATION = 2;
@@ -10,7 +10,7 @@ public class PlaysSortDataFactory {
 	public static final int TYPE_PLAY_LENGTH = 4;
 	public static final int TYPE_DEFAULT = TYPE_PLAY_DATE;
 
-	public static Sorter create(int type, Context context) {
+	public static PlaysSorter create(int type, Context context) {
 		switch (type) {
 			case TYPE_PLAY_DATE:
 				return new PlaysDateSorter(context);

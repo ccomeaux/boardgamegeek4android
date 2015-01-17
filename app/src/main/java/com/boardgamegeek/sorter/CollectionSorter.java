@@ -1,16 +1,38 @@
 package com.boardgamegeek.sorter;
 
+import android.content.Context;
+import android.database.Cursor;
+
 import com.boardgamegeek.provider.BggContract.Collection;
 
-import android.content.Context;
-
 public abstract class CollectionSorter extends Sorter {
+	protected int mSubDescriptionId;
+
 	public CollectionSorter(Context context) {
 		super(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDescription() {
+		String decription = super.getDescription();
+		if (mSubDescriptionId > 0) {
+			decription += " - " + mContext.getString(mSubDescriptionId);
+		}
+		return decription;
 	}
 
 	@Override
 	protected String getDefaultSort() {
 		return Collection.DEFAULT_SORT;
+	}
+
+	/**
+	 * Gets the text to display on each row.
+	 */
+	public String getDisplayInfo(Cursor cursor) {
+		return getHeaderText(cursor);
 	}
 }

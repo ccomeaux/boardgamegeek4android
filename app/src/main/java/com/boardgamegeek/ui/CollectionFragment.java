@@ -45,8 +45,8 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
-import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
 import com.boardgamegeek.ui.dialog.AverageWeightFilter;
 import com.boardgamegeek.ui.dialog.CollectionStatusFilter;
@@ -88,7 +88,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private CollectionAdapter mAdapter;
 	private long mViewId;
 	private String mViewName = "";
-	private Sorter mSort;
+	private CollectionSorter mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
@@ -169,7 +169,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mFilterLinearLayout = (LinearLayout) getView().findViewById(R.id.filter_linear_layout);
- 		setEmptyText();
+		setEmptyText();
 	}
 
 	@Override

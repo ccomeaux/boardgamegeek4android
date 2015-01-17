@@ -23,7 +23,7 @@ public class PlaysLengthSorter extends PlaysSorter {
 
 	@Override
 	public int getType() {
-		return PlaysSortDataFactory.TYPE_PLAY_LENGTH;
+		return PlaysSorterFactory.TYPE_PLAY_LENGTH;
 	}
 
 	@Override
