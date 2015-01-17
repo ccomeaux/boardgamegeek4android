@@ -1,13 +1,9 @@
 package com.boardgamegeek.ui.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Pair;
@@ -19,12 +15,15 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.boardgamegeek.R;
+import com.boardgamegeek.util.ColorUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-
-import com.boardgamegeek.R;
-import com.boardgamegeek.util.ColorUtils;
 
 public class ColorPickerDialogFragment extends DialogFragment {
 	private static final String KEY_TITLE_ID = "title_id";

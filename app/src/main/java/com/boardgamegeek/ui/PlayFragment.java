@@ -40,15 +40,11 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-import butterknife.ButterKnife;
 
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {

@@ -1,17 +1,12 @@
 package com.boardgamegeek.service;
 
-import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.model.Game;
-import com.boardgamegeek.model.ThingResponse;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import timber.log.Timber;
 
