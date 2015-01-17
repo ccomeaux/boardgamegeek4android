@@ -113,7 +113,6 @@ public class ListTagHandler implements Html.TagHandler {
 				text.setSpan(replace, where, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
-		return;
 	}
 
 	private static Object getLastSpan(Spanned text, Class<?> kind) {

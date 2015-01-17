@@ -183,12 +183,12 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	private boolean isLoading() {
 		final GeekListsLoader loader = getLoader();
-		return (loader != null) ? loader.isLoading() : true;
+		return (loader == null) || loader.isLoading();
 	}
 
 	private boolean loaderHasMoreResults() {
 		final GeekListsLoader loader = getLoader();
-		return (loader != null) ? loader.hasMoreResults() : false;
+		return (loader != null) && loader.hasMoreResults();
 	}
 
 	private GeekListsLoader getLoader() {

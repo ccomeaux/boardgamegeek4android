@@ -272,7 +272,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
 				menu.findItem(R.id.menu_collection_random_game).setEnabled(
-					mAdapter == null ? false : mAdapter.getCount() > 0);
+					mAdapter != null && mAdapter.getCount() > 0);
 
 				menu.findItem(R.id.menu_collection_view_save).setEnabled(
 					(mFilters != null && mFilters.size() > 0)

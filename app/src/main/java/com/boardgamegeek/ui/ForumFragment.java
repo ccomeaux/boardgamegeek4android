@@ -129,12 +129,12 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	private boolean isLoading() {
 		final ForumLoader loader = getLoader();
-		return (loader != null) ? loader.isLoading() : true;
+		return (loader == null) || loader.isLoading();
 	}
 
 	private boolean loaderHasMoreResults() {
 		final ForumLoader loader = getLoader();
-		return (loader != null) ? loader.hasMoreResults() : false;
+		return (loader != null) && loader.hasMoreResults();
 	}
 
 	private ForumLoader getLoader() {

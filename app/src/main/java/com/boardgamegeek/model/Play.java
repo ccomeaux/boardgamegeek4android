@@ -473,10 +473,7 @@ public class Play {
 	 * @return true, if it's not ended and the start time has been set.
 	 */
 	public boolean hasStarted() {
-		if (length == 0 && startTime > 0) {
-			return true;
-		}
-		return false;
+		return length == 0 && startTime > 0;
 	}
 
 	/**
