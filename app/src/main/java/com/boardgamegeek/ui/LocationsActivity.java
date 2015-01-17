@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.ActivityUtils;
@@ -33,14 +34,42 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 
 	@Override
 	protected int getOptionsMenuId() {
-		return R.menu.text_only;
+		return R.menu.locations;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
-			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
+		if (isDrawerOpen()) {
+			menu.findItem(R.id.menu_sort).setVisible(false);
+			ActivityUtils.setActionBarText(menu, R.id.menu_list_count, "");
+		} else {
+			menu.findItem(R.id.menu_sort).setVisible(true);
+			LocationsFragment fragment = (LocationsFragment) getFragment();
+			if (fragment != null) {
+				if (fragment.getSort() == LocationsFragment.SORT_QUANTITY) {
+					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
+				} else {
+					menu.findItem(R.id.menu_sort_name).setChecked(true);
+				}
+			}
+			ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+				mCount <= 0 ? "" : String.valueOf(mCount));
+		}
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int itemId = item.getItemId();
+		switch (itemId) {
+			case R.id.menu_sort_name:
+				((LocationsFragment) getFragment()).setSort(LocationsFragment.SORT_NAME);
+				return true;
+			case R.id.menu_sort_quantity:
+				((LocationsFragment) getFragment()).setSort(LocationsFragment.SORT_QUANTITY);
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

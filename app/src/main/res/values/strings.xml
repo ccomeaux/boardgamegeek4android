@@ -247,6 +247,8 @@
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
 	<string name="menu_plays_sort_length">Length</string>
+	<string name="menu_sort_name">Name</string>
+	<string name="menu_sort_quantity">Play count</string>
 	<string name="newest">Newest</string>
 	<string name="oldest">Oldest</string>
 	<string name="menu_collection_sort_playtime">Play Time</string>

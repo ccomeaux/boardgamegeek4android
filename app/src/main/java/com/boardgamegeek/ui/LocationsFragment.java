@@ -28,9 +28,13 @@ import timber.log.Timber;
 
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
+	private static final String STATE_SORT = "sort";
+	public static final int SORT_NAME = 0;
+	public static final int SORT_QUANTITY = 1;
 
 	private LocationsAdapter mAdapter;
 	private String mSelectedName;
+	private int mSort = SORT_NAME;
 
 	public interface Callbacks {
 		public boolean onLocationSelected(String name);
@@ -65,6 +69,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null) {
 			mSelectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
+			mSort = savedInstanceState.getInt(STATE_SORT);
 		}
 	}
 
@@ -72,7 +77,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_locations));
-		getLoaderManager().restartLoader(LocationsQuery._TOKEN, getArguments(), this);
+		requery();
 	}
 
 	@Override
@@ -81,6 +86,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		if (!TextUtils.isEmpty(mSelectedName)) {
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
 		}
+		outState.putInt(STATE_SORT, mSort);
 	}
 
 	@Override
@@ -98,6 +104,24 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 	}
 
+	public void requery() {
+		getLoaderManager().restartLoader(LocationsQuery._TOKEN, getArguments(), this);
+	}
+
+	public int getSort() {
+		return mSort;
+	}
+
+	public void setSort(int sort) {
+		if (sort != SORT_NAME && sort != SORT_QUANTITY) {
+			sort = SORT_NAME;
+		}
+		if (sort != mSort) {
+			mSort = sort;
+			requery();
+		}
+	}
+
 	public void setSelectedLocation(String name) {
 		mSelectedName = name;
 		if (mAdapter != null) {
@@ -107,7 +131,11 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, null);
+		String sortOrder = null;
+		if (mSort == SORT_QUANTITY) {
+			sortOrder = Plays.SUM_QUANTITY + " DESC, " + Plays.DEFAULT_SORT;
+		}
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, sortOrder);
 	}
 
 	@Override
@@ -173,7 +201,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			if (position < 0) {
 				return 0;
 			}
-			return getHeaderText(position).charAt(0);
+			return getHeaderText(position).hashCode();
 		}
 
 		@Override
@@ -192,14 +220,31 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		private String getHeaderText(int position) {
-			String missingLetter = "-";
+			String headerText = "-";
 			int cur = getCursor().getPosition();
 			getCursor().moveToPosition(position);
-			String name = getCursor().getString(LocationsQuery.LOCATION);
+			if (mSort == SORT_NAME) {
+				headerText = getCursor().getString(LocationsQuery.LOCATION);
+				if (!TextUtils.isEmpty(headerText)) {
+					headerText = headerText.substring(0, 1).toUpperCase(Locale.getDefault());
+				}
+			} else if (mSort == SORT_QUANTITY) {
+				int q = getCursor().getInt(LocationsQuery.SUM_QUANTITY);
+				String prefix = String.valueOf(q).substring(0, 1);
+				String suffix = "";
+				if (q > 10000) {
+					suffix = "0000+";
+				} else if (q > 1000) {
+					suffix = "000+";
+				} else if (q > 100) {
+					suffix = "00+";
+				} else if (q > 10) {
+					suffix = "0+";
+				}
+				headerText = prefix + suffix;
+			}
 			getCursor().moveToPosition(cur);
-			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
-				Locale.getDefault());
-			return targetLetter;
+			return headerText;
 		}
 
 		class ViewHolder {
