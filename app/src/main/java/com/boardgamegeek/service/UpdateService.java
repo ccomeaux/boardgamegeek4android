@@ -76,7 +76,7 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (!NetworkUtils.isOnline(getApplicationContext())) {
+		if (NetworkUtils.isOffline(getApplicationContext())) {
 			sendResultToReceiver(STATUS_ERROR, "Offline.");
 			return;
 		}

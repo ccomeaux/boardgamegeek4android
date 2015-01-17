@@ -109,7 +109,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
-		if (!NetworkUtils.isOnline(mContext)) {
+		if (NetworkUtils.isOffline(mContext)) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}

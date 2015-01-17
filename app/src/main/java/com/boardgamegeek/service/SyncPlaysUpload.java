@@ -217,8 +217,7 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		try {
-			PlayPostResponse response = mPostService.geekPlay(form);
-			return response;
+			return mPostService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
@@ -235,8 +234,7 @@ public class SyncPlaysUpload extends SyncTask {
 		form.put("playid", String.valueOf(playId));
 
 		try {
-			PlayPostResponse response = mPostService.geekPlay(form);
-			return response;
+			return mPostService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}

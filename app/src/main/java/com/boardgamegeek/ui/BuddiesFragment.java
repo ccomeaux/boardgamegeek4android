@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.Locale;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,9 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import timber.log.Timber;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
@@ -29,6 +23,13 @@ import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import timber.log.Timber;
 
 public class BuddiesFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_ID = "selectedId";
@@ -225,9 +226,8 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			getCursor().moveToPosition(position);
 			String name = getCursor().getString(BuddiesQuery.LASTNAME);
 			getCursor().moveToPosition(cur);
-			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
+			return TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
 				Locale.getDefault());
-			return targetLetter;
 		}
 
 		private String buildFullName(String firstName, String lastName, String name) {

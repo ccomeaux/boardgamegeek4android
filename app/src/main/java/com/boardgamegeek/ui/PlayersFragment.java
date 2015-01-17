@@ -114,9 +114,8 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
+		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
 			PlayersQuery.PROJECTION, null, null, PlayPlayers.NAME);
-		return loader;
 	}
 
 	@Override
@@ -206,9 +205,8 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			getCursor().moveToPosition(position);
 			String name = getCursor().getString(PlayersQuery.NAME);
 			getCursor().moveToPosition(cur);
-			String targetLetter = TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
+			return TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
 				Locale.getDefault());
-			return targetLetter;
 		}
 
 		class ViewHolder {

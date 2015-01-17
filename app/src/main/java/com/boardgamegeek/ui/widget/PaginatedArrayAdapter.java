@@ -58,9 +58,8 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 
 	@Override
 	public int getCount() {
-		int count = super.getCount()
+		return super.getCount()
 			+ (((isLoaderLoading() && super.getCount() == 0) || hasMoreResults() || hasError()) ? 1 : 0);
-		return count;
 	}
 
 	protected abstract boolean isLoaderLoading();

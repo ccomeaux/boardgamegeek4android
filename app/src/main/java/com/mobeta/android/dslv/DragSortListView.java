@@ -2489,6 +2489,7 @@ public class DragSortListView extends ListView {
 	 * 
 	 * @param position
 	 */
+	@SuppressWarnings("UnnecessaryLocalVariable")
 	public void removeCheckState(int position) {
 		SparseBooleanArray cip = getCheckedItemPositions();
 
