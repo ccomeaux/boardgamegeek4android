@@ -60,7 +60,7 @@ public class ListTagHandler implements Html.TagHandler {
 					startListItem(output, new Ul());
 				} else if (tagIsTypeOf(currentListTag, OL)) {
 					startListItem(output, new Ol());
-					output.append(mNextOrderedIndex.peek().toString() + ". ");
+					output.append(mNextOrderedIndex.peek().toString()).append(". ");
 					mNextOrderedIndex.push(Integer.valueOf(mNextOrderedIndex.pop().intValue() + 1));
 				}
 			} else {

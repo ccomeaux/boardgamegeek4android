@@ -16,6 +16,8 @@
 
 package com.boardgamegeek.pref;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -274,9 +276,7 @@ public class MultiSelectListPreference extends DialogPreference {
 		String string = getPersistedString("");
 		String[] values = string.split(SEPARATOR);
 		Set<String> set = new HashSet<String>();
-		for (String value : values) {
-			set.add(value);
-		}
+		Collections.addAll(set, values);
 		return set;
 	}
 
@@ -302,9 +302,7 @@ public class MultiSelectListPreference extends DialogPreference {
 			String[] strings = source.createStringArray();
 
 			final int stringCount = strings.length;
-			for (int i = 0; i < stringCount; i++) {
-				values.add(strings[i]);
-			}
+			values.addAll(Arrays.asList(strings).subList(0, stringCount));
 		}
 
 		public SavedState(Parcelable superState) {
@@ -314,7 +312,7 @@ public class MultiSelectListPreference extends DialogPreference {
 		@Override
 		public void writeToParcel(Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
-			dest.writeStringArray(values.toArray(new String[0]));
+			dest.writeStringArray(values.toArray(new String[values.size()]));
 		}
 
 		@SuppressWarnings("unused")

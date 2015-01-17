@@ -26,6 +26,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,9 +103,7 @@ public class SelectionBuilder {
 		mSelection.append("(").append(selection).append(")");
 
 		if (selectionArgs != null) {
-			for (String arg : selectionArgs) {
-				mSelectionArgs.add(arg);
-			}
+			Collections.addAll(mSelectionArgs, selectionArgs);
 		}
 
 		return this;
@@ -164,9 +163,7 @@ public class SelectionBuilder {
 	public SelectionBuilder groupBy(String... groupArgs) {
 		mGroupBy.clear();
 		if (groupArgs != null) {
-			for (String arg : groupArgs) {
-				mGroupBy.add(arg);
-			}
+			Collections.addAll(mGroupBy, groupArgs);
 		}
 		return this;
 	}

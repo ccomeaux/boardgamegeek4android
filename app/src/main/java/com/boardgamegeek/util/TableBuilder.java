@@ -43,7 +43,7 @@ public class TableBuilder {
 		}
 		String table = mFtsTable ? "CREATE VIRTUAL TABLE " + mTable + " USING fts3" : "CREATE TABLE " + mTable;
 		StringBuilder sb = new StringBuilder();
-		sb.append(table + " (" + mPrimaryKey.build() + " PRIMARY KEY AUTOINCREMENT,");
+		sb.append(table).append(" (").append(mPrimaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
 		for (Column column : mColumns) {
 			sb.append(column.build()).append(",");
 		}

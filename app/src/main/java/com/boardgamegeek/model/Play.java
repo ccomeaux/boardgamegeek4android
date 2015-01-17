@@ -565,10 +565,7 @@ public class Play {
 
 	public String toShortDescription(Context context) {
 		Resources r = context.getResources();
-		StringBuilder sb = new StringBuilder();
-		sb.append(r.getString(R.string.share_play_played)).append(" ").append(gameName);
-		sb.append(" ").append(r.getString(R.string.on)).append(" ").append(getDate());
-		return sb.toString();
+		return r.getString(R.string.share_play_played) + " " + gameName + " " + r.getString(R.string.on) + " " + getDate();
 	}
 
 	public String toLongDescription(Context context) {
