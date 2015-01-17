@@ -7,7 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
+
+import hugo.weaving.DebugLog;
 
 public class LocationsActivity extends TopLevelSinglePaneActivity implements LocationsFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
@@ -37,6 +40,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 		return R.menu.locations;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (isDrawerOpen()) {
@@ -46,7 +50,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 			menu.findItem(R.id.menu_sort).setVisible(true);
 			LocationsFragment fragment = (LocationsFragment) getFragment();
 			if (fragment != null) {
-				if (fragment.getSort() == LocationsFragment.SORT_QUANTITY) {
+				if (fragment.getSort() == LocationsSorterFactory.TYPE_QUANTITY) {
 					menu.findItem(R.id.menu_sort_quantity).setChecked(true);
 				} else {
 					menu.findItem(R.id.menu_sort_name).setChecked(true);
@@ -58,15 +62,16 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		switch (itemId) {
 			case R.id.menu_sort_name:
-				((LocationsFragment) getFragment()).setSort(LocationsFragment.SORT_NAME);
+				((LocationsFragment) getFragment()).setSort(LocationsSorterFactory.TYPE_NAME);
 				return true;
 			case R.id.menu_sort_quantity:
-				((LocationsFragment) getFragment()).setSort(LocationsFragment.SORT_QUANTITY);
+				((LocationsFragment) getFragment()).setSort(LocationsSorterFactory.TYPE_QUANTITY);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -77,6 +82,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 		return R.string.title_locations;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onLocationSelected(String name) {
 		Intent intent = new Intent(this, LocationActivity.class);

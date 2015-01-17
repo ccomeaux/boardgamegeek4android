@@ -17,24 +17,22 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.sorter.LocationsSorter;
+import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.UIUtils;
-
-import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
-	private static final String STATE_SORT = "sort";
-	public static final int SORT_NAME = 0;
-	public static final int SORT_QUANTITY = 1;
-
+	private static final String STATE_SORT_TYPE = "sortType";
 	private LocationsAdapter mAdapter;
 	private String mSelectedName;
-	private int mSort = SORT_NAME;
+	private LocationsSorter mSorter;
 
 	public interface Callbacks {
 		public boolean onLocationSelected(String name);
@@ -69,13 +67,20 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null) {
 			mSelectedName = savedInstanceState.getString(STATE_SELECTED_NAME);
-			mSort = savedInstanceState.getInt(STATE_SORT);
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		int sortType = LocationsSorterFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
+		}
+		mSorter = LocationsSorterFactory.create(sortType, getActivity());
+
 		setEmptyText(getString(R.string.empty_locations));
 		requery();
 	}
@@ -86,7 +91,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		if (!TextUtils.isEmpty(mSelectedName)) {
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
 		}
-		outState.putInt(STATE_SORT, mSort);
+		outState.putInt(STATE_SORT_TYPE, mSorter.getType());
 	}
 
 	@Override
@@ -104,20 +109,22 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 	}
 
+	@DebugLog
 	public void requery() {
 		getLoaderManager().restartLoader(LocationsQuery._TOKEN, getArguments(), this);
 	}
 
 	public int getSort() {
-		return mSort;
+		return mSorter.getType();
 	}
 
+	@DebugLog
 	public void setSort(int sort) {
-		if (sort != SORT_NAME && sort != SORT_QUANTITY) {
-			sort = SORT_NAME;
-		}
-		if (sort != mSort) {
-			mSort = sort;
+		if (mSorter.getType() != sort) {
+			mSorter = LocationsSorterFactory.create(sort, getActivity());
+			if (mSorter == null) {
+				mSorter = LocationsSorterFactory.create(LocationsSorterFactory.TYPE_DEFAULT, getActivity());
+			}
 			requery();
 		}
 	}
@@ -129,15 +136,13 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 	}
 
+	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		String sortOrder = null;
-		if (mSort == SORT_QUANTITY) {
-			sortOrder = Plays.SUM_QUANTITY + " DESC, " + Plays.DEFAULT_SORT;
-		}
-		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, sortOrder);
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, mSorter.getOrderByClause());
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
@@ -167,11 +172,13 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	public class LocationsAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 
+		@DebugLog
 		public LocationsAdapter(Context context) {
 			super(context, null, false);
 			mInflater = LayoutInflater.from(context);
 		}
 
+		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			View row = mInflater.inflate(R.layout.row_text_2, parent, false);
@@ -180,6 +187,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			return row;
 		}
 
+		@DebugLog
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
@@ -196,14 +204,13 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
 		}
 
+		@DebugLog
 		@Override
 		public long getHeaderId(int position) {
-			if (position < 0) {
-				return 0;
-			}
-			return getHeaderText(position).hashCode();
+			return mSorter.getHeaderId(getCursor(), position);
 		}
 
+		@DebugLog
 		@Override
 		public View getHeaderView(int position, View convertView, ViewGroup parent) {
 			HeaderViewHolder holder;
@@ -219,32 +226,9 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 			return convertView;
 		}
 
+		@DebugLog
 		private String getHeaderText(int position) {
-			String headerText = "-";
-			int cur = getCursor().getPosition();
-			getCursor().moveToPosition(position);
-			if (mSort == SORT_NAME) {
-				headerText = getCursor().getString(LocationsQuery.LOCATION);
-				if (!TextUtils.isEmpty(headerText)) {
-					headerText = headerText.substring(0, 1).toUpperCase(Locale.getDefault());
-				}
-			} else if (mSort == SORT_QUANTITY) {
-				int q = getCursor().getInt(LocationsQuery.SUM_QUANTITY);
-				String prefix = String.valueOf(q).substring(0, 1);
-				String suffix = "";
-				if (q > 10000) {
-					suffix = "0000+";
-				} else if (q > 1000) {
-					suffix = "000+";
-				} else if (q > 100) {
-					suffix = "00+";
-				} else if (q > 10) {
-					suffix = "0+";
-				}
-				headerText = prefix + suffix;
-			}
-			getCursor().moveToPosition(cur);
-			return headerText;
+			return mSorter.getHeaderText(getCursor(), position);
 		}
 
 		class ViewHolder {
