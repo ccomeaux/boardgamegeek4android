@@ -345,11 +345,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 		}
 
-		if (launchFilterDialog(item.getItemId())) {
-			return true;
-		}
-
-		return super.onOptionsItemSelected(item);
+		return launchFilterDialog(item.getItemId()) || super.onOptionsItemSelected(item);
 	}
 
 	@Override

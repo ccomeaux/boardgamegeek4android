@@ -70,10 +70,7 @@ public abstract class TopLevelActivity extends DrawerActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
 	}
 
 	protected boolean isTitleHidden() {

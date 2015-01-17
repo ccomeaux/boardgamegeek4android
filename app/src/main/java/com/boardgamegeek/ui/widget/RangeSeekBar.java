@@ -577,7 +577,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 */
 	private static enum Thumb {
 		MIN, MAX
-	};
+	}
 
 	/**
 	 * Utility enumaration used to convert between Numbers and doubles.

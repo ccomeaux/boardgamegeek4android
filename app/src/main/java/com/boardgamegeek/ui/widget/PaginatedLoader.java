@@ -66,9 +66,6 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 	}
 
 	public boolean hasMoreResults() {
-		if (mData == null) {
-			return true;
-		}
-		return mData.hasMoreResults();
+		return mData == null || mData.hasMoreResults();
 	}
 }

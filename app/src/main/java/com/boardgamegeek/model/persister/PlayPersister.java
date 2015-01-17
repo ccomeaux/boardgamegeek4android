@@ -237,11 +237,8 @@ public class PlayPersister {
 	}
 
 	private boolean playExistsInDatabase(Play play) {
-		if (play.playId == BggContract.INVALID_ID) {
-			return false;
-		}
+		return play.playId != BggContract.INVALID_ID && ResolverUtils.rowExists(mResolver, play.uri());
 
-		return ResolverUtils.rowExists(mResolver, play.uri());
 	}
 
 	private int getCurrentSyncStatus(Play play) {
