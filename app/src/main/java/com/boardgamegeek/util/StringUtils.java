@@ -1,15 +1,15 @@
 package com.boardgamegeek.util;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
+
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Provides utility methods for dealing with strings.
@@ -68,9 +68,9 @@ public class StringUtils {
 
 	/**
 	 * Gets the ordinal (1st) for the given cardinal (1)
-	 * 
-	 * @param cardinal
-	 * @return
+	 *
+	 * @param cardinal The cardinal number (1, 2, 3)
+	 * @return The ordinal number (1st, 2nd, 3rd)
 	 */
 	public static String getOrdinal(int cardinal) {
 

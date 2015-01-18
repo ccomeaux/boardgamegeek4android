@@ -70,7 +70,7 @@ public class ListTagHandler implements Html.TagHandler {
 					if (mLists.size() > 1) {
 						margin = INDENTATION_IN_PIXELS - BULLET_SPAN.getLeadingMargin(true);
 						if (mLists.size() > 2) {
-							// This get's more complicated when we add a LeadingMarginSpan into the same line:
+							// This gets more complicated when we add a LeadingMarginSpan into the same line:
 							// we have also counter it's effect to BulletSpan
 							margin -= (mLists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
 						}

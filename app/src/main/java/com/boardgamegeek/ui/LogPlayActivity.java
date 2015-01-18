@@ -91,7 +91,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
-	private static final int TOKEN_UNITIALIZED = 1 << 31;
+	private static final int TOKEN_UNINITIALIZED = 1 << 31;
 	private static final String[] PLAY_PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE,
 		Plays.LOCATION, Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS,
 		Plays.START_TIME };
@@ -109,7 +109,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private String mImageUrl;
 
 	private QueryHandler mHandler;
-	private int mOutstandingQueries = TOKEN_UNITIALIZED;
+	private int mOutstandingQueries = TOKEN_UNINITIALIZED;
 
 	private Play mPlay;
 	private Play mOriginalPlay;
@@ -1025,7 +1025,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		List<CharSequence> list = new ArrayList<CharSequence>();
 		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
 			Player p = mPlay.getPlayers().get(i);
-			String name = p.getDescsription();
+			String name = p.getDescription();
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(playerPrefix, (i + 1));
 			}
@@ -1039,7 +1039,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private void notifyStartPlayer() {
 		Player p = mPlay.getPlayerAtSeat(1);
 		if (p != null) {
-			String name = p.getDescsription();
+			String name = p.getDescription();
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(getResources().getString(R.string.generic_player), 1);
 			}

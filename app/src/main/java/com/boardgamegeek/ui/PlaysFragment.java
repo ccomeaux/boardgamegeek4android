@@ -156,7 +156,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				break;
 		}
 
-		setEmptyText(getString(getEmptyStringResoure()));
+		setEmptyText(getString(getEmptyStringResource()));
 		requery();
 
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
@@ -319,7 +319,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	private int getEmptyStringResoure() {
+	private int getEmptyStringResource() {
 		switch (mMode) {
 			case MODE_BUDDY:
 				return R.string.empty_plays_buddy;
@@ -493,7 +493,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void filter(int filter) {
 		if (filter != mFilter && mMode == MODE_ALL) {
 			mFilter = filter;
-			setEmptyText(getString(getEmptyStringResoure()));
+			setEmptyText(getString(getEmptyStringResource()));
 			requery();
 		}
 	}

@@ -275,5 +275,5 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	// sb.append("Session ID: ").append(am.getUserData(account, KEY_SESSION_ID)).append("\n");
 	// sb.append("Session X:  ").append(new Date(Long.valueOf(am.getUserData(account, KEY_SESSION_ID_EXPIRY))))
 	// .append("\n");
-	// LOGI(TAG, sb.toString());
+	// Timber.i(sb.toString());
 }

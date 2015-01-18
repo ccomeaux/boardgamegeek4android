@@ -128,7 +128,7 @@ public abstract class StickyHeaderListFragment extends Fragment {
 		mEmptyText = text;
 	}
 
-	public void setProgessShown(boolean shown) {
+	public void setProgressShown(boolean shown) {
 		if (shown) {
 			if (mProgressContainer.getVisibility() != View.VISIBLE) {
 				mProgressContainer.clearAnimation();

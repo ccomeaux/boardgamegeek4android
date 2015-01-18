@@ -38,7 +38,7 @@ public class NetworkUtils {
 	}
 
 	private static Intent getBatteryStatus(Context context) {
-		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		return context.registerReceiver(null, ifilter);
+		IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		return context.registerReceiver(null, filter);
 	}
 }

@@ -122,7 +122,7 @@ public class Player implements Parcelable {
 		setStartingPosition(String.valueOf(value));
 	}
 
-	public String getDescsription() {
+	public String getDescription() {
 		String description = "";
 		if (TextUtils.isEmpty(name)) {
 			if (TextUtils.isEmpty(username)) {

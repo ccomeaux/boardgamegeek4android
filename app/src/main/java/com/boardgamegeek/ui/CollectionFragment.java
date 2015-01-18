@@ -384,7 +384,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				mAdapter = new CollectionAdapter(getActivity());
 				setListAdapter(mAdapter);
 			} else {
-				setProgessShown(false);
+				setProgressShown(false);
 			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
@@ -633,7 +633,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void setView(long viewId) {
 		if (mViewId != viewId) {
-			setProgessShown(true);
+			setProgressShown(true);
 			mViewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
@@ -642,7 +642,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	public void clearView() {
-		setProgessShown(true);
+		setProgressShown(true);
 		mViewId = 0;
 		mViewName = "";
 		resetScrollState();

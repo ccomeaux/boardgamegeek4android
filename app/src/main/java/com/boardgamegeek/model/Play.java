@@ -1,19 +1,5 @@
 package com.boardgamegeek.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Path;
-import org.simpleframework.xml.Root;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -25,6 +11,20 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.util.DateTimeUtils;
+
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Path;
+import org.simpleframework.xml.Root;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 @Root(name = "play")
 public class Play {
@@ -193,8 +193,8 @@ public class Play {
 	/**
 	 * The date of the play in the yyyy-MM-dd format. This is the format the 'Geek uses and how it's stored in the
 	 * Content DB.
-	 * 
-	 * @return
+	 *
+	 * @return The formatted date
 	 */
 	public String getDate() {
 		playDate = DateTimeUtils.tryParseDate(playDate, date, FORMAT);
@@ -208,7 +208,7 @@ public class Play {
 
 	/**
 	 * A text version of the date, formatted for display in the UI.
-	 * 
+	 *
 	 * @return a localized date.
 	 */
 	public CharSequence getDateForDisplay(Context context) {
@@ -224,9 +224,8 @@ public class Play {
 
 	/**
 	 * Sets the play's date
-	 * 
-	 * @param date
-	 *            in the yyyy-MM-dd format
+	 *
+	 * @param date in the yyyy-MM-dd format
 	 */
 	public void setDate(String date) {
 		playDate = DateTimeUtils.UNPARSED_DATE;
@@ -353,9 +352,8 @@ public class Play {
 
 	/**
 	 * Sets the start player based on the index, keeping the other players in order, assigns seats, then sorts
-	 * 
-	 * @param startPlayerIndex
-	 *            The zero-based index of the new start player
+	 *
+	 * @param startPlayerIndex The zero-based index of the new start player
 	 */
 	public void pickStartPlayer(int startPlayerIndex) {
 		int playerCount = getPlayerCount();
@@ -469,7 +467,7 @@ public class Play {
 
 	/**
 	 * Determines if this play appears to have started.
-	 * 
+	 *
 	 * @return true, if it's not ended and the start time has been set.
 	 */
 	public boolean hasStarted() {
@@ -478,7 +476,7 @@ public class Play {
 
 	/**
 	 * Determines if this play appears to have ended.
-	 * 
+	 *
 	 * @return true, if the length has been entered or at least one of the players has won.
 	 */
 	public boolean hasEnded() {
@@ -528,7 +526,7 @@ public class Play {
 			&& (comments == p.comments || (comments != null && comments.equals(p.comments)))
 			&& (startTime == p.startTime)
 			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
-				.size()));
+			.size()));
 		if (eq && players != null) {
 			for (int i = 0; i < players.size(); i++) {
 				if (!players.get(i).equals(p.getPlayers().get(i))) {

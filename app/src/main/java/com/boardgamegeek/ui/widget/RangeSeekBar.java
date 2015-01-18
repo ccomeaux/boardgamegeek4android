@@ -580,7 +580,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	}
 
 	/**
-	 * Utility enumaration used to convert between Numbers and doubles.
+	 * Utility enumeration used to convert between Numbers and doubles.
 	 * 
 	 * @author Stephan Tittel (stephan.tittel@kom.tu-darmstadt.de)
 	 * 

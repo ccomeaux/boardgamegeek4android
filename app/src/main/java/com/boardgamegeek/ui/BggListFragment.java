@@ -86,7 +86,7 @@ public abstract class BggListFragment extends ListFragment {
 		Queue<String> queue = new LinkedList<String>();
 		queue.add(ActivityUtils.createThumbnailJpg(imageId));
 		queue.add(ActivityUtils.createThumbnailPng(imageId));
-		safelyLoadThumnail(target, queue, R.drawable.thumbnail_image_empty);
+		safelyLoadThumbnail(target, queue, R.drawable.thumbnail_image_empty);
 	}
 
 	protected void loadThumbnail(String path, ImageView target) {
@@ -96,11 +96,11 @@ public abstract class BggListFragment extends ListFragment {
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
 		Queue<String> queue = new LinkedList<String>();
 		queue.add(path);
-		safelyLoadThumnail(target, queue, placeholderResId);
+		safelyLoadThumbnail(target, queue, placeholderResId);
 	}
 
-	private static void safelyLoadThumnail(final ImageView imageView, final Queue<String> imageUrls,
-		final int placeholderResId) {
+	private static void safelyLoadThumbnail(final ImageView imageView, final Queue<String> imageUrls,
+											final int placeholderResId) {
 		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
@@ -114,7 +114,7 @@ public abstract class BggListFragment extends ListFragment {
 
 				@Override
 				public void onError() {
-					safelyLoadThumnail(imageView, imageUrls, placeholderResId);
+					safelyLoadThumbnail(imageView, imageUrls, placeholderResId);
 				}
 			});
 	}

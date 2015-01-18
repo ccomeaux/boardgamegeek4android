@@ -1,9 +1,10 @@
 package com.boardgamegeek.ui.widget;
 
+import android.text.TextUtils;
+
 import java.util.List;
 
 import retrofit.RetrofitError;
-import android.text.TextUtils;
 
 public abstract class Data<T> {
 	private String mErrorMessage;
@@ -14,7 +15,7 @@ public abstract class Data<T> {
 	public Data(Exception e) {
 		if (e instanceof RetrofitError) {
 			RetrofitError re = (RetrofitError) e;
-			if (re.isNetworkError() && re.getResponse() == null) {
+			if (re.getKind() == RetrofitError.Kind.NETWORK && re.getResponse() == null) {
 				mErrorMessage = getOfflineMessage();
 			} else {
 				mErrorMessage = re.getMessage();

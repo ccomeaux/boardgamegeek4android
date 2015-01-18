@@ -12,10 +12,10 @@ public class XmlConverter {
 	private static final String BASE_URL = "https://boardgamegeek.com";
 	private static final String STATIC_IMAGES_URL = "https://cf.geekdo-static.com/images/";
 	private static final String IMAGES_URL = "https://cf.geekdo-images.com/images/";
-	private List<Replacable> mReplacers;
+	private List<Replaceable> mReplacers;
 
 	public XmlConverter() {
-		mReplacers = new ArrayList<Replacable>();
+		mReplacers = new ArrayList<Replaceable>();
 		mReplacers.add(new SimpleReplacer("\\[hr\\]", "<hr/>"));
 		mReplacers.add(new SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"));
 		createPair("b");
@@ -222,11 +222,11 @@ public class XmlConverter {
 		mReplacers.add(SimpleReplacer.createImage(color + "train", "ttr_" + color + ".gif"));
 	}
 
-	interface Replacable {
+	interface Replaceable {
 		String replace(String text);
 	}
 
-	private static class SimpleReplacer implements Replacable {
+	private static class SimpleReplacer implements Replaceable {
 		Pattern mPattern;
 		String mReplacement;
 
@@ -277,7 +277,7 @@ public class XmlConverter {
 		}
 	}
 
-	private static class Replacer implements Replacable {
+	private static class Replacer implements Replaceable {
 		private Pattern mPattern;
 		private String mPrefix;
 		private String mSuffix;
@@ -300,7 +300,7 @@ public class XmlConverter {
 		}
 	}
 
-	private static class UpperCaseReplacer implements Replacable {
+	private static class UpperCaseReplacer implements Replaceable {
 		private Pattern mPattern;
 		private String mPrefix;
 		private String mSuffix;
@@ -324,7 +324,7 @@ public class XmlConverter {
 		}
 	}
 
-	public static class UrlReplacer implements Replacable {
+	public static class UrlReplacer implements Replaceable {
 		private Pattern mPattern;
 
 		public UrlReplacer() {
@@ -344,7 +344,7 @@ public class XmlConverter {
 		}
 	}
 
-	public static class UrlReplacer2 implements Replacable {
+	public static class UrlReplacer2 implements Replaceable {
 		private Pattern mPattern;
 
 		public UrlReplacer2() {
@@ -369,7 +369,7 @@ public class XmlConverter {
 		}
 	}
 
-	public static class GeekUrlReplacer implements Replacable {
+	public static class GeekUrlReplacer implements Replaceable {
 		private Pattern mPattern;
 
 		public GeekUrlReplacer() {
@@ -395,7 +395,7 @@ public class XmlConverter {
 		}
 	}
 
-	public static class GeekLinkReplacer implements Replacable {
+	public static class GeekLinkReplacer implements Replaceable {
 		private Pattern mPattern;
 		private String mUrl;
 		private String mDisplayPrefix;
@@ -444,7 +444,7 @@ public class XmlConverter {
 			return "";
 		}
 
-		for (Replacable replacer : mReplacers) {
+		for (Replaceable replacer : mReplacers) {
 			text = replacer.replace(text);
 		}
 		text = "<div style=\"white-space: pre-wrap\">" + text + "</div>";

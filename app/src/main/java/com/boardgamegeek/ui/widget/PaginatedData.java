@@ -1,10 +1,11 @@
 package com.boardgamegeek.ui.widget;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RetrofitError;
-import android.text.TextUtils;
 
 public class PaginatedData<T> {
 	private List<T> mData;
@@ -33,7 +34,7 @@ public class PaginatedData<T> {
 		updateErrorMessage(e.getMessage());
 		if (e instanceof RetrofitError) {
 			RetrofitError re = (RetrofitError) e;
-			if (re.isNetworkError() && re.getResponse() == null) {
+			if (re.getKind() == RetrofitError.Kind.NETWORK && re.getResponse() == null) {
 				updateErrorMessage("Looks like you're offline.");
 			}
 		}

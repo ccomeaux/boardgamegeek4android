@@ -17,11 +17,11 @@ public abstract class CollectionSorter extends Sorter {
 	 */
 	@Override
 	public String getDescription() {
-		String decription = super.getDescription();
+		String description = super.getDescription();
 		if (mSubDescriptionId > 0) {
-			decription += " - " + mContext.getString(mSubDescriptionId);
+			description += " - " + mContext.getString(mSubDescriptionId);
 		}
-		return decription;
+		return description;
 	}
 
 	@Override

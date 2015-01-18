@@ -92,7 +92,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get an integer from the specified column at the URI. Returns deafultValue if there's
+	 * Use the content resolver to get an integer from the specified column at the URI. Returns defaultValue if there's
 	 * not exactly one row at the URI.
 	 */
 	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue) {
@@ -100,7 +100,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get an integer from the specified column at the URI. Returns deafultValue if there's
+	 * Use the content resolver to get an integer from the specified column at the URI. Returns defaultValue if there's
 	 * not exactly one row at the URI.
 	 */
 	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
@@ -119,7 +119,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
 	 * exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName) {
@@ -127,7 +127,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
 	 * exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue) {
@@ -135,7 +135,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns deafultValue if there's not
+	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
 	 * exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue,

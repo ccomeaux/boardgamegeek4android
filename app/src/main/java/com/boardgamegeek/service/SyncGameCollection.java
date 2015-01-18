@@ -44,7 +44,7 @@ public class SyncGameCollection extends UpdateTask {
 
 		// XXX: this deleted more games that I expected. need to rework
 		// int deleteCount = persister.delete(items, mGameId);
-		// LOGI(TAG, "Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
+		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
 	}
 
 	protected List<CollectionItem> request(Context context, Account account) {
