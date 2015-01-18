@@ -93,6 +93,7 @@ public abstract class SliderFilter {
 	}
 
 	private void initCheckbox() {
+		//noinspection ResourceType
 		mCheckBox.setVisibility(getCheckboxVisibility());
 		mCheckBox.setText(getCheckboxTextId());
 		mCheckBox.setChecked(isChecked());

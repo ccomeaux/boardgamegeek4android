@@ -111,7 +111,7 @@ public class BuddyPersister {
 	}
 
 	private static int generateSyncHashCode(User buddy) {
-		(buddy.firstName + "\n" + buddy.lastName + "\n" + buddy.avatarUrl + "\n").hashCode();
+		return (buddy.firstName + "\n" + buddy.lastName + "\n" + buddy.avatarUrl + "\n").hashCode();
 	}
 
 	private static void maybeDeleteAvatar(ContentValues values, Uri uri, ContentResolver resolver) {
