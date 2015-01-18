@@ -26,7 +26,6 @@ public class SettingsActivity extends PreferenceActivity {
 	private final static String ACTION_ADVANCED = "com.boardgamegeek.prefs.ADVANCED";
 	private final static String ACTION_ABOUT = "com.boardgamegeek.prefs.ABOUT";
 	private static final HashMap<String, Integer> mFragmentMap = buildFragmentMap();
-	private Toolbar mToolBar;
 
 	private static HashMap<String, Integer> buildFragmentMap() {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
@@ -54,10 +53,10 @@ public class SettingsActivity extends PreferenceActivity {
 		toolbarContainer.addView(content);
 		root.addView(toolbarContainer);
 
-		mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-		mToolBar.setTitle(getTitle());
-		mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-		mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
+		Toolbar toolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
+		toolBar.setTitle(getTitle());
+		toolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+		toolBar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				finish();

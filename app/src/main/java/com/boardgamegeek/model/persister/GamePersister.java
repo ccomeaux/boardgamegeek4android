@@ -45,7 +45,6 @@ import timber.log.Timber;
 public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
-	private ArrayList<ContentProviderOperation> mBatch;
 	private long mUpdateTime;
 
 	public GamePersister(Context context) {
@@ -63,7 +62,7 @@ public class GamePersister {
 	public int save(List<Game> games) {
 		boolean debug = PreferencesUtils.getDebug(mContext);
 		int length = 0;
-		mBatch = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 		if (games != null) {
 
 			DesignerPersister designerPersister = new DesignerPersister();
@@ -82,23 +81,23 @@ public class GamePersister {
 				} else {
 					cpo = ContentProviderOperation.newInsert(Games.CONTENT_URI);
 				}
-				mBatch.add(cpo.withValues(values).build());
-				mBatch.addAll(ranks(game));
+				batch.add(cpo.withValues(values).build());
+				batch.addAll(ranks(game));
 				if (PreferencesUtils.getPolls(mContext)) {
-					mBatch.addAll(polls(game));
+					batch.addAll(polls(game));
 				}
-				mBatch.addAll(designerPersister.insertAndCreateAssociations(game.id, mResolver, game.getDesigners()));
-				mBatch.addAll(artistPersister.insertAndCreateAssociations(game.id, mResolver, game.getArtists()));
-				mBatch.addAll(publisherPersister.insertAndCreateAssociations(game.id, mResolver, game.getPublishers()));
-				mBatch.addAll(categoryPersister.insertAndCreateAssociations(game.id, mResolver, game.getCategories()));
-				mBatch.addAll(mechanicPersister.insertAndCreateAssociations(game.id, mResolver, game.getMechanics()));
-				mBatch.addAll(expansionPersister.insertAndCreateAssociations(game.id, mResolver, game.getExpansions()));
+				batch.addAll(designerPersister.insertAndCreateAssociations(game.id, mResolver, game.getDesigners()));
+				batch.addAll(artistPersister.insertAndCreateAssociations(game.id, mResolver, game.getArtists()));
+				batch.addAll(publisherPersister.insertAndCreateAssociations(game.id, mResolver, game.getPublishers()));
+				batch.addAll(categoryPersister.insertAndCreateAssociations(game.id, mResolver, game.getCategories()));
+				batch.addAll(mechanicPersister.insertAndCreateAssociations(game.id, mResolver, game.getMechanics()));
+				batch.addAll(expansionPersister.insertAndCreateAssociations(game.id, mResolver, game.getExpansions()));
 				// make sure the last operation has a yield allowed
-				mBatch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
+				batch.add(ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
 					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
 				if (debug) {
 					try {
-						length += ResolverUtils.applyBatch(mContext, mBatch).length;
+						length += ResolverUtils.applyBatch(mContext, batch).length;
 						Timber.i("Saved game ID=" + game.id);
 					} catch (Exception e) {
 						NotificationCompat.Builder builder = NotificationUtils
@@ -110,14 +109,14 @@ public class GamePersister {
 									e.getMessage()));
 						NotificationUtils.notify(mContext, NotificationUtils.ID_PERSIST_ERROR, builder);
 					} finally {
-						mBatch.clear();
+						batch.clear();
 					}
 				}
 			}
 			if (debug) {
 				return length;
 			} else {
-				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, mBatch);
+				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
 				return result.length;
 			}
 		}

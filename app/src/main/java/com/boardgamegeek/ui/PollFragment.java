@@ -44,7 +44,6 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private static final String RECOMMENDED = "Recommended";
 	private static final String NOT_RECOMMENDED = "Not Recommended";
 
-	private int mGameId;
 	private String mType;
 	private int mPollCount;
 	private int mKeyCount;
@@ -67,9 +66,9 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = intent.getIntExtra(KEY_GAME_ID, -1);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, -1);
 		mType = intent.getStringExtra(KEY_TYPE);
-		mUri = Games.buildPollResultsResultUri(mGameId, mType);
+		mUri = Games.buildPollResultsResultUri(gameId, mType);
 	}
 
 	@Override

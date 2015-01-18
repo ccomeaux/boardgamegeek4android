@@ -108,7 +108,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		init();
 	}
 
-	private final void init() {
+	private void init() {
 		mScaledTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 		rect = new RectF(padding, 0.5f * (getHeight() - lineHeight), getWidth() - padding,
 			0.5f * (getHeight() + lineHeight));
@@ -306,7 +306,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		return true;
 	}
 
-	private final void onSecondaryPointerUp(MotionEvent ev) {
+	private void onSecondaryPointerUp(MotionEvent ev) {
 		final int pointerIndex = (ev.getAction() & ACTION_POINTER_INDEX_MASK) >> ACTION_POINTER_INDEX_SHIFT;
 
 		final int pointerId = ev.getPointerId(pointerIndex);
@@ -320,7 +320,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		}
 	}
 
-	private final void trackTouchEvent(MotionEvent event) {
+	private void trackTouchEvent(MotionEvent event) {
 		final int pointerIndex = event.findPointerIndex(mActivePointerId);
 		final float x = event.getX(pointerIndex);
 

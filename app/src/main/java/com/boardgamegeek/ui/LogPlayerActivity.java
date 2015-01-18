@@ -67,7 +67,6 @@ public class LogPlayerActivity extends ActionBarActivity {
 	private static final int HELP_VERSION = 1;
 	private static final int TOKEN_COLORS = 1;
 
-	private int mGameId;
 	private String mGameName;
 
 	private Player mPlayer;
@@ -164,7 +163,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 
 		final Intent intent = getIntent();
-		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
@@ -200,12 +199,12 @@ public class LogPlayerActivity extends ActionBarActivity {
 		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
 
-		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(mGameId),
+		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
 			new String[] { GameColors.COLOR }, null, null, null);
 
 		mName.setAdapter(new PlayerNameAdapter(this));
 		mUsername.setAdapter(new BuddyNameAdapter(this));
-		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
+		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
