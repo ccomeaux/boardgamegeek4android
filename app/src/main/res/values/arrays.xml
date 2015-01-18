@@ -60,6 +60,7 @@
 		<item>Expansions</item>
 		<item>Accessories</item>
 	</string-array>
+	<!--suppress CheckTagEmptyBody -->
 	<string-array name="expansion_status_filter_values">
 		<item></item>
 		<item>boardgame</item>
