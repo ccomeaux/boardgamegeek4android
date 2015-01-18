@@ -27,7 +27,7 @@ public class PollKeyRow extends LinearLayout {
 	public void init(Context context) {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.row_poll_key, this);
-		mView = (View) findViewById(R.id.row_poll_key_view);
+		mView = findViewById(R.id.row_poll_key_view);
 		mTextView = (TextView) findViewById(R.id.row_poll_key_text);
 		mInfoView = (TextView) findViewById(R.id.row_poll_key_info);
 	}

@@ -57,7 +57,7 @@
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
-	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"></style>
+	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
 
 	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
 		<item name="android:textColor">@color/primary_text_default_material_light</item>
