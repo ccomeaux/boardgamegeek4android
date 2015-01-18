@@ -27,20 +27,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.AverageRatingFilterData;
-import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
-import com.boardgamegeek.data.GeekRankingFilterData;
-import com.boardgamegeek.data.GeekRatingFilterData;
-import com.boardgamegeek.data.PlayCountFilterData;
-import com.boardgamegeek.data.PlayTimeFilterData;
-import com.boardgamegeek.data.PlayerNumberFilterData;
-import com.boardgamegeek.data.SuggestedAgeFilterData;
-import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -587,47 +578,47 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
 				new PlayerNumberFilter().createDialog(getActivity(), this,
-					(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
 				new PlayTimeFilter().createDialog(getActivity(), this,
-					(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
 				return true;
 			case R.id.menu_suggested_age:
 			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
 				new SuggestedAgeFilter().createDialog(getActivity(), this,
-					(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+					findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
 				return true;
 			case R.id.menu_average_weight:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
 				new AverageWeightFilter().createDialog(getActivity(), this,
-					(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
+					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 			case R.id.menu_year_published:
 			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
 				new YearPublishedFilter().createDialog(getActivity(), this,
-					(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
+					findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
 				return true;
 			case R.id.menu_average_rating:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
 				new AverageRatingFilter().createDialog(getActivity(), this,
-					(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
+					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
 				return true;
 			case R.id.menu_geek_rating:
 			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
 				new GeekRatingFilter().createDialog(getActivity(), this,
-					(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
+					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
 				return true;
 			case R.id.menu_geek_ranking:
 			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
 				new GeekRankingFilter().createDialog(getActivity(), this,
-					(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
+					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
 			case R.id.menu_play_count:
 			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
 				new PlayCountFilter().createDialog(getActivity(), this,
-					(PlayCountFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
 				return true;
 
 		}

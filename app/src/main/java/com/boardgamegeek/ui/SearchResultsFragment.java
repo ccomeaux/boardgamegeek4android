@@ -1,9 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -37,6 +33,10 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class SearchResultsFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<SearchResultsFragment.SearchData>, MultiChoiceModeListener {
@@ -147,7 +147,7 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		SearchResult game = (SearchResult) mAdapter.getItem(position);
+		SearchResult game = mAdapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
@@ -317,7 +317,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		SearchResult game = (SearchResult) mAdapter.getItem(mSelectedPositions.iterator().next());
+		SearchResult game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -328,7 +328,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 				for (int position : mSelectedPositions) {
-					SearchResult g = (SearchResult) mAdapter.getItem(position);
+					SearchResult g = mAdapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
@@ -339,7 +339,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				} else {
 					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
-						SearchResult g = (SearchResult) mAdapter.getItem(position);
+						SearchResult g = mAdapter.getItem(position);
 						games.add(new Pair<Integer, String>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);

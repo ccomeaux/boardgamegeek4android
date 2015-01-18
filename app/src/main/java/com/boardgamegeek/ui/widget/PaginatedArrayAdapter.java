@@ -97,7 +97,7 @@ public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 			return convertView;
 
 		} else {
-			T item = (T) getItem(position);
+			T item = getItem(position);
 			if (convertView == null) {
 				convertView = LayoutInflater.from(getContext()).inflate(mResource, parent, false);
 			}

@@ -31,7 +31,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekList = (GeekList) intent.getParcelableExtra(GeekListUtils.KEY_GEEKLIST);
+		mGeekList = intent.getParcelableExtra(GeekListUtils.KEY_GEEKLIST);
 	}
 
 	@Override
