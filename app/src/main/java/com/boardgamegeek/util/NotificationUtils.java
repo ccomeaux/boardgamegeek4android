@@ -66,7 +66,7 @@ public class NotificationUtils {
 
 	public static void launchStartNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
-		Queue<String> imageUrls = new LinkedList<String>();
+		Queue<String> imageUrls = new LinkedList<>();
 		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
 		imageUrls.add(imageUrl);
 		imageUrls.add(thumbnailUrl);

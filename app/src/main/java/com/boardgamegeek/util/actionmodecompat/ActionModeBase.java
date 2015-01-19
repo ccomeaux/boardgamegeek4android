@@ -70,7 +70,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
         mMenu = new SimpleMenu(mActivity);
         mCallback.onCreateActionMode(this, mMenu);
         mCallback.onPrepareActionMode(this, mMenu);
-        mMenuItemArrayAdapter = new ArrayAdapter<MenuItem>(mActivity,
+        mMenuItemArrayAdapter = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1);
         invalidate();
@@ -107,7 +107,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
     @Override
     public void invalidate() {
         mMenuItemArrayAdapter.clear();
-        List<MenuItem> items = new ArrayList<MenuItem>();
+        List<MenuItem> items = new ArrayList<>();
         for (int i = 0; i < mMenu.size(); i++) {
             MenuItem item = mMenu.getItem(i);
             if (item.isVisible()) {

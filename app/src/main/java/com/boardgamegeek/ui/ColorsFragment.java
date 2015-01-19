@@ -44,7 +44,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	private static final int TOKEN = 0x20;
 	private int mGameId;
 	private GameColorAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<>();
 	private AlertDialog mDialog;
 
 	@Override
@@ -207,7 +207,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 					new String[] { PlayPlayers.COLOR }, PlayItems.OBJECT_ID + "=?",
 					new String[] { String.valueOf(mGameId) }, null);
 				if (cursor != null && cursor.moveToFirst()) {
-					List<ContentValues> values = new ArrayList<ContentValues>();
+					List<ContentValues> values = new ArrayList<>();
 					do {
 						String color = cursor.getString(0);
 						if (!TextUtils.isEmpty(color)) {

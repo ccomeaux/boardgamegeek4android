@@ -19,32 +19,38 @@ public class PlaysPlayersProvider extends BaseProvider {
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
 		SelectionBuilder builder = new SelectionBuilder();
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
-		if (BggContract.QUERY_VALUE_NAME_NOT_USER.equals(groupBy)) {
-			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
-				.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
-		} else if (BggContract.QUERY_VALUE_UNIQUE_NAME.equals(groupBy)) {
-			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
-				.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
-				.groupBy(PlayPlayers.UNIQUE_NAME);
-		} else if (BggContract.QUERY_VALUE_UNIQUE_PLAYER.equals(groupBy)) {
-			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
-				.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
-				.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
-				.groupBy(PlayPlayers.NAME + "," + PlayPlayers.USER_NAME);
-		} else if (BggContract.QUERY_VALUE_UNIQUE_USER.equals(groupBy)) {
-			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
-				.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
-				.where(PlayPlayers.USER_NAME + "!=''").groupBy(PlayPlayers.USER_NAME);
-		} else {
-			builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
-				.mapToTable(Plays._ID, Tables.PLAYS)
-				.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-				.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
+		switch (groupBy) {
+			case BggContract.QUERY_VALUE_NAME_NOT_USER:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
+					.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
+				break;
+			case BggContract.QUERY_VALUE_UNIQUE_NAME:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+					.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
+					.groupBy(PlayPlayers.UNIQUE_NAME);
+				break;
+			case BggContract.QUERY_VALUE_UNIQUE_PLAYER:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
+					.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
+					.groupBy(PlayPlayers.NAME + "," + PlayPlayers.USER_NAME);
+				break;
+			case BggContract.QUERY_VALUE_UNIQUE_USER:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
+					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+					.where(PlayPlayers.USER_NAME + "!=''").groupBy(PlayPlayers.USER_NAME);
+				break;
+			default:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+					.mapToTable(Plays._ID, Tables.PLAYS)
+					.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
+					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
+				break;
 		}
 		builder
 			.map(PlayPlayers.COUNT, "count(*)")

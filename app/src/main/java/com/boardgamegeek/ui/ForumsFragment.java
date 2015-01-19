@@ -149,7 +149,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		@Override
 		public List<Forum> list() {
 			if (mResponse == null || mResponse.forums == null) {
-				return new ArrayList<Forum>();
+				return new ArrayList<>();
 			}
 			return mResponse.forums;
 		}

@@ -16,7 +16,7 @@ public class PieChartView extends View {
 	private RectF mOvals;
 	private final Paint mPaint = new Paint();
 	private float mTotal = 0.0f;
-	private List<Slice> mColors = new ArrayList<Slice>();
+	private List<Slice> mColors = new ArrayList<>();
 
 	public PieChartView(Context context) {
 		this(context, null, 0);

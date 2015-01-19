@@ -85,12 +85,13 @@ public class StringUtils {
 		}
 		String l = c.substring(c.length() - 1);
 		if (!n.equals("1")) {
-			if (l.equals("1")) {
-				return c + "st";
-			} else if (l.equals("2")) {
-				return c + "nd";
-			} else if (l.equals("3")) {
-				return c + "rd";
+			switch (l) {
+				case "1":
+					return c + "st";
+				case "2":
+					return c + "nd";
+				case "3":
+					return c + "rd";
 			}
 		}
 		return c + "th";
@@ -110,7 +111,7 @@ public class StringUtils {
 		if (array2 == null) {
 			return array1;
 		}
-		Set<String> set = new LinkedHashSet<String>();
+		Set<String> set = new LinkedHashSet<>();
 		set.addAll(Arrays.asList(array1));
 		set.addAll(Arrays.asList(array2));
 		return set.toArray(new String[set.size()]);

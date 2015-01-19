@@ -44,7 +44,7 @@ public abstract class PaginatedLoader<T> extends AsyncTaskLoader<PaginatedData<T
 			}
 		}
 		if (isStarted()) {
-			super.deliverResult(new PaginatedData<T>(mData));
+			super.deliverResult(new PaginatedData<>(mData));
 		}
 	}
 

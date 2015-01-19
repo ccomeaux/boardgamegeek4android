@@ -47,8 +47,8 @@ public class MultiSelectListPreference extends DialogPreference {
 	private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 	private CharSequence[] mEntries;
 	private CharSequence[] mEntryValues;
-	private Set<String> mValues = new HashSet<String>();
-	private Set<String> mNewValues = new HashSet<String>();
+	private Set<String> mValues = new HashSet<>();
+	private Set<String> mNewValues = new HashSet<>();
 	private boolean mPreferenceChanged;
 
 	public MultiSelectListPreference(Context context, AttributeSet attrs) {
@@ -254,10 +254,10 @@ public class MultiSelectListPreference extends DialogPreference {
 	protected Object onGetDefaultValue(TypedArray a, int index) {
 		final CharSequence[] defaultValues = a.getTextArray(index);
 		final int valueCount = defaultValues.length;
-		final Set<String> result = new HashSet<String>();
+		final Set<String> result = new HashSet<>();
 
-		for (int i = 0; i < valueCount; i++) {
-			result.add(defaultValues[i].toString());
+		for (CharSequence defaultValue : defaultValues) {
+			result.add(defaultValue.toString());
 		}
 
 		return result;
@@ -275,7 +275,7 @@ public class MultiSelectListPreference extends DialogPreference {
 		}
 		String string = getPersistedString("");
 		String[] values = string.split(SEPARATOR);
-		Set<String> set = new HashSet<String>();
+		Set<String> set = new HashSet<>();
 		Collections.addAll(set, values);
 		return set;
 	}
@@ -298,7 +298,7 @@ public class MultiSelectListPreference extends DialogPreference {
 
 		public SavedState(Parcel source) {
 			super(source);
-			values = new HashSet<String>();
+			values = new HashSet<>();
 			String[] strings = source.createStringArray();
 
 			final int stringCount = strings.length;

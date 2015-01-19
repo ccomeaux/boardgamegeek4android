@@ -15,7 +15,7 @@ public class XmlConverter {
 	private List<Replaceable> mReplacers;
 
 	public XmlConverter() {
-		mReplacers = new ArrayList<Replaceable>();
+		mReplacers = new ArrayList<>();
 		mReplacers.add(new SimpleReplacer("\\[hr\\]", "<hr/>"));
 		mReplacers.add(new SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"));
 		createPair("b");

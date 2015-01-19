@@ -255,12 +255,16 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 
 	private void changeSubtype(String subtype) {
 		int resId = R.string.title_game;
-		if (BggService.THING_SUBTYPE_BOARDGAME.equals(subtype)) {
-			resId = R.string.title_board_game;
-		} else if (BggService.THING_SUBTYPE_BOARDGAME_EXPANSION.equals(subtype)) {
-			resId = R.string.title_board_game_expansion;
-		} else if (BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY.equals(subtype)) {
-			resId = R.string.title_board_game_accessory;
+		switch (subtype) {
+			case BggService.THING_SUBTYPE_BOARDGAME:
+				resId = R.string.title_board_game;
+				break;
+			case BggService.THING_SUBTYPE_BOARDGAME_EXPANSION:
+				resId = R.string.title_board_game_expansion;
+				break;
+			case BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY:
+				resId = R.string.title_board_game_accessory;
+				break;
 		}
 		getSupportActionBar().setSubtitle(getString(resId));
 	}

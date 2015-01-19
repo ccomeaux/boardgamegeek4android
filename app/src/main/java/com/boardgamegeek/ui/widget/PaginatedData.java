@@ -17,7 +17,7 @@ public class PaginatedData<T> {
 	public PaginatedData(List<T> data, int totalCount, int page, int pageSize) {
 		mData = data;
 		if (mData == null) {
-			mData = new ArrayList<T>();
+			mData = new ArrayList<>();
 		}
 		mErrorMessage = "";
 		mTotalCount = totalCount;
@@ -26,7 +26,7 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(String errorMessage) {
-		mData = new ArrayList<T>();
+		mData = new ArrayList<>();
 		updateErrorMessage(errorMessage);
 	}
 
@@ -42,9 +42,9 @@ public class PaginatedData<T> {
 
 	public PaginatedData(PaginatedData<T> data) {
 		if (data.mData == null) {
-			this.mData = new ArrayList<T>();
+			this.mData = new ArrayList<>();
 		} else {
-			this.mData = new ArrayList<T>(data.mData);
+			this.mData = new ArrayList<>(data.mData);
 		}
 		this.mErrorMessage = data.mErrorMessage;
 		this.mTotalCount = data.mTotalCount;

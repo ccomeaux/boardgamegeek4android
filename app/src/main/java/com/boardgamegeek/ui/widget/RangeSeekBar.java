@@ -617,17 +617,17 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		public Number toNumber(double value) {
 			switch (this) {
 				case LONG:
-					return new Long((long) value);
+					return (long) value;
 				case DOUBLE:
 					return value;
 				case INTEGER:
-					return new Integer((int) value);
+					return (int) value;
 				case FLOAT:
 					return new Float(value);
 				case SHORT:
-					return new Short((short) value);
+					return (short) value;
 				case BYTE:
-					return new Byte((byte) value);
+					return (byte) value;
 				case BIG_DECIMAL:
 					return new BigDecimal(value);
 			}

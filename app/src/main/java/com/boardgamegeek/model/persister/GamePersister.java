@@ -54,7 +54,7 @@ public class GamePersister {
 	}
 
 	public int save(Game game) {
-		List<Game> games = new ArrayList<Game>(1);
+		List<Game> games = new ArrayList<>(1);
 		games.add(game);
 		return save(games);
 	}
@@ -62,7 +62,7 @@ public class GamePersister {
 	public int save(List<Game> games) {
 		boolean debug = PreferencesUtils.getDebug(mContext);
 		int length = 0;
-		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (games != null) {
 
 			DesignerPersister designerPersister = new DesignerPersister();
@@ -156,7 +156,7 @@ public class GamePersister {
 	}
 
 	private ArrayList<ContentProviderOperation> polls(Game game) {
-		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		List<String> existingPollNames = ResolverUtils.queryStrings(mResolver, Games.buildPollsUri(game.id),
 			GamePolls.POLL_NAME);
 		if (game.polls != null) {
@@ -165,7 +165,7 @@ public class GamePersister {
 				values.put(GamePolls.POLL_TITLE, poll.title);
 				values.put(GamePolls.POLL_TOTAL_VOTES, poll.totalvotes);
 
-				List<String> existingResultKeys = new ArrayList<String>();
+				List<String> existingResultKeys = new ArrayList<>();
 				if (existingPollNames.remove(poll.name)) {
 					batch.add(ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
 						.withValues(values).build());
@@ -182,7 +182,7 @@ public class GamePersister {
 					values.clear();
 					values.put(GamePollResults.POLL_RESULTS_SORT_INDEX, ++resultsIndex);
 
-					List<String> existingValues = new ArrayList<String>();
+					List<String> existingValues = new ArrayList<>();
 					if (existingResultKeys.remove(results.getKey())) {
 						batch.add(ContentProviderOperation
 							.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.getKey()))
@@ -239,7 +239,7 @@ public class GamePersister {
 	}
 
 	private ArrayList<ContentProviderOperation> ranks(Game game) {
-		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		List<Integer> rankIds = ResolverUtils.queryInts(mResolver, GameRanks.CONTENT_URI, GameRanks.GAME_RANK_ID,
 			GameRanks.GAME_ID + "=?", new String[] { String.valueOf(game.id) });
 
@@ -252,7 +252,7 @@ public class GamePersister {
 			values.put(GameRanks.GAME_RANK_VALUE, rank.getValue());
 			values.put(GameRanks.GAME_RANK_BAYES_AVERAGE, rank.getBayesAverage());
 
-			Integer rankId = Integer.valueOf(rank.id);
+			Integer rankId = rank.id;
 			if (rankIds.remove(rankId)) {
 				batch.add(ContentProviderOperation.newUpdate(Games.buildRanksUri(game.id, rankId)).withValues(values)
 					.build());
@@ -506,7 +506,7 @@ public class GamePersister {
 
 		ArrayList<ContentProviderOperation> insertAndCreateAssociations(int gameId, ContentResolver resolver,
 			List<Game.Link> newLinks) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			Uri gameUri = Games.buildPathUri(gameId, getUriPath());
 			List<Integer> existingIds = ResolverUtils.queryInts(resolver, gameUri, getAssociationIdColumnName());
 

@@ -38,7 +38,7 @@ public class SyncCollectionComplete extends SyncTask {
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext);
 
-			List<String> statuses = new ArrayList<String>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
+			List<String> statuses = new ArrayList<>(Arrays.asList(PreferencesUtils.getSyncStatuses(mContext)));
 			if (statuses.remove(STATUS_PLAYED)) {
 				statuses.add(0, STATUS_PLAYED);
 			}
@@ -57,7 +57,7 @@ public class SyncCollectionComplete extends SyncTask {
 				Timber.i("...syncing status [" + status + "]");
 				showNotification(String.format("Syncing %s collection items", status));
 
-				Map<String, String> options = new HashMap<String, String>();
+				Map<String, String> options = new HashMap<>();
 				options.put(status, "1");
 				for (int j = 0; j < i; j++) {
 					options.put(statuses.get(j), "0");

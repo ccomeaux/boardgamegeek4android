@@ -116,8 +116,8 @@ public class PreferencesUtils {
 		if (statuses == null) {
 			return false;
 		}
-		for (int i = 0; i < statuses.length; i++) {
-			if (status.equals(statuses[i])) {
+		for (String statuse : statuses) {
+			if (statuse.equals(status)) {
 				return true;
 			}
 		}
@@ -220,7 +220,7 @@ public class PreferencesUtils {
 	}
 
 	public static List<Player> getLastPlayPlayers(Context context) {
-		List<Player> players = new ArrayList<Player>();
+		List<Player> players = new ArrayList<>();
 		String playersString = getString(context, KEY_LAST_PLAY_PLAYERS);
 		String[] playerStringArray = playersString.split(SEPARATOR_RECORD);
 		for (String playerString : playerStringArray) {

@@ -41,8 +41,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
 
 	private ColorGridAdapter mAdapter;
 	private ColorGridAdapter mFeaturedAdapter;
-	private List<Pair<String, Integer>> mColorChoices = new ArrayList<Pair<String, Integer>>();
-	private ArrayList<String> mFeaturedColors = new ArrayList<String>();
+	private List<Pair<String, Integer>> mColorChoices = new ArrayList<>();
+	private ArrayList<String> mFeaturedColors = new ArrayList<>();
 	private int mNumColumns = 3;
 	private String mSelectedColor;
 	private ArrayList<String> mUsedColors;
@@ -132,7 +132,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		for (int i = 0; i < mColorChoices.size(); i++) {
 			Pair<String, Integer> color = mColorChoices.get(i);
 			outState.putString(KEY_COLORS_DESCRIPTION + i, color.first);
-			outState.putInt(KEY_COLORS + i, color.second.intValue());
+			outState.putInt(KEY_COLORS + i, color.second);
 		}
 		outState.putStringArrayList(KEY_FEATURED_COLORS, mFeaturedColors);
 		outState.putStringArrayList(KEY_USED_COLORS, mUsedColors);
@@ -150,9 +150,9 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 
 		if (savedInstanceState != null) {
-			mColorChoices = new ArrayList<Pair<String, Integer>>();
+			mColorChoices = new ArrayList<>();
 			for (int i = 0; i < savedInstanceState.getInt(KEY_COLOR_COUNT); i++) {
-				mColorChoices.add(new Pair<String, Integer>(savedInstanceState.getString(KEY_COLORS_DESCRIPTION + i),
+				mColorChoices.add(new Pair<>(savedInstanceState.getString(KEY_COLORS_DESCRIPTION + i),
 					savedInstanceState.getInt(KEY_COLORS + i)));
 			}
 			mFeaturedColors = savedInstanceState.getStringArrayList(KEY_FEATURED_COLORS);
@@ -216,7 +216,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	}
 
 	private class ColorGridAdapter extends BaseAdapter {
-		private List<Pair<String, Integer>> mChoices = new ArrayList<Pair<String, Integer>>();
+		private List<Pair<String, Integer>> mChoices = new ArrayList<>();
 		private String mSelectedColor;
 
 		private ColorGridAdapter(List<Pair<String, Integer>> choices) {

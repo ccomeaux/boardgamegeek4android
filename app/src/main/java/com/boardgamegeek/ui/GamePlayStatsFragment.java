@@ -308,7 +308,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		private Map<Integer, Integer> mPlayCountPerPlayerCount;
 		private int mRealMinutesPlayed;
 		private int mEstimatedMinutesPlayed;
-		private Set<String> mMonths = new HashSet<String>();
+		private Set<String> mMonths = new HashSet<>();
 
 		public Stats(Cursor cursor) {
 			mLambda = Math.log(0.1) / -10;
@@ -324,7 +324,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			mPlayCountWithLength = 0;
 			mPlayCountThisYear = 0;
 			mPlayerCountSumWithLength = 0;
-			mPlayCountPerPlayerCount = new HashMap<Integer, Integer>();
+			mPlayCountPerPlayerCount = new HashMap<>();
 			mRealMinutesPlayed = 0;
 			mEstimatedMinutesPlayed = 0;
 			mMonths.clear();

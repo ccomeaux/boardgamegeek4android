@@ -103,7 +103,7 @@ public abstract class SyncGames extends SyncTask {
 			}
 		}
 		ThingResponse response = new ThingResponse();
-		response.games = new ArrayList<Game>();
+		response.games = new ArrayList<>();
 		return response;
 	}
 

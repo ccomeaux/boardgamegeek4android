@@ -214,7 +214,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			return;
 		}
 
-		List<CollectionItem> list = new ArrayList<CollectionItem>();
+		List<CollectionItem> list = new ArrayList<>();
 		if (data != null) {
 			list = data.list();
 		}
@@ -253,7 +253,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			super(context);
 			mService = Adapter.create();
 			mUsername = username;
-			mOptions = new HashMap<String, String>();
+			mOptions = new HashMap<>();
 			mOptions.put(status, "1");
 			mOptions.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
@@ -302,7 +302,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		@Override
 		public List<CollectionItem> list() {
 			if (mResponse == null || mResponse.items == null) {
-				return new ArrayList<CollectionItem>();
+				return new ArrayList<>();
 			}
 			return mResponse.items;
 		}

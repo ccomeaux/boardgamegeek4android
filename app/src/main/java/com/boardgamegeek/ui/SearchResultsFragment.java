@@ -44,7 +44,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	private String mSearchText;
 	private SearchResultsAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
@@ -203,7 +203,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		@Override
 		public List<SearchResult> list() {
 			if (mResponse == null || mResponse.games == null) {
-				return new ArrayList<SearchResult>();
+				return new ArrayList<>();
 			}
 			return mResponse.games;
 		}
@@ -337,10 +337,10 @@ public class SearchResultsFragment extends BggListFragment implements
 				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
 						SearchResult g = mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(g.id, g.name));
+						games.add(new Pair<>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

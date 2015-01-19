@@ -92,16 +92,20 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (LANGUAGE_DEPENDENCE.equals(mType)) {
-			getDialog().setTitle(R.string.language_dependence);
-		} else if (SUGGESTED_PLAYERAGE.equals(mType)) {
-			getDialog().setTitle(R.string.suggested_playerage);
-		} else if (SUGGESTED_NUMPLAYERS.equals(mType)) {
-			mBarChart = true;
-			getDialog().setTitle(R.string.suggested_numplayers);
-			addKeyRow(0xff4cc417, BEST);
-			addKeyRow(Color.YELLOW, RECOMMENDED);
-			addKeyRow(Color.RED, NOT_RECOMMENDED);
+		switch (mType) {
+			case LANGUAGE_DEPENDENCE:
+				getDialog().setTitle(R.string.language_dependence);
+				break;
+			case SUGGESTED_PLAYERAGE:
+				getDialog().setTitle(R.string.suggested_playerage);
+				break;
+			case SUGGESTED_NUMPLAYERS:
+				mBarChart = true;
+				getDialog().setTitle(R.string.suggested_numplayers);
+				addKeyRow(0xff4cc417, BEST);
+				addKeyRow(Color.YELLOW, RECOMMENDED);
+				addKeyRow(Color.RED, NOT_RECOMMENDED);
+				break;
 		}
 
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
@@ -184,20 +188,25 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 
 			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
 			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-			if (BEST.equals(value)) {
-				row.setBest(votes);
-			} else if (RECOMMENDED.equals(value)) {
-				row.setRecommended(votes);
-			} else if (NOT_RECOMMENDED.equals(value)) {
-				row.setNotRecommended(votes);
-			} else {
-				Timber.w("Bad key: " + value);
+			switch (value) {
+				case BEST:
+					row.setBest(votes);
+					break;
+				case RECOMMENDED:
+					row.setRecommended(votes);
+					break;
+				case NOT_RECOMMENDED:
+					row.setNotRecommended(votes);
+					break;
+				default:
+					Timber.w("Bad key: " + value);
+					break;
 			}
 		} while (cursor.moveToNext());
 	}
 
 	private void createPieChart(Cursor cursor) {
-		ArrayList<Pair<CharSequence, Integer>> slices = new ArrayList<Pair<CharSequence, Integer>>();
+		ArrayList<Pair<CharSequence, Integer>> slices = new ArrayList<>();
 		do {
 			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
 			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);

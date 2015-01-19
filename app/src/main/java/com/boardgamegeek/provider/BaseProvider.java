@@ -107,7 +107,7 @@ public abstract class BaseProvider {
 	}
 
 	protected List<String> getList(final SQLiteDatabase db, final SelectionBuilder builder, String columnName) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		Cursor cursor = builder.query(db, new String[] { columnName }, null);
 		try {
 			if (cursor.moveToNext()) {

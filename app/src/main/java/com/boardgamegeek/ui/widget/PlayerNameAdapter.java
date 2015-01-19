@@ -48,11 +48,11 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		}
 	}
 
-	private static ArrayList<Result> EMPTY_LIST = new ArrayList<Result>();
+	private static ArrayList<Result> EMPTY_LIST = new ArrayList<>();
 
 	private final ContentResolver mResolver;
 	private final LayoutInflater mInflater;
-	private final ArrayList<Result> mResultList = new ArrayList<Result>();
+	private final ArrayList<Result> mResultList = new ArrayList<>();
 
 	public PlayerNameAdapter(Context context) {
 		super(context, R.layout.autocomplete_player, EMPTY_LIST);
@@ -139,10 +139,10 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 				}
 			}.execute();
 
-			HashSet<String> buddyUsernames = new HashSet<String>();
+			HashSet<String> buddyUsernames = new HashSet<>();
 			List<Result> buddies = queryBuddies(mResolver, filter, buddyUsernames);
 
-			ArrayList<Result> resultList = new ArrayList<Result>();
+			ArrayList<Result> resultList = new ArrayList<>();
 			if (buddies != null) {
 				resultList.addAll(buddies);
 			}
@@ -154,9 +154,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 					if (TextUtils.isEmpty(player.mUsername) || !buddyUsernames.contains(player.mUsername))
 						resultList.add(player);
 				}
-			} catch (ExecutionException e) {
-				Timber.e("Failed waiting for player query results.", e);
-			} catch (InterruptedException e) {
+			} catch (ExecutionException | InterruptedException e) {
 				Timber.e("Failed waiting for player query results.", e);
 			}
 
@@ -198,7 +196,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		Cursor c = resolver.query(Plays.buildPlayersByUniquePlayerUri(), PLAYER_PROJECTION, where, whereArgs,
 			PlayPlayers.NAME);
 		try {
-			List<Result> results = new ArrayList<Result>();
+			List<Result> results = new ArrayList<>();
 
 			c.moveToPosition(-1);
 			while (c.moveToNext()) {
@@ -236,7 +234,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 		}
 		Cursor c = resolver.query(Buddies.CONTENT_URI, BUDDY_PROJECTION, where, whereArgs, Buddies.NAME_SORT);
 		try {
-			List<Result> results = new ArrayList<Result>();
+			List<Result> results = new ArrayList<>();
 
 			c.moveToPosition(-1);
 			while (c.moveToNext()) {

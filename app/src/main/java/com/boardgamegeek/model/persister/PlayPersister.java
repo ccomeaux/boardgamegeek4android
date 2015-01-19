@@ -82,7 +82,7 @@ public class PlayPersister {
 		int inProgressCount = 0;
 		int errorCount = 0;
 		if (plays != null) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (Play play : plays) {
 				play.updated = startTime;
 				int status = determineSyncStatus(play);
@@ -139,7 +139,7 @@ public class PlayPersister {
 	}
 
 	private void save(Play play, int status) {
-		mBatch = new ArrayList<ContentProviderOperation>();
+		mBatch = new ArrayList<>();
 		ContentValues values = createContentValues(play);
 		List<Integer> itemObjectIds = null;
 		List<Integer> playerUserIds = null;
@@ -296,11 +296,11 @@ public class PlayPersister {
 		List<Integer> ids = ResolverUtils.queryInts(mResolver, play.playerUri(), PlayPlayers.USER_ID);
 
 		if (ids == null || ids.size() == 0) {
-			return new ArrayList<Integer>();
+			return new ArrayList<>();
 		}
 
-		List<Integer> uniqueIds = new ArrayList<Integer>();
-		List<Integer> idsToDelete = new ArrayList<Integer>();
+		List<Integer> uniqueIds = new ArrayList<>();
+		List<Integer> idsToDelete = new ArrayList<>();
 
 		for (int i = 0; i < ids.size(); i++) {
 			Integer id = ids.get(i);
@@ -405,7 +405,7 @@ public class PlayPersister {
 			return;
 		}
 
-		List<ContentValues> values = new ArrayList<ContentValues>();
+		List<ContentValues> values = new ArrayList<>();
 		for (Player player : play.getPlayers()) {
 			String color = player.color;
 			if (!TextUtils.isEmpty(color)) {

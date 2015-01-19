@@ -35,7 +35,7 @@ public class SyncCollectionUnupdated extends SyncTask {
 		try {
 			int numberOfFetches = 0;
 			CollectionPersister persister = new CollectionPersister(mContext).includePrivateInfo().includeStats();
-			Map<String, String> options = new HashMap<String, String>();
+			Map<String, String> options = new HashMap<>();
 			options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 			options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 

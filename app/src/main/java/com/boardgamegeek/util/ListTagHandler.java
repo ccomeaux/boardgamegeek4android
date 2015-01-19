@@ -24,11 +24,11 @@ public class ListTagHandler implements Html.TagHandler {
 	 * Keeps track of lists (ol, ul). On bottom of Stack is the outermost list and on top of Stack is the most nested
 	 * list
 	 */
-	private Stack<String> mLists = new Stack<String>();
+	private Stack<String> mLists = new Stack<>();
 	/**
 	 * Tracks indexes of ordered lists so that after a nested list ends we can continue with correct index of outer list
 	 */
-	private Stack<Integer> mNextOrderedIndex = new Stack<Integer>();
+	private Stack<Integer> mNextOrderedIndex = new Stack<>();
 	/**
 	 * List indentation in pixels. Nested lists use multiple of this.
 	 */
@@ -47,7 +47,7 @@ public class ListTagHandler implements Html.TagHandler {
 		} else if (tagIsTypeOf(tag, OL)) {
 			if (opening) {
 				mLists.push(tag);
-				mNextOrderedIndex.push(Integer.valueOf(1)).toString();
+				mNextOrderedIndex.push(1).toString();
 			} else {
 				mLists.pop();
 				mNextOrderedIndex.pop().toString();
@@ -61,7 +61,7 @@ public class ListTagHandler implements Html.TagHandler {
 				} else if (tagIsTypeOf(currentListTag, OL)) {
 					startListItem(output, new Ol());
 					output.append(mNextOrderedIndex.peek().toString()).append(". ");
-					mNextOrderedIndex.push(Integer.valueOf(mNextOrderedIndex.pop().intValue() + 1));
+					mNextOrderedIndex.push(mNextOrderedIndex.pop() + 1);
 				}
 			} else {
 				if (tagIsTypeOf(currentListTag, UL)) {

@@ -80,10 +80,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private long mViewId;
 	private String mViewName = "";
 	private CollectionSorter mSort;
-	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
+	private List<CollectionFilterData> mFilters = new ArrayList<>();
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private android.view.MenuItem mLogPlayMenuItem;
 	private android.view.MenuItem mLogPlayQuickMenuItem;
 	private android.view.MenuItem mBggLinkMenuItem;
@@ -841,10 +841,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), gameId, gameName);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
 						Cursor c = (Cursor) mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
+						games.add(new Pair<>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

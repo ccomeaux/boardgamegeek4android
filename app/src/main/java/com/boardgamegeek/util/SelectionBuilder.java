@@ -39,10 +39,10 @@ import timber.log.Timber;
  */
 public class SelectionBuilder {
 	private String mTable = null;
-	private Map<String, String> mProjectionMap = new HashMap<String, String>();
+	private Map<String, String> mProjectionMap = new HashMap<>();
 	private StringBuilder mSelection = new StringBuilder();
-	private List<String> mSelectionArgs = new ArrayList<String>();
-	private List<String> mGroupBy = new ArrayList<String>();
+	private List<String> mSelectionArgs = new ArrayList<>();
+	private List<String> mGroupBy = new ArrayList<>();
 	private String mHaving = null;
 	private String mLimit = null;
 

@@ -136,7 +136,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 					}
 					try {
 						if (cursor.moveToFirst()) {
-							mColors = new ArrayList<String>();
+							mColors = new ArrayList<>();
 							do {
 								mColors.add(cursor.getString(0));
 							} while (cursor.moveToNext());
@@ -193,7 +193,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
-		mUsedColors = new ArrayList<String>(Arrays.asList(usedColors));
+		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
 		mUsedColors.remove(mPlayer.color);
 
 		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
@@ -437,7 +437,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 
 		if (shouldHideTeamColor()) {
 			list.add(r.getString(R.string.team_color));

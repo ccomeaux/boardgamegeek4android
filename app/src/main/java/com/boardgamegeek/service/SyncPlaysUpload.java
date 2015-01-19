@@ -54,7 +54,7 @@ public class SyncPlaysUpload extends SyncTask {
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		mPostService = Adapter.createForPost(mContext);
-		mMessages = new ArrayList<CharSequence>();
+		mMessages = new ArrayList<>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
 
@@ -185,7 +185,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayUpdate(Play play) {
-		Map<String, String> form = new HashMap<String, String>();
+		Map<String, String> form = new HashMap<>();
 		form.put("ajax", "1");
 		form.put("action", "save");
 		form.put("version", "2");
@@ -228,7 +228,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayDelete(int playId) {
-		Map<String, String> form = new HashMap<String, String>();
+		Map<String, String> form = new HashMap<>();
 		form.put("ajax", "1");
 		form.put("action", "delete");
 		form.put("playid", String.valueOf(playId));

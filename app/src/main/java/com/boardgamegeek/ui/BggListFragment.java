@@ -83,7 +83,7 @@ public abstract class BggListFragment extends ListFragment {
 	}
 
 	protected void loadThumbnail(int imageId, ImageView target) {
-		Queue<String> queue = new LinkedList<String>();
+		Queue<String> queue = new LinkedList<>();
 		queue.add(ActivityUtils.createThumbnailJpg(imageId));
 		queue.add(ActivityUtils.createThumbnailPng(imageId));
 		safelyLoadThumbnail(target, queue, R.drawable.thumbnail_image_empty);
@@ -94,7 +94,7 @@ public abstract class BggListFragment extends ListFragment {
 	}
 
 	protected void loadThumbnail(String path, ImageView target, int placeholderResId) {
-		Queue<String> queue = new LinkedList<String>();
+		Queue<String> queue = new LinkedList<>();
 		queue.add(path);
 		safelyLoadThumbnail(target, queue, placeholderResId);
 	}

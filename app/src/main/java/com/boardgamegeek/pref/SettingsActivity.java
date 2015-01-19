@@ -28,7 +28,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private static final HashMap<String, Integer> mFragmentMap = buildFragmentMap();
 
 	private static HashMap<String, Integer> buildFragmentMap() {
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		HashMap<String, Integer> map = new HashMap<>();
 		map.put(ACTION_SEARCH, R.xml.preference_search);
 		map.put(ACTION_LOG, R.xml.preference_log);
 		map.put(ACTION_SYNC, R.xml.preference_sync);

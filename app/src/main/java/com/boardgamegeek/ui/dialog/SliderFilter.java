@@ -33,7 +33,7 @@ public abstract class SliderFilter {
 		mTextInterval = (TextView) layout.findViewById(R.id.slider_filter_text);
 		mCheckBox = (CheckBox) layout.findViewById(R.id.slider_filter_checkbox);
 		FrameLayout container = (FrameLayout) layout.findViewById(R.id.slider_filter_rangeseekbar_container);
-		mRangeSeekBar = new RangeSeekBar<Integer>(getAbsoluteMin(), getAbsoluteMax(), context);
+		mRangeSeekBar = new RangeSeekBar<>(getAbsoluteMin(), getAbsoluteMax(), context);
 		container.addView(mRangeSeekBar);
 
 		mMin = getMin();

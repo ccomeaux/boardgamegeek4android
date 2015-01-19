@@ -155,7 +155,7 @@ public class Play {
 		location = "";
 		comments = "";
 		startTime = 0;
-		players = new ArrayList<Player>();
+		players = new ArrayList<>();
 	}
 
 	// URI
@@ -242,7 +242,7 @@ public class Play {
 
 	public List<Player> getPlayers() {
 		if (players == null) {
-			return new ArrayList<Player>();
+			return new ArrayList<>();
 		}
 		return players;
 	}
@@ -256,7 +256,7 @@ public class Play {
 
 	public void setPlayers(List<Player> players) {
 		if (players == null) {
-			this.players = new ArrayList<Player>();
+			this.players = new ArrayList<>();
 		} else {
 			this.players = players;
 		}
@@ -283,7 +283,7 @@ public class Play {
 
 	public void addPlayer(Player player) {
 		if (players == null) {
-			players = new ArrayList<Player>();
+			players = new ArrayList<>();
 		}
 		players.add(player);
 	}

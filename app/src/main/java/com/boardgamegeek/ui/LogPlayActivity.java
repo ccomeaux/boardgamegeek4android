@@ -116,9 +116,9 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
-	private List<Player> mPlayersToAdd = new ArrayList<Player>();
-	private List<String> mUsernames = new ArrayList<String>();
-	private List<String> mNames = new ArrayList<String>();
+	private List<Player> mPlayersToAdd = new ArrayList<>();
+	private List<String> mUsernames = new ArrayList<>();
+	private List<String> mNames = new ArrayList<>();
 
 	private TextView mHeaderView;
 	private Button mDateButton;
@@ -721,7 +721,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 		if (shouldHideLocation()) {
 			list.add(r.getString(R.string.location));
 		}
@@ -782,7 +782,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlayersToAdd.clear();
 		mUsernames.clear();
 		mNames.clear();
-		List<String> descriptions = new ArrayList<String>();
+		List<String> descriptions = new ArrayList<>();
 
 		String selection = null;
 		String[] selectionArgs = null;
@@ -1022,7 +1022,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
 			Player p = mPlay.getPlayers().get(i);
 			String name = p.getDescription();
@@ -1069,7 +1069,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
-		List<String> colors = new ArrayList<String>();
+		List<String> colors = new ArrayList<>();
 		for (Player player : mPlay.getPlayers()) {
 			colors.add(player.color);
 		}

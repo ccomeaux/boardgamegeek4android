@@ -99,33 +99,33 @@ public class ColorUtils {
 	private static final List<Pair<String, Integer>> sColorNameList;
 
 	static {
-		sColorNameList = new ArrayList<Pair<String, Integer>>();
-		sColorNameList.add(new Pair<String, Integer>("Red", RED));
-		sColorNameList.add(new Pair<String, Integer>("Yellow", YELLOW));
-		sColorNameList.add(new Pair<String, Integer>("Blue", BLUE));
-		sColorNameList.add(new Pair<String, Integer>("Green", GREEN));
-		sColorNameList.add(new Pair<String, Integer>("Purple", PURPLE));
-		sColorNameList.add(new Pair<String, Integer>("Orange", ORANGE));
-		sColorNameList.add(new Pair<String, Integer>("White", WHITE));
-		sColorNameList.add(new Pair<String, Integer>("Black", BLACK));
-		sColorNameList.add(new Pair<String, Integer>("Natural", NATURAL));
-		sColorNameList.add(new Pair<String, Integer>("Brown", BROWN));
-		sColorNameList.add(new Pair<String, Integer>("Tan", TAN));
-		sColorNameList.add(new Pair<String, Integer>("Gray", GRAY));
-		sColorNameList.add(new Pair<String, Integer>("Gold", GOLD));
-		sColorNameList.add(new Pair<String, Integer>("Silver", SILVER));
-		sColorNameList.add(new Pair<String, Integer>("Bronze", BRONZE));
-		sColorNameList.add(new Pair<String, Integer>("Ivory", IVORY));
-		sColorNameList.add(new Pair<String, Integer>("Rose", ROSE));
-		sColorNameList.add(new Pair<String, Integer>("Pink", PINK));
-		sColorNameList.add(new Pair<String, Integer>("Teal", TEAL));
+		sColorNameList = new ArrayList<>();
+		sColorNameList.add(new Pair<>("Red", RED));
+		sColorNameList.add(new Pair<>("Yellow", YELLOW));
+		sColorNameList.add(new Pair<>("Blue", BLUE));
+		sColorNameList.add(new Pair<>("Green", GREEN));
+		sColorNameList.add(new Pair<>("Purple", PURPLE));
+		sColorNameList.add(new Pair<>("Orange", ORANGE));
+		sColorNameList.add(new Pair<>("White", WHITE));
+		sColorNameList.add(new Pair<>("Black", BLACK));
+		sColorNameList.add(new Pair<>("Natural", NATURAL));
+		sColorNameList.add(new Pair<>("Brown", BROWN));
+		sColorNameList.add(new Pair<>("Tan", TAN));
+		sColorNameList.add(new Pair<>("Gray", GRAY));
+		sColorNameList.add(new Pair<>("Gold", GOLD));
+		sColorNameList.add(new Pair<>("Silver", SILVER));
+		sColorNameList.add(new Pair<>("Bronze", BRONZE));
+		sColorNameList.add(new Pair<>("Ivory", IVORY));
+		sColorNameList.add(new Pair<>("Rose", ROSE));
+		sColorNameList.add(new Pair<>("Pink", PINK));
+		sColorNameList.add(new Pair<>("Teal", TEAL));
 		// sColorNameList.add(new Pair<String, Integer>("Aqua", AQUA));
 		// sColorNameList.add(new Pair<String, Integer>("Cyan", CYAN));
 		// sColorNameList.add(new Pair<String, Integer>("Magenta", MAGENTA));
 		// sColorNameList.add(new Pair<String, Integer>("Light Gray", LTGRAY));
 		// sColorNameList.add(new Pair<String, Integer>("Dark Gray", DKGRAY));
 
-		sColorNameMap = new HashMap<String, Integer>();
+		sColorNameMap = new HashMap<>();
 		for (Pair<String, Integer> pair : sColorNameList) {
 			sColorNameMap.put(formatKey(pair.first), pair.second);
 		}

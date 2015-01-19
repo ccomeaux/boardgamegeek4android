@@ -78,7 +78,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
 	private int mSelectedPlayId;
-	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem mSendMenuItem;
 	private MenuItem mEditMenuItem;
 

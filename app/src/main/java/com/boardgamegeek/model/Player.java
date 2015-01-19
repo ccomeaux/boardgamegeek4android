@@ -182,7 +182,7 @@ public class Player implements Parcelable {
 	}
 
 	public List<NameValuePair> toNameValuePairs(int index) {
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		List<NameValuePair> nvps = new ArrayList<>();
 		addPair(nvps, index, "playerid", "player_" + index);
 		addPair(nvps, index, "name", name);
 		addPair(nvps, index, "username", username);

@@ -50,7 +50,7 @@ public class ResolverUtils {
 	}
 
 	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
-		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>(1);
+		ArrayList<ContentProviderOperation> batch = new ArrayList<>(1);
 		batch.add(cpo);
 		try {
 			ContentProviderResult[] result = resolver.applyBatch(BggContract.CONTENT_AUTHORITY, batch);
@@ -173,7 +173,7 @@ public class ResolverUtils {
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
 										  String[] selectionArgs, String sortOrder) {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
 			while (cursor.moveToNext()) {
@@ -205,7 +205,7 @@ public class ResolverUtils {
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
 										String[] selectionArgs, String sortOrder) {
-		List<Long> list = new ArrayList<Long>();
+		List<Long> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
 			while (cursor.moveToNext()) {
@@ -237,7 +237,7 @@ public class ResolverUtils {
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
 											String[] selectionArgs, String sortOrder) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		Cursor cursor = resolver.query(uri, new String[] { columnName }, selection, selectionArgs, sortOrder);
 		try {
 			while (cursor.moveToNext()) {

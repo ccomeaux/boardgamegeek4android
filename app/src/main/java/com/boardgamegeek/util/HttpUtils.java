@@ -50,7 +50,7 @@ public class HttpUtils {
 		String AUTH_URI = HttpUtils.SITE_URL + "login";
 
 		final HttpResponse resp;
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		List<NameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair("username", username));
 		params.add(new BasicNameValuePair("password", password));
 

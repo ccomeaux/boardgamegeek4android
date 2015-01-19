@@ -47,7 +47,7 @@ public class ServiceTask {
 			}
 		}
 		CollectionResponse response = new CollectionResponse();
-		response.items = new ArrayList<CollectionItem>();
+		response.items = new ArrayList<>();
 		return response;
 	}
 }

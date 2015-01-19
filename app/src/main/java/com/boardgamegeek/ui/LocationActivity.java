@@ -136,7 +136,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		protected String doInBackground(String... params) {
 			String oldLocation = params[0];
 			String newLocation = params[1];
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
 			ContentValues values = new ContentValues();
 			values.put(Plays.LOCATION, newLocation);

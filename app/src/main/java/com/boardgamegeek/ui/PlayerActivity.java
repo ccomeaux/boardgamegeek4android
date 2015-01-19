@@ -153,7 +153,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 			String oldName = params[0];
 			String newName = params[1];
 
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			String selection = TextUtils.isEmpty(mUsername) ? selectionWithoutUsername : selectionWithUsername;
 
 			List<Integer> playIds = ResolverUtils.queryInts(getContentResolver(), Plays.buildPlayersUri(),

@@ -32,7 +32,7 @@ public class BuddyPersister {
 	}
 
 	public int save(User buddy) {
-		List<User> buddies = new ArrayList<User>(1);
+		List<User> buddies = new ArrayList<>(1);
 		buddies.add(buddy);
 		return save(buddies);
 	}
@@ -67,7 +67,7 @@ public class BuddyPersister {
 	}
 
 	public int saveList(Buddy buddy) {
-		List<Buddy> buddies = new ArrayList<Buddy>(1);
+		List<Buddy> buddies = new ArrayList<>(1);
 		buddies.add(buddy);
 		return saveList(buddies);
 	}

@@ -23,7 +23,7 @@ public class BggProvider extends ContentProvider {
 
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
-		HashMap<Integer, BaseProvider> map = new HashMap<Integer, BaseProvider>();
+		HashMap<Integer, BaseProvider> map = new HashMap<>();
 
 		addProvider(map, new GamesProvider());
 		addProvider(map, new GamesIdProvider());

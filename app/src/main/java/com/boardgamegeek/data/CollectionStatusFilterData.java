@@ -59,7 +59,7 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 	private void createSelection(Resources r) {
 		String[] values = r.getStringArray(R.array.collection_status_filter_values);
 		String selection = "";
-		List<String> selectionArgs = new ArrayList<String>(mSelected.length);
+		List<String> selectionArgs = new ArrayList<>(mSelected.length);
 
 		for (int i = 0; i < mSelected.length; i++) {
 			if (mSelected[i]) {

@@ -38,7 +38,7 @@ public class CollectionPersister {
 		mContext = context;
 		mResolver = mContext.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
-		mGameIds = new ArrayList<Integer>();
+		mGameIds = new ArrayList<>();
 	}
 
 	public long getTimeStamp() {
@@ -81,7 +81,7 @@ public class CollectionPersister {
 
 		// remove them
 		if (collectionIds.size() > 0) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (Integer collectionId : collectionIds) {
 				batch.add(ContentProviderOperation.newDelete(Collection.CONTENT_URI)
 					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
