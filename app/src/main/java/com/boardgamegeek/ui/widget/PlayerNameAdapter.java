@@ -110,6 +110,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 
 		ImageView avatarView = (ImageView) view.findViewById(R.id.player_avatar);
 		if (avatarView != null) {
+			//noinspection SuspiciousNameCombination
 			Picasso.with(getContext()).load(HttpUtils.ensureScheme(result.mAvatarUrl))
 				.placeholder(R.drawable.person_image_empty).error(R.drawable.person_image_empty)
 				.resizeDimen(R.dimen.dropdownitem_min_height, R.dimen.dropdownitem_min_height).centerCrop()

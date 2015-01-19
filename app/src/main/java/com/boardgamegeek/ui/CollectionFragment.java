@@ -159,7 +159,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		mFilterLinearLayout = (LinearLayout) getView().findViewById(R.id.filter_linear_layout);
+		mFilterLinearLayout = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
 		setEmptyText();
 	}
 

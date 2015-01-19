@@ -16,11 +16,6 @@
 
 package com.boardgamegeek.pref;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,17 +24,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.DialogPreference;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.R;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A {@link Preference} that displays a list of entries as a dialog.
- * <p>
+ * <p/>
  * This preference will store a set of strings into the SharedPreferences. This set will contain one or more values from
  * the {@link #setEntryValues(CharSequence[])} array.
- * 
+ *
  * @attr ref android.R.styleable#MultiSelectListPreference_entries
  * @attr ref android.R.styleable#MultiSelectListPreference_entryValues
  */
@@ -66,11 +67,10 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	/**
 	 * Sets the human-readable entries to be shown in the list. This will be shown in subsequent dialogs.
-	 * <p>
+	 * <p/>
 	 * Each entry must have a corresponding index in {@link #setEntryValues(CharSequence[])}.
-	 * 
-	 * @param entries
-	 *            The entries.
+	 *
+	 * @param entries The entries.
 	 * @see #setEntryValues(CharSequence[])
 	 */
 	public void setEntries(CharSequence[] entries) {
@@ -78,9 +78,8 @@ public class MultiSelectListPreference extends DialogPreference {
 	}
 
 	/**
+	 * @param entriesResId The entries array as a resource.
 	 * @see #setEntries(CharSequence[])
-	 * @param entriesResId
-	 *            The entries array as a resource.
 	 */
 	public void setEntries(int entriesResId) {
 		setEntries(getContext().getResources().getTextArray(entriesResId));
@@ -88,7 +87,7 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	/**
 	 * The list of entries to be shown in the list in subsequent dialogs.
-	 * 
+	 *
 	 * @return The list as an array.
 	 */
 	public CharSequence[] getEntries() {
@@ -98,18 +97,16 @@ public class MultiSelectListPreference extends DialogPreference {
 	/**
 	 * The array to find the value to save for a preference when an entry from entries is selected. If a user clicks on
 	 * the second item in entries, the second item in this array will be saved to the preference.
-	 * 
-	 * @param entryValues
-	 *            The array to be used as values to save for the preference.
+	 *
+	 * @param entryValues The array to be used as values to save for the preference.
 	 */
 	public void setEntryValues(CharSequence[] entryValues) {
 		mEntryValues = entryValues;
 	}
 
 	/**
+	 * @param entryValuesResId The entry values array as a resource.
 	 * @see #setEntryValues(CharSequence[])
-	 * @param entryValuesResId
-	 *            The entry values array as a resource.
 	 */
 	public void setEntryValues(int entryValuesResId) {
 		setEntryValues(getContext().getResources().getTextArray(entryValuesResId));
@@ -117,7 +114,7 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	/**
 	 * Returns the array of values to be saved for the preference.
-	 * 
+	 *
 	 * @return The array of values.
 	 */
 	public CharSequence[] getEntryValues() {
@@ -126,9 +123,8 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	/**
 	 * Sets the value of the key. This should contain entries in {@link #getEntryValues()}.
-	 * 
-	 * @param values
-	 *            The values to set for the key.
+	 *
+	 * @param values The values to set for the key.
 	 */
 	public void setValues(Set<String> values) {
 		mValues.clear();
@@ -160,9 +156,8 @@ public class MultiSelectListPreference extends DialogPreference {
 
 	/**
 	 * Returns the index of the given value (in the entry values array).
-	 * 
-	 * @param value
-	 *            The value whose index should be returned.
+	 *
+	 * @param value The value whose index should be returned.
 	 * @return The index of the value, or -1 if not found.
 	 */
 	public int findIndexOfValue(String value) {
@@ -253,7 +248,6 @@ public class MultiSelectListPreference extends DialogPreference {
 	@Override
 	protected Object onGetDefaultValue(TypedArray a, int index) {
 		final CharSequence[] defaultValues = a.getTextArray(index);
-		final int valueCount = defaultValues.length;
 		final Set<String> result = new HashSet<>();
 
 		for (CharSequence defaultValue : defaultValues) {
@@ -310,7 +304,7 @@ public class MultiSelectListPreference extends DialogPreference {
 		}
 
 		@Override
-		public void writeToParcel(Parcel dest, int flags) {
+		public void writeToParcel(@NonNull Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
 			dest.writeStringArray(values.toArray(new String[values.size()]));
 		}

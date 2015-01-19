@@ -107,7 +107,7 @@ public class HotnessFragment extends BggListFragment implements
 
 		@Override
 		public HotnessData loadInBackground() {
-			HotnessData games = null;
+			HotnessData games;
 			try {
 				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
 			} catch (Exception e) {

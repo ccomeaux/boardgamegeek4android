@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -140,7 +141,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_colors, null); // TODO provide root
 
@@ -258,8 +259,7 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 
 		public void setSelectedColor(String selectedColor) {
-
-			if (mSelectedColor != selectedColor) {
+			if (!mSelectedColor.equals(selectedColor)) {
 				mSelectedColor = selectedColor;
 				notifyDataSetChanged();
 			}

@@ -2,6 +2,7 @@ package com.boardgamegeek.pref;
 
 import android.content.Context;
 import android.preference.DialogPreference;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
@@ -37,7 +38,7 @@ public class VersionPreference extends DialogPreference {
 	}
 
 	@Override
-	protected void onBindDialogView(View view) {
+	protected void onBindDialogView(@NonNull View view) {
 		TextView nameAndVersionView = (TextView) view.findViewById(R.id.app_name_and_version);
 		TextView aboutBodyView = (TextView) view.findViewById(R.id.about_body);
 

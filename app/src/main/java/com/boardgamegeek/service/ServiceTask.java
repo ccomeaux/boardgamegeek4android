@@ -2,7 +2,6 @@ package com.boardgamegeek.service;
 
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
-import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class ServiceTask {
 			try {
 				return service.collection(username, options);
 			} catch (Exception e) {
-				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+				if (e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
 						break;

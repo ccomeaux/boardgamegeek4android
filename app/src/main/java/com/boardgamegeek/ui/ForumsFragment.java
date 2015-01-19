@@ -1,9 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +27,10 @@ import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
 	private static final int FORUMS_LOADER_ID = 0;
@@ -121,7 +121,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		public ForumsData loadInBackground() {
-			ForumsData forums = null;
+			ForumsData forums;
 			try {
 				if (mGameId == BggContract.INVALID_ID) {
 					forums = new ForumsData(mService.forumList(BggService.FORUM_TYPE_REGION, BggService.FORUM_REGION_BOARDGAME));

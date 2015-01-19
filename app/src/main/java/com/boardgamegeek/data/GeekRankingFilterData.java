@@ -61,7 +61,7 @@ public class GeekRankingFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String text = "";
+		String text;
 		if (mMin >= MAX_RANGE) {
 			text = MAX_RANGE + "+";
 		} else if (mMin == mMax) {
@@ -76,7 +76,7 @@ public class GeekRankingFilterData extends CollectionFilterData {
 	}
 
 	private void setSelection() {
-		String selection = "";
+		String selection;
 		if (mMin >= MAX_RANGE) {
 			selection = Games.GAME_RANK + ">=?";
 			selectionArgs(String.valueOf(MAX_RANGE));

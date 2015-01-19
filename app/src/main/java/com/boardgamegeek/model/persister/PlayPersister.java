@@ -199,7 +199,7 @@ public class PlayPersister {
 	}
 
 	private int determineSyncStatus(Play play) {
-		int status = STATUS_UNKNOWN;
+		int status;
 		if (playExistsInDatabase(play)) {
 			int currentSyncStatus = getCurrentSyncStatus(play);
 			if (currentSyncStatus != Play.SYNC_STATUS_SYNCED) {

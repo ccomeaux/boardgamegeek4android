@@ -34,7 +34,7 @@ public class SyncGamePlays extends UpdateTask {
 
 		BggService service = Adapter.create();
 		PlayPersister persister = new PlayPersister(context);
-		PlaysResponse response = null;
+		PlaysResponse response;
 		try {
 			long startTime = System.currentTimeMillis();
 			response = service.playsByGame(account.name, mGameId);

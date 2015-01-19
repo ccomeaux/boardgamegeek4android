@@ -1,11 +1,11 @@
 package com.boardgamegeek.data;
 
-import java.util.Calendar;
-
 import android.content.Context;
 import android.content.res.Resources;
 
 import com.boardgamegeek.provider.BggContract.Games;
+
+import java.util.Calendar;
 
 public class YearPublishedFilterData extends CollectionFilterData {
 	public static final int MIN_RANGE = 1970;
@@ -40,7 +40,7 @@ public class YearPublishedFilterData extends CollectionFilterData {
 	}
 
 	private void setDisplayText(Resources r) {
-		String text = "";
+		String text;
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
@@ -63,9 +63,9 @@ public class YearPublishedFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String selection = "";
+		String selection;
 		if (mMin == MIN_RANGE && mMax == MAX_RANGE) {
-			// leave blank to cause it to clear
+			selection = "";
 		} else if (mMin == MIN_RANGE) {
 			selection = Games.YEAR_PUBLISHED + "<=?";
 			selectionArgs(maxValue);

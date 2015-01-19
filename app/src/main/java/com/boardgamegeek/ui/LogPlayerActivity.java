@@ -317,8 +317,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 	}
 
 	private void setViewVisibility() {
-		boolean enableButton = false;
-		enableButton |= hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
+		boolean enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
 		enableButton |= hideRow(hasAutoPosition() || shouldHidePosition(),
 			findViewById(R.id.log_player_position_container));
 		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
@@ -391,28 +390,28 @@ public class LogPlayerActivity extends ActionBarActivity {
 					View viewToScroll = null;
 
 					String selection = array[which].toString();
-					if (selection == r.getString(R.string.team_color)) {
+					if (selection.equals(r.getString(R.string.team_color))) {
 						mUserShowTeamColor = true;
 						viewToFocus = mTeamColor;
 						viewToScroll = findViewById(R.id.log_player_team_color_container);
-					} else if (selection == r.getString(R.string.starting_position)) {
+					} else if (selection.equals(r.getString(R.string.starting_position))) {
 						mUserShowPosition = true;
 						viewToFocus = mPosition;
 						viewToScroll = findViewById(R.id.log_player_position_container);
-					} else if (selection == r.getString(R.string.score)) {
+					} else if (selection.equals(r.getString(R.string.score))) {
 						mUserShowScore = true;
 						viewToFocus = mScore;
 						viewToScroll = findViewById(R.id.log_player_score_container);
-					} else if (selection == r.getString(R.string.rating)) {
+					} else if (selection.equals(r.getString(R.string.rating))) {
 						mUserShowRating = true;
 						viewToFocus = mRating;
 						viewToScroll = findViewById(R.id.log_player_rating);
-					} else if (selection == r.getString(R.string.new_label)) {
+					} else if (selection.equals(r.getString(R.string.new_label))) {
 						mUserShowNew = true;
 						mNew.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);
 						viewToFocus = mNew;
-					} else if (selection == r.getString(R.string.win)) {
+					} else if (selection.equals(r.getString(R.string.win))) {
 						mUserShowWin = true;
 						mWin.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);

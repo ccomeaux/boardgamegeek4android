@@ -17,7 +17,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildExpandedSelection(Uri uri) {
-		SelectionBuilder builder = new SelectionBuilder();
+		SelectionBuilder builder;
 		String groupBy = uri.getQueryParameter(BggContract.QUERY_KEY_GROUP_BY);
 		switch (groupBy) {
 			case BggContract.QUERY_VALUE_NAME_NOT_USER:

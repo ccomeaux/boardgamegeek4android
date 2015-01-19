@@ -55,7 +55,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
-		Fragment fragment = null;
+		Fragment fragment;
 		String action = intent.getAction();
 		switch (action) {
 			case Intent.ACTION_SEARCH:

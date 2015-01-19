@@ -228,7 +228,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		mAdapter.notifyDataSetChanged();
 		getActivity().supportInvalidateOptionsMenu();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_buddy_collection));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -267,7 +269,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 					collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
 					break;
 				} catch (Exception e) {
-					if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+					if (e.getCause() instanceof RetryableException) {
 						retries++;
 						if (retries > MAX_RETRIES) {
 							break;

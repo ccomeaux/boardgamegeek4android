@@ -1,8 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.io.File;
-import java.io.IOException;
-
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,6 +30,9 @@ import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TableBuilder;
 import com.boardgamegeek.util.TableBuilder.COLUMN_TYPE;
 import com.boardgamegeek.util.TableBuilder.CONFLICT_RESOLUTION;
+
+import java.io.File;
+import java.io.IOException;
 
 import timber.log.Timber;
 
@@ -474,6 +474,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(CollectionViewFilters.DATA, COLUMN_TYPE.TEXT);
 	}
 
+	@SuppressWarnings("UnusedAssignment")
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Timber.d("Upgrading database from " + oldVersion + " to " + newVersion);
@@ -540,7 +541,10 @@ public class BggDatabase extends SQLiteOpenHelper {
 					File oldCacheDirectory = new File(Environment.getExternalStorageDirectory(),
 						BggContract.CONTENT_AUTHORITY);
 					FileUtils.deleteContents(oldCacheDirectory);
-					oldCacheDirectory.delete();
+					boolean success = oldCacheDirectory.delete();
+					if (!success) {
+						Timber.i("Unable to delete old cache directory");
+					}
 				} catch (IOException e) {
 					Timber.e("Error clearing the cache", e);
 				}

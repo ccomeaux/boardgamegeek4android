@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -30,6 +28,8 @@ import com.boardgamegeek.ui.widget.PieChartView;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.ArrayList;
 
 import timber.log.Timber;
 
@@ -115,7 +115,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
-			return new CursorLoader(getActivity(), mUri, Query.PROJECTION, null, null, Query.SORT);
+			loader = new CursorLoader(getActivity(), mUri, Query.PROJECTION, null, null, Query.SORT);
 		}
 		return loader;
 	}
@@ -159,7 +159,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private void createBarChart(Cursor cursor) {
 		mPollList.removeAllViews();
 		PlayerNumberRow row = null;
-		String playerNumber = null;
+		String playerNumber;
 		String lastPlayerNumber = "-1";
 		do {
 			playerNumber = cursor.getString(Query.POLL_RESULTS_PLAYERS);
@@ -186,21 +186,23 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 				mPollList.addView(row);
 			}
 
-			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
-			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-			switch (value) {
-				case BEST:
-					row.setBest(votes);
-					break;
-				case RECOMMENDED:
-					row.setRecommended(votes);
-					break;
-				case NOT_RECOMMENDED:
-					row.setNotRecommended(votes);
-					break;
-				default:
-					Timber.w("Bad key: " + value);
-					break;
+			if (row != null) {
+				String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
+				int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
+				switch (value) {
+					case BEST:
+						row.setBest(votes);
+						break;
+					case RECOMMENDED:
+						row.setRecommended(votes);
+						break;
+					case NOT_RECOMMENDED:
+						row.setNotRecommended(votes);
+						break;
+					default:
+						Timber.w("Bad key: " + value);
+						break;
+				}
 			}
 		} while (cursor.moveToNext());
 	}

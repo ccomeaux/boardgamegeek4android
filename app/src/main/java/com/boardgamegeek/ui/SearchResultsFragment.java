@@ -123,13 +123,15 @@ public class SearchResultsFragment extends BggListFragment implements
 			return;
 		}
 
-		if (mAdapter == null) {
+		if (mAdapter == null && data != null) {
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
 		}
 		mAdapter.notifyDataSetChanged();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_search));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -230,7 +232,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			SearchResult game = null;
+			SearchResult game;
 			try {
 				game = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -238,7 +240,7 @@ public class SearchResultsFragment extends BggListFragment implements
 			}
 			if (game != null) {
 				holder.name.setText(game.name);
-				int style = Typeface.NORMAL;
+				int style;
 				switch (game.getNameType()) {
 					case SearchResult.NAME_TYPE_ALTERNATE:
 						style = Typeface.ITALIC;

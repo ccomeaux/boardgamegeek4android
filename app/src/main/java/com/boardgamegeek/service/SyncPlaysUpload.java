@@ -294,8 +294,8 @@ public class SyncPlaysUpload extends SyncTask {
 			if ((play.playId != parsedPlay.playId)
 				&& (play.gameId == parsedPlay.gameId)
 				&& (play.getDate().equals(parsedPlay.getDate()))
-				&& ((play.location == null && parsedPlay.location == null) || (play.location
-				.equals(parsedPlay.location))) && (play.length == parsedPlay.length)
+				&& ((play.location == null && parsedPlay.location == null) || (play.location != null && play.location.equals(parsedPlay.location)))
+				&& (play.length == parsedPlay.length)
 				&& (play.quantity == parsedPlay.quantity) && (play.Incomplete() == parsedPlay.Incomplete())
 				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
@@ -309,7 +309,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {
-		String countDescription = "";
+		String countDescription;
 		switch (quantity) {
 			case 1:
 				countDescription = StringUtils.getOrdinal(count);

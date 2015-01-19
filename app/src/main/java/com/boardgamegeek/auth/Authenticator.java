@@ -147,15 +147,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
-	@Override
-	public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account)
-		throws NetworkErrorException {
-		Timber.v("getAccountRemovalAllowed - yes, always");
-		final Bundle result = new Bundle();
-		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
-		return result;
-	}
-
 	public static Account getAccount(Context context) {
 		return getAccount(AccountManager.get(context));
 	}

@@ -2,6 +2,7 @@ package com.boardgamegeek.pref;
 
 import android.content.Context;
 import android.preference.DialogPreference;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -29,7 +30,8 @@ public class SyncTimestampsDialogPreference extends DialogPreference {
 		setNegativeButtonText("");
 	}
 
-	protected void onBindDialogView(View view) {
+	@Override
+	protected void onBindDialogView(@NonNull View view) {
 		TextView collectionFull = (TextView) view.findViewById(R.id.sync_timestamp_collection_full);
 		TextView collectionPartial = (TextView) view.findViewById(R.id.sync_timestamp_collection_partial);
 		TextView buddies = (TextView) view.findViewById(R.id.sync_timestamp_buddy);

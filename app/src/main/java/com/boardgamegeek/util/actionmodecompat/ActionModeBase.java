@@ -27,6 +27,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -180,7 +181,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
         }
 
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
             if (mActionModeBase == null) {
                 // TODO: support orientation changes and avoid this awful hack.
                 final Dialog d = new AlertDialog.Builder(getActivity()).create();

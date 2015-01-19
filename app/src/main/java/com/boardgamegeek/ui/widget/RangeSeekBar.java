@@ -13,6 +13,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
@@ -211,7 +212,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 * Handles thumb selection and movement. Notifies listener callback on certain events.
 	 */
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 
 		if (!isEnabled())
 			return false;
@@ -382,7 +383,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 * Draws the widget on the given canvas.
 	 */
 	@Override
-	protected synchronized void onDraw(Canvas canvas) {
+	protected synchronized void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 
 		paint.setColor(INACTIVE_COLOR);

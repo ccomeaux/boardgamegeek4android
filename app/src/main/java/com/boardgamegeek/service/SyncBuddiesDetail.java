@@ -67,7 +67,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 			try {
 				return service.user(name);
 			} catch (Exception e) {
-				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+				if (e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
 						break;

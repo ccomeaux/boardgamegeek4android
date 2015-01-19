@@ -8,6 +8,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -243,7 +244,7 @@ public class ExpandableListView extends RelativeLayout {
 		}
 
 		@Override
-		public void writeToParcel(Parcel dest, int flags) {
+		public void writeToParcel(@NonNull Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
 			dest.writeInt(expanded ? 1 : 0);
 			dest.writeInt(count);

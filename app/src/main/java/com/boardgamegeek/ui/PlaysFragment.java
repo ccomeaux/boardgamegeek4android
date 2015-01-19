@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -295,7 +296,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		private boolean alreadyCalled = false;
 
 		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
+		public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
 			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
 				calendar.get(Calendar.DAY_OF_MONTH));
@@ -358,27 +359,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			loader = new CursorLoader(getActivity(), mUri, mSorter == null ? PlaysQuery.PROJECTION
 				: StringUtils.unionArrays(PlaysQuery.PROJECTION, mSorter.getColumns()), selection(), selectionArgs(),
 				mSorter == null ? null : mSorter.getOrderByClause());
-			if (loader != null) {
-				loader.setUpdateThrottle(2000);
-			}
+			loader.setUpdateThrottle(2000);
 		} else if (id == GameQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Games.buildGameUri(mGameId), GameQuery.PROJECTION, null, null,
 				null);
-			if (loader != null) {
-				loader.setUpdateThrottle(0);
-			}
+			loader.setUpdateThrottle(0);
 		} else if (id == SumQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Plays.CONTENT_SIMPLE_URI, SumQuery.PROJECTION, selection(),
 				selectionArgs(), null);
-			if (loader != null) {
-				loader.setUpdateThrottle(0);
-			}
+			loader.setUpdateThrottle(0);
 		} else if (id == PlayerSumQuery._TOKEN) {
 			loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
 				PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
-			if (loader != null) {
-				loader.setUpdateThrottle(0);
-			}
+			loader.setUpdateThrottle(0);
 		}
 		return loader;
 	}

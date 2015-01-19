@@ -472,13 +472,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private void setViewVisibility() {
-		boolean enabled = false;
 		if (mPlay == null) {
 			// all fields should be hidden, so it shouldn't matter
 			return;
 		}
 
-		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		boolean enabled = hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
 		if (mPlay.hasStarted()) {
 			mLengthView.setVisibility(View.GONE);
 			mTimer.setVisibility(View.VISIBLE);
@@ -672,31 +671,31 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 					Resources r = getResources();
 					String selection = array[which].toString();
 
-					if (selection == r.getString(R.string.location)) {
+					if (selection.equals(r.getString(R.string.location))) {
 						mUserShowLocation = true;
 						viewToFocus = mLocationView;
 						viewToScroll = findViewById(R.id.log_play_location_root);
-					} else if (selection == r.getString(R.string.length)) {
+					} else if (selection.equals(r.getString(R.string.length))) {
 						mUserShowLength = true;
 						viewToFocus = mLengthView;
 						viewToScroll = findViewById(R.id.log_play_length_root);
-					} else if (selection == r.getString(R.string.quantity)) {
+					} else if (selection.equals(r.getString(R.string.quantity))) {
 						mUserShowQuantity = true;
 						viewToFocus = mQuantityView;
 						viewToScroll = findViewById(R.id.log_play_quantity_root);
-					} else if (selection == r.getString(R.string.incomplete)) {
+					} else if (selection.equals(r.getString(R.string.incomplete))) {
 						mUserShowIncomplete = true;
 						mIncompleteView.setChecked(true);
 						viewToScroll = mIncompleteView;
-					} else if (selection == r.getString(R.string.noWinStats)) {
+					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						mUserShowNoWinStats = true;
 						mNoWinStatsView.setChecked(true);
 						viewToScroll = mNoWinStatsView;
-					} else if (selection == r.getString(R.string.comments)) {
+					} else if (selection.equals(r.getString(R.string.comments))) {
 						mUserShowComments = true;
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
-					} else if (selection == r.getString(R.string.title_players)) {
+					} else if (selection.equals(r.getString(R.string.title_players))) {
 						mUserShowPlayers = true;
 						viewToScroll = mPlayerHeader;
 					}
@@ -905,7 +904,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	public void onPlayerSort(View v) {
-		MenuPopupHelper popup = null;
+		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
 			if (mFullPopupMenu == null) {
 				mFullPopupMenu = new MenuBuilder(this);

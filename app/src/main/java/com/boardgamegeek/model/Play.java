@@ -520,10 +520,10 @@ public class Play {
 			&& (playDate == p.playDate)
 			&& (quantity == p.quantity)
 			&& (length == p.length)
-			&& (location == p.location || (location != null && location.equals(p.location)))
+			&& ((location == null && p.location == null) || (location != null && location.equals(p.location)))
 			&& (incomplete == p.incomplete)
 			&& (nowinstats == p.nowinstats)
-			&& (comments == p.comments || (comments != null && comments.equals(p.comments)))
+			&& ((comments == null && p.comments == null) || (comments != null && comments.equals(p.comments)))
 			&& (startTime == p.startTime)
 			&& ((players == null && p.players == null) || (players != null && p.players != null && players.size() == p.players
 			.size()));

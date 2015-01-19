@@ -1,8 +1,5 @@
 package com.boardgamegeek.model.persister;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
@@ -40,6 +37,9 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import timber.log.Timber;
 
 public class GamePersister {
@@ -73,7 +73,7 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
-				Builder cpo = null;
+				Builder cpo;
 				ContentValues values = toValues(game, mUpdateTime);
 				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {
 					values.remove(Games.GAME_ID);
@@ -505,7 +505,7 @@ public class GamePersister {
 		protected abstract String getInboundColumnName();
 
 		ArrayList<ContentProviderOperation> insertAndCreateAssociations(int gameId, ContentResolver resolver,
-			List<Game.Link> newLinks) {
+																		List<Game.Link> newLinks) {
 			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			Uri gameUri = Games.buildPathUri(gameId, getUriPath());
 			List<Integer> existingIds = ResolverUtils.queryInts(resolver, gameUri, getAssociationIdColumnName());
@@ -515,7 +515,7 @@ public class GamePersister {
 					// insert reference row, if missing
 					if (!TextUtils.isEmpty(getReferenceIdColumnName())
 						&& !ResolverUtils.rowExists(resolver,
-							getContentUri().buildUpon().appendPath(String.valueOf(newLink.id)).build())) {
+						getContentUri().buildUpon().appendPath(String.valueOf(newLink.id)).build())) {
 						// XXX think about delaying inserts in a separate batch
 						ContentValues cv = new ContentValues();
 						cv.put(getReferenceIdColumnName(), newLink.id);

@@ -7,7 +7,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
-import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
@@ -85,7 +84,7 @@ public abstract class SyncGames extends SyncTask {
 					}
 					mGamesPerFetch = mGamesPerFetch / 2;
 					Timber.i("...timeout - reducing games per fetch to " + mGamesPerFetch);
-				} else if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+				} else if (e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
 						break;

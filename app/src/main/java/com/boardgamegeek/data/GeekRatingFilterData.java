@@ -55,7 +55,7 @@ public class GeekRatingFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String text = "";
+		String text;
 		if (mMin == mMax) {
 			text = maxValue;
 		} else {
@@ -68,7 +68,7 @@ public class GeekRatingFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String selection = "";
+		String selection;
 		if (mMin == mMax) {
 			selection = Games.STATS_BAYES_AVERAGE + "=?";
 			selectionArgs(minValue);

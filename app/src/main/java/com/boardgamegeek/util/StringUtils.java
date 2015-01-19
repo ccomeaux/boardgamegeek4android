@@ -50,6 +50,7 @@ public class StringUtils {
 
 	public static boolean isInteger(String input) {
 		try {
+			//noinspection ResultOfMethodCallIgnored
 			Integer.parseInt(input);
 			return true;
 		} catch (Exception e) {
@@ -59,6 +60,7 @@ public class StringUtils {
 
 	public static boolean isNumeric(String text) {
 		try {
+			//noinspection ResultOfMethodCallIgnored
 			Double.parseDouble(text);
 		} catch (NumberFormatException e) {
 			return false;
