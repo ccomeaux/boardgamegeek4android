@@ -20,7 +20,8 @@ public class DatePickerDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
+	@NonNull
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		mCalendar.setTimeInMillis(mDateInMillis);
 		return new DatePickerDialog(getActivity(), mListener, mCalendar.get(Calendar.YEAR),
 			mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));

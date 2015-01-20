@@ -296,7 +296,8 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		private boolean alreadyCalled = false;
 
 		@Override
-		public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
+		@NonNull
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Calendar calendar = Calendar.getInstance();
 			return new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
 				calendar.get(Calendar.DAY_OF_MONTH));

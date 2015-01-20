@@ -141,7 +141,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
+	@NonNull
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 		View rootView = layoutInflater.inflate(R.layout.dialog_colors, null); // TODO provide root
 

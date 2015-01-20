@@ -181,7 +181,8 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
         }
 
         @Override
-        public Dialog onCreateDialog(@NonNull Bundle savedInstanceState) {
+		@NonNull
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
             if (mActionModeBase == null) {
                 // TODO: support orientation changes and avoid this awful hack.
                 final Dialog d = new AlertDialog.Builder(getActivity()).create();

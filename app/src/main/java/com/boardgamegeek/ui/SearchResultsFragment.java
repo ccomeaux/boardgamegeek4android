@@ -127,7 +127,9 @@ public class SearchResultsFragment extends BggListFragment implements
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
 		}
-		mAdapter.notifyDataSetChanged();
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 
 		if (data == null) {
 			setEmptyText(getString(R.string.empty_search));
