@@ -5,9 +5,7 @@
 	<dimen name="padding_small">2dp</dimen>
 	<dimen name="padding_half">4dp</dimen>
 	<dimen name="padding_standard">8dp</dimen>
-	<dimen name="padding_standard_half">12dp</dimen>
 	<dimen name="padding_extra">16dp</dimen>
-	<dimen name="padding_standard_indent">24dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
 	<dimen name="poll_key_height">20dp</dimen>
 	<dimen name="player_row_height">48dp</dimen>
@@ -17,7 +15,6 @@
 	<dimen name="thumbnail_size">72dp</dimen>
 	<dimen name="actionbar_view">32dp</dimen>
 	<dimen name="actionbar_text">24sp</dimen>
-	<dimen name="actionbar_text_medium">18sp</dimen>
 	<dimen name="actionbar_text_small">12sp</dimen>
 	<dimen name="icon_width">48dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
@@ -25,8 +22,6 @@
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
-	<dimen name="drawer_max_width">340dp</dimen>
-	<dimen name="drawer_min_width">260dp</dimen>
 	<dimen name="material_margin_horizontal">16dp</dimen>
 	<dimen name="material_margin_vertical">8dp</dimen>
 	<dimen name="material_indent_horizontal">72dp</dimen>

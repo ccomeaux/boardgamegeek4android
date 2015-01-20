@@ -13,8 +13,6 @@
 	<string name="pref_log">Logging plays</string>
 	<string name="pref_log_play">Log Play</string>
 	<string name="pref_log_play_quick">Quick Log Play</string>
-	<string name="pref_log_menu_off">Menu item is hidden</string>
-	<string name="pref_log_menu_on">Menu item always shows</string>
 	<string name="pref_edit_player">Edit player on add</string>
 	<string name="pref_edit_player_off">Just add the player</string>
 	<string name="pref_edit_player_on">Start editing the player after adding</string>
@@ -96,7 +94,7 @@
 <li>Use Google Now to search by voice by saying \"search <i>game name</i> on BoardGameGeek\"</li>
 <li>Access and edit play locations, players, and stats from the navigation drawer</li>
 <li>Zoom and pan game images</li>
-<li>Search now looks for the the name in your collection, not the default game name</li>
+<li>Search now looks for the name in your collection, not the default game name</li>
 <li>Improved sync and sync notification messages</li>
 <li>Sort collection by rank</li>
 <li>Filter collection by play count</li>

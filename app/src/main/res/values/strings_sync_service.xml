@@ -16,7 +16,6 @@
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
-	<string name="sync_notification_step_summary">Step %1$d of %2$d</string>
 	<string name="sync_notification_upload_summary">Uploaded %d plays</string>
 	<string name="sync_notification_title_h_index">H-index</string>
 	<string name="sync_notification_h_index_increase">Congratulations! Your h-index is now</string>
