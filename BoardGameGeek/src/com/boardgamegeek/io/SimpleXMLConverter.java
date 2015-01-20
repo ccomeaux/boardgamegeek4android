@@ -34,7 +34,7 @@ public class SimpleXMLConverter implements Converter {
 	@Override
 	public Object fromBody(TypedInput body, Type type) throws ConversionException {
 		try {
-			return serializer.read((Class<?>) type, body.in());
+			return serializer.read((Class<?>) type, body.in(), false);
 		} catch (Exception e) {
 			throw new ConversionException(e);
 		}
