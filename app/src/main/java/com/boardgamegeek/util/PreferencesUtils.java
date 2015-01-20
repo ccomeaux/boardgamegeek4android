@@ -176,7 +176,7 @@ public class PreferencesUtils {
 		} else {
 			editor.putInt("playId" + oldPlayId, newPlayId);
 		}
-		editor.commit();
+		editor.apply();
 	}
 
 	public static void removeNewPlayId(Context context, int oldPlayId) {

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -155,9 +156,9 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
 			if (refreshing) {
-				refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
-				refreshItem.setActionView(null);
+				MenuItemCompat.setActionView(refreshItem, null);
 			}
 		}
 	}

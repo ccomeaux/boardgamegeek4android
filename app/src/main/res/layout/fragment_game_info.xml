@@ -2,7 +2,7 @@
 <FrameLayout
 	android:id="@+id/game_info_frame_root"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:bgg="http://schemas.android.com/apk/res/com.boardgamegeek"
+	xmlns:bgg="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"

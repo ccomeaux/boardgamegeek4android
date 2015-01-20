@@ -84,9 +84,9 @@
 	<string name="pref_about">About</string>
 	<string name="pref_about_version">Version</string>
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
-	<string name="pref_about_body">
-<![CDATA[<h4>What\'s New?</h4>
-<h5>Coming soon...</h5>
+	<string name="pref_about_body"><![CDATA[
+<h4>What\'s New?</h4>
+<h5>Coming soon…</h5>
 <ul>
 <li>Material design and support for Android Lollipop</li>
 <li>GeekLists</li>
@@ -151,8 +151,8 @@
 <li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
 </ul>
 <br/>
-Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.]]>
-	</string>
+Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.
+	]]></string>
 	<string name="pref_about_licenses">Open source licenses</string>
 	<string name="pref_about_dslv_license">Copyright 2012 Carl Bauer\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
 	<string name="pref_about_okhttp_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
