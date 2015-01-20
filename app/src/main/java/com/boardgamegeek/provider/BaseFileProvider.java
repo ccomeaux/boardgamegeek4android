@@ -55,6 +55,9 @@ public abstract class BaseFileProvider extends BaseProvider {
 
 	// from Android ContentResolver.modeToMode
 	private static int calculateParcelMode(Uri uri, String mode) throws FileNotFoundException {
+		if (mode == null) {
+			throw new FileNotFoundException("Missing mode for " + uri);
+		}
 		int modeBits;
 		switch (mode) {
 			case "r":

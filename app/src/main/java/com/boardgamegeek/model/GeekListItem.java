@@ -46,6 +46,9 @@ public class GeekListItem {
 	@Attribute private String objecttype;
 
 	public int getObjectTypeId() {
+		if (objecttype == null) {
+			return 0;
+		}
 		switch (objecttype) {
 			case "thing":
 				if ("boardgame".equals(subtype)) {

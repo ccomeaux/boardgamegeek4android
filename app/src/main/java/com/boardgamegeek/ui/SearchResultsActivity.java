@@ -57,31 +57,35 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 	protected Fragment onCreatePane(Intent intent) {
 		Fragment fragment;
 		String action = intent.getAction();
-		switch (action) {
-			case Intent.ACTION_SEARCH:
-			case VOICE_SEARCH_ACTION:
-				mSearchText = intent.getExtras().getString(SearchManager.QUERY);
-				if (TextUtils.isEmpty(mSearchText)) {
-					fragment = buildTextFragment(getString(R.string.search_error_no_text));
-				} else {
-					getSupportActionBar().setSubtitle(
-						String.format(getResources().getString(R.string.search_searching), mSearchText));
-					fragment = new SearchResultsFragment();
-				}
-				break;
-			case Intent.ACTION_VIEW:
-				Uri uri = intent.getData();
-				if (uri == null) {
-					fragment = buildTextFragment(getString(R.string.search_error_no_data));
-				} else {
-					ActivityUtils.launchGame(this, Games.getGameId(uri), "");
-					finish();
-					return null;
-				}
-				break;
-			default:
-				fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
-				break;
+		if (action == null) {
+			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
+		} else {
+			switch (action) {
+				case Intent.ACTION_SEARCH:
+				case VOICE_SEARCH_ACTION:
+					mSearchText = intent.getExtras().getString(SearchManager.QUERY);
+					if (TextUtils.isEmpty(mSearchText)) {
+						fragment = buildTextFragment(getString(R.string.search_error_no_text));
+					} else {
+						getSupportActionBar().setSubtitle(
+							String.format(getResources().getString(R.string.search_searching), mSearchText));
+						fragment = new SearchResultsFragment();
+					}
+					break;
+				case Intent.ACTION_VIEW:
+					Uri uri = intent.getData();
+					if (uri == null) {
+						fragment = buildTextFragment(getString(R.string.search_error_no_data));
+					} else {
+						ActivityUtils.launchGame(this, Games.getGameId(uri), "");
+						finish();
+						return null;
+					}
+					break;
+				default:
+					fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
+					break;
+			}
 		}
 		return fragment;
 	}

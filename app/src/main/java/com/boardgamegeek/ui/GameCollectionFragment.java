@@ -495,6 +495,9 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		}
 
 		private String formatCurrency(String currency) {
+			if (currency == null) {
+				return "$";
+			}
 			switch (currency) {
 				case "USD":
 				case "CAD":

@@ -91,7 +91,9 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
+		if (mType == null) {
+			Timber.w("Missing type");
+		}
 		switch (mType) {
 			case LANGUAGE_DEPENDENCE:
 				getDialog().setTitle(R.string.language_dependence);
@@ -188,6 +190,9 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 
 			if (row != null) {
 				String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
+				if (value == null) {
+					Timber.w("Missing key");
+				}
 				int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
 				switch (value) {
 					case BEST:

@@ -254,6 +254,9 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	}
 
 	private void changeSubtype(String subtype) {
+		if (subtype == null) {
+			return;
+		}
 		int resId = R.string.title_game;
 		switch (subtype) {
 			case BggService.THING_SUBTYPE_BOARDGAME:
@@ -298,7 +301,9 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			mReceiver.setReceiver(this);
 		}
 
-		/** {@inheritDoc} */
+		/**
+		 * {@inheritDoc}
+		 */
 		public void onReceiveResult(int resultCode, Bundle resultData) {
 			GameActivity activity = (GameActivity) getActivity();
 			if (activity == null) {
