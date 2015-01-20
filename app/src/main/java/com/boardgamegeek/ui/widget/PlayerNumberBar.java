@@ -77,11 +77,6 @@ public class PlayerNumberBar extends View {
 		return who == mDrawable || super.verifyDrawable(who);
 	}
 
-	@Override
-	public void postInvalidate() {
-		super.postInvalidate();
-	}
-
 	private class RefreshRunnable implements Runnable {
 
 		private int mId;
