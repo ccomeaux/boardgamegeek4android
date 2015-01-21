@@ -90,12 +90,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private String mViewName = "";
 	private CollectionSorter mSort;
 	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
+	private String mDefaultWhereClause;
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
 	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
-	private android.view.MenuItem mLogPlayMenuItem;
-	private android.view.MenuItem mLogPlayQuickMenuItem;
-	private android.view.MenuItem mBggLinkMenuItem;
+	private MenuItem mLogPlayMenuItem;
+	private MenuItem mLogPlayQuickMenuItem;
+	private MenuItem mBggLinkMenuItem;
 
 	public interface Callbacks {
 		public boolean onGameSelected(int gameId, String gameName);
@@ -360,14 +361,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			StringBuilder where = new StringBuilder();
 			String[] args = { };
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
-			for (CollectionFilterData filter : mFilters) {
-				if (filter != null) {
-					if (!TextUtils.isEmpty(filter.getSelection())) {
-						if (where.length() > 0) {
-							where.append(" AND ");
+			if (mViewId == 0) {
+				where.append(buildDefaultWhereClause());
+			} else {
+				for (CollectionFilterData filter : mFilters) {
+					if (filter != null) {
+						if (!TextUtils.isEmpty(filter.getSelection())) {
+							if (where.length() > 0) {
+								where.append(" AND ");
+							}
+							where.append("(").append(filter.getSelection()).append(")");
+							args = StringUtils.concat(args, filter.getSelectionArgs());
 						}
-						where.append("(").append(filter.getSelection()).append(")");
-						args = StringUtils.concat(args, filter.getSelectionArgs());
 					}
 				}
 			}
@@ -382,6 +387,65 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			}
 		}
 		return loader;
+	}
+
+	private String buildDefaultWhereClause() {
+		if (!TextUtils.isEmpty(mDefaultWhereClause)) {
+			return mDefaultWhereClause;
+		}
+		StringBuilder where = new StringBuilder();
+		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+		for (String status : statuses) {
+			if (TextUtils.isEmpty(status)) {
+				continue;
+			}
+			if (where.length() > 0) {
+				where.append(" OR ");
+			}
+			switch (status) {
+				case "own":
+					where.append(Collection.STATUS_OWN).append("=1");
+					break;
+				case "played":
+					where.append(Games.NUM_PLAYS).append(">0");
+					break;
+				case "rated":
+					where.append(Collection.RATING).append(">0");
+					break;
+				case "comment":
+					where.append(Collection.COMMENT).append("='' OR ").append(Collection.COMMENT).append(" IS NULL");
+					break;
+				case "prevowned":
+					where.append(Collection.STATUS_PREVIOUSLY_OWNED).append("=1");
+					break;
+				case "trade":
+					where.append(Collection.STATUS_FOR_TRADE).append("=1");
+					break;
+				case "want":
+					where.append(Collection.STATUS_WANT).append("=1");
+					break;
+				case "wanttobuy":
+					where.append(Collection.STATUS_WANT_TO_BUY).append("=1");
+					break;
+				case "wishlist":
+					where.append(Collection.STATUS_WISHLIST).append("=1");
+					break;
+				case "wanttoplay":
+					where.append(Collection.STATUS_WANT_TO_PLAY).append("=1");
+					break;
+				case "preordered":
+					where.append(Collection.STATUS_PREORDERED).append("=1");
+					break;
+				case "hasparts":
+					where.append(Collection.HASPARTS_LIST).append("='' OR ").append(Collection.HASPARTS_LIST).append(" IS NULL");
+					break;
+				case "wantparts":
+					where.append(Collection.WANTPARTS_LIST).append("='' OR ").append(Collection.WANTPARTS_LIST).append(" IS NULL");
+					break;
+			}
+		}
+		mDefaultWhereClause = where.toString();
+		return mDefaultWhereClause;
 	}
 
 	@Override
