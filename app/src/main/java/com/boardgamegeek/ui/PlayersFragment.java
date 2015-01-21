@@ -18,22 +18,24 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.sorter.PlayersSorter;
+import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.UIUtils;
-
-import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class PlayersFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
 	private static final String STATE_SELECTED_USERNAME = "selectedUsername";
-
+	private static final String STATE_SORT_TYPE = "sortType";
 	private PlayersAdapter mAdapter;
 	private String mSelectedName;
 	private String mSelectedUsername;
+	private PlayersSorter mSorter;
 
 	public interface Callbacks {
 		public boolean onPlayerSelected(String name, String username);
@@ -72,11 +74,20 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 	}
 
+
+	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		int sortType = PlayersSorterFactory.TYPE_DEFAULT;
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
+		}
+		mSorter = PlayersSorterFactory.create(sortType, getActivity());
+
 		setEmptyText(getString(R.string.empty_players));
-		getLoaderManager().restartLoader(PlayersQuery._TOKEN, getArguments(), this);
+		requery();
 	}
 
 	@Override
@@ -86,6 +97,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			outState.putString(STATE_SELECTED_NAME, mSelectedName);
 			outState.putString(STATE_SELECTED_USERNAME, mSelectedUsername);
 		}
+		outState.putInt(STATE_SORT_TYPE, mSorter.getType());
 	}
 
 	@Override
@@ -104,6 +116,27 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 	}
 
+	@DebugLog
+	public void requery() {
+		getLoaderManager().restartLoader(PlayersQuery._TOKEN, getArguments(), this);
+	}
+
+	public int getSort() {
+		return mSorter.getType();
+	}
+
+
+	@DebugLog
+	public void setSort(int sort) {
+		if (mSorter.getType() != sort) {
+			mSorter = PlayersSorterFactory.create(sort, getActivity());
+			if (mSorter == null) {
+				mSorter = PlayersSorterFactory.create(PlayersSorterFactory.TYPE_DEFAULT, getActivity());
+			}
+			requery();
+		}
+	}
+
 	public void setSelectedPlayer(String name, String username) {
 		mSelectedName = name;
 		mSelectedUsername = username;
@@ -115,7 +148,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-			PlayersQuery.PROJECTION, null, null, PlayPlayers.NAME);
+			PlayersQuery.PROJECTION, null, null, mSorter.getOrderByClause());
 	}
 
 	@Override
@@ -147,11 +180,13 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	public class PlayersAdapter extends CursorAdapter implements StickyListHeadersAdapter {
 		private LayoutInflater mInflater;
 
+		@DebugLog
 		public PlayersAdapter(Context context) {
 			super(context, null, false);
 			mInflater = LayoutInflater.from(context);
 		}
 
+		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			View row = mInflater.inflate(R.layout.row_text_3, parent, false);
@@ -160,6 +195,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			return row;
 		}
 
+		@DebugLog
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
@@ -176,14 +212,13 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, quantity, quantity));
 		}
 
+		@DebugLog
 		@Override
 		public long getHeaderId(int position) {
-			if (position < 0) {
-				return 0;
-			}
-			return getHeaderText(position).charAt(0);
+			return mSorter.getHeaderId(getCursor(), position);
 		}
 
+		@DebugLog
 		@Override
 		public View getHeaderView(int position, View convertView, ViewGroup parent) {
 			HeaderViewHolder holder;
@@ -199,14 +234,10 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 			return convertView;
 		}
 
+
+		@DebugLog
 		private String getHeaderText(int position) {
-			String missingLetter = "-";
-			int cur = getCursor().getPosition();
-			getCursor().moveToPosition(position);
-			String name = getCursor().getString(PlayersQuery.NAME);
-			getCursor().moveToPosition(cur);
-			return TextUtils.isEmpty(name) ? missingLetter : name.substring(0, 1).toUpperCase(
-				Locale.getDefault());
+			return mSorter.getHeaderText(getCursor(), position);
 		}
 
 		class ViewHolder {
