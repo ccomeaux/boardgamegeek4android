@@ -212,7 +212,7 @@
 
 						<CheckBox
 							android:id="@+id/log_player_new"
-							style="@style/Text.CheckboxLabel"
+							style="@style/Text"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_weight="1"
@@ -220,7 +220,7 @@
 
 						<CheckBox
 							android:id="@+id/log_player_win"
-							style="@style/Text.CheckboxLabel"
+							style="@style/Text"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_weight="1"

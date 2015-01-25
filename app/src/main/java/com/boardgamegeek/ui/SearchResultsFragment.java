@@ -1,9 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -38,13 +34,17 @@ import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
 public class SearchResultsFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<SearchResultsFragment.SearchData>, MultiChoiceModeListener {
 	private static final int LOADER_ID = 0;
 
 	private String mSearchText;
 	private SearchResultsAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
@@ -123,13 +123,17 @@ public class SearchResultsFragment extends BggListFragment implements
 			return;
 		}
 
-		if (mAdapter == null) {
+		if (mAdapter == null && data != null) {
 			mAdapter = new SearchResultsAdapter(getActivity(), data.list());
 			setListAdapter(mAdapter);
 		}
-		mAdapter.notifyDataSetChanged();
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_search));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -147,7 +151,7 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		SearchResult game = (SearchResult) mAdapter.getItem(position);
+		SearchResult game = mAdapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
@@ -203,7 +207,7 @@ public class SearchResultsFragment extends BggListFragment implements
 		@Override
 		public List<SearchResult> list() {
 			if (mResponse == null || mResponse.games == null) {
-				return new ArrayList<SearchResult>();
+				return new ArrayList<>();
 			}
 			return mResponse.games;
 		}
@@ -230,7 +234,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			SearchResult game = null;
+			SearchResult game;
 			try {
 				game = getItem(position);
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -238,7 +242,7 @@ public class SearchResultsFragment extends BggListFragment implements
 			}
 			if (game != null) {
 				holder.name.setText(game.name);
-				int style = Typeface.NORMAL;
+				int style;
 				switch (game.getNameType()) {
 					case SearchResult.NAME_TYPE_ALTERNATE:
 						style = Typeface.ITALIC;
@@ -317,7 +321,7 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		SearchResult game = (SearchResult) mAdapter.getItem(mSelectedPositions.iterator().next());
+		SearchResult game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -328,7 +332,7 @@ public class SearchResultsFragment extends BggListFragment implements
 				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 				for (int position : mSelectedPositions) {
-					SearchResult g = (SearchResult) mAdapter.getItem(position);
+					SearchResult g = mAdapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
@@ -337,10 +341,10 @@ public class SearchResultsFragment extends BggListFragment implements
 				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
-						SearchResult g = (SearchResult) mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(g.id, g.name));
+						SearchResult g = mAdapter.getItem(position);
+						games.add(new Pair<>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

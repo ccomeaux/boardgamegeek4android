@@ -54,7 +54,7 @@ public class SyncPlaysUpload extends SyncTask {
 	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		mPostService = Adapter.createForPost(mContext);
-		mMessages = new ArrayList<CharSequence>();
+		mMessages = new ArrayList<>();
 		mBroadcaster = LocalBroadcastManager.getInstance(mContext);
 		mPersister = new PlayPersister(mContext);
 
@@ -185,7 +185,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayUpdate(Play play) {
-		Map<String, String> form = new HashMap<String, String>();
+		Map<String, String> form = new HashMap<>();
 		form.put("ajax", "1");
 		form.put("action", "save");
 		form.put("version", "2");
@@ -217,8 +217,7 @@ public class SyncPlaysUpload extends SyncTask {
 		}
 
 		try {
-			PlayPostResponse response = mPostService.geekPlay(form);
-			return response;
+			return mPostService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
@@ -229,14 +228,13 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private PlayPostResponse postPlayDelete(int playId) {
-		Map<String, String> form = new HashMap<String, String>();
+		Map<String, String> form = new HashMap<>();
 		form.put("ajax", "1");
 		form.put("action", "delete");
 		form.put("playid", String.valueOf(playId));
 
 		try {
-			PlayPostResponse response = mPostService.geekPlay(form);
-			return response;
+			return mPostService.geekPlay(form);
 		} catch (Exception e) {
 			return new PlayPostResponse(e);
 		}
@@ -296,8 +294,8 @@ public class SyncPlaysUpload extends SyncTask {
 			if ((play.playId != parsedPlay.playId)
 				&& (play.gameId == parsedPlay.gameId)
 				&& (play.getDate().equals(parsedPlay.getDate()))
-				&& ((play.location == null && parsedPlay.location == null) || (play.location
-				.equals(parsedPlay.location))) && (play.length == parsedPlay.length)
+				&& ((play.location == null && parsedPlay.location == null) || (play.location != null && play.location.equals(parsedPlay.location)))
+				&& (play.length == parsedPlay.length)
 				&& (play.quantity == parsedPlay.quantity) && (play.Incomplete() == parsedPlay.Incomplete())
 				&& (play.NoWinStats() == parsedPlay.NoWinStats())
 				&& (play.getPlayerCount() == parsedPlay.getPlayerCount())) {
@@ -311,7 +309,7 @@ public class SyncPlaysUpload extends SyncTask {
 	}
 
 	private String getPlayCountDescription(int count, int quantity) {
-		String countDescription = "";
+		String countDescription;
 		switch (quantity) {
 			case 1:
 				countDescription = StringUtils.getOrdinal(count);

@@ -52,7 +52,7 @@ public class PlayCountFilterData extends CollectionFilterData {
 	}
 
 	private void setDisplayText(Resources r) {
-		String text = "";
+		String text;
 		if (mMax >= MAX_RANGE) {
 			text = mMin + "+";
 		} else if (mMin == mMax) {
@@ -64,7 +64,7 @@ public class PlayCountFilterData extends CollectionFilterData {
 	}
 
 	private void setSelection() {
-		String selection = "";
+		String selection;
 		if (mMax >= MAX_RANGE) {
 			selection = Collection.NUM_PLAYS + ">=?";
 			selectionArgs(String.valueOf(mMin));

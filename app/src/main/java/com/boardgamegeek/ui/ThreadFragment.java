@@ -108,7 +108,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		public ThreadData loadInBackground() {
-			ThreadData forums = null;
+			ThreadData forums;
 			try {
 				forums = new ThreadData(mService.thread(mThreadId));
 			} catch (Exception e) {
@@ -133,7 +133,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		@Override
 		protected List<Article> list() {
 			if (mResponse == null || mResponse.articles == null) {
-				return new ArrayList<Article>();
+				return new ArrayList<>();
 			}
 			return mResponse.articles;
 		}

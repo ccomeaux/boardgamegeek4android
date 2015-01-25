@@ -27,20 +27,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.AverageRatingFilterData;
-import com.boardgamegeek.data.AverageWeightFilterData;
 import com.boardgamegeek.data.CollectionFilterData;
 import com.boardgamegeek.data.CollectionFilterDataFactory;
 import com.boardgamegeek.data.CollectionStatusFilterData;
 import com.boardgamegeek.data.CollectionView;
 import com.boardgamegeek.data.ExpansionStatusFilterData;
-import com.boardgamegeek.data.GeekRankingFilterData;
-import com.boardgamegeek.data.GeekRatingFilterData;
-import com.boardgamegeek.data.PlayCountFilterData;
-import com.boardgamegeek.data.PlayTimeFilterData;
-import com.boardgamegeek.data.PlayerNumberFilterData;
-import com.boardgamegeek.data.SuggestedAgeFilterData;
-import com.boardgamegeek.data.YearPublishedFilterData;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -89,14 +80,14 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private long mViewId;
 	private String mViewName = "";
 	private CollectionSorter mSort;
-	private List<CollectionFilterData> mFilters = new ArrayList<CollectionFilterData>();
+	private List<CollectionFilterData> mFilters = new ArrayList<>();
 	private String mDefaultWhereClause;
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
-	private MenuItem mLogPlayMenuItem;
-	private MenuItem mLogPlayQuickMenuItem;
-	private MenuItem mBggLinkMenuItem;
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
+	private android.view.MenuItem mLogPlayMenuItem;
+	private android.view.MenuItem mLogPlayQuickMenuItem;
+	private android.view.MenuItem mBggLinkMenuItem;
 
 	public interface Callbacks {
 		public boolean onGameSelected(int gameId, String gameName);
@@ -108,8 +99,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		public void onSortChanged(String sortName);
 
 		public void onViewRequested(long viewId);
-
-		public boolean isDrawerOpen();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -132,11 +121,6 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		@Override
 		public void onViewRequested(long viewId) {
-		}
-
-		@Override
-		public boolean isDrawerOpen() {
-			return false;
 		}
 	};
 
@@ -169,7 +153,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		mFilterLinearLayout = (LinearLayout) getView().findViewById(R.id.filter_linear_layout);
+		mFilterLinearLayout = (LinearLayout) view.findViewById(R.id.filter_linear_layout);
 		setEmptyText();
 	}
 
@@ -253,7 +237,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (mCallbacks.isDrawerOpen()) {
+		DrawerActivity drawerActivity = ((DrawerActivity) getActivity());
+		if (drawerActivity != null && drawerActivity.isDrawerOpen()) {
 			menu.findItem(R.id.menu_collection_sort).setVisible(false);
 			menu.findItem(R.id.menu_collection_filter).setVisible(false);
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
@@ -273,7 +258,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				menu.findItem(R.id.menu_collection_view_delete).setVisible(true);
 
 				menu.findItem(R.id.menu_collection_random_game).setEnabled(
-					mAdapter == null ? false : mAdapter.getCount() > 0);
+					mAdapter != null && mAdapter.getCount() > 0);
 
 				menu.findItem(R.id.menu_collection_view_save).setEnabled(
 					(mFilters != null && mFilters.size() > 0)
@@ -346,11 +331,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				return true;
 		}
 
-		if (launchFilterDialog(item.getItemId())) {
-			return true;
-		}
-
-		return super.onOptionsItemSelected(item);
+		return launchFilterDialog(item.getItemId()) || super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -461,7 +442,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				mAdapter = new CollectionAdapter(getActivity());
 				setListAdapter(mAdapter);
 			} else {
-				setProgessShown(false);
+				setProgressShown(false);
 			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
@@ -655,47 +636,47 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:
 				new PlayerNumberFilter().createDialog(getActivity(), this,
-					(PlayerNumberFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER));
 				return true;
 			case R.id.menu_play_time:
 			case CollectionFilterDataFactory.TYPE_PLAY_TIME:
 				new PlayTimeFilter().createDialog(getActivity(), this,
-					(PlayTimeFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAY_TIME));
 				return true;
 			case R.id.menu_suggested_age:
 			case CollectionFilterDataFactory.TYPE_SUGGESTED_AGE:
 				new SuggestedAgeFilter().createDialog(getActivity(), this,
-					(SuggestedAgeFilterData) findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
+					findFilter(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE));
 				return true;
 			case R.id.menu_average_weight:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT:
 				new AverageWeightFilter().createDialog(getActivity(), this,
-					(AverageWeightFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
+					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT));
 				return true;
 			case R.id.menu_year_published:
 			case CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED:
 				new YearPublishedFilter().createDialog(getActivity(), this,
-					(YearPublishedFilterData) findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
+					findFilter(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED));
 				return true;
 			case R.id.menu_average_rating:
 			case CollectionFilterDataFactory.TYPE_AVERAGE_RATING:
 				new AverageRatingFilter().createDialog(getActivity(), this,
-					(AverageRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
+					findFilter(CollectionFilterDataFactory.TYPE_AVERAGE_RATING));
 				return true;
 			case R.id.menu_geek_rating:
 			case CollectionFilterDataFactory.TYPE_GEEK_RATING:
 				new GeekRatingFilter().createDialog(getActivity(), this,
-					(GeekRatingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
+					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RATING));
 				return true;
 			case R.id.menu_geek_ranking:
 			case CollectionFilterDataFactory.TYPE_GEEK_RANKING:
 				new GeekRankingFilter().createDialog(getActivity(), this,
-					(GeekRankingFilterData) findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
+					findFilter(CollectionFilterDataFactory.TYPE_GEEK_RANKING));
 				return true;
 			case R.id.menu_play_count:
 			case CollectionFilterDataFactory.TYPE_PLAY_COUNT:
 				new PlayCountFilter().createDialog(getActivity(), this,
-					(PlayCountFilterData) findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
+					findFilter(CollectionFilterDataFactory.TYPE_PLAY_COUNT));
 				return true;
 
 		}
@@ -710,7 +691,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void setView(long viewId) {
 		if (mViewId != viewId) {
-			setProgessShown(true);
+			setProgressShown(true);
 			mViewId = viewId;
 			resetScrollState();
 			getLoaderManager().restartLoader(ViewQuery._TOKEN, null, this);
@@ -719,7 +700,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@DebugLog
 	public void clearView() {
-		setProgessShown(true);
+		setProgressShown(true);
 		mViewId = 0;
 		mViewName = "";
 		resetScrollState();
@@ -918,10 +899,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), gameId, gameName);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
 						Cursor c = (Cursor) mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
+						games.add(new Pair<>(c.getInt(Query.GAME_ID), c.getString(Query.GAME_NAME)));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

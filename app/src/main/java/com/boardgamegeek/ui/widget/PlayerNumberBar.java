@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -74,11 +75,6 @@ public class PlayerNumberBar extends View {
 	@Override
 	protected boolean verifyDrawable(Drawable who) {
 		return who == mDrawable || super.verifyDrawable(who);
-	}
-
-	@Override
-	public void postInvalidate() {
-		super.postInvalidate();
 	}
 
 	private class RefreshRunnable implements Runnable {
@@ -221,7 +217,7 @@ public class PlayerNumberBar extends View {
 	}
 
 	@Override
-	public void invalidateDrawable(Drawable dr) {
+	public void invalidateDrawable(@NonNull Drawable dr) {
 		if (verifyDrawable(dr)) {
 			final Rect dirty = dr.getBounds();
 			final int scrollX = getScrollX() + getPaddingLeft();
@@ -307,7 +303,7 @@ public class PlayerNumberBar extends View {
 		}
 
 		@Override
-		public void writeToParcel(Parcel out, int flags) {
+		public void writeToParcel(@NonNull Parcel out, int flags) {
 			super.writeToParcel(out, flags);
 			out.writeInt(total);
 			out.writeInt(best);

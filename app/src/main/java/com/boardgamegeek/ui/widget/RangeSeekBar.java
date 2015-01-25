@@ -13,6 +13,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
@@ -108,7 +109,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		init();
 	}
 
-	private final void init() {
+	private void init() {
 		mScaledTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 		rect = new RectF(padding, 0.5f * (getHeight() - lineHeight), getWidth() - padding,
 			0.5f * (getHeight() + lineHeight));
@@ -211,7 +212,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 * Handles thumb selection and movement. Notifies listener callback on certain events.
 	 */
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 
 		if (!isEnabled())
 			return false;
@@ -306,7 +307,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		return true;
 	}
 
-	private final void onSecondaryPointerUp(MotionEvent ev) {
+	private void onSecondaryPointerUp(MotionEvent ev) {
 		final int pointerIndex = (ev.getAction() & ACTION_POINTER_INDEX_MASK) >> ACTION_POINTER_INDEX_SHIFT;
 
 		final int pointerId = ev.getPointerId(pointerIndex);
@@ -320,7 +321,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		}
 	}
 
-	private final void trackTouchEvent(MotionEvent event) {
+	private void trackTouchEvent(MotionEvent event) {
 		final int pointerIndex = event.findPointerIndex(mActivePointerId);
 		final float x = event.getX(pointerIndex);
 
@@ -382,7 +383,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 * Draws the widget on the given canvas.
 	 */
 	@Override
-	protected synchronized void onDraw(Canvas canvas) {
+	protected synchronized void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 
 		paint.setColor(INACTIVE_COLOR);
@@ -440,7 +441,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 */
 	private void drawThumb(float screenCoord, boolean pressed, Canvas canvas) {
 		canvas.drawBitmap(pressed ? thumbPressedImage : thumbImage, screenCoord - thumbHalfWidth,
-			(float) ((0.5f * getHeight()) - thumbHalfHeight), paint);
+			(0.5f * getHeight()) - thumbHalfHeight, paint);
 	}
 
 	/**
@@ -577,10 +578,10 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 	 */
 	private static enum Thumb {
 		MIN, MAX
-	};
+	}
 
 	/**
-	 * Utility enumaration used to convert between Numbers and doubles.
+	 * Utility enumeration used to convert between Numbers and doubles.
 	 * 
 	 * @author Stephan Tittel (stephan.tittel@kom.tu-darmstadt.de)
 	 * 
@@ -617,17 +618,17 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 		public Number toNumber(double value) {
 			switch (this) {
 				case LONG:
-					return new Long((long) value);
+					return (long) value;
 				case DOUBLE:
 					return value;
 				case INTEGER:
-					return new Integer((int) value);
+					return (int) value;
 				case FLOAT:
 					return new Float(value);
 				case SHORT:
-					return new Short((short) value);
+					return (short) value;
 				case BYTE:
-					return new Byte((byte) value);
+					return (byte) value;
 				case BIG_DECIMAL:
 					return new BigDecimal(value);
 			}

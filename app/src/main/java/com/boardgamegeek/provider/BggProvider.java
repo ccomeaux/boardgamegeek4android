@@ -23,7 +23,7 @@ public class BggProvider extends ContentProvider {
 
 	@SuppressLint("UseSparseArrays")
 	private static HashMap<Integer, BaseProvider> buildProviderMap() {
-		HashMap<Integer, BaseProvider> map = new HashMap<Integer, BaseProvider>();
+		HashMap<Integer, BaseProvider> map = new HashMap<>();
 
 		addProvider(map, new GamesProvider());
 		addProvider(map, new GamesIdProvider());
@@ -129,7 +129,7 @@ public class BggProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		Timber.v("query(uri=" + uri + ", proj=" + Arrays.toString(projection) + ")");
+		Timber.v("query(uri=" + uri + ", projection=" + Arrays.toString(projection) + ")");
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		Cursor cursor = getProvider(uri).query(getContext().getContentResolver(), db, uri, projection, selection,
 			selectionArgs, sortOrder);

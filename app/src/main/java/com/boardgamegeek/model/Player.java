@@ -122,7 +122,7 @@ public class Player implements Parcelable {
 		setStartingPosition(String.valueOf(value));
 	}
 
-	public String getDescsription() {
+	public String getDescription() {
 		String description = "";
 		if (TextUtils.isEmpty(name)) {
 			if (TextUtils.isEmpty(username)) {
@@ -151,12 +151,13 @@ public class Player implements Parcelable {
 		}
 
 		Player p = (Player) o;
-		return (name == p.name || (name != null && name.equals(p.name))) && (userid == p.userid)
-			&& (username == p.username || (username != null && username.equals(p.username)))
-			&& (color == p.color || (color != null && color.equals(p.color)))
-			&& (startposition == p.startposition || (startposition != null && startposition.equals(p.startposition)))
-			&& (score == p.score || (score != null && score.equals(p.score))) && (rating == p.rating)
-			&& (new_ == p.new_) && (win == p.win);
+		return ((name == null && p.name == null) || (name != null && name.equals(p.name)))
+			&& (userid == p.userid)
+			&& ((username == null && p.username == null) || (username != null && username.equals(p.username)))
+			&& ((color == null && p.color == null) || (color != null && color.equals(p.color)))
+			&& ((startposition == null && p.startposition == null) || (startposition != null && startposition.equals(p.startposition)))
+			&& ((score == null && p.score == null) || (score != null && score.equals(p.score)))
+			&& (rating == p.rating) && (new_ == p.new_) && (win == p.win);
 	}
 
 	@Override
@@ -182,7 +183,7 @@ public class Player implements Parcelable {
 	}
 
 	public List<NameValuePair> toNameValuePairs(int index) {
-		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+		List<NameValuePair> nvps = new ArrayList<>();
 		addPair(nvps, index, "playerid", "player_" + index);
 		addPair(nvps, index, "name", name);
 		addPair(nvps, index, "username", username);

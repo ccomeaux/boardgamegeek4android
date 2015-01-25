@@ -1,12 +1,12 @@
 package com.boardgamegeek.model;
 
-import retrofit.RetrofitError;
-import retrofit.converter.ConversionException;
-
 import com.boardgamegeek.io.AuthException;
 import com.boardgamegeek.io.InvalidIdException;
 import com.boardgamegeek.io.PossibleSuccessException;
 import com.boardgamegeek.util.StringUtils;
+
+import retrofit.RetrofitError;
+import retrofit.converter.ConversionException;
 
 public class PlayPostResponse {
 	private String html;
@@ -71,8 +71,7 @@ public class PlayPostResponse {
 		} else {
 			int start = html.indexOf(">");
 			int end = html.indexOf("<", start);
-			int playCount = StringUtils.parseInt(html.substring(start + 1, end), 1);
-			return playCount;
+			return StringUtils.parseInt(html.substring(start + 1, end), 1);
 		}
 	}
 }

@@ -147,9 +147,8 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		CursorLoader loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
+		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
 			PlayersQuery.PROJECTION, null, null, mSorter.getOrderByClause());
-		return loader;
 	}
 
 	@Override

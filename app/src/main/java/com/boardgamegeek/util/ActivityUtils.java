@@ -444,7 +444,7 @@ public class ActivityUtils {
 	}
 
 	public static void safelyLoadImage(ImageView imageView, int imageId) {
-		Queue<String> imageUrls = new LinkedList<String>();
+		Queue<String> imageUrls = new LinkedList<>();
 		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
@@ -457,7 +457,7 @@ public class ActivityUtils {
 	}
 
 	public static void safelyLoadImage(ImageView imageView, String imageUrl) {
-		Queue<String> imageUrls = new LinkedList<String>();
+		Queue<String> imageUrls = new LinkedList<>();
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
 		imageUrls.add(imageUrl);

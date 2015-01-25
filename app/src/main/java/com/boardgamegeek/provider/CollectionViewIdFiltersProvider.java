@@ -43,8 +43,7 @@ public class CollectionViewIdFiltersProvider extends BaseProvider {
 		long filterId = CollectionViews.getViewId(uri);
 		values.put(CollectionViewFilters.VIEW_ID, filterId);
 		long rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values);
-		Uri newUri = CollectionViews.buildViewFilterUri(filterId, rowId);
-		return newUri;
+		return CollectionViews.buildViewFilterUri(filterId, rowId);
 	}
 
 	private SelectionBuilder buildSelection(Uri uri, String table, String idColumnName) {

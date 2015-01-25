@@ -6,7 +6,7 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Holo.Dialog" />
+	<style name="Theme.bgglight.Dialog" parent="@android:style/Theme.Holo.Dialog"/>
 
 	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:gravity">center_vertical</item>
@@ -50,6 +50,13 @@
 		<item name="android:layout_marginLeft">4dp</item>
 		<item name="android:layout_marginRight">4dp</item>
 		<item name="android:layout_width">match_parent</item>
+	</style>
+
+	<style name="ActionBarButtonContainer">
+		<item name="android:divider">?android:attr/dividerVertical</item>
+		<item name="android:dividerPadding">12dp</item>
+		<item name="android:orientation">horizontal</item>
+		<item name="android:showDividers">middle</item>
 	</style>
 
 	<style name="ActionBarButtonText">

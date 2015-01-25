@@ -9,9 +9,9 @@ import android.os.BatteryManager;
 
 public class NetworkUtils {
 
-	public static boolean isOnline(Context context) {
+	public static boolean isOffline(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
+		return cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
 	}
 
 	public static boolean isCharging(Context context) {
@@ -38,8 +38,7 @@ public class NetworkUtils {
 	}
 
 	private static Intent getBatteryStatus(Context context) {
-		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		Intent batteryStatus = context.registerReceiver(null, ifilter);
-		return batteryStatus;
+		IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		return context.registerReceiver(null, filter);
 	}
 }

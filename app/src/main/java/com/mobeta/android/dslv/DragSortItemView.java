@@ -65,7 +65,7 @@ public class DragSortItemView extends ViewGroup {
 
 		final View child = getChildAt(0);
 		if (child == null) {
-			setMeasuredDimension(0, width);
+			setMeasuredDimension(0, height);
 			return;
 		}
 

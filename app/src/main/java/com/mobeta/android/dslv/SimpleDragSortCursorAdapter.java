@@ -32,7 +32,7 @@ import android.widget.ImageView;
  * 
  * Binding occurs in two phases. First, if a {@link android.widget.SimpleCursorAdapter.ViewBinder} is available,
  * {@link ViewBinder#setViewValue(android.view.View, android.database.Cursor, int)} is invoked. If the returned value is
- * true, binding has occured. If the returned value is false and the view to bind is a TextView,
+ * true, binding has occurred. If the returned value is false and the view to bind is a TextView,
  * {@link #setViewText(TextView, String)} is invoked. If the returned value is false and the view to bind is an
  * ImageView, {@link #setViewImage(ImageView, String)} is invoked. If no appropriate binding can be found, an
  * {@link IllegalStateException} is thrown.
@@ -110,7 +110,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
 	 * 
 	 * Binding occurs in two phases. First, if a {@link android.widget.SimpleCursorAdapter.ViewBinder} is available,
 	 * {@link ViewBinder#setViewValue(android.view.View, android.database.Cursor, int)} is invoked. If the returned
-	 * value is true, binding has occured. If the returned value is false and the view to bind is a TextView,
+	 * value is true, binding has occurred. If the returned value is false and the view to bind is a TextView,
 	 * {@link #setViewText(TextView, String)} is invoked. If the returned value is false and the view to bind is an
 	 * ImageView, {@link #setViewImage(ImageView, String)} is invoked. If no appropriate binding can be found, an
 	 * {@link IllegalStateException} is thrown.

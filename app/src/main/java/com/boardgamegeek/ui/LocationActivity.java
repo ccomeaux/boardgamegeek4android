@@ -136,7 +136,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		protected String doInBackground(String... params) {
 			String oldLocation = params[0];
 			String newLocation = params[1];
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
 			ContentValues values = new ContentValues();
 			values.put(Plays.LOCATION, newLocation);
@@ -159,7 +159,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 
 			ContentProviderResult[] res = ResolverUtils.applyBatch(LocationActivity.this, batch);
 
-			String result = null;
+			String result;
 			if (res.length > 0) {
 				result = getString(R.string.msg_play_location_change, res.length, oldLocation, newLocation);
 				SyncService.sync(LocationActivity.this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);

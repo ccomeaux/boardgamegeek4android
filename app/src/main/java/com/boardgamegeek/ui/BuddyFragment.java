@@ -80,9 +80,6 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mBuddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
-		if (TextUtils.isEmpty(mBuddyName)) {
-			return;
-		}
 	}
 
 	@Override

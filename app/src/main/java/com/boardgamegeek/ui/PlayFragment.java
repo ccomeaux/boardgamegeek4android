@@ -40,15 +40,11 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-import butterknife.ButterKnife;
 
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
@@ -78,7 +74,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	private TextView mComments;
 	private View mCommentsLabel;
 	private View mPlayersLabel;
-	private ListView mPlayers;
 	private TextView mSavedTimeStamp;
 	private TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
@@ -152,15 +147,15 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 
-		mPlayers = (ListView) rootView.findViewById(android.R.id.list);
-		mPlayers.setHeaderDividersEnabled(false);
-		mPlayers.setFooterDividersEnabled(false);
+		ListView playersView = (ListView) rootView.findViewById(android.R.id.list);
+		playersView.setHeaderDividersEnabled(false);
+		playersView.setFooterDividersEnabled(false);
 
 		View header = View.inflate(getActivity(), R.layout.header_play, null);
-		mPlayers.addHeaderView(header);
+		playersView.addHeaderView(header);
 
 		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
-		mPlayers.addFooterView(footer);
+		playersView.addFooterView(footer);
 
 		mThumbnailView = (ImageView) rootView.findViewById(R.id.thumbnail);
 		mGameName = (TextView) header.findViewById(R.id.header);
@@ -200,7 +195,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		mUnsyncedMessage = (TextView) footer.findViewById(R.id.play_unsynced_message);
 
 		mAdapter = new PlayerAdapter();
-		mPlayers.setAdapter(mAdapter);
+		playersView.setAdapter(mAdapter);
 
 		getLoaderManager().restartLoader(PlayQuery._TOKEN, null, this);
 

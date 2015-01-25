@@ -31,7 +31,7 @@ public class HttpUtils {
 	private static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String SITE_URL = "https://www.boardgamegeek.com/";
 
-	private static boolean mMockLogin = false;
+	@SuppressWarnings("FieldCanBeLocal") private static boolean mMockLogin = false;
 
 	public static String encode(String s) {
 		try {
@@ -50,7 +50,7 @@ public class HttpUtils {
 		String AUTH_URI = HttpUtils.SITE_URL + "login";
 
 		final HttpResponse resp;
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		List<NameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair("username", username));
 		params.add(new BasicNameValuePair("password", password));
 

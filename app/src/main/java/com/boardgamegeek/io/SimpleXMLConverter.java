@@ -58,6 +58,7 @@ public class SimpleXMLConverter implements Converter {
 					osw.close();
 				}
 			} catch (IOException e) {
+				//noinspection ThrowFromFinallyBlock
 				throw new AssertionError(e);
 			}
 		}

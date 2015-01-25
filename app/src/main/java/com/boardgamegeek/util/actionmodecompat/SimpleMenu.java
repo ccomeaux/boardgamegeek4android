@@ -43,7 +43,7 @@ public class SimpleMenu implements Menu {
     public SimpleMenu(Context context) {
         mContext = context;
         mResources = context.getResources();
-        mItems = new ArrayList<SimpleMenuItem>();
+        mItems = new ArrayList<>();
     }
 
     public Context getContext() {

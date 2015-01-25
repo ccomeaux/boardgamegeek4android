@@ -33,7 +33,7 @@ public class SyncCollectionModifiedSince extends SyncTask {
 		Timber.i("Syncing collection list modified since " + new Date(date) + "...");
 		try {
 			CollectionPersister persister = new CollectionPersister(mContext).includeStats().includePrivateInfo().validStatusesOnly();
-			Map<String, String> options = new HashMap<String, String>();
+			Map<String, String> options = new HashMap<>();
 			String modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(new Date(date));
 
 			if (isCancelled()) {

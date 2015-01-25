@@ -77,8 +77,8 @@ public class User {
 
 	public ArrayList<Buddy> getBuddies() {
 		if (buddies == null || buddies.buddies == null) {
-			return new ArrayList<Buddy>();
+			return new ArrayList<>();
 		}
-		return new ArrayList<Buddy>(buddies.buddies);
+		return new ArrayList<>(buddies.buddies);
 	}
 }

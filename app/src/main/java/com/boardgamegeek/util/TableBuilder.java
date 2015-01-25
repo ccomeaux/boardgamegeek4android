@@ -12,8 +12,8 @@ import timber.log.Timber;
 public class TableBuilder {
 	private String mTable = null;
 	private Column mPrimaryKey = null;
-	private List<Column> mColumns = new ArrayList<Column>();
-	private List<String> mUniqueColumnNames = new ArrayList<String>();
+	private List<Column> mColumns = new ArrayList<>();
+	private List<String> mUniqueColumnNames = new ArrayList<>();
 	private CONFLICT_RESOLUTION mResolution = CONFLICT_RESOLUTION.IGNORE;
 	private boolean mFtsTable = false;
 
@@ -28,8 +28,8 @@ public class TableBuilder {
 	public TableBuilder reset() {
 		mTable = null;
 		mPrimaryKey = null;
-		mColumns = new ArrayList<Column>();
-		mUniqueColumnNames = new ArrayList<String>();
+		mColumns = new ArrayList<>();
+		mUniqueColumnNames = new ArrayList<>();
 		mResolution = CONFLICT_RESOLUTION.IGNORE;
 		return this;
 	}
@@ -43,7 +43,7 @@ public class TableBuilder {
 		}
 		String table = mFtsTable ? "CREATE VIRTUAL TABLE " + mTable + " USING fts3" : "CREATE TABLE " + mTable;
 		StringBuilder sb = new StringBuilder();
-		sb.append(table + " (" + mPrimaryKey.build() + " PRIMARY KEY AUTOINCREMENT,");
+		sb.append(table).append(" (").append(mPrimaryKey.build()).append(" PRIMARY KEY AUTOINCREMENT,");
 		for (Column column : mColumns) {
 			sb.append(column.build()).append(",");
 		}

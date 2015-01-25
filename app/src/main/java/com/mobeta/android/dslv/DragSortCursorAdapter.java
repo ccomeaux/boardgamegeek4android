@@ -28,7 +28,7 @@ public abstract class DragSortCursorAdapter extends CursorAdapter implements Dra
 	 */
 	private SparseIntArray mListMapping = new SparseIntArray();
 
-	private ArrayList<Integer> mRemovedCursorPositions = new ArrayList<Integer>();
+	private ArrayList<Integer> mRemovedCursorPositions = new ArrayList<>();
 
 	public DragSortCursorAdapter(Context context, Cursor c) {
 		super(context, c, false);
@@ -161,7 +161,7 @@ public abstract class DragSortCursorAdapter extends CursorAdapter implements Dra
 	 * Remove unnecessary mappings from sparse array.
 	 */
 	private void cleanMapping() {
-		ArrayList<Integer> toRemove = new ArrayList<Integer>();
+		ArrayList<Integer> toRemove = new ArrayList<>();
 
 		int size = mListMapping.size();
 		for (int i = 0; i < size; ++i) {
@@ -198,7 +198,7 @@ public abstract class DragSortCursorAdapter extends CursorAdapter implements Dra
 	 * Get the current order of Cursor positions presented by the list.
 	 */
 	public ArrayList<Integer> getCursorPositions() {
-		ArrayList<Integer> result = new ArrayList<Integer>();
+		ArrayList<Integer> result = new ArrayList<>();
 
 		for (int i = 0; i < getCount(); ++i) {
 			result.add(mListMapping.get(i, i));

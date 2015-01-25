@@ -36,6 +36,10 @@
 			android:summary="Apache License 2.0"
 			android:title="Hugo"/>
 		<com.boardgamegeek.pref.LicensePreference
+			android:dialogMessage="@string/pref_about_gson_license"
+			android:summary="Apache License 2.0"
+			android:title="Gson"/>
+		<com.boardgamegeek.pref.LicensePreference
 			android:dialogMessage="@string/pref_about_okhttp_license"
 			android:summary="Apache License 2.0"
 			android:title="OkHttp"/>

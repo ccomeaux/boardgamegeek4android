@@ -35,7 +35,7 @@ public class SyncPlays extends SyncTask {
 
 			mStartTime = System.currentTimeMillis();
 			mPersister = new PlayPersister(mContext);
-			PlaysResponse response = null;
+			PlaysResponse response;
 			long newestSyncDate = Authenticator.getLong(mContext, SyncService.TIMESTAMP_PLAYS_NEWEST_DATE, 0);
 			if (newestSyncDate > 0) {
 				String date = DateTimeUtils.formatDateForApi(newestSyncDate);
@@ -119,13 +119,13 @@ public class SyncPlays extends SyncTask {
 
 	private void deleteUnupdatedPlaysSince(long time, SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + ">=? AND " + Plays.SYNC_STATUS + "="
-			+ Play.SYNC_STATUS_SYNCED,
+				+ Play.SYNC_STATUS_SYNCED,
 			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 
 	private void deleteUnupdatedPlaysBefore(long time, SyncResult syncResult) {
 		deletePlays(Plays.UPDATED_LIST + "<? AND " + Plays.DATE + "<=? AND " + Plays.SYNC_STATUS + "="
-			+ Play.SYNC_STATUS_SYNCED,
+				+ Play.SYNC_STATUS_SYNCED,
 			new String[] { String.valueOf(mStartTime), DateTimeUtils.formatDateForApi(time) }, syncResult);
 	}
 

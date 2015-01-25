@@ -38,7 +38,7 @@ public class CollectionPersister {
 		mContext = context;
 		mResolver = mContext.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
-		mGameIds = new ArrayList<Integer>();
+		mGameIds = new ArrayList<>();
 	}
 
 	public long getTimeStamp() {
@@ -81,7 +81,7 @@ public class CollectionPersister {
 
 		// remove them
 		if (collectionIds.size() > 0) {
-			ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 			for (Integer collectionId : collectionIds) {
 				batch.add(ContentProviderOperation.newDelete(Collection.CONTENT_URI)
 					.withSelection(Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(collectionId) })
@@ -113,6 +113,7 @@ public class CollectionPersister {
 		return 0;
 	}
 
+	@SuppressWarnings("RedundantIfStatement")
 	private boolean isValid(CollectionItem item) {
 		if (mSyncStatuses == null) {
 			return true;
@@ -213,7 +214,7 @@ public class CollectionPersister {
 		if (mGameIds.contains(gameId)) {
 			Timber.i("Already saved game [ID=" + gameId + "; NAME=" + values.getAsString(Games.GAME_NAME) + "]");
 		} else {
-			Builder cpo = null;
+			Builder cpo;
 			Uri uri = Games.buildGameUri(gameId);
 			if (ResolverUtils.rowExists(mResolver, uri)) {
 				values.remove(Games.GAME_ID);
@@ -227,8 +228,8 @@ public class CollectionPersister {
 	}
 
 	private void insertOrUpdateCollection(ContentValues values, ArrayList<ContentProviderOperation> batch) {
-		Builder cpo = null;
-		long existingId = BggContract.INVALID_ID;
+		Builder cpo;
+		long existingId;
 		int collId = values.getAsInteger(Collection.COLLECTION_ID);
 		if (collId == BggContract.INVALID_ID) {
 			values.remove(Collection.COLLECTION_ID);

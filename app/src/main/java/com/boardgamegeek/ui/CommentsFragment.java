@@ -148,12 +148,12 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	private boolean isLoading() {
 		final CommentsLoader loader = getLoader();
-		return (loader != null) ? loader.isLoading() : true;
+		return (loader == null) || loader.isLoading();
 	}
 
 	private boolean loaderHasMoreResults() {
 		final CommentsLoader loader = getLoader();
-		return (loader != null) ? loader.hasMoreResults() : false;
+		return (loader != null) && loader.hasMoreResults();
 	}
 
 	private CommentsLoader getLoader() {

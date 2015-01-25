@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
 	android:id="@+id/root"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@color/primary"
-	android:orientation="vertical" >
+	android:orientation="vertical"
+	tools:context=".ui.BuddyActivity">
 
 	<LinearLayout
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical"
-			android:orientation="horizontal" >
+			android:orientation="horizontal">
 
 			<ImageView
 				android:id="@+id/avatar"
@@ -25,24 +28,24 @@
 				android:layout_marginRight="@dimen/padding_standard"
 				android:contentDescription="@string/avatar"
 				android:scaleType="fitCenter"
-				android:src="@drawable/person_image_empty" />
+				android:src="@drawable/person_image_empty"/>
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="vertical" >
+				android:orientation="vertical">
 
 				<TextView
 					android:id="@+id/full_name"
 					style="@style/Text.Title"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"/>
 
 				<TextView
 					android:id="@+id/username"
 					style="@style/Text.Subtitle"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"/>
 			</LinearLayout>
 		</LinearLayout>
 
@@ -51,39 +54,39 @@
 			style="@style/Text.Footnote2"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="end" />
+			android:gravity="end"/>
 	</LinearLayout>
 
 	<LinearLayout
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal" >
+		android:orientation="horizontal">
 
 		<LinearLayout
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:orientation="vertical" >
+			android:orientation="vertical">
 
 			<TextView
 				style="@style/Text.Header"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:labelFor="@+id/nickname"
-				android:text="@string/nickname" />
+				android:text="@string/nickname"/>
 
 			<TextView
 				android:id="@+id/nickname"
 				style="@style/Text.Title"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
+				android:layout_height="wrap_content"/>
 
 			<TextView
 				style="@style/Text.Footnote2"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/nickname_description" />
+				android:text="@string/nickname_description"/>
 		</LinearLayout>
 
 		<ImageView
@@ -94,9 +97,8 @@
 			android:background="?attr/selectableItemBackground"
 			android:contentDescription="@string/edit"
 			android:focusable="false"
-			android:onClick="onEditClick"
 			android:scaleType="center"
-			android:src="@drawable/ic_action_edit_light" />
+			android:src="@drawable/ic_action_edit_light"/>
 	</LinearLayout>
 
 </LinearLayout>

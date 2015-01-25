@@ -67,7 +67,7 @@ public class DragSortController extends SimpleFloatViewManager implements View.O
 
 	private boolean mDragging = false;
 
-	private float mFlingSpeed = 500f;
+	private static final float mFlingSpeed = 500f;
 
 	private int mDragHandleId;
 
@@ -112,7 +112,28 @@ public class DragSortController extends SimpleFloatViewManager implements View.O
 		super(dslv);
 		mDslv = dslv;
 		mDetector = new GestureDetector(dslv.getContext(), this);
-		mFlingRemoveDetector = new GestureDetector(dslv.getContext(), mFlingRemoveListener);
+		GestureDetector.OnGestureListener flingRemoveListener = new GestureDetector.SimpleOnGestureListener() {
+			@Override
+			public final boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+				// Log.d("mobeta", "on fling remove called");
+				if (mRemoveEnabled && mIsRemoving) {
+					int w = mDslv.getWidth();
+					int minPos = w / 5;
+					if (velocityX > mFlingSpeed) {
+						if (mPositionX > -minPos) {
+							mDslv.stopDragWithVelocity(true, velocityX);
+						}
+					} else if (velocityX < -mFlingSpeed) {
+						if (mPositionX < minPos) {
+							mDslv.stopDragWithVelocity(true, velocityX);
+						}
+					}
+					mIsRemoving = false;
+				}
+				return false;
+			}
+		};
+		mFlingRemoveDetector = new GestureDetector(dslv.getContext(), flingRemoveListener);
 		mFlingRemoveDetector.setIsLongpressEnabled(false);
 		mTouchSlop = ViewConfiguration.get(dslv.getContext()).getScaledTouchSlop();
 		mDragHandleId = dragHandleId;
@@ -331,7 +352,7 @@ public class DragSortController extends SimpleFloatViewManager implements View.O
 			final int rawX = (int) ev.getRawX();
 			final int rawY = (int) ev.getRawY();
 
-			View dragBox = id == 0 ? item : (View) item.findViewById(id);
+			View dragBox = id == 0 ? item : item.findViewById(id);
 			if (dragBox != null) {
 				dragBox.getLocationOnScreen(mTempLoc);
 
@@ -431,27 +452,5 @@ public class DragSortController extends SimpleFloatViewManager implements View.O
 	public void onShowPress(MotionEvent ev) {
 		// do nothing
 	}
-
-	private GestureDetector.OnGestureListener mFlingRemoveListener = new GestureDetector.SimpleOnGestureListener() {
-		@Override
-		public final boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// Log.d("mobeta", "on fling remove called");
-			if (mRemoveEnabled && mIsRemoving) {
-				int w = mDslv.getWidth();
-				int minPos = w / 5;
-				if (velocityX > mFlingSpeed) {
-					if (mPositionX > -minPos) {
-						mDslv.stopDragWithVelocity(true, velocityX);
-					}
-				} else if (velocityX < -mFlingSpeed) {
-					if (mPositionX < minPos) {
-						mDslv.stopDragWithVelocity(true, velocityX);
-					}
-				}
-				mIsRemoving = false;
-			}
-			return false;
-		}
-	};
 
 }

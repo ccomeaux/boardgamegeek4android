@@ -42,7 +42,7 @@ public class SuggestedAgeFilterData extends CollectionFilterData {
 	}
 
 	private void setDisplayText(Resources r) {
-		String text = "";
+		String text;
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
@@ -63,7 +63,7 @@ public class SuggestedAgeFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String selection = "";
+		String selection;
 		if (mMax == MAX_RANGE) {
 			selection = "(" + Games.MINIMUM_AGE + ">=?)";
 			selectionArgs(minValue);

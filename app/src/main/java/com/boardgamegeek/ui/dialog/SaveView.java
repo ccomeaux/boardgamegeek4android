@@ -122,7 +122,7 @@ public class SaveView {
 
 				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
 					final List<CollectionFilterData> filters) {
-					List<ContentValues> cvs = new ArrayList<ContentValues>(filters.size());
+					List<ContentValues> cvs = new ArrayList<>(filters.size());
 					for (CollectionFilterData filter : filters) {
 						if (filter != null) {
 							ContentValues cv = new ContentValues();

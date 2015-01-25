@@ -45,7 +45,7 @@ public class AverageWeightFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String text = "";
+		String text;
 		if (mMin == mMax) {
 			text = maxValue;
 		} else {
@@ -62,7 +62,7 @@ public class AverageWeightFilterData extends CollectionFilterData {
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String selection = "";
+		String selection;
 		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
 		selectionArgs(minValue, maxValue);
 		if (mUndefined) {

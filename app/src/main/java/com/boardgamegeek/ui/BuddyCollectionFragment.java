@@ -214,7 +214,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			return;
 		}
 
-		List<CollectionItem> list = new ArrayList<CollectionItem>();
+		List<CollectionItem> list = new ArrayList<>();
 		if (data != null) {
 			list = data.list();
 		}
@@ -228,7 +228,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		mAdapter.notifyDataSetChanged();
 		getActivity().supportInvalidateOptionsMenu();
 
-		if (data.hasError()) {
+		if (data == null) {
+			setEmptyText(getString(R.string.empty_buddy_collection));
+		} else if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
 		} else {
 			if (isResumed()) {
@@ -253,7 +255,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			super(context);
 			mService = Adapter.create();
 			mUsername = username;
-			mOptions = new HashMap<String, String>();
+			mOptions = new HashMap<>();
 			mOptions.put(status, "1");
 			mOptions.put(BggService.COLLECTION_QUERY_KEY_BRIEF, "1");
 		}
@@ -267,7 +269,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 					collection = new BuddyCollectionData(mService.collection(mUsername, mOptions));
 					break;
 				} catch (Exception e) {
-					if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+					if (e.getCause() instanceof RetryableException) {
 						retries++;
 						if (retries > MAX_RETRIES) {
 							break;
@@ -302,7 +304,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		@Override
 		public List<CollectionItem> list() {
 			if (mResponse == null || mResponse.items == null) {
-				return new ArrayList<CollectionItem>();
+				return new ArrayList<>();
 			}
 			return mResponse.items;
 		}

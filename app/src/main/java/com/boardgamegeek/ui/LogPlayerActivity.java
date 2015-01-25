@@ -67,7 +67,6 @@ public class LogPlayerActivity extends ActionBarActivity {
 	private static final int HELP_VERSION = 1;
 	private static final int TOKEN_COLORS = 1;
 
-	private int mGameId;
 	private String mGameName;
 
 	private Player mPlayer;
@@ -137,7 +136,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 					}
 					try {
 						if (cursor.moveToFirst()) {
-							mColors = new ArrayList<String>();
+							mColors = new ArrayList<>();
 							do {
 								mColors.add(cursor.getString(0));
 							} while (cursor.moveToNext());
@@ -164,7 +163,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
 
 		final Intent intent = getIntent();
-		mGameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
 		mGameName = intent.getStringExtra(KEY_GAME_NAME);
 		String imageUrl = intent.getStringExtra(KEY_IMAGE_URL);
 		mAutoPosition = intent.getIntExtra(KEY_AUTO_POSITION, Player.SEAT_UNKNOWN);
@@ -194,18 +193,18 @@ public class LogPlayerActivity extends ActionBarActivity {
 			mPlayer = savedInstanceState.getParcelable(KEY_PLAYER);
 		}
 
-		mUsedColors = new ArrayList<String>(Arrays.asList(usedColors));
+		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
 		mUsedColors.remove(mPlayer.color);
 
 		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
 
-		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(mGameId),
+		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
 			new String[] { GameColors.COLOR }, null, null, null);
 
 		mName.setAdapter(new PlayerNameAdapter(this));
 		mUsername.setAdapter(new BuddyNameAdapter(this));
-		mTeamColor.setAdapter(new GameColorAdapter(this, mGameId, R.layout.autocomplete_color));
+		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
@@ -318,8 +317,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 	}
 
 	private void setViewVisibility() {
-		boolean enableButton = false;
-		enableButton |= hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
+		boolean enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
 		enableButton |= hideRow(hasAutoPosition() || shouldHidePosition(),
 			findViewById(R.id.log_player_position_container));
 		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
@@ -392,28 +390,28 @@ public class LogPlayerActivity extends ActionBarActivity {
 					View viewToScroll = null;
 
 					String selection = array[which].toString();
-					if (selection == r.getString(R.string.team_color)) {
+					if (selection.equals(r.getString(R.string.team_color))) {
 						mUserShowTeamColor = true;
 						viewToFocus = mTeamColor;
 						viewToScroll = findViewById(R.id.log_player_team_color_container);
-					} else if (selection == r.getString(R.string.starting_position)) {
+					} else if (selection.equals(r.getString(R.string.starting_position))) {
 						mUserShowPosition = true;
 						viewToFocus = mPosition;
 						viewToScroll = findViewById(R.id.log_player_position_container);
-					} else if (selection == r.getString(R.string.score)) {
+					} else if (selection.equals(r.getString(R.string.score))) {
 						mUserShowScore = true;
 						viewToFocus = mScore;
 						viewToScroll = findViewById(R.id.log_player_score_container);
-					} else if (selection == r.getString(R.string.rating)) {
+					} else if (selection.equals(r.getString(R.string.rating))) {
 						mUserShowRating = true;
 						viewToFocus = mRating;
 						viewToScroll = findViewById(R.id.log_player_rating);
-					} else if (selection == r.getString(R.string.new_label)) {
+					} else if (selection.equals(r.getString(R.string.new_label))) {
 						mUserShowNew = true;
 						mNew.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);
 						viewToFocus = mNew;
-					} else if (selection == r.getString(R.string.win)) {
+					} else if (selection.equals(r.getString(R.string.win))) {
 						mUserShowWin = true;
 						mWin.setChecked(true);
 						viewToScroll = findViewById(R.id.log_player_checkbox_container);
@@ -438,7 +436,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 
 		if (shouldHideTeamColor()) {
 			list.add(r.getString(R.string.team_color));

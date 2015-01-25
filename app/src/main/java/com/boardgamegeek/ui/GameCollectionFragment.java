@@ -358,7 +358,7 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			hasParts = cursor.getString(HASPARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
 
-			mStatus = new ArrayList<String>();
+			mStatus = new ArrayList<>();
 			for (int i = STATUS_OWN; i <= STATUS_PREORDERED; i++) {
 				if (cursor.getInt(i) == 1) {
 					if (i == STATUS_WISHLIST) {
@@ -495,14 +495,20 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		}
 
 		private String formatCurrency(String currency) {
-			if ("USD".equals(currency) || "CAD".equals(currency) || "AUD".equals(currency)) {
+			if (currency == null) {
 				return "$";
-			} else if ("EUR".equals(currency)) {
-				return "\u20AC";
-			} else if ("GBP".equals(currency)) {
-				return "\u00A3";
-			} else if ("YEN".equals(currency)) {
-				return "\u00A5";
+			}
+			switch (currency) {
+				case "USD":
+				case "CAD":
+				case "AUD":
+					return "$";
+				case "EUR":
+					return "\u20AC";
+				case "GBP":
+					return "\u00A3";
+				case "YEN":
+					return "\u00A5";
 			}
 			return "";
 		}

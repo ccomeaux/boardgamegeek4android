@@ -44,14 +44,14 @@ public class SyncGameCollection extends UpdateTask {
 
 		// XXX: this deleted more games that I expected. need to rework
 		// int deleteCount = persister.delete(items, mGameId);
-		// LOGI(TAG, "Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
+		// Timber.i("Removed " + deleteCount + " collection item(s) for game ID=" + mGameId);
 	}
 
 	protected List<CollectionItem> request(Context context, Account account) {
 		// Only one of these requests will return results
 		BggService service = Adapter.createWithAuth(context);
 
-		Map<String, String> options = new HashMap<String, String>();
+		Map<String, String> options = new HashMap<>();
 		options.put(BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_STATS, "1");
 		options.put(BggService.COLLECTION_QUERY_KEY_ID, String.valueOf(mGameId));

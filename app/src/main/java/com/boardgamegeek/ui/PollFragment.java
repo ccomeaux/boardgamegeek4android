@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -31,6 +29,8 @@ import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
 import com.boardgamegeek.util.UIUtils;
 
+import java.util.ArrayList;
+
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -44,7 +44,6 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private static final String RECOMMENDED = "Recommended";
 	private static final String NOT_RECOMMENDED = "Not Recommended";
 
-	private int mGameId;
 	private String mType;
 	private int mPollCount;
 	private int mKeyCount;
@@ -67,9 +66,9 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = intent.getIntExtra(KEY_GAME_ID, -1);
+		int gameId = intent.getIntExtra(KEY_GAME_ID, -1);
 		mType = intent.getStringExtra(KEY_TYPE);
-		mUri = Games.buildPollResultsResultUri(mGameId, mType);
+		mUri = Games.buildPollResultsResultUri(gameId, mType);
 	}
 
 	@Override
@@ -92,17 +91,23 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-		if (LANGUAGE_DEPENDENCE.equals(mType)) {
-			getDialog().setTitle(R.string.language_dependence);
-		} else if (SUGGESTED_PLAYERAGE.equals(mType)) {
-			getDialog().setTitle(R.string.suggested_playerage);
-		} else if (SUGGESTED_NUMPLAYERS.equals(mType)) {
-			mBarChart = true;
-			getDialog().setTitle(R.string.suggested_numplayers);
-			addKeyRow(0xff4cc417, BEST);
-			addKeyRow(Color.YELLOW, RECOMMENDED);
-			addKeyRow(Color.RED, NOT_RECOMMENDED);
+		if (mType == null) {
+			Timber.w("Missing type");
+		}
+		switch (mType) {
+			case LANGUAGE_DEPENDENCE:
+				getDialog().setTitle(R.string.language_dependence);
+				break;
+			case SUGGESTED_PLAYERAGE:
+				getDialog().setTitle(R.string.suggested_playerage);
+				break;
+			case SUGGESTED_NUMPLAYERS:
+				mBarChart = true;
+				getDialog().setTitle(R.string.suggested_numplayers);
+				addKeyRow(0xff4cc417, BEST);
+				addKeyRow(Color.YELLOW, RECOMMENDED);
+				addKeyRow(Color.RED, NOT_RECOMMENDED);
+				break;
 		}
 
 		getLoaderManager().restartLoader(Query._TOKEN, null, this);
@@ -112,7 +117,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
-			return new CursorLoader(getActivity(), mUri, Query.PROJECTION, null, null, Query.SORT);
+			loader = new CursorLoader(getActivity(), mUri, Query.PROJECTION, null, null, Query.SORT);
 		}
 		return loader;
 	}
@@ -156,7 +161,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private void createBarChart(Cursor cursor) {
 		mPollList.removeAllViews();
 		PlayerNumberRow row = null;
-		String playerNumber = null;
+		String playerNumber;
 		String lastPlayerNumber = "-1";
 		do {
 			playerNumber = cursor.getString(Query.POLL_RESULTS_PLAYERS);
@@ -183,22 +188,32 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 				mPollList.addView(row);
 			}
 
-			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
-			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
-			if (BEST.equals(value)) {
-				row.setBest(votes);
-			} else if (RECOMMENDED.equals(value)) {
-				row.setRecommended(votes);
-			} else if (NOT_RECOMMENDED.equals(value)) {
-				row.setNotRecommended(votes);
-			} else {
-				Timber.w("Bad key: " + value);
+			if (row != null) {
+				String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
+				if (value == null) {
+					Timber.w("Missing key");
+				}
+				int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);
+				switch (value) {
+					case BEST:
+						row.setBest(votes);
+						break;
+					case RECOMMENDED:
+						row.setRecommended(votes);
+						break;
+					case NOT_RECOMMENDED:
+						row.setNotRecommended(votes);
+						break;
+					default:
+						Timber.w("Bad key: " + value);
+						break;
+				}
 			}
 		} while (cursor.moveToNext());
 	}
 
 	private void createPieChart(Cursor cursor) {
-		ArrayList<Pair<CharSequence, Integer>> slices = new ArrayList<Pair<CharSequence, Integer>>();
+		ArrayList<Pair<CharSequence, Integer>> slices = new ArrayList<>();
 		do {
 			String value = cursor.getString(Query.POLL_RESULTS_RESULT_VALUE);
 			int votes = cursor.getInt(Query.POLL_RESULTS_RESULT_VOTES);

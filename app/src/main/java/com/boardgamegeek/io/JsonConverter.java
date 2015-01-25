@@ -30,11 +30,10 @@ public class JsonConverter implements Converter {
 			throw new ConversionException(e);
 		}
 		try {
-			Object ret = mGsonConverter.fromBody(body, type);
-			return ret;
+			return  mGsonConverter.fromBody(body, type);
 		} catch (ConversionException ce) {
 			StringBuilder sb = new StringBuilder();
-			BufferedReader reader = null;
+			BufferedReader reader;
 			try {
 				body.in().reset();
 				reader = new BufferedReader(new InputStreamReader(body.in(), "UTF-8"));

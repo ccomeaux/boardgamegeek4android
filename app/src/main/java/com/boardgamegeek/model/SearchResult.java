@@ -32,7 +32,7 @@ public class SearchResult {
 			return 0;
 		}
 		long l = Long.parseLong(yearPublished);
-		int year = 0;
+		int year;
 		if (l > Integer.MAX_VALUE) {
 			try {
 				year = (int) (l - Long.MAX_VALUE) - 1;

@@ -138,7 +138,7 @@
 
 			<CheckBox
 				android:id="@+id/log_play_incomplete"
-				style="@style/Text.CheckboxLabel"
+				style="@style/Text"
 				android:layout_column="1"
 				android:layout_span="2"
 				android:checked="false"
@@ -151,7 +151,7 @@
 
 			<CheckBox
 				android:id="@+id/log_play_no_win_stats"
-				style="@style/Text.CheckboxLabel"
+				style="@style/Text"
 				android:layout_column="1"
 				android:layout_span="2"
 				android:checked="false"
@@ -174,7 +174,6 @@
 				android:id="@+id/log_play_comments"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:hint="@string/comments_hint"
 				android:inputType="textMultiLine|textAutoCorrect|textCapSentences"/>
 		</LinearLayout>
 

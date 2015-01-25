@@ -110,8 +110,6 @@
 		<item name="android:textColor">@color/dialog_text</item>
 	</style>
 
-	<style name="Text.CheckboxLabel"></style>
-
 	<style name="Text.DrawerItem" parent="Text.Big">
 		<item name="android:layout_gravity">center_vertical</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
@@ -275,15 +273,12 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
-		<item name="android:elevation">8dp</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
 	</style>
 
 	<style name="ActionBarButtonContainer">
 		<item name="android:divider">?android:attr/dividerVertical</item>
-		<item name="android:dividerPadding">12dp</item>
 		<item name="android:orientation">horizontal</item>
-		<item name="android:showDividers">middle</item>
 	</style>
 
 	<style name="ActionBarButton" parent="android:style/Widget.Holo.Light.ActionButton">

@@ -147,15 +147,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		return null;
 	}
 
-	@Override
-	public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account)
-		throws NetworkErrorException {
-		Timber.v("getAccountRemovalAllowed - yes, always");
-		final Bundle result = new Bundle();
-		result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
-		return result;
-	}
-
 	public static Account getAccount(Context context) {
 		return getAccount(AccountManager.get(context));
 	}
@@ -252,11 +243,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 						if (future.getResult()) {
 							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
 						}
-					} catch (OperationCanceledException e) {
-						Timber.e("removeAccount", e);
-					} catch (IOException e) {
-						Timber.e("removeAccount", e);
-					} catch (AuthenticatorException e) {
+					} catch (OperationCanceledException | AuthenticatorException | IOException e) {
 						Timber.e("removeAccount", e);
 					}
 				}
@@ -275,5 +262,5 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	// sb.append("Session ID: ").append(am.getUserData(account, KEY_SESSION_ID)).append("\n");
 	// sb.append("Session X:  ").append(new Date(Long.valueOf(am.getUserData(account, KEY_SESSION_ID_EXPIRY))))
 	// .append("\n");
-	// LOGI(TAG, sb.toString());
+	// Timber.i(sb.toString());
 }

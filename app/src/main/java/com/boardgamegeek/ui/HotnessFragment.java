@@ -1,9 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -34,13 +30,17 @@ import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
 public class HotnessFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
 	// private static final String TAG = makeLogTag(HotnessActivity.class);
 	private static final int LOADER_ID = 1;
 
 	private BoardGameAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> mSelectedPositions = new LinkedHashSet<>();
 	private MenuItem mLogPlayMenuItem;
 	private MenuItem mLogPlayQuickMenuItem;
 	private MenuItem mBggLinkMenuItem;
@@ -93,7 +93,7 @@ public class HotnessFragment extends BggListFragment implements
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		HotGame game = (HotGame) mAdapter.getItem(position);
+		HotGame game = mAdapter.getItem(position);
 		ActivityUtils.launchGame(getActivity(), game.id, game.name);
 	}
 
@@ -107,7 +107,7 @@ public class HotnessFragment extends BggListFragment implements
 
 		@Override
 		public HotnessData loadInBackground() {
-			HotnessData games = null;
+			HotnessData games;
 			try {
 				games = new HotnessData(mService.getHotness(BggService.HOTNESS_TYPE_BOARDGAME));
 			} catch (Exception e) {
@@ -131,7 +131,7 @@ public class HotnessFragment extends BggListFragment implements
 		@Override
 		public List<HotGame> list() {
 			if (mResponse == null || mResponse.games == null) {
-				return new ArrayList<HotGame>();
+				return new ArrayList<>();
 			}
 			return mResponse.games;
 		}
@@ -228,7 +228,7 @@ public class HotnessFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		HotGame game = (HotGame) mAdapter.getItem(mSelectedPositions.iterator().next());
+		HotGame game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
 				mode.finish();
@@ -239,7 +239,7 @@ public class HotnessFragment extends BggListFragment implements
 				String text = getResources().getQuantityString(R.plurals.msg_logging_plays, mSelectedPositions.size());
 				Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
 				for (int position : mSelectedPositions) {
-					HotGame g = (HotGame) mAdapter.getItem(position);
+					HotGame g = mAdapter.getItem(position);
 					ActivityUtils.logQuickPlay(getActivity(), g.id, g.name);
 				}
 				return true;
@@ -248,10 +248,10 @@ public class HotnessFragment extends BggListFragment implements
 				if (mSelectedPositions.size() == 1) {
 					ActivityUtils.shareGame(getActivity(), game.id, game.name);
 				} else {
-					List<Pair<Integer, String>> games = new ArrayList<Pair<Integer, String>>(mSelectedPositions.size());
+					List<Pair<Integer, String>> games = new ArrayList<>(mSelectedPositions.size());
 					for (int position : mSelectedPositions) {
-						HotGame g = (HotGame) mAdapter.getItem(position);
-						games.add(new Pair<Integer, String>(g.id, g.name));
+						HotGame g = mAdapter.getItem(position);
+						games.add(new Pair<>(g.id, g.name));
 					}
 					ActivityUtils.shareGames(getActivity(), games);
 				}

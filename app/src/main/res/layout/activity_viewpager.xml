@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout
 	android:id="@+id/drawer_layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent" >
+	android:layout_height="match_parent">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<android.support.v4.view.ViewPager
 			android:id="@+id/pager"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1" />
+			android:layout_weight="1"/>
 	</LinearLayout>
 
 	<ScrollView
 		android:id="@+id/drawer_container"
-		style="@style/DrawerListContainer" >
+		style="@style/DrawerListContainer">
 
 		<LinearLayout
 			android:id="@+id/left_drawer"
-			style="@style/DrawerList" />
+			style="@style/DrawerList"/>
 	</ScrollView>
 
 </android.support.v4.widget.DrawerLayout>

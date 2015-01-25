@@ -24,11 +24,11 @@ public class ListTagHandler implements Html.TagHandler {
 	 * Keeps track of lists (ol, ul). On bottom of Stack is the outermost list and on top of Stack is the most nested
 	 * list
 	 */
-	private Stack<String> mLists = new Stack<String>();
+	private Stack<String> mLists = new Stack<>();
 	/**
 	 * Tracks indexes of ordered lists so that after a nested list ends we can continue with correct index of outer list
 	 */
-	private Stack<Integer> mNextOrderedIndex = new Stack<Integer>();
+	private Stack<Integer> mNextOrderedIndex = new Stack<>();
 	/**
 	 * List indentation in pixels. Nested lists use multiple of this.
 	 */
@@ -47,7 +47,7 @@ public class ListTagHandler implements Html.TagHandler {
 		} else if (tagIsTypeOf(tag, OL)) {
 			if (opening) {
 				mLists.push(tag);
-				mNextOrderedIndex.push(Integer.valueOf(1)).toString();
+				mNextOrderedIndex.push(1).toString();
 			} else {
 				mLists.pop();
 				mNextOrderedIndex.pop().toString();
@@ -60,8 +60,8 @@ public class ListTagHandler implements Html.TagHandler {
 					startListItem(output, new Ul());
 				} else if (tagIsTypeOf(currentListTag, OL)) {
 					startListItem(output, new Ol());
-					output.append(mNextOrderedIndex.peek().toString() + ". ");
-					mNextOrderedIndex.push(Integer.valueOf(mNextOrderedIndex.pop().intValue() + 1));
+					output.append(mNextOrderedIndex.peek().toString()).append(". ");
+					mNextOrderedIndex.push(mNextOrderedIndex.pop() + 1);
 				}
 			} else {
 				if (tagIsTypeOf(currentListTag, UL)) {
@@ -70,7 +70,7 @@ public class ListTagHandler implements Html.TagHandler {
 					if (mLists.size() > 1) {
 						margin = INDENTATION_IN_PIXELS - BULLET_SPAN.getLeadingMargin(true);
 						if (mLists.size() > 2) {
-							// This get's more complicated when we add a LeadingMarginSpan into the same line:
+							// This gets more complicated when we add a LeadingMarginSpan into the same line:
 							// we have also counter it's effect to BulletSpan
 							margin -= (mLists.size() - 2) * LIST_ITEM_INDENTATION_IN_PIXELS;
 						}
@@ -113,7 +113,6 @@ public class ListTagHandler implements Html.TagHandler {
 				text.setSpan(replace, where, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
-		return;
 	}
 
 	private static Object getLastSpan(Spanned text, Class<?> kind) {

@@ -91,7 +91,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private static final int TOKEN_PLAY = 1;
 	private static final int TOKEN_PLAYERS = 1 << 1;
 	private static final int TOKEN_ID = 1 << 2;
-	private static final int TOKEN_UNITIALIZED = 1 << 31;
+	private static final int TOKEN_UNINITIALIZED = 1 << 31;
 	private static final String[] PLAY_PROJECTION = { Plays.PLAY_ID, PlayItems.NAME, PlayItems.OBJECT_ID, Plays.DATE,
 		Plays.LOCATION, Plays.LENGTH, Plays.QUANTITY, Plays.INCOMPLETE, Plays.NO_WIN_STATS, Plays.COMMENTS,
 		Plays.START_TIME };
@@ -109,16 +109,16 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private String mImageUrl;
 
 	private QueryHandler mHandler;
-	private int mOutstandingQueries = TOKEN_UNITIALIZED;
+	private int mOutstandingQueries = TOKEN_UNINITIALIZED;
 
 	private Play mPlay;
 	private Play mOriginalPlay;
 	private Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
-	private List<Player> mPlayersToAdd = new ArrayList<Player>();
-	private List<String> mUsernames = new ArrayList<String>();
-	private List<String> mNames = new ArrayList<String>();
+	private List<Player> mPlayersToAdd = new ArrayList<>();
+	private List<String> mUsernames = new ArrayList<>();
+	private List<String> mNames = new ArrayList<>();
 
 	private TextView mHeaderView;
 	private Button mDateButton;
@@ -472,13 +472,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private void setViewVisibility() {
-		boolean enabled = false;
 		if (mPlay == null) {
 			// all fields should be hidden, so it shouldn't matter
 			return;
 		}
 
-		enabled |= hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		boolean enabled = hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
 		if (mPlay.hasStarted()) {
 			mLengthView.setVisibility(View.GONE);
 			mTimer.setVisibility(View.VISIBLE);
@@ -672,31 +671,31 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 					Resources r = getResources();
 					String selection = array[which].toString();
 
-					if (selection == r.getString(R.string.location)) {
+					if (selection.equals(r.getString(R.string.location))) {
 						mUserShowLocation = true;
 						viewToFocus = mLocationView;
 						viewToScroll = findViewById(R.id.log_play_location_root);
-					} else if (selection == r.getString(R.string.length)) {
+					} else if (selection.equals(r.getString(R.string.length))) {
 						mUserShowLength = true;
 						viewToFocus = mLengthView;
 						viewToScroll = findViewById(R.id.log_play_length_root);
-					} else if (selection == r.getString(R.string.quantity)) {
+					} else if (selection.equals(r.getString(R.string.quantity))) {
 						mUserShowQuantity = true;
 						viewToFocus = mQuantityView;
 						viewToScroll = findViewById(R.id.log_play_quantity_root);
-					} else if (selection == r.getString(R.string.incomplete)) {
+					} else if (selection.equals(r.getString(R.string.incomplete))) {
 						mUserShowIncomplete = true;
 						mIncompleteView.setChecked(true);
 						viewToScroll = mIncompleteView;
-					} else if (selection == r.getString(R.string.noWinStats)) {
+					} else if (selection.equals(r.getString(R.string.noWinStats))) {
 						mUserShowNoWinStats = true;
 						mNoWinStatsView.setChecked(true);
 						viewToScroll = mNoWinStatsView;
-					} else if (selection == r.getString(R.string.comments)) {
+					} else if (selection.equals(r.getString(R.string.comments))) {
 						mUserShowComments = true;
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
-					} else if (selection == r.getString(R.string.title_players)) {
+					} else if (selection.equals(r.getString(R.string.title_players))) {
 						mUserShowPlayers = true;
 						viewToScroll = mPlayerHeader;
 					}
@@ -721,7 +720,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 		if (shouldHideLocation()) {
 			list.add(r.getString(R.string.location));
 		}
@@ -782,7 +781,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlayersToAdd.clear();
 		mUsernames.clear();
 		mNames.clear();
-		List<String> descriptions = new ArrayList<String>();
+		List<String> descriptions = new ArrayList<>();
 
 		String selection = null;
 		String[] selectionArgs = null;
@@ -905,7 +904,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	public void onPlayerSort(View v) {
-		MenuPopupHelper popup = null;
+		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
 			if (mFullPopupMenu == null) {
 				mFullPopupMenu = new MenuBuilder(this);
@@ -1022,10 +1021,10 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
-		List<CharSequence> list = new ArrayList<CharSequence>();
+		List<CharSequence> list = new ArrayList<>();
 		for (int i = 0; i < mPlay.getPlayerCount(); i++) {
 			Player p = mPlay.getPlayers().get(i);
-			String name = p.getDescsription();
+			String name = p.getDescription();
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(playerPrefix, (i + 1));
 			}
@@ -1039,7 +1038,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private void notifyStartPlayer() {
 		Player p = mPlay.getPlayerAtSeat(1);
 		if (p != null) {
-			String name = p.getDescsription();
+			String name = p.getDescription();
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(getResources().getString(R.string.generic_player), 1);
 			}
@@ -1069,7 +1068,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (!mCustomPlayerSort && requestCode == REQUEST_ADD_PLAYER) {
 			intent.putExtra(LogPlayerActivity.KEY_AUTO_POSITION, mPlay.getPlayerCount() + 1);
 		}
-		List<String> colors = new ArrayList<String>();
+		List<String> colors = new ArrayList<>();
 		for (Player player : mPlay.getPlayers()) {
 			colors.add(player.color);
 		}

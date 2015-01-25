@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 public class DatePickerDialogFragment extends DialogFragment {
@@ -19,6 +20,7 @@ public class DatePickerDialogFragment extends DialogFragment {
 	}
 
 	@Override
+	@NonNull
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		mCalendar.setTimeInMillis(mDateInMillis);
 		return new DatePickerDialog(getActivity(), mListener, mCalendar.get(Calendar.YEAR),

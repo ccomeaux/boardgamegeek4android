@@ -40,7 +40,7 @@ public class UpdateService extends IntentService {
 	private static final boolean DEBUG = true;
 
 	private ResultReceiver mResultReceiver;
-	private static boolean mUseGzip = true;
+	@SuppressWarnings("FieldCanBeLocal") private static boolean mUseGzip = true;
 
 	public static void start(Context context, int type, int id, DetachableResultReceiver receiver) {
 		context.startService(new Intent(Intent.ACTION_SYNC, null, context, UpdateService.class)
@@ -76,7 +76,7 @@ public class UpdateService extends IntentService {
 			return;
 		}
 
-		if (!NetworkUtils.isOnline(getApplicationContext())) {
+		if (NetworkUtils.isOffline(getApplicationContext())) {
 			sendResultToReceiver(STATUS_ERROR, "Offline.");
 			return;
 		}

@@ -21,7 +21,7 @@ public class RankSorter extends CollectionSorter {
 	}
 
 	private static SparseArray<String> buildRanks() {
-		SparseArray<String> ranks = new SparseArray<String>();
+		SparseArray<String> ranks = new SparseArray<>();
 		ranks.put(100, "1 - 100");
 		ranks.put(250, "101 - 250");
 		ranks.put(500, "251 - 500");

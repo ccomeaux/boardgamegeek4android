@@ -109,7 +109,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
-		if (!NetworkUtils.isOnline(mContext)) {
+		if (NetworkUtils.isOffline(mContext)) {
 			Timber.i("Skipping sync; offline");
 			return false;
 		}
@@ -134,7 +134,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	private List<SyncTask> createTasks(Context context, final int type) {
 		BggService service = Adapter.createWithAuth(context);
-		List<SyncTask> tasks = new ArrayList<SyncTask>();
+		List<SyncTask> tasks = new ArrayList<>();
 		if ((type & SyncService.FLAG_SYNC_COLLECTION) == SyncService.FLAG_SYNC_COLLECTION) {
 			if (PreferencesUtils.isSyncStatus(context)) {
 				long lastCompleteSync = Authenticator.getLong(context, SyncService.TIMESTAMP_COLLECTION_COMPLETE);

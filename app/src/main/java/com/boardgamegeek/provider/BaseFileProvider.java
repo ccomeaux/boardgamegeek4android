@@ -1,8 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -11,12 +8,17 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.util.FileUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 public abstract class BaseFileProvider extends BaseProvider {
 	// private static final String TAG = makeLogTag(BaseFileProvider.class);
 
 	protected abstract String getContentPath();
 
-	/** Generates a file name based on the URI **/
+	/**
+	 * Generates a file name based on the URI *
+	 */
 	protected abstract String generateFileName(Context context, Uri uri);
 
 	@Override
@@ -40,7 +42,9 @@ public abstract class BaseFileProvider extends BaseProvider {
 		return ParcelFileDescriptor.open(file, parcelMode);
 	}
 
-	/** Get a {@code File} representing the locally stored results of the URI. **/
+	/**
+	 * Get a {@code File} representing the locally stored results of the URI. *
+	 */
 	private File getFile(Context context, Uri uri) {
 		String fileName = generateFileName(context, uri);
 		if (!TextUtils.isEmpty(fileName)) {
@@ -51,22 +55,32 @@ public abstract class BaseFileProvider extends BaseProvider {
 
 	// from Android ContentResolver.modeToMode
 	private static int calculateParcelMode(Uri uri, String mode) throws FileNotFoundException {
+		if (mode == null) {
+			throw new FileNotFoundException("Missing mode for " + uri);
+		}
 		int modeBits;
-		if ("r".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_ONLY;
-		} else if ("w".equals(mode) || "wt".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_TRUNCATE;
-		} else if ("wa".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_APPEND;
-		} else if ("rw".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE;
-		} else if ("rwt".equals(mode)) {
-			modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE
-				| ParcelFileDescriptor.MODE_TRUNCATE;
-		} else {
-			throw new FileNotFoundException("Bad mode for " + uri + ": " + mode);
+		switch (mode) {
+			case "r":
+				modeBits = ParcelFileDescriptor.MODE_READ_ONLY;
+				break;
+			case "w":
+			case "wt":
+				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
+					| ParcelFileDescriptor.MODE_TRUNCATE;
+				break;
+			case "wa":
+				modeBits = ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
+					| ParcelFileDescriptor.MODE_APPEND;
+				break;
+			case "rw":
+				modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE;
+				break;
+			case "rwt":
+				modeBits = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE
+					| ParcelFileDescriptor.MODE_TRUNCATE;
+				break;
+			default:
+				throw new FileNotFoundException("Bad mode for " + uri + ": " + mode);
 		}
 		return modeBits;
 	}

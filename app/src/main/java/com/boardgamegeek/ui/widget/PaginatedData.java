@@ -1,10 +1,11 @@
 package com.boardgamegeek.ui.widget;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RetrofitError;
-import android.text.TextUtils;
 
 public class PaginatedData<T> {
 	private List<T> mData;
@@ -16,7 +17,7 @@ public class PaginatedData<T> {
 	public PaginatedData(List<T> data, int totalCount, int page, int pageSize) {
 		mData = data;
 		if (mData == null) {
-			mData = new ArrayList<T>();
+			mData = new ArrayList<>();
 		}
 		mErrorMessage = "";
 		mTotalCount = totalCount;
@@ -25,7 +26,7 @@ public class PaginatedData<T> {
 	}
 
 	public PaginatedData(String errorMessage) {
-		mData = new ArrayList<T>();
+		mData = new ArrayList<>();
 		updateErrorMessage(errorMessage);
 	}
 
@@ -33,7 +34,7 @@ public class PaginatedData<T> {
 		updateErrorMessage(e.getMessage());
 		if (e instanceof RetrofitError) {
 			RetrofitError re = (RetrofitError) e;
-			if (re.isNetworkError() && re.getResponse() == null) {
+			if (re.getKind() == RetrofitError.Kind.NETWORK && re.getResponse() == null) {
 				updateErrorMessage("Looks like you're offline.");
 			}
 		}
@@ -41,9 +42,9 @@ public class PaginatedData<T> {
 
 	public PaginatedData(PaginatedData<T> data) {
 		if (data.mData == null) {
-			this.mData = new ArrayList<T>();
+			this.mData = new ArrayList<>();
 		} else {
-			this.mData = new ArrayList<T>(data.mData);
+			this.mData = new ArrayList<>(data.mData);
 		}
 		this.mErrorMessage = data.mErrorMessage;
 		this.mTotalCount = data.mTotalCount;

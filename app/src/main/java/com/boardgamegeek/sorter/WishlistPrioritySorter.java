@@ -37,10 +37,6 @@ public class WishlistPrioritySorter extends CollectionSorter {
 
 	@Override
 	public String getDisplayInfo(Cursor cursor) {
-		int level = getInt(cursor, Collection.STATUS_WISHLIST_PRIORITY);
-		if (level >= mPriorityText.length) {
-			level = 0;
-		}
 		return getIntAsString(cursor, Collection.STATUS_WISHLIST_PRIORITY, "?", true) + " - " + getHeaderText(cursor);
 	}
 }

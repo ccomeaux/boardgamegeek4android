@@ -1,17 +1,11 @@
 package com.boardgamegeek.service;
 
-import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
-import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.model.Game;
-import com.boardgamegeek.model.ThingResponse;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -34,7 +28,7 @@ public class ServiceTask {
 			try {
 				return service.collection(username, options);
 			} catch (Exception e) {
-				if (e instanceof RetryableException || e.getCause() instanceof RetryableException) {
+				if (e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
 						break;
@@ -52,7 +46,7 @@ public class ServiceTask {
 			}
 		}
 		CollectionResponse response = new CollectionResponse();
-		response.items = new ArrayList<CollectionItem>();
+		response.items = new ArrayList<>();
 		return response;
 	}
 }

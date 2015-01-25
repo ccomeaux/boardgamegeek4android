@@ -22,7 +22,7 @@ public class SearchSuggestProvider extends BaseProvider {
 		+ Collection.COLLECTION_YEAR_PUBLISHED;
 
 	private static HashMap<String, String> buildSuggestionProjectionMap() {
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 		map.put(BaseColumns._ID, BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, Collection.COLLECTION_NAME + " AS "
 			+ SearchManager.SUGGEST_COLUMN_TEXT_1);

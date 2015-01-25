@@ -27,6 +27,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -70,7 +71,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
         mMenu = new SimpleMenu(mActivity);
         mCallback.onCreateActionMode(this, mMenu);
         mCallback.onPrepareActionMode(this, mMenu);
-        mMenuItemArrayAdapter = new ArrayAdapter<MenuItem>(mActivity,
+        mMenuItemArrayAdapter = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1);
         invalidate();
@@ -107,7 +108,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
     @Override
     public void invalidate() {
         mMenuItemArrayAdapter.clear();
-        List<MenuItem> items = new ArrayList<MenuItem>();
+        List<MenuItem> items = new ArrayList<>();
         for (int i = 0; i < mMenu.size(); i++) {
             MenuItem item = mMenu.getItem(i);
             if (item.isVisible()) {
@@ -180,7 +181,8 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
         }
 
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+		@NonNull
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
             if (mActionModeBase == null) {
                 // TODO: support orientation changes and avoid this awful hack.
                 final Dialog d = new AlertDialog.Builder(getActivity()).create();

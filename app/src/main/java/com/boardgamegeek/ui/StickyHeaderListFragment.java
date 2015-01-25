@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -16,6 +14,9 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.HttpUtils;
 import com.squareup.picasso.Picasso;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public abstract class StickyHeaderListFragment extends Fragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
@@ -128,7 +129,7 @@ public abstract class StickyHeaderListFragment extends Fragment {
 		mEmptyText = text;
 	}
 
-	public void setProgessShown(boolean shown) {
+	public void setProgressShown(boolean shown) {
 		if (shown) {
 			if (mProgressContainer.getVisibility() != View.VISIBLE) {
 				mProgressContainer.clearAnimation();
@@ -228,6 +229,7 @@ public abstract class StickyHeaderListFragment extends Fragment {
 				+ "that is not a ListView class");
 		}
 		mList = (StickyListHeadersListView) rawListView;
+		//noinspection ConstantConditions
 		if (mList == null) {
 			throw new RuntimeException("Your content must have a ListView whose id attribute is "
 				+ "'android.R.id.list'");
