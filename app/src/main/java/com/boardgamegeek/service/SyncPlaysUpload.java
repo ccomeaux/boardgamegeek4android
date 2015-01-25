@@ -86,9 +86,9 @@ public class SyncPlaysUpload extends SyncTask {
 				PlayPostResponse response = postPlayUpdate(play);
 				if (!response.hasError()) {
 					setStatusToSynced(play);
-					String error = syncGame(username, play, syncResult);
+					SyncGameResponse response2 = syncGame(username, play, syncResult);
 
-					if (TextUtils.isEmpty(error)) {
+					if (!response2.hasError()) {
 						if (!play.hasBeenSynced()) {
 							deletePlay(play);
 						}
@@ -97,9 +97,12 @@ public class SyncPlaysUpload extends SyncTask {
 						String message = play.hasBeenSynced() ? mContext.getString(R.string.msg_play_updated)
 							: mContext.getString(R.string.msg_play_added,
 							getPlayCountDescription(response.getPlayCount(), play.quantity));
+						if (response2.hasNewPlayId()) {
+							play.playId = response2.newPlayId;
+						}
 						notifyUser(StringUtils.boldSecondString(message, play.gameName), play);
 					} else {
-						notifyError(error);
+						notifyError(response2.errorMessage);
 					}
 				} else if (response.hasInvalidIdError()) {
 					notifyUser(StringUtils.boldSecondString(mContext.getString(R.string.msg_play_update_bad_id),
@@ -261,13 +264,14 @@ public class SyncPlaysUpload extends SyncTask {
 	 *
 	 * @return An error message, or blank if no error.
 	 */
-	private String syncGame(String username, Play play, SyncResult syncResult) {
+	private SyncGameResponse syncGame(String username, Play play, SyncResult syncResult) {
+		SyncGameResponse res = new SyncGameResponse();
 		try {
 			long startTime = System.currentTimeMillis();
 			PlaysResponse response = mService.plays(username, play.gameId, play.getDate(), play.getDate());
 			if (!play.hasBeenSynced()) {
-				int newPlayId = getTranslatedPlayId(play, response.plays);
-				PreferencesUtils.putNewPlayId(mContext, play.playId, newPlayId);
+				res.newPlayId = getTranslatedPlayId(play, response.plays);
+				PreferencesUtils.putNewPlayId(mContext, play.playId, res.newPlayId);
 				Intent intent = new Intent(SyncService.ACTION_PLAY_ID_CHANGED);
 				mBroadcaster.sendBroadcast(intent);
 			}
@@ -278,9 +282,22 @@ public class SyncPlaysUpload extends SyncTask {
 			} else {
 				syncResult.stats.numParseExceptions++;
 			}
-			return e.toString();
+			res.errorMessage = e.toString();
 		}
-		return "";
+		return res;
+	}
+
+	private class SyncGameResponse {
+		int newPlayId = BggContract.INVALID_ID;
+		String errorMessage;
+
+		boolean hasError() {
+			return !TextUtils.isEmpty(errorMessage);
+		}
+
+		boolean hasNewPlayId() {
+			return newPlayId != BggContract.INVALID_ID;
+		}
 	}
 
 	private int getTranslatedPlayId(Play play, List<Play> parsedPlays) {
