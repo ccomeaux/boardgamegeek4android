@@ -133,8 +133,9 @@
 
 			<ImageView
 				android:id="@+id/timer_toggle"
-				android:layout_width="@dimen/edit_row_height"
-				android:layout_height="@dimen/edit_row_height"
+				android:layout_width="@dimen/image_button_size"
+				android:layout_height="@dimen/image_button_size"
+				android:layout_gravity="center_vertical"
 				android:background="?attr/selectableItemBackground"
 				android:onClick="onTimer"
 				android:scaleType="center"
@@ -193,7 +194,8 @@
 				android:id="@+id/log_play_comments_label"
 				style="@style/Text.Header.Underline"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="@dimen/edit_row_height"
+				android:gravity="bottom"
 				android:labelFor="@+id/log_play_comments"
 				android:text="@string/comments"/>
 
@@ -208,7 +210,7 @@
 			android:id="@+id/log_play_players_header"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/player_row_height"
-			android:gravity="bottom"
+			android:gravity="left|bottom"
 			android:orientation="horizontal">
 
 			<ImageView
@@ -219,6 +221,10 @@
 				android:onClick="onPlayerSort"
 				android:scaleType="center"
 				android:src="@drawable/ic_action_sort_light"/>
+
+			<View
+				android:layout_height="match_parent"
+				android:layout_width="16dp"/>
 
 			<TextView
 				android:id="@+id/log_play_players_label"
