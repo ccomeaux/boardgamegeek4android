@@ -8,6 +8,8 @@
 	<dimen name="padding_extra">16dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
 	<dimen name="poll_key_height">20dp</dimen>
+	<dimen name="edit_row_height">48dp</dimen>
+	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">48dp</dimen>
 	<dimen name="drawer_item_height">48dp</dimen>
 	<dimen name="text_size">14sp</dimen>

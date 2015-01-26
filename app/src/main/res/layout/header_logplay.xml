@@ -31,7 +31,7 @@
 			tools:text="Puerto Rico"/>
 	</FrameLayout>
 
-	<TableLayout
+	<LinearLayout
 		android:id="@+id/details"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -39,57 +39,82 @@
 		android:paddingBottom="@dimen/padding_small"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_small"
-		android:stretchColumns="1">
+		android:paddingTop="@dimen/padding_small">
 
-		<TableRow android:gravity="center_vertical">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_date"
 				android:text="@string/on"/>
 
-			<Button
+			<TextView
 				android:id="@+id/log_play_date"
-				android:layout_span="2"
+				style="@style/Text.Big"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:background="?attr/selectableItemBackground"
 				android:gravity="left|center_vertical"
-				android:onClick="onDateClick"/>
-		</TableRow>
+				android:onClick="onDateClick"
+				tools:text="January 1, 1970"/>
+		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/log_play_location_root"
-			android:gravity="center_vertical">
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_location"
 				android:text="@string/at"/>
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
-				android:layout_span="2"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
 				android:completionThreshold="1"
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
 				android:inputType="textCapWords"
-				android:textColor="#000"/>
-		</TableRow>
+				android:textColor="#000"
+				android:gravity="center_vertical"/>
+		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/log_play_length_root"
-			android:gravity="center_vertical">
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_length_container_inner"
 				android:text="@string/for_"/>
 
-			<FrameLayout android:id="@+id/log_play_length_container_inner">
+			<FrameLayout
+				android:id="@+id/log_play_length_container_inner"
+				android:layout_width="0dp"
+				android:layout_weight="1"
+				android:layout_height="match_parent">
 
 				<EditText
 					android:id="@+id/log_play_length"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="match_parent"
+					android:gravity="center_vertical"
 					android:hint="@string/length_hint"
 					android:inputType="number"/>
 
@@ -99,7 +124,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@color/primary"
-					android:gravity="center"
+					android:gravity="center_vertical|center"
 					android:maxLines="1"
 					android:paddingBottom="@dimen/padding_standard"
 					android:paddingTop="@dimen/padding_standard"
@@ -108,58 +133,60 @@
 
 			<ImageView
 				android:id="@+id/timer_toggle"
-				android:layout_width="@dimen/image_button_size"
-				android:layout_height="@dimen/image_button_size"
+				android:layout_width="@dimen/edit_row_height"
+				android:layout_height="@dimen/edit_row_height"
 				android:background="?attr/selectableItemBackground"
 				android:onClick="onTimer"
 				android:scaleType="center"
 				android:src="@drawable/ic_action_timer_light"/>
-		</TableRow>
+		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/log_play_quantity_root"
-			android:gravity="center_vertical">
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel.Edit"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_quantity"
 				android:text="@string/times_abbr"/>
 
 			<EditText
 				android:id="@+id/log_play_quantity"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
 				android:layout_span="2"
+				android:layout_weight="1"
 				android:hint="@string/quantity_hint"
-				android:inputType="number"/>
-		</TableRow>
+				android:inputType="number"
+				android:gravity="center_vertical"/>
+		</LinearLayout>
 
-		<TableRow
-			android:id="@+id/log_play_incomplete_root"
-			android:gravity="center_vertical">
+		<android.support.v7.widget.SwitchCompat
+			android:id="@+id/log_play_incomplete"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:checked="false"
+			android:text="@string/incomplete"/>
 
-			<CheckBox
-				android:id="@+id/log_play_incomplete"
-				style="@style/Text"
-				android:layout_column="1"
-				android:layout_span="2"
-				android:checked="false"
-				android:text="@string/incomplete"/>
-		</TableRow>
-
-		<TableRow
-			android:id="@+id/log_play_no_win_stats_root"
-			android:gravity="center_vertical">
-
-			<CheckBox
-				android:id="@+id/log_play_no_win_stats"
-				style="@style/Text"
-				android:layout_column="1"
-				android:layout_span="2"
-				android:checked="false"
-				android:text="@string/noWinStats"/>
-		</TableRow>
+		<android.support.v7.widget.SwitchCompat
+			android:id="@+id/log_play_no_win_stats"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/edit_row_height"
+			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:checked="false"
+			android:text="@string/noWinStats"/>
 
 		<LinearLayout
 			android:id="@+id/log_play_comments_root"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
 			<TextView
@@ -177,9 +204,12 @@
 				android:inputType="textMultiLine|textAutoCorrect|textCapSentences"/>
 		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/log_play_players_header"
-			android:gravity="bottom">
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/player_row_height"
+			android:gravity="bottom"
+			android:orientation="horizontal">
 
 			<ImageView
 				android:id="@+id/player_sort"
@@ -193,6 +223,9 @@
 			<TextView
 				android:id="@+id/log_play_players_label"
 				style="@style/Text.Header.Underline"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
 				android:text="@string/title_players"/>
 
 			<ImageView
@@ -203,7 +236,7 @@
 				android:onClick="onClearPlayers"
 				android:scaleType="center"
 				android:src="@drawable/ic_action_cancel_light"/>
-		</TableRow>
-	</TableLayout>
+		</LinearLayout>
+	</LinearLayout>
 
 </LinearLayout>

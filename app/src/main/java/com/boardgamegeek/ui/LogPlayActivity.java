@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.Callback;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
@@ -29,7 +30,6 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -121,13 +121,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private List<String> mNames = new ArrayList<>();
 
 	private TextView mHeaderView;
-	private Button mDateButton;
+	private TextView mDateButton;
 	private DatePickerDialogFragment mDatePickerFragment;
 	private EditText mQuantityView;
 	private EditText mLengthView;
 	private AutoCompleteTextView mLocationView;
-	private CheckBox mIncompleteView;
-	private CheckBox mNoWinStatsView;
+	private SwitchCompat mIncompleteView;
+	private SwitchCompat mNoWinStatsView;
 	private Chronometer mTimer;
 	private View mTimerToggle;
 	private EditText mCommentsView;
@@ -402,7 +402,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlayerList.setAdapter(mPlayAdapter);
 
 		mHeaderView = (TextView) root.findViewById(R.id.header);
-		mDateButton = (Button) root.findViewById(R.id.log_play_date);
+		mDateButton = (TextView) root.findViewById(R.id.log_play_date);
 		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(
 			DATE_PICKER_DIALOG_TAG);
 		if (mDatePickerFragment != null) {
@@ -412,8 +412,8 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
 		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
 		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
-		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
+		mIncompleteView = (SwitchCompat) root.findViewById(R.id.log_play_incomplete);
+		mNoWinStatsView = (SwitchCompat) root.findViewById(R.id.log_play_no_win_stats);
 		mTimer = (Chronometer) root.findViewById(R.id.timer);
 		mTimerToggle = root.findViewById(R.id.timer_toggle);
 		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
