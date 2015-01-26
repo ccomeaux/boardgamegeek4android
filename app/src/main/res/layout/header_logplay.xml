@@ -171,7 +171,7 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/edit_row_height"
-			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:checked="false"
 			android:text="@string/incomplete"/>
 
@@ -180,7 +180,7 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/edit_row_height"
-			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:checked="false"
 			android:text="@string/noWinStats"/>
 
@@ -194,7 +194,7 @@
 				android:id="@+id/log_play_comments_label"
 				style="@style/Text.Header.Underline"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/edit_row_height"
+				android:layout_height="@dimen/view_row_height"
 				android:gravity="bottom"
 				android:labelFor="@+id/log_play_comments"
 				android:text="@string/comments"/>
@@ -209,7 +209,7 @@
 		<LinearLayout
 			android:id="@+id/log_play_players_header"
 			android:layout_width="match_parent"
-			android:layout_height="@dimen/player_row_height"
+			android:layout_height="@dimen/view_row_height"
 			android:gravity="left|bottom"
 			android:orientation="horizontal">
 

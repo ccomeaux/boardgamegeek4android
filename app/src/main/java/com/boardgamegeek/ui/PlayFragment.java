@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Chronometer;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -61,7 +60,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	private ImageView mThumbnailView;
 	private TextView mGameName;
 	private TextView mDate;
-	private View mQuantityRoot;
 	private TextView mQuantity;
 	private View mLengthRoot;
 	private TextView mLength;
@@ -161,7 +159,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		mGameName = (TextView) header.findViewById(R.id.header);
 		mDate = (TextView) header.findViewById(R.id.play_date);
 
-		mQuantityRoot = header.findViewById(R.id.quantity_root);
 		mQuantity = (TextView) header.findViewById(R.id.play_quantity);
 
 		mLengthRoot = header.findViewById(R.id.length_root);
@@ -169,7 +166,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 		mTimerRoot = header.findViewById(R.id.timer_root);
 		mTimer = (Chronometer) header.findViewById(R.id.timer);
-		ImageButton b = (ImageButton) header.findViewById(R.id.timer_end);
+		ImageView b = (ImageView) header.findViewById(R.id.timer_end);
 		b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -387,7 +384,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		mDate.setText(mPlay.getDateForDisplay(getActivity()));
 
 		mQuantity.setText(String.valueOf(mPlay.quantity) + " " + getString(R.string.times));
-		mQuantityRoot.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
+		mQuantity.setVisibility((mPlay.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (mPlay.length > 0) {
 			mLengthRoot.setVisibility(View.VISIBLE);
