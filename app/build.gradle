@@ -45,21 +45,19 @@ android {
     }
 }
 
-configurations {
-    compile.exclude module: 'stax'
-    compile.exclude module: 'stax-api'
-    compile.exclude module: 'xpp3'
-}
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.squareup.retrofit:retrofit:1.8.0'
-    compile 'org.simpleframework:simple-xml:2.7.1'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile ('com.squareup.retrofit:converter-simplexml:1.9.0') {
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'stax', module: 'stax'
+        exclude group: 'xpp3', module: 'xpp3'
+    }
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile 'se.emilsjolander:stickylistheaders:2.5.2'
     compile 'com.jakewharton:butterknife:6.0.0'
-    compile 'com.jakewharton.timber:timber:2.5.0'
+    compile 'com.jakewharton.timber:timber:2.5.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
 }

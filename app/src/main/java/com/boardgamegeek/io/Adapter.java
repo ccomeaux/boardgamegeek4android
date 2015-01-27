@@ -1,5 +1,13 @@
 package com.boardgamegeek.io;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.content.Context;
+
+import com.boardgamegeek.auth.Authenticator;
+
 import java.io.IOException;
 
 import retrofit.ErrorHandler;
@@ -10,14 +18,7 @@ import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.android.AndroidLog;
 import retrofit.client.Response;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
-import android.content.Context;
-
-import com.boardgamegeek.auth.Authenticator;
+import retrofit.converter.SimpleXMLConverter;
 
 public class Adapter {
 	private static final boolean DEBUG = false;
@@ -57,7 +58,7 @@ public class Adapter {
 		};
 
 		Builder builder = new RestAdapter.Builder().setEndpoint("https://www.boardgamegeek.com/")
-			.setConverter(new SimpleXMLConverter()).setErrorHandler(errorHandler);
+			.setConverter(new SimpleXMLConverter(false)).setErrorHandler(errorHandler);
 		if (DEBUG) {
 			builder.setLog(new AndroidLog("BGG-retrofit")).setLogLevel(LogLevel.FULL);
 		}
