@@ -260,7 +260,8 @@ public class ColorPickerDialogFragment extends DialogFragment {
 		}
 
 		public void setSelectedColor(String selectedColor) {
-			if (!mSelectedColor.equals(selectedColor)) {
+			if (mSelectedColor == null ||
+				!mSelectedColor.equals(selectedColor)) {
 				mSelectedColor = selectedColor;
 				notifyDataSetChanged();
 			}
