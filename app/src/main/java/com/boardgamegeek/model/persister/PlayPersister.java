@@ -98,7 +98,8 @@ public class PlayPersister {
 					case PlayPersister.STATUS_UNCHANGED:
 						ContentProviderOperation.Builder builder = ContentProviderOperation
 							.newUpdate(play.uri())
-							.withValue(Plays.UPDATED, startTime);
+							.withValue(Plays.UPDATED, startTime)
+							.withValue(Plays.UPDATED_LIST, startTime);
 						batch.add(builder.build());
 						unchangedCount++;
 						break;

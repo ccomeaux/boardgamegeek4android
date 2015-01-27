@@ -111,7 +111,7 @@ public class SyncPlays extends SyncTask {
 		if (response.plays != null && response.plays.size() > 0) {
 			mPersister.save(response.plays, mStartTime);
 			syncResult.stats.numEntries += response.plays.size();
-			Timber.i("...saved " + response.plays);
+			Timber.i("...saved " + response.plays.size() + " plays");
 		} else {
 			Timber.i("...no plays to update");
 		}
