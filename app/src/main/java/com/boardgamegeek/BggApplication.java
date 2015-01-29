@@ -2,6 +2,7 @@ package com.boardgamegeek;
 
 import android.app.Application;
 
+import com.boardgamegeek.util.CrashReportingTree;
 import com.crashlytics.android.Crashlytics;
 
 import hugo.weaving.DebugLog;
@@ -19,8 +20,7 @@ public class BggApplication extends Application {
 			Timber.plant(new DebugTree());
 		} else {
 			Fabric.with(this, new Crashlytics());
-			//TODO: replace with Crashlytics tree
-			Timber.plant(new Timber.HollowTree());
+			Timber.plant(new CrashReportingTree());
 		}
 	}
 }
