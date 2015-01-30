@@ -73,25 +73,33 @@
 				</LinearLayout>
 			</FrameLayout>
 
-			<TableLayout
+			<LinearLayout
 				android:id="@+id/details"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:orientation="vertical"
 				android:paddingBottom="@dimen/padding_small"
 				android:paddingLeft="@dimen/material_margin_horizontal"
 				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/padding_small"
-				android:stretchColumns="1">
+				android:paddingTop="@dimen/padding_small">
 
-				<TableRow>
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_player_name"
 						android:text="@string/name"/>
 
 					<AutoCompleteTextView
 						android:id="@+id/log_player_name"
-						android:layout_span="2"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:completionThreshold="1"
 						android:dropDownHeight="wrap_content"
 						android:hint="@string/player_name"
@@ -99,17 +107,25 @@
 						android:inputType="textPersonName|textCapWords"
 						android:maxLength="255"
 						android:textColor="#000"/>
-				</TableRow>
+				</LinearLayout>
 
-				<TableRow>
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_player_username"
 						android:text="@string/user"/>
 
 					<AutoCompleteTextView
 						android:id="@+id/log_player_username"
-						android:layout_span="2"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:completionThreshold="1"
 						android:dropDownHeight="wrap_content"
 						android:hint="@string/username"
@@ -117,17 +133,27 @@
 						android:inputType="text"
 						android:maxLength="63"
 						android:textColor="#000"/>
-				</TableRow>
+				</LinearLayout>
 
-				<TableRow android:id="@+id/log_player_team_color_container">
+				<LinearLayout
+					android:id="@+id/log_player_team_color_container"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						android:id="@+id/log_player_team_color_label"
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_player_team_color"
 						android:text="@string/team"/>
 
 					<AutoCompleteTextView
 						android:id="@+id/log_player_team_color"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:completionThreshold="1"
 						android:dropDownHeight="wrap_content"
 						android:hint="@string/team_color"
@@ -136,7 +162,10 @@
 						android:maxLength="32"
 						android:textColor="#000"/>
 
-					<FrameLayout android:layout_gravity="center_vertical">
+					<FrameLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical">
 
 						<ImageView
 							android:id="@+id/color_view"
@@ -144,19 +173,30 @@
 							android:layout_height="@dimen/color_circle_diameter"
 							android:layout_gravity="center"
 							android:background="?attr/selectableItemBackground"
-							android:scaleType="fitXY"/>
+							android:scaleType="fitXY"
+							tools:background="#777"/>
 					</FrameLayout>
-				</TableRow>
+				</LinearLayout>
 
-				<TableRow android:id="@+id/log_player_position_container">
+				<LinearLayout
+					android:id="@+id/log_player_position_container"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						android:id="@+id/log_player_position_label"
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_play_length_container_inner"
 						android:text="@string/starting_pos"/>
 
 					<EditText
 						android:id="@+id/log_player_position"
+						android:layout_width="0dp"
+						android:layout_weight="1"
+						android:layout_height="match_parent"
 						android:hint="@string/starting_position"
 						android:imeOptions="flagNoExtractUi"
 						android:inputType="numberDecimal|numberSigned"
@@ -165,18 +205,31 @@
 					<Button
 						android:id="@+id/log_player_position_button"
 						style="@style/Text.Footnote"
+						android:layout_width="wrap_content"
+						android:layout_height="@dimen/image_button_size"
+						android:layout_gravity="center_vertical"
 						android:text="@string/number_to_text"/>
-				</TableRow>
+				</LinearLayout>
 
-				<TableRow android:id="@+id/log_player_score_container">
+				<LinearLayout
+					android:id="@+id/log_player_score_container"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						android:id="@+id/log_player_score_label"
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_player_score"
 						android:text="@string/score"/>
 
 					<EditText
 						android:id="@+id/log_player_score"
+						android:layout_width="0dp"
+						android:layout_weight="1"
+						android:layout_height="match_parent"
 						android:hint="@string/score"
 						android:imeOptions="flagNoExtractUi"
 						android:inputType="numberDecimal|numberSigned"
@@ -185,49 +238,55 @@
 					<Button
 						android:id="@+id/log_player_score_button"
 						style="@style/Text.Footnote"
+						android:layout_width="wrap_content"
+						android:layout_height="@dimen/image_button_size"
+						android:layout_gravity="center_vertical"
 						android:text="@string/number_to_text"/>
-				</TableRow>
+				</LinearLayout>
 
-				<TableRow android:id="@+id/log_player_rating_container">
+				<LinearLayout
+					android:id="@+id/log_player_rating_container"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:orientation="horizontal">
 
 					<TextView
 						android:id="@+id/log_player_rating_label"
 						style="@style/TextLabel.Edit"
+						android:layout_width="@dimen/edit_label_width"
+						android:layout_height="match_parent"
+						android:labelFor="@+id/log_play_location"
 						android:text="@string/rating"/>
 
 					<EditText
 						android:id="@+id/log_player_rating"
-						android:layout_span="2"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:hint="@string/rating_hint"
 						android:inputType="numberDecimal"
 						android:maxLength="8"/>
-				</TableRow>
 
-				<TableRow>
+				</LinearLayout>
 
-					<LinearLayout
-						android:id="@+id/log_player_checkbox_container"
-						android:layout_column="1"
-						android:orientation="horizontal">
+				<android.support.v7.widget.SwitchCompat
+					android:id="@+id/log_player_new"
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:paddingLeft="@dimen/edit_label_width"
+					android:checked="false"
+					android:text="@string/new_label"/>
 
-						<CheckBox
-							android:id="@+id/log_player_new"
-							style="@style/Text"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="1"
-							android:text="@string/new_label"/>
-
-						<CheckBox
-							android:id="@+id/log_player_win"
-							style="@style/Text"
-							android:layout_width="0dp"
-							android:layout_height="wrap_content"
-							android:layout_weight="1"
-							android:text="@string/win"/>
-					</LinearLayout>
-				</TableRow>
-			</TableLayout>
+				<android.support.v7.widget.SwitchCompat
+					android:id="@+id/log_player_win"
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/edit_row_height"
+					android:paddingLeft="@dimen/edit_label_width"
+					android:checked="false"
+					android:text="@string/win"/>
+			</LinearLayout>
 		</LinearLayout>
 	</ScrollView>
 

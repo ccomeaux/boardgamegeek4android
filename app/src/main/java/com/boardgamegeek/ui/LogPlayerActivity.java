@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -18,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -86,8 +86,8 @@ public class LogPlayerActivity extends ActionBarActivity {
 	@InjectView(R.id.log_player_score) EditText mScore;
 	@InjectView(R.id.log_player_score_button) Button mScoreButton;
 	@InjectView(R.id.log_player_rating) EditText mRating;
-	@InjectView(R.id.log_player_new) CheckBox mNew;
-	@InjectView(R.id.log_player_win) CheckBox mWin;
+	@InjectView(R.id.log_player_new) SwitchCompat mNew;
+	@InjectView(R.id.log_player_win) SwitchCompat mWin;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -409,12 +409,12 @@ public class LogPlayerActivity extends ActionBarActivity {
 					} else if (selection.equals(r.getString(R.string.new_label))) {
 						mUserShowNew = true;
 						mNew.setChecked(true);
-						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToScroll = mNew;
 						viewToFocus = mNew;
 					} else if (selection.equals(r.getString(R.string.win))) {
 						mUserShowWin = true;
 						mWin.setChecked(true);
-						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToScroll = mWin;
 						viewToFocus = mWin;
 					}
 					setViewVisibility();
