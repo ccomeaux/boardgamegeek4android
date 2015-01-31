@@ -3,7 +3,8 @@
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
-			  android:orientation="vertical">
+			  android:orientation="vertical"
+			  tools:context=".ui.LogPlayActivity">
 
 	<FrameLayout
 		android:layout_width="match_parent"
@@ -33,21 +34,12 @@
 
 	<LinearLayout
 		android:id="@+id/details"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:paddingBottom="@dimen/padding_small"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_small">
+		style="@style/FormContainer">
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/edit_row_height"
-			android:orientation="horizontal">
+		<LinearLayout style="@style/FormRowContainer">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_date"
@@ -67,12 +59,10 @@
 
 		<LinearLayout
 			android:id="@+id/log_play_location_root"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			style="@style/FormRowContainer">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_location"
@@ -87,18 +77,15 @@
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
 				android:inputType="textCapWords"
-				android:textColor="#000"
-				android:gravity="center_vertical"/>
+				android:textColor="#000"/>
 		</LinearLayout>
 
 		<LinearLayout
 			android:id="@+id/log_play_length_root"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			style="@style/FormRowContainer">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_length_container_inner"
@@ -107,8 +94,8 @@
 			<FrameLayout
 				android:id="@+id/log_play_length_container_inner"
 				android:layout_width="0dp"
-				android:layout_weight="1"
-				android:layout_height="match_parent">
+				android:layout_height="match_parent"
+				android:layout_weight="1">
 
 				<EditText
 					android:id="@+id/log_play_length"
@@ -120,7 +107,7 @@
 
 				<Chronometer
 					android:id="@+id/timer"
-					style="@style/Text.Title2"
+					style="@style/Text.Big"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@color/primary"
@@ -144,12 +131,10 @@
 
 		<LinearLayout
 			android:id="@+id/log_play_quantity_root"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			style="@style/FormRowContainer">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:labelFor="@+id/log_play_quantity"
@@ -159,11 +144,10 @@
 				android:id="@+id/log_play_quantity"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_span="2"
 				android:layout_weight="1"
+				android:gravity="center_vertical"
 				android:hint="@string/quantity_hint"
-				android:inputType="number"
-				android:gravity="center_vertical"/>
+				android:inputType="number"/>
 		</LinearLayout>
 
 		<android.support.v7.widget.SwitchCompat
@@ -171,8 +155,8 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/edit_row_height"
-			android:paddingLeft="@dimen/edit_label_width"
 			android:checked="false"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:text="@string/incomplete"/>
 
 		<android.support.v7.widget.SwitchCompat
@@ -180,15 +164,13 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/edit_row_height"
-			android:paddingLeft="@dimen/edit_label_width"
 			android:checked="false"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:text="@string/noWinStats"/>
 
 		<LinearLayout
 			android:id="@+id/log_play_comments_root"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			style="@style/FormRowContainer">
 
 			<TextView
 				android:id="@+id/log_play_comments_label"
@@ -208,10 +190,8 @@
 
 		<LinearLayout
 			android:id="@+id/log_play_players_header"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/view_row_height"
-			android:gravity="left|bottom"
-			android:orientation="horizontal">
+			style="@style/FormRowContainer"
+			android:gravity="left|bottom">
 
 			<ImageView
 				android:id="@+id/player_sort"
@@ -223,8 +203,8 @@
 				android:src="@drawable/ic_action_sort_light"/>
 
 			<View
-				android:layout_height="match_parent"
-				android:layout_width="16dp"/>
+				android:layout_width="16dp"
+				android:layout_height="match_parent"/>
 
 			<TextView
 				android:id="@+id/log_play_players_label"

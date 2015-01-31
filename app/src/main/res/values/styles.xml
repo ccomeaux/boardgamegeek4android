@@ -232,16 +232,12 @@
 	</style>
 
 	<style name="TextLabel" parent="@style/Text.Secondary">
-		<item name="android:gravity">right</item>
 		<item name="android:minWidth">48dp</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
-	</style>
-
-	<style name="TextLabel.Edit">
 		<item name="android:gravity">right|center_vertical</item>
 	</style>
 
-	<style name="TextLabel.Edit.Right">
+	<style name="TextLabel.Right">
 		<item name="android:gravity">left</item>
 		<item name="android:minWidth">0dp</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
@@ -342,6 +338,22 @@
 		<item name="android:paddingLeft">@dimen/padding_extra</item>
 		<item name="android:paddingRight">@dimen/padding_extra</item>
 		<item name="android:paddingTop">@dimen/padding_half</item>
+	</style>
+
+	<style name="FormContainer">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:orientation">vertical</item>
+		<item name="android:paddingBottom">@dimen/padding_small</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+
+	<style name="FormRowContainer">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">@dimen/edit_row_height</item>
+		<item name="android:orientation">horizontal</item>
 	</style>
 
 </resources>

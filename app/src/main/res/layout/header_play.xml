@@ -47,7 +47,7 @@
 			android:orientation="horizontal">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:text="@string/on"/>
@@ -69,7 +69,7 @@
 			android:orientation="horizontal">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:text="@string/at"/>
@@ -92,7 +92,7 @@
 			android:orientation="horizontal">
 
 			<TextView
-				style="@style/TextLabel.Edit"
+				style="@style/TextLabel"
 				android:layout_width="@dimen/edit_label_width"
 				android:layout_height="match_parent"
 				android:text="@string/for_"/>
@@ -120,7 +120,7 @@
 
 					<Chronometer
 						android:id="@+id/timer"
-						style="@style/Text.Title2"
+						style="@style/Text.Big"
 						android:layout_width="0dp"
 						android:layout_height="match_parent"
 						android:layout_weight="1"

@@ -3,7 +3,8 @@
 			  xmlns:tools="http://schemas.android.com/tools"
 			  android:layout_width="match_parent"
 			  android:layout_height="match_parent"
-			  android:orientation="vertical">
+			  android:orientation="vertical"
+			  tools:context=".ui.LogPlayerActivity">
 
 	<include layout="@layout/actionbar_done_cancel"/>
 
@@ -75,21 +76,12 @@
 
 			<LinearLayout
 				android:id="@+id/details"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingBottom="@dimen/padding_small"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal"
-				android:paddingTop="@dimen/padding_small">
+				style="@style/FormContainer">
 
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+				<LinearLayout style="@style/FormRowContainer">
 
 					<TextView
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_player_name"
@@ -109,13 +101,10 @@
 						android:textColor="#000"/>
 				</LinearLayout>
 
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+				<LinearLayout style="@style/FormRowContainer">
 
 					<TextView
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_player_username"
@@ -137,13 +126,11 @@
 
 				<LinearLayout
 					android:id="@+id/log_player_team_color_container"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					style="@style/FormRowContainer">
 
 					<TextView
 						android:id="@+id/log_player_team_color_label"
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_player_team_color"
@@ -180,13 +167,11 @@
 
 				<LinearLayout
 					android:id="@+id/log_player_position_container"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					style="@style/FormRowContainer">
 
 					<TextView
 						android:id="@+id/log_player_position_label"
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_play_length_container_inner"
@@ -195,8 +180,8 @@
 					<EditText
 						android:id="@+id/log_player_position"
 						android:layout_width="0dp"
-						android:layout_weight="1"
 						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:hint="@string/starting_position"
 						android:imeOptions="flagNoExtractUi"
 						android:inputType="numberDecimal|numberSigned"
@@ -213,13 +198,11 @@
 
 				<LinearLayout
 					android:id="@+id/log_player_score_container"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					style="@style/FormRowContainer">
 
 					<TextView
 						android:id="@+id/log_player_score_label"
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_player_score"
@@ -228,8 +211,8 @@
 					<EditText
 						android:id="@+id/log_player_score"
 						android:layout_width="0dp"
-						android:layout_weight="1"
 						android:layout_height="match_parent"
+						android:layout_weight="1"
 						android:hint="@string/score"
 						android:imeOptions="flagNoExtractUi"
 						android:inputType="numberDecimal|numberSigned"
@@ -246,13 +229,11 @@
 
 				<LinearLayout
 					android:id="@+id/log_player_rating_container"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					style="@style/FormRowContainer">
 
 					<TextView
 						android:id="@+id/log_player_rating_label"
-						style="@style/TextLabel.Edit"
+						style="@style/TextLabel"
 						android:layout_width="@dimen/edit_label_width"
 						android:layout_height="match_parent"
 						android:labelFor="@+id/log_play_location"
@@ -274,8 +255,8 @@
 					style="@style/Text.Big"
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/edit_row_height"
-					android:paddingLeft="@dimen/edit_label_width"
 					android:checked="false"
+					android:paddingLeft="@dimen/edit_label_width"
 					android:text="@string/new_label"/>
 
 				<android.support.v7.widget.SwitchCompat
@@ -283,8 +264,8 @@
 					style="@style/Text.Big"
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/edit_row_height"
-					android:paddingLeft="@dimen/edit_label_width"
 					android:checked="false"
+					android:paddingLeft="@dimen/edit_label_width"
 					android:text="@string/win"/>
 			</LinearLayout>
 		</LinearLayout>
