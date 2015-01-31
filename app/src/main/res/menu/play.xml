@@ -32,10 +32,5 @@
 		android:icon="?attr/ic_action_send"
 		android:title="@string/send"
 		app:showAsAction="never"/>
-	<item
-		android:id="@+id/menu_view_game"
-		android:icon="?attr/ic_action_info"
-		android:title="@string/menu_view_game"
-		app:showAsAction="never"/>
 
 </menu>

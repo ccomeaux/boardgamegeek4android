@@ -45,6 +45,9 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	DetachableResultReceiver.Receiver {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -150,7 +153,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		playersView.setFooterDividersEnabled(false);
 
 		View header = View.inflate(getActivity(), R.layout.header_play, null);
-		playersView.addHeaderView(header);
+		playersView.addHeaderView(header, null, false);
 
 		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
 		playersView.addFooterView(footer);
@@ -249,7 +252,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 								save(Play.SYNC_STATUS_SYNCED);
 							}
 						}).show();
-
 				} else {
 					triggerRefresh();
 				}
@@ -285,12 +287,15 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				ActivityUtils.share(getActivity(), mPlay.toShortDescription(getActivity()),
 					mPlay.toLongDescription(getActivity()), R.string.share_play_title);
 				return true;
-			case R.id.menu_view_game:
-				ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
-				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+	@OnClick(R.id.header_container)
+	void viewGame() {
+		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
+	}
+
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {

@@ -6,6 +6,7 @@
 			  android:orientation="vertical">
 
 	<FrameLayout
+		android:id="@+id/header_container"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/image_header_height"
 		android:layout_gravity="center"
@@ -29,6 +30,11 @@
 			android:paddingLeft="@dimen/material_indent_horizontal"
 			android:paddingRight="@dimen/material_margin_horizontal"
 			tools:text="Puerto Rico"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackground"/>
 	</FrameLayout>
 
 	<LinearLayout
@@ -144,8 +150,8 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
-			android:paddingLeft="@dimen/edit_label_width"
 			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
 			tools:text="2 times"/>
 
 		<TextView
@@ -153,8 +159,8 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
-			android:paddingLeft="@dimen/edit_label_width"
 			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:text="@string/incomplete"/>
 
 		<TextView
@@ -162,8 +168,8 @@
 			style="@style/Text.Big"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/view_row_height"
-			android:paddingLeft="@dimen/edit_label_width"
 			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
 			android:text="@string/noWinStats"/>
 
 		<TextView

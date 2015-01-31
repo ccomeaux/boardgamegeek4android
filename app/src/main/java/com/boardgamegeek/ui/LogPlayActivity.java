@@ -397,7 +397,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		View root = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(root);
+		mPlayerList.addHeaderView(root, null, false);
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
 
