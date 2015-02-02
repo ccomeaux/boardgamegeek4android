@@ -29,7 +29,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -58,6 +57,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.melnykov.fab.FloatingActionButton;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
@@ -65,6 +65,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -121,21 +124,21 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private List<String> mUsernames = new ArrayList<>();
 	private List<String> mNames = new ArrayList<>();
 
-	private TextView mHeaderView;
-	private TextView mDateButton;
-	private DatePickerDialogFragment mDatePickerFragment;
-	private EditText mQuantityView;
-	private EditText mLengthView;
-	private AutoCompleteTextView mLocationView;
-	private SwitchCompat mIncompleteView;
-	private SwitchCompat mNoWinStatsView;
-	private Chronometer mTimer;
-	private View mTimerToggle;
-	private EditText mCommentsView;
-	private LinearLayout mPlayerHeader;
-	private TextView mPlayerLabel;
+	@InjectView(R.id.header) TextView mHeaderView;
+	@InjectView(R.id.log_play_date) TextView mDateButton;
+	@InjectView(R.id.log_play_quantity) EditText mQuantityView;
+	@InjectView(R.id.log_play_length) EditText mLengthView;
+	@InjectView(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@InjectView(R.id.timer) Chronometer mTimer;
+	@InjectView(R.id.timer_toggle) View mTimerToggle;
+	@InjectView(R.id.log_play_comments) EditText mCommentsView;
+	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
+	@InjectView(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
-	private Button mAddFieldButton;
+	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
 
@@ -407,30 +410,20 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@DebugLog
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
-		View root = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(root, null, false);
+		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
+		mPlayerList.setItemsCanFocus(true);
+
+		ButterKnife.inject(this);
+
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
 
-		mHeaderView = (TextView) root.findViewById(R.id.header);
-		mDateButton = (TextView) root.findViewById(R.id.log_play_date);
-		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(
-			DATE_PICKER_DIALOG_TAG);
+		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(DATE_PICKER_DIALOG_TAG);
 		if (mDatePickerFragment != null) {
 			mDatePickerFragment.setOnDateSetListener(this);
 		}
-		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
+
 		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
-		mIncompleteView = (SwitchCompat) root.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (SwitchCompat) root.findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) root.findViewById(R.id.timer);
-		mTimerToggle = root.findViewById(R.id.timer_toggle);
-		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
-		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
-		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
-		mAddFieldButton = (Button) findViewById(R.id.add_field);
 
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -446,8 +439,6 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 				editPlayer(intent, offsetPosition);
 			}
 		});
-
-		mPlayerList.setItemsCanFocus(true);
 	}
 
 	@DebugLog
@@ -514,8 +505,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
 		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
 
-		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
-		mAddFieldButton.setEnabled(enabled);
+		mFab.setVisibility(enabled ? View.VISIBLE : View.GONE);
 	}
 
 	@DebugLog
@@ -687,6 +677,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	@OnClick(R.id.fab)
 	public void addField(View v) {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -725,9 +716,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						mUserShowComments = true;
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
-					} else if (selection.equals(r.getString(R.string.title_players))) {
-						mUserShowPlayers = true;
-						viewToScroll = mPlayerHeader;
+					} else if (selection.equals(r.getString(R.string.title_player))) {
+						if (shouldHidePlayers()) {
+							mUserShowPlayers = true;
+							viewToScroll = mPlayerHeader;
+						}
+						addPlayer(null);
 					}
 					setViewVisibility();
 					supportInvalidateOptionsMenu();
@@ -770,9 +764,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
 		}
-		if (shouldHidePlayers()) {
-			list.add(r.getString(R.string.title_players));
-		}
+		list.add(r.getString(R.string.title_player));
 
 		CharSequence[] array = { };
 		array = list.toArray(array);
