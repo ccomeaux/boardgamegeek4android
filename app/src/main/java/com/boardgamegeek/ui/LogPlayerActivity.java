@@ -324,7 +324,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
 		enableButton |= hideRow(shouldHideNew(), mNew);
 		enableButton |= hideRow(shouldHideWin(), mWin);
-		findViewById(R.id.add_field).setEnabled(enableButton);
+		findViewById(R.id.fab).setEnabled(enableButton);
 	}
 
 	private boolean hideRow(boolean shouldHide, View view) {
@@ -376,6 +376,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		return false;
 	}
 
+	@OnClick(R.id.fab)
 	public void addField(View v) {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {

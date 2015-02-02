@@ -60,4 +60,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.jakewharton.timber:timber:2.5.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
+    compile 'com.melnykov:floatingactionbutton:1.1.0'
 }
