@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends ActionBarActivity implements OnDateSetListener {
@@ -171,6 +172,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			super(cr);
 		}
 
+		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			// If the query didn't return a cursor for some reason return
@@ -244,6 +246,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setModelIfDone(int queryType) {
 		synchronized (this) {
 			mOutstandingQueries &= ~queryType;
@@ -269,6 +272,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void finishDataLoad() {
 		mOutstandingQueries = 0;
 		if (mEndPlay) {
@@ -282,6 +286,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		findViewById(R.id.form).setVisibility(View.VISIBLE);
 	}
 
+	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -327,6 +332,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
 
+	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -341,6 +347,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		setViewVisibility();
 	}
 
+	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -360,6 +367,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 	}
 
+	@DebugLog
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -368,6 +376,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onBackPressed() {
 		saveDraft(true);
@@ -375,6 +384,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		finish();
 	}
 
+	@DebugLog
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -394,6 +404,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		View root = View.inflate(this, R.layout.header_logplay, null);
@@ -439,6 +450,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mPlayerList.setItemsCanFocus(true);
 	}
 
+	@DebugLog
 	private void bindUi() {
 		setDateButtonText();
 		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
@@ -450,11 +462,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		bindUiPlayers();
 	}
 
+	@DebugLog
 	private void bindLength() {
 		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
 		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
 	}
 
+	@DebugLog
 	private void bindUiPlayers() {
 		// calculate player count
 		Resources r = getResources();
@@ -471,6 +485,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	private void setViewVisibility() {
 		if (mPlay == null) {
 			// all fields should be hidden, so it shouldn't matter
@@ -503,6 +518,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mAddFieldButton.setEnabled(enabled);
 	}
 
+	@DebugLog
 	private boolean hideRow(boolean shouldHide, View view) {
 		if (shouldHide) {
 			view.setVisibility(View.GONE);
@@ -512,34 +528,42 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return false;
 	}
 
+	@DebugLog
 	private boolean shouldHideLocation() {
 		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
 	}
 
+	@DebugLog
 	private boolean shouldHideLength() {
 		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
 	}
 
+	@DebugLog
 	private boolean shouldHideQuantity() {
 		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
 	}
 
+	@DebugLog
 	private boolean shouldHideIncomplete() {
 		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
 	}
 
+	@DebugLog
 	private boolean shouldHideNoWinStats() {
 		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
 	}
 
+	@DebugLog
 	private boolean shouldHideComments() {
 		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
 	}
 
+	@DebugLog
 	private boolean shouldHidePlayers() {
 		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
 	}
 
+	@DebugLog
 	private void startQuery() {
 		if (mPlay != null) {
 			// we already have the play from the saved instance
@@ -564,6 +588,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private boolean onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
@@ -586,6 +611,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return false;
 	}
 
+	@DebugLog
 	private void logPlay() {
 		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
 			if (!mPlay.hasBeenSynced()
@@ -602,6 +628,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		finish();
 	}
 
+	@DebugLog
 	private void saveDraft(boolean showToast) {
 		if (save(Play.SYNC_STATUS_IN_PROGRESS)) {
 			if (showToast) {
@@ -623,6 +650,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return true;
 	}
 
+	@DebugLog
 	private void cancel() {
 		mSaveOnPause = false;
 		captureForm();
@@ -653,10 +681,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void triggerUpload() {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
+	@DebugLog
 	public void addField(View v) {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -718,6 +748,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -748,6 +779,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return array;
 	}
 
+	@DebugLog
 	public void addPlayer(View v) {
 		if (PreferencesUtils.editPlayer(this)) {
 			if (mPlay.getPlayerCount() == 0) {
@@ -768,6 +800,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private boolean showPlayersToAddDialog() {
 		if (mAddPlayersBuilder == null) {
 			mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
@@ -828,6 +861,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return true;
 	}
 
+	@DebugLog
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
 		return new DialogInterface.OnClickListener() {
 			@Override
@@ -844,6 +878,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		};
 	}
 
+	@DebugLog
 	public void onDateClick(View v) {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
@@ -855,6 +890,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mDatePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 	}
 
+	@DebugLog
 	@Override
 	public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 		if (mPlay != null) {
@@ -864,10 +900,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setDateButtonText() {
 		mDateButton.setText(mPlay.getDateForDisplay(this));
 	}
 
+	@DebugLog
 	public void onTimer(View v) {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
@@ -896,6 +934,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void startTimer() {
 		mPlay.start();
 		bindLength();
@@ -903,6 +942,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	public void onPlayerSort(View v) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
@@ -934,6 +974,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		popup.show();
 	}
 
+	@DebugLog
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
@@ -1006,6 +1047,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		};
 	}
 
+	@DebugLog
 	private void promptPickStartPlayer() {
 		CharSequence[] array = createArrayOfPlayerDescriptions();
 		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
@@ -1019,6 +1061,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
 		List<CharSequence> list = new ArrayList<>();
@@ -1035,6 +1078,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return array;
 	}
 
+	@DebugLog
 	private void notifyStartPlayer() {
 		Player p = mPlay.getPlayerAtSeat(1);
 		if (p != null) {
@@ -1047,6 +1091,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	public void onClearPlayers(View v) {
 		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
@@ -1058,6 +1103,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1079,6 +1125,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	/**
 	 * Captures the data in the form in the mPlay object
 	 */
+	@DebugLog
 	private void captureForm() {
 		if (mPlay == null) {
 			return;
@@ -1094,6 +1141,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	private void maybeShowNotification() {
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
@@ -1101,21 +1149,25 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private class PlayAdapter extends BaseAdapter implements DropListener {
+		@DebugLog
 		@Override
 		public int getCount() {
 			return mPlay == null ? 0 : mPlay.getPlayerCount();
 		}
 
+		@DebugLog
 		@Override
 		public Object getItem(int position) {
 			return mPlay == null ? null : mPlay.getPlayers().get(position);
 		}
 
+		@DebugLog
 		@Override
 		public long getItemId(int position) {
 			return position;
 		}
 
+		@DebugLog
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
@@ -1131,6 +1183,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			return convertView;
 		}
 
+		@DebugLog
 		@Override
 		public void drop(int from, int to) {
 			if (!mPlay.reorderPlayers(from + 1, to + 1)) {
@@ -1143,10 +1196,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private class PlayerDeleteClickListener implements View.OnClickListener {
 		private int mPosition;
 
+		@DebugLog
 		public PlayerDeleteClickListener(int position) {
 			mPosition = position;
 		}
 
+		@DebugLog
 		@Override
 		public void onClick(View v) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
