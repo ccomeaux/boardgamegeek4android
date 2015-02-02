@@ -13,7 +13,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<ScrollView
+		<com.melnykov.fab.ObservableScrollView
 			android:id="@+id/scroll_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -273,11 +273,12 @@
 						android:text="@string/win"/>
 
 					<View
+						android:id="@+id/fab_buffer"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/fab_buffer"/>
 				</LinearLayout>
 			</LinearLayout>
-		</ScrollView>
+		</com.melnykov.fab.ObservableScrollView>
 
 		<com.melnykov.fab.FloatingActionButton
 			android:id="@+id/fab"
