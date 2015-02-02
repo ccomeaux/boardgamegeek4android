@@ -46,6 +46,7 @@ import com.boardgamegeek.util.UIUtils;
 import java.util.List;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -58,25 +59,25 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	private String mThumbnailUrl;
 	private String mImageUrl;
 
-	private TextView mUpdated;
-	private TextView mPlayIdView;
-	private ImageView mThumbnailView;
-	private TextView mGameName;
-	private TextView mDate;
-	private TextView mQuantity;
-	private View mLengthRoot;
-	private TextView mLength;
-	private View mTimerRoot;
-	private Chronometer mTimer;
-	private View mLocationRoot;
-	private TextView mLocation;
-	private View mIncomplete;
-	private View mNoWinStats;
-	private TextView mComments;
-	private View mCommentsLabel;
-	private View mPlayersLabel;
-	private TextView mSavedTimeStamp;
-	private TextView mUnsyncedMessage;
+	@InjectView(R.id.thumbnail) ImageView mThumbnailView;
+	@InjectView(R.id.header) TextView mGameName;
+	@InjectView(R.id.play_date) TextView mDate;
+	@InjectView(R.id.play_quantity) TextView mQuantity;
+	@InjectView(R.id.length_root) View mLengthRoot;
+	@InjectView(R.id.play_length) TextView mLength;
+	@InjectView(R.id.timer_root) View mTimerRoot;
+	@InjectView(R.id.timer) Chronometer mTimer;
+	@InjectView(R.id.location_root) View mLocationRoot;
+	@InjectView(R.id.play_location) TextView mLocation;
+	@InjectView(R.id.play_incomplete) View mIncomplete;
+	@InjectView(R.id.play_no_win_stats) View mNoWinStats;
+	@InjectView(R.id.play_comments) TextView mComments;
+	@InjectView(R.id.play_comments_label) View mCommentsLabel;
+	@InjectView(R.id.play_players_label) View mPlayersLabel;
+	@InjectView(R.id.updated) TextView mUpdated;
+	@InjectView(R.id.play_id) TextView mPlayIdView;
+	@InjectView(R.id.play_saved) TextView mSavedTimeStamp;
+	@InjectView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
 	private DetachableResultReceiver mReceiver;
 	private boolean mNotified;
@@ -152,47 +153,10 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		playersView.setHeaderDividersEnabled(false);
 		playersView.setFooterDividersEnabled(false);
 
-		View header = View.inflate(getActivity(), R.layout.header_play, null);
-		playersView.addHeaderView(header, null, false);
+		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
+		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
 
-		View footer = View.inflate(getActivity(), R.layout.footer_play, null);
-		playersView.addFooterView(footer);
-
-		mThumbnailView = (ImageView) rootView.findViewById(R.id.thumbnail);
-		mGameName = (TextView) header.findViewById(R.id.header);
-		mDate = (TextView) header.findViewById(R.id.play_date);
-
-		mQuantity = (TextView) header.findViewById(R.id.play_quantity);
-
-		mLengthRoot = header.findViewById(R.id.length_root);
-		mLength = (TextView) header.findViewById(R.id.play_length);
-
-		mTimerRoot = header.findViewById(R.id.timer_root);
-		mTimer = (Chronometer) header.findViewById(R.id.timer);
-		ImageView b = (ImageView) header.findViewById(R.id.timer_end);
-		b.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
-			}
-		});
-
-		mLocationRoot = header.findViewById(R.id.location_root);
-		mLocation = (TextView) header.findViewById(R.id.play_location);
-
-		mIncomplete = header.findViewById(R.id.play_incomplete);
-		mNoWinStats = header.findViewById(R.id.play_no_win_stats);
-
-		mCommentsLabel = header.findViewById(R.id.play_comments_label);
-		mComments = (TextView) header.findViewById(R.id.play_comments);
-
-		mPlayersLabel = header.findViewById(R.id.play_players_label);
-
-		mUpdated = (TextView) footer.findViewById(R.id.updated);
-		mPlayIdView = (TextView) footer.findViewById(R.id.play_id);
-		mSavedTimeStamp = (TextView) footer.findViewById(R.id.play_saved);
-		mUnsyncedMessage = (TextView) footer.findViewById(R.id.play_unsynced_message);
+		ButterKnife.inject(this, rootView);
 
 		mAdapter = new PlayerAdapter();
 		playersView.setAdapter(mAdapter);
@@ -292,10 +256,14 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	}
 
 	@OnClick(R.id.header_container)
-	void viewGame() {
+	void viewGame(View v) {
 		ActivityUtils.launchGame(getActivity(), mPlay.gameId, mPlay.gameName);
 	}
 
+	@OnClick(R.id.timer_end)
+	void onClick(View v) {
+		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
+	}
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
