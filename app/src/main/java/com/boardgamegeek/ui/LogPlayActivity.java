@@ -411,9 +411,11 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
 		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
-		mPlayerList.setItemsCanFocus(true);
+		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_logplay, null), null, false);
 
 		ButterKnife.inject(this);
+
+		mFab.attachToListView(mPlayerList);
 
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
