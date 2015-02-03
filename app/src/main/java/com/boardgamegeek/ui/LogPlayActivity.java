@@ -582,23 +582,25 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	@DebugLog
 	private boolean onActionBarItemSelected(int itemId) {
-		switch (itemId) {
-			case R.id.menu_done:
-				if (mPlay == null) {
-					cancel();
-				} else {
-					if (mPlay.hasStarted()) {
-						saveDraft(true);
-						setResult(Activity.RESULT_OK);
-						finish();
+		if (mOutstandingQueries == 0) {
+			switch (itemId) {
+				case R.id.menu_done:
+					if (mPlay == null) {
+						cancel();
 					} else {
-						logPlay();
+						if (mPlay.hasStarted()) {
+							saveDraft(true);
+							setResult(Activity.RESULT_OK);
+							finish();
+						} else {
+							logPlay();
+						}
 					}
-				}
-				return true;
-			case R.id.menu_cancel:
-				cancel();
-				return true;
+					return true;
+				case R.id.menu_cancel:
+					cancel();
+					return true;
+			}
 		}
 		return false;
 	}
