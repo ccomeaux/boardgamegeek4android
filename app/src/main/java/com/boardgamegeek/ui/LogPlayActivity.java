@@ -485,7 +485,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			return;
 		}
 
-		boolean enabled = hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
 		if (mPlay.hasStarted()) {
 			mLengthView.setVisibility(View.GONE);
 			mTimer.setVisibility(View.VISIBLE);
@@ -499,15 +499,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			mTimerToggle.setVisibility(View.INVISIBLE);
 		}
 
-		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
-		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
-		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
-		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
-		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
-		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
+		hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
+		hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
+		hideRow(shouldHideIncomplete(), mIncompleteView);
+		hideRow(shouldHideNoWinStats(), mNoWinStatsView);
+		hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
+		hideRow(shouldHidePlayers(), mPlayerHeader);
 		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
-
-		mFab.setVisibility(enabled ? View.VISIBLE : View.GONE);
 	}
 
 	@DebugLog
@@ -720,12 +718,14 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						mUserShowComments = true;
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
-					} else if (selection.equals(r.getString(R.string.title_player))) {
+					} else if (selection.equals(r.getString(R.string.title_players))) {
 						if (shouldHidePlayers()) {
 							mUserShowPlayers = true;
 							viewToScroll = mPlayerHeader;
 						}
-						addPlayer(null);
+						addPlayer();
+					} else if (selection.equals(r.getString(R.string.title_player))) {
+						addPlayer();
 					}
 					setViewVisibility();
 					supportInvalidateOptionsMenu();
@@ -768,7 +768,11 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
 		}
-		list.add(r.getString(R.string.title_player));
+		if (shouldHidePlayers() || mPlay.getPlayerCount() == 0) {
+			list.add(r.getString(R.string.title_players));
+		} else {
+			list.add(r.getString(R.string.title_player));
+		}
 
 		CharSequence[] array = { };
 		array = list.toArray(array);
@@ -776,7 +780,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
-	public void addPlayer(View v) {
+	private void addPlayer() {
 		if (PreferencesUtils.editPlayer(this)) {
 			if (mPlay.getPlayerCount() == 0) {
 				if (!showPlayersToAddDialog()) {
