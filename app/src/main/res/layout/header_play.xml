@@ -6,6 +6,7 @@
 			  android:orientation="vertical">
 
 	<FrameLayout
+		android:id="@+id/header_container"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/image_header_height"
 		android:layout_gravity="center"
@@ -29,9 +30,14 @@
 			android:paddingLeft="@dimen/material_indent_horizontal"
 			android:paddingRight="@dimen/material_margin_horizontal"
 			tools:text="Puerto Rico"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackground"/>
 	</FrameLayout>
 
-	<TableLayout
+	<LinearLayout
 		android:id="@+id/details"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -39,162 +45,155 @@
 		android:paddingBottom="@dimen/padding_small"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_small"
-		android:stretchColumns="1">
+		android:paddingTop="@dimen/padding_small">
 
-
-		<TableRow
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:text="@string/on"/>
 
 			<TextView
 				android:id="@+id/play_date"
 				style="@style/Text.Big"
-				android:textIsSelectable="false"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical"
 				tools:text="January 1, 2015"/>
-		</TableRow>
+		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/location_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:text="@string/at"/>
 
 			<TextView
 				android:id="@+id/play_location"
 				style="@style/Text.Big"
-				android:textIsSelectable="false"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical"
 				tools:text="Game Store"/>
-		</TableRow>
+		</LinearLayout>
 
-		<TableRow
+		<LinearLayout
 			android:id="@+id/length_root"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
 			android:gravity="center_vertical"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+			android:orientation="horizontal">
 
 			<TextView
 				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
 				android:text="@string/for_"/>
 
-			<FrameLayout>
+			<FrameLayout
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical">
 
 				<TextView
 					android:id="@+id/play_length"
 					style="@style/Text.Big"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:textIsSelectable="false"
+					android:layout_height="match_parent"
+					android:gravity="center_vertical"
 					tools:text="1 hrs 26 mins"/>
 
 				<LinearLayout
 					android:id="@+id/timer_root"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="match_parent"
 					android:gravity="center_vertical"
 					android:orientation="horizontal">
 
 					<Chronometer
 						android:id="@+id/timer"
-						style="@style/Text.Title2"
+						style="@style/Text.Big"
 						android:layout_width="0dp"
-						android:layout_height="wrap_content"
+						android:layout_height="match_parent"
 						android:layout_weight="1"
-						android:background="@color/primary"
-						android:gravity="center"
-						android:maxLines="1"
-						android:paddingBottom="@dimen/padding_standard"
-						android:paddingTop="@dimen/padding_standard"
-						android:textIsSelectable="false"/>
+						android:gravity="center_vertical"/>
 
-					<ImageButton
+					<ImageView
 						android:id="@+id/timer_end"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:gravity="center"
+						android:layout_width="@dimen/image_button_size"
+						android:layout_height="@dimen/image_button_size"
+						android:layout_gravity="center_vertical"
+						android:background="?attr/selectableItemBackground"
+						android:onClick="onTimer"
+						android:scaleType="center"
 						android:src="@drawable/ic_action_timer_light"/>
 				</LinearLayout>
 			</FrameLayout>
-		</TableRow>
+		</LinearLayout>
 
-		<TableRow
-			android:id="@+id/quantity_root"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+		<TextView
+			android:id="@+id/play_quantity"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			tools:text="2 times"/>
 
-			<TextView
-				android:id="@+id/play_quantity"
-				style="@style/Text.Big"
-				android:layout_column="1"
-				android:textIsSelectable="false"
-				tools:text="2 times"/>
-		</TableRow>
-
-		<TableRow
+		<TextView
 			android:id="@+id/play_incomplete"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			android:text="@string/incomplete"/>
 
-			<TextView
-				style="@style/Text.Big"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_column="1"
-				android:text="@string/incomplete"/>
-		</TableRow>
-
-		<TableRow
+		<TextView
 			android:id="@+id/play_no_win_stats"
-			android:paddingBottom="@dimen/padding_small"
-			android:paddingTop="@dimen/padding_small">
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			android:text="@string/noWinStats"/>
 
-			<TextView
-				style="@style/Text.Big"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_column="1"
-				android:text="@string/noWinStats"/>
-		</TableRow>
-	</TableLayout>
+		<TextView
+			android:id="@+id/play_comments_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="bottom"
+			android:text="@string/comments"/>
 
+		<TextView
+			android:id="@+id/play_comments"
+			style="@style/Text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="I've got something to say."/>
 
-	<TextView
-		android:id="@+id/play_comments_label"
-		style="@style/Text.Header.Underline"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_standard"
-		android:text="@string/comments"
-		android:textIsSelectable="false"/>
-
-	<TextView
-		android:id="@+id/play_comments"
-		style="@style/Text"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_half"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:textIsSelectable="true"/>
-
-	<TextView
-		android:id="@+id/play_players_label"
-		style="@style/Text.Header.Underline"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_standard"
-		android:text="@string/title_players"
-		android:textIsSelectable="false"/>
+		<TextView
+			android:id="@+id/play_players_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="bottom"
+			android:text="@string/title_players"/>
+	</LinearLayout>
 
 </LinearLayout>

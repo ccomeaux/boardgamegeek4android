@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.Callback;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
@@ -28,8 +29,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -58,6 +57,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.melnykov.fab.FloatingActionButton;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 
@@ -65,6 +65,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class LogPlayActivity extends ActionBarActivity implements OnDateSetListener {
@@ -113,28 +117,28 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private Play mPlay;
 	private Play mOriginalPlay;
-	private Random mRandom = new Random();
+	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
-	private List<Player> mPlayersToAdd = new ArrayList<>();
-	private List<String> mUsernames = new ArrayList<>();
-	private List<String> mNames = new ArrayList<>();
+	private final List<Player> mPlayersToAdd = new ArrayList<>();
+	private final List<String> mUsernames = new ArrayList<>();
+	private final List<String> mNames = new ArrayList<>();
 
-	private TextView mHeaderView;
-	private Button mDateButton;
-	private DatePickerDialogFragment mDatePickerFragment;
-	private EditText mQuantityView;
-	private EditText mLengthView;
-	private AutoCompleteTextView mLocationView;
-	private CheckBox mIncompleteView;
-	private CheckBox mNoWinStatsView;
-	private Chronometer mTimer;
-	private View mTimerToggle;
-	private EditText mCommentsView;
-	private LinearLayout mPlayerHeader;
-	private TextView mPlayerLabel;
+	@InjectView(R.id.header) TextView mHeaderView;
+	@InjectView(R.id.log_play_date) TextView mDateButton;
+	@InjectView(R.id.log_play_quantity) EditText mQuantityView;
+	@InjectView(R.id.log_play_length) EditText mLengthView;
+	@InjectView(R.id.log_play_location) AutoCompleteTextView mLocationView;
+	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
+	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
+	@InjectView(R.id.timer) Chronometer mTimer;
+	@InjectView(R.id.timer_toggle) View mTimerToggle;
+	@InjectView(R.id.log_play_comments) EditText mCommentsView;
+	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
+	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
+	@InjectView(R.id.fab) FloatingActionButton mFab;
 	private DragSortListView mPlayerList;
-	private Button mAddFieldButton;
+	private DatePickerDialogFragment mDatePickerFragment;
 	private MenuBuilder mFullPopupMenu;
 	private MenuBuilder mShortPopupMenu;
 
@@ -171,6 +175,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			super(cr);
 		}
 
+		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			// If the query didn't return a cursor for some reason return
@@ -244,6 +249,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setModelIfDone(int queryType) {
 		synchronized (this) {
 			mOutstandingQueries &= ~queryType;
@@ -269,6 +275,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void finishDataLoad() {
 		mOutstandingQueries = 0;
 		if (mEndPlay) {
@@ -282,6 +289,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		findViewById(R.id.form).setVisibility(View.VISIBLE);
 	}
 
+	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -327,6 +335,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
 
+	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -341,6 +350,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		setViewVisibility();
 	}
 
+	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -360,6 +370,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, mCustomPlayerSort);
 	}
 
+	@DebugLog
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -368,6 +379,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onBackPressed() {
 		saveDraft(true);
@@ -375,6 +387,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		finish();
 	}
 
+	@DebugLog
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -394,32 +407,25 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setUiVariables() {
 		mPlayerList = (DragSortListView) findViewById(android.R.id.list);
-		View root = View.inflate(this, R.layout.header_logplay, null);
-		mPlayerList.addHeaderView(root);
+		mPlayerList.addHeaderView(View.inflate(this, R.layout.header_logplay, null), null, false);
+		mPlayerList.addFooterView(View.inflate(this, R.layout.footer_logplay, null), null, false);
+
+		ButterKnife.inject(this);
+
+		mFab.attachToListView(mPlayerList);
+
 		mPlayAdapter = new PlayAdapter();
 		mPlayerList.setAdapter(mPlayAdapter);
 
-		mHeaderView = (TextView) root.findViewById(R.id.header);
-		mDateButton = (Button) root.findViewById(R.id.log_play_date);
-		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(
-			DATE_PICKER_DIALOG_TAG);
+		mDatePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(DATE_PICKER_DIALOG_TAG);
 		if (mDatePickerFragment != null) {
 			mDatePickerFragment.setOnDateSetListener(this);
 		}
-		mQuantityView = (EditText) root.findViewById(R.id.log_play_quantity);
-		mLengthView = (EditText) root.findViewById(R.id.log_play_length);
-		mLocationView = (AutoCompleteTextView) root.findViewById(R.id.log_play_location);
+
 		mLocationView.setAdapter(new AutoCompleteAdapter(this, Plays.LOCATION, Plays.buildLocationsUri()));
-		mIncompleteView = (CheckBox) root.findViewById(R.id.log_play_incomplete);
-		mNoWinStatsView = (CheckBox) root.findViewById(R.id.log_play_no_win_stats);
-		mTimer = (Chronometer) root.findViewById(R.id.timer);
-		mTimerToggle = root.findViewById(R.id.timer_toggle);
-		mCommentsView = (EditText) root.findViewById(R.id.log_play_comments);
-		mPlayerHeader = (LinearLayout) root.findViewById(R.id.log_play_players_header);
-		mPlayerLabel = (TextView) root.findViewById(R.id.log_play_players_label);
-		mAddFieldButton = (Button) findViewById(R.id.add_field);
 
 		mPlayerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -435,10 +441,9 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 				editPlayer(intent, offsetPosition);
 			}
 		});
-
-		mPlayerList.setItemsCanFocus(true);
 	}
 
+	@DebugLog
 	private void bindUi() {
 		setDateButtonText();
 		mQuantityView.setTextKeepState((mPlay.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(mPlay.quantity));
@@ -450,11 +455,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		bindUiPlayers();
 	}
 
+	@DebugLog
 	private void bindLength() {
 		mLengthView.setTextKeepState((mPlay.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(mPlay.length));
 		UIUtils.startTimerWithSystemTime(mTimer, mPlay.startTime);
 	}
 
+	@DebugLog
 	private void bindUiPlayers() {
 		// calculate player count
 		Resources r = getResources();
@@ -471,13 +478,14 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	private void setViewVisibility() {
 		if (mPlay == null) {
 			// all fields should be hidden, so it shouldn't matter
 			return;
 		}
 
-		boolean enabled = hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
+		hideRow(shouldHideLength() && !mPlay.hasStarted(), findViewById(R.id.log_play_length_root));
 		if (mPlay.hasStarted()) {
 			mLengthView.setVisibility(View.GONE);
 			mTimer.setVisibility(View.VISIBLE);
@@ -491,18 +499,16 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			mTimerToggle.setVisibility(View.INVISIBLE);
 		}
 
-		enabled |= hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
-		enabled |= hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
-		enabled |= hideRow(shouldHideIncomplete(), mIncompleteView);
-		enabled |= hideRow(shouldHideNoWinStats(), mNoWinStatsView);
-		enabled |= hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
-		enabled |= hideRow(shouldHidePlayers(), mPlayerHeader);
+		hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
+		hideRow(shouldHideLocation(), findViewById(R.id.log_play_location_root));
+		hideRow(shouldHideIncomplete(), mIncompleteView);
+		hideRow(shouldHideNoWinStats(), mNoWinStatsView);
+		hideRow(shouldHideComments(), findViewById(R.id.log_play_comments_root));
+		hideRow(shouldHidePlayers(), mPlayerHeader);
 		findViewById(R.id.clear_players).setEnabled(mPlay.getPlayerCount() > 0);
-
-		findViewById(R.id.add_player).setVisibility(shouldHidePlayers() ? View.GONE : View.VISIBLE);
-		mAddFieldButton.setEnabled(enabled);
 	}
 
+	@DebugLog
 	private boolean hideRow(boolean shouldHide, View view) {
 		if (shouldHide) {
 			view.setVisibility(View.GONE);
@@ -512,34 +518,42 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return false;
 	}
 
+	@DebugLog
 	private boolean shouldHideLocation() {
 		return !mPrefShowLocation && !mUserShowLocation && TextUtils.isEmpty(mPlay.location);
 	}
 
+	@DebugLog
 	private boolean shouldHideLength() {
 		return !mPrefShowLength && !mUserShowLength && !(mPlay.length > 0);
 	}
 
+	@DebugLog
 	private boolean shouldHideQuantity() {
 		return !mPrefShowQuantity && !mUserShowQuantity && !(mPlay.quantity > 1);
 	}
 
+	@DebugLog
 	private boolean shouldHideIncomplete() {
 		return !mPrefShowIncomplete && !mUserShowIncomplete && !mPlay.Incomplete();
 	}
 
+	@DebugLog
 	private boolean shouldHideNoWinStats() {
 		return !mPrefShowNoWinStats && !mUserShowNoWinStats && !mPlay.NoWinStats();
 	}
 
+	@DebugLog
 	private boolean shouldHideComments() {
 		return !mPrefShowComments && !mUserShowComments && TextUtils.isEmpty(mPlay.comments);
 	}
 
+	@DebugLog
 	private boolean shouldHidePlayers() {
 		return !mPrefShowPlayers && !mUserShowPlayers && (mPlay.getPlayerCount() == 0);
 	}
 
+	@DebugLog
 	private void startQuery() {
 		if (mPlay != null) {
 			// we already have the play from the saved instance
@@ -564,28 +578,32 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private boolean onActionBarItemSelected(int itemId) {
-		switch (itemId) {
-			case R.id.menu_done:
-				if (mPlay == null) {
-					cancel();
-				} else {
-					if (mPlay.hasStarted()) {
-						saveDraft(true);
-						setResult(Activity.RESULT_OK);
-						finish();
+		if (mOutstandingQueries == 0) {
+			switch (itemId) {
+				case R.id.menu_done:
+					if (mPlay == null) {
+						cancel();
 					} else {
-						logPlay();
+						if (mPlay.hasStarted()) {
+							saveDraft(true);
+							setResult(Activity.RESULT_OK);
+							finish();
+						} else {
+							logPlay();
+						}
 					}
-				}
-				return true;
-			case R.id.menu_cancel:
-				cancel();
-				return true;
+					return true;
+				case R.id.menu_cancel:
+					cancel();
+					return true;
+			}
 		}
 		return false;
 	}
 
+	@DebugLog
 	private void logPlay() {
 		if (save(Play.SYNC_STATUS_PENDING_UPDATE)) {
 			if (!mPlay.hasBeenSynced()
@@ -602,6 +620,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		finish();
 	}
 
+	@DebugLog
 	private void saveDraft(boolean showToast) {
 		if (save(Play.SYNC_STATUS_IN_PROGRESS)) {
 			if (showToast) {
@@ -623,6 +642,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return true;
 	}
 
+	@DebugLog
 	private void cancel() {
 		mSaveOnPause = false;
 		captureForm();
@@ -653,10 +673,13 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void triggerUpload() {
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
+	@DebugLog
+	@OnClick(R.id.fab)
 	public void addField(View v) {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -696,8 +719,17 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
 					} else if (selection.equals(r.getString(R.string.title_players))) {
-						mUserShowPlayers = true;
-						viewToScroll = mPlayerHeader;
+						if (shouldHidePlayers()) {
+							mUserShowPlayers = true;
+							viewToScroll = mPlayerHeader;
+						}
+						addPlayers();
+					} else if (selection.equals(r.getString(R.string.title_player))) {
+						if (shouldHidePlayers()) {
+							mUserShowPlayers = true;
+							viewToScroll = mPlayerHeader;
+						}
+						addPlayer();
 					}
 					setViewVisibility();
 					supportInvalidateOptionsMenu();
@@ -718,6 +750,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -739,24 +772,25 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
 		}
-		if (shouldHidePlayers()) {
-			list.add(r.getString(R.string.title_players));
-		}
+		list.add(r.getString(R.string.title_players));
+		list.add(r.getString(R.string.title_player));
 
 		CharSequence[] array = { };
 		array = list.toArray(array);
 		return array;
 	}
 
-	public void addPlayer(View v) {
+	@DebugLog
+	private void addPlayers() {
+		if (!showPlayersToAddDialog()) {
+			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+		}
+	}
+
+	@DebugLog
+	private void addPlayer() {
 		if (PreferencesUtils.editPlayer(this)) {
-			if (mPlay.getPlayerCount() == 0) {
-				if (!showPlayersToAddDialog()) {
-					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-				}
-			} else {
-				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-			}
+			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
 			Player player = new Player();
 			if (!mCustomPlayerSort) {
@@ -768,6 +802,23 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
+	private boolean containsPlayer(String username, String name) {
+		for (Player p : mPlay.getPlayers()) {
+			if (!TextUtils.isEmpty(username)) {
+				if (username.equals(p.username)) {
+					return true;
+				}
+			} else if (!TextUtils.isEmpty(name)) {
+				if (TextUtils.isEmpty(p.username) && name.equals(p.name)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@DebugLog
 	private boolean showPlayersToAddDialog() {
 		if (mAddPlayersBuilder == null) {
 			mAddPlayersBuilder = new AlertDialog.Builder(this).setTitle(R.string.title_add_players)
@@ -789,15 +840,20 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			selection = Plays.LOCATION + "=?";
 			selectionArgs = new String[] { mPlay.location };
 		}
-		Cursor cursor = getContentResolver().query(
-			Plays.buildPlayersByUniqueNameUri(),
-			new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
-				PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
+
+		Cursor cursor = null;
 		try {
+			cursor = getContentResolver().query(Plays.buildPlayersByUniqueNameUri(),
+				new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
+					PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
 			while (cursor.moveToNext()) {
-				mUsernames.add(cursor.getString(1));
-				mNames.add(cursor.getString(2));
-				descriptions.add(cursor.getString(3));
+				String username = cursor.getString(1);
+				String name = cursor.getString(2);
+				if (!containsPlayer(username, name)) {
+					mUsernames.add(username);
+					mNames.add(name);
+					descriptions.add(cursor.getString(3));
+				}
 			}
 		} finally {
 			if (cursor != null) {
@@ -828,6 +884,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return true;
 	}
 
+	@DebugLog
 	private DialogInterface.OnClickListener addPlayersButtonClickListener() {
 		return new DialogInterface.OnClickListener() {
 			@Override
@@ -844,6 +901,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		};
 	}
 
+	@DebugLog
 	public void onDateClick(View v) {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
@@ -855,6 +913,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		mDatePickerFragment.show(fragmentManager, DATE_PICKER_DIALOG_TAG);
 	}
 
+	@DebugLog
 	@Override
 	public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 		if (mPlay != null) {
@@ -864,10 +923,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void setDateButtonText() {
 		mDateButton.setText(mPlay.getDateForDisplay(this));
 	}
 
+	@DebugLog
 	public void onTimer(View v) {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
@@ -896,6 +957,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	private void startTimer() {
 		mPlay.start();
 		bindLength();
@@ -903,6 +965,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	public void onPlayerSort(View v) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
@@ -934,6 +997,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		popup.show();
 	}
 
+	@DebugLog
 	private Callback popupMenuCallback() {
 		return new MenuBuilder.Callback() {
 			@Override
@@ -1006,6 +1070,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		};
 	}
 
+	@DebugLog
 	private void promptPickStartPlayer() {
 		CharSequence[] array = createArrayOfPlayerDescriptions();
 		new AlertDialog.Builder(this).setTitle(R.string.title_pick_start_player)
@@ -1019,6 +1084,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private CharSequence[] createArrayOfPlayerDescriptions() {
 		String playerPrefix = getResources().getString(R.string.generic_player);
 		List<CharSequence> list = new ArrayList<>();
@@ -1035,6 +1101,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		return array;
 	}
 
+	@DebugLog
 	private void notifyStartPlayer() {
 		Player p = mPlay.getPlayerAtSeat(1);
 		if (p != null) {
@@ -1047,6 +1114,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 	}
 
+	@DebugLog
 	public void onClearPlayers(View v) {
 		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
@@ -1058,6 +1126,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}).show();
 	}
 
+	@DebugLog
 	private void editPlayer(Intent intent, int requestCode) {
 		mLaunchingActivity = true;
 		intent.setClass(LogPlayActivity.this, LogPlayerActivity.class);
@@ -1079,6 +1148,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	/**
 	 * Captures the data in the form in the mPlay object
 	 */
+	@DebugLog
 	private void captureForm() {
 		if (mPlay == null) {
 			return;
@@ -1094,6 +1164,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		maybeShowNotification();
 	}
 
+	@DebugLog
 	private void maybeShowNotification() {
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
@@ -1101,21 +1172,25 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private class PlayAdapter extends BaseAdapter implements DropListener {
+		@DebugLog
 		@Override
 		public int getCount() {
 			return mPlay == null ? 0 : mPlay.getPlayerCount();
 		}
 
+		@DebugLog
 		@Override
 		public Object getItem(int position) {
 			return mPlay == null ? null : mPlay.getPlayers().get(position);
 		}
 
+		@DebugLog
 		@Override
 		public long getItemId(int position) {
 			return position;
 		}
 
+		@DebugLog
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
@@ -1131,6 +1206,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			return convertView;
 		}
 
+		@DebugLog
 		@Override
 		public void drop(int from, int to) {
 			if (!mPlay.reorderPlayers(from + 1, to + 1)) {
@@ -1141,12 +1217,14 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private class PlayerDeleteClickListener implements View.OnClickListener {
-		private int mPosition;
+		private final int mPosition;
 
+		@DebugLog
 		public PlayerDeleteClickListener(int position) {
 			mPosition = position;
 		}
 
+		@DebugLog
 		@Override
 		public void onClick(View v) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);

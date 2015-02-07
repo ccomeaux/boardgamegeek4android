@@ -29,16 +29,17 @@
 			android:summary="Apache License 2.0"
 			android:title="DragSortListView"/>
 		<com.boardgamegeek.pref.LicensePreference
+			android:dialogMessage="@string/pref_about_fab_license"
+			android:summary="The MIT License (MIT)"
+			android:title="FloatingActionButton"/>
+		<com.boardgamegeek.pref.LicensePreference
+			android:dialogMessage="@string/pref_about_gson_license"
 			android:summary="Apache License 2.0"
 			android:title="Gson"/>
 		<com.boardgamegeek.pref.LicensePreference
 			android:dialogMessage="@string/pref_about_hugo_license"
 			android:summary="Apache License 2.0"
 			android:title="Hugo"/>
-		<com.boardgamegeek.pref.LicensePreference
-			android:dialogMessage="@string/pref_about_gson_license"
-			android:summary="Apache License 2.0"
-			android:title="Gson"/>
 		<com.boardgamegeek.pref.LicensePreference
 			android:dialogMessage="@string/pref_about_okhttp_license"
 			android:summary="Apache License 2.0"

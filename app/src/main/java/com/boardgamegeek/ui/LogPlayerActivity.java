@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -18,10 +19,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -39,6 +38,8 @@ import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.melnykov.fab.FloatingActionButton;
+import com.melnykov.fab.ObservableScrollView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import hugo.weaving.DebugLog;
 
 public class LogPlayerActivity extends ActionBarActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -72,7 +74,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 	private Player mPlayer;
 	private Player mOriginalPlayer;
 
-	@InjectView(R.id.scroll_container) ScrollView mScrollContainer;
+	@InjectView(R.id.scroll_container) ObservableScrollView mScrollContainer;
 	@InjectView(R.id.header) TextView mHeader;
 	@InjectView(R.id.two_line_container) View mTwoLineContainer;
 	@InjectView(R.id.header2) TextView mHeader2;
@@ -86,8 +88,10 @@ public class LogPlayerActivity extends ActionBarActivity {
 	@InjectView(R.id.log_player_score) EditText mScore;
 	@InjectView(R.id.log_player_score_button) Button mScoreButton;
 	@InjectView(R.id.log_player_rating) EditText mRating;
-	@InjectView(R.id.log_player_new) CheckBox mNew;
-	@InjectView(R.id.log_player_win) CheckBox mWin;
+	@InjectView(R.id.log_player_new) SwitchCompat mNew;
+	@InjectView(R.id.log_player_win) SwitchCompat mWin;
+	@InjectView(R.id.fab) FloatingActionButton mFab;
+	@InjectView(R.id.fab_buffer) View mFabBuffer;
 
 	private boolean mPrefShowTeamColor;
 	private boolean mPrefShowPosition;
@@ -118,6 +122,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			super(cr);
 		}
 
+		@DebugLog
 		@Override
 		protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 			if (cursor == null) {
@@ -152,12 +157,14 @@ public class LogPlayerActivity extends ActionBarActivity {
 		}
 	}
 
+	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_logplayer);
 		ButterKnife.inject(this);
+		mFab.attachToScrollView(mScrollContainer);
 		mName.setOnItemClickListener(nameClickListener());
 
 		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
@@ -209,6 +216,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
 
+	@DebugLog
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -221,6 +229,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		setViewVisibility();
 	}
 
+	@DebugLog
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -233,11 +242,13 @@ public class LogPlayerActivity extends ActionBarActivity {
 		outState.putBoolean(KEY_WIN_SHOWN, mUserShowWin);
 	}
 
+	@DebugLog
 	@Override
 	public void onBackPressed() {
 		cancel();
 	}
 
+	@DebugLog
 	private OnItemClickListener nameClickListener() {
 		return new OnItemClickListener() {
 			@Override
@@ -247,6 +258,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		};
 	}
 
+	@DebugLog
 	@OnClick(R.id.color_view)
 	public void onColorClick(View v) {
 		ColorPickerDialogFragment colordashfragment = ColorPickerDialogFragment.newInstance(0,
@@ -263,12 +275,14 @@ public class LogPlayerActivity extends ActionBarActivity {
 		colordashfragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
+	@DebugLog
 	@OnTextChanged(R.id.log_player_team_color)
 	public void afterTextChanged(Editable s) {
 		int color = ColorUtils.parseColor(s.toString());
 		ColorUtils.setColorViewValue(mColorView, color);
 	}
 
+	@DebugLog
 	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
 	public void onNumberToTextClick(View v) {
 		EditText editText = null;
@@ -293,6 +307,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		editText.requestFocus();
 	}
 
+	@DebugLog
 	private void bindUi() {
 		if (hasAutoPosition()) {
 			mHeader2.setText(mGameName);
@@ -316,17 +331,22 @@ public class LogPlayerActivity extends ActionBarActivity {
 		mWin.setChecked(mPlayer.Win());
 	}
 
+	@DebugLog
 	private void setViewVisibility() {
 		boolean enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
-		enableButton |= hideRow(hasAutoPosition() || shouldHidePosition(),
-			findViewById(R.id.log_player_position_container));
+		enableButton |= hideRow(shouldHidePosition(), findViewById(R.id.log_player_position_container));
+		if (hasAutoPosition()) {
+			hideRow(true, findViewById(R.id.log_player_position_container));
+		}
 		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
 		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
 		enableButton |= hideRow(shouldHideNew(), mNew);
 		enableButton |= hideRow(shouldHideWin(), mWin);
-		findViewById(R.id.add_field).setEnabled(enableButton);
+		mFab.setVisibility(enableButton ? View.VISIBLE : View.GONE);
+		mFabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
 	}
 
+	@DebugLog
 	private boolean hideRow(boolean shouldHide, View view) {
 		if (shouldHide) {
 			view.setVisibility(View.GONE);
@@ -336,34 +356,42 @@ public class LogPlayerActivity extends ActionBarActivity {
 		return false;
 	}
 
+	@DebugLog
 	private boolean shouldHideTeamColor() {
 		return !mPrefShowTeamColor && !mUserShowTeamColor && TextUtils.isEmpty(mPlayer.color);
 	}
 
+	@DebugLog
 	private boolean shouldHidePosition() {
 		return !mPrefShowPosition && !mUserShowPosition && TextUtils.isEmpty(mPlayer.getStartingPosition());
 	}
 
+	@DebugLog
 	private boolean hasAutoPosition() {
 		return mAutoPosition != Player.SEAT_UNKNOWN;
 	}
 
+	@DebugLog
 	private boolean shouldHideScore() {
 		return !mPrefShowScore && !mUserShowScore && TextUtils.isEmpty(mPlayer.score);
 	}
 
+	@DebugLog
 	private boolean shouldHideRating() {
 		return !mPrefShowRating && !mUserShowRating && !(mPlayer.rating > 0);
 	}
 
+	@DebugLog
 	private boolean shouldHideNew() {
 		return !mPrefShowNew && !mUserShowNew && !mPlayer.New();
 	}
 
+	@DebugLog
 	private boolean shouldHideWin() {
 		return !mPrefShowWin && !mUserShowWin && !mPlayer.Win();
 	}
 
+	@DebugLog
 	private boolean onActionBarItemSelected(int itemId) {
 		switch (itemId) {
 			case R.id.menu_done:
@@ -376,6 +404,8 @@ public class LogPlayerActivity extends ActionBarActivity {
 		return false;
 	}
 
+	@DebugLog
+	@OnClick(R.id.fab)
 	public void addField(View v) {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -409,12 +439,12 @@ public class LogPlayerActivity extends ActionBarActivity {
 					} else if (selection.equals(r.getString(R.string.new_label))) {
 						mUserShowNew = true;
 						mNew.setChecked(true);
-						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToScroll = mNew;
 						viewToFocus = mNew;
 					} else if (selection.equals(r.getString(R.string.win))) {
 						mUserShowWin = true;
 						mWin.setChecked(true);
-						viewToScroll = findViewById(R.id.log_player_checkbox_container);
+						viewToScroll = mWin;
 						viewToFocus = mWin;
 					}
 					setViewVisibility();
@@ -434,6 +464,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			}).show();
 	}
 
+	@DebugLog
 	private CharSequence[] createAddFieldArray() {
 		Resources r = getResources();
 		List<CharSequence> list = new ArrayList<>();
@@ -462,6 +493,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		return csa;
 	}
 
+	@DebugLog
 	private void save() {
 		captureForm();
 		Intent intent = new Intent();
@@ -470,6 +502,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		finish();
 	}
 
+	@DebugLog
 	private void cancel() {
 		captureForm();
 		if (mPlayer.equals(mOriginalPlayer)) {
@@ -480,6 +513,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		}
 	}
 
+	@DebugLog
 	private void captureForm() {
 		mPlayer.name = mName.getText().toString().trim();
 		mPlayer.username = mUsername.getText().toString().trim();

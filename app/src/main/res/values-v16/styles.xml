@@ -5,8 +5,4 @@
 		<item name="android:textSize">18sp</item>
 	</style>
 
-	<style name="Text.Title2" parent="Text.Title">
-		<item name="android:fontFamily">sans-serif</item>
-	</style>
-
 </resources>

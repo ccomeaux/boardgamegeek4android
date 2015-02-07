@@ -11,7 +11,7 @@
 	<TableRow>
 
 		<TextView
-			style="@style/TextLabel.Edit"
+			style="@style/TextLabel"
 			android:text="@string/pref_sync_timestamps_collection_full" />
 
 		<TextView android:id="@+id/sync_timestamp_collection_full" />
@@ -20,7 +20,7 @@
 	<TableRow>
 
 		<TextView
-			style="@style/TextLabel.Edit"
+			style="@style/TextLabel"
 			android:text="@string/pref_sync_timestamps_collection_partial" />
 
 		<TextView android:id="@+id/sync_timestamp_collection_partial" />
@@ -29,7 +29,7 @@
 	<TableRow>
 
 		<TextView
-			style="@style/TextLabel.Edit"
+			style="@style/TextLabel"
 			android:text="@string/pref_sync_timestamps_buddy" />
 
 		<TextView android:id="@+id/sync_timestamp_buddy" />
@@ -38,7 +38,7 @@
 	<TableRow>
 
 		<TextView
-			style="@style/TextLabel.Edit"
+			style="@style/TextLabel"
 			android:text="@string/pref_sync_timestamps_plays_newest_date" />
 
 		<TextView android:id="@+id/sync_timestamp_plays_newest_date" />
@@ -47,7 +47,7 @@
 	<TableRow>
 
 		<TextView
-			style="@style/TextLabel.Edit"
+			style="@style/TextLabel"
 			android:text="@string/pref_sync_timestamps_plays_oldest_date" />
 
 		<TextView android:id="@+id/sync_timestamp_plays_oldest_date" />
