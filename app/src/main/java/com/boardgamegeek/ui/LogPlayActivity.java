@@ -723,8 +723,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 							mUserShowPlayers = true;
 							viewToScroll = mPlayerHeader;
 						}
-						addPlayer();
+						addPlayers();
 					} else if (selection.equals(r.getString(R.string.title_player))) {
+						if (shouldHidePlayers()) {
+							mUserShowPlayers = true;
+							viewToScroll = mPlayerHeader;
+						}
 						addPlayer();
 					}
 					setViewVisibility();
@@ -768,11 +772,8 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
 		}
-		if (shouldHidePlayers() || mPlay.getPlayerCount() == 0) {
-			list.add(r.getString(R.string.title_players));
-		} else {
-			list.add(r.getString(R.string.title_player));
-		}
+		list.add(r.getString(R.string.title_players));
+		list.add(r.getString(R.string.title_player));
 
 		CharSequence[] array = { };
 		array = list.toArray(array);
@@ -780,15 +781,16 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	private void addPlayers() {
+		if (!showPlayersToAddDialog()) {
+			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
+		}
+	}
+
+	@DebugLog
 	private void addPlayer() {
 		if (PreferencesUtils.editPlayer(this)) {
-			if (mPlay.getPlayerCount() == 0) {
-				if (!showPlayersToAddDialog()) {
-					editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-				}
-			} else {
-				editPlayer(new Intent(), REQUEST_ADD_PLAYER);
-			}
+			editPlayer(new Intent(), REQUEST_ADD_PLAYER);
 		} else {
 			Player player = new Player();
 			if (!mCustomPlayerSort) {
@@ -798,6 +800,22 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			bindUiPlayers();
 			mPlayerList.smoothScrollToPosition(mPlayerList.getCount());
 		}
+	}
+
+	@DebugLog
+	private boolean containsPlayer(String username, String name) {
+		for (Player p : mPlay.getPlayers()) {
+			if (!TextUtils.isEmpty(username)) {
+				if (username.equals(p.username)) {
+					return true;
+				}
+			} else if (!TextUtils.isEmpty(name)) {
+				if (TextUtils.isEmpty(p.username) && name.equals(p.name)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@DebugLog
@@ -822,15 +840,20 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			selection = Plays.LOCATION + "=?";
 			selectionArgs = new String[] { mPlay.location };
 		}
-		Cursor cursor = getContentResolver().query(
-			Plays.buildPlayersByUniqueNameUri(),
-			new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
-				PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
+
+		Cursor cursor = null;
 		try {
+			cursor = getContentResolver().query(Plays.buildPlayersByUniqueNameUri(),
+				new String[] { PlayPlayers._ID, PlayPlayers.USER_NAME, PlayPlayers.NAME, PlayPlayers.DESCRIPTION,
+					PlayPlayers.COUNT, PlayPlayers.UNIQUE_NAME }, selection, selectionArgs, PlayPlayers.SORT_BY_COUNT);
 			while (cursor.moveToNext()) {
-				mUsernames.add(cursor.getString(1));
-				mNames.add(cursor.getString(2));
-				descriptions.add(cursor.getString(3));
+				String username = cursor.getString(1);
+				String name = cursor.getString(2);
+				if (!containsPlayer(username, name)) {
+					mUsernames.add(username);
+					mNames.add(name);
+					descriptions.add(cursor.getString(3));
+				}
 			}
 		} finally {
 			if (cursor != null) {
