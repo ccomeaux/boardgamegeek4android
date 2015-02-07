@@ -117,12 +117,12 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 
 	private Play mPlay;
 	private Play mOriginalPlay;
-	private Random mRandom = new Random();
+	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
 	private Builder mAddPlayersBuilder;
-	private List<Player> mPlayersToAdd = new ArrayList<>();
-	private List<String> mUsernames = new ArrayList<>();
-	private List<String> mNames = new ArrayList<>();
+	private final List<Player> mPlayersToAdd = new ArrayList<>();
+	private final List<String> mUsernames = new ArrayList<>();
+	private final List<String> mNames = new ArrayList<>();
 
 	@InjectView(R.id.header) TextView mHeaderView;
 	@InjectView(R.id.log_play_date) TextView mDateButton;
@@ -1217,7 +1217,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	private class PlayerDeleteClickListener implements View.OnClickListener {
-		private int mPosition;
+		private final int mPosition;
 
 		@DebugLog
 		public PlayerDeleteClickListener(int position) {
