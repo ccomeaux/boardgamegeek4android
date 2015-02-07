@@ -255,10 +255,8 @@ public class Play {
 	}
 
 	public void setPlayers(List<Player> players) {
-		if (players == null) {
-			this.players = new ArrayList<>();
-		} else {
-			this.players = players;
+		if (players != null) {
+			this.players.addAll(players);
 		}
 	}
 
