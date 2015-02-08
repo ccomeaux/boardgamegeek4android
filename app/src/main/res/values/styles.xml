@@ -33,7 +33,8 @@
 	<style name="Text.Info">
 		<item name="android:layout_gravity">center_vertical|left</item>
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:padding">@dimen/padding_standard</item>
+		<item name="android:drawablePadding">@dimen/padding_half</item>
+		<item name="android:layout_height">@dimen/edit_row_height</item>
 	</style>
 
 	<style name="Text.Info.Table">

@@ -75,9 +75,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
 	@InjectView(R.id.game_info_rank) TextView mRankView;
 	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
-	@InjectView(R.id.game_info_num_of_players) TextView mPlayersView;
-	@InjectView(R.id.game_info_playing_time) TextView mPlayingTimeView;
-	@InjectView(R.id.game_info_suggested_ages) TextView mSuggestedAgesView;
+	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
+	@InjectView(R.id.play_time) TextView mPlayTimeView;
+	@InjectView(R.id.player_age) TextView mPlayerAgeView;
 	@InjectView(R.id.game_info_designers) ExpandableListView mDesignersView;
 	@InjectView(R.id.game_info_artists) ExpandableListView mArtistsView;
 	@InjectView(R.id.game_info_publishers) ExpandableListView mPublishersView;
@@ -337,9 +337,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
-		mPlayingTimeView.setText(game.getPlayingTimeDescription());
-		mPlayersView.setText(game.getPlayerRangeDescription());
-		mSuggestedAgesView.setText(game.getAgeDescription());
+		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
+		mPlayTimeView.setText(game.getPlayingTimeDescription());
+		mPlayerAgeView.setText(game.getAgeDescription());
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -481,8 +481,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			: R.drawable.expander_open, 0);
 	}
 
-	@OnClick({ R.id.game_info_num_of_players_button, R.id.game_info_suggested_ages_button,
-		R.id.game_info_languages_button })
+	@OnClick({ R.id.number_of_players, R.id.player_age })
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));

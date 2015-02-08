@@ -309,9 +309,9 @@
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
-	<string name="language_dependence">Language Dependence</string>
-	<string name="suggested_playerage">Suggested Ages</string>
-	<string name="suggested_numplayers">Suggested Players</string>
+	<string name="language_dependence">Language dependence</string>
+	<string name="suggested_playerage">Suggested ages</string>
+	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_suffix">+</string>
 	<string name="language">Language</string>
 	<string name="name">Name</string>
