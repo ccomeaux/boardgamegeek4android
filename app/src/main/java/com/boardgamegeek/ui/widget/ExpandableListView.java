@@ -28,10 +28,7 @@ public class ExpandableListView extends RelativeLayout {
 
 	private TextView mLabelView;
 	private TextView mSummaryView;
-	private ImageView mToggleView;
-	private TextView mDetailView;
 	private int mQueryToken;
-	private boolean mExpanded;
 	private String mOneMore;
 	private String mSomeMore;
 	private int mNameColumnIndex;
@@ -60,7 +57,6 @@ public class ExpandableListView extends RelativeLayout {
 	protected Parcelable onSaveInstanceState() {
 		Parcelable p = super.onSaveInstanceState();
 		SavedState state = new SavedState(p);
-		state.expanded = mExpanded;
 		state.count = mCount;
 		state.many = mMany;
 		return state;
@@ -76,11 +72,8 @@ public class ExpandableListView extends RelativeLayout {
 		SavedState saved = (SavedState) state;
 		super.onRestoreInstanceState(saved.getSuperState());
 
-		mExpanded = saved.expanded;
 		mCount = saved.count;
 		mMany = saved.many;
-
-		expandOrCollapse();
 	}
 
 	private void init(Context context, AttributeSet attrs) {
@@ -91,8 +84,6 @@ public class ExpandableListView extends RelativeLayout {
 		li.inflate(R.layout.widget_expandable_list, this, true);
 		mLabelView = (TextView) findViewById(R.id.label);
 		mSummaryView = (TextView) findViewById(R.id.summary);
-		mToggleView = (ImageView) findViewById(R.id.toggle);
-		mDetailView = (TextView) findViewById(R.id.detail);
 
 		if (attrs != null) {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
@@ -106,17 +97,7 @@ public class ExpandableListView extends RelativeLayout {
 
 		mLabelView.setText(mLabel);
 
-		mExpanded = false;
-		expandOrCollapse();
 		setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mExpanded = !mExpanded;
-				expandOrCollapse();
-			}
-		});
-
-		mDetailView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getContext(), GameDetailActivity.class);
@@ -129,12 +110,6 @@ public class ExpandableListView extends RelativeLayout {
 		});
 	}
 
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		super.onLayout(changed, l, t, r, b);
-		updateSummary();
-	}
-
 	public void setLabel(CharSequence label) {
 		mLabelView.setText(label);
 	}
@@ -145,7 +120,6 @@ public class ExpandableListView extends RelativeLayout {
 
 	public void clear() {
 		mSummaryView.setText("");
-		mDetailView.setText("");
 	}
 
 	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {
@@ -157,12 +131,6 @@ public class ExpandableListView extends RelativeLayout {
 
 	private void updateData(Cursor cursor) {
 		mCount = cursor.getCount();
-		String names = joinNames(cursor);
-		mDetailView.setText(names);
-		updateSummary();
-	}
-
-	private void updateSummary() {
 		CharSequence summary = null;
 		if (mCount >= mLimit) {
 			if (TextUtils.isEmpty(mMany)) {
@@ -172,7 +140,7 @@ public class ExpandableListView extends RelativeLayout {
 			}
 			summary = mMany;
 		} else {
-			final CharSequence text = mDetailView.getText();
+			final CharSequence text = joinNames(cursor);
 			if (!TextUtils.isEmpty(text)) {
 				TextPaint paint = new TextPaint();
 				paint.setTextSize(mSummaryView.getTextSize());
@@ -184,13 +152,6 @@ public class ExpandableListView extends RelativeLayout {
 			}
 		}
 		mSummaryView.setText(summary);
-	}
-
-	private void expandOrCollapse() {
-		mSummaryView.setVisibility(mExpanded ? GONE : VISIBLE);
-		mDetailView.setVisibility(mExpanded ? VISIBLE : GONE);
-		mToggleView.setImageResource(mExpanded ? R.drawable.expander_close : R.drawable.expander_open);
-		requestLayout();
 	}
 
 	private String joinNames(Cursor cursor) {
@@ -216,7 +177,6 @@ public class ExpandableListView extends RelativeLayout {
 	}
 
 	private static class SavedState extends BaseSavedState {
-		public boolean expanded;
 		public int count;
 		public String many;
 
@@ -226,7 +186,6 @@ public class ExpandableListView extends RelativeLayout {
 
 		private SavedState(Parcel in) {
 			super(in);
-			expanded = in.readInt() != 0;
 			count = in.readInt();
 			many = in.readString();
 		}
@@ -239,7 +198,6 @@ public class ExpandableListView extends RelativeLayout {
 		@Override
 		public void writeToParcel(@NonNull Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
-			dest.writeInt(expanded ? 1 : 0);
 			dest.writeInt(count);
 			dest.writeString(many);
 		}
