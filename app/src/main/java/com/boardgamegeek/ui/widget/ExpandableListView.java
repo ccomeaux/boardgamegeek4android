@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui.widget;
 
-import java.util.Random;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -23,6 +21,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
+import java.util.Random;
+
 public class ExpandableListView extends RelativeLayout {
 	private static int mLimit = -1;
 
@@ -30,7 +30,6 @@ public class ExpandableListView extends RelativeLayout {
 	private TextView mSummaryView;
 	private ImageView mToggleView;
 	private TextView mDetailView;
-	private boolean mClickable;
 	private int mQueryToken;
 	private boolean mExpanded;
 	private String mOneMore;
@@ -99,7 +98,6 @@ public class ExpandableListView extends RelativeLayout {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
 			try {
 				mLabel = a.getString(R.styleable.ExpandableListView_label);
-				mClickable = a.getBoolean(R.styleable.ExpandableListView_clickable, true);
 				mQueryToken = a.getInt(R.styleable.ExpandableListView_query_token, BggContract.INVALID_ID);
 			} finally {
 				a.recycle();
@@ -118,22 +116,17 @@ public class ExpandableListView extends RelativeLayout {
 			}
 		});
 
-		if (!mClickable) {
-			mDetailView.setBackgroundResource(0);
-			mDetailView.setCompoundDrawables(null, null, null, null);
-		} else {
-			mDetailView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent(getContext(), GameDetailActivity.class);
-					intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
-					intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
-					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
-					intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
-					getContext().startActivity(intent);
-				}
-			});
-		}
+		mDetailView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getContext(), GameDetailActivity.class);
+				intent.putExtra(ActivityUtils.KEY_TITLE, mLabel);
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_QUERY_TOKEN, mQueryToken);
+				getContext().startActivity(intent);
+			}
+		});
 	}
 
 	@Override

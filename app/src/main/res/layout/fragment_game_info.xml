@@ -162,7 +162,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:autoLink="web"
-				android:clickable="true"
 				android:drawableBottom="@drawable/expander_open"
 				android:maxLines="3"/>
 
@@ -216,7 +215,6 @@
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:clickable="false"
 				bgg:label="@string/categories"
 				bgg:query_token="4"/>
 
@@ -225,7 +223,6 @@
 				style="@style/InfoSection"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				bgg:clickable="false"
 				bgg:label="@string/mechanics"
 				bgg:query_token="5"/>
 
