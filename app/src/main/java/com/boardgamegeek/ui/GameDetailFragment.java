@@ -36,7 +36,6 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_colors));
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
