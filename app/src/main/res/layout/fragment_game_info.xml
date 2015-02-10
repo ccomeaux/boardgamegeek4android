@@ -27,7 +27,7 @@
 			android:id="@+id/game_info_root"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/primary"
+			android:background="@android:color/white"
 			android:orientation="vertical">
 
 			<FrameLayout style="@style/HeroContainer">
@@ -188,7 +188,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_designers"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/designers"
@@ -196,7 +196,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_artists"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/artists"
@@ -204,7 +204,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_publishers"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/publishers"
@@ -212,7 +212,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_categories"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/categories"
@@ -220,7 +220,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_mechanics"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/mechanics"
@@ -228,7 +228,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_expansions"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/expansions"
@@ -236,7 +236,7 @@
 
 			<com.boardgamegeek.ui.widget.ExpandableListView
 				android:id="@+id/game_info_base_games"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				bgg:label="@string/base_games"
@@ -244,7 +244,7 @@
 
 			<LinearLayout
 				android:id="@+id/game_info_stats_root"
-				style="@style/InfoSection"
+				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
@@ -253,7 +253,8 @@
 					android:id="@+id/game_stats_label"
 					style="@style/Text.Header.Expandable"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="@dimen/edit_row_height"
+					android:gravity="center_vertical"
 					android:text="@string/stats"/>
 
 				<include

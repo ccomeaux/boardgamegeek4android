@@ -183,6 +183,12 @@
 		<item name="android:paddingRight">@dimen/padding_standard</item>
 	</style>
 
+	<style name="GameDetailRow">
+		<item name="android:minHeight">@dimen/edit_row_height</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>
