@@ -32,10 +32,6 @@
 		android:layout_height="match_parent"
 		android:layout_weight="1"
 		android:gravity="center_vertical"
-		android:paddingBottom="0dp"
-		android:paddingLeft="0dp"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingTop="0dp"
 		android:singleLine="true"
 		tools:text="Wolfgang Kramer, Richard Ulrich"/>
 

@@ -197,11 +197,6 @@
 		<item name="android:background">@drawable/underline</item>
 	</style>
 
-	<style name="Text.Header.Expandable">
-		<item name="android:drawableRight">@drawable/expander_open</item>
-		<item name="android:paddingRight">0dp</item>
-	</style>
-
 	<style name="Text.Header2">
 		<item name="android:paddingBottom">@dimen/padding_small</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
