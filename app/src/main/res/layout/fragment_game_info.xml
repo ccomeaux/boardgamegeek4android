@@ -165,7 +165,7 @@
 				android:drawableBottom="@drawable/expander_open"
 				android:maxLines="3"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_designers"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -174,7 +174,7 @@
 				bgg:label="@string/designers"
 				bgg:query_token="1"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_artists"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -183,7 +183,7 @@
 				bgg:label="@string/artists"
 				bgg:query_token="2"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_publishers"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -192,7 +192,7 @@
 				bgg:label="@string/publishers"
 				bgg:query_token="3"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_categories"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -201,7 +201,7 @@
 				bgg:label="@string/categories"
 				bgg:query_token="4"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_mechanics"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -210,7 +210,7 @@
 				bgg:label="@string/mechanics"
 				bgg:query_token="5"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_expansions"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
@@ -219,7 +219,7 @@
 				bgg:label="@string/expansions"
 				bgg:query_token="6"/>
 
-			<com.boardgamegeek.ui.widget.ExpandableListView
+			<com.boardgamegeek.ui.widget.GameDetailRow
 				android:id="@+id/game_info_base_games"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"

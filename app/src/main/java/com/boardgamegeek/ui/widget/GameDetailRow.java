@@ -25,7 +25,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ExpandableListView extends RelativeLayout {
+public class GameDetailRow extends RelativeLayout {
 	@InjectView(android.R.id.icon) ImageView mIconView;
 	@InjectView(R.id.label) TextView mLabelView;
 	@InjectView(R.id.data) TextView mDataView;
@@ -39,17 +39,17 @@ public class ExpandableListView extends RelativeLayout {
 	private String mLabel;
 	private Drawable mIcon;
 
-	public ExpandableListView(Context context) {
+	public GameDetailRow(Context context) {
 		super(context);
 		init(context, null);
 	}
 
-	public ExpandableListView(Context context, AttributeSet attrs) {
+	public GameDetailRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context, attrs);
 	}
 
-	public ExpandableListView(Context context, AttributeSet attrs, int defStyle) {
+	public GameDetailRow(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init(context, attrs);
 	}
@@ -80,15 +80,15 @@ public class ExpandableListView extends RelativeLayout {
 		mSomeMore = context.getString(R.string.some_more);
 
 		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		li.inflate(R.layout.widget_expandable_list, this, true);
+		li.inflate(R.layout.widget_game_detail_row, this, true);
 		ButterKnife.inject(this);
 
 		if (attrs != null) {
-			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
+			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.GameDetailRow);
 			try {
-				mLabel = a.getString(R.styleable.ExpandableListView_label);
-				mIcon = a.getDrawable(R.styleable.ExpandableListView_icon_res);
-				mQueryToken = a.getInt(R.styleable.ExpandableListView_query_token, BggContract.INVALID_ID);
+				mLabel = a.getString(R.styleable.GameDetailRow_label);
+				mIcon = a.getDrawable(R.styleable.GameDetailRow_icon_res);
+				mQueryToken = a.getInt(R.styleable.GameDetailRow_query_token, BggContract.INVALID_ID);
 			} finally {
 				a.recycle();
 			}

@@ -33,7 +33,7 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.widget.ExpandableListView;
+import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -44,11 +44,9 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
@@ -76,13 +74,13 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
 	@InjectView(R.id.play_time) TextView mPlayTimeView;
 	@InjectView(R.id.player_age) TextView mPlayerAgeView;
-	@InjectView(R.id.game_info_designers) ExpandableListView mDesignersView;
-	@InjectView(R.id.game_info_artists) ExpandableListView mArtistsView;
-	@InjectView(R.id.game_info_publishers) ExpandableListView mPublishersView;
-	@InjectView(R.id.game_info_categories) ExpandableListView mCategoriesView;
-	@InjectView(R.id.game_info_mechanics) ExpandableListView mMechanicsView;
-	@InjectView(R.id.game_info_expansions) ExpandableListView mExpansionsView;
-	@InjectView(R.id.game_info_base_games) ExpandableListView mBaseGamesView;
+	@InjectView(R.id.game_info_designers) GameDetailRow mDesignersView;
+	@InjectView(R.id.game_info_artists) GameDetailRow mArtistsView;
+	@InjectView(R.id.game_info_publishers) GameDetailRow mPublishersView;
+	@InjectView(R.id.game_info_categories) GameDetailRow mCategoriesView;
+	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
+	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
+	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -379,7 +377,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mCallbacks.onGameInfoChanged(gameInfo);
 	}
 
-	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex) {
+	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 			view.clear();
