@@ -191,6 +191,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_designers"
 				bgg:label="@string/designers"
 				bgg:query_token="1"/>
 
@@ -199,6 +200,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_artists"
 				bgg:label="@string/artists"
 				bgg:query_token="2"/>
 
@@ -207,6 +209,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_publishers"
 				bgg:label="@string/publishers"
 				bgg:query_token="3"/>
 
@@ -215,6 +218,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_categories"
 				bgg:label="@string/categories"
 				bgg:query_token="4"/>
 
@@ -223,6 +227,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_mechanics"
 				bgg:label="@string/mechanics"
 				bgg:query_token="5"/>
 
@@ -231,6 +236,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_expansions"
 				bgg:label="@string/expansions"
 				bgg:query_token="6"/>
 
@@ -239,6 +245,7 @@
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				bgg:icon_res="@drawable/ic_basegames"
 				bgg:label="@string/base_games"
 				bgg:query_token="7"/>
 

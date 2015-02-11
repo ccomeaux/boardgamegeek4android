@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -23,11 +24,15 @@ import com.boardgamegeek.util.ActivityUtils;
 
 import java.util.Random;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 public class ExpandableListView extends RelativeLayout {
 	private static int mLimit = -1;
 
-	private TextView mLabelView;
-	private TextView mSummaryView;
+	@InjectView(android.R.id.icon) ImageView mIconView;
+	@InjectView(R.id.label) TextView mLabelView;
+	@InjectView(R.id.summary) TextView mSummaryView;
 	private int mQueryToken;
 	private String mOneMore;
 	private String mSomeMore;
@@ -37,6 +42,7 @@ public class ExpandableListView extends RelativeLayout {
 	private String mGameName;
 	private String mLabel;
 	private String mMany = null;
+	private Drawable mIcon;
 
 	public ExpandableListView(Context context) {
 		super(context);
@@ -82,20 +88,28 @@ public class ExpandableListView extends RelativeLayout {
 
 		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.widget_expandable_list, this, true);
-		mLabelView = (TextView) findViewById(R.id.label);
-		mSummaryView = (TextView) findViewById(R.id.summary);
+		ButterKnife.inject(this);
 
 		if (attrs != null) {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableListView);
 			try {
 				mLabel = a.getString(R.styleable.ExpandableListView_label);
+				mIcon = a.getDrawable(R.styleable.ExpandableListView_icon_res);
 				mQueryToken = a.getInt(R.styleable.ExpandableListView_query_token, BggContract.INVALID_ID);
 			} finally {
 				a.recycle();
 			}
 		}
 
-		mLabelView.setText(mLabel);
+		if (mIcon == null) {
+			mIconView.setVisibility(View.GONE);
+			mLabelView.setVisibility(View.VISIBLE);
+			mLabelView.setText(mLabel);
+		} else {
+			mLabelView.setVisibility(View.GONE);
+			mIconView.setVisibility(View.VISIBLE);
+			mIconView.setImageDrawable(mIcon);
+		}
 
 		setOnClickListener(new OnClickListener() {
 			@Override
