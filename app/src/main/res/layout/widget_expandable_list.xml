@@ -6,7 +6,7 @@
 			  android:background="?attr/selectableItemBackground"
 			  android:descendantFocusability="blocksDescendants"
 			  android:gravity="center_vertical"
-			  android:minHeight="@dimen/edit_row_height"
+			  android:minHeight="@dimen/game_detail_row_height"
 			  android:orientation="horizontal">
 
 	<ImageView
@@ -26,13 +26,13 @@
 		tools:text="Designers"/>
 
 	<TextView
-		android:id="@+id/summary"
+		android:id="@+id/data"
 		style="@style/Text"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
 		android:layout_weight="1"
 		android:gravity="center_vertical"
-		android:singleLine="true"
+		android:maxLines="2"
 		tools:text="Wolfgang Kramer, Richard Ulrich"/>
 
 </LinearLayout>

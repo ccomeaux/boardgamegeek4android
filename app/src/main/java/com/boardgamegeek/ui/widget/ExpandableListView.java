@@ -22,17 +22,13 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.GameDetailActivity;
 import com.boardgamegeek.util.ActivityUtils;
 
-import java.util.Random;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class ExpandableListView extends RelativeLayout {
-	private static int mLimit = -1;
-
 	@InjectView(android.R.id.icon) ImageView mIconView;
 	@InjectView(R.id.label) TextView mLabelView;
-	@InjectView(R.id.summary) TextView mSummaryView;
+	@InjectView(R.id.data) TextView mDataView;
 	private int mQueryToken;
 	private String mOneMore;
 	private String mSomeMore;
@@ -41,7 +37,6 @@ public class ExpandableListView extends RelativeLayout {
 	private int mGameId;
 	private String mGameName;
 	private String mLabel;
-	private String mMany = null;
 	private Drawable mIcon;
 
 	public ExpandableListView(Context context) {
@@ -64,7 +59,6 @@ public class ExpandableListView extends RelativeLayout {
 		Parcelable p = super.onSaveInstanceState();
 		SavedState state = new SavedState(p);
 		state.count = mCount;
-		state.many = mMany;
 		return state;
 	}
 
@@ -79,7 +73,6 @@ public class ExpandableListView extends RelativeLayout {
 		super.onRestoreInstanceState(saved.getSuperState());
 
 		mCount = saved.count;
-		mMany = saved.many;
 	}
 
 	private void init(Context context, AttributeSet attrs) {
@@ -124,16 +117,8 @@ public class ExpandableListView extends RelativeLayout {
 		});
 	}
 
-	public void setLabel(CharSequence label) {
-		mLabelView.setText(label);
-	}
-
-	public void setLimit(int limit) {
-		mLimit = limit;
-	}
-
 	public void clear() {
-		mSummaryView.setText("");
+		mDataView.setText("");
 	}
 
 	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {
@@ -146,31 +131,20 @@ public class ExpandableListView extends RelativeLayout {
 	private void updateData(Cursor cursor) {
 		mCount = cursor.getCount();
 		CharSequence summary = null;
-		if (mCount >= mLimit) {
-			if (TextUtils.isEmpty(mMany)) {
-				String[] many = getResources().getStringArray(R.array.many);
-				Random r = new Random();
-				mMany = many[r.nextInt(many.length)];
-			}
-			summary = mMany;
-		} else {
-			final CharSequence text = joinNames(cursor);
-			if (!TextUtils.isEmpty(text)) {
-				TextPaint paint = new TextPaint();
-				paint.setTextSize(mSummaryView.getTextSize());
-				summary = TextUtils.commaEllipsize(text, paint, mSummaryView.getWidth() - mSummaryView.getPaddingLeft()
-					- mSummaryView.getPaddingRight(), mOneMore, mSomeMore);
-				if (TextUtils.isEmpty(summary)) {
-					summary = String.format(mSomeMore, mCount);
-				}
+		final CharSequence text = joinNames(cursor);
+		if (!TextUtils.isEmpty(text)) {
+			TextPaint paint = new TextPaint();
+			paint.setTextSize(mDataView.getTextSize());
+			summary = TextUtils.commaEllipsize(text, paint, mDataView.getWidth() * 2, mOneMore, mSomeMore);
+			if (TextUtils.isEmpty(summary)) {
+				summary = String.format(mSomeMore, mCount);
 			}
 		}
-		mSummaryView.setText(summary);
+		mDataView.setText(summary);
 	}
 
 	private String joinNames(Cursor cursor) {
 		StringBuilder sb = new StringBuilder();
-		int count = 0;
 		if (cursor != null && cursor.moveToFirst()) {
 			boolean firstTime = true;
 			do {
@@ -180,11 +154,6 @@ public class ExpandableListView extends RelativeLayout {
 					sb.append(", ");
 				}
 				sb.append(cursor.getString(mNameColumnIndex));
-				count++;
-				if (mLimit > 0 && count >= mLimit) {
-					sb.append(getResources().getString(R.string.and_more));
-					break;
-				}
 			} while (cursor.moveToNext());
 		}
 		return sb.toString();
@@ -192,7 +161,6 @@ public class ExpandableListView extends RelativeLayout {
 
 	private static class SavedState extends BaseSavedState {
 		public int count;
-		public String many;
 
 		SavedState(Parcelable superState) {
 			super(superState);
@@ -201,7 +169,6 @@ public class ExpandableListView extends RelativeLayout {
 		private SavedState(Parcel in) {
 			super(in);
 			count = in.readInt();
-			many = in.readString();
 		}
 
 		@Override
@@ -213,7 +180,6 @@ public class ExpandableListView extends RelativeLayout {
 		public void writeToParcel(@NonNull Parcel dest, int flags) {
 			super.writeToParcel(dest, flags);
 			dest.writeInt(count);
-			dest.writeString(many);
 		}
 
 		@SuppressWarnings("unused")

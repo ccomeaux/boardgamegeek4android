@@ -47,7 +47,6 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.ButterKnife.Setter;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
@@ -56,7 +55,6 @@ import timber.log.Timber;
 public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
 
@@ -85,8 +83,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) ExpandableListView mMechanicsView;
 	@InjectView(R.id.game_info_expansions) ExpandableListView mExpansionsView;
 	@InjectView(R.id.game_info_base_games) ExpandableListView mBaseGamesView;
-	@InjectViews({ R.id.game_info_designers, R.id.game_info_artists, R.id.game_info_publishers,
-		R.id.game_info_categories, R.id.game_info_mechanics, R.id.game_info_expansions, R.id.game_info_base_games }) List<ExpandableListView> mExpandableViews;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -162,7 +158,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 		ButterKnife.inject(this, rootView);
-		ButterKnife.apply(mExpandableViews, LIMIT, CHILD_LIMIT_COUNT);
 		openOrCloseDescription();
 		openOrCloseStats();
 
@@ -221,34 +216,32 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedDesignersUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), DesignerQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(Games.getGameId(mGameUri)),
+					DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedArtistsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), ArtistQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(Games.getGameId(mGameUri)),
+					ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedPublishersUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), PublisherQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(Games.getGameId(mGameUri)),
+					PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedCategoriesUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), CategoryQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(Games.getGameId(mGameUri)),
+					CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedMechanicsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), MechanicQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(Games.getGameId(mGameUri)),
+					MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?",
-					new String[] { "0" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" },
-					null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
@@ -440,13 +433,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			tv.setText(text);
 		}
 	}
-
-	static final Setter<ExpandableListView, Integer> LIMIT = new Setter<ExpandableListView, Integer>() {
-		@Override
-		public void set(ExpandableListView view, Integer value, int index) {
-			view.setLimit(value);
-		}
-	};
 
 	@OnClick(R.id.game_info_image)
 	public void onThumbnailClick(View v) {
