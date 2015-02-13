@@ -18,6 +18,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +44,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
@@ -66,6 +68,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
 	@InjectView(R.id.game_info_progress) View mProgressView;
+	@InjectView(R.id.hero_container) View mHeroContainer;
 	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
@@ -164,6 +167,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		ButterKnife.inject(this, rootView);
 		openOrCloseDescription();
 		openOrCloseStats();
+
+		mHeroContainer.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
+			getResources().getColor(R.color.black_overlay), 4, Gravity.TOP));
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();

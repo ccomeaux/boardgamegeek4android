@@ -99,6 +99,10 @@
 		<item name="android:textColor">@color/light_text</item>
 	</style>
 
+	<style name="Text.Headline">
+		<item name="android:textSize">24sp</item>
+	</style>
+
 	<style name="Text.Label">
 		<item name="android:paddingTop">@dimen/padding_standard</item>
 		<item name="android:paddingBottom">@dimen/padding_small</item>
@@ -217,6 +221,14 @@
 		<item name="android:shadowDx">0</item>
 		<item name="android:shadowDy">1</item>
 		<item name="android:shadowRadius">3</item>
+	</style>
+
+	<style name="Text.Headline.Overlay">
+		<item name="android:textColor">#fff</item>
+		<item name="android:shadowColor">#000</item>
+		<item name="android:shadowDx">0</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">5</item>
 	</style>
 
 	<style name="Text.Footnote.Overlay">

@@ -10,7 +10,7 @@
 	<color name="inverse_text">#deffffff</color>
 	<color name="actionbar_text">#99333333</color>
 
-	<color name="black_overlay">#66000000</color>
+	<color name="black_overlay">#88000000</color>
 	<color name="navdrawer_icon_tint">#88FFFFFF</color>
 	<color name="disabled">#cccc</color>
 	<color name="pressed">#CC4c6199</color>

@@ -59,6 +59,8 @@
 
 	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
 
+	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline" />
+
 	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
 		<item name="android:textColor">@color/primary_text_default_material_light</item>
 	</style>

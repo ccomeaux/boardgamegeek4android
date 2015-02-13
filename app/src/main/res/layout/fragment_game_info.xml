@@ -34,10 +34,13 @@
 
 				<ImageView
 					android:id="@+id/game_info_image"
-					style="@style/HeroImage"/>
+					style="@style/HeroImage"
+					android:background="@color/black_overlay"/>
 
 				<LinearLayout
-					style="@style/HeroOverlay"
+					android:id="@+id/hero_container"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
 					android:baselineAligned="false"
 					android:orientation="horizontal"
 					android:paddingBottom="@dimen/material_margin_vertical"
@@ -53,7 +56,7 @@
 
 						<TextView
 							android:id="@+id/game_info_name"
-							style="@style/Text.Title.Overlay"
+							style="@style/Text.Headline.Overlay"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:ellipsize="end"
@@ -64,23 +67,18 @@
 							android:id="@+id/game_info_year"
 							style="@style/Text.Overlay"
 							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"/>
-					</LinearLayout>
-
-					<LinearLayout
-						android:layout_width="wrap_content"
-						android:layout_height="match_parent"
-						android:orientation="vertical"
-						android:paddingLeft="@dimen/padding_standard"
-						android:paddingRight="0dp">
-
-						<TextView
-							android:id="@+id/game_info_rank"
-							style="@style/Text.Title.Overlay"
-							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							tools:text="#42"/>
+							tools:text="1996"/>
 					</LinearLayout>
+
+					<TextView
+						android:id="@+id/game_info_rank"
+						style="@style/Text.Headline.Overlay"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:paddingLeft="@dimen/padding_standard"
+						android:paddingRight="0dp"
+						tools:text="#42"/>
 				</LinearLayout>
 			</FrameLayout>
 
