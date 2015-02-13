@@ -15,6 +15,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -179,6 +181,8 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
+			holder.heroContainer.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
+				getResources().getColor(R.color.black_overlay), 4, Gravity.TOP));
 			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
 			holder.name.setText(item.name.trim());
 			holder.year.setText(item.getYearDescription());
@@ -219,6 +223,7 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 	}
 
 	static class ViewHolder {
+		@InjectView(R.id.hero_container) View heroContainer;
 		@InjectView(R.id.image) ImageView image;
 		@InjectView(R.id.name) TextView name;
 		@InjectView(R.id.rating) TextView rating;

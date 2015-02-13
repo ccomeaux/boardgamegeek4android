@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:background="@color/primary"
-	android:orientation="vertical" >
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:background="@color/primary"
+			  android:orientation="vertical"
+			  tools:context=".ui.GameActivity">
 
-	<FrameLayout style="@style/HeroContainer" >
+	<FrameLayout style="@style/HeroContainer">
 
 		<ImageView
 			android:id="@+id/image"
 			style="@style/HeroImage"
-			android:onClick="onThumbnailClick" />
+			android:background="@color/black_overlay"
+			android:onClick="onThumbnailClick"/>
 
 		<LinearLayout
-			style="@style/HeroOverlay"
+			android:id="@+id/hero_container"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
 			android:orientation="vertical"
 			android:paddingBottom="@dimen/material_margin_vertical"
 			android:paddingLeft="@dimen/material_margin_horizontal"
 			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/material_margin_vertical" >
+			android:paddingTop="@dimen/material_margin_vertical">
 
 			<TextView
 				android:id="@+id/name"
-				style="@style/Text.Title.Overlay"
+				style="@style/Text.Headline.Overlay"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
-				android:maxLines="2" />
+				android:maxLines="2"
+				tools:text="Terra Mystica"/>
 
 			<TextView
 				android:id="@+id/year"
 				style="@style/Text.Overlay"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
+				android:layout_height="wrap_content"
+				tools:text="1996"/>
 
-			<TextView
-				android:id="@+id/last_modified"
-				style="@style/Text.Footnote.Overlay"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:gravity="bottom" />
 		</LinearLayout>
 	</FrameLayout>
 
@@ -47,58 +48,42 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="#fff"
-		android:paddingTop="@dimen/padding_standard" >
+		android:paddingTop="@dimen/padding_standard">
 
 		<TextView
 			android:id="@+id/rating"
 			style="@style/RatingLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal" />
+			android:layout_gravity="center_horizontal"
+			tools:text="9.5"/>
 	</FrameLayout>
 
 	<LinearLayout
-		android:id="@+id/game_info_header_root"
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal" >
-
-		<TextView
-			android:id="@+id/collection_id"
-			style="@style/Text.Footnote2"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textIsSelectable="false" />
-
-		<TextView
-			android:id="@+id/updated"
-			style="@style/Text.Footnote2"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:gravity="right"
-			android:textIsSelectable="false" />
-	</LinearLayout>
-
-	<LinearLayout
-		style="@style/InfoSection"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/status"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"
-			android:textStyle="bold" />
+			android:textStyle="bold"
+			tools:text="Own"/>
 
 		<TextView
 			android:id="@+id/comment"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false" />
+			tools:text="This game is fun!"/>
+
+		<TextView
+			android:id="@+id/last_modified"
+			style="@style/Text.Footnote"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Loast modified Yesterday"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -106,34 +91,34 @@
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/private_info_label"
 			style="@style/Text.Header"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/private_info" />
+			android:text="@string/private_info"/>
 
 		<LinearLayout
 			android:id="@+id/private_info_container"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical" >
+			android:orientation="vertical">
 
 			<TextView
 				android:id="@+id/private_info"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:singleLine="false"
-				android:textIsSelectable="false" />
+				android:textIsSelectable="false"/>
 
 			<TextView
 				android:id="@+id/private_comments"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:singleLine="false"
-				android:textIsSelectable="false" />
+				android:textIsSelectable="false"/>
 		</LinearLayout>
 	</LinearLayout>
 
@@ -142,20 +127,20 @@
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/wishlist_label"
 			style="@style/Text.Header"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/wishlist" />
+			android:text="@string/wishlist"/>
 
 		<TextView
 			android:id="@+id/wishlist_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false" />
+			android:textIsSelectable="false"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -163,20 +148,20 @@
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/condition_label"
 			style="@style/Text.Header"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/condition" />
+			android:text="@string/condition"/>
 
 		<TextView
 			android:id="@+id/condition_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false" />
+			android:textIsSelectable="false"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -184,20 +169,20 @@
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/want_parts_label"
 			style="@style/Text.Header"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/want_parts" />
+			android:text="@string/want_parts"/>
 
 		<TextView
 			android:id="@+id/want_parts_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false" />
+			android:textIsSelectable="false"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -205,20 +190,45 @@
 		style="@style/InfoSection"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical" >
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/has_parts_label"
 			style="@style/Text.Header"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/has_parts" />
+			android:text="@string/has_parts"/>
 
 		<TextView
 			android:id="@+id/has_parts_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false" />
+			android:textIsSelectable="false"/>
+	</LinearLayout>
+
+	<LinearLayout
+		style="@style/InfoSection"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+
+		<TextView
+			android:id="@+id/collection_id"
+			style="@style/Text.Footnote2"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:textIsSelectable="false"
+			tools:text="123456"/>
+
+		<TextView
+			android:id="@+id/updated"
+			style="@style/Text.Footnote2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:textIsSelectable="false"
+			tools:text="Updated: 3 days ago"/>
 	</LinearLayout>
 
 </LinearLayout>
