@@ -85,10 +85,12 @@
 			</FrameLayout>
 
 			<LinearLayout
+				android:id="@+id/primary_info_container"
 				style="@style/GameDetailRow"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"
+				android:background="@color/primary"
 				android:gravity="center"
 				android:orientation="horizontal">
 
@@ -246,6 +248,7 @@
 					android:orientation="horizontal">
 
 					<ImageView
+						android:id="@+id/icon_stats"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
 						android:layout_marginRight="32dp"

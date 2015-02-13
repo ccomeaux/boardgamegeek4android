@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -119,6 +120,19 @@ public class GameDetailRow extends RelativeLayout {
 
 	public void clear() {
 		mDataView.setText("");
+	}
+
+	public void color(Palette.Swatch swatch) {
+		colorIcon(swatch);
+		colorText(swatch);
+	}
+
+	public void colorIcon(Palette.Swatch swatch) {
+		mIconView.setColorFilter(swatch.getRgb());
+	}
+
+	public void colorText(Palette.Swatch swatch) {
+		mDataView.setTextColor(swatch.getRgb());
 	}
 
 	public void bind(Cursor cursor, int nameColumnIndex, int gameId, String gameName) {

@@ -3,13 +3,16 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.graphics.Palette;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -50,7 +53,8 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
@@ -71,6 +75,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
 	@InjectView(R.id.game_info_rank) TextView mRankView;
 	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
+	@InjectView(R.id.primary_info_container) View mPrimaryInfo;
 	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
 	@InjectView(R.id.play_time) TextView mPlayTimeView;
 	@InjectView(R.id.player_age) TextView mPlayerAgeView;
@@ -81,6 +86,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+	@InjectView(R.id.icon_stats) ImageView mStatsIcon;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -304,6 +310,62 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onLoaderReset(Loader<Cursor> arg0) {
 	}
 
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		Palette.Swatch swatch = getInverseSwatch(palette);
+		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
+		colorTextViews(mNumberOfPlayersView, swatch);
+		colorTextViews(mPlayTimeView, swatch);
+		colorTextViews(mPlayerAgeView, swatch);
+
+		swatch = getIconSwatch(palette);
+		mDesignersView.colorIcon(swatch);
+		mArtistsView.colorIcon(swatch);
+		mPublishersView.colorIcon(swatch);
+		mCategoriesView.colorIcon(swatch);
+		mMechanicsView.colorIcon(swatch);
+		mExpansionsView.colorIcon(swatch);
+		mBaseGamesView.colorIcon(swatch);
+		mStatsIcon.setColorFilter(swatch.getRgb());
+	}
+
+	private Palette.Swatch getInverseSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getLightMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	private Palette.Swatch getIconSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	private void colorTextViews(TextView textView, Palette.Swatch swatch) {
+		textView.setTextColor(swatch.getBodyTextColor());
+		for (Drawable d : textView.getCompoundDrawables()) {
+			if (d != null) {
+				d.setColorFilter(swatch.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
+			}
+		}
+	}
+
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			if (mMightNeedRefreshing) {
@@ -318,7 +380,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
 
-		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl);
+		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
 		mNameView.setText(game.Name);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());

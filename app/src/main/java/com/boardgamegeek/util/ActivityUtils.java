@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,6 +22,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -453,31 +455,49 @@ public class ActivityUtils {
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
 		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls);
+		safelyLoadImage(imageView, imageUrls, null);
+	}
+
+	public interface ImageCallback {
+		void onPaletteGenerated(Palette palette);
 	}
 
 	public static void safelyLoadImage(ImageView imageView, String imageUrl) {
+		safelyLoadImage(imageView, imageUrl, null);
+	}
+
+	public static void safelyLoadImage(ImageView imageView, String imageUrl, ImageCallback callback) {
 		Queue<String> imageUrls = new LinkedList<>();
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
 		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls);
+		safelyLoadImage(imageView, imageUrls, callback);
 	}
 
-	public static void safelyLoadImage(final ImageView imageView, final Queue<String> imageUrls) {
+	private static void safelyLoadImage(final ImageView imageView, final Queue<String> imageUrls,
+										final ImageCallback callback) {
 		String imageUrl = imageUrls.poll();
 		if (TextUtils.isEmpty(imageUrl)) {
 			return;
 		}
-		Picasso.with(imageView.getContext()).load(HttpUtils.ensureScheme(imageUrl)).fit().centerCrop()
+		Picasso
+			.with(imageView.getContext())
+			.load(HttpUtils.ensureScheme(imageUrl))
+			.fit().centerCrop()
+			.transform(PaletteTransformation.instance())
 			.into(imageView, new Callback() {
 				@Override
 				public void onSuccess() {
+					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+					Palette palette = PaletteTransformation.getPalette(bitmap);
+					if (callback != null) {
+						callback.onPaletteGenerated(palette);
+					}
 				}
 
 				@Override
 				public void onError() {
-					safelyLoadImage(imageView, imageUrls);
+					safelyLoadImage(imageView, imageUrls, callback);
 				}
 			});
 	}
