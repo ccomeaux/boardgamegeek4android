@@ -76,8 +76,8 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 
 		if (mAdapter == null) {
-			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_game_detail, null, mQuery.getFrom(),
-				new int[] { R.id.name }, 0);
+			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_text, null, mQuery.getFrom(),
+				new int[] { android.R.id.title }, 0);
 			setListAdapter(mAdapter);
 		}
 
