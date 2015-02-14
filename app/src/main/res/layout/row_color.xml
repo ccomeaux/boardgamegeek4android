@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.boardgamegeek.ui.widget.CheckableFrameLayout style="@style/RowContainer.Medium"
-												  xmlns:android="http://schemas.android.com/apk/res/android"
-												  xmlns:tools="http://schemas.android.com/tools"
-												  android:layout_width="match_parent"
-												  android:layout_height="wrap_content"
-												  android:background="@drawable/checkable_background">
+<com.boardgamegeek.ui.widget.CheckableFrameLayout
+	style="@style/RowContainer.Medium"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/checkable_background">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -21,8 +22,8 @@
 				android:layout_width="@dimen/color_circle_diameter"
 				android:layout_height="@dimen/color_circle_diameter"
 				android:layout_gravity="center"
-				android:background="#f60"
-				android:scaleType="fitXY"/>
+				android:scaleType="fitXY"
+				tools:background="#f60"/>
 		</FrameLayout>
 
 		<TextView

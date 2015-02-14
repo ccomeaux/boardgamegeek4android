@@ -197,6 +197,12 @@
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
+	<style name="Text.Header.Section">
+		<item name="android:layout_height">40dp</item>
+		<item name="android:gravity">bottom</item>
+		<item name="android:paddingBottom">8dp</item>
+	</style>
+
 	<style name="Text.Header.Underline">
 		<item name="android:background">@drawable/underline</item>
 	</style>
@@ -339,6 +345,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">match_parent</item>
 		<item name="android:scaleType">centerCrop</item>
+		<item name="android:background">#888</item>
 	</style>
 
 	<style name="HeroOverlay">
