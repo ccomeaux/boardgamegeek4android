@@ -33,5 +33,7 @@
 	<dimen name="material_margin_vertical">8dp</dimen>
 	<dimen name="material_indent_horizontal">72dp</dimen>
 	<dimen name="material_avatar_size">40dp</dimen>
+	<dimen name="material_elevation">8dp</dimen>
+	<dimen name="material_elevation_subtle">4dp</dimen>
 
 </resources>
