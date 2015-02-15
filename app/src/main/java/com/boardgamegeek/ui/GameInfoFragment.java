@@ -168,8 +168,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		openOrCloseDescription();
 		openOrCloseStats();
 
-		mHeroContainer.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
-			getResources().getColor(R.color.black_overlay), 4, Gravity.TOP));
+		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -318,13 +317,13 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		Palette.Swatch swatch = getInverseSwatch(palette);
+		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		colorTextViews(mNumberOfPlayersView, swatch);
-		colorTextViews(mPlayTimeView, swatch);
-		colorTextViews(mPlayerAgeView, swatch);
+		ColorUtils.colorTextViews(mNumberOfPlayersView, swatch);
+		ColorUtils.colorTextViews(mPlayTimeView, swatch);
+		ColorUtils.colorTextViews(mPlayerAgeView, swatch);
 
-		swatch = getIconSwatch(palette);
+		swatch = ColorUtils.getIconSwatch(palette);
 		mDesignersView.colorIcon(swatch);
 		mArtistsView.colorIcon(swatch);
 		mPublishersView.colorIcon(swatch);
@@ -333,43 +332,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mExpansionsView.colorIcon(swatch);
 		mBaseGamesView.colorIcon(swatch);
 		mStatsIcon.setColorFilter(swatch.getRgb());
-	}
-
-	private Palette.Swatch getInverseSwatch(Palette palette) {
-		Palette.Swatch swatch = palette.getLightMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		swatch = palette.getMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		return palette.getSwatches().get(0);
-	}
-
-	private Palette.Swatch getIconSwatch(Palette palette) {
-		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		swatch = palette.getVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		return palette.getSwatches().get(0);
-	}
-
-	private void colorTextViews(TextView textView, Palette.Swatch swatch) {
-		textView.setTextColor(swatch.getBodyTextColor());
-		for (Drawable d : textView.getCompoundDrawables()) {
-			if (d != null) {
-				d.setColorFilter(swatch.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
-			}
-		}
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {

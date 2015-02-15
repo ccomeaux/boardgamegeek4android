@@ -18,6 +18,7 @@
 
 package com.boardgamegeek.util;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -28,11 +29,18 @@ import android.graphics.drawable.shapes.RectShape;
 import android.util.FloatMath;
 import android.view.Gravity;
 
+import com.boardgamegeek.R;
+
 /**
  * Utility methods for creating prettier gradient scrims.
  */
 public class ScrimUtil {
 	private ScrimUtil() {
+	}
+
+	public static Drawable makeDefaultScrimDrawable(Context context) {
+		return ScrimUtil.makeCubicGradientScrimDrawable(
+			context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
 	}
 
 	/**

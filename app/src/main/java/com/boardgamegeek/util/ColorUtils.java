@@ -1,20 +1,22 @@
 package com.boardgamegeek.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 public class ColorUtils {
 	public static final int TRANSPARENT = 0;
@@ -202,10 +204,47 @@ public class ColorUtils {
 
 	/**
 	 * Calculate whether a color is light or dark, based on a commonly known brightness formula.
-	 * 
+	 *
 	 * @see {@literal http://en.wikipedia.org/wiki/HSV_color_space%23Lightness}
 	 */
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
+	}
+
+	public static Palette.Swatch getInverseSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getLightMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	public static Palette.Swatch getIconSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
+	public static void colorTextViews(TextView textView, Palette.Swatch swatch) {
+		textView.setTextColor(swatch.getBodyTextColor());
+		for (Drawable d : textView.getCompoundDrawables()) {
+			if (d != null) {
+				d.setColorFilter(swatch.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
+			}
+		}
 	}
 }

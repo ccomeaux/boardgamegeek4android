@@ -3,24 +3,28 @@ package com.boardgamegeek.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
+import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
-public class GeekListItemFragment extends Fragment {
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+public class GeekListItemFragment extends Fragment implements ActivityUtils.ImageCallback {
 	private String mOrder;
 	private String mTitle;
 	private String mType;
@@ -31,10 +35,12 @@ public class GeekListItemFragment extends Fragment {
 	private long mEditedDate;
 	private String mBody;
 
+	@InjectView(R.id.hero_container) View mHeroContainer;
 	@InjectView(R.id.order) TextView mOrderView;
 	@InjectView(R.id.title) TextView mTitleView;
 	@InjectView(R.id.type) TextView mTypeView;
 	@InjectView(R.id.image) ImageView mImageView;
+	@InjectView(R.id.author_container) View mAuthorContainer;
 	@InjectView(R.id.username) TextView mUsernameView;
 	@InjectView(R.id.thumbs) TextView mThumbsView;
 	@InjectView(R.id.posted_date) TextView mPostedDateView;
@@ -62,10 +68,12 @@ public class GeekListItemFragment extends Fragment {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		ButterKnife.inject(this, rootView);
 
+		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+
 		mOrderView.setText(mOrder);
 		mTitleView.setText(mTitle);
 		mTypeView.setText(mType);
-		ActivityUtils.safelyLoadImage(mImageView, mImageId);
+		ActivityUtils.safelyLoadImage(mImageView, mImageId, this);
 		mUsernameView.setText(mUsername);
 		mThumbsView.setText(getString(R.string.thumbs_suffix, mThumbs));
 		mPostedDateView.setText(getString(R.string.posted_prefix,
@@ -76,5 +84,15 @@ public class GeekListItemFragment extends Fragment {
 		UIUtils.setWebViewText(mBodyView, content);
 
 		return rootView;
+	}
+
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		mAuthorContainer.setBackgroundColor(swatch.getRgb());
+		ColorUtils.colorTextViews(mUsernameView, swatch);
+		ColorUtils.colorTextViews(mThumbsView, swatch);
+		ColorUtils.colorTextViews(mPostedDateView, swatch);
+		ColorUtils.colorTextViews(mEditedDateView, swatch);
 	}
 }

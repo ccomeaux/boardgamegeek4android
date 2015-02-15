@@ -445,7 +445,7 @@ public class ActivityUtils {
 		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".png";
 	}
 
-	public static void safelyLoadImage(ImageView imageView, int imageId) {
+	public static void safelyLoadImage(ImageView imageView, int imageId, ImageCallback callback) {
 		Queue<String> imageUrls = new LinkedList<>();
 		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
@@ -455,7 +455,7 @@ public class ActivityUtils {
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
 		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
 		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls, null);
+		safelyLoadImage(imageView, imageUrls, callback);
 	}
 
 	public interface ImageCallback {
