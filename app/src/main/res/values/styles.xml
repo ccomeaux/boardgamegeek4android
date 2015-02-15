@@ -365,4 +365,14 @@
 		<item name="android:orientation">horizontal</item>
 	</style>
 
+	<style name="WebViewContainer">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:background">#fff</item>
+		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal_webview_container</item>
+		<item name="android:paddingRight">@dimen/material_margin_horizontal_webview_container</item>
+		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+	</style>
+
 </resources>

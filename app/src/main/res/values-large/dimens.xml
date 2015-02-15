@@ -4,6 +4,7 @@
 	<dimen name="actionbar_text_small">12sp</dimen>
 	<dimen name="material_margin_horizontal">24dp</dimen>
 	<dimen name="material_margin_horizontal_thumbnail">16dp</dimen>
+	<dimen name="material_margin_horizontal_webview_container">16dp</dimen>
 	<dimen name="material_indent_horizontal">80dp</dimen>
 
 </resources>

@@ -128,14 +128,7 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<FrameLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="#fff"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_vertical"
-		android:paddingRight="@dimen/material_margin_vertical"
-		android:paddingTop="@dimen/material_margin_vertical">
+	<FrameLayout style="@style/WebViewContainer">
 
 		<WebView
 			android:id="@+id/body"
