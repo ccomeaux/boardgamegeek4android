@@ -96,9 +96,4 @@
 		<item name="android:layout_gravity">left|center_vertical</item>
 	</style>
 
-	<style name="ImageList">
-		<item name="android:layout_marginRight">@dimen/material_margin_vertical</item>
-		<item name="android:scaleType">centerCrop</item>
-	</style>
-
 </resources>

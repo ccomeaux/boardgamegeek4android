@@ -64,7 +64,7 @@
 		android:id="@+id/author_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/primary"
+		android:background="@color/info_background"
 		android:elevation="@dimen/material_elevation_subtle"
 		android:minHeight="@dimen/view_row_height"
 		android:orientation="vertical"
