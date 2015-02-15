@@ -15,7 +15,7 @@
 	</style>
 
 	<style name="RowContainer.WithThumbnail">
-		<item name="android:paddingLeft">@dimen/material_margin_vertical</item>
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal_thumbnail</item>
 	</style>
 
 	<style name="RowSeparator" parent="@style/TextAppearance.AppCompat.Menu">
@@ -59,6 +59,8 @@
 
 	<style name="Text.Title" parent="@style/TextAppearance.AppCompat.Title"/>
 
+	<style name="Text.Headline" parent="@style/TextAppearance.AppCompat.Headline"/>
+
 	<style name="Text.Subtitle" parent="@style/TextAppearance.AppCompat.Subhead">
 		<item name="android:textColor">@color/primary_text_default_material_light</item>
 	</style>
@@ -92,26 +94,6 @@
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:textIsSelectable">false</item>
 		<item name="android:layout_gravity">left|center_vertical</item>
-	</style>
-
-	<style name="ImageList">
-		<item name="android:layout_marginRight">@dimen/material_margin_vertical</item>
-		<item name="android:scaleType">centerCrop</item>
-	</style>
-
-	<style name="InfoSection">
-		<item name="android:background">@drawable/grey_frame_on_white_b</item>
-		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
-	</style>
-
-	<style name="InfoSectionContinued">
-		<item name="android:background">#fff</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
 </resources>

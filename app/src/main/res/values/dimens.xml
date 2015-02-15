@@ -12,6 +12,7 @@
 	<dimen name="poll_key_height">20dp</dimen>
 	<dimen name="view_row_height">32dp</dimen>
 	<dimen name="edit_row_height">40dp</dimen>
+	<dimen name="game_detail_row_height">48dp</dimen>
 	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">48dp</dimen>
 	<dimen name="drawer_item_height">48dp</dimen>
@@ -28,8 +29,12 @@
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
 	<dimen name="material_margin_horizontal">16dp</dimen>
+	<dimen name="material_margin_horizontal_thumbnail">8dp</dimen>
+	<dimen name="material_margin_horizontal_webview_container">8dp</dimen>
 	<dimen name="material_margin_vertical">8dp</dimen>
 	<dimen name="material_indent_horizontal">72dp</dimen>
 	<dimen name="material_avatar_size">40dp</dimen>
+	<dimen name="material_elevation">8dp</dimen>
+	<dimen name="material_elevation_subtle">4dp</dimen>
 
 </resources>

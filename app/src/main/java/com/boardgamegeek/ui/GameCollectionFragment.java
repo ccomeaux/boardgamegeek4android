@@ -15,6 +15,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -179,15 +181,14 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
+			holder.heroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+
 			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
 			holder.name.setText(item.name.trim());
 			holder.year.setText(item.getYearDescription());
 			holder.lastModified.setText(item.getLastModifiedDescription());
 			holder.rating.setText(item.getRatingDescription());
 			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(item.rating));
-			holder.id.setText(String.valueOf(item.id));
-			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-			holder.updated.setText(item.getUpdatedDescription());
 
 			holder.status.setText(item.getStatus());
 			holder.comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
@@ -195,30 +196,39 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 
 			// Private info
 			if (item.hasPrivateInfo() || item.hasPrivateComment()) {
-				holder.privateInfoRoot.setVisibility(View.VISIBLE);
+				holder.privateInfoLabel.setVisibility(View.VISIBLE);
 				holder.privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 				holder.privateInfo.setText(item.getPrivateInfo());
-				holder.privateComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
-				holder.privateComments.setText(item.privateComment);
+				holder.privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
+				holder.privateInfoComments.setText(item.privateComment);
 			} else {
-				holder.privateInfoRoot.setVisibility(View.GONE);
+				holder.privateInfoLabel.setVisibility(View.GONE);
+				holder.privateInfo.setVisibility(View.GONE);
+				holder.privateInfoComments.setVisibility(View.GONE);
 			}
 
-			holder.wishlistRoot.setVisibility(TextUtils.isEmpty(item.wishlistComment) ? View.GONE : View.VISIBLE);
-			holder.wishlistContent.setText(item.wishlistComment);
-			holder.conditionRoot.setVisibility(TextUtils.isEmpty(item.condition) ? View.GONE : View.VISIBLE);
-			holder.conditionContent.setText(item.condition);
-			holder.wantPartsRoot.setVisibility(TextUtils.isEmpty(item.wantParts) ? View.GONE : View.VISIBLE);
-			holder.wantPartsContent.setText(item.wantParts);
-			holder.hasPartsRoot.setVisibility(TextUtils.isEmpty(item.hasParts) ? View.GONE : View.VISIBLE);
-			holder.hasPartsContent.setText(item.hasParts);
+			showSection(item.wishlistComment, holder.wishlistLabel, holder.wishlistComment);
+			showSection(item.condition, holder.conditionLabel, holder.conditionComment);
+			showSection(item.wantParts, holder.wantPartsLabel, holder.wantPartsComment);
+			showSection(item.hasParts, holder.hasPartsLabel, holder.hasPartsComment);
+
+			holder.id.setText(String.valueOf(item.id));
+			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
+			holder.updated.setText(item.getUpdatedDescription());
 
 			holder.image.setTag(R.id.image, item.imageUrl);
 			holder.image.setTag(R.id.name, item.name);
 		}
+
+		private void showSection(String text, View label, TextView comment) {
+			label.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+			comment.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+			comment.setText(text);
+		}
 	}
 
 	static class ViewHolder {
+		@InjectView(R.id.hero_container) View heroContainer;
 		@InjectView(R.id.image) ImageView image;
 		@InjectView(R.id.name) TextView name;
 		@InjectView(R.id.rating) TextView rating;
@@ -228,17 +238,17 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		@InjectView(R.id.year) TextView year;
 		@InjectView(R.id.status) TextView status;
 		@InjectView(R.id.comment) TextView comment;
-		@InjectView(R.id.private_info_root) View privateInfoRoot;
+		@InjectView(R.id.private_info_label) View privateInfoLabel;
 		@InjectView(R.id.private_info) TextView privateInfo;
-		@InjectView(R.id.private_comments) TextView privateComments;
-		@InjectView(R.id.wishlist_root) View wishlistRoot;
-		@InjectView(R.id.wishlist_content) TextView wishlistContent;
-		@InjectView(R.id.condition_root) View conditionRoot;
-		@InjectView(R.id.condition_content) TextView conditionContent;
-		@InjectView(R.id.want_parts_root) View wantPartsRoot;
-		@InjectView(R.id.want_parts_content) TextView wantPartsContent;
-		@InjectView(R.id.has_parts_root) View hasPartsRoot;
-		@InjectView(R.id.has_parts_content) TextView hasPartsContent;
+		@InjectView(R.id.private_info_comments) TextView privateInfoComments;
+		@InjectView(R.id.wishlist_label) View wishlistLabel;
+		@InjectView(R.id.wishlist_comment) TextView wishlistComment;
+		@InjectView(R.id.condition_label) View conditionLabel;
+		@InjectView(R.id.condition_comment) TextView conditionComment;
+		@InjectView(R.id.want_parts_label) View wantPartsLabel;
+		@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
+		@InjectView(R.id.has_parts_label) View hasPartsLabel;
+		@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
 
 		public ViewHolder(View view) {
 			ButterKnife.inject(this, view);

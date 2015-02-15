@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="#fff"
-	android:orientation="vertical" >
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:background="#fff"
+			  android:orientation="vertical">
 
-	<include layout="@layout/header_geeklist" />
+	<include layout="@layout/header_geeklist"/>
 
-	<FrameLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="#fff"
-		android:paddingBottom="@dimen/material_margin_vertical"
-		android:paddingLeft="@dimen/material_margin_vertical"
-		android:paddingRight="@dimen/material_margin_vertical"
-		android:paddingTop="@dimen/material_margin_vertical" >
+	<FrameLayout style="@style/WebViewContainer">
 
 		<WebView
 			android:id="@+id/body"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
+			android:layout_height="match_parent"/>
 	</FrameLayout>
 
 </LinearLayout>

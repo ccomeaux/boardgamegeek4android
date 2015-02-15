@@ -28,7 +28,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/image_header_height"
 					android:layout_gravity="center"
-					android:background="@color/primary">
+					android:background="@color/no_image">
 
 					<ImageView
 						android:id="@+id/thumbnail"

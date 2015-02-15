@@ -67,12 +67,9 @@
 	<string name="title_location">Location</string>
 	<string name="title_locations">Locations</string>
 	<string name="title_player">Player</string>
-	<string name="num_of_players"># of players</string>
 	<string name="or">Or</string>
 	<string name="and">And</string>
 	<string name="delete">Delete</string>
-	<string name="edit">Edit</string>
-	<string name="add_player">Add player…</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
 	<string name="user">User</string>
@@ -309,11 +306,10 @@
 	<string name="text_not_available">N/A</string>
 	<string name="text_unknown">\?</string>
 	<string name="ages">Ages</string>
-	<string name="language_dependence">Language Dependence</string>
-	<string name="suggested_playerage">Suggested Ages</string>
-	<string name="suggested_numplayers">Suggested Players</string>
+	<string name="language_dependence">Language dependence</string>
+	<string name="suggested_playerage">Suggested ages</string>
+	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_suffix">+</string>
-	<string name="language">Language</string>
 	<string name="name">Name</string>
 	<string name="unranked">Unranked</string>
 	<string name="updated">Updated</string>
@@ -338,8 +334,6 @@
 	<string name="unrated">Unrated</string>
 	<string name="one_more">1 more</string>
 	<string name="some_more">%d more</string>
-	<string name="and_more">, and more</string>
-	<string name="toggle">toggle</string>
 	<string name="number_to_text">ABC</string>
 	<string name="text_to_number">123</string>
 	<string name="close">Close</string>

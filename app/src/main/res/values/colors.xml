@@ -4,13 +4,15 @@
 	<color name="primary">#ffe0e0ef</color>
 	<color name="primary_dark">#ff4c6099</color>
 	<color name="accent">#ff2a2c70</color>
+	<color name="info_background">#ffe0e0ef</color>
 
 	<color name="light_text">#6000</color>
 	<color name="dialog_text">#ffffffff</color>
 	<color name="inverse_text">#deffffff</color>
 	<color name="actionbar_text">#99333333</color>
 
-	<color name="black_overlay">#66000000</color>
+	<color name="black_overlay">#88000000</color>
+	<color name="no_image">#808080</color>
 	<color name="navdrawer_icon_tint">#88FFFFFF</color>
 	<color name="disabled">#cccc</color>
 	<color name="pressed">#CC4c6199</color>

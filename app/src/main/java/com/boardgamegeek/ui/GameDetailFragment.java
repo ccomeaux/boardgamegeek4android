@@ -31,25 +31,22 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	private CursorAdapter mAdapter;
 	private int mGameId;
 	private int mQueryToken;
-	private Query mQuery;
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		final ListView listView = getListView();
-		listView.setSelector(android.R.color.transparent);
-	}
+	private BaseQuery mQuery;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_colors));
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mQueryToken = intent.getIntExtra(ActivityUtils.KEY_QUERY_TOKEN, BggContract.INVALID_ID);
 
 		determineQuery();
+
+		if (!mQuery.isClickable()) {
+			getListView().setSelector(android.R.color.transparent);
+		}
+
 		if (mQueryToken != BggContract.INVALID_ID) {
 			getLoaderManager().restartLoader(mQueryToken, getArguments(), this);
 		} else {
@@ -79,8 +76,8 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		}
 
 		if (mAdapter == null) {
-			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_game_detail, null, mQuery.getFrom(),
-				new int[] { R.id.name }, 0);
+			mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.row_text, null, mQuery.getFrom(),
+				new int[] { android.R.id.title }, 0);
 			setListAdapter(mAdapter);
 		}
 
@@ -161,6 +158,10 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		@Override
 		public Uri getUri(Cursor cursor) {
 			return null;
+		}
+
+		protected boolean isClickable() {
+			return true;
 		}
 	}
 
@@ -253,6 +254,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		public Uri getUri() {
 			return Games.buildCategoriesUri(mGameId);
 		}
+
+		@Override
+		protected boolean isClickable() {
+			return false;
+		}
 	}
 
 	private class MechanicQuery extends BaseQuery {
@@ -271,6 +277,11 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 		@Override
 		public Uri getUri() {
 			return Games.buildMechanicsUri(mGameId);
+		}
+
+		@Override
+		protected boolean isClickable() {
+			return false;
 		}
 	}
 

@@ -49,6 +49,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	private boolean mCustomPlayerSort;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
+	private Fragment mGameInfoFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,12 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 					NavUtils.navigateUpTo(this, upIntent);
 				}
 				return true;
+			case R.id.menu_language_poll:
+				Bundle arguments = new Bundle(2);
+				arguments.putInt(PollFragment.KEY_GAME_ID, mGameId);
+				arguments.putString(PollFragment.KEY_TYPE, "language_dependence");
+				ActivityUtils.launchDialog(mGameInfoFragment, new PollFragment(), "poll-dialog", arguments);
+				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;
@@ -199,6 +206,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			switch (position) {
 				case 0:
 					fragment = new GameInfoFragment();
+					mGameInfoFragment = fragment;
 					break;
 				case 1:
 					fragment = new GameCollectionFragment();

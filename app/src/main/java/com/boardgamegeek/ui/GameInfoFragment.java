@@ -3,18 +3,22 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.graphics.Palette;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,30 +37,28 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.widget.ExpandableListView;
+import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.ButterKnife.Setter;
 import butterknife.InjectView;
-import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final int CHILD_LIMIT_COUNT = 11;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
 
@@ -66,6 +68,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
 	@InjectView(R.id.game_info_progress) View mProgressView;
+	@InjectView(R.id.hero_container) View mHeroContainer;
 	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
@@ -75,18 +78,18 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
 	@InjectView(R.id.game_info_rank) TextView mRankView;
 	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
-	@InjectView(R.id.game_info_num_of_players) TextView mPlayersView;
-	@InjectView(R.id.game_info_playing_time) TextView mPlayingTimeView;
-	@InjectView(R.id.game_info_suggested_ages) TextView mSuggestedAgesView;
-	@InjectView(R.id.game_info_designers) ExpandableListView mDesignersView;
-	@InjectView(R.id.game_info_artists) ExpandableListView mArtistsView;
-	@InjectView(R.id.game_info_publishers) ExpandableListView mPublishersView;
-	@InjectView(R.id.game_info_categories) ExpandableListView mCategoriesView;
-	@InjectView(R.id.game_info_mechanics) ExpandableListView mMechanicsView;
-	@InjectView(R.id.game_info_expansions) ExpandableListView mExpansionsView;
-	@InjectView(R.id.game_info_base_games) ExpandableListView mBaseGamesView;
-	@InjectViews({ R.id.game_info_designers, R.id.game_info_artists, R.id.game_info_publishers,
-		R.id.game_info_categories, R.id.game_info_mechanics, R.id.game_info_expansions, R.id.game_info_base_games }) List<ExpandableListView> mExpandableViews;
+	@InjectView(R.id.primary_info_container) View mPrimaryInfo;
+	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
+	@InjectView(R.id.play_time) TextView mPlayTimeView;
+	@InjectView(R.id.player_age) TextView mPlayerAgeView;
+	@InjectView(R.id.game_info_designers) GameDetailRow mDesignersView;
+	@InjectView(R.id.game_info_artists) GameDetailRow mArtistsView;
+	@InjectView(R.id.game_info_publishers) GameDetailRow mPublishersView;
+	@InjectView(R.id.game_info_categories) GameDetailRow mCategoriesView;
+	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
+	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
+	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+	@InjectView(R.id.icon_stats) ImageView mStatsIcon;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -162,9 +165,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 		ButterKnife.inject(this, rootView);
-		ButterKnife.apply(mExpandableViews, LIMIT, CHILD_LIMIT_COUNT);
 		openOrCloseDescription();
 		openOrCloseStats();
+
+		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -221,34 +225,32 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedDesignersUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), DesignerQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(Games.getGameId(mGameUri)),
+					DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedArtistsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), ArtistQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(Games.getGameId(mGameUri)),
+					ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedPublishersUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), PublisherQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(Games.getGameId(mGameUri)),
+					PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedCategoriesUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), CategoryQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(Games.getGameId(mGameUri)),
+					CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedMechanicsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), MechanicQuery.PROJECTION, null, null, null);
+				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(Games.getGameId(mGameUri)),
+					MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?",
-					new String[] { "0" }, null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildLimitedExpansionsUri(Games.getGameId(mGameUri),
-					CHILD_LIMIT_COUNT), BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" },
-					null);
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
@@ -313,6 +315,25 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onLoaderReset(Loader<Cursor> arg0) {
 	}
 
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
+		ColorUtils.colorTextViews(mNumberOfPlayersView, swatch);
+		ColorUtils.colorTextViews(mPlayTimeView, swatch);
+		ColorUtils.colorTextViews(mPlayerAgeView, swatch);
+
+		swatch = ColorUtils.getIconSwatch(palette);
+		mDesignersView.colorIcon(swatch);
+		mArtistsView.colorIcon(swatch);
+		mPublishersView.colorIcon(swatch);
+		mCategoriesView.colorIcon(swatch);
+		mMechanicsView.colorIcon(swatch);
+		mExpansionsView.colorIcon(swatch);
+		mBaseGamesView.colorIcon(swatch);
+		mStatsIcon.setColorFilter(swatch.getRgb());
+	}
+
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			if (mMightNeedRefreshing) {
@@ -327,7 +348,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
 
-		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl);
+		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
 		mNameView.setText(game.Name);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
@@ -337,9 +358,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
-		mPlayingTimeView.setText(game.getPlayingTimeDescription());
-		mPlayersView.setText(game.getPlayerRangeDescription());
-		mSuggestedAgesView.setText(game.getAgeDescription());
+		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
+		mPlayTimeView.setText(game.getPlayingTimeDescription());
+		mPlayerAgeView.setText(game.getAgeDescription());
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -386,7 +407,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mCallbacks.onGameInfoChanged(gameInfo);
 	}
 
-	private void onListQueryComplete(Cursor cursor, ExpandableListView view, int nameColumnIndex) {
+	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
 			view.clear();
@@ -441,13 +462,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		}
 	}
 
-	static final Setter<ExpandableListView, Integer> LIMIT = new Setter<ExpandableListView, Integer>() {
-		@Override
-		public void set(ExpandableListView view, Integer value, int index) {
-			view.setLimit(value);
-		}
-	};
-
 	@OnClick(R.id.game_info_image)
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
@@ -481,8 +495,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			: R.drawable.expander_open, 0);
 	}
 
-	@OnClick({ R.id.game_info_num_of_players_button, R.id.game_info_suggested_ages_button,
-		R.id.game_info_languages_button })
+	@OnClick({ R.id.number_of_players, R.id.player_age })
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));

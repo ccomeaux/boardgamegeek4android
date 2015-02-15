@@ -119,7 +119,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		mCallbacks = sDummyCallbacks;
 	}
 
-	@OnClick(R.id.edit_nickname_button)
+	@OnClick(R.id.nickname)
 	public void onEditNicknameClick(View v) {
 		showDialog(mNickname.getText().toString(), mBuddyName);
 	}
