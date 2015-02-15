@@ -101,19 +101,4 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="InfoSection">
-		<item name="android:background">@drawable/grey_frame_on_white_b</item>
-		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
-	</style>
-
-	<style name="InfoSectionContinued">
-		<item name="android:background">#fff</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-	</style>
-
 </resources>

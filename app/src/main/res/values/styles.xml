@@ -175,12 +175,6 @@
 		<item name="android:scaleType">centerCrop</item>
 	</style>
 
-	<style name="InfoSection">
-		<item name="android:background">@drawable/grey_frame_on_white_b</item>
-		<item name="android:layout_marginBottom">@dimen/padding_standard</item>
-		<item name="android:padding">@dimen/padding_standard</item>
-	</style>
-
 	<style name="GameDetailRow">
 		<item name="android:minHeight">@dimen/edit_row_height</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
