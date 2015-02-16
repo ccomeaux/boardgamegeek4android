@@ -168,6 +168,7 @@
 				android:autoLink="web"
 				android:background="?attr/selectableItemBackground"
 				android:drawableBottom="@drawable/expander_open"
+				android:ellipsize="end"
 				android:maxLines="3"/>
 
 			<com.boardgamegeek.ui.widget.GameDetailRow
