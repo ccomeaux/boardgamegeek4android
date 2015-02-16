@@ -194,6 +194,7 @@
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
+	<string name="menu_view_in_browser">View in broswer</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
