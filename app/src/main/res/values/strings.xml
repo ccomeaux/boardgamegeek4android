@@ -350,7 +350,7 @@
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
-	<string name="help_thread">Missing images? Click the right arrow in an article\'s header to see the entire article.</string>
+	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
 	<string name="forum_last_post">Last post: %s</string>
