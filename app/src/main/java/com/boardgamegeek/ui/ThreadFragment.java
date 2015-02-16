@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +24,12 @@ import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
 	private static final int THREAD_LOADER_ID = 103;
@@ -180,16 +183,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	public static class ViewHolder {
-		TextView username;
-		TextView editdate;
-		TextView body;
-		View viewArticle;
+		@InjectView(R.id.article_username) TextView username;
+		@InjectView(R.id.article_editdate) TextView editdate;
+		@InjectView(R.id.article_body) TextView body;
+		@InjectView(R.id.article_view) View viewArticle;
 
 		public ViewHolder(View view) {
-			username = (TextView) view.findViewById(R.id.article_username);
-			editdate = (TextView) view.findViewById(R.id.article_editdate);
-			body = (TextView) view.findViewById(R.id.article_body);
-			viewArticle = view.findViewById(R.id.article_view);
+			ButterKnife.inject(this, view);
 		}
 	}
 }

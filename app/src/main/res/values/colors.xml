@@ -8,7 +8,8 @@
 
 	<color name="light_text">#6000</color>
 	<color name="dialog_text">#ffffffff</color>
-	<color name="inverse_text">#deffffff</color>
+	<color name="inverse_text_title">#deffffff</color>
+	<color name="inverse_text_body">#ffffff</color>
 	<color name="actionbar_text">#99333333</color>
 
 	<color name="black_overlay">#88000000</color>
