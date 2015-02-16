@@ -8,7 +8,9 @@ public class ForumsUtils {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_USER = "USER";
-	public static final String KEY_DATE = "DATE";
+	public static final String KEY_POST_DATE = "POST_DATE";
+	public static final String KEY_EDIT_DATE = "EDIT_DATE";
+	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
 	public static final String KEY_BODY = "BODY";
 	public static final String KEY_LINK = "LINK";
 }

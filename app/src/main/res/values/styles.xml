@@ -67,9 +67,17 @@
 		<item name="android:lineSpacingMultiplier">0.9</item>
 	</style>
 
+	<style name="Text.Primary.Inverse">
+		<item name="android:textColor">@color/inverse_text</item>
+	</style>
+
 	<style name="Text.Secondary">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">12sp</item>
+	</style>
+
+	<style name="Text.Secondary.Inverse">
+		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Footnote">
@@ -79,6 +87,10 @@
 	<style name="Text.Footnote2">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">10sp</item>
+	</style>
+
+	<style name="Text.Footnote2.Inverse">
+		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Dialog">

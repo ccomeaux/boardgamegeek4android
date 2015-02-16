@@ -10,7 +10,7 @@
 		style="@style/RowContainer"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/primary_dark"
+		android:background="@color/info_background_dark"
 		android:elevation="@dimen/material_elevation_subtle">
 
 		<TextView
@@ -19,16 +19,15 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:textColor="@color/inverse_text_body"
+			android:textColor="@color/inverse_text"
 			tools:text="ccomeaux"/>
 
 		<TextView
 			android:id="@+id/article_editdate"
-			style="@style/Text.Footnote2"
+			style="@style/Text.Footnote2.Inverse"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/article_username"
-			android:textColor="@color/inverse_text_title"
 			tools:text="Yesterday"/>
 
 		<ImageView

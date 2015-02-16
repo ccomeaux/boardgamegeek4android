@@ -169,11 +169,18 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			}
 			if (article != null) {
 				holder.username.setText(article.username);
-				holder.editdate.setText(DateTimeUtils.formatForumDate(getContext(), article.editDate()));
+				int dateRes = R.string.posted_prefix;
+				if (article.getNumberOfEdits() > 0) {
+					dateRes = R.string.edited_prefix;
+				}
+				holder.editdate.setText(getContext().getString(dateRes,
+					DateTimeUtils.formatForumDate(getContext(), article.editDate())));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ForumsUtils.KEY_USER, article.username);
-				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate());
+				bundle.putLong(ForumsUtils.KEY_POST_DATE, article.postDate());
+				bundle.putLong(ForumsUtils.KEY_EDIT_DATE, article.editDate());
+				bundle.putInt(ForumsUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
 				bundle.putString(ForumsUtils.KEY_BODY, article.body);
 				bundle.putString(ForumsUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);

@@ -9,7 +9,10 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal"
+		android:minHeight="@dimen/view_row_height"
+		android:background="@color/info_background_dark"
+		android:elevation="@dimen/material_elevation_subtle"
+		android:orientation="vertical"
 		android:paddingBottom="@dimen/material_margin_vertical"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
@@ -17,27 +20,33 @@
 
 		<TextView
 			android:id="@+id/article_username"
-			style="@style/Text.Primary"
-			android:layout_width="0dp"
+			style="@style/Text.Primary.Inverse"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
 			android:ellipsize="end"
 			tools:text="ccomeaux"/>
 
 		<TextView
-			android:id="@+id/article_editdate"
-			style="@style/Text.Secondary"
-			android:layout_width="wrap_content"
+			android:id="@+id/article_postdate"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingLeft="@dimen/padding_small"
-			tools:text="Today"/>
-	</LinearLayout>
+			tools:text="Posted Yesterday"/>
 
-	<View
-		android:id="@+id/article_divider"
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="@color/primary"/>
+		<TextView
+			android:id="@+id/article_editdate"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Edited Today"/>
+
+		<TextView
+			android:id="@+id/article_editcount"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="3 total edits"/>
+	</LinearLayout>
 
 	<FrameLayout style="@style/WebViewContainer">
 

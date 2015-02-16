@@ -323,6 +323,7 @@
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
+	<string name="last_edited_prefix">Last edited %s</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
@@ -434,7 +435,8 @@
 	<plurals name="plays">
 		<item quantity="one">%s plays</item>
 		<item quantity="other">%s plays</item>
-	</plurals>	<plurals name="msg_updated_plays">
+	</plurals>
+	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
@@ -445,6 +447,10 @@
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
 		<item quantity="other">Logging plays…</item>
+	</plurals>
+	<plurals name="edit_count">
+		<item quantity="one">%s total edit</item>
+		<item quantity="other">%s total edits</item>
 	</plurals>
 
 </resources>
