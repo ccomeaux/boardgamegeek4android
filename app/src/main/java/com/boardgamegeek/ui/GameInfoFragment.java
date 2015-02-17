@@ -3,9 +3,7 @@ package com.boardgamegeek.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +16,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +41,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 
@@ -89,6 +87,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+	@InjectView(R.id.icon_forums) ImageView mForumsIcon;
 	@InjectView(R.id.icon_stats) ImageView mStatsIcon;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
@@ -331,6 +330,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mMechanicsView.colorIcon(swatch);
 		mExpansionsView.colorIcon(swatch);
 		mBaseGamesView.colorIcon(swatch);
+		mForumsIcon.setColorFilter(swatch.getRgb());
 		mStatsIcon.setColorFilter(swatch.getRgb());
 	}
 
@@ -475,6 +475,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onDescriptionClick(View v) {
 		mIsDescriptionExpanded = !mIsDescriptionExpanded;
 		openOrCloseDescription();
+	}
+
+	@OnClick(R.id.forums_root)
+	public void onForumsClick(View v) {
+		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
 	}
 
 	@OnClick(R.id.game_info_stats_root)

@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ForumsUtils;
 
@@ -52,13 +53,16 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
+				Intent intent = null;
 				if (mGameId == BggContract.INVALID_ID) {
-					Intent intent = new Intent(this, ForumsActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
+					intent = new Intent(this, ForumsActivity.class);
 				} else {
-					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+					intent = new Intent(this, GameForumsActivity.class);
+					intent.setData(Games.buildGameUri(mGameId));
+					intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
 				}
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);;
+				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:

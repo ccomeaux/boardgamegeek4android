@@ -100,7 +100,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			createTab(actionBar, R.string.title_play_stats);
 			createTab(actionBar, R.string.title_colors);
 		}
-		createTab(actionBar, R.string.title_forums);
 		createTab(actionBar, R.string.title_comments);
 	}
 
@@ -221,9 +220,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 					fragment = new ColorsFragment();
 					break;
 				case 5:
-					fragment = new ForumsFragment();
-					break;
-				case 6:
 					fragment = new CommentsFragment();
 					break;
 			}
@@ -235,7 +231,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 
 		@Override
 		public int getCount() {
-			return 3 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
+			return 2 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
 		}
 	}
 
