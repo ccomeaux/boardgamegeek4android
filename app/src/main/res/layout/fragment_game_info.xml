@@ -6,7 +6,6 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@android:color/white"
 	tools:context=".ui.GameActivity">
 
 	<ProgressBar
@@ -128,8 +127,8 @@
 				android:layout_gravity="center_horizontal"
 				android:gravity="center"
 				android:orientation="horizontal"
-				android:paddingBottom="@dimen/padding_standard"
-				android:paddingTop="@dimen/padding_standard">
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:paddingTop="@dimen/material_margin_vertical">
 
 				<TextView
 					android:id="@+id/game_info_rating"
@@ -169,113 +168,130 @@
 				android:background="?attr/selectableItemBackground"
 				android:drawableBottom="@drawable/expander_open"
 				android:ellipsize="end"
-				android:maxLines="3"/>
+				android:maxLines="3"
+				tools:text="This is the game's description. Sometimes it will tell you if the game is good. Sometimes it won't."/>
 
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_designers"
-				style="@style/GameDetailRow"
+			<android.support.v7.widget.CardView
+				style="@style/Card"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_designers"
-				bgg:label="@string/designers"
-				bgg:query_token="1"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_artists"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_artists"
-				bgg:label="@string/artists"
-				bgg:query_token="2"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_publishers"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_publishers"
-				bgg:label="@string/publishers"
-				bgg:query_token="3"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_categories"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_categories"
-				bgg:label="@string/categories"
-				bgg:query_token="4"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_mechanics"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_mechanics"
-				bgg:label="@string/mechanics"
-				bgg:query_token="5"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_expansions"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_expansions"
-				bgg:label="@string/expansions"
-				bgg:query_token="6"/>
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/game_info_base_games"
-				style="@style/GameDetailRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				bgg:icon_res="@drawable/ic_basegames"
-				bgg:label="@string/base_games"
-				bgg:query_token="7"/>
-
-			<LinearLayout
-				android:id="@+id/game_info_stats_root"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingLeft="@dimen/material_margin_horizontal"
-				android:paddingRight="@dimen/material_margin_horizontal">
+				android:layout_height="wrap_content">
 
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
-					android:descendantFocusability="blocksDescendants"
-					android:gravity="center_vertical"
-					android:minHeight="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					android:orientation="vertical">
 
-					<ImageView
-						android:id="@+id/icon_stats"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_marginRight="32dp"
-						android:src="@drawable/ic_stats"/>
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_designers"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_designers"
+						bgg:label="@string/designers"
+						bgg:query_token="1"/>
 
-					<TextView
-						android:id="@+id/game_stats_label"
-						style="@style/Text"
-						android:layout_width="0dp"
-						android:layout_height="match_parent"
-						android:layout_weight="1"
-						android:gravity="center_vertical"
-						android:singleLine="true"
-						android:text="@string/stats"/>
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_artists"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_artists"
+						bgg:label="@string/artists"
+						bgg:query_token="2"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_publishers"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_publishers"
+						bgg:label="@string/publishers"
+						bgg:query_token="3"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_categories"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_categories"
+						bgg:label="@string/categories"
+						bgg:query_token="4"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_mechanics"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_mechanics"
+						bgg:label="@string/mechanics"
+						bgg:query_token="5"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_expansions"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_expansions"
+						bgg:label="@string/expansions"
+						bgg:query_token="6"/>
+
+					<com.boardgamegeek.ui.widget.GameDetailRow
+						android:id="@+id/game_info_base_games"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="@dimen/card_row_height"
+						bgg:icon_res="@drawable/ic_basegames"
+						bgg:label="@string/base_games"
+						bgg:query_token="7"/>
 				</LinearLayout>
+			</android.support.v7.widget.CardView>
 
-				<include
-					android:id="@+id/game_stats_content"
-					layout="@layout/tab_game_stats"
+			<android.support.v7.widget.CardView
+				style="@style/Card"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<LinearLayout
+					android:id="@+id/game_info_stats_root"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:visibility="gone"/>
-			</LinearLayout>
+					android:orientation="vertical">
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical"
+						android:minHeight="@dimen/card_row_height"
+						android:orientation="horizontal">
+
+						<ImageView
+							android:id="@+id/icon_stats"
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							android:layout_marginRight="32dp"
+							android:src="@drawable/ic_stats"/>
+
+						<TextView
+							android:id="@+id/game_stats_label"
+							style="@style/Text"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:singleLine="true"
+							android:text="@string/stats"/>
+					</LinearLayout>
+
+					<include
+						android:id="@+id/game_stats_content"
+						layout="@layout/tab_game_stats"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone"/>
+				</LinearLayout>
+			</android.support.v7.widget.CardView>
 
 			<LinearLayout
 				android:layout_width="match_parent"

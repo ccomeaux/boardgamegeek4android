@@ -387,4 +387,16 @@
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
 	</style>
 
+	<style name="Card">
+		<item name="android:layout_marginBottom">@dimen/material_margin_vertical_card</item>
+		<item name="android:layout_marginLeft">@dimen/material_margin_horizontal_card</item>
+		<item name="android:layout_marginRight">@dimen/material_margin_horizontal_card</item>
+		<item name="android:layout_marginTop">@dimen/material_margin_vertical_card</item>
+		<item name="cardElevation">2dp</item>
+		<item name="contentPaddingBottom">@dimen/material_margin_vertical_card_contents</item>
+		<item name="contentPaddingLeft">@dimen/material_margin_horizontal_card_contents</item>
+		<item name="contentPaddingRight">@dimen/material_margin_horizontal_card_contents</item>
+		<item name="contentPaddingTop">@dimen/material_margin_vertical_card_contents</item>
+	</style>
+
 </resources>
