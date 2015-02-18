@@ -9,9 +9,7 @@
 
 	<ImageView
 		android:id="@android:id/icon"
-		android:layout_height="24dp"
-		android:layout_width="24dp"
-		android:layout_marginRight="32dp"/>
+		style="@style/Icon"/>
 
 	<TextView
 		android:id="@android:id/title"

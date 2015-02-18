@@ -399,4 +399,10 @@
 		<item name="contentPaddingTop">@dimen/material_margin_vertical_card_contents</item>
 	</style>
 
+	<style name="Icon">
+		<item name="android:layout_width">24dp</item>
+		<item name="android:layout_height">24dp</item>
+		<item name="android:layout_marginRight">32dp</item>
+	</style>
+
 </resources>

@@ -247,8 +247,8 @@
 			</android.support.v7.widget.CardView>
 
 			<android.support.v7.widget.CardView
-				style="@style/Card"
 				android:id="@+id/forums_root"
+				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
@@ -263,9 +263,7 @@
 
 					<ImageView
 						android:id="@+id/icon_forums"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_marginRight="32dp"
+						style="@style/Icon"
 						android:src="@drawable/ic_forum_black_24dp"/>
 
 					<TextView
@@ -302,9 +300,7 @@
 
 						<ImageView
 							android:id="@+id/icon_stats"
-							android:layout_width="24dp"
-							android:layout_height="24dp"
-							android:layout_marginRight="32dp"
+							style="@style/Icon"
 							android:src="@drawable/ic_stats"/>
 
 						<TextView
