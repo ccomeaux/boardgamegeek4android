@@ -1,10 +1,12 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -47,9 +49,11 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
@@ -87,8 +91,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
-	@InjectView(R.id.icon_forums) ImageView mForumsIcon;
-	@InjectView(R.id.icon_stats) ImageView mStatsIcon;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -106,12 +108,30 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_stats_wanting_bar) StatBar mNumWantingBar;
 	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
 	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
+	@InjectViews({
+		R.id.number_of_players,
+		R.id.play_time,
+		R.id.player_age
+	}) List<TextView> mColorizedTextViews;
+	@InjectViews({
+		R.id.game_info_designers,
+		R.id.game_info_artists,
+		R.id.game_info_publishers,
+		R.id.game_info_categories,
+		R.id.game_info_mechanics,
+		R.id.game_info_expansions,
+		R.id.game_info_base_games
+	}) List<GameDetailRow> mColorizedRows;
+	@InjectViews({
+		R.id.icon_forums,
+		R.id.icon_stats
+	}) List<ImageView> mColorizedIcons;
 
 	boolean mIsDescriptionExpanded;
 	boolean mIsStatsExpanded;
 	private NumberFormat mFormat = NumberFormat.getInstance();
-
 	private boolean mMightNeedRefreshing;
+	private Palette mPalette;
 
 	static class GameInfo {
 		String gameName;
@@ -160,10 +180,12 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
 		ButterKnife.inject(this, rootView);
+		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
 
@@ -316,22 +338,20 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
+		mPalette = palette;
+		colorize(palette);
+	}
+
+	private void colorize(Palette palette) {
+		if (palette == null || mPrimaryInfo == null) {
+			return;
+		}
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ColorUtils.colorTextViews(mNumberOfPlayersView, swatch);
-		ColorUtils.colorTextViews(mPlayTimeView, swatch);
-		ColorUtils.colorTextViews(mPlayerAgeView, swatch);
-
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewSetter, swatch);
 		swatch = ColorUtils.getIconSwatch(palette);
-		mDesignersView.colorIcon(swatch);
-		mArtistsView.colorIcon(swatch);
-		mPublishersView.colorIcon(swatch);
-		mCategoriesView.colorIcon(swatch);
-		mMechanicsView.colorIcon(swatch);
-		mExpansionsView.colorIcon(swatch);
-		mBaseGamesView.colorIcon(swatch);
-		mForumsIcon.setColorFilter(swatch.getRgb());
-		mStatsIcon.setColorFilter(swatch.getRgb());
+		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
+		ButterKnife.apply(mColorizedIcons, ColorUtils.colorIconSetter, swatch);
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {

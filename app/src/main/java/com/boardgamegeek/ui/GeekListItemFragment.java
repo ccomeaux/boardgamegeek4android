@@ -21,8 +21,11 @@ import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
 
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 
 public class GeekListItemFragment extends Fragment implements ActivityUtils.ImageCallback {
 	private String mOrder;
@@ -46,6 +49,12 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 	@InjectView(R.id.posted_date) TextView mPostedDateView;
 	@InjectView(R.id.edited_date) TextView mEditedDateView;
 	@InjectView(R.id.body) WebView mBodyView;
+	@InjectViews({
+		R.id.username,
+		R.id.thumbs,
+		R.id.posted_date,
+		R.id.edited_date
+	}) List<TextView> mColorizedTextViews;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -90,9 +99,6 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 	public void onPaletteGenerated(Palette palette) {
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mAuthorContainer.setBackgroundColor(swatch.getRgb());
-		ColorUtils.colorTextViews(mUsernameView, swatch);
-		ColorUtils.colorTextViews(mThumbsView, swatch);
-		ColorUtils.colorTextViews(mPostedDateView, swatch);
-		ColorUtils.colorTextViews(mEditedDateView, swatch);
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewSetter, swatch);
 	}
 }

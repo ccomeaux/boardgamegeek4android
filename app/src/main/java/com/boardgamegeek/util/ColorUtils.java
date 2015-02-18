@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.ButterKnife;
+
 public class ColorUtils {
 	public static final int TRANSPARENT = 0;
 	public static final int BLACK = 0xFF000000;
@@ -239,12 +241,28 @@ public class ColorUtils {
 		return palette.getSwatches().get(0);
 	}
 
-	public static void colorTextViews(TextView textView, Palette.Swatch swatch) {
-		textView.setTextColor(swatch.getBodyTextColor());
-		for (Drawable d : textView.getCompoundDrawables()) {
-			if (d != null) {
-				d.setColorFilter(swatch.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
+	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewSetter =
+		new ButterKnife.Setter<TextView, Palette.Swatch>() {
+			@Override
+			public void set(TextView view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.setTextColor(value.getBodyTextColor());
+					for (Drawable d : view.getCompoundDrawables()) {
+						if (d != null) {
+							d.setColorFilter(value.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
+						}
+					}
+				}
 			}
-		}
-	}
+		};
+
+	public static final ButterKnife.Setter<ImageView, Palette.Swatch> colorIconSetter =
+		new ButterKnife.Setter<ImageView, Palette.Swatch>() {
+			@Override
+			public void set(ImageView view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.setColorFilter(value.getRgb());
+				}
+			}
+		};
 }

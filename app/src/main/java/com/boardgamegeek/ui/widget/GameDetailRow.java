@@ -131,6 +131,16 @@ public class GameDetailRow extends RelativeLayout {
 		mIconView.setColorFilter(swatch.getRgb());
 	}
 
+	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
+		new ButterKnife.Setter<GameDetailRow, Palette.Swatch>() {
+			@Override
+			public void set(GameDetailRow view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.colorIcon(value);
+				}
+			}
+		};
+
 	public void colorText(Palette.Swatch swatch) {
 		mDataView.setTextColor(swatch.getRgb());
 	}
