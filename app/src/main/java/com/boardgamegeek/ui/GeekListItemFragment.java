@@ -77,7 +77,7 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		ButterKnife.inject(this, rootView);
 
-		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+		ScrimUtil.applyDefaultScrim(mHeroContainer);
 
 		mOrderView.setText(mOrder);
 		mTitleView.setText(mTitle);

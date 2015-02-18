@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -180,7 +178,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
@@ -188,8 +185,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
-
-		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+		ScrimUtil.applyDefaultScrim(mHeroContainer);
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();

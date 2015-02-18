@@ -18,6 +18,7 @@
 
 package com.boardgamegeek.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -26,8 +27,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Build;
 import android.util.FloatMath;
 import android.view.Gravity;
+import android.view.View;
 
 import com.boardgamegeek.R;
 
@@ -36,6 +39,20 @@ import com.boardgamegeek.R;
  */
 public class ScrimUtil {
 	private ScrimUtil() {
+	}
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	public static void applyDefaultScrim(View view) {
+		if (view == null) {
+			return;
+		}
+		Drawable scrim = ScrimUtil.makeDefaultScrimDrawable(view.getContext());
+		if (VersionUtils.hasJellyBean()) {
+			view.setBackground(scrim);
+		} else {
+			//noinspection deprecation
+			view.setBackgroundDrawable(scrim);
+		}
 	}
 
 	public static Drawable makeDefaultScrimDrawable(Context context) {

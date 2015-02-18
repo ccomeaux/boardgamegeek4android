@@ -181,7 +181,7 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			ViewHolder holder = (ViewHolder) view.getTag();
 			CollectionItem item = new CollectionItem(cursor);
 
-			holder.heroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+			ScrimUtil.applyDefaultScrim(holder.heroContainer);
 
 			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
 			holder.name.setText(item.name.trim());
