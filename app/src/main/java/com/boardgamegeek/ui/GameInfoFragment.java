@@ -504,6 +504,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		startActivity(intent);
 	}
 
+	@OnClick(R.id.comments_root)
+	public void onCommentsClick(View v) {
+		Intent intent = new Intent(getActivity(), CommentsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(CommentsActivity.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
 	@OnClick(R.id.game_info_stats_root)
 	public void onStatsClick(View v) {
 		mIsStatsExpanded = !mIsStatsExpanded;
