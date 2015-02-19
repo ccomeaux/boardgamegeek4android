@@ -89,6 +89,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+	@InjectView(R.id.game_comments_label) TextView mCommentsLabel;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -122,6 +123,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
 		R.id.icon_forums,
+		R.id.icon_comments,
 		R.id.icon_stats
 	}) List<ImageView> mColorizedIcons;
 
@@ -377,6 +379,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
 		mPlayerAgeView.setText(game.getAgeDescription());
+		mCommentsLabel.setText(getString(R.string.comments_suffix, game.UsersCommented));
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -540,7 +543,8 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			Games.UPDATED, Games.GAME_RANK, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT,
+			Games.STATS_NUMBER_COMMENTS };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -568,6 +572,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int IMAGE_URL = 23;
 		int SUBTYPE = 24;
 		int CUSTOM_PLAYER_SORT = 25;
+		int STATS_NUMBER_COMMENTS = 26;
 	}
 
 	private interface DesignerQuery {
@@ -635,6 +640,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int MinimumAge;
 		String Description;
 		int UsersRated;
+		int UsersCommented;
 		long Updated;
 		int Rank;
 		double BayesAverage;
@@ -663,6 +669,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
 			Description = cursor.getString(GameQuery.DESCRIPTION);
 			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
+			UsersCommented = cursor.getInt(GameQuery.STATS_NUMBER_COMMENTS);
 			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);

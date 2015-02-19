@@ -247,7 +247,6 @@
 			</android.support.v7.widget.CardView>
 
 			<android.support.v7.widget.CardView
-				android:id="@+id/forums_root"
 				style="@style/Card"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
@@ -255,26 +254,58 @@
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/selectableItemBackground"
-					android:descendantFocusability="blocksDescendants"
-					android:gravity="center_vertical"
-					android:minHeight="@dimen/edit_row_height"
-					android:orientation="horizontal">
+					android:orientation="vertical">
 
-					<ImageView
-						android:id="@+id/icon_forums"
-						style="@style/Icon"
-						android:src="@drawable/ic_forum_black_24dp"/>
-
-					<TextView
-						android:id="@+id/game_forums_label"
-						style="@style/Text"
-						android:layout_width="0dp"
-						android:layout_height="match_parent"
-						android:layout_weight="1"
+					<LinearLayout
+						android:id="@+id/forums_root"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
+						android:descendantFocusability="blocksDescendants"
 						android:gravity="center_vertical"
-						android:singleLine="true"
-						android:text="@string/title_forums"/>
+						android:minHeight="@dimen/edit_row_height"
+						android:orientation="horizontal">
+
+						<ImageView
+							android:id="@+id/icon_forums"
+							style="@style/Icon"
+							android:src="@drawable/ic_forum_black_24dp"/>
+
+						<TextView
+							android:id="@+id/game_forums_label"
+							style="@style/Text"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:singleLine="true"
+							android:text="@string/title_forums"/>
+					</LinearLayout>
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical"
+						android:minHeight="@dimen/edit_row_height"
+						android:orientation="horizontal">
+
+						<ImageView
+							android:id="@+id/icon_comments"
+							style="@style/Icon"
+							android:src="@drawable/ic_comment"/>
+
+						<TextView
+							android:id="@+id/game_comments_label"
+							style="@style/Text"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:singleLine="true"
+							android:text="@string/title_comments"/>
+					</LinearLayout>
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 
