@@ -90,6 +90,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
 	@InjectView(R.id.game_comments_label) TextView mCommentsLabel;
+	@InjectView(R.id.game_ratings_label) TextView mRatingsLabel;
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -124,6 +125,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectViews({
 		R.id.icon_forums,
 		R.id.icon_comments,
+		R.id.icon_ratings,
 		R.id.icon_stats
 	}) List<ImageView> mColorizedIcons;
 
@@ -380,6 +382,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
 		mPlayerAgeView.setText(game.getAgeDescription());
 		mCommentsLabel.setText(getString(R.string.comments_suffix, game.UsersCommented));
+		mRatingsLabel.setText(getString(R.string.ratings_suffix, game.UsersRated));
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));

@@ -46,6 +46,7 @@
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
 	<string name="comments_suffix">%,d Comments</string>
+	<string name="ratings_suffix">%,d Ratings</string>
 	<string name="send">Send</string>
 	<string name="save">Save</string>
 	<string name="done">Done</string>
@@ -131,6 +132,7 @@
 	<string name="title_add_players">Add Players</string>
 	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
+	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
