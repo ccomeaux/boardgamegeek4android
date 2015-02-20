@@ -320,7 +320,6 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="votes">votes</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>

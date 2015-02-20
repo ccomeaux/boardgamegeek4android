@@ -72,7 +72,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
-	@InjectView(R.id.game_info_rating_count) TextView mNumberRatingView;
 	@InjectView(R.id.game_info_id) TextView mIdView;
 	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
@@ -374,7 +373,6 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mYearPublishedView.setText(game.getYearPublished());
 		mRatingView.setText(game.getRatingDescription());
 		ColorUtils.setTextViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
-		mNumberRatingView.setText(mFormat.format(game.UsersRated));
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);

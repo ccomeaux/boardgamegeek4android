@@ -100,7 +100,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			createTab(actionBar, R.string.title_play_stats);
 			createTab(actionBar, R.string.title_colors);
 		}
-		createTab(actionBar, R.string.title_comments);
 	}
 
 	@Override
@@ -219,9 +218,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				case 4:
 					fragment = new ColorsFragment();
 					break;
-				case 5:
-					fragment = new CommentsFragment();
-					break;
 			}
 			if (fragment != null) {
 				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
@@ -231,7 +227,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 
 		@Override
 		public int getCount() {
-			return 2 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
+			return 1 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
 		}
 	}
 
