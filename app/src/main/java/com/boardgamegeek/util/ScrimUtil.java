@@ -28,7 +28,6 @@ import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Build;
-import android.util.FloatMath;
 import android.view.Gravity;
 import android.view.View;
 
@@ -80,7 +79,7 @@ public class ScrimUtil {
 
 		for (int i = 0; i < numStops; i++) {
 			float x = i * 1f / (numStops - 1);
-			float opacity = constrain(0, 1, FloatMath.pow(x, 3));
+			float opacity = constrain(0, 1, (float) Math.pow(x, 3));
 			stopColors[i] = Color.argb((int) (alpha * opacity), red, green, blue);
 		}
 
