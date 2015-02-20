@@ -249,7 +249,7 @@
 						<ImageView
 							android:id="@+id/icon_forums"
 							style="@style/Icon"
-							android:src="@drawable/ic_forum_black_24dp"/>
+							android:src="@drawable/ic_action_forum"/>
 
 						<TextView
 							android:id="@+id/game_forums_label"

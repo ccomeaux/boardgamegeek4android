@@ -53,7 +53,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				Intent intent = null;
+				Intent intent;
 				if (mGameId == BggContract.INVALID_ID) {
 					intent = new Intent(this, ForumsActivity.class);
 				} else {
@@ -61,7 +61,7 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 					intent.setData(Games.buildGameUri(mGameId));
 					intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
 				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);;
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
 				return true;

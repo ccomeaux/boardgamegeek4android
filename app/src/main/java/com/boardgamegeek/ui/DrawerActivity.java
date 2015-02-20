@@ -95,7 +95,7 @@ public abstract class DrawerActivity extends BaseActivity {
 		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, mDrawerList));
-		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_forum_black_24dp, mDrawerList));
+		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, mDrawerList));
 		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 		mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, mDrawerList));

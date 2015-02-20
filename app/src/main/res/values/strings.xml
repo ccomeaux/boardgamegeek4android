@@ -259,9 +259,6 @@
 	<string name="menu_create_shortcut">Create shortcut</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_delete">Delete</string>
-	<string name="menu_sort_comments">Sort comments by…</string>
-	<string name="menu_sort_comments_user">User</string>
-	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_sort_geeklists_hot">Hot</string>
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>

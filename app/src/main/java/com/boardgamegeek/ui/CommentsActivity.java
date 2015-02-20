@@ -19,7 +19,6 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 	private int mGameId;
 	private String mGameName;
-	private int mSort;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +26,10 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 		mGameId = BggContract.Games.getGameId(getIntent().getData());
 		mGameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		mSort = getIntent().getIntExtra(KEY_SORT, SORT_USER);
+		int sort = getIntent().getIntExtra(KEY_SORT, SORT_USER);
 
 		ActionBar bar = getSupportActionBar();
-		if (mSort == SORT_RATING) {
+		if (sort == SORT_RATING) {
 			bar.setTitle(R.string.title_ratings);
 		}
 		if (!TextUtils.isEmpty(mGameName)) {
