@@ -17,8 +17,10 @@ import java.util.List;
 import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
+	private static int BATCH_SIZE = 16;
 	private static final int MAX_RETRIES = 4;
 	private static final int RETRY_BACKOFF_IN_MS = 5000;
+	private BuddyPersister mPersister;
 
 	public SyncBuddiesDetail(Context context, BggService service) {
 		super(context, service);
@@ -33,12 +35,13 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 				return;
 			}
 
+			mPersister = new BuddyPersister(mContext);
+			int count = 0;
 			List<String> names = getBuddyNames();
 			Timber.i("...found " + names.size() + " buddies to update");
 			if (names.size() > 0) {
 				showNotification(StringUtils.formatList(names));
 				List<User> buddies = new ArrayList<>(names.size());
-				BuddyPersister persister = new BuddyPersister(mContext);
 				for (String name : names) {
 					if (isCancelled()) {
 						Timber.i("...canceled while syncing buddies");
@@ -48,20 +51,32 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 					if (user != null) {
 						buddies.add(user);
 					}
+					if (buddies.size() >= BATCH_SIZE) {
+						count += save(syncResult, buddies);
+						buddies.clear();
+					}
 				}
-
-				int count = persister.save(buddies);
-				syncResult.stats.numUpdates += buddies.size();
-				Timber.i("...saved " + count + " records for " + buddies.size() + " buddies");
+				if (buddies.size() > 0) {
+					count += save(syncResult, buddies);
+				}
 			} else {
 				Timber.i("...no buddies to update");
 			}
+			Timber.i("...saved " + count + " records");
 		} finally {
 			Timber.i("...complete!");
 		}
 	}
 
+	private int save(SyncResult syncResult, List<User> buddies) {
+		int count = mPersister.save(buddies);
+		Timber.i("...saved " + buddies.size() + " buddies");
+		syncResult.stats.numUpdates += buddies.size();
+		return count;
+	}
+
 	protected User getUser(BggService service, String name) {
+		Timber.i("...syncing username=" + name);
 		int retries = 0;
 		while (true) {
 			try {
@@ -70,11 +85,13 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 				if (e.getCause() instanceof RetryableException) {
 					retries++;
 					if (retries > MAX_RETRIES) {
+						Timber.i("...giving up - too many retries");
 						break;
 					}
 					try {
-						Timber.i("...retrying #" + retries);
-						Thread.sleep(retries * retries * RETRY_BACKOFF_IN_MS);
+						long time = retries * retries * RETRY_BACKOFF_IN_MS;
+						Timber.i("...retry #" + retries + " in " + time / 1000 + "s");
+						Thread.sleep(time);
 					} catch (InterruptedException e1) {
 						Timber.i("Interrupted while sleeping before retry " + retries);
 						break;
