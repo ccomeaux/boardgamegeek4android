@@ -363,13 +363,15 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				mPlaysCard.setVisibility(View.VISIBLE);
 				mPlaysRoot.setVisibility(View.VISIBLE);
 				cursor.moveToFirst();
-				mPlaysLabel.setText(getString(R.string.plays_summary, cursor.getCount(),
-					CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE)));
+				int count = cursor.getCount();
+				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, count,
+					count, CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE)));
 				break;
 			case ColorQuery._TOKEN:
 				mPlaysCard.setVisibility(View.VISIBLE);
 				mColorsRoot.setVisibility(View.VISIBLE);
-				mColorsLabel.setText(getString(R.string.colors_suffix, cursor.getCount()));
+				count = cursor.getCount();
+				mColorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
 				break;
 			default:
 				cursor.close();
@@ -425,8 +427,8 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
 		mPlayerAgeView.setText(game.getAgeDescription());
-		mCommentsLabel.setText(getString(R.string.comments_suffix, game.UsersCommented));
-		mRatingsLabel.setText(getString(R.string.ratings_suffix, game.UsersRated));
+		mCommentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+		mRatingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
