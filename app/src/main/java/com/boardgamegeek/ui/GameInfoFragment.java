@@ -34,6 +34,7 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
@@ -42,6 +43,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ForumsUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 
@@ -72,15 +74,15 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
-	@InjectView(R.id.game_info_id) TextView mIdView;
-	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
 	@InjectView(R.id.game_info_rank) TextView mRankView;
 	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
+
 	@InjectView(R.id.primary_info_container) View mPrimaryInfo;
 	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
 	@InjectView(R.id.play_time) TextView mPlayTimeView;
 	@InjectView(R.id.player_age) TextView mPlayerAgeView;
+
 	@InjectView(R.id.game_info_designers) GameDetailRow mDesignersView;
 	@InjectView(R.id.game_info_artists) GameDetailRow mArtistsView;
 	@InjectView(R.id.game_info_publishers) GameDetailRow mPublishersView;
@@ -88,8 +90,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+
+	@InjectView(R.id.plays_card) View mPlaysCard;
+	@InjectView(R.id.colors_root) View mColorsRoot;
+	@InjectView(R.id.game_colors_label) TextView mColorsLabel;
+
 	@InjectView(R.id.game_comments_label) TextView mCommentsLabel;
 	@InjectView(R.id.game_ratings_label) TextView mRatingsLabel;
+
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -107,6 +115,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_stats_wanting_bar) StatBar mNumWantingBar;
 	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
 	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
+
+	@InjectView(R.id.game_info_id) TextView mIdView;
+	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
+
 	@InjectViews({
 		R.id.number_of_players,
 		R.id.play_time,
@@ -122,6 +134,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		R.id.game_info_base_games
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
+		R.id.icon_colors,
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_ratings,
@@ -194,7 +207,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
-
+		if (PreferencesUtils.showLogPlay(getActivity())) {
+			lm.restartLoader(ColorQuery._TOKEN, null, this);
+		}
 		return rootView;
 	}
 
@@ -276,6 +291,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
 					RankQuery.PROJECTION, null, null, null);
 				break;
+			case ColorQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(Games.getGameId(mGameUri)),
+					GameColorAdapter.PROJECTION, null, null, null);
+				break;
 			default:
 				Timber.w("Invalid query token=" + id);
 				break;
@@ -325,6 +344,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
 				break;
+			case ColorQuery._TOKEN:
+				mPlaysCard.setVisibility(View.VISIBLE);
+				mColorsRoot.setVisibility(View.VISIBLE);
+				mColorsLabel.setText(getString(R.string.colors_suffix, cursor.getCount()));
 			default:
 				cursor.close();
 				break;
@@ -643,6 +666,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int GAME_RANK_VALUE = 1;
 		int GAME_RANK_TYPE = 2;
 		int GAME_RANK_BAYES_AVERAGE = 3;
+	}
+
+	private interface ColorQuery {
+		int _TOKEN = 0x20;
 	}
 
 	private class Game {
