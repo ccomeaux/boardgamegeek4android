@@ -203,6 +203,11 @@
 		<item name="android:paddingBottom">8dp</item>
 	</style>
 
+	<style name="Text.Header.Card">
+		<item name="android:layout_height">32dp</item>
+		<item name="android:gravity">center_vertical</item>
+	</style>
+
 	<style name="Text.Header.Underline">
 		<item name="android:background">@drawable/underline</item>
 	</style>

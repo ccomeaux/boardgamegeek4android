@@ -161,6 +161,11 @@
 					android:layout_height="wrap_content"
 					android:orientation="vertical">
 
+					<TextView
+						style="@style/Text.Header.Card"
+						android:layout_width="wrap_content"
+						android:text="@string/title_game_detail"/>
+
 					<com.boardgamegeek.ui.widget.GameDetailRow
 						android:id="@+id/game_info_designers"
 						android:layout_width="match_parent"
@@ -239,6 +244,11 @@
 					android:layout_height="wrap_content"
 					android:orientation="vertical">
 
+					<TextView
+						style="@style/Text.Header.Card"
+						android:layout_width="wrap_content"
+						android:text="@string/title_plays"/>
+
 					<LinearLayout
 						android:id="@+id/colors_root"
 						android:layout_width="match_parent"
@@ -278,6 +288,11 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:orientation="vertical">
+
+					<TextView
+						style="@style/Text.Header.Card"
+						android:layout_width="wrap_content"
+						android:text="@string/title_user_feedback"/>
 
 					<LinearLayout
 						android:id="@+id/forums_root"

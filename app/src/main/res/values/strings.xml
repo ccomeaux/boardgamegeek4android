@@ -135,6 +135,7 @@
 	<string name="title_comments">Comments</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
+	<string name="title_user_feedback">User Feedback</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
