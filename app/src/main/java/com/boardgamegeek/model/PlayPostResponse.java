@@ -1,5 +1,7 @@
 package com.boardgamegeek.model;
 
+import android.text.TextUtils;
+
 import com.boardgamegeek.io.AuthException;
 import com.boardgamegeek.io.InvalidIdException;
 import com.boardgamegeek.io.PossibleSuccessException;
@@ -57,6 +59,9 @@ public class PlayPostResponse {
 				return null;
 			}
 			return mException.getMessage();
+		}
+		if (TextUtils.isEmpty(html)) {
+			return "Missing response";
 		}
 		if (html.startsWith("Plays: <a") || html.startsWith("{\"html\":\"Plays:")) {
 			return null;
