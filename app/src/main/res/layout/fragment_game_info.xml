@@ -250,6 +250,34 @@
 						android:text="@string/title_plays"/>
 
 					<LinearLayout
+						android:id="@+id/play_stats_root"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical"
+						android:minHeight="@dimen/edit_row_height"
+						android:orientation="horizontal"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<ImageView
+							android:id="@+id/icon_play_stats"
+							style="@style/Icon"
+							android:src="@drawable/ic_action_pie_chart"/>
+
+						<TextView
+							android:id="@+id/play_stats_label"
+							style="@style/Text"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:singleLine="true"
+							android:text="@string/title_play_stats"/>
+					</LinearLayout>
+
+					<LinearLayout
 						android:id="@+id/colors_root"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"

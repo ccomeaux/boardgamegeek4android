@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -92,6 +93,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
 
 	@InjectView(R.id.plays_card) View mPlaysCard;
+	@InjectView(R.id.play_stats_root) View mPlayStatsRoot;
 	@InjectView(R.id.colors_root) View mColorsRoot;
 	@InjectView(R.id.game_colors_label) TextView mColorsLabel;
 
@@ -134,6 +136,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		R.id.game_info_base_games
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
+		R.id.icon_play_stats,
 		R.id.icon_colors,
 		R.id.icon_forums,
 		R.id.icon_comments,
@@ -430,6 +433,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
+		if (Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity())) {
+			mPlaysCard.setVisibility(View.VISIBLE);
+			mPlayStatsRoot.setVisibility(View.VISIBLE);
+		}
+
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
 
@@ -525,6 +533,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
 		intent.setData(mGameUri);
 		intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.play_stats_root)
+	public void onPlayStatsClick(View v) {
+		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(GamePlayStatsActivity.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
