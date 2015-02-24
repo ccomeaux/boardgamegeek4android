@@ -45,6 +45,7 @@
 	<string name="incomplete">Incomplete</string>
 	<string name="noWinStats">Don\'t Count Win Stats</string>
 	<string name="comments">Comments</string>
+	<string name="plays_summary">%1$,d Plays; last play on %2$s</string>
 	<string name="colors_suffix">%,d Colors/Teams</string>
 	<string name="comments_suffix">%,d Comments</string>
 	<string name="ratings_suffix">%,d Ratings</string>

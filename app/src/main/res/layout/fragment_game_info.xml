@@ -250,6 +250,34 @@
 						android:text="@string/title_plays"/>
 
 					<LinearLayout
+						android:id="@+id/plays_root"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/selectableItemBackground"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical"
+						android:minHeight="@dimen/edit_row_height"
+						android:orientation="horizontal"
+						android:visibility="gone"
+						tools:visibility="visible">
+
+						<ImageView
+							android:id="@+id/icon_plays"
+							style="@style/Icon"
+							android:src="@drawable/ic_action_calendar_light"/>
+
+						<TextView
+							android:id="@+id/plays_label"
+							style="@style/Text"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:gravity="center_vertical"
+							android:maxLines="2"
+							android:text="@string/title_plays"/>
+					</LinearLayout>
+
+					<LinearLayout
 						android:id="@+id/play_stats_root"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -273,7 +301,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/title_play_stats"/>
 					</LinearLayout>
 
@@ -301,7 +329,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/title_colors"/>
 					</LinearLayout>
 				</LinearLayout>
@@ -344,7 +372,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/title_forums"/>
 					</LinearLayout>
 
@@ -370,7 +398,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/title_comments"/>
 					</LinearLayout>
 
@@ -396,7 +424,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/title_ratings"/>
 					</LinearLayout>
 				</LinearLayout>
@@ -434,7 +462,7 @@
 							android:layout_height="match_parent"
 							android:layout_weight="1"
 							android:gravity="center_vertical"
-							android:singleLine="true"
+							android:maxLines="1"
 							android:text="@string/stats"/>
 					</LinearLayout>
 

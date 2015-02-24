@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -41,6 +42,7 @@ import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ForumsUtils;
@@ -93,6 +95,8 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
 
 	@InjectView(R.id.plays_card) View mPlaysCard;
+	@InjectView(R.id.plays_root) View mPlaysRoot;
+	@InjectView(R.id.plays_label) TextView mPlaysLabel;
 	@InjectView(R.id.play_stats_root) View mPlayStatsRoot;
 	@InjectView(R.id.colors_root) View mColorsRoot;
 	@InjectView(R.id.game_colors_label) TextView mColorsLabel;
@@ -136,6 +140,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		R.id.game_info_base_games
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
+		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
 		R.id.icon_forums,
@@ -210,6 +215,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
+		if (shouldShowPlays()) {
+			lm.restartLoader(PlaysQuery._TOKEN, null, this);
+		}
 		if (PreferencesUtils.showLogPlay(getActivity())) {
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
@@ -294,6 +302,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
 					RankQuery.PROJECTION, null, null, null);
 				break;
+			case PlaysQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), BggContract.Plays.CONTENT_URI, PlaysQuery.PROJECTION,
+					BggContract.PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(Games.getGameId(mGameUri)) }, null);
+				break;
 			case ColorQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(Games.getGameId(mGameUri)),
 					GameColorAdapter.PROJECTION, null, null, null);
@@ -347,10 +359,18 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
 				break;
+			case PlaysQuery._TOKEN:
+				mPlaysCard.setVisibility(View.VISIBLE);
+				mPlaysRoot.setVisibility(View.VISIBLE);
+				cursor.moveToFirst();
+				mPlaysLabel.setText(getString(R.string.plays_summary, cursor.getCount(),
+					CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE)));
+				break;
 			case ColorQuery._TOKEN:
 				mPlaysCard.setVisibility(View.VISIBLE);
 				mColorsRoot.setVisibility(View.VISIBLE);
 				mColorsLabel.setText(getString(R.string.colors_suffix, cursor.getCount()));
+				break;
 			default:
 				cursor.close();
 				break;
@@ -433,7 +453,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
-		if (Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity())) {
+		if (shouldShowPlays()) {
 			mPlaysCard.setVisibility(View.VISIBLE);
 			mPlayStatsRoot.setVisibility(View.VISIBLE);
 		}
@@ -446,6 +466,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			triggerRefresh();
 		}
 		mMightNeedRefreshing = false;
+	}
+
+	private boolean shouldShowPlays() {
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
 	}
 
 	private void notifyChange(Game game) {
@@ -692,8 +716,15 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int GAME_RANK_BAYES_AVERAGE = 3;
 	}
 
-	private interface ColorQuery {
+	private interface PlaysQuery {
+		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE };
 		int _TOKEN = 0x20;
+		int _ID = 0;
+		int DATE = 1;
+	}
+
+	private interface ColorQuery {
+		int _TOKEN = 0x21;
 	}
 
 	private class Game {
