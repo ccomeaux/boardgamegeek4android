@@ -528,6 +528,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		startActivity(intent);
 	}
 
+	@OnClick(R.id.colors_root)
+	public void onColorsClick(View v) {
+		Intent intent = new Intent(getActivity(), ColorsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ColorsActivity.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
 	@OnClick(R.id.comments_root)
 	public void onCommentsClick(View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
