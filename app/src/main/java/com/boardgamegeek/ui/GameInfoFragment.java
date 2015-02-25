@@ -140,6 +140,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		R.id.game_info_base_games
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
+		R.id.card_header_details,
+		R.id.card_header_plays,
+		R.id.card_header_user_feedback
+	}) List<TextView> mColorizedHeaders;
+	@InjectViews({
 		R.id.icon_plays,
 		R.id.icon_play_stats,
 		R.id.icon_colors,
@@ -396,10 +401,12 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		}
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = ColorUtils.getIconSwatch(palette);
 		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(mColorizedIcons, ColorUtils.colorIconSetter, swatch);
+		swatch = ColorUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {

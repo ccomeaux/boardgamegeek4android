@@ -99,6 +99,6 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 	public void onPaletteGenerated(Palette palette) {
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mAuthorContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
 	}
 }

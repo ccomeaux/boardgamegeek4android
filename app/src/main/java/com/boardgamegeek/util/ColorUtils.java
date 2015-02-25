@@ -241,7 +241,31 @@ public class ColorUtils {
 		return palette.getSwatches().get(0);
 	}
 
+	public static Palette.Swatch getHeaderSwatch(Palette palette) {
+		Palette.Swatch swatch = palette.getVibrantSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		swatch = palette.getDarkMutedSwatch();
+		if (swatch != null) {
+			return swatch;
+		}
+
+		return palette.getSwatches().get(0);
+	}
+
 	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewSetter =
+		new ButterKnife.Setter<TextView, Palette.Swatch>() {
+			@Override
+			public void set(TextView view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.setTextColor(value.getRgb());
+				}
+			}
+		};
+
+	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewOnBackgroundSetter =
 		new ButterKnife.Setter<TextView, Palette.Swatch>() {
 			@Override
 			public void set(TextView view, Palette.Swatch value, int index) {

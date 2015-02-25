@@ -162,6 +162,7 @@
 					android:orientation="vertical">
 
 					<TextView
+						android:id="@+id/card_header_details"
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_game_detail"/>
@@ -245,6 +246,7 @@
 					android:orientation="vertical">
 
 					<TextView
+						android:id="@+id/card_header_plays"
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_plays"/>
@@ -346,6 +348,7 @@
 					android:orientation="vertical">
 
 					<TextView
+						android:id="@+id/card_header_user_feedback"
 						style="@style/Text.Header.Card"
 						android:layout_width="wrap_content"
 						android:text="@string/title_user_feedback"/>
