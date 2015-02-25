@@ -164,7 +164,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	private void requery() {
-		if (mMode == MODE_ALL || mMode == MODE_LOCATION) {
+		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
 			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
 		} else if (mMode == MODE_PLAYER) {
 			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);

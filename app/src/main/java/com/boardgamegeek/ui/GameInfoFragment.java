@@ -360,17 +360,18 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				onRankQueryComplete(cursor);
 				break;
 			case PlaysQuery._TOKEN:
-				mPlaysCard.setVisibility(View.VISIBLE);
-				mPlaysRoot.setVisibility(View.VISIBLE);
-				cursor.moveToFirst();
-				int count = cursor.getCount();
-				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, count,
-					count, CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE)));
+				if (cursor.moveToFirst()) {
+					mPlaysCard.setVisibility(View.VISIBLE);
+					mPlaysRoot.setVisibility(View.VISIBLE);
+					int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
+					String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE);
+					mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+				}
 				break;
 			case ColorQuery._TOKEN:
 				mPlaysCard.setVisibility(View.VISIBLE);
 				mColorsRoot.setVisibility(View.VISIBLE);
-				count = cursor.getCount();
+				int count = cursor.getCount();
 				mColorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
 				break;
 			default:
@@ -554,11 +555,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		openOrCloseDescription();
 	}
 
-	@OnClick(R.id.forums_root)
-	public void onForumsClick(View v) {
-		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
+	@OnClick(R.id.plays_root)
+	public void onPlaysClick(View v) {
+		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+		intent.putExtra(GamePlaysActivity.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -575,6 +576,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(mGameUri);
 		intent.putExtra(ColorsActivity.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.forums_root)
+	public void onForumsClick(View v) {
+		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -719,10 +728,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	private interface PlaysQuery {
-		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE };
+		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE, BggContract.Plays.SUM_QUANTITY };
 		int _TOKEN = 0x20;
 		int _ID = 0;
 		int DATE = 1;
+		int SUM_QUANTITY = 2;
 	}
 
 	private interface ColorQuery {
