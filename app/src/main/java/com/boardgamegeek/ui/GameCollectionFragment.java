@@ -81,7 +81,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.row_game_collection, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
 
 		mMightNeedRefreshing = true;

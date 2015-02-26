@@ -63,7 +63,7 @@ import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class GameFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
 	ActivityUtils.ImageCallback {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -216,7 +216,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
 		colorize(mPalette);
 		openOrCloseDescription();

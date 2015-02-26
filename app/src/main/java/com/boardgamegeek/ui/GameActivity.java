@@ -1,18 +1,14 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,15 +20,14 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.GameInfoFragment.GameInfo;
+import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import timber.log.Timber;
 
-public class GameActivity extends PagedDrawerActivity implements GameInfoFragment.Callbacks {
+public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
@@ -45,7 +40,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	private boolean mCustomPlayerSort;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
-	private Fragment mGameInfoFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,26 +64,11 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
 			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
 		}
-
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		setupActionBarTabs(actionBar);
 	}
 
 	@Override
-	protected PagerAdapter getAdapter(FragmentManager fm) {
-		return new GamePagerAdapter(fm);
-	}
-
-	@Override
-	protected void setupActionBarTabs(ActionBar actionBar) {
-		actionBar.removeAllTabs();
-		createTab(actionBar, R.string.title_info);
-	}
-
-	@Override
-	protected int getContentViewId() {
-		return R.layout.activity_viewpager;
+	protected Fragment onCreatePane(Intent intent) {
+		return new GameFragment();
 	}
 
 	@Override
@@ -115,7 +94,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				if (Authenticator.isSignedIn(this)) {
 					upIntent = new Intent(this, CollectionActivity.class);
 				}
-				if (shouldUpRecreateTask(this, upIntent)) {
+				if (shouldUpRecreateTask()) {
 					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
 				} else {
 					NavUtils.navigateUpTo(this, upIntent);
@@ -125,7 +104,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				Bundle arguments = new Bundle(2);
 				arguments.putInt(PollFragment.KEY_GAME_ID, mGameId);
 				arguments.putString(PollFragment.KEY_TYPE, "language_dependence");
-				ActivityUtils.launchDialog(mGameInfoFragment, new PollFragment(), "poll-dialog", arguments);
+				ActivityUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
@@ -159,36 +138,8 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 		return super.onOptionsItemSelected(item);
 	}
 
-
-	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
-		return activity.getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
-	}
-
-	private class GamePagerAdapter extends FragmentPagerAdapter {
-
-		public GamePagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			Fragment fragment = null;
-			switch (position) {
-				case 0:
-					fragment = new GameInfoFragment();
-					mGameInfoFragment = fragment;
-					break;
-			}
-			if (fragment != null) {
-				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-			}
-			return fragment;
-		}
-
-		@Override
-		public int getCount() {
-			return 1;
-		}
+	private boolean shouldUpRecreateTask() {
+		return getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
 	}
 
 	@Override
