@@ -1,32 +1,29 @@
 package com.boardgamegeek.ui;
 
-import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -43,43 +40,60 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
+	@InjectView(R.id.hero_container) View heroContainer;
+	@InjectView(R.id.image) ImageView image;
+	@InjectView(R.id.name) TextView name;
+	@InjectView(R.id.rating) TextView rating;
+	@InjectView(R.id.collection_id) TextView id;
+	@InjectView(R.id.last_modified) TextView lastModified;
+	@InjectView(R.id.updated) TextView updated;
+	@InjectView(R.id.year) TextView year;
+	@InjectView(R.id.status) TextView status;
+	@InjectView(R.id.comment) TextView comment;
+	@InjectView(R.id.private_info_label) View privateInfoLabel;
+	@InjectView(R.id.private_info) TextView privateInfo;
+	@InjectView(R.id.private_info_comments) TextView privateInfoComments;
+	@InjectView(R.id.wishlist_label) View wishlistLabel;
+	@InjectView(R.id.wishlist_comment) TextView wishlistComment;
+	@InjectView(R.id.condition_label) View conditionLabel;
+	@InjectView(R.id.condition_comment) TextView conditionComment;
+	@InjectView(R.id.want_parts_label) View wantPartsLabel;
+	@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
+	@InjectView(R.id.has_parts_label) View hasPartsLabel;
+	@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+
 	private int mGameId = BggContract.INVALID_ID;
-	private CursorAdapter mAdapter;
+	private int mCollectionId = BggContract.INVALID_ID;
 	private boolean mMightNeedRefreshing;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		mGameId = intent.getIntExtra(GameCollectionActivity.KEY_GAME_ID, BggContract.INVALID_ID);
+		mCollectionId = intent.getIntExtra(GameCollectionActivity.KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-		final ListView listView = getListView();
-		listView.setSelector(android.R.color.transparent);
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setDivider(new ColorDrawable(getResources().getColor(R.color.accent)));
-		listView.setDividerHeight(getResources().getDimensionPixelSize(R.dimen.padding_standard));
-		listView.setFooterDividersEnabled(false);
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.row_game_collection, container, false);
+		ButterKnife.inject(this, rootView);
+
+		mMightNeedRefreshing = true;
+		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
+
+		return rootView;
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_game_collection));
-		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		if (uri != null && Games.isGameUri(uri)) {
-			mMightNeedRefreshing = true;
-			mGameId = Games.getGameId(uri);
-			getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
-		} else {
-			setListShown(true);
-		}
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.refresh_only, menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
@@ -93,12 +107,11 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != CollectionItem._TOKEN) {
+		if (id != CollectionItem._TOKEN || mCollectionId == BggContract.INVALID_ID) {
 			return null;
 		}
-		// TODO: don't use table name directly
-		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION, "collection."
-			+ Collection.GAME_ID + "=?", new String[] { String.valueOf(mGameId) }, null);
+		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION,
+			Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(mCollectionId) }, null);
 	}
 
 	@Override
@@ -107,151 +120,88 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new CollectionAdapter(getActivity());
-			setListAdapter(mAdapter);
-		}
-
-		if (cursor == null || !cursor.moveToFirst()) {
-			if (mMightNeedRefreshing) {
-				triggerRefresh();
+		if (loader.getId() == CollectionItem._TOKEN) {
+			if (cursor == null || !cursor.moveToFirst()) {
+				if (mMightNeedRefreshing) {
+					triggerRefresh();
+				}
+				return;
 			}
-			return;
-		}
 
-		int token = loader.getId();
-		if (token == CollectionItem._TOKEN) {
-			mAdapter.changeCursor(cursor);
+			// TODO: update UI
+			CollectionItem item = new CollectionItem(cursor);
+			updateUi(item);
+
 			if (mMightNeedRefreshing) {
-				cursor.moveToFirst();
-				do {
-					long u = cursor.getLong(new CollectionItem().UPDATED);
-					if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
-						triggerRefresh();
-						break;
-					}
-				} while (cursor.moveToNext());
-				cursor.moveToPosition(-1);
+				long u = cursor.getLong(new CollectionItem().UPDATED);
+				if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
+					triggerRefresh();
+				}
 			}
+			mMightNeedRefreshing = false;
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
-			cursor.close();
+			Timber.d("Query complete, Not Actionable: " + loader.getId());
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
-
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
-
-		mMightNeedRefreshing = false;
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (mAdapter != null) {
-			mAdapter.changeCursor(null);
-		}
 	}
 
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId, null);
-	}
-
-	private class CollectionAdapter extends CursorAdapter {
-		private LayoutInflater mInflater;
-
-		public CollectionAdapter(Context context) {
-			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_game_collection, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
-			CollectionItem item = new CollectionItem(cursor);
-
-			ScrimUtil.applyDefaultScrim(holder.heroContainer);
-
-			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
-			holder.name.setText(item.name.trim());
-			holder.year.setText(item.getYearDescription());
-			holder.lastModified.setText(item.getLastModifiedDescription());
-			holder.rating.setText(item.getRatingDescription());
-			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(item.rating));
-
-			holder.status.setText(item.getStatus());
-			holder.comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
-			holder.comment.setText(item.comment);
-
-			// Private info
-			if (item.hasPrivateInfo() || item.hasPrivateComment()) {
-				holder.privateInfoLabel.setVisibility(View.VISIBLE);
-				holder.privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
-				holder.privateInfo.setText(item.getPrivateInfo());
-				holder.privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
-				holder.privateInfoComments.setText(item.privateComment);
-			} else {
-				holder.privateInfoLabel.setVisibility(View.GONE);
-				holder.privateInfo.setVisibility(View.GONE);
-				holder.privateInfoComments.setVisibility(View.GONE);
-			}
-
-			showSection(item.wishlistComment, holder.wishlistLabel, holder.wishlistComment);
-			showSection(item.condition, holder.conditionLabel, holder.conditionComment);
-			showSection(item.wantParts, holder.wantPartsLabel, holder.wantPartsComment);
-			showSection(item.hasParts, holder.hasPartsLabel, holder.hasPartsComment);
-
-			holder.id.setText(String.valueOf(item.id));
-			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-			holder.updated.setText(item.getUpdatedDescription());
-
-			holder.image.setTag(R.id.image, item.imageUrl);
-			holder.image.setTag(R.id.name, item.name);
-		}
-
-		private void showSection(String text, View label, TextView comment) {
-			label.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-			comment.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-			comment.setText(text);
+		if (mGameId != BggContract.INVALID_ID) {
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId, null);
 		}
 	}
 
-	static class ViewHolder {
-		@InjectView(R.id.hero_container) View heroContainer;
-		@InjectView(R.id.image) ImageView image;
-		@InjectView(R.id.name) TextView name;
-		@InjectView(R.id.rating) TextView rating;
-		@InjectView(R.id.collection_id) TextView id;
-		@InjectView(R.id.last_modified) TextView lastModified;
-		@InjectView(R.id.updated) TextView updated;
-		@InjectView(R.id.year) TextView year;
-		@InjectView(R.id.status) TextView status;
-		@InjectView(R.id.comment) TextView comment;
-		@InjectView(R.id.private_info_label) View privateInfoLabel;
-		@InjectView(R.id.private_info) TextView privateInfo;
-		@InjectView(R.id.private_info_comments) TextView privateInfoComments;
-		@InjectView(R.id.wishlist_label) View wishlistLabel;
-		@InjectView(R.id.wishlist_comment) TextView wishlistComment;
-		@InjectView(R.id.condition_label) View conditionLabel;
-		@InjectView(R.id.condition_comment) TextView conditionComment;
-		@InjectView(R.id.want_parts_label) View wantPartsLabel;
-		@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
-		@InjectView(R.id.has_parts_label) View hasPartsLabel;
-		@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+	private void updateUi(CollectionItem item) {
+		ScrimUtil.applyDefaultScrim(heroContainer);
 
-		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+		ActivityUtils.safelyLoadImage(image, item.imageUrl);
+		name.setText(item.name.trim());
+		year.setText(item.getYearDescription());
+		lastModified.setText(item.getLastModifiedDescription());
+		rating.setText(item.getRatingDescription());
+		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.rating));
+
+		status.setText(item.getStatus());
+		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
+		comment.setText(item.comment);
+
+		// Private info
+		if (item.hasPrivateInfo() || item.hasPrivateComment()) {
+			privateInfoLabel.setVisibility(View.VISIBLE);
+			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
+			privateInfo.setText(item.getPrivateInfo());
+			privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
+			privateInfoComments.setText(item.privateComment);
+		} else {
+			privateInfoLabel.setVisibility(View.GONE);
+			privateInfo.setVisibility(View.GONE);
+			privateInfoComments.setVisibility(View.GONE);
 		}
+
+		showSection(item.wishlistComment, wishlistLabel, wishlistComment);
+		showSection(item.condition, conditionLabel, conditionComment);
+		showSection(item.wantParts, wantPartsLabel, wantPartsComment);
+		showSection(item.hasParts, hasPartsLabel, hasPartsComment);
+
+		id.setText(String.valueOf(item.id));
+		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
+		updated.setText(item.getUpdatedDescription());
+
+		image.setTag(R.id.image, item.imageUrl);
+		image.setTag(R.id.name, item.name);
+	}
+
+	private void showSection(String text, View label, TextView comment) {
+		label.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		comment.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		comment.setText(text);
 	}
 
 	private class CollectionItem {

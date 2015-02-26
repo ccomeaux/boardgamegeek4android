@@ -552,6 +552,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			mCollectionCard.setVisibility(View.VISIBLE);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
+				row.bind(Games.getGameId(mGameUri), mGameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
 				row.setThumbnail(cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL));
 				row.setName(cursor.getString(CollectionQuery.COLLECTION_NAME));
 				row.setYear(cursor.getInt(CollectionQuery.COLLECTION_YEAR));
@@ -792,6 +793,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			BggContract.Collection.STATUS_WANT_TO_PLAY, BggContract.Collection.STATUS_PREORDERED,
 			BggContract.Collection.STATUS_WISHLIST_PRIORITY, BggContract.Collection.NUM_PLAYS };
 		int _TOKEN = 0x20;
+		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
 		int COLLECTION_YEAR = 3;
 		int COLLECTION_THUMBNAIL = 4;

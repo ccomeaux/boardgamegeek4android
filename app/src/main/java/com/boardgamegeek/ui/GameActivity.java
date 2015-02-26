@@ -85,9 +85,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	protected void setupActionBarTabs(ActionBar actionBar) {
 		actionBar.removeAllTabs();
 		createTab(actionBar, R.string.title_info);
-		if (showCollection()) {
-			createTab(actionBar, R.string.title_collection);
-		}
 	}
 
 	@Override
@@ -181,9 +178,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 					fragment = new GameInfoFragment();
 					mGameInfoFragment = fragment;
 					break;
-				case 1:
-					fragment = new GameCollectionFragment();
-					break;
 			}
 			if (fragment != null) {
 				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
@@ -193,7 +187,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 
 		@Override
 		public int getCount() {
-			return 1 + (showCollection() ? 1 : 0);
+			return 1;
 		}
 	}
 
@@ -300,10 +294,6 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 		}
 	}
 
-	private boolean showCollection() {
-		return Authenticator.isSignedIn(this);
-	}
-
 	public void onThumbnailClick(View v) {
 		String imageUrl = (String) v.getTag(R.id.image);
 		if (!TextUtils.isEmpty(imageUrl)) {
@@ -311,11 +301,5 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			intent.putExtra(ImageActivity.KEY_IMAGE_URL, imageUrl);
 			startActivity(intent);
 		}
-	}
-
-	@Override
-	protected void onSignInSuccess() {
-		super.onSignInSuccess();
-		updateTabs();
 	}
 }

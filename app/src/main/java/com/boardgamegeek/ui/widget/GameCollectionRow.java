@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.ui.GameCollectionActivity;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.squareup.picasso.Picasso;
@@ -24,6 +26,10 @@ public class GameCollectionRow extends LinearLayout {
 	@InjectView(R.id.name) TextView mNameView;
 	@InjectView(R.id.year) TextView mYearView;
 	@InjectView(R.id.status) TextView mStatusView;
+
+	private int mGameId;
+	private String mGameName;
+	private int mCollectionId;
 
 	public GameCollectionRow(Context context) {
 		super(context);
@@ -44,6 +50,24 @@ public class GameCollectionRow extends LinearLayout {
 		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		li.inflate(R.layout.widget_collection_row, this, true);
 		ButterKnife.inject(this);
+
+		setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
+				intent.putExtra(GameCollectionActivity.KEY_GAME_ID, mGameId);
+				intent.putExtra(GameCollectionActivity.KEY_GAME_NAME, mGameName);
+				intent.putExtra(GameCollectionActivity.KEY_COLLECTION_ID, mCollectionId);
+				intent.putExtra(GameCollectionActivity.KEY_COLLECTION_NAME, mNameView.getText());
+				getContext().startActivity(intent);
+			}
+		});
+	}
+
+	public void bind(int gameId, String gameName, int collectionId) {
+		mGameId = gameId;
+		mGameName = gameName;
+		mCollectionId = collectionId;
 	}
 
 	public void setName(String name) {

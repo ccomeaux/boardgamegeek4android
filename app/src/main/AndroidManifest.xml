@@ -208,6 +208,9 @@
 			android:label="@string/title_log_player"
 			android:theme="@style/Theme.bgglight.NoActionBar"/>
 		<activity
+			android:name=".ui.GameCollectionActivity"
+			android:label="@string/title_collection"/>
+		<activity
 			android:name=".ui.GamePlaysActivity"
 			android:label="@string/title_plays"/>
 		<activity
