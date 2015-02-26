@@ -381,13 +381,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				onCollectionQueryComplete(cursor);
 				break;
 			case PlaysQuery._TOKEN:
-				if (cursor.moveToFirst()) {
-					mPlaysCard.setVisibility(View.VISIBLE);
-					mPlaysRoot.setVisibility(View.VISIBLE);
-					int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
-					String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE);
-					mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
-				}
+				onPlaysQueryComplete(cursor);
 				break;
 			case ColorQuery._TOKEN:
 				mPlaysCard.setVisibility(View.VISIBLE);
@@ -576,6 +570,20 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				row.setStatus(status, cursor.getInt(CollectionQuery.NUM_PLAYS));
 				mCollectionContainer.addView(row);
 			} while (cursor.moveToNext());
+		}
+	}
+
+	private void onPlaysQueryComplete(Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			mPlaysCard.setVisibility(View.VISIBLE);
+			mPlaysRoot.setVisibility(View.VISIBLE);
+			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
+			if (sum > 0) {
+				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE);
+				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+			} else {
+				mPlaysLabel.setText(getResources().getString(R.string.no_plays));
+			}
 		}
 	}
 

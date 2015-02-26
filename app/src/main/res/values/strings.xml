@@ -60,6 +60,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="no_plays">No plays</string>
 	<string name="played">Played</string>
 	<string name="rematch">Rematch</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
