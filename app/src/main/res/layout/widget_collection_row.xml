@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/plays_root"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:descendantFocusability="blocksDescendants"
+	android:gravity="center_vertical"
+	android:minHeight="@dimen/edit_row_height"
+	android:orientation="horizontal"
+	android:paddingBottom="@dimen/padding_half"
+	android:paddingTop="@dimen/padding_half">
+
+	<ImageView
+		android:id="@+id/thumbnail"
+		style="@style/ImageList"
+		android:layout_width="@dimen/thumbnail_list_size"
+		android:layout_height="@dimen/thumbnail_list_size"
+		android:contentDescription="@string/thumbnail"
+		android:src="@drawable/thumbnail_image_empty"/>
+
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:gravity="center_vertical"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/name"
+			style="@style/Text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			tools:text="Bluff"/>
+
+		<TextView
+			android:id="@+id/year"
+			style="@style/Text.Secondary"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:visibility="gone"
+			tools:text="1999"
+			tools:visibility="visible"/>
+
+		<TextView
+			android:id="@+id/status"
+			style="@style/Text.Secondary"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:visibility="gone"
+			tools:text="Owned and Want to Play"
+			tools:visibility="visible"/>
+	</LinearLayout>
+</LinearLayout>

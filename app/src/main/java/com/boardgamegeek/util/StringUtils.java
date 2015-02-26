@@ -1,10 +1,13 @@
 package com.boardgamegeek.util;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
+
+import com.boardgamegeek.R;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -157,5 +160,22 @@ public class StringUtils {
 		sb.append(boldText);
 		sb.setSpan(new StyleSpan(Typeface.BOLD), sb.length() - boldText.length(), sb.length(),
 			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	}
+
+	public static String describeYear(Context context, int year) {
+		if (year > 0) {
+			return context.getString(R.string.year_positive, year);
+		} else if (year == 0) {
+			return context.getString(R.string.year_zero, year);
+		} else {
+			return context.getString(R.string.year_negative, -year);
+		}
+	}
+
+	public static String describeWishlist(Context context, int priority) {
+		if (priority < 0 || priority > 5) {
+			return context.getString(R.string.wishlist);
+		}
+		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
 	}
 }

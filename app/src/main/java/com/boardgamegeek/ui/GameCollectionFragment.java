@@ -416,21 +416,11 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		}
 
 		String getYearDescription() {
-			if (year > 0) {
-				return getString(R.string.year_positive, year);
-			} else if (year == 0) {
-				return getString(R.string.year_zero, year);
-			} else {
-				return getString(R.string.year_negative, -year);
-			}
+			return StringUtils.describeYear(getActivity(), year);
 		}
 
 		String getWishlistPriority() {
-			int i = wishlistPriority;
-			if (wishlistPriority < 0 || wishlistPriority > 5) {
-				i = 0;
-			}
-			return r.getStringArray(R.array.wishlist_priority)[i];
+			return StringUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
 		String getPrice() {

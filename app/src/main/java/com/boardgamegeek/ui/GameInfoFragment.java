@@ -36,6 +36,7 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.StatBar;
@@ -48,10 +49,12 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -93,6 +96,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
+
+	@InjectView(R.id.collection_card) View mCollectionCard;
+	@InjectView(R.id.collection_container) ViewGroup mCollectionContainer;
 
 	@InjectView(R.id.plays_card) View mPlaysCard;
 	@InjectView(R.id.plays_root) View mPlaysRoot;
@@ -141,6 +147,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	}) List<GameDetailRow> mColorizedRows;
 	@InjectViews({
 		R.id.card_header_details,
+		R.id.card_header_collection,
 		R.id.card_header_plays,
 		R.id.card_header_user_feedback
 	}) List<TextView> mColorizedHeaders;
@@ -220,6 +227,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
+		lm.restartLoader(CollectionQuery._TOKEN, null, this);
 		if (shouldShowPlays()) {
 			lm.restartLoader(PlaysQuery._TOKEN, null, this);
 		}
@@ -271,48 +279,53 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
+		int gameId = Games.getGameId(mGameUri);
 		switch (id) {
 			case GameQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId),
 					DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId),
 					ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId),
 					PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId),
 					CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId),
 					MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
 					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
 					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId),
 					RankQuery.PROJECTION, null, null, null);
+				break;
+			case CollectionQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), BggContract.Collection.CONTENT_URI, CollectionQuery.PROJECTION,
+					"collection." + BggContract.Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), BggContract.Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					BggContract.PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(Games.getGameId(mGameUri)) }, null);
+					BggContract.PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case ColorQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId),
 					GameColorAdapter.PROJECTION, null, null, null);
 				break;
 			default:
@@ -363,6 +376,9 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 				break;
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
+				break;
+			case CollectionQuery._TOKEN:
+				onCollectionQueryComplete(cursor);
 				break;
 			case PlaysQuery._TOKEN:
 				if (cursor.moveToFirst()) {
@@ -535,6 +551,32 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 		mRankRoot.addView(layout);
 		mRankRoot.addView(sb);
+	}
+
+	private void onCollectionQueryComplete(Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			mCollectionCard.setVisibility(View.VISIBLE);
+			do {
+				GameCollectionRow row = new GameCollectionRow(getActivity());
+				row.setThumbnail(cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL));
+				row.setName(cursor.getString(CollectionQuery.COLLECTION_NAME));
+				row.setYear(cursor.getInt(CollectionQuery.COLLECTION_YEAR));
+				List<String> status = new ArrayList<>();
+				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
+					if (cursor.getInt(i) == 1) {
+						if (i == CollectionQuery.STATUS_WISHLIST) {
+							status.add(StringUtils.describeWishlist(getActivity(),
+								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
+						} else {
+							int index = i - CollectionQuery.STATUS_1;
+							status.add(getResources().getStringArray(R.array.collection_status_filter_entries)[index]);
+						}
+					}
+				}
+				row.setStatus(status, cursor.getInt(CollectionQuery.NUM_PLAYS));
+				mCollectionContainer.addView(row);
+			} while (cursor.moveToNext());
+		}
 	}
 
 	private void setText(TextView tv, String text, boolean bold) {
@@ -734,16 +776,34 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int GAME_RANK_BAYES_AVERAGE = 3;
 	}
 
+	private interface CollectionQuery {
+		String[] PROJECTION = { BggContract.Collection._ID, BggContract.Collection.COLLECTION_ID,
+			BggContract.Collection.COLLECTION_NAME, BggContract.Collection.COLLECTION_YEAR_PUBLISHED, BggContract.Collection.COLLECTION_IMAGE_URL,
+			BggContract.Collection.STATUS_OWN, BggContract.Collection.STATUS_PREVIOUSLY_OWNED, BggContract.Collection.STATUS_FOR_TRADE,
+			BggContract.Collection.STATUS_WANT, BggContract.Collection.STATUS_WANT_TO_BUY, BggContract.Collection.STATUS_WISHLIST,
+			BggContract.Collection.STATUS_WANT_TO_PLAY, BggContract.Collection.STATUS_PREORDERED,
+			BggContract.Collection.STATUS_WISHLIST_PRIORITY, BggContract.Collection.NUM_PLAYS };
+		int _TOKEN = 0x20;
+		int COLLECTION_NAME = 2;
+		int COLLECTION_YEAR = 3;
+		int COLLECTION_THUMBNAIL = 4;
+		int STATUS_1 = 5;
+		int STATUS_N = 12;
+		int STATUS_WISHLIST = 10;
+		int STATUS_WISHLIST_PRIORITY = 13;
+		int NUM_PLAYS = 14;
+	}
+
 	private interface PlaysQuery {
 		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE, BggContract.Plays.SUM_QUANTITY };
-		int _TOKEN = 0x20;
+		int _TOKEN = 0x21;
 		int _ID = 0;
 		int DATE = 1;
 		int SUM_QUANTITY = 2;
 	}
 
 	private interface ColorQuery {
-		int _TOKEN = 0x21;
+		int _TOKEN = 0x22;
 	}
 
 	private class Game {
