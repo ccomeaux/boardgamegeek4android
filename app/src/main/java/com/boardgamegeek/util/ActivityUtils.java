@@ -60,6 +60,7 @@ public class ActivityUtils {
 	public final static String KEY_TITLE = "TITLE";
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
+	public final static String KEY_IMAGE_URL = "IMAGE_URL";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
 	public static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
 

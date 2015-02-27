@@ -602,7 +602,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
 			startActivity(intent);
 		}
 	}

@@ -12,7 +12,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -242,15 +241,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 			}
 
 			activity.updateRefreshStatus(mSyncing);
-		}
-	}
-
-	public void onThumbnailClick(View v) {
-		String imageUrl = (String) v.getTag(R.id.image);
-		if (!TextUtils.isEmpty(imageUrl)) {
-			final Intent intent = new Intent(this, ImageActivity.class);
-			intent.putExtra(ImageActivity.KEY_IMAGE_URL, imageUrl);
-			startActivity(intent);
 		}
 	}
 }

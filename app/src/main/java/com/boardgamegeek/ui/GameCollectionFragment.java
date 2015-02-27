@@ -38,6 +38,7 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -67,6 +68,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 
 	private int mGameId = BggContract.INVALID_ID;
 	private int mCollectionId = BggContract.INVALID_ID;
+	private String mImageUrl;
 	private boolean mMightNeedRefreshing;
 
 	@Override
@@ -151,6 +153,15 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@OnClick(R.id.image)
+	public void onThumbnailClick(View v) {
+		if (!TextUtils.isEmpty(mImageUrl)) {
+			final Intent intent = new Intent(getActivity(), ImageActivity.class);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
+			startActivity(intent);
+		}
+	}
+
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
 		if (mGameId != BggContract.INVALID_ID) {
@@ -162,6 +173,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 		ScrimUtil.applyDefaultScrim(heroContainer);
 
 		ActivityUtils.safelyLoadImage(image, item.imageUrl);
+		mImageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
 		lastModified.setText(item.getLastModifiedDescription());

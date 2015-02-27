@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.PaletteTransformation;
 import com.squareup.picasso.Callback;
@@ -19,8 +20,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class ImageActivity extends ActionBarActivity {
-	public static final String KEY_IMAGE_URL = "IMAGE_URL";
-
 	@InjectView(R.id.image) ImageView imageView;
 	@InjectView(R.id.progress) View progressBar;
 
@@ -31,7 +30,7 @@ public class ImageActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_image);
 		ButterKnife.inject(this);
 
-		String imageUrl = getIntent().getStringExtra(KEY_IMAGE_URL);
+		String imageUrl = getIntent().getStringExtra(ActivityUtils.KEY_IMAGE_URL);
 
 		Picasso.with(this)
 			.load(HttpUtils.ensureScheme(imageUrl))
@@ -51,13 +50,13 @@ public class ImageActivity extends ActionBarActivity {
 
 	private int getColor(Palette palette) {
 		Palette.Swatch swatch = palette.getDarkMutedSwatch();
-		if (swatch == null){
+		if (swatch == null) {
 			swatch = palette.getDarkVibrantSwatch();
 		}
-		if (swatch == null){
+		if (swatch == null) {
 			swatch = palette.getMutedSwatch();
 		}
-		if (swatch == null){
+		if (swatch == null) {
 			return Color.BLACK;
 		}
 		return swatch.getRgb();

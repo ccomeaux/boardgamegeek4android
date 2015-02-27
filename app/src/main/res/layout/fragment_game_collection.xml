@@ -4,14 +4,13 @@
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
 			  android:orientation="vertical"
-			  tools:context=".ui.GameActivity">
+			  tools:context=".ui.GameCollectionActivity">
 
 	<FrameLayout style="@style/HeroContainer">
 
 		<ImageView
 			android:id="@+id/image"
-			style="@style/HeroImage"
-			android:onClick="onThumbnailClick"/>
+			style="@style/HeroImage"/>
 
 		<LinearLayout
 			android:id="@+id/hero_container"
