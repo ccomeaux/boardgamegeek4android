@@ -15,7 +15,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import hugo.weaving.DebugLog;
 
 public class GamePlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
-	public static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_COUNT = "COUNT";
 	private int mGameId;
 	private String mGameName;
@@ -31,7 +30,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity implements Plays
 		}
 
 		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(KEY_GAME_NAME);
+		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
 			ActionBar bar = getSupportActionBar();

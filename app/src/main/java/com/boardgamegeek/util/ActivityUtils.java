@@ -39,7 +39,6 @@ import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
-import com.boardgamegeek.ui.GameActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
 import com.squareup.picasso.Callback;
@@ -60,8 +59,27 @@ public class ActivityUtils {
 	public final static String KEY_TITLE = "TITLE";
 	public final static String KEY_GAME_ID = "GAME_ID";
 	public final static String KEY_GAME_NAME = "GAME_NAME";
+	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
+	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	public final static String KEY_IMAGE_URL = "IMAGE_URL";
+	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	public final static String KEY_QUERY_TOKEN = "QUERY_TOKEN";
+	public final static String KEY_SORT = "SORT";
+	public static final String KEY_USER = "USER";
+	public static final String KEY_USERNAME = "USERNAME";
+	public static final String KEY_FORUM_ID = "FORUM_ID";
+	public static final String KEY_FORUM_TITLE = "FORUM_TITLE";
+	public static final String KEY_THREAD_ID = "THREAD_ID";
+	public static final String KEY_THREAD_SUBJECT = "THREAD_SUBJECT";
+	public static final String KEY_POST_DATE = "POST_DATE";
+	public static final String KEY_EDIT_DATE = "EDIT_DATE";
+	public static final String KEY_EDIT_COUNT = "EDIT_COUNT";
+	public static final String KEY_TEXT = "TEXT";
+	public static final String KEY_BODY = "BODY";
+	public static final String KEY_LINK = "LINK";
+	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
+	public static final String KEY_TYPE = "TYPE";
+
 	public static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
 
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
@@ -147,7 +165,7 @@ public class ActivityUtils {
 	private static Intent createGameIntent(int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
-		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 		return intent;
 	}
 
@@ -355,8 +373,8 @@ public class ActivityUtils {
 
 	private static Intent createGameShortcut(Context context, int gameId, String gameName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
-		intent.putExtra(GameActivity.KEY_GAME_NAME, gameName);
-		intent.putExtra(GameActivity.KEY_FROM_SHORTCUT, true);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
 
 		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
 		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);

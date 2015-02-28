@@ -12,8 +12,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class CommentsActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_SORT = "SORT";
 	public static final int SORT_USER = 0;
 	public static final int SORT_RATING = 1;
 
@@ -25,8 +23,8 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		int sort = getIntent().getIntExtra(KEY_SORT, SORT_USER);
+		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		int sort = getIntent().getIntExtra(ActivityUtils.KEY_SORT, SORT_USER);
 
 		ActionBar bar = getSupportActionBar();
 		if (sort == SORT_RATING) {

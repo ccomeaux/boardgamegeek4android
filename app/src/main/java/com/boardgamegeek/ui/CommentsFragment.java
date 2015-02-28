@@ -20,6 +20,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.widget.PaginatedData;
 import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -40,7 +41,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = Games.getGameId(intent.getData());
-		mByRating = intent.getIntExtra(CommentsActivity.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
+		mByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 
 		if (savedInstanceState != null) {
 			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);

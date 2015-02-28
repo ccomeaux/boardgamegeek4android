@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.GameCollectionActivity;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.squareup.picasso.Picasso;
@@ -55,10 +56,10 @@ public class GameCollectionRow extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getContext(), GameCollectionActivity.class);
-				intent.putExtra(GameCollectionActivity.KEY_GAME_ID, mGameId);
-				intent.putExtra(GameCollectionActivity.KEY_GAME_NAME, mGameName);
-				intent.putExtra(GameCollectionActivity.KEY_COLLECTION_ID, mCollectionId);
-				intent.putExtra(GameCollectionActivity.KEY_COLLECTION_NAME, mNameView.getText());
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_COLLECTION_ID, mCollectionId);
+				intent.putExtra(ActivityUtils.KEY_COLLECTION_NAME, mNameView.getText());
 				getContext().startActivity(intent);
 			}
 		});

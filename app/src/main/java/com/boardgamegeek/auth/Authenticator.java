@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 
 import org.apache.http.client.CookieStore;
@@ -111,7 +112,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 	private Bundle createLoginIntent(AccountAuthenticatorResponse response, String accountName) {
 		final Intent intent = new Intent(mContext, LoginActivity.class);
 		if (!TextUtils.isEmpty(accountName)) {
-			intent.putExtra(LoginActivity.EXTRA_USERNAME, accountName);
+			intent.putExtra(ActivityUtils.KEY_USERNAME, accountName);
 		}
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 		final Bundle bundle = new Bundle();

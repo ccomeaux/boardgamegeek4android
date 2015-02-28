@@ -86,7 +86,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 	@Override
 	public boolean onLocationSelected(String name) {
 		Intent intent = new Intent(this, LocationActivity.class);
-		intent.putExtra(LocationActivity.KEY_LOCATION_NAME, name);
+		intent.putExtra(ActivityUtils.KEY_LOCATION_NAME, name);
 		startActivity(intent);
 		return true;
 	}

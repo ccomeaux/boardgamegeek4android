@@ -21,8 +21,8 @@ import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		mThreadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -177,12 +177,12 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 					DateTimeUtils.formatForumDate(getContext(), article.editDate())));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
-				bundle.putString(ForumsUtils.KEY_USER, article.username);
-				bundle.putLong(ForumsUtils.KEY_POST_DATE, article.postDate());
-				bundle.putLong(ForumsUtils.KEY_EDIT_DATE, article.editDate());
-				bundle.putInt(ForumsUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
-				bundle.putString(ForumsUtils.KEY_BODY, article.body);
-				bundle.putString(ForumsUtils.KEY_LINK, article.link);
+				bundle.putString(ActivityUtils.KEY_USER, article.username);
+				bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
+				bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.editDate());
+				bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
+				bundle.putString(ActivityUtils.KEY_BODY, article.body);
+				bundle.putString(ActivityUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);
 			}
 			return convertView;

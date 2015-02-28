@@ -24,8 +24,8 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.NumberFormat;
@@ -46,7 +46,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		Uri uri = intent.getData();
 		mGameId = Games.getGameId(uri);
-		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
 	@Override
@@ -100,10 +100,10 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
 			if (holder != null) {
 				Intent intent = new Intent(getActivity(), ForumActivity.class);
-				intent.putExtra(ForumsUtils.KEY_FORUM_ID, holder.forumId);
-				intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
-				intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_FORUM_ID, holder.forumId);
+				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, holder.forumTitle.getText());
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 				startActivity(intent);
 			}
 		}

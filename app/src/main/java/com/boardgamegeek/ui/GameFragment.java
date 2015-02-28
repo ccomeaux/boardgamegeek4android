@@ -46,7 +46,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-import com.boardgamegeek.util.ForumsUtils;
+
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
@@ -617,7 +617,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onPlaysClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(GamePlaysActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -625,7 +625,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onPlayStatsClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(GamePlayStatsActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -633,7 +633,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(ColorsActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -641,7 +641,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onForumsClick(View v) {
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -649,7 +649,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onCommentsClick(View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(CommentsActivity.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 		startActivity(intent);
 	}
 
@@ -657,8 +657,8 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	public void onRatingsClick(View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(mGameUri);
-		intent.putExtra(CommentsActivity.KEY_GAME_NAME, mGameName);
-		intent.putExtra(CommentsActivity.KEY_SORT, CommentsActivity.SORT_RATING);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_RATING);
 		startActivity(intent);
 	}
 
@@ -683,8 +683,8 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	@OnClick({ R.id.number_of_players, R.id.player_age })
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
-		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));
-		arguments.putString(PollFragment.KEY_TYPE, (String) v.getTag());
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
+		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
 		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 

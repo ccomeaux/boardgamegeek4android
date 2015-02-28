@@ -10,8 +10,8 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
@@ -35,11 +35,11 @@ public class ArticleFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mUser = intent.getStringExtra(ForumsUtils.KEY_USER);
-		mPostDate = intent.getLongExtra(ForumsUtils.KEY_POST_DATE, 0);
-		mEditDate = intent.getLongExtra(ForumsUtils.KEY_EDIT_DATE, 0);
-		mEditCount = intent.getIntExtra(ForumsUtils.KEY_EDIT_COUNT, 0);
-		mBody = intent.getStringExtra(ForumsUtils.KEY_BODY);
+		mUser = intent.getStringExtra(ActivityUtils.KEY_USER);
+		mPostDate = intent.getLongExtra(ActivityUtils.KEY_POST_DATE, 0);
+		mEditDate = intent.getLongExtra(ActivityUtils.KEY_EDIT_DATE, 0);
+		mEditCount = intent.getIntExtra(ActivityUtils.KEY_EDIT_COUNT, 0);
+		mBody = intent.getStringExtra(ActivityUtils.KEY_BODY);
 	}
 
 	@Override

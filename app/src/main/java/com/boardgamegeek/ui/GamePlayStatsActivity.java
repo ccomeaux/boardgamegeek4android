@@ -11,7 +11,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_GAME_NAME = "GAME_NAME";
 	private int mGameId;
 	private String mGameName;
 
@@ -20,7 +19,7 @@ public class GamePlayStatsActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		mGameId = BggContract.Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(KEY_GAME_NAME);
+		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
 			ActionBar bar = getSupportActionBar();

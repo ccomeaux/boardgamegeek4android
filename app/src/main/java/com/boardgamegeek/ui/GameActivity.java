@@ -27,9 +27,6 @@ import com.boardgamegeek.util.PreferencesUtils;
 import timber.log.Timber;
 
 public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
-
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
 	private static final int REQUEST_EDIT_PLAY = 1;
 
 	private int mGameId;
@@ -46,7 +43,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mGameId = Games.getGameId(getIntent().getData());
-		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
 			@Override
@@ -101,8 +98,8 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				return true;
 			case R.id.menu_language_poll:
 				Bundle arguments = new Bundle(2);
-				arguments.putInt(PollFragment.KEY_GAME_ID, mGameId);
-				arguments.putString(PollFragment.KEY_TYPE, "language_dependence");
+				arguments.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
+				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
 				ActivityUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
@@ -138,7 +135,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	}
 
 	private boolean shouldUpRecreateTask() {
-		return getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
+		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
 	}
 
 	@Override
@@ -158,7 +155,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
-			getIntent().putExtra(KEY_GAME_NAME, gameName);
+			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 			getSupportActionBar().setTitle(gameName);
 		}
 	}

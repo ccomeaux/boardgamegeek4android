@@ -9,7 +9,6 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ForumsUtils;
 
 public class GameForumsActivity extends SimpleSinglePaneActivity {
 	private int mGameId;
@@ -20,7 +19,7 @@ public class GameForumsActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		mGameId = Games.getGameId(getIntent().getData());
-		mGameName = getIntent().getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		if (!TextUtils.isEmpty(mGameName)) {
 			ActionBar bar = getSupportActionBar();

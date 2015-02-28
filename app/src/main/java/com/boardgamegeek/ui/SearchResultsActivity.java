@@ -92,7 +92,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 
 	private Fragment buildTextFragment(String text) {
 		mFragment = new TextFragment();
-		getIntent().putExtra(TextFragment.KEY_TEXT, text);
+		getIntent().putExtra(ActivityUtils.KEY_TEXT, text);
 		return mFragment;
 	}
 }

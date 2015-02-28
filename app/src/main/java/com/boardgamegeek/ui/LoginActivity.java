@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AuthProfile;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -37,8 +38,6 @@ import timber.log.Timber;
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class LoginActivity extends AccountAuthenticatorActivity {
-	public static final String EXTRA_USERNAME = "USERNAME";
-
 	private String mUsername;
 	private String mPassword;
 
@@ -61,7 +60,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		ButterKnife.inject(this);
 
 		mAccountManager = AccountManager.get(this);
-		mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
+		mUsername = getIntent().getStringExtra(ActivityUtils.KEY_USER);
 
 		mRequestNewAccount = mUsername == null;
 

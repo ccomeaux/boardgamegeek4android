@@ -11,10 +11,6 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
 public class GameCollectionActivity extends SimpleSinglePaneActivity {
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_COLLECTION_ID = "COLLECTION_ID";
-	public static final String KEY_COLLECTION_NAME = "COLLECTION_NAME";
 	private int mGameId;
 	private String mGameName;
 
@@ -22,9 +18,9 @@ public class GameCollectionActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGameId = getIntent().getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = getIntent().getStringExtra(KEY_GAME_NAME);
-		String collectionName = getIntent().getStringExtra(KEY_COLLECTION_NAME);
+		mGameId = getIntent().getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		String collectionName = getIntent().getStringExtra(ActivityUtils.KEY_COLLECTION_NAME);
 
 		if (!TextUtils.isEmpty(collectionName)) {
 			ActionBar bar = getSupportActionBar();

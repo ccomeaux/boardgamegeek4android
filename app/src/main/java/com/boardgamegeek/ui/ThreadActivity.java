@@ -11,7 +11,6 @@ import android.view.View;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.UIUtils;
 
@@ -30,12 +29,12 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
-		mThreadSubject = intent.getStringExtra(ForumsUtils.KEY_THREAD_SUBJECT);
-		mForumId = intent.getIntExtra(ForumsUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
-		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
-		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mThreadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		mThreadSubject = intent.getStringExtra(ActivityUtils.KEY_THREAD_SUBJECT);
+		mForumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
+		mForumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (TextUtils.isEmpty(mGameName)) {
@@ -64,10 +63,10 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				Intent intent = new Intent(this, ForumActivity.class);
-				intent.putExtra(ForumsUtils.KEY_FORUM_ID, mForumId);
-				intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
-				intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
-				intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+				intent.putExtra(ActivityUtils.KEY_FORUM_ID, mForumId);
+				intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
+				intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+				intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				finish();
@@ -89,12 +88,12 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 	public void onButtonClick(View v) {
 		Intent intent = new Intent(this, ArticleActivity.class);
 		Bundle b = (Bundle) v.getTag();
-		b.putInt(ForumsUtils.KEY_THREAD_ID, mThreadId);
-		b.putString(ForumsUtils.KEY_THREAD_SUBJECT, mThreadSubject);
-		b.putInt(ForumsUtils.KEY_FORUM_ID, mForumId);
-		b.putString(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
-		b.putInt(ForumsUtils.KEY_GAME_ID, mGameId);
-		b.putString(ForumsUtils.KEY_GAME_NAME, mGameName);
+		b.putInt(ActivityUtils.KEY_THREAD_ID, mThreadId);
+		b.putString(ActivityUtils.KEY_THREAD_SUBJECT, mThreadSubject);
+		b.putInt(ActivityUtils.KEY_FORUM_ID, mForumId);
+		b.putString(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
+		b.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
+		b.putString(ActivityUtils.KEY_GAME_NAME, mGameName);
 		intent.putExtras(b);
 		startActivity(intent);
 	}

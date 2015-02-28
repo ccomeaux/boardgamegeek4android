@@ -77,8 +77,8 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 		setHasOptionsMenu(true);
 
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGameId = intent.getIntExtra(GameCollectionActivity.KEY_GAME_ID, BggContract.INVALID_ID);
-		mCollectionId = intent.getIntExtra(GameCollectionActivity.KEY_COLLECTION_ID, BggContract.INVALID_ID);
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mCollectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
