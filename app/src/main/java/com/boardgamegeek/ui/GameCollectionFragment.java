@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.graphics.Palette;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -26,6 +27,7 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
@@ -35,41 +37,59 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
+	@InjectView(R.id.progress) View progress;
+	@InjectView(R.id.scroll_container) View scrollContainer;
 	@InjectView(R.id.hero_container) View heroContainer;
 	@InjectView(R.id.image) ImageView image;
 	@InjectView(R.id.name) TextView name;
-	@InjectView(R.id.rating) TextView rating;
-	@InjectView(R.id.collection_id) TextView id;
-	@InjectView(R.id.last_modified) TextView lastModified;
-	@InjectView(R.id.updated) TextView updated;
 	@InjectView(R.id.year) TextView year;
+	@InjectView(R.id.status_container) View statusContainer;
 	@InjectView(R.id.status) TextView status;
+	@InjectView(R.id.last_modified) TextView lastModified;
+	@InjectView(R.id.rating) TextView rating;
 	@InjectView(R.id.comment) TextView comment;
-	@InjectView(R.id.private_info_label) View privateInfoLabel;
+	@InjectView(R.id.private_info_container) View privateInfoContainer;
 	@InjectView(R.id.private_info) TextView privateInfo;
 	@InjectView(R.id.private_info_comments) TextView privateInfoComments;
-	@InjectView(R.id.wishlist_label) View wishlistLabel;
+	@InjectView(R.id.wishlist_container) View wishlistContainer;
 	@InjectView(R.id.wishlist_comment) TextView wishlistComment;
-	@InjectView(R.id.condition_label) View conditionLabel;
+	@InjectView(R.id.condition_container) View conditionContainer;
 	@InjectView(R.id.condition_comment) TextView conditionComment;
-	@InjectView(R.id.want_parts_label) View wantPartsLabel;
+	@InjectView(R.id.want_parts_container) View wantPartsContainer;
 	@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
-	@InjectView(R.id.has_parts_label) View hasPartsLabel;
+	@InjectView(R.id.has_parts_container) View hasPartsContainer;
 	@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+	@InjectView(R.id.collection_id) TextView id;
+	@InjectView(R.id.updated) TextView updated;
+	@InjectViews({
+		R.id.status,
+		R.id.last_modified
+	}) List<TextView> mColorizedTextViews;
+	@InjectViews({
+		R.id.card_header_private_info,
+		R.id.card_header_wishlist,
+		R.id.card_header_condition,
+		R.id.card_header_want_parts,
+		R.id.card_header_has_parts
+	}) List<TextView> mColorizedHeaders;
 
 	private int mGameId = BggContract.INVALID_ID;
 	private int mCollectionId = BggContract.INVALID_ID;
 	private String mImageUrl;
 	private boolean mMightNeedRefreshing;
+	private Palette mPalette;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +105,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
+		colorize(mPalette);
 
 		mMightNeedRefreshing = true;
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
@@ -130,9 +151,10 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 				return;
 			}
 
-			// TODO: update UI
 			CollectionItem item = new CollectionItem(cursor);
 			updateUi(item);
+			AnimationUtils.fadeOut(getActivity(), progress, true);
+			AnimationUtils.fadeIn(getActivity(), scrollContainer, true);
 
 			if (mMightNeedRefreshing) {
 				long u = cursor.getLong(new CollectionItem().UPDATED);
@@ -151,6 +173,23 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		mPalette = palette;
+		colorize(palette);
+	}
+
+	private void colorize(Palette palette) {
+		if (palette == null || scrollContainer == null) {
+			return;
+		}
+		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		statusContainer.setBackgroundColor(swatch.getRgb());
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = ColorUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
 	}
 
 	@OnClick(R.id.image)
@@ -172,7 +211,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 	private void updateUi(CollectionItem item) {
 		ScrimUtil.applyDefaultScrim(heroContainer);
 
-		ActivityUtils.safelyLoadImage(image, item.imageUrl);
+		ActivityUtils.safelyLoadImage(image, item.imageUrl, this);
 		mImageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
@@ -186,21 +225,19 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 
 		// Private info
 		if (item.hasPrivateInfo() || item.hasPrivateComment()) {
-			privateInfoLabel.setVisibility(View.VISIBLE);
+			privateInfoContainer.setVisibility(View.VISIBLE);
 			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
 			privateInfo.setText(item.getPrivateInfo());
 			privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
 			privateInfoComments.setText(item.privateComment);
 		} else {
-			privateInfoLabel.setVisibility(View.GONE);
-			privateInfo.setVisibility(View.GONE);
-			privateInfoComments.setVisibility(View.GONE);
+			privateInfoContainer.setVisibility(View.GONE);
 		}
 
-		showSection(item.wishlistComment, wishlistLabel, wishlistComment);
-		showSection(item.condition, conditionLabel, conditionComment);
-		showSection(item.wantParts, wantPartsLabel, wantPartsComment);
-		showSection(item.hasParts, hasPartsLabel, hasPartsComment);
+		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
+		showSection(item.condition, conditionContainer, conditionComment);
+		showSection(item.wantParts, wantPartsContainer, wantPartsComment);
+		showSection(item.hasParts, hasPartsContainer, hasPartsComment);
 
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
@@ -210,9 +247,8 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 		image.setTag(R.id.name, item.name);
 	}
 
-	private void showSection(String text, View label, TextView comment) {
-		label.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-		comment.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+	private void showSection(String text, View container, TextView comment) {
+		container.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 		comment.setText(text);
 	}
 

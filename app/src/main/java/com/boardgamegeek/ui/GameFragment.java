@@ -550,6 +550,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	private void onCollectionQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mCollectionCard.setVisibility(View.VISIBLE);
+			mCollectionContainer.removeViews(1, mCollectionContainer.getChildCount() - 1);
 			do {
 				GameCollectionRow row = new GameCollectionRow(getActivity());
 				row.bind(Games.getGameId(mGameUri), mGameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
