@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,12 +54,15 @@ public class GameCollectionFragment extends Fragment implements
 	LoaderManager.LoaderCallbacks<Cursor>,
 	ActivityUtils.ImageCallback,
 	ObservableScrollView.Callbacks {
+
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 
 	@InjectView(R.id.progress) View progress;
 	@InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
-	@InjectView(R.id.header_container) View headerContainer;
+	@InjectView(R.id.hero_container) View heroContainer;
 	@InjectView(R.id.image) ImageView image;
+	@InjectView(R.id.header_container) View headerContainer;
 	@InjectView(R.id.name) TextView name;
 	@InjectView(R.id.year) TextView year;
 	@InjectView(R.id.status_container) View statusContainer;
@@ -97,6 +101,14 @@ public class GameCollectionFragment extends Fragment implements
 	private boolean mMightNeedRefreshing;
 	private Palette mPalette;
 
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+		= new ViewTreeObserver.OnGlobalLayoutListener() {
+		@Override
+		public void onGlobalLayout() {
+			ActivityUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -113,12 +125,36 @@ public class GameCollectionFragment extends Fragment implements
 		ButterKnife.inject(this, rootView);
 		colorize(mPalette);
 		scrollContainer.addCallbacks(this);
+		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+		}
 
 		mMightNeedRefreshing = true;
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
 
 		return rootView;
 	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		ButterKnife.reset(this);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (scrollContainer == null) {
+			return;
+		}
+
+		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+		}
+	}
+
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

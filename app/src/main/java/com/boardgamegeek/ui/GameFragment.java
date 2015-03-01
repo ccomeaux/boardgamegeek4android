@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -81,8 +82,9 @@ public class GameFragment extends Fragment implements
 
 	@InjectView(R.id.scroll_root) ObservableScrollView mScrollRoot;
 	@InjectView(R.id.progress) View mProgressView;
-	@InjectView(R.id.image) ImageView mImageView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
+	@InjectView(R.id.image) ImageView mImageView;
+	@InjectView(R.id.header_container) View mHeaderContainer;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
@@ -199,6 +201,14 @@ public class GameFragment extends Fragment implements
 
 	private Callbacks mCallbacks = sDummyCallbacks;
 
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+		= new ViewTreeObserver.OnGlobalLayoutListener() {
+		@Override
+		public void onGlobalLayout() {
+			ActivityUtils.resizeImagePerAspectRatio(mImageView, mScrollRoot.getHeight() / 2, mHeroContainer);
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -226,8 +236,12 @@ public class GameFragment extends Fragment implements
 		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
-		ScrimUtil.applyDefaultScrim(mHeroContainer);
+		ScrimUtil.applyDefaultScrim(mHeaderContainer);
 		mScrollRoot.addCallbacks(this);
+		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+		}
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -264,6 +278,19 @@ public class GameFragment extends Fragment implements
 	public void onDestroyView() {
 		super.onDestroyView();
 		ButterKnife.reset(this);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mScrollRoot == null) {
+			return;
+		}
+
+		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+		}
 	}
 
 	@Override
@@ -411,7 +438,7 @@ public class GameFragment extends Fragment implements
 		if (VersionUtils.hasHoneycomb()) {
 			int scrollY = mScrollRoot.getScrollY();
 			mImageView.setTranslationY(scrollY * 0.5f);
-			mHeroContainer.setTranslationY(scrollY * 0.5f);
+			mHeaderContainer.setTranslationY(scrollY * 0.5f);
 		}
 	}
 

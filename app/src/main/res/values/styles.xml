@@ -342,7 +342,7 @@
 
 	<style name="HeroContainer">
 		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">128dp</item>
+		<item name="android:layout_height">196dp</item>
 		<item name="android:layout_gravity">center</item>
 	</style>
 

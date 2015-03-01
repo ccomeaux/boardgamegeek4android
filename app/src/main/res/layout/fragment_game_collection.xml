@@ -26,7 +26,9 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
-			<FrameLayout style="@style/HeroContainer">
+			<FrameLayout
+				android:id="@+id/hero_container"
+				style="@style/HeroContainer">
 
 				<ImageView
 					android:id="@+id/image"

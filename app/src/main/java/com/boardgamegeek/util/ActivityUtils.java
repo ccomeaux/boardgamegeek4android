@@ -29,6 +29,7 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,6 +91,8 @@ public class ActivityUtils {
 	private static final String SUFFIX_SMALL = "_t";
 	public static final String SUFFIX_MEDIUM = "_md";
 	private static final String SUFFIX_LARGE = "_lg";
+
+	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 
 	@SuppressLint("CommitTransaction")
 	public static void launchDialog(Fragment host, DialogFragment dialog, String tag, Bundle arguments) {
@@ -535,4 +538,17 @@ public class ActivityUtils {
 			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
 		}
 	}
+
+	public static void resizeImagePerAspectRatio(View image, int maxHeight, View resizableView) {
+		int height = (int) (image.getWidth() / IMAGE_ASPECT_RATIO);
+		height = Math.min(height, maxHeight);
+
+		ViewGroup.LayoutParams lp;
+		lp = resizableView.getLayoutParams();
+		if (lp.height != height) {
+			lp.height = height;
+			resizableView.setLayoutParams(lp);
+		}
+	}
+
 }
