@@ -1,10 +1,12 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -39,6 +41,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameDetailRow;
+import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -46,11 +49,11 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
-
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -63,8 +66,10 @@ import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback {
+public class GameFragment extends Fragment implements
+	LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback,
+	ObservableScrollView.Callbacks {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
@@ -74,10 +79,10 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 	private String mGameName;
 	private String mImageUrl;
 
-	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
-	@InjectView(R.id.game_info_progress) View mProgressView;
+	@InjectView(R.id.scroll_root) ObservableScrollView mScrollRoot;
+	@InjectView(R.id.progress) View mProgressView;
+	@InjectView(R.id.image) ImageView mImageView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
-	@InjectView(R.id.game_info_image) ImageView mImageView;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
@@ -161,9 +166,9 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 		R.id.icon_stats
 	}) List<ImageView> mColorizedIcons;
 
-	boolean mIsDescriptionExpanded;
-	boolean mIsStatsExpanded;
-	private NumberFormat mFormat = NumberFormat.getInstance();
+	private boolean mIsDescriptionExpanded;
+	private boolean mIsStatsExpanded;
+	private final NumberFormat mFormat = NumberFormat.getInstance();
 	private boolean mMightNeedRefreshing;
 	private Palette mPalette;
 
@@ -222,6 +227,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 		openOrCloseDescription();
 		openOrCloseStats();
 		ScrimUtil.applyDefaultScrim(mHeroContainer);
+		mScrollRoot.addCallbacks(this);
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
@@ -397,6 +403,16 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@Override
+	public void onScrollChanged(int deltaX, int deltaY) {
+		if (VersionUtils.hasHoneycomb()) {
+			int scrollY = mScrollRoot.getScrollY();
+			mImageView.setTranslationY(scrollY * 0.5f);
+			mHeroContainer.setTranslationY(scrollY * 0.5f);
+		}
 	}
 
 	@Override
@@ -599,7 +615,7 @@ public class GameFragment extends Fragment implements LoaderManager.LoaderCallba
 		}
 	}
 
-	@OnClick(R.id.game_info_image)
+	@OnClick(R.id.image)
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);

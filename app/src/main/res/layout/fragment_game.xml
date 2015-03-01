@@ -9,15 +9,15 @@
 	tools:context=".ui.GameActivity">
 
 	<ProgressBar
-		android:id="@+id/game_info_progress"
+		android:id="@+id/progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		tools:visibility="gone"/>
 
-	<ScrollView
-		android:id="@+id/game_info_scroll_root"
+	<com.boardgamegeek.ui.widget.ObservableScrollView
+		android:id="@+id/scroll_root"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:visibility="gone"
@@ -32,7 +32,7 @@
 			<FrameLayout style="@style/HeroContainer">
 
 				<ImageView
-					android:id="@+id/game_info_image"
+					android:id="@+id/image"
 					style="@style/HeroImage"/>
 
 				<LinearLayout
@@ -524,6 +524,5 @@
 					tools:text="Yesterday"/>
 			</LinearLayout>
 		</LinearLayout>
-	</ScrollView>
-
+	</com.boardgamegeek.ui.widget.ObservableScrollView>
 </FrameLayout>
