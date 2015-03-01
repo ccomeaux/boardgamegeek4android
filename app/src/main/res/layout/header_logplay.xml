@@ -170,7 +170,9 @@
 
 		<LinearLayout
 			android:id="@+id/log_play_comments_root"
-			style="@style/FormRowContainer">
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
 
 			<TextView
 				android:id="@+id/log_play_comments_label"
@@ -185,7 +187,8 @@
 				android:id="@+id/log_play_comments"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:inputType="textMultiLine|textAutoCorrect|textCapSentences"/>
+				android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
+				android:minHeight="@dimen/edit_row_height"/>
 		</LinearLayout>
 
 		<LinearLayout
