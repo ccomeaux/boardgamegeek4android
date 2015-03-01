@@ -1,8 +1,10 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
@@ -34,6 +37,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -45,13 +49,15 @@ import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback {
+public class GameCollectionFragment extends Fragment implements
+	LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback,
+	ObservableScrollView.Callbacks {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
 	@InjectView(R.id.progress) View progress;
-	@InjectView(R.id.scroll_container) View scrollContainer;
-	@InjectView(R.id.hero_container) View heroContainer;
+	@InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
+	@InjectView(R.id.header_container) View headerContainer;
 	@InjectView(R.id.image) ImageView image;
 	@InjectView(R.id.name) TextView name;
 	@InjectView(R.id.year) TextView year;
@@ -106,6 +112,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
 		ButterKnife.inject(this, rootView);
 		colorize(mPalette);
+		scrollContainer.addCallbacks(this);
 
 		mMightNeedRefreshing = true;
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
@@ -175,6 +182,16 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@Override
+	public void onScrollChanged(int deltaX, int deltaY) {
+		if (VersionUtils.hasHoneycomb()) {
+			int scrollY = scrollContainer.getScrollY();
+			image.setTranslationY(scrollY * 0.5f);
+			headerContainer.setTranslationY(scrollY * 0.5f);
+		}
+	}
+
 	@Override
 	public void onPaletteGenerated(Palette palette) {
 		mPalette = palette;
@@ -209,7 +226,7 @@ public class GameCollectionFragment extends Fragment implements LoaderManager.Lo
 	}
 
 	private void updateUi(CollectionItem item) {
-		ScrimUtil.applyDefaultScrim(heroContainer);
+		ScrimUtil.applyDefaultScrim(headerContainer);
 
 		ActivityUtils.safelyLoadImage(image, item.imageUrl, this);
 		mImageUrl = item.imageUrl;

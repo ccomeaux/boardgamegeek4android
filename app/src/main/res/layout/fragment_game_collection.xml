@@ -14,7 +14,7 @@
 		android:layout_gravity="center"
 		tools:visibility="gone"/>
 
-	<ScrollView
+	<com.boardgamegeek.ui.widget.ObservableScrollView
 		android:id="@+id/scroll_container"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -33,7 +33,7 @@
 					style="@style/HeroImage"/>
 
 				<LinearLayout
-					android:id="@+id/hero_container"
+					android:id="@+id/header_container"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:orientation="vertical"
@@ -290,5 +290,5 @@
 				</LinearLayout>
 			</LinearLayout>
 		</LinearLayout>
-	</ScrollView>
+	</com.boardgamegeek.ui.widget.ObservableScrollView>
 </FrameLayout>
