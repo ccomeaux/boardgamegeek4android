@@ -380,6 +380,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">@dimen/edit_row_height</item>
 		<item name="android:orientation">horizontal</item>
+		<item name="android:gravity">center_vertical</item>
 	</style>
 
 	<style name="WebViewContainer">
@@ -405,9 +406,14 @@
 	</style>
 
 	<style name="Icon">
-		<item name="android:layout_width">24dp</item>
-		<item name="android:layout_height">24dp</item>
-		<item name="android:layout_marginRight">32dp</item>
+		<item name="android:layout_width">40dp</item>
+		<item name="android:layout_height">40dp</item>
+		<item name="android:paddingTop">8dp</item>
+		<item name="android:paddingBottom">8dp</item>
+		<item name="android:paddingRight">8dp</item>
+		<item name="android:paddingLeft">8dp</item>
+		<item name="android:layout_marginLeft">-8dp</item>
+		<item name="android:layout_marginRight">24dp</item>
 	</style>
 
 </resources>

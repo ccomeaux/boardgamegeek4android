@@ -38,22 +38,19 @@
 
 		<LinearLayout style="@style/FormRowContainer">
 
-			<TextView
-				style="@style/TextLabel"
-				android:layout_width="@dimen/edit_label_width"
-				android:layout_height="match_parent"
-				android:labelFor="@+id/log_play_date"
-				android:text="@string/on"/>
+			<ImageView
+				style="@style/Icon"
+				android:src="@drawable/ic_action_calendar_light"/>
 
 			<TextView
 				android:id="@+id/log_play_date"
-				style="@style/Text.Big"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:background="?attr/selectableItemBackground"
 				android:gravity="left|center_vertical"
 				android:onClick="onDateClick"
+				android:textAppearance="@style/Text.Big"
 				tools:text="January 1, 1970"/>
 		</LinearLayout>
 
@@ -61,12 +58,9 @@
 			android:id="@+id/log_play_location_root"
 			style="@style/FormRowContainer">
 
-			<TextView
-				style="@style/TextLabel"
-				android:layout_width="@dimen/edit_label_width"
-				android:layout_height="match_parent"
-				android:labelFor="@+id/log_play_location"
-				android:text="@string/at"/>
+			<ImageView
+				style="@style/Icon"
+				android:src="@drawable/ic_place_black_24dp"/>
 
 			<AutoCompleteTextView
 				android:id="@+id/log_play_location"
@@ -77,6 +71,7 @@
 				android:hint="@string/location_hint"
 				android:imeOptions="actionNext"
 				android:inputType="textCapWords"
+				android:textAppearance="@style/Text.Big"
 				android:textColor="#000"/>
 		</LinearLayout>
 
@@ -84,12 +79,11 @@
 			android:id="@+id/log_play_length_root"
 			style="@style/FormRowContainer">
 
-			<TextView
-				style="@style/TextLabel"
-				android:layout_width="@dimen/edit_label_width"
-				android:layout_height="match_parent"
-				android:labelFor="@+id/log_play_length_container_inner"
-				android:text="@string/for_"/>
+			<ImageView
+				android:id="@+id/timer_toggle"
+				style="@style/Icon"
+				android:background="?attr/selectableItemBackground"
+				android:src="@drawable/ic_action_timer"/>
 
 			<FrameLayout
 				android:id="@+id/log_play_length_container_inner"
@@ -103,11 +97,11 @@
 					android:layout_height="match_parent"
 					android:gravity="center_vertical"
 					android:hint="@string/length_hint"
-					android:inputType="number"/>
+					android:inputType="number"
+					android:textAppearance="@style/Text.Big"/>
 
 				<Chronometer
 					android:id="@+id/timer"
-					style="@style/Text.Big"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@color/primary"
@@ -115,30 +109,17 @@
 					android:maxLines="1"
 					android:paddingBottom="@dimen/padding_standard"
 					android:paddingTop="@dimen/padding_standard"
-					android:textIsSelectable="false"/>
+					android:textAppearance="@style/Text.Big"/>
 			</FrameLayout>
-
-			<ImageView
-				android:id="@+id/timer_toggle"
-				android:layout_width="@dimen/image_button_size"
-				android:layout_height="@dimen/image_button_size"
-				android:layout_gravity="center_vertical"
-				android:background="?attr/selectableItemBackground"
-				android:onClick="onTimer"
-				android:scaleType="center"
-				android:src="@drawable/ic_action_timer_light"/>
 		</LinearLayout>
 
 		<LinearLayout
 			android:id="@+id/log_play_quantity_root"
 			style="@style/FormRowContainer">
 
-			<TextView
-				style="@style/TextLabel"
-				android:layout_width="@dimen/edit_label_width"
-				android:layout_height="match_parent"
-				android:labelFor="@+id/log_play_quantity"
-				android:text="@string/times_abbr"/>
+			<ImageView
+				style="@style/Icon"
+				android:src="@drawable/ic_action_tiles_small"/>
 
 			<EditText
 				android:id="@+id/log_play_quantity"
@@ -147,7 +128,8 @@
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:hint="@string/quantity_hint"
-				android:inputType="number"/>
+				android:inputType="number"
+				android:textAppearance="@style/Text.Big"/>
 		</LinearLayout>
 
 		<android.support.v7.widget.SwitchCompat
@@ -157,6 +139,7 @@
 			android:layout_height="@dimen/edit_row_height"
 			android:checked="false"
 			android:paddingLeft="@dimen/edit_label_width"
+			android:paddingRight="@dimen/edit_label_width"
 			android:text="@string/incomplete"/>
 
 		<android.support.v7.widget.SwitchCompat
@@ -166,6 +149,7 @@
 			android:layout_height="@dimen/edit_row_height"
 			android:checked="false"
 			android:paddingLeft="@dimen/edit_label_width"
+			android:paddingRight="@dimen/edit_label_width"
 			android:text="@string/noWinStats"/>
 
 		<LinearLayout
@@ -198,16 +182,8 @@
 
 			<ImageView
 				android:id="@+id/player_sort"
-				android:layout_width="@dimen/image_button_size"
-				android:layout_height="@dimen/image_button_size"
-				android:background="?attr/selectableItemBackground"
-				android:onClick="onPlayerSort"
-				android:scaleType="center"
+				style="@style/Icon"
 				android:src="@drawable/ic_action_sort_light"/>
-
-			<View
-				android:layout_width="16dp"
-				android:layout_height="match_parent"/>
 
 			<TextView
 				android:id="@+id/log_play_players_label"
@@ -215,14 +191,14 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:text="@string/title_players"/>
+				android:text="@string/title_players"
+				android:textSize="16sp"/>
 
 			<ImageView
 				android:id="@+id/clear_players"
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
 				android:background="?attr/selectableItemBackground"
-				android:onClick="onClearPlayers"
 				android:scaleType="center"
 				android:src="@drawable/ic_action_cancel_light"/>
 		</LinearLayout>
