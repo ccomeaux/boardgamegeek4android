@@ -4,7 +4,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -65,13 +65,16 @@ dependencies {
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
-    compile 'com.squareup.picasso:picasso:2.4.0'
+    compile 'com.squareup.picasso:picasso:2.5.0'
     compile 'se.emilsjolander:stickylistheaders:2.5.2'
-    compile 'com.jakewharton:butterknife:6.0.0'
-    compile 'com.jakewharton.timber:timber:2.5.1'
+    compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.jakewharton.timber:timber:2.7.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
-    compile 'com.melnykov:floatingactionbutton:1.1.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.0@aar') {
+    compile 'com.melnykov:floatingactionbutton:1.2.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+        transitive = true;
+    }
+    compile('com.mikepenz.aboutlibraries:library:4.5.6@aar') {
         transitive = true;
     }
 }
