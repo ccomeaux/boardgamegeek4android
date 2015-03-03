@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +15,7 @@ import android.widget.LinearLayout;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
+import com.mikepenz.aboutlibraries.Libs;
 
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +99,22 @@ public class SettingsActivity extends PreferenceActivity {
 					addPreferencesFromResource(fragmentId);
 				}
 			}
+
+			((Preference) findPreference("open_source_licenses")).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				public boolean onPreferenceClick(Preference preference) {
+					new Libs.Builder()
+						.withFields(R.string.class.getFields())
+						.withLibraries("OkHttp", "DragSortListView", "Hugo", "PhotoView",
+							"RangeSeekBar", "StickyListHeaders", "AndroidIcons")
+						.withAutoDetect(true)
+						.withLicenseShown(true)
+						.withActivityTitle(getString(R.string.pref_about_licenses))
+						.withActivityTheme(R.style.Theme_bgglight)
+						.withAboutVersionShown(true)
+						.start(PrefFragment.this.getActivity());
+					return true;
+				}
+			});
 		}
 
 		@Override

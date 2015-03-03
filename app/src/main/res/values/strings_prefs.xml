@@ -155,19 +155,80 @@
 Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.
 	]]></string>
 	<string name="pref_about_licenses">Open source licenses</string>
-	<string name="pref_about_dslv_license">Copyright 2012 Carl Bauer\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_fab_license">The MIT License (MIT)\n\nCopyright (c) 2014 Oleksandr Melnykov\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</string>
-	<string name="pref_about_gson_license">Copyright 2013 Google, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_hugo_license">Copyright 2013 Jake Wharton\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_okhttp_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_photoview_license">Copyright 2011, 2012 Chris Banes\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_picasso_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_retrofit_license">Copyright 2013 Square, Inc.\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_slh_license">Copyright 2014 Emil Sjölander\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_timber_license">Copyright 2013 Jake Wharton\n\nLicensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\n&#160;&#160;&#160;&#160;http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
-	<string name="pref_about_icons">Icons</string>
 	<string name="pref_about_contact_us">Contact Us</string>
 	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
 	<string name="pref_feedback_title">Feedback</string>
 
+	<string name="define_int_DragSortListView"></string>
+	<string name="library_DragSortListView_author">Carl A. Bauer</string>
+	<string name="library_DragSortListView_authorWebsite">https://github.com/bauerca</string>
+	<string name="library_DragSortListView_libraryName">DragSortListView</string>
+    <string name="library_DragSortListView_libraryDescription">DragSortListView (DSLV) is an extension of the Android ListView that enables drag-and-drop reordering of list items.</string>
+	<string name="library_DragSortListView_libraryVersion">0.6.1</string>
+	<string name="library_DragSortListView_licenseId">apache_2_0</string>
+	<string name="library_DragSortListView_isOpenSource">true</string>
+	<string name="library_DragSortListView_repositoryLink">https://github.com/bauerca/drag-sort-listview</string>
+
+	<string name="define_int_Hugo"></string>
+	<string name="library_Hugo_author">Jake Wharton</string>
+	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
+	<string name="library_Hugo_libraryName">Hugo</string>
+	<string name="library_Hugo_libraryDescription">Annotation-triggered method call logging for your debug builds.</string>
+	<string name="library_Hugo_libraryVersion">1.2.1</string>
+	<string name="library_Hugo_licenseId">apache_2_0</string>
+	<string name="library_Hugo_isOpenSource">true</string>
+	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
+
+	<string name="define_int_PhotoView"></string>
+	<string name="library_PhotoView_author">Chris Banes</string>
+	<string name="library_PhotoView_authorWebsite">https://chris.banes.me</string>
+	<string name="library_PhotoView_libraryName">PhotoView</string>
+	<string name="library_PhotoView_libraryDescription">Implementation of ImageView for Android that supports zooming, by various touch gestures.</string>
+	<string name="library_PhotoView_libraryVersion">1.2.3</string>
+	<string name="library_PhotoView_licenseId">apache_2_0</string>
+	<string name="library_PhotoView_isOpenSource">true</string>
+	<string name="library_PhotoView_repositoryLink">https://github.com/chrisbanes/PhotoView</string>
+
+	<string name="define_int_RangeSeekBar"></string>
+	<string name="library_RangeSeekBar_author">Stephan Tittel</string>
+	<string name="library_RangeSeekBar_libraryName">range-seek-bar</string>
+	<string name="library_RangeSeekBar_libraryDescription">A slider widget for Android allowing to set a minimum and maximum value on a numerical range.</string>
+	<string name="library_RangeSeekBar_licenseId">apache_2_0</string>
+	<string name="library_RangeSeekBar_isOpenSource">true</string>
+	<string name="library_RangeSeekBar_repositoryLink">https://code.google.com/p/range-seek-bar</string>
+
+	<string name="define_int_StickyListHeaders"></string>
+	<string name="library_StickyListHeaders_author">Emil Sjölander</string>
+	<string name="library_StickyListHeaders_authorWebsite">http://emilsjolander.se</string>
+	<string name="library_StickyListHeaders_libraryName">StickyListHeaders</string>
+	<string name="library_StickyListHeaders_libraryDescription">An android library for section headers that stick to the top.</string>
+	<string name="library_StickyListHeaders_libraryVersion">2.5.2</string>
+	<string name="library_StickyListHeaders_licenseId">apache_2_0</string>
+	<string name="library_StickyListHeaders_isOpenSource">true</string>
+	<string name="library_StickyListHeaders_repositoryLink">https://github.com/emilsjolander/StickyListHeaders</string>
+
+	<string name="define_int_AndroidIcons"></string>
+	<string name="library_AndroidIcons_author">Opoloo</string>
+	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
+	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
+	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
+	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
+	<string name="library_AndroidIcons_libraryVersion">1.0</string>
+	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
+	<string name="library_AndroidIcons_isOpenSource">true</string>
+	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_license_CCBYSA_4_0"></string>
+	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
+	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
+	<string name="license_CCBYSA_4_0_licenseShortDescription">
+		Creative Commons Attribution-ShareAlike 4.0 International
+	</string>
+	<string name="license_CCBYSA_4_0_licenseDescription">
+        Licensed under Attribution-ShareAlike 4.0 International CC BY-SA 4.0
+        You are free to:
+        Share — copy and redistribute the material in any medium or format
+        Adapt — remix, transform, and build upon the material for any purpose, even commercially.
+        The licensor cannot revoke these freedoms as long as you follow the license terms.
+	</string>
 </resources>
