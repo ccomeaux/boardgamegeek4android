@@ -199,11 +199,36 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 
 	<string name="define_int_StickyListHeaders"></string>
 	<string name="library_StickyListHeaders_author">Emil Sjölander</string>
-	<string name="library_StickyListHeaders_authorWebsite">http://emilsjolander.se//</string>
+	<string name="library_StickyListHeaders_authorWebsite">http://emilsjolander.se</string>
 	<string name="library_StickyListHeaders_libraryName">StickyListHeaders</string>
 	<string name="library_StickyListHeaders_libraryDescription">An android library for section headers that stick to the top.</string>
 	<string name="library_StickyListHeaders_libraryVersion">2.5.2</string>
 	<string name="library_StickyListHeaders_licenseId">apache_2_0</string>
 	<string name="library_StickyListHeaders_isOpenSource">true</string>
 	<string name="library_StickyListHeaders_repositoryLink">https://github.com/emilsjolander/StickyListHeaders</string>
+
+	<string name="define_int_AndroidIcons"></string>
+	<string name="library_AndroidIcons_author">Opoloo</string>
+	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
+	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
+	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
+	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
+	<string name="library_AndroidIcons_libraryVersion">1.0</string>
+	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
+	<string name="library_AndroidIcons_isOpenSource">true</string>
+	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_license_CCBYSA_4_0"></string>
+	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
+	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
+	<string name="license_CCBYSA_4_0_licenseShortDescription">
+		Creative Commons Attribution-ShareAlike 4.0 International
+	</string>
+	<string name="license_CCBYSA_4_0_licenseDescription">
+        Licensed under Attribution-ShareAlike 4.0 International CC BY-SA 4.0
+        You are free to:
+        Share — copy and redistribute the material in any medium or format
+        Adapt — remix, transform, and build upon the material for any purpose, even commercially.
+        The licensor cannot revoke these freedoms as long as you follow the license terms.
+	</string>
 </resources>
