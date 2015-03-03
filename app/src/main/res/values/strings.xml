@@ -80,7 +80,7 @@
 	<string name="starting_pos">#</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
-	<string name="rating_hint">0.0</string>
+	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
