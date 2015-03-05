@@ -289,7 +289,12 @@ public class GameFragment extends Fragment implements
 
 		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			} else {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			}
 		}
 	}
 

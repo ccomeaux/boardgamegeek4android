@@ -1,6 +1,8 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
@@ -20,6 +22,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 import com.boardgamegeek.util.XmlConverter;
 
 import java.util.List;
@@ -116,6 +119,7 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 		ButterKnife.reset(this);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -125,7 +129,12 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 
 		ViewTreeObserver vto = mRootView.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			if (VersionUtils.hasJellyBean()) {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			} else {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			}
 		}
 	}
 

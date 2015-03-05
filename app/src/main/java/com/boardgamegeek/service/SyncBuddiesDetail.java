@@ -17,7 +17,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public abstract class SyncBuddiesDetail extends SyncTask {
-	private static int BATCH_SIZE = 16;
 	private static final int MAX_RETRIES = 4;
 	private static final int RETRY_BACKOFF_IN_MS = 5000;
 	private BuddyPersister mPersister;
@@ -51,6 +50,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 					if (user != null) {
 						buddies.add(user);
 					}
+					int BATCH_SIZE = 16;
 					if (buddies.size() >= BATCH_SIZE) {
 						count += save(syncResult, buddies);
 						buddies.clear();

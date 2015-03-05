@@ -142,6 +142,7 @@ public class GameCollectionFragment extends Fragment implements
 		ButterKnife.reset(this);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -151,10 +152,14 @@ public class GameCollectionFragment extends Fragment implements
 
 		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
 		if (vto.isAlive()) {
-			vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			if (VersionUtils.hasJellyBean()) {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			} else {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			}
 		}
 	}
-
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

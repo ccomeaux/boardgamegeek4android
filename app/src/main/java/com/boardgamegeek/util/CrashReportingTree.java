@@ -17,7 +17,7 @@ public class CrashReportingTree extends Timber.HollowTree {
 
 	@Override
 	public void e(String message, Object... args) {
-		e(String.format("ERROR: " + message, args));
+		Crashlytics.log(String.format("ERROR: " + message, args));
 	}
 
 	@Override

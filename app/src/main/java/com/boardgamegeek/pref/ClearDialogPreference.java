@@ -22,10 +22,6 @@ import com.boardgamegeek.service.SyncService;
 import timber.log.Timber;
 
 public class ClearDialogPreference extends AsyncDialogPreference {
-	public ClearDialogPreference(Context context) {
-		super(context);
-	}
-
 	public ClearDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}

@@ -58,7 +58,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 		Fragment fragment;
 		String action = intent.getAction();
 		if (action == null) {
-			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + action);
+			fragment = buildTextFragment(getString(R.string.search_error_bad_intent) + "<null>");
 		} else {
 			switch (action) {
 				case Intent.ACTION_SEARCH:

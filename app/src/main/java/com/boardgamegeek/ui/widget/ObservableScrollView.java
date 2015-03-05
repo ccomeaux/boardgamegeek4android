@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * FROM: com.google.samples.apps.iosched.ui.widget;
  */
 public class ObservableScrollView extends ScrollView {
-	private ArrayList<Callbacks> mCallbacks = new ArrayList<Callbacks>();
+	private ArrayList<Callbacks> mCallbacks = new ArrayList<>();
 
 	public ObservableScrollView(Context context, AttributeSet attrs) {
 		super(context, attrs);

@@ -132,7 +132,6 @@
 							android:text="@string/private_info"/>
 
 						<LinearLayout
-							android:id="@+id/private_info_container"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:orientation="vertical"

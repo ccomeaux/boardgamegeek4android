@@ -73,11 +73,8 @@
 	<string name="delete">Delete</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
-	<string name="user">User</string>
 	<string name="team_color">Team/Color</string>
-	<string name="team">Team</string>
 	<string name="starting_position">Starting Position</string>
-	<string name="starting_pos">#</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
 	<string name="rating_hint">Rating</string>
@@ -293,7 +290,6 @@
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
-	<string name="times_abbr">x</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>
