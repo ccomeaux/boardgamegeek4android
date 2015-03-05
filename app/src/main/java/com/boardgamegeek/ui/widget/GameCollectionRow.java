@@ -2,10 +2,13 @@ package com.boardgamegeek.ui.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,14 +45,25 @@ public class GameCollectionRow extends LinearLayout {
 		init(context, attrs);
 	}
 
-	public GameCollectionRow(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		init(context, attrs);
-	}
-
 	private void init(Context context, AttributeSet attrs) {
-		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		li.inflate(R.layout.widget_collection_row, this, true);
+		setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+		int backgroundResId = 0;
+		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+		try {
+			backgroundResId = a.getResourceId(0, backgroundResId);
+		} finally {
+			a.recycle();
+		}
+		setBackgroundResource(backgroundResId);
+
+		setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+		setGravity(Gravity.CENTER_VERTICAL);
+		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.edit_row_height));
+		setOrientation(HORIZONTAL);
+		int padding = getResources().getDimensionPixelSize(R.dimen.padding_half);
+		setPadding(0, padding, 0, padding);
+
+		LayoutInflater.from(context).inflate(R.layout.widget_collection_row, this, true);
 		ButterKnife.inject(this);
 
 		setOnClickListener(new OnClickListener() {

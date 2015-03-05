@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  xmlns:tools="http://schemas.android.com/tools"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="?attr/selectableItemBackground"
-			  android:descendantFocusability="blocksDescendants"
-			  android:gravity="center_vertical"
-			  android:minHeight="@dimen/game_detail_row_height"
-			  android:orientation="horizontal">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	   xmlns:tools="http://schemas.android.com/tools">
 
 	<ImageView
 		android:id="@android:id/icon"
 		style="@style/Icon"
 		tools:src="@drawable/ic_designers"/>
-
-	<TextView
-		android:id="@+id/label"
-		style="@style/Text.Header"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:gravity="center_vertical"
-		android:paddingRight="@dimen/padding_standard"
-		tools:text="Designers"/>
 
 	<TextView
 		android:id="@+id/data"
@@ -33,4 +17,4 @@
 		android:maxLines="2"
 		tools:text="Wolfgang Kramer, Richard Ulrich"/>
 
-</LinearLayout>
+</merge>

@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<merge
 	android:id="@+id/plays_root"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:background="?attr/selectableItemBackground"
-	android:descendantFocusability="blocksDescendants"
-	android:gravity="center_vertical"
-	android:minHeight="@dimen/edit_row_height"
-	android:orientation="horizontal"
-	android:paddingBottom="@dimen/padding_half"
-	android:paddingTop="@dimen/padding_half">
-
+	xmlns:tools="http://schemas.android.com/tools">
 	<ImageView
 		android:id="@+id/thumbnail"
 		style="@style/ImageList"
@@ -57,4 +47,4 @@
 			tools:text="Owned and Want to Play"
 			tools:visibility="visible"/>
 	</LinearLayout>
-</LinearLayout>
+</merge>
