@@ -16,14 +16,15 @@
 	<ImageView
 		android:id="@+id/thumbnail"
 		style="@style/ImageList"
-		android:layout_width="@dimen/thumbnail_list_size"
-		android:layout_height="@dimen/thumbnail_list_size"
+		android:layout_width="@dimen/thumbnail_list_size_small"
+		android:layout_height="@dimen/thumbnail_list_size_small"
 		android:contentDescription="@string/thumbnail"
-		android:src="@drawable/thumbnail_image_empty"/>
+		android:src="@drawable/thumbnail_image_empty"
+		android:layout_marginRight="@dimen/thumbnail_list_size_small_margin"/>
 
 	<LinearLayout
 		android:layout_width="0dp"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_weight="1"
 		android:gravity="center_vertical"
 		android:orientation="vertical">
