@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<!--suppress CheckTagEmptyBody -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
 	<string name="pref_search">Search</string>
 	<string name="pref_exact_search">Exact search</string>
@@ -163,7 +164,7 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="library_DragSortListView_author">Carl A. Bauer</string>
 	<string name="library_DragSortListView_authorWebsite">https://github.com/bauerca</string>
 	<string name="library_DragSortListView_libraryName">DragSortListView</string>
-    <string name="library_DragSortListView_libraryDescription">DragSortListView (DSLV) is an extension of the Android ListView that enables drag-and-drop reordering of list items.</string>
+	<string name="library_DragSortListView_libraryDescription">DragSortListView (DSLV) is an extension of the Android ListView that enables drag-and-drop reordering of list items.</string>
 	<string name="library_DragSortListView_libraryVersion">0.6.1</string>
 	<string name="library_DragSortListView_licenseId">apache_2_0</string>
 	<string name="library_DragSortListView_isOpenSource">true</string>

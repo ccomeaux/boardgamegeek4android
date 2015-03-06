@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -24,9 +21,15 @@ import com.boardgamegeek.model.ThreadResponse;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
 	private static final int THREAD_LOADER_ID = 103;
@@ -39,7 +42,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mThreadId = intent.getIntExtra(ForumsUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
+		mThreadId = intent.getIntExtra(ActivityUtils.KEY_THREAD_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
@@ -166,13 +169,20 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			}
 			if (article != null) {
 				holder.username.setText(article.username);
-				holder.editdate.setText(DateTimeUtils.formatForumDate(getContext(), article.editDate()));
+				int dateRes = R.string.posted_prefix;
+				if (article.getNumberOfEdits() > 0) {
+					dateRes = R.string.edited_prefix;
+				}
+				holder.editdate.setText(getContext().getString(dateRes,
+					DateTimeUtils.formatForumDate(getContext(), article.editDate())));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
-				bundle.putString(ForumsUtils.KEY_USER, article.username);
-				bundle.putLong(ForumsUtils.KEY_DATE, article.editDate());
-				bundle.putString(ForumsUtils.KEY_BODY, article.body);
-				bundle.putString(ForumsUtils.KEY_LINK, article.link);
+				bundle.putString(ActivityUtils.KEY_USER, article.username);
+				bundle.putLong(ActivityUtils.KEY_POST_DATE, article.postDate());
+				bundle.putLong(ActivityUtils.KEY_EDIT_DATE, article.editDate());
+				bundle.putInt(ActivityUtils.KEY_EDIT_COUNT, article.getNumberOfEdits());
+				bundle.putString(ActivityUtils.KEY_BODY, article.body);
+				bundle.putString(ActivityUtils.KEY_LINK, article.link);
 				holder.viewArticle.setTag(bundle);
 			}
 			return convertView;
@@ -180,16 +190,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	public static class ViewHolder {
-		TextView username;
-		TextView editdate;
-		TextView body;
-		View viewArticle;
+		@InjectView(R.id.article_username) TextView username;
+		@InjectView(R.id.article_editdate) TextView editdate;
+		@InjectView(R.id.article_body) TextView body;
+		@InjectView(R.id.article_view) View viewArticle;
 
 		public ViewHolder(View view) {
-			username = (TextView) view.findViewById(R.id.article_username);
-			editdate = (TextView) view.findViewById(R.id.article_editdate);
-			body = (TextView) view.findViewById(R.id.article_body);
-			viewArticle = view.findViewById(R.id.article_view);
+			ButterKnife.inject(this, view);
 		}
 	}
 }

@@ -84,12 +84,9 @@
 
 					<LinearLayout style="@style/FormRowContainer">
 
-						<TextView
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_player_name"
-							android:text="@string/name"/>
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_person"/>
 
 						<AutoCompleteTextView
 							android:id="@+id/log_player_name"
@@ -102,17 +99,13 @@
 							android:imeOptions="actionNext"
 							android:inputType="textPersonName|textCapWords"
 							android:maxLength="255"
-							android:textColor="#000"/>
+							android:textColor="#000"
+							android:textAppearance="@style/Text.Big"/>
 					</LinearLayout>
 
 					<LinearLayout style="@style/FormRowContainer">
 
-						<TextView
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_player_username"
-							android:text="@string/user"/>
+						<ImageView style="@style/Icon"/>
 
 						<AutoCompleteTextView
 							android:id="@+id/log_player_username"
@@ -125,20 +118,29 @@
 							android:imeOptions="actionNext"
 							android:inputType="text"
 							android:maxLength="63"
-							android:textColor="#000"/>
+							android:textColor="#000"
+							android:textAppearance="@style/Text.Big"/>
 					</LinearLayout>
 
 					<LinearLayout
 						android:id="@+id/log_player_team_color_container"
 						style="@style/FormRowContainer">
 
-						<TextView
-							android:id="@+id/log_player_team_color_label"
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_player_team_color"
-							android:text="@string/team"/>
+						<FrameLayout
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_gravity="center_vertical"
+							android:layout_marginRight="24dp">
+
+							<ImageView
+								android:id="@+id/color_view"
+								android:layout_width="@dimen/color_circle_diameter"
+								android:layout_height="@dimen/color_circle_diameter"
+								android:layout_gravity="center"
+								android:background="?attr/selectableItemBackground"
+								android:scaleType="fitXY"
+								tools:background="#777"/>
+						</FrameLayout>
 
 						<AutoCompleteTextView
 							android:id="@+id/log_player_team_color"
@@ -152,34 +154,15 @@
 							android:inputType="textCapSentences"
 							android:maxLength="32"
 							android:textColor="#000"/>
-
-						<FrameLayout
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:layout_gravity="center_vertical">
-
-							<ImageView
-								android:id="@+id/color_view"
-								android:layout_width="@dimen/color_circle_diameter"
-								android:layout_height="@dimen/color_circle_diameter"
-								android:layout_gravity="center"
-								android:background="?attr/selectableItemBackground"
-								android:scaleType="fitXY"
-								tools:background="#777"/>
-						</FrameLayout>
 					</LinearLayout>
 
 					<LinearLayout
 						android:id="@+id/log_player_position_container"
 						style="@style/FormRowContainer">
 
-						<TextView
-							android:id="@+id/log_player_position_label"
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_play_length_container_inner"
-							android:text="@string/starting_pos"/>
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_sort_light"/>
 
 						<EditText
 							android:id="@+id/log_player_position"
@@ -204,13 +187,9 @@
 						android:id="@+id/log_player_score_container"
 						style="@style/FormRowContainer">
 
-						<TextView
-							android:id="@+id/log_player_score_label"
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_player_score"
-							android:text="@string/score"/>
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_line_chart"/>
 
 						<EditText
 							android:id="@+id/log_player_score"
@@ -235,13 +214,9 @@
 						android:id="@+id/log_player_rating_container"
 						style="@style/FormRowContainer">
 
-						<TextView
-							android:id="@+id/log_player_rating_label"
-							style="@style/TextLabel"
-							android:layout_width="@dimen/edit_label_width"
-							android:layout_height="match_parent"
-							android:labelFor="@+id/log_play_location"
-							android:text="@string/rating"/>
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_stars"/>
 
 						<EditText
 							android:id="@+id/log_player_rating"
@@ -261,6 +236,7 @@
 						android:layout_height="@dimen/edit_row_height"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
+						android:paddingRight="@dimen/edit_label_width"
 						android:text="@string/new_label"/>
 
 					<android.support.v7.widget.SwitchCompat
@@ -270,6 +246,7 @@
 						android:layout_height="@dimen/edit_row_height"
 						android:checked="false"
 						android:paddingLeft="@dimen/edit_label_width"
+						android:paddingRight="@dimen/edit_label_width"
 						android:text="@string/win"/>
 
 					<View

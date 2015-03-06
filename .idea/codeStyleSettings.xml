@@ -30,7 +30,6 @@
             <emptyLine />
           </value>
         </option>
-        <option name="RIGHT_MARGIN" value="100" />
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
         </AndroidXmlCodeStyleSettings>

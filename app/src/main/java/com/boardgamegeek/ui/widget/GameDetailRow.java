@@ -12,10 +12,11 @@ import android.support.v7.graphics.Palette;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
@@ -26,9 +27,8 @@ import com.boardgamegeek.util.ActivityUtils;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class GameDetailRow extends RelativeLayout {
+public class GameDetailRow extends LinearLayout {
 	@InjectView(android.R.id.icon) ImageView mIconView;
-	@InjectView(R.id.label) TextView mLabelView;
 	@InjectView(R.id.data) TextView mDataView;
 	private int mQueryToken;
 	private String mOneMore;
@@ -47,11 +47,6 @@ public class GameDetailRow extends RelativeLayout {
 
 	public GameDetailRow(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context, attrs);
-	}
-
-	public GameDetailRow(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
 		init(context, attrs);
 	}
 
@@ -80,12 +75,25 @@ public class GameDetailRow extends RelativeLayout {
 		mOneMore = context.getString(R.string.one_more);
 		mSomeMore = context.getString(R.string.some_more);
 
-		LayoutInflater li = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		li.inflate(R.layout.widget_game_detail_row, this, true);
+		setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+		int backgroundResId = 0;
+		TypedArray a = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+		try {
+			backgroundResId = a.getResourceId(0, backgroundResId);
+		} finally {
+			a.recycle();
+		}
+		setBackgroundResource(backgroundResId);
+		setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
+		setGravity(Gravity.CENTER_VERTICAL);
+		setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.game_detail_row_height));
+		setOrientation(HORIZONTAL);
+
+		LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true);
 		ButterKnife.inject(this);
 
 		if (attrs != null) {
-			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.GameDetailRow);
+			a = context.obtainStyledAttributes(attrs, R.styleable.GameDetailRow);
 			try {
 				mLabel = a.getString(R.styleable.GameDetailRow_label);
 				mIcon = a.getDrawable(R.styleable.GameDetailRow_icon_res);
@@ -97,10 +105,7 @@ public class GameDetailRow extends RelativeLayout {
 
 		if (mIcon == null) {
 			mIconView.setVisibility(View.GONE);
-			mLabelView.setVisibility(View.VISIBLE);
-			mLabelView.setText(mLabel);
 		} else {
-			mLabelView.setVisibility(View.GONE);
 			mIconView.setVisibility(View.VISIBLE);
 			mIconView.setImageDrawable(mIcon);
 		}
@@ -130,6 +135,16 @@ public class GameDetailRow extends RelativeLayout {
 	public void colorIcon(Palette.Swatch swatch) {
 		mIconView.setColorFilter(swatch.getRgb());
 	}
+
+	public static final ButterKnife.Setter<GameDetailRow, Palette.Swatch> colorIconSetter =
+		new ButterKnife.Setter<GameDetailRow, Palette.Swatch>() {
+			@Override
+			public void set(GameDetailRow view, Palette.Swatch value, int index) {
+				if (view != null && value != null) {
+					view.colorIcon(value);
+				}
+			}
+		};
 
 	public void colorText(Palette.Swatch swatch) {
 		mDataView.setTextColor(swatch.getRgb());

@@ -1,19 +1,15 @@
 package com.boardgamegeek.pref;
 
+import android.content.Context;
+import android.util.AttributeSet;
+
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.SyncService;
 
-import android.content.Context;
-import android.util.AttributeSet;
-
 import timber.log.Timber;
 
 public class ResetBuddiesDialogPreference extends AsyncDialogPreference {
-	public ResetBuddiesDialogPreference(Context context) {
-		super(context);
-	}
-
 	public ResetBuddiesDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}

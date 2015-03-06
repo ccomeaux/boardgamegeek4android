@@ -9,8 +9,8 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ForumsUtils;
 
 public class ForumActivity extends SimpleSinglePaneActivity {
 	private int mGameId;
@@ -22,10 +22,10 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		String forumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
-		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
-		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mForumId = intent.getIntExtra(ForumsUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
+		String forumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
+		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mForumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
 
 		if (!TextUtils.isEmpty(forumTitle)) {
 			final ActionBar actionBar = getSupportActionBar();
@@ -52,13 +52,16 @@ public class ForumActivity extends SimpleSinglePaneActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
+				Intent intent;
 				if (mGameId == BggContract.INVALID_ID) {
-					Intent intent = new Intent(this, ForumsActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
+					intent = new Intent(this, ForumsActivity.class);
 				} else {
-					ActivityUtils.navigateUpToGame(this, mGameId, mGameName);
+					intent = new Intent(this, GameForumsActivity.class);
+					intent.setData(Games.buildGameUri(mGameId));
+					intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 				}
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
 				finish();
 				return true;
 			case R.id.menu_view:

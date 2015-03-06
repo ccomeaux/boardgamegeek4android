@@ -8,21 +8,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.UIUtils;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-import com.boardgamegeek.R;
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
-import com.boardgamegeek.util.UIUtils;
-
 public class ArticleFragment extends Fragment {
 	private String mUser;
-	private long mDate;
+	private long mPostDate;
+	private long mEditDate;
+	private int mEditCount;
 	private String mBody;
 
 	@InjectView(R.id.article_username) TextView mUserView;
-	@InjectView(R.id.article_editdate) TextView mDateView;
+	@InjectView(R.id.article_postdate) TextView mPostDateView;
+	@InjectView(R.id.article_editdate) TextView mEditDateView;
+	@InjectView(R.id.article_editcount) TextView mEditCountView;
 	@InjectView(R.id.article_body) WebView mBodyView;
 
 	@Override
@@ -30,9 +35,11 @@ public class ArticleFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mUser = intent.getStringExtra(ForumsUtils.KEY_USER);
-		mDate = intent.getLongExtra(ForumsUtils.KEY_DATE, 0);
-		mBody = intent.getStringExtra(ForumsUtils.KEY_BODY);
+		mUser = intent.getStringExtra(ActivityUtils.KEY_USER);
+		mPostDate = intent.getLongExtra(ActivityUtils.KEY_POST_DATE, 0);
+		mEditDate = intent.getLongExtra(ActivityUtils.KEY_EDIT_DATE, 0);
+		mEditCount = intent.getIntExtra(ActivityUtils.KEY_EDIT_COUNT, 0);
+		mBody = intent.getStringExtra(ActivityUtils.KEY_BODY);
 	}
 
 	@Override
@@ -41,8 +48,19 @@ public class ArticleFragment extends Fragment {
 		ButterKnife.inject(this, rootView);
 
 		mUserView.setText(mUser);
-		mDateView.setText(mDate == 0 ? getString(R.string.text_not_available) : DateTimeUtils.formatForumDate(
-			getActivity(), mDate));
+		mPostDateView.setText(mPostDate == 0 ? getString(R.string.text_not_available) :
+			getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mPostDate)));
+		if (mEditDate != mPostDate) {
+			mEditDateView.setText(mEditDate == 0 ? getString(R.string.text_not_available) :
+				getString(R.string.last_edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mEditDate)));
+		} else {
+			mEditDateView.setVisibility(View.GONE);
+		}
+		if (mEditCount > 0) {
+			mEditCountView.setText(getResources().getQuantityString(R.plurals.edit_count, mEditCount, mEditCount));
+		} else {
+			mEditCountView.setVisibility(View.GONE);
+		}
 		UIUtils.setWebViewText(mBodyView, mBody);
 
 		return rootView;

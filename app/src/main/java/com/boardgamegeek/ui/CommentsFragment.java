@@ -1,15 +1,10 @@
 package com.boardgamegeek.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -25,8 +20,11 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.widget.PaginatedData;
 import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.List;
 
 public class CommentsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
@@ -40,10 +38,10 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = Games.getGameId(intent.getData());
+		mByRating = intent.getIntExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_USER) == CommentsActivity.SORT_RATING;
 
 		if (savedInstanceState != null) {
 			mByRating = savedInstanceState.getBoolean(STATE_BY_RATING);
@@ -74,32 +72,6 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(STATE_BY_RATING, mByRating);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.game_comments, menu);
-		if (mByRating) {
-			menu.findItem(R.id.menu_comments_by_rating).setChecked(true);
-		} else {
-			menu.findItem(R.id.menu_comments_by_user).setChecked(true);
-		}
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if ((id == R.id.menu_comments_by_user && mByRating) || (id == R.id.menu_comments_by_rating && !mByRating)) {
-			item.setChecked(true);
-			mByRating = !mByRating;
-			if (mCommentsAdapter != null) {
-				mCommentsAdapter.clear();
-			}
-			getLoaderManager().restartLoader(COMMENTS_LOADER_ID, null, this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	public void loadMoreResults() {

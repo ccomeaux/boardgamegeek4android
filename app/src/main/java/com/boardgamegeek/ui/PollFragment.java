@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.ui.widget.PieChartView;
 import com.boardgamegeek.ui.widget.PlayerNumberRow;
 import com.boardgamegeek.ui.widget.PollKeyRow;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
@@ -34,8 +35,6 @@ import java.util.ArrayList;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	public static final String KEY_GAME_ID = "GAME_ID";
-	public static final String KEY_TYPE = "TYPE";
 	public static final String LANGUAGE_DEPENDENCE = "language_dependence";
 	public static final String SUGGESTED_PLAYERAGE = "suggested_playerage";
 	public static final String SUGGESTED_NUMPLAYERS = "suggested_numplayers";
@@ -66,8 +65,8 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(KEY_GAME_ID, -1);
-		mType = intent.getStringExtra(KEY_TYPE);
+		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, -1);
+		mType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
 		mUri = Games.buildPollResultsResultUri(gameId, mType);
 	}
 

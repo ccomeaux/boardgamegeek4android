@@ -1,12 +1,15 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,10 +22,14 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 import com.boardgamegeek.util.XmlConverter;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 
 public class GeekListItemFragment extends Fragment implements ActivityUtils.ImageCallback {
 	private String mOrder;
@@ -35,7 +42,9 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 	private long mEditedDate;
 	private String mBody;
 
+	private ViewGroup mRootView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
+	@InjectView(R.id.header_container) View mHeaderContainer;
 	@InjectView(R.id.order) TextView mOrderView;
 	@InjectView(R.id.title) TextView mTitleView;
 	@InjectView(R.id.type) TextView mTypeView;
@@ -46,6 +55,20 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 	@InjectView(R.id.posted_date) TextView mPostedDateView;
 	@InjectView(R.id.edited_date) TextView mEditedDateView;
 	@InjectView(R.id.body) WebView mBodyView;
+	@InjectViews({
+		R.id.username,
+		R.id.thumbs,
+		R.id.posted_date,
+		R.id.edited_date
+	}) List<TextView> mColorizedTextViews;
+
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+		= new ViewTreeObserver.OnGlobalLayoutListener() {
+		@Override
+		public void onGlobalLayout() {
+			ActivityUtils.resizeImagePerAspectRatio(mImageView, mRootView.getHeight() / 3, mHeroContainer);
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,10 +88,14 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
-		ButterKnife.inject(this, rootView);
+		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
+		ButterKnife.inject(this, mRootView);
 
-		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+		ScrimUtil.applyDefaultScrim(mHeaderContainer);
+		ViewTreeObserver vto = mRootView.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+		}
 
 		mOrderView.setText(mOrder);
 		mTitleView.setText(mTitle);
@@ -83,16 +110,38 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 		String content = new XmlConverter().toHtml(mBody);
 		UIUtils.setWebViewText(mBodyView, content);
 
-		return rootView;
+		return mRootView;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		ButterKnife.reset(this);
+	}
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mRootView == null) {
+			return;
+		}
+
+		ViewTreeObserver vto = mRootView.getViewTreeObserver();
+		if (vto.isAlive()) {
+			if (VersionUtils.hasJellyBean()) {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			} else {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			}
+		}
 	}
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mAuthorContainer.setBackgroundColor(swatch.getRgb());
-		ColorUtils.colorTextViews(mUsernameView, swatch);
-		ColorUtils.colorTextViews(mThumbsView, swatch);
-		ColorUtils.colorTextViews(mPostedDateView, swatch);
-		ColorUtils.colorTextViews(mEditedDateView, swatch);
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
 	}
 }

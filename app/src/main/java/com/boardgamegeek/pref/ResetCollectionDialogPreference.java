@@ -7,11 +7,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 
 public class ResetCollectionDialogPreference extends AsyncDialogPreference {
-
-	public ResetCollectionDialogPreference(Context context) {
-		super(context);
-	}
-
 	public ResetCollectionDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}

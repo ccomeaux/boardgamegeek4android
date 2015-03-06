@@ -20,11 +20,6 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 
 	protected abstract int getFailureMessageResource();
 
-	public AsyncDialogPreference(Context context) {
-		super(context, null);
-		init();
-	}
-
 	public AsyncDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();

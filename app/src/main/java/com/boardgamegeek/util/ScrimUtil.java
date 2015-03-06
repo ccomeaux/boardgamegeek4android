@@ -18,6 +18,7 @@
 
 package com.boardgamegeek.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -26,8 +27,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.util.FloatMath;
+import android.os.Build;
 import android.view.Gravity;
+import android.view.View;
 
 import com.boardgamegeek.R;
 
@@ -36,6 +38,20 @@ import com.boardgamegeek.R;
  */
 public class ScrimUtil {
 	private ScrimUtil() {
+	}
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	public static void applyDefaultScrim(View view) {
+		if (view == null) {
+			return;
+		}
+		Drawable scrim = ScrimUtil.makeDefaultScrimDrawable(view.getContext());
+		if (VersionUtils.hasJellyBean()) {
+			view.setBackground(scrim);
+		} else {
+			//noinspection deprecation
+			view.setBackgroundDrawable(scrim);
+		}
 	}
 
 	public static Drawable makeDefaultScrimDrawable(Context context) {
@@ -63,7 +79,7 @@ public class ScrimUtil {
 
 		for (int i = 0; i < numStops; i++) {
 			float x = i * 1f / (numStops - 1);
-			float opacity = constrain(0, 1, FloatMath.pow(x, 3));
+			float opacity = constrain(0, 1, (float) Math.pow(x, 3));
 			stopColors[i] = Color.argb((int) (alpha * opacity), red, green, blue);
 		}
 
@@ -100,14 +116,13 @@ public class ScrimUtil {
 		paintDrawable.setShaderFactory(new ShapeDrawable.ShaderFactory() {
 			@Override
 			public Shader resize(int width, int height) {
-				LinearGradient linearGradient = new LinearGradient(
+				return new LinearGradient(
 					width * x0,
 					height * y0,
 					width * x1,
 					height * y1,
 					stopColors, null,
 					Shader.TileMode.CLAMP);
-				return linearGradient;
 			}
 		});
 

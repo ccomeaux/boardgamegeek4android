@@ -1,25 +1,17 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -27,19 +19,14 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.GameInfoFragment.GameInfo;
+import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import timber.log.Timber;
 
-public class GameActivity extends PagedDrawerActivity implements GameInfoFragment.Callbacks, PlaysFragment.Callbacks,
-	OnSharedPreferenceChangeListener {
-
-	public static final String KEY_GAME_NAME = "GAME_NAME";
-	public static final String KEY_FROM_SHORTCUT = "FROM_SHORTCUT";
+public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 	private static final int REQUEST_EDIT_PLAY = 1;
 
 	private int mGameId;
@@ -49,18 +36,14 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	private boolean mCustomPlayerSort;
 	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
 	private Menu mOptionsMenu;
-	private Fragment mGameInfoFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefs.registerOnSharedPreferenceChangeListener(this);
-
 		mGameId = Games.getGameId(getIntent().getData());
-		changeName(getIntent().getStringExtra(KEY_GAME_NAME));
+		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
 
 		new Handler().post(new Runnable() {
 			@Override
@@ -77,36 +60,11 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
 			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
 		}
-
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		setupActionBarTabs(actionBar);
 	}
 
 	@Override
-	protected PagerAdapter getAdapter(FragmentManager fm) {
-		return new GamePagerAdapter(fm);
-	}
-
-	@Override
-	protected void setupActionBarTabs(ActionBar actionBar) {
-		actionBar.removeAllTabs();
-		createTab(actionBar, R.string.title_info);
-		if (showCollection()) {
-			createTab(actionBar, R.string.title_collection);
-		}
-		if (showPlays()) {
-			createTab(actionBar, R.string.title_plays);
-			createTab(actionBar, R.string.title_play_stats);
-			createTab(actionBar, R.string.title_colors);
-		}
-		createTab(actionBar, R.string.title_forums);
-		createTab(actionBar, R.string.title_comments);
-	}
-
-	@Override
-	protected int getContentViewId() {
-		return R.layout.activity_viewpager;
+	protected Fragment onCreatePane(Intent intent) {
+		return new GameFragment();
 	}
 
 	@Override
@@ -132,7 +90,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				if (Authenticator.isSignedIn(this)) {
 					upIntent = new Intent(this, CollectionActivity.class);
 				}
-				if (shouldUpRecreateTask(this, upIntent)) {
+				if (shouldUpRecreateTask()) {
 					TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
 				} else {
 					NavUtils.navigateUpTo(this, upIntent);
@@ -140,9 +98,9 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 				return true;
 			case R.id.menu_language_poll:
 				Bundle arguments = new Bundle(2);
-				arguments.putInt(PollFragment.KEY_GAME_ID, mGameId);
-				arguments.putString(PollFragment.KEY_TYPE, "language_dependence");
-				ActivityUtils.launchDialog(mGameInfoFragment, new PollFragment(), "poll-dialog", arguments);
+				arguments.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
+				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
+				ActivityUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
@@ -176,67 +134,8 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_EDIT_PLAY && resultCode == Activity.RESULT_OK && showPlays()) {
-			changeTab((showCollection() ? 1 : 0) + 1);
-		}
-	}
-
-	private boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
-		return activity.getIntent().getBooleanExtra(KEY_FROM_SHORTCUT, false);
-	}
-
-	private class GamePagerAdapter extends FragmentPagerAdapter {
-
-		public GamePagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			Fragment fragment = null;
-			if (position > 0 && !showCollection()) {
-				position++;
-			}
-			if (position > 1 && !showPlays()) {
-				position += 3;
-			}
-			switch (position) {
-				case 0:
-					fragment = new GameInfoFragment();
-					mGameInfoFragment = fragment;
-					break;
-				case 1:
-					fragment = new GameCollectionFragment();
-					break;
-				case 2:
-					fragment = new PlaysFragment();
-					break;
-				case 3:
-					fragment = new GamePlayStatsFragment();
-					break;
-				case 4:
-					fragment = new ColorsFragment();
-					break;
-				case 5:
-					fragment = new ForumsFragment();
-					break;
-				case 6:
-					fragment = new CommentsFragment();
-					break;
-			}
-			if (fragment != null) {
-				fragment.setArguments(UIUtils.intentToFragmentArguments(getIntent()));
-			}
-			return fragment;
-		}
-
-		@Override
-		public int getCount() {
-			return 3 + (showCollection() ? 1 : 0) + (showPlays() ? 3 : 0);
-		}
+	private boolean shouldUpRecreateTask() {
+		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
 	}
 
 	@Override
@@ -256,7 +155,7 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
-			getIntent().putExtra(KEY_GAME_NAME, gameName);
+			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
 			getSupportActionBar().setTitle(gameName);
 		}
 	}
@@ -340,50 +239,5 @@ public class GameActivity extends PagedDrawerActivity implements GameInfoFragmen
 
 			activity.updateRefreshStatus(mSyncing);
 		}
-	}
-
-	private boolean showCollection() {
-		return Authenticator.isSignedIn(this);
-	}
-
-	private boolean showPlays() {
-		return Authenticator.isSignedIn(this) && PreferencesUtils.getSyncPlays(this);
-	}
-
-	public void onThumbnailClick(View v) {
-		String imageUrl = (String) v.getTag(R.id.image);
-		if (!TextUtils.isEmpty(imageUrl)) {
-			final Intent intent = new Intent(this, ImageActivity.class);
-			intent.putExtra(ImageActivity.KEY_IMAGE_URL, imageUrl);
-			startActivity(intent);
-		}
-	}
-
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
-	}
-
-	@Override
-	public void onPlayCountChanged(int count) {
-	}
-
-	@Override
-	public void onSortChanged(String sortName) {
-		// sorting not supported yet
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (PreferencesUtils.isSyncPlays(key)) {
-			updateTabs();
-		}
-	}
-
-	@Override
-	protected void onSignInSuccess() {
-		super.onSignInSuccess();
-		updateTabs();
 	}
 }

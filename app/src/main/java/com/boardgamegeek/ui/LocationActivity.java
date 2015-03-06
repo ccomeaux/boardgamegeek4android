@@ -31,7 +31,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ResolverUtils;
 
 public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
-	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	private int mCount;
 	private String mLocationName;
 	private AlertDialog mDialog;
@@ -41,7 +40,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mLocationName = intent.getStringExtra(KEY_LOCATION_NAME);
+		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
 		setTitle(mLocationName);
 	}
 
@@ -56,7 +55,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 	protected Bundle onBeforeArgumentsSet(Bundle arguments) {
 		final Intent intent = getIntent();
 		arguments.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_LOCATION);
-		arguments.putString(PlaysFragment.KEY_LOCATION, intent.getStringExtra(KEY_LOCATION_NAME));
+		arguments.putString(PlaysFragment.KEY_LOCATION, intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME));
 		return arguments;
 	}
 
@@ -168,7 +167,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 			}
 
 			mLocationName = newLocation;
-			getIntent().putExtra(KEY_LOCATION_NAME, newLocation);
+			getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, newLocation);
 
 			return result;
 		}

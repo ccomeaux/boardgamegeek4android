@@ -1,86 +1,170 @@
 package com.boardgamegeek.ui;
 
-import android.content.Context;
+import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.graphics.Palette;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
-import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
+import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameCollectionFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameCollectionFragment extends Fragment implements
+	LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback,
+	ObservableScrollView.Callbacks {
+
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
+	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
+
+	@InjectView(R.id.progress) View progress;
+	@InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
+	@InjectView(R.id.hero_container) View heroContainer;
+	@InjectView(R.id.image) ImageView image;
+	@InjectView(R.id.header_container) View headerContainer;
+	@InjectView(R.id.name) TextView name;
+	@InjectView(R.id.year) TextView year;
+	@InjectView(R.id.status_container) View statusContainer;
+	@InjectView(R.id.status) TextView status;
+	@InjectView(R.id.last_modified) TextView lastModified;
+	@InjectView(R.id.rating) TextView rating;
+	@InjectView(R.id.comment) TextView comment;
+	@InjectView(R.id.private_info_container) View privateInfoContainer;
+	@InjectView(R.id.private_info) TextView privateInfo;
+	@InjectView(R.id.private_info_comments) TextView privateInfoComments;
+	@InjectView(R.id.wishlist_container) View wishlistContainer;
+	@InjectView(R.id.wishlist_comment) TextView wishlistComment;
+	@InjectView(R.id.condition_container) View conditionContainer;
+	@InjectView(R.id.condition_comment) TextView conditionComment;
+	@InjectView(R.id.want_parts_container) View wantPartsContainer;
+	@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
+	@InjectView(R.id.has_parts_container) View hasPartsContainer;
+	@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+	@InjectView(R.id.collection_id) TextView id;
+	@InjectView(R.id.updated) TextView updated;
+	@InjectViews({
+		R.id.status,
+		R.id.last_modified
+	}) List<TextView> mColorizedTextViews;
+	@InjectViews({
+		R.id.card_header_private_info,
+		R.id.card_header_wishlist,
+		R.id.card_header_condition,
+		R.id.card_header_want_parts,
+		R.id.card_header_has_parts
+	}) List<TextView> mColorizedHeaders;
 
 	private int mGameId = BggContract.INVALID_ID;
-	private CursorAdapter mAdapter;
+	private int mCollectionId = BggContract.INVALID_ID;
+	private String mImageUrl;
 	private boolean mMightNeedRefreshing;
+	private Palette mPalette;
+
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+		= new ViewTreeObserver.OnGlobalLayoutListener() {
+		@Override
+		public void onGlobalLayout() {
+			ActivityUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mCollectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		view.setBackgroundColor(Color.WHITE);
-		final ListView listView = getListView();
-		listView.setSelector(android.R.color.transparent);
-		listView.setCacheColorHint(Color.WHITE);
-		listView.setDivider(new ColorDrawable(getResources().getColor(R.color.accent)));
-		listView.setDividerHeight(getResources().getDimensionPixelSize(R.dimen.padding_standard));
-		listView.setFooterDividersEnabled(false);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getString(R.string.empty_game_collection));
-		Uri uri = UIUtils.fragmentArgumentsToIntent(getArguments()).getData();
-		if (uri != null && Games.isGameUri(uri)) {
-			mMightNeedRefreshing = true;
-			mGameId = Games.getGameId(uri);
-			getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
-		} else {
-			setListShown(true);
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_game_collection, container, false);
+		ButterKnife.inject(this, rootView);
+		colorize(mPalette);
+		scrollContainer.addCallbacks(this);
+		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
 		}
+
+		mMightNeedRefreshing = true;
+		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
+
+		return rootView;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		ButterKnife.reset(this);
+	}
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (scrollContainer == null) {
+			return;
+		}
+
+		ViewTreeObserver vto = scrollContainer.getViewTreeObserver();
+		if (vto.isAlive()) {
+			if (VersionUtils.hasJellyBean()) {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			} else {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			}
+		}
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.refresh_only, menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
@@ -94,12 +178,11 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		if (id != CollectionItem._TOKEN) {
+		if (id != CollectionItem._TOKEN || mCollectionId == BggContract.INVALID_ID) {
 			return null;
 		}
-		// TODO: don't use table name directly
-		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION, "collection."
-			+ Collection.GAME_ID + "=?", new String[] { String.valueOf(mGameId) }, null);
+		return new CursorLoader(getActivity(), Collection.CONTENT_URI, new CollectionItem().PROJECTION,
+			Collection.COLLECTION_ID + "=?", new String[] { String.valueOf(mCollectionId) }, null);
 	}
 
 	@Override
@@ -108,151 +191,123 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 			return;
 		}
 
-		if (mAdapter == null) {
-			mAdapter = new CollectionAdapter(getActivity());
-			setListAdapter(mAdapter);
-		}
-
-		if (cursor == null || !cursor.moveToFirst()) {
-			if (mMightNeedRefreshing) {
-				triggerRefresh();
+		if (loader.getId() == CollectionItem._TOKEN) {
+			if (cursor == null || !cursor.moveToFirst()) {
+				if (mMightNeedRefreshing) {
+					triggerRefresh();
+				}
+				return;
 			}
-			return;
-		}
 
-		int token = loader.getId();
-		if (token == CollectionItem._TOKEN) {
-			mAdapter.changeCursor(cursor);
+			CollectionItem item = new CollectionItem(cursor);
+			updateUi(item);
+			AnimationUtils.fadeOut(getActivity(), progress, true);
+			AnimationUtils.fadeIn(getActivity(), scrollContainer, true);
+
 			if (mMightNeedRefreshing) {
-				cursor.moveToFirst();
-				do {
-					long u = cursor.getLong(new CollectionItem().UPDATED);
-					if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
-						triggerRefresh();
-						break;
-					}
-				} while (cursor.moveToNext());
-				cursor.moveToPosition(-1);
+				long u = cursor.getLong(new CollectionItem().UPDATED);
+				if (DateTimeUtils.howManyDaysOld(u) > AGE_IN_DAYS_TO_REFRESH) {
+					triggerRefresh();
+				}
 			}
+			mMightNeedRefreshing = false;
 		} else {
-			Timber.d("Query complete, Not Actionable: " + token);
-			cursor.close();
+			Timber.d("Query complete, Not Actionable: " + loader.getId());
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
-
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
-
-		mMightNeedRefreshing = false;
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (mAdapter != null) {
-			mAdapter.changeCursor(null);
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@Override
+	public void onScrollChanged(int deltaX, int deltaY) {
+		if (VersionUtils.hasHoneycomb()) {
+			int scrollY = scrollContainer.getScrollY();
+			image.setTranslationY(scrollY * 0.5f);
+			headerContainer.setTranslationY(scrollY * 0.5f);
+		}
+	}
+
+	@Override
+	public void onPaletteGenerated(Palette palette) {
+		mPalette = palette;
+		colorize(palette);
+	}
+
+	private void colorize(Palette palette) {
+		if (palette == null || scrollContainer == null) {
+			return;
+		}
+		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		statusContainer.setBackgroundColor(swatch.getRgb());
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = ColorUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
+	}
+
+	@OnClick(R.id.image)
+	public void onThumbnailClick(View v) {
+		if (!TextUtils.isEmpty(mImageUrl)) {
+			final Intent intent = new Intent(getActivity(), ImageActivity.class);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
+			startActivity(intent);
 		}
 	}
 
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId, null);
-	}
-
-	private class CollectionAdapter extends CursorAdapter {
-		private LayoutInflater mInflater;
-
-		public CollectionAdapter(Context context) {
-			super(context, null, false);
-			mInflater = getActivity().getLayoutInflater();
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_game_collection, parent, false);
-			ViewHolder holder = new ViewHolder(row);
-			row.setTag(holder);
-			return row;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
-			CollectionItem item = new CollectionItem(cursor);
-
-			holder.heroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
-
-			ActivityUtils.safelyLoadImage(holder.image, item.imageUrl);
-			holder.name.setText(item.name.trim());
-			holder.year.setText(item.getYearDescription());
-			holder.lastModified.setText(item.getLastModifiedDescription());
-			holder.rating.setText(item.getRatingDescription());
-			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(item.rating));
-
-			holder.status.setText(item.getStatus());
-			holder.comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
-			holder.comment.setText(item.comment);
-
-			// Private info
-			if (item.hasPrivateInfo() || item.hasPrivateComment()) {
-				holder.privateInfoLabel.setVisibility(View.VISIBLE);
-				holder.privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
-				holder.privateInfo.setText(item.getPrivateInfo());
-				holder.privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
-				holder.privateInfoComments.setText(item.privateComment);
-			} else {
-				holder.privateInfoLabel.setVisibility(View.GONE);
-				holder.privateInfo.setVisibility(View.GONE);
-				holder.privateInfoComments.setVisibility(View.GONE);
-			}
-
-			showSection(item.wishlistComment, holder.wishlistLabel, holder.wishlistComment);
-			showSection(item.condition, holder.conditionLabel, holder.conditionComment);
-			showSection(item.wantParts, holder.wantPartsLabel, holder.wantPartsComment);
-			showSection(item.hasParts, holder.hasPartsLabel, holder.hasPartsComment);
-
-			holder.id.setText(String.valueOf(item.id));
-			holder.id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-			holder.updated.setText(item.getUpdatedDescription());
-
-			holder.image.setTag(R.id.image, item.imageUrl);
-			holder.image.setTag(R.id.name, item.name);
-		}
-
-		private void showSection(String text, View label, TextView comment) {
-			label.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-			comment.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
-			comment.setText(text);
+		if (mGameId != BggContract.INVALID_ID) {
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId, null);
 		}
 	}
 
-	static class ViewHolder {
-		@InjectView(R.id.hero_container) View heroContainer;
-		@InjectView(R.id.image) ImageView image;
-		@InjectView(R.id.name) TextView name;
-		@InjectView(R.id.rating) TextView rating;
-		@InjectView(R.id.collection_id) TextView id;
-		@InjectView(R.id.last_modified) TextView lastModified;
-		@InjectView(R.id.updated) TextView updated;
-		@InjectView(R.id.year) TextView year;
-		@InjectView(R.id.status) TextView status;
-		@InjectView(R.id.comment) TextView comment;
-		@InjectView(R.id.private_info_label) View privateInfoLabel;
-		@InjectView(R.id.private_info) TextView privateInfo;
-		@InjectView(R.id.private_info_comments) TextView privateInfoComments;
-		@InjectView(R.id.wishlist_label) View wishlistLabel;
-		@InjectView(R.id.wishlist_comment) TextView wishlistComment;
-		@InjectView(R.id.condition_label) View conditionLabel;
-		@InjectView(R.id.condition_comment) TextView conditionComment;
-		@InjectView(R.id.want_parts_label) View wantPartsLabel;
-		@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
-		@InjectView(R.id.has_parts_label) View hasPartsLabel;
-		@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+	private void updateUi(CollectionItem item) {
+		ScrimUtil.applyDefaultScrim(headerContainer);
 
-		public ViewHolder(View view) {
-			ButterKnife.inject(this, view);
+		ActivityUtils.safelyLoadImage(image, item.imageUrl, this);
+		mImageUrl = item.imageUrl;
+		name.setText(item.name.trim());
+		year.setText(item.getYearDescription());
+		lastModified.setText(item.getLastModifiedDescription());
+		rating.setText(item.getRatingDescription());
+		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.rating));
+
+		status.setText(item.getStatus());
+		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);
+		comment.setText(item.comment);
+
+		// Private info
+		if (item.hasPrivateInfo() || item.hasPrivateComment()) {
+			privateInfoContainer.setVisibility(View.VISIBLE);
+			privateInfo.setVisibility(item.hasPrivateInfo() ? View.VISIBLE : View.GONE);
+			privateInfo.setText(item.getPrivateInfo());
+			privateInfoComments.setVisibility(item.hasPrivateComment() ? View.VISIBLE : View.GONE);
+			privateInfoComments.setText(item.privateComment);
+		} else {
+			privateInfoContainer.setVisibility(View.GONE);
 		}
+
+		showSection(item.wishlistComment, wishlistContainer, wishlistComment);
+		showSection(item.condition, conditionContainer, conditionComment);
+		showSection(item.wantParts, wantPartsContainer, wantPartsComment);
+		showSection(item.hasParts, hasPartsContainer, hasPartsComment);
+
+		id.setText(String.valueOf(item.id));
+		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
+		updated.setText(item.getUpdatedDescription());
+
+		image.setTag(R.id.image, item.imageUrl);
+		image.setTag(R.id.name, item.name);
+	}
+
+	private void showSection(String text, View container, TextView comment) {
+		container.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+		comment.setText(text);
 	}
 
 	private class CollectionItem {
@@ -417,21 +472,11 @@ public class GameCollectionFragment extends ListFragment implements LoaderManage
 		}
 
 		String getYearDescription() {
-			if (year > 0) {
-				return getString(R.string.year_positive, year);
-			} else if (year == 0) {
-				return getString(R.string.year_zero, year);
-			} else {
-				return getString(R.string.year_negative, -year);
-			}
+			return StringUtils.describeYear(getActivity(), year);
 		}
 
 		String getWishlistPriority() {
-			int i = wishlistPriority;
-			if (wishlistPriority < 0 || wishlistPriority > 5) {
-				i = 0;
-			}
-			return r.getStringArray(R.array.wishlist_priority)[i];
+			return StringUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
 		String getPrice() {

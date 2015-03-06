@@ -60,6 +60,7 @@
 	<string name="clear">Clear</string>
 	<string name="set">Set</string>
 	<string name="plays">Plays</string>
+	<string name="no_plays">No plays</string>
 	<string name="played">Played</string>
 	<string name="rematch">Rematch</string>
 	<string name="title_pick_start_player">Pick Start Player</string>
@@ -72,14 +73,11 @@
 	<string name="delete">Delete</string>
 	<string name="player_name">Player Name</string>
 	<string name="username">Username</string>
-	<string name="user">User</string>
 	<string name="team_color">Team/Color</string>
-	<string name="team">Team</string>
 	<string name="starting_position">Starting Position</string>
-	<string name="starting_pos">#</string>
 	<string name="score">Score</string>
 	<string name="rating">Rating</string>
-	<string name="rating_hint">0.0</string>
+	<string name="rating_hint">Rating</string>
 	<string name="average">Average</string>
 	<string name="ratings">Ratings</string>
 	<string name="new_label">New</string>
@@ -130,7 +128,9 @@
 	<string name="title_add_players">Add Players</string>
 	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
+	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
+	<string name="title_user_feedback">User Feedback</string>
 	<string name="title_forums">Forums</string>
 	<string name="title_forum">Forum</string>
 	<string name="title_thread">Thread</string>
@@ -162,7 +162,6 @@
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
-	<string name="empty_game_collection">This game isn\'t in your collection. Want to add it? That\'s coming later…</string>
 	<string name="empty_buddy_collection">No games in buddy collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
@@ -194,6 +193,7 @@
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
+	<string name="menu_view_in_browser">View in broswer</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
@@ -255,9 +255,6 @@
 	<string name="menu_create_shortcut">Create shortcut</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_delete">Delete</string>
-	<string name="menu_sort_comments">Sort comments by…</string>
-	<string name="menu_sort_comments_user">User</string>
-	<string name="menu_sort_comments_rating">Rating</string>
 	<string name="menu_sort_geeklists_hot">Hot</string>
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
@@ -293,7 +290,6 @@
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
 	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android:</string>
 	<string name="times">times</string>
-	<string name="times_abbr">x</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
 	<string name="with">with</string>
@@ -316,13 +312,13 @@
 	<string name="saved">Saved</string>
 	<string name="update">Update</string>
 	<string name="create">Create</string>
-	<string name="votes">votes</string>
 	<string name="votes_suffix">"%s votes"</string>
 	<string name="items_suffix">%s items</string>
 	<string name="thumbs_suffix">%s thumbs</string>
 	<string name="by_prefix">by %s</string>
 	<string name="posted_prefix">Posted %s</string>
 	<string name="edited_prefix">Edited %s</string>
+	<string name="last_edited_prefix">Last edited %s</string>
 	<string name="add_field">Add field…</string>
 	<string name="menu_custom_player_order">Custom</string>
 	<string name="menu_pick_start_player">Pick start player&#8230;</string>
@@ -350,7 +346,7 @@
 	<string name="help_searchresults">Long-click on a game for more options.</string>
 	<string name="help_logplay">Players\' starting positions are determined automatically, allowing you to order them by drag-and-dropping. You can disable this by turning on custom player order in the menu.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
 	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
-	<string name="help_thread">Missing images? Click the right arrow in an article\'s header to see the entire article.</string>
+	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="help_button_close">Close</string>
 	<string name="help_button_hide">Don\'t show again</string>
 	<string name="forum_last_post">Last post: %s</string>
@@ -434,7 +430,8 @@
 	<plurals name="plays">
 		<item quantity="one">%s plays</item>
 		<item quantity="other">%s plays</item>
-	</plurals>	<plurals name="msg_updated_plays">
+	</plurals>
+	<plurals name="msg_updated_plays">
 		<item quantity="one">Updated %s play!</item>
 		<item quantity="other">Updated %s plays!</item>
 	</plurals>
@@ -445,6 +442,26 @@
 	<plurals name="msg_logging_plays">
 		<item quantity="one">Logging play…</item>
 		<item quantity="other">Logging plays…</item>
+	</plurals>
+	<plurals name="edit_count">
+		<item quantity="one">%s total edit</item>
+		<item quantity="other">%s total edits</item>
+	</plurals>
+	<plurals name="plays_summary">
+		<item quantity="one">%1$,d Plays; last play on %2$s</item>
+		<item quantity="other">%1$,d Plays; last play on %2$s</item>
+	</plurals>
+	<plurals name="colors_suffix">
+		<item quantity="one">%,d Colors/Teams</item>
+		<item quantity="other">%,d Colors/Teams</item>
+	</plurals>
+	<plurals name="comments_suffix">
+		<item quantity="one">%,d Comments</item>
+		<item quantity="other">%,d Comments</item>
+	</plurals>
+	<plurals name="ratings_suffix">
+		<item quantity="one">%,d Rating</item>
+		<item quantity="other">%,d Ratings</item>
 	</plurals>
 
 </resources>

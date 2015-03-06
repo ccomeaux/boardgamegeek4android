@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.text.NumberFormat;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -24,9 +21,12 @@ import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
 import com.boardgamegeek.ui.widget.PaginatedData;
 import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ForumsUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.text.NumberFormat;
+import java.util.List;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
@@ -43,10 +43,10 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mForumId = intent.getIntExtra(ForumsUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
-		mForumTitle = intent.getStringExtra(ForumsUtils.KEY_FORUM_TITLE);
-		mGameId = intent.getIntExtra(ForumsUtils.KEY_GAME_ID, BggContract.INVALID_ID);
-		mGameName = intent.getStringExtra(ForumsUtils.KEY_GAME_NAME);
+		mForumId = intent.getIntExtra(ActivityUtils.KEY_FORUM_ID, BggContract.INVALID_ID);
+		mForumTitle = intent.getStringExtra(ActivityUtils.KEY_FORUM_TITLE);
+		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
+		mGameName = intent.getStringExtra(ActivityUtils.KEY_GAME_NAME);
 	}
 
 	@Override
@@ -80,12 +80,12 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		ThreadRowViewBinder.ViewHolder holder = (ThreadRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), ThreadActivity.class);
-			intent.putExtra(ForumsUtils.KEY_THREAD_ID, holder.threadId);
-			intent.putExtra(ForumsUtils.KEY_THREAD_SUBJECT, holder.subject.getText());
-			intent.putExtra(ForumsUtils.KEY_FORUM_ID, mForumId);
-			intent.putExtra(ForumsUtils.KEY_FORUM_TITLE, mForumTitle);
-			intent.putExtra(ForumsUtils.KEY_GAME_ID, mGameId);
-			intent.putExtra(ForumsUtils.KEY_GAME_NAME, mGameName);
+			intent.putExtra(ActivityUtils.KEY_THREAD_ID, holder.threadId);
+			intent.putExtra(ActivityUtils.KEY_THREAD_SUBJECT, holder.subject.getText());
+			intent.putExtra(ActivityUtils.KEY_FORUM_ID, mForumId);
+			intent.putExtra(ActivityUtils.KEY_FORUM_TITLE, mForumTitle);
+			intent.putExtra(ActivityUtils.KEY_GAME_ID, mGameId);
+			intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
 			startActivity(intent);
 		}
 	}

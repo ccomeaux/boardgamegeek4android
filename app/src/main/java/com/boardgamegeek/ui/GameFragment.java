@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -18,16 +18,18 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Designers;
@@ -37,26 +39,38 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.widget.GameCollectionRow;
+import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameDetailRow;
+import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
+import com.boardgamegeek.util.VersionUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 import butterknife.OnClick;
 import timber.log.Timber;
 
-public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback {
+public class GameFragment extends Fragment implements
+	LoaderManager.LoaderCallbacks<Cursor>,
+	ActivityUtils.ImageCallback,
+	ObservableScrollView.Callbacks {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
@@ -66,22 +80,22 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	private String mGameName;
 	private String mImageUrl;
 
-	@InjectView(R.id.game_info_scroll_root) View mScrollRoot;
-	@InjectView(R.id.game_info_progress) View mProgressView;
+	@InjectView(R.id.scroll_root) ObservableScrollView mScrollRoot;
+	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
-	@InjectView(R.id.game_info_image) ImageView mImageView;
+	@InjectView(R.id.image) ImageView mImageView;
+	@InjectView(R.id.header_container) View mHeaderContainer;
 	@InjectView(R.id.game_info_name) TextView mNameView;
 	@InjectView(R.id.game_info_rating) TextView mRatingView;
-	@InjectView(R.id.game_info_rating_count) TextView mNumberRatingView;
-	@InjectView(R.id.game_info_id) TextView mIdView;
-	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
 	@InjectView(R.id.game_info_description) TextView mDescriptionView;
 	@InjectView(R.id.game_info_rank) TextView mRankView;
 	@InjectView(R.id.game_info_year) TextView mYearPublishedView;
+
 	@InjectView(R.id.primary_info_container) View mPrimaryInfo;
 	@InjectView(R.id.number_of_players) TextView mNumberOfPlayersView;
 	@InjectView(R.id.play_time) TextView mPlayTimeView;
 	@InjectView(R.id.player_age) TextView mPlayerAgeView;
+
 	@InjectView(R.id.game_info_designers) GameDetailRow mDesignersView;
 	@InjectView(R.id.game_info_artists) GameDetailRow mArtistsView;
 	@InjectView(R.id.game_info_publishers) GameDetailRow mPublishersView;
@@ -89,7 +103,20 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_info_mechanics) GameDetailRow mMechanicsView;
 	@InjectView(R.id.game_info_expansions) GameDetailRow mExpansionsView;
 	@InjectView(R.id.game_info_base_games) GameDetailRow mBaseGamesView;
-	@InjectView(R.id.icon_stats) ImageView mStatsIcon;
+
+	@InjectView(R.id.collection_card) View mCollectionCard;
+	@InjectView(R.id.collection_container) ViewGroup mCollectionContainer;
+
+	@InjectView(R.id.plays_card) View mPlaysCard;
+	@InjectView(R.id.plays_root) View mPlaysRoot;
+	@InjectView(R.id.plays_label) TextView mPlaysLabel;
+	@InjectView(R.id.play_stats_root) View mPlayStatsRoot;
+	@InjectView(R.id.colors_root) View mColorsRoot;
+	@InjectView(R.id.game_colors_label) TextView mColorsLabel;
+
+	@InjectView(R.id.game_comments_label) TextView mCommentsLabel;
+	@InjectView(R.id.game_ratings_label) TextView mRatingsLabel;
+
 	@InjectView(R.id.game_stats_label) TextView mStatsLabel;
 	@InjectView(R.id.game_stats_content) View mStatsContent;
 	@InjectView(R.id.game_stats_rank_root) LinearLayout mRankRoot;
@@ -108,11 +135,44 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
 	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
 
-	boolean mIsDescriptionExpanded;
-	boolean mIsStatsExpanded;
-	private NumberFormat mFormat = NumberFormat.getInstance();
+	@InjectView(R.id.game_info_id) TextView mIdView;
+	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
 
+	@InjectViews({
+		R.id.number_of_players,
+		R.id.play_time,
+		R.id.player_age
+	}) List<TextView> mColorizedTextViews;
+	@InjectViews({
+		R.id.game_info_designers,
+		R.id.game_info_artists,
+		R.id.game_info_publishers,
+		R.id.game_info_categories,
+		R.id.game_info_mechanics,
+		R.id.game_info_expansions,
+		R.id.game_info_base_games
+	}) List<GameDetailRow> mColorizedRows;
+	@InjectViews({
+		R.id.card_header_details,
+		R.id.card_header_collection,
+		R.id.card_header_plays,
+		R.id.card_header_user_feedback
+	}) List<TextView> mColorizedHeaders;
+	@InjectViews({
+		R.id.icon_plays,
+		R.id.icon_play_stats,
+		R.id.icon_colors,
+		R.id.icon_forums,
+		R.id.icon_comments,
+		R.id.icon_ratings,
+		R.id.icon_stats
+	}) List<ImageView> mColorizedIcons;
+
+	private boolean mIsDescriptionExpanded;
+	private boolean mIsStatsExpanded;
+	private final NumberFormat mFormat = NumberFormat.getInstance();
 	private boolean mMightNeedRefreshing;
+	private Palette mPalette;
 
 	static class GameInfo {
 		String gameName;
@@ -141,6 +201,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	private Callbacks mCallbacks = sDummyCallbacks;
 
+	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+		= new ViewTreeObserver.OnGlobalLayoutListener() {
+		@Override
+		public void onGlobalLayout() {
+			ActivityUtils.resizeImagePerAspectRatio(mImageView, mScrollRoot.getHeight() / 2, mHeroContainer);
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -163,18 +231,29 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_game_info, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
+		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
-
-		mHeroContainer.setBackground(ScrimUtil.makeDefaultScrimDrawable(getActivity()));
+		ScrimUtil.applyDefaultScrim(mHeaderContainer);
+		mScrollRoot.addCallbacks(this);
+		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		if (vto.isAlive()) {
+			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+		}
 
 		mMightNeedRefreshing = true;
 		LoaderManager lm = getLoaderManager();
 		lm.restartLoader(GameQuery._TOKEN, null, this);
 		lm.restartLoader(RankQuery._TOKEN, null, this);
-
+		lm.restartLoader(CollectionQuery._TOKEN, null, this);
+		if (shouldShowPlays()) {
+			lm.restartLoader(PlaysQuery._TOKEN, null, this);
+		}
+		if (PreferencesUtils.showLogPlay(getActivity())) {
+			lm.restartLoader(ColorQuery._TOKEN, null, this);
+		}
 		return rootView;
 	}
 
@@ -202,6 +281,24 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mScrollRoot == null) {
+			return;
+		}
+
+		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
+		if (vto.isAlive()) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+				//noinspection deprecation
+				vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			} else {
+				vto.removeOnGlobalLayoutListener(mGlobalLayoutListener);
+			}
+		}
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
@@ -220,41 +317,54 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
+		int gameId = Games.getGameId(mGameUri);
 		switch (id) {
 			case GameQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), mGameUri, GameQuery.PROJECTION, null, null, null);
 				break;
 			case DesignerQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildDesignersUri(gameId),
 					DesignerQuery.PROJECTION, null, null, null);
 				break;
 			case ArtistQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildArtistsUri(gameId),
 					ArtistQuery.PROJECTION, null, null, null);
 				break;
 			case PublisherQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildPublishersUri(gameId),
 					PublisherQuery.PROJECTION, null, null, null);
 				break;
 			case CategoryQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildCategoriesUri(gameId),
 					CategoryQuery.PROJECTION, null, null, null);
 				break;
 			case MechanicQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildMechanicsUri(gameId),
 					MechanicQuery.PROJECTION, null, null, null);
 				break;
 			case ExpansionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
 					ExpansionQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "0" }, null);
 				break;
 			case BaseGameQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildExpansionsUri(gameId),
 					BaseGameQuery.PROJECTION, GamesExpansions.INBOUND + "=?", new String[] { "1" }, null);
 				break;
 			case RankQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), Games.buildRanksUri(Games.getGameId(mGameUri)),
+				loader = new CursorLoader(getActivity(), Games.buildRanksUri(gameId),
 					RankQuery.PROJECTION, null, null, null);
+				break;
+			case CollectionQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), BggContract.Collection.CONTENT_URI, CollectionQuery.PROJECTION,
+					"collection." + BggContract.Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+				break;
+			case PlaysQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), BggContract.Plays.CONTENT_URI, PlaysQuery.PROJECTION,
+					BggContract.PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+				break;
+			case ColorQuery._TOKEN:
+				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId),
+					GameColorAdapter.PROJECTION, null, null, null);
 				break;
 			default:
 				Timber.w("Invalid query token=" + id);
@@ -305,6 +415,18 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			case RankQuery._TOKEN:
 				onRankQueryComplete(cursor);
 				break;
+			case CollectionQuery._TOKEN:
+				onCollectionQueryComplete(cursor);
+				break;
+			case PlaysQuery._TOKEN:
+				onPlaysQueryComplete(cursor);
+				break;
+			case ColorQuery._TOKEN:
+				mPlaysCard.setVisibility(View.VISIBLE);
+				mColorsRoot.setVisibility(View.VISIBLE);
+				int count = cursor.getCount();
+				mColorsLabel.setText(getResources().getQuantityString(R.plurals.colors_suffix, count, count));
+				break;
 			default:
 				cursor.close();
 				break;
@@ -315,23 +437,34 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onLoaderReset(Loader<Cursor> arg0) {
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@Override
+	public void onScrollChanged(int deltaX, int deltaY) {
+		if (VersionUtils.hasHoneycomb()) {
+			int scrollY = mScrollRoot.getScrollY();
+			mImageView.setTranslationY(scrollY * 0.5f);
+			mHeaderContainer.setTranslationY(scrollY * 0.5f);
+		}
+	}
+
 	@Override
 	public void onPaletteGenerated(Palette palette) {
+		mPalette = palette;
+		colorize(palette);
+	}
+
+	private void colorize(Palette palette) {
+		if (palette == null || mPrimaryInfo == null) {
+			return;
+		}
 		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ColorUtils.colorTextViews(mNumberOfPlayersView, swatch);
-		ColorUtils.colorTextViews(mPlayTimeView, swatch);
-		ColorUtils.colorTextViews(mPlayerAgeView, swatch);
-
+		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
 		swatch = ColorUtils.getIconSwatch(palette);
-		mDesignersView.colorIcon(swatch);
-		mArtistsView.colorIcon(swatch);
-		mPublishersView.colorIcon(swatch);
-		mCategoriesView.colorIcon(swatch);
-		mMechanicsView.colorIcon(swatch);
-		mExpansionsView.colorIcon(swatch);
-		mBaseGamesView.colorIcon(swatch);
-		mStatsIcon.setColorFilter(swatch.getRgb());
+		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
+		ButterKnife.apply(mColorizedIcons, ColorUtils.colorIconSetter, swatch);
+		swatch = ColorUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {
@@ -354,13 +487,14 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mYearPublishedView.setText(game.getYearPublished());
 		mRatingView.setText(game.getRatingDescription());
 		ColorUtils.setTextViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
-		mNumberRatingView.setText(mFormat.format(game.UsersRated));
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
 		mPlayerAgeView.setText(game.getAgeDescription());
+		mCommentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
+		mRatingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
 
 		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
 			mFormat.format(game.UsersRated)));
@@ -387,6 +521,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mNumWishingBar.setBar(R.string.wishing_meter_text, game.NumberWishing, game.getMaxUsers());
 		mNumWeightingBar.setBar(R.string.weighting_meter_text, game.NumberWeights, game.getMaxUsers());
 
+		if (shouldShowPlays()) {
+			mPlaysCard.setVisibility(View.VISIBLE);
+			mPlayStatsRoot.setVisibility(View.VISIBLE);
+		}
+
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
 
@@ -395,6 +534,10 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			triggerRefresh();
 		}
 		mMightNeedRefreshing = false;
+	}
+
+	private boolean shouldShowPlays() {
+		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
 	}
 
 	private void notifyChange(Game game) {
@@ -452,6 +595,48 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		mRankRoot.addView(sb);
 	}
 
+	private void onCollectionQueryComplete(Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			mCollectionCard.setVisibility(View.VISIBLE);
+			mCollectionContainer.removeViews(1, mCollectionContainer.getChildCount() - 1);
+			do {
+				GameCollectionRow row = new GameCollectionRow(getActivity());
+				row.bind(Games.getGameId(mGameUri), mGameName, cursor.getInt(CollectionQuery.COLLECTION_ID));
+				row.setThumbnail(cursor.getString(CollectionQuery.COLLECTION_THUMBNAIL));
+				row.setName(cursor.getString(CollectionQuery.COLLECTION_NAME));
+				row.setYear(cursor.getInt(CollectionQuery.COLLECTION_YEAR));
+				List<String> status = new ArrayList<>();
+				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
+					if (cursor.getInt(i) == 1) {
+						if (i == CollectionQuery.STATUS_WISHLIST) {
+							status.add(StringUtils.describeWishlist(getActivity(),
+								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
+						} else {
+							int index = i - CollectionQuery.STATUS_1;
+							status.add(getResources().getStringArray(R.array.collection_status_filter_entries)[index]);
+						}
+					}
+				}
+				row.setStatus(status, cursor.getInt(CollectionQuery.NUM_PLAYS));
+				mCollectionContainer.addView(row);
+			} while (cursor.moveToNext());
+		}
+	}
+
+	private void onPlaysQueryComplete(Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			mPlaysCard.setVisibility(View.VISIBLE);
+			mPlaysRoot.setVisibility(View.VISIBLE);
+			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
+			if (sum > 0) {
+				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE);
+				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
+			} else {
+				mPlaysLabel.setText(getResources().getString(R.string.no_plays));
+			}
+		}
+	}
+
 	private void setText(TextView tv, String text, boolean bold) {
 		if (bold) {
 			SpannableString ss = new SpannableString(text);
@@ -462,11 +647,11 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		}
 	}
 
-	@OnClick(R.id.game_info_image)
+	@OnClick(R.id.image)
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
-			intent.putExtra(ImageActivity.KEY_IMAGE_URL, mImageUrl);
+			intent.putExtra(ActivityUtils.KEY_IMAGE_URL, mImageUrl);
 			startActivity(intent);
 		}
 	}
@@ -475,6 +660,55 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	public void onDescriptionClick(View v) {
 		mIsDescriptionExpanded = !mIsDescriptionExpanded;
 		openOrCloseDescription();
+	}
+
+	@OnClick(R.id.plays_root)
+	public void onPlaysClick(View v) {
+		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.play_stats_root)
+	public void onPlayStatsClick(View v) {
+		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.colors_root)
+	public void onColorsClick(View v) {
+		Intent intent = new Intent(getActivity(), ColorsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.forums_root)
+	public void onForumsClick(View v) {
+		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.comments_root)
+	public void onCommentsClick(View v) {
+		Intent intent = new Intent(getActivity(), CommentsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.ratings_root)
+	public void onRatingsClick(View v) {
+		Intent intent = new Intent(getActivity(), CommentsActivity.class);
+		intent.setData(mGameUri);
+		intent.putExtra(ActivityUtils.KEY_GAME_NAME, mGameName);
+		intent.putExtra(ActivityUtils.KEY_SORT, CommentsActivity.SORT_RATING);
+		startActivity(intent);
 	}
 
 	@OnClick(R.id.game_info_stats_root)
@@ -498,8 +732,8 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 	@OnClick({ R.id.number_of_players, R.id.player_age })
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
-		arguments.putInt(PollFragment.KEY_GAME_ID, Games.getGameId(mGameUri));
-		arguments.putString(PollFragment.KEY_TYPE, (String) v.getTag());
+		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
+		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
 		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
@@ -516,7 +750,8 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			Games.UPDATED, Games.GAME_RANK, Games.GAME_NAME, Games.THUMBNAIL_URL, Games.STATS_BAYES_AVERAGE,
 			Games.STATS_MEDIAN, Games.STATS_STANDARD_DEVIATION, Games.STATS_NUMBER_WEIGHTS, Games.STATS_AVERAGE_WEIGHT,
 			Games.STATS_NUMBER_OWNED, Games.STATS_NUMBER_TRADING, Games.STATS_NUMBER_WANTING,
-			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT };
+			Games.STATS_NUMBER_WISHING, Games.POLLS_COUNT, Games.IMAGE_URL, Games.SUBTYPE, Games.CUSTOM_PLAYER_SORT,
+			Games.STATS_NUMBER_COMMENTS };
 
 		int GAME_ID = 0;
 		int STATS_AVERAGE = 1;
@@ -544,6 +779,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int IMAGE_URL = 23;
 		int SUBTYPE = 24;
 		int CUSTOM_PLAYER_SORT = 25;
+		int STATS_NUMBER_COMMENTS = 26;
 	}
 
 	private interface DesignerQuery {
@@ -598,6 +834,37 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int GAME_RANK_BAYES_AVERAGE = 3;
 	}
 
+	private interface CollectionQuery {
+		String[] PROJECTION = { BggContract.Collection._ID, BggContract.Collection.COLLECTION_ID,
+			BggContract.Collection.COLLECTION_NAME, BggContract.Collection.COLLECTION_YEAR_PUBLISHED, BggContract.Collection.COLLECTION_IMAGE_URL,
+			BggContract.Collection.STATUS_OWN, BggContract.Collection.STATUS_PREVIOUSLY_OWNED, BggContract.Collection.STATUS_FOR_TRADE,
+			BggContract.Collection.STATUS_WANT, BggContract.Collection.STATUS_WANT_TO_BUY, BggContract.Collection.STATUS_WISHLIST,
+			BggContract.Collection.STATUS_WANT_TO_PLAY, BggContract.Collection.STATUS_PREORDERED,
+			BggContract.Collection.STATUS_WISHLIST_PRIORITY, BggContract.Collection.NUM_PLAYS };
+		int _TOKEN = 0x20;
+		int COLLECTION_ID = 1;
+		int COLLECTION_NAME = 2;
+		int COLLECTION_YEAR = 3;
+		int COLLECTION_THUMBNAIL = 4;
+		int STATUS_1 = 5;
+		int STATUS_N = 12;
+		int STATUS_WISHLIST = 10;
+		int STATUS_WISHLIST_PRIORITY = 13;
+		int NUM_PLAYS = 14;
+	}
+
+	private interface PlaysQuery {
+		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE, BggContract.Plays.SUM_QUANTITY };
+		int _TOKEN = 0x21;
+		int _ID = 0;
+		int DATE = 1;
+		int SUM_QUANTITY = 2;
+	}
+
+	private interface ColorQuery {
+		int _TOKEN = 0x22;
+	}
+
 	private class Game {
 		String Name;
 		String ThumbnailUrl;
@@ -611,6 +878,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 		int MinimumAge;
 		String Description;
 		int UsersRated;
+		int UsersCommented;
 		long Updated;
 		int Rank;
 		double BayesAverage;
@@ -639,6 +907,7 @@ public class GameInfoFragment extends Fragment implements LoaderManager.LoaderCa
 			MinimumAge = cursor.getInt(GameQuery.MINIMUM_AGE);
 			Description = cursor.getString(GameQuery.DESCRIPTION);
 			UsersRated = cursor.getInt(GameQuery.STATS_USERS_RATED);
+			UsersCommented = cursor.getInt(GameQuery.STATS_NUMBER_COMMENTS);
 			Updated = cursor.getLong(GameQuery.UPDATED);
 			Rank = cursor.getInt(GameQuery.GAME_RANK);
 			BayesAverage = cursor.getDouble(GameQuery.STATS_BAYES_AVERAGE);

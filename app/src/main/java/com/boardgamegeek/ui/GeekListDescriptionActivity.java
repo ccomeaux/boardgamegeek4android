@@ -50,7 +50,6 @@ public class GeekListDescriptionActivity extends SimpleSinglePaneActivity {
 					onBackPressed();
 				}
 				return true;
-
 			case R.id.menu_view:
 				ActivityUtils.link(this, uri);
 				return true;

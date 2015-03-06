@@ -132,7 +132,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@InjectView(R.id.log_play_incomplete) SwitchCompat mIncompleteView;
 	@InjectView(R.id.log_play_no_win_stats) SwitchCompat mNoWinStatsView;
 	@InjectView(R.id.timer) Chronometer mTimer;
-	@InjectView(R.id.timer_toggle) View mTimerToggle;
+	@InjectView(R.id.timer_toggle) ImageView mTimerToggle;
 	@InjectView(R.id.log_play_comments) EditText mCommentsView;
 	@InjectView(R.id.log_play_players_header) LinearLayout mPlayerHeader;
 	@InjectView(R.id.log_play_players_label) TextView mPlayerLabel;
@@ -493,10 +493,14 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			mLengthView.setVisibility(View.VISIBLE);
 			mTimer.setVisibility(View.GONE);
 		}
-		if (mPlay.hasStarted() || DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
-			mTimerToggle.setVisibility(View.VISIBLE);
+		if (mPlay.hasStarted()) {
+			mTimerToggle.setEnabled(true);
+			mTimerToggle.setImageResource(R.drawable.ic_action_timer_off);
+		} else if (DateUtils.isToday(mPlay.getDateInMillis() + mPlay.length * 60 * 1000)) {
+			mTimerToggle.setEnabled(true);
+			mTimerToggle.setImageResource(R.drawable.ic_action_timer);
 		} else {
-			mTimerToggle.setVisibility(View.INVISIBLE);
+			mTimerToggle.setEnabled(false);
 		}
 
 		hideRow(shouldHideQuantity(), findViewById(R.id.log_play_quantity_root));
@@ -929,6 +933,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	@OnClick(R.id.timer_toggle)
 	public void onTimer(View v) {
 		if (mPlay.hasStarted()) {
 			mEndPlay = true;
@@ -966,6 +971,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	@OnClick(R.id.player_sort)
 	public void onPlayerSort(View v) {
 		MenuPopupHelper popup;
 		if (!mCustomPlayerSort && mPlay.getPlayerCount() > 1) {
@@ -1115,6 +1121,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	@OnClick(R.id.clear_players)
 	public void onClearPlayers(View v) {
 		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {

@@ -67,9 +67,17 @@
 		<item name="android:lineSpacingMultiplier">0.9</item>
 	</style>
 
+	<style name="Text.Primary.Inverse">
+		<item name="android:textColor">@color/inverse_text</item>
+	</style>
+
 	<style name="Text.Secondary">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">12sp</item>
+	</style>
+
+	<style name="Text.Secondary.Inverse">
+		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Footnote">
@@ -79,6 +87,10 @@
 	<style name="Text.Footnote2">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">10sp</item>
+	</style>
+
+	<style name="Text.Footnote2.Inverse">
+		<item name="android:textColor">@color/inverse_text_body</item>
 	</style>
 
 	<style name="Text.Dialog">
@@ -189,6 +201,11 @@
 		<item name="android:layout_height">40dp</item>
 		<item name="android:gravity">bottom</item>
 		<item name="android:paddingBottom">8dp</item>
+	</style>
+
+	<style name="Text.Header.Card">
+		<item name="android:layout_height">32dp</item>
+		<item name="android:gravity">center_vertical</item>
 	</style>
 
 	<style name="Text.Header.Underline">
@@ -325,7 +342,7 @@
 
 	<style name="HeroContainer">
 		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">128dp</item>
+		<item name="android:layout_height">196dp</item>
 		<item name="android:layout_gravity">center</item>
 	</style>
 
@@ -363,6 +380,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">@dimen/edit_row_height</item>
 		<item name="android:orientation">horizontal</item>
+		<item name="android:gravity">center_vertical</item>
 	</style>
 
 	<style name="WebViewContainer">
@@ -373,6 +391,29 @@
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal_webview_container</item>
 		<item name="android:paddingRight">@dimen/material_margin_horizontal_webview_container</item>
 		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
+	</style>
+
+	<style name="Card">
+		<item name="android:layout_marginBottom">@dimen/material_margin_vertical_card</item>
+		<item name="android:layout_marginLeft">@dimen/material_margin_horizontal_card</item>
+		<item name="android:layout_marginRight">@dimen/material_margin_horizontal_card</item>
+		<item name="android:layout_marginTop">@dimen/material_margin_vertical_card</item>
+		<item name="cardElevation">2dp</item>
+		<item name="contentPaddingBottom">@dimen/material_margin_vertical_card_contents</item>
+		<item name="contentPaddingLeft">@dimen/material_margin_horizontal_card_contents</item>
+		<item name="contentPaddingRight">@dimen/material_margin_horizontal_card_contents</item>
+		<item name="contentPaddingTop">@dimen/material_margin_vertical_card_contents</item>
+	</style>
+
+	<style name="Icon">
+		<item name="android:layout_width">40dp</item>
+		<item name="android:layout_height">40dp</item>
+		<item name="android:paddingTop">8dp</item>
+		<item name="android:paddingBottom">8dp</item>
+		<item name="android:paddingRight">8dp</item>
+		<item name="android:paddingLeft">8dp</item>
+		<item name="android:layout_marginLeft">-8dp</item>
+		<item name="android:layout_marginRight">24dp</item>
 	</style>
 
 </resources>

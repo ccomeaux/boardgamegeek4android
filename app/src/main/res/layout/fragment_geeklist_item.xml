@@ -5,14 +5,16 @@
 			  android:layout_height="match_parent"
 			  android:orientation="vertical">
 
-	<FrameLayout style="@style/HeroContainer">
+	<FrameLayout
+		android:id="@+id/hero_container"
+		style="@style/HeroContainer">
 
 		<ImageView
 			android:id="@+id/image"
 			style="@style/HeroImage"/>
 
 		<LinearLayout
-			android:id="@+id/hero_container"
+			android:id="@+id/header_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:orientation="vertical"

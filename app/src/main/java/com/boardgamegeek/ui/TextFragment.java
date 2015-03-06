@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.ActivityUtils;
 
 public class TextFragment extends Fragment {
-	public static final String KEY_TEXT = "KEY_TEXT";
 	TextView mTextView;
 
 	@Override
@@ -23,6 +23,6 @@ public class TextFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		mTextView.setText(getArguments().getString(KEY_TEXT));
+		mTextView.setText(getArguments().getString(ActivityUtils.KEY_TEXT));
 	}
 }

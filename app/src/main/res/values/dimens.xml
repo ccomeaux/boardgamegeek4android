@@ -18,23 +18,30 @@
 	<dimen name="drawer_item_height">48dp</dimen>
 	<dimen name="text_size">14sp</dimen>
 	<dimen name="thumbnail_list_size">64dp</dimen>
+	<dimen name="thumbnail_list_size_small">40dp</dimen>
+	<dimen name="thumbnail_list_size_small_margin">16dp</dimen>
 	<dimen name="thumbnail_size">72dp</dimen>
 	<dimen name="actionbar_view">32dp</dimen>
 	<dimen name="actionbar_text">24sp</dimen>
 	<dimen name="actionbar_text_small">12sp</dimen>
 	<dimen name="icon_width">48dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
-	<dimen name="color_circle_diameter">36dp</dimen>
+	<dimen name="color_circle_diameter">32dp</dimen>
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
 	<dimen name="material_margin_horizontal">16dp</dimen>
 	<dimen name="material_margin_horizontal_thumbnail">8dp</dimen>
 	<dimen name="material_margin_horizontal_webview_container">8dp</dimen>
+	<dimen name="material_margin_horizontal_card">8dp</dimen>
+	<dimen name="material_margin_horizontal_card_contents">8dp</dimen>
 	<dimen name="material_margin_vertical">8dp</dimen>
+	<dimen name="material_margin_vertical_card">4dp</dimen>
+	<dimen name="material_margin_vertical_card_contents">4dp</dimen>
 	<dimen name="material_indent_horizontal">72dp</dimen>
 	<dimen name="material_avatar_size">40dp</dimen>
 	<dimen name="material_elevation">8dp</dimen>
 	<dimen name="material_elevation_subtle">4dp</dimen>
+	<dimen name="card_row_height">40dp</dimen>
 
 </resources>

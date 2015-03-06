@@ -100,21 +100,24 @@ public class SettingsActivity extends PreferenceActivity {
 				}
 			}
 
-			((Preference) findPreference("open_source_licenses")).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				public boolean onPreferenceClick(Preference preference) {
-					new Libs.Builder()
-						.withFields(R.string.class.getFields())
-						.withLibraries("OkHttp", "DragSortListView", "Hugo", "PhotoView",
-							"RangeSeekBar", "StickyListHeaders", "AndroidIcons")
-						.withAutoDetect(true)
-						.withLicenseShown(true)
-						.withActivityTitle(getString(R.string.pref_about_licenses))
-						.withActivityTheme(R.style.Theme_bgglight)
-						.withAboutVersionShown(true)
-						.start(PrefFragment.this.getActivity());
-					return true;
-				}
-			});
+			Preference oslPref = findPreference("open_source_licenses");
+			if (oslPref != null) {
+				oslPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					public boolean onPreferenceClick(Preference preference) {
+						new Libs.Builder()
+							.withFields(R.string.class.getFields())
+							.withLibraries("OkHttp", "DragSortListView", "Hugo", "PhotoView",
+								"RangeSeekBar", "StickyListHeaders", "AndroidIcons")
+							.withAutoDetect(true)
+							.withLicenseShown(true)
+							.withActivityTitle(getString(R.string.pref_about_licenses))
+							.withActivityTheme(R.style.Theme_bgglight)
+							.withAboutVersionShown(true)
+							.start(PrefFragment.this.getActivity());
+						return true;
+					}
+				});
+			}
 		}
 
 		@Override
