@@ -342,7 +342,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			StringBuilder where = new StringBuilder();
 			String[] args = { };
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
-			if (mViewId == 0) {
+			if (mViewId == 0 && mFilters == null || mFilters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
 				for (CollectionFilterData filter : mFilters) {
