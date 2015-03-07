@@ -11,6 +11,9 @@ import android.preference.PreferenceManager;
 
 import com.boardgamegeek.R;
 
+/**
+ * Methods to display help text.
+ */
 public class HelpUtils {
 	public static final String HELP_HOME_KEY = "help.home";
 	public static final String HELP_GAME_KEY = "help.game";
@@ -21,6 +24,12 @@ public class HelpUtils {
 	public static final String HELP_COLORS_KEY = "help.colors";
 	public static final String HELP_THREAD_KEY = "help.thread";
 
+	private HelpUtils() {
+	}
+
+	/**
+	 * Display this key's help text in a dialog.
+	 */
 	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
 		if (HelpUtils.showHelp(context, key, version)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -37,17 +46,23 @@ public class HelpUtils {
 		}
 	}
 
-	public static boolean showHelp(Context context, String key, int version) {
+	/**
+	 * Determines if this version of the help key should be shown.
+	 */
+	private static boolean showHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final int shownVersion = preferences.getInt(key, 0);
 		return version > shownVersion;
 	}
 
-	public static boolean updateHelp(Context context, String key, int version) {
+	private static boolean updateHelp(Context context, String key, int version) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return preferences.edit().putInt(key, version).commit();
 	}
 
+	/**
+	 * Get the version name of the package, or "?.?" if not found.
+	 */
 	public static String getVersionName(Context context) {
 		try {
 			PackageManager pm = context.getPackageManager();

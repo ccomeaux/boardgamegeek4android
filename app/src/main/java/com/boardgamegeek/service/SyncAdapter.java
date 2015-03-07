@@ -20,6 +20,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
+import com.boardgamegeek.util.BatteryUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
@@ -114,7 +115,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
-		if (PreferencesUtils.getSyncOnlyCharging(mContext) && !NetworkUtils.isCharging(mContext)) {
+		if (PreferencesUtils.getSyncOnlyCharging(mContext) && !BatteryUtils.isCharging(mContext)) {
 			Timber.i("Skipping sync; not charging");
 			return false;
 		}
@@ -124,7 +125,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			return false;
 		}
 
-		if (NetworkUtils.isBatteryLow(mContext)) {
+		if (BatteryUtils.isBatteryLow(mContext)) {
 			Timber.i("Skipping sync; battery low");
 			return false;
 		}

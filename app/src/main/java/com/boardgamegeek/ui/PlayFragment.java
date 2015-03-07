@@ -170,7 +170,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	public void onResume() {
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 			mNotified = true;
 		}
 	}
@@ -426,7 +426,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 	private void maybeShowNotification() {
 		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		} else if (mNotified) {
 			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
 		}

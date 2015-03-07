@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.ui.HomeActivity;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -28,20 +29,33 @@ public class NotificationUtils {
 	public static final int ID_SYNC_PLAY_UPLOAD_ERROR = -3;
 	public static final int ID_PERSIST_ERROR = -4;
 
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
+	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title) {
 		return createNotificationBuilder(context, title, HomeActivity.class);
 	}
 
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent that goes to the {@link com.boardgamegeek.ui.HomeActivity}.
+	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId) {
 		return createNotificationBuilder(context, titleId, HomeActivity.class);
 	}
 
+	/**
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
+	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, int titleId, Class<?> cls) {
 		return createNotificationBuilder(context, context.getString(titleId), cls);
 	}
 
 	/**
-	 * Creates a notification builder with the correct icons, specified title, and pending intent.
+	 * Creates a {@link android.support.v4.app.NotificationCompat.Builder} with the correct icons, specified title, and
+	 * pending intent.
 	 */
 	public static NotificationCompat.Builder createNotificationBuilder(Context context, String title, Class<?> cls) {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
@@ -54,17 +68,26 @@ public class NotificationUtils {
 		return builder;
 	}
 
+	/**
+	 * Display the notification with a unique ID.
+	 */
 	public static void notify(Context context, int id, NotificationCompat.Builder builder) {
 		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.notify(id, builder.build());
 	}
 
+	/**
+	 * Cancel the notification by a unique ID.
+	 */
 	public static void cancel(Context context, int id) {
 		NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.cancel(id);
 	}
 
-	public static void launchStartNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
+	/**
+	 * Launch the "Playing" notification.
+	 */
+	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
 		Queue<String> imageUrls = new LinkedList<>();
 		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
@@ -77,8 +100,7 @@ public class NotificationUtils {
 	private static void buildAndNotify(Context context, Play play, String thumbnailUrl, String imageUrl, Bitmap largeIcon) {
 		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, play.gameName);
 
-		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl,
-			imageUrl);
+		Intent intent = ActivityUtils.createPlayIntent(context, play.playId, play.gameId, play.gameName, thumbnailUrl, imageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -105,6 +127,10 @@ public class NotificationUtils {
 		NotificationUtils.notify(context, NotificationUtils.ID_PLAY_TIMER, builder);
 	}
 
+	/**
+	 * Attempt to load the first icon in the queue. If this fails, try the next icon in the queue until successful or
+	 * the queue is empty.
+	 */
 	private static void tryLoadLargeIcon(final Context context, final Play play, final String thumbnailUrl,
 										 final String imageUrl, final Queue<String> imageUrls) {
 		String path = imageUrls.poll();
@@ -113,6 +139,7 @@ public class NotificationUtils {
 		}
 		Picasso.with(context.getApplicationContext())
 			.load(HttpUtils.ensureScheme(path))
+			.networkPolicy(NetworkPolicy.NO_STORE)
 			.resize(400, 400) // recommended size for wearables
 			.centerCrop()
 			.into(new Target() {

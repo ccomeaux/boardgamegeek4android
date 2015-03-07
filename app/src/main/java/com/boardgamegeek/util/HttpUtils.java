@@ -30,9 +30,14 @@ import timber.log.Timber;
 public class HttpUtils {
 	private static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String SITE_URL = "https://www.boardgamegeek.com/";
+	@SuppressWarnings("FieldCanBeLocal") private static final boolean MOCK_LOGIN = false;
 
-	@SuppressWarnings("FieldCanBeLocal") private static boolean mMockLogin = false;
+	private HttpUtils() {
+	}
 
+	/**
+	 * Encodes {@code s} using UTF-8 using the format required by {@code application/x-www-form-urlencoded} MIME content type.
+	 */
 	public static String encode(String s) {
 		try {
 			return URLEncoder.encode(s, "UTF-8");
@@ -42,9 +47,13 @@ public class HttpUtils {
 		return s;
 	}
 
+	/**
+	 * Authenticates to BGG with the specified username and password, returning the cookie store to use on subsequent
+	 * requests, or null if authentication fails.
+	 */
 	public static CookieStore authenticate(String username, String password) {
-		if (mMockLogin) {
-			return mockLogin(username);
+		if (MOCK_LOGIN) {
+			return mockLogin();
 		}
 
 		String AUTH_URI = HttpUtils.SITE_URL + "login";
@@ -58,15 +67,16 @@ public class HttpUtils {
 		try {
 			entity = new UrlEncodedFormEntity(params);
 		} catch (final UnsupportedEncodingException e) {
-			// this should never happen.
+			Timber.e(e, "This should never happen.");
 			throw new IllegalStateException(e);
 		}
+
 		Timber.i("Authenticating to: " + AUTH_URI);
 		final HttpPost post = new HttpPost(AUTH_URI);
 		post.addHeader(entity.getContentType());
 		post.setEntity(entity);
 		try {
-			final DefaultHttpClient client = (DefaultHttpClient) getHttpClient();
+			final DefaultHttpClient client = getHttpClient();
 			resp = client.execute(post);
 			Timber.w(resp.toString());
 			CookieStore cookieStore = null;
@@ -104,8 +114,8 @@ public class HttpUtils {
 	/**
 	 * Configures the httpClient to connect to the URL provided.
 	 */
-	private static HttpClient getHttpClient() {
-		HttpClient httpClient = new DefaultHttpClient();
+	private static DefaultHttpClient getHttpClient() {
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 		final HttpParams params = httpClient.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, HTTP_REQUEST_TIMEOUT_MS);
 		HttpConnectionParams.setSoTimeout(params, HTTP_REQUEST_TIMEOUT_MS);
@@ -116,13 +126,16 @@ public class HttpUtils {
 	/**
 	 * Mocks a login by setting the cookie store with bogus data.
 	 */
-	private static CookieStore mockLogin(String username) {
+	private static CookieStore mockLogin() {
 		CookieStore store = new BasicCookieStore();
 		store.addCookie(new BasicClientCookie("bggpassword", "password"));
 		store.addCookie(new BasicClientCookie("SessionID", "token"));
 		return store;
 	}
 
+	/**
+	 * Ensures the URL has a scheme, setting it to HTTPS if missing.
+	 */
 	public static String ensureScheme(String url) {
 		if (TextUtils.isEmpty(url)) {
 			return url;

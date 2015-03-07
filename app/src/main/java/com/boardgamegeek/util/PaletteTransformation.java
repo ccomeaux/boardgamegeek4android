@@ -8,6 +8,9 @@ import com.squareup.picasso.Transformation;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+/**
+ * Used to get Picasso and Palette to play well with each other.
+ */
 public final class PaletteTransformation implements Transformation {
 	private static final PaletteTransformation INSTANCE = new PaletteTransformation();
 	private static final Map<Bitmap, Palette> CACHE = new WeakHashMap<>();

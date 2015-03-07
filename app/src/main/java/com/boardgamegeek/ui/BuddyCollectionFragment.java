@@ -1,5 +1,7 @@
 package com.boardgamegeek.ui;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

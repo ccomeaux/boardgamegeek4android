@@ -1174,7 +1174,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@DebugLog
 	private void maybeShowNotification() {
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(this, mPlay, mThumbnailUrl, mImageUrl);
 		}
 	}
 

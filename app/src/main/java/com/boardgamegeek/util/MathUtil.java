@@ -4,7 +4,7 @@ public class MathUtil {
 	private MathUtil() {
 	}
 
-	public static int clamp(int number, int min, int max) {
+	public static int constrain(int number, int min, int max) {
 		return Math.max(min, Math.min(max, number));
 	}
 

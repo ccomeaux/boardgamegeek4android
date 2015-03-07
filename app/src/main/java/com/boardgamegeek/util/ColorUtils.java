@@ -71,7 +71,7 @@ public class ColorUtils {
 	}
 
 	public static int getRatingColor(double rating) {
-		int baseRating = MathUtil.clamp((int) rating, 0, 10);
+		int baseRating = MathUtil.constrain((int) rating, 0, 10);
 		return blendColors(BACKGROUND_COLORS[baseRating], BACKGROUND_COLORS[baseRating + 1], baseRating + 1 - rating);
 	}
 

@@ -1,6 +1,3 @@
-/**
- * Adapted from: https://bitbucket.org/Kuitsi/android-textview-html-list/overview
- */
 package com.boardgamegeek.util;
 
 import android.text.Editable;
@@ -15,26 +12,50 @@ import java.util.Stack;
 
 import timber.log.Timber;
 
+/**
+ * A {@link android.text.Html.TagHandler} that can format ordered and unordered lists. Adapted from:
+ * https://bitbucket.org/Kuitsi/android-textview-html-list
+ */
 public class ListTagHandler implements Html.TagHandler {
 	private static final String UL = "ul";
 	private static final String OL = "ol";
 	private static final String LI = "li";
-
-	/**
-	 * Keeps track of lists (ol, ul). On bottom of Stack is the outermost list and on top of Stack is the most nested
-	 * list
-	 */
-	private Stack<String> mLists = new Stack<>();
-	/**
-	 * Tracks indexes of ordered lists so that after a nested list ends we can continue with correct index of outer list
-	 */
-	private Stack<Integer> mNextOrderedIndex = new Stack<>();
-	/**
-	 * List indentation in pixels. Nested lists use multiple of this.
-	 */
+	// List indentation in pixels. Nested lists use multiple of this.
 	private static final int INDENTATION_IN_PIXELS = 10;
 	private static final int LIST_ITEM_INDENTATION_IN_PIXELS = INDENTATION_IN_PIXELS * 2;
 	private static final BulletSpan BULLET_SPAN = new BulletSpan(INDENTATION_IN_PIXELS);
+	// Keeps track of lists (ol, ul). On bottom of Stack is the outermost list and on top of Stack is the most nested
+	private final Stack<String> mLists = new Stack<>();
+	// Tracks indexes of ordered lists so that after a nested list ends we can continue with correct index of outer list
+	private final Stack<Integer> mNextOrderedIndex = new Stack<>();
+
+	private static void startListItem(Editable text, Object type) {
+		int length = text.length();
+		text.setSpan(type, length, length, Spanned.SPAN_MARK_MARK);
+	}
+
+	private static void endListItem(Editable text, Class<?> kind, Object... replaces) {
+		int length = text.length();
+		Object lastSpan = getLastSpan(text, kind);
+		int where = text.getSpanStart(lastSpan);
+		text.removeSpan(lastSpan);
+		if (where != length) {
+			for (Object replace : replaces) {
+				text.setSpan(replace, where, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		}
+	}
+
+	private static Object getLastSpan(Spanned text, Class<?> kind) {
+		/*
+		 * This knows that the last returned object from getSpans() will be the most recently added.
+		 */
+		Object[] spans = text.getSpans(0, text.length(), kind);
+		if (spans.length == 0) {
+			return null;
+		}
+		return spans[spans.length - 1];
+	}
 
 	@Override
 	public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
@@ -47,10 +68,10 @@ public class ListTagHandler implements Html.TagHandler {
 		} else if (tagIsTypeOf(tag, OL)) {
 			if (opening) {
 				mLists.push(tag);
-				mNextOrderedIndex.push(1).toString();
+				mNextOrderedIndex.push(1);
 			} else {
 				mLists.pop();
-				mNextOrderedIndex.pop().toString();
+				mNextOrderedIndex.pop();
 			}
 		} else if (tagIsTypeOf(tag, LI)) {
 			String currentListTag = mLists.peek();
@@ -96,34 +117,6 @@ public class ListTagHandler implements Html.TagHandler {
 
 	private boolean tagIsTypeOf(String tag, String type) {
 		return tag.equalsIgnoreCase(type);
-	}
-
-	private static void startListItem(Editable text, Object type) {
-		int length = text.length();
-		text.setSpan(type, length, length, Spanned.SPAN_MARK_MARK);
-	}
-
-	private static void endListItem(Editable text, Class<?> kind, Object... replaces) {
-		int length = text.length();
-		Object lastSpan = getLastSpan(text, kind);
-		int where = text.getSpanStart(lastSpan);
-		text.removeSpan(lastSpan);
-		if (where != length) {
-			for (Object replace : replaces) {
-				text.setSpan(replace, where, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-		}
-	}
-
-	private static Object getLastSpan(Spanned text, Class<?> kind) {
-		/*
-		 * This knows that the last returned object from getSpans() will be the most recently added.
-		 */
-		Object[] spans = text.getSpans(0, text.length(), kind);
-		if (spans.length == 0) {
-			return null;
-		}
-		return spans[spans.length - 1];
 	}
 
 	private void ensureTrailingNewLine(Editable line) {
