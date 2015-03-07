@@ -24,6 +24,9 @@ import java.util.List;
 import timber.log.Timber;
 
 public class ResolverUtils {
+	private ResolverUtils() {
+	}
+
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch != null && batch.size() > 0) {
@@ -71,6 +74,9 @@ public class ResolverUtils {
 		return getCount(resolver, uri) == 1;
 	}
 
+	/**
+	 * Get the number of rows at this URI.
+	 */
 	public static int getCount(ContentResolver resolver, Uri uri) {
 		Cursor cursor = resolver.query(uri, new String[] { BaseColumns._ID }, null, null, null);
 		if (cursor != null) {
@@ -100,8 +106,8 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get an integer from the specified column at the URI. Returns defaultValue if there's
-	 * not exactly one row at the URI.
+	 * Use the content resolver to get an integer from the specified column at the URI with the selection applied.
+	 * Returns defaultValue if there's not exactly one row at the URI.
 	 */
 	public static int queryInt(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
 							   String selection, String[] selectionArgs) {
@@ -119,7 +125,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
+	 * Use the content resolver to get a long from the specified column at the URI. Returns 0 if there's not
 	 * exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName) {
@@ -135,8 +141,8 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a long from the specified column at the URI. Returns defaultValue if there's not
-	 * exactly one row at the URI.
+	 * Use the content resolver to get a long from the specified column at the URI with the selection applied. Returns
+	 * defaultValue if there's not exactly one row at the URI.
 	 */
 	public static long queryLong(ContentResolver resolver, Uri uri, String columnName, int defaultValue,
 								 String selection, String[] selectionArgs) {
@@ -154,14 +160,14 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI
+	 * Use the content resolver to get a list of integers from the specified column at the URI.
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName) {
 		return queryInts(resolver, uri, columnName, null, null);
 	}
 
 	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI
+	 * Use the content resolver to get a list of integers from the specified column at the URI.
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
 										  String[] selectionArgs) {
@@ -169,7 +175,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of integers from the specified column at the URI
+	 * Use the content resolver to get a list of integers from the specified column at the URI.
 	 */
 	public static List<Integer> queryInts(ContentResolver resolver, Uri uri, String columnName, String selection,
 										  String[] selectionArgs, String sortOrder) {
@@ -186,14 +192,14 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName) {
 		return queryLongs(resolver, uri, columnName, null, null);
 	}
 
 	/*
-	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
 										String[] selectionArgs) {
@@ -201,7 +207,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of longs from the specified column at the URI
+	 * Use the content resolver to get a list of longs from the specified column at the URI.
 	 */
 	public static List<Long> queryLongs(ContentResolver resolver, Uri uri, String columnName, String selection,
 										String[] selectionArgs, String sortOrder) {
@@ -218,14 +224,14 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of strings from the specified column at the URI
+	 * Use the content resolver to get a list of strings from the specified column at the URI.
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName) {
 		return queryStrings(resolver, uri, columnName, null, null);
 	}
 
 	/*
-	 * Use the content resolver to get a list of strings from the specified column at the URI
+	 * Use the content resolver to get a list of strings from the specified column at the URI.
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
 											String[] selectionArgs) {
@@ -233,7 +239,7 @@ public class ResolverUtils {
 	}
 
 	/*
-	 * Use the content resolver to get a list of strings from the specified column at the URI
+	 * Use the content resolver to get a list of strings from the specified column at the URI.
 	 */
 	public static List<String> queryStrings(ContentResolver resolver, Uri uri, String columnName, String selection,
 											String[] selectionArgs, String sortOrder) {

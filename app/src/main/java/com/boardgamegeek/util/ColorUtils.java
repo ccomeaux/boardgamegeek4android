@@ -71,18 +71,8 @@ public class ColorUtils {
 	}
 
 	public static int getRatingColor(double rating) {
-		int baseRating = clamp((int) rating, 0, 10);
+		int baseRating = MathUtil.clamp((int) rating, 0, 10);
 		return blendColors(BACKGROUND_COLORS[baseRating], BACKGROUND_COLORS[baseRating + 1], baseRating + 1 - rating);
-	}
-
-	private static int clamp(int number, int low, int high) {
-		if (number < low) {
-			return low;
-		}
-		if (number > high) {
-			return high;
-		}
-		return number;
 	}
 
 	private static int blendColors(int color1, int color2, double ratio) {

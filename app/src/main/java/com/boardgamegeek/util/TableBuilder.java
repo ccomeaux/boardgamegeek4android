@@ -9,6 +9,9 @@ import java.util.List;
 
 import timber.log.Timber;
 
+/**
+ * A builder for creating and replacing tables.
+ */
 public class TableBuilder {
 	private String mTable = null;
 	private Column mPrimaryKey = null;
@@ -16,14 +19,6 @@ public class TableBuilder {
 	private List<String> mUniqueColumnNames = new ArrayList<>();
 	private CONFLICT_RESOLUTION mResolution = CONFLICT_RESOLUTION.IGNORE;
 	private boolean mFtsTable = false;
-
-	public enum COLUMN_TYPE {
-		INTEGER, TEXT, REAL
-	}
-
-	public enum CONFLICT_RESOLUTION {
-		ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
-	}
 
 	public TableBuilder reset() {
 		mTable = null;
@@ -164,8 +159,8 @@ public class TableBuilder {
 		return addColumn(name, type, notNull, unique, referenceTable, referenceColumn, onCascadeDelete, null);
 	}
 
-	public TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
-								  String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
+	TableBuilder addColumn(String name, COLUMN_TYPE type, boolean notNull, boolean unique,
+						   String referenceTable, String referenceColumn, boolean onCascadeDelete, String defaultValue) {
 		Column c = new Column();
 		c.name = name;
 		c.type = type;
@@ -183,6 +178,14 @@ public class TableBuilder {
 		}
 
 		return this;
+	}
+
+	public enum COLUMN_TYPE {
+		INTEGER, TEXT, REAL
+	}
+
+	public enum CONFLICT_RESOLUTION {
+		ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
 	}
 
 	private class Column {

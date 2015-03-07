@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// FROM com.google.android.apps.iosched.util;
-
 package com.boardgamegeek.util;
 
 import android.content.ContentValues;
@@ -35,14 +33,14 @@ import timber.log.Timber;
 
 /**
  * Helper for building selection clauses for {@link SQLiteDatabase}. Each appended clause is combined using {@code AND}.
- * This class is <em>not</em> thread safe.
+ * This class is <em>not</em> thread safe. Borrowed, then expanded, from com.google.android.apps.iosched.util.
  */
 public class SelectionBuilder {
 	private String mTable = null;
-	private Map<String, String> mProjectionMap = new HashMap<>();
-	private StringBuilder mSelection = new StringBuilder();
-	private List<String> mSelectionArgs = new ArrayList<>();
-	private List<String> mGroupBy = new ArrayList<>();
+	private final Map<String, String> mProjectionMap = new HashMap<>();
+	private final StringBuilder mSelection = new StringBuilder();
+	private final List<String> mSelectionArgs = new ArrayList<>();
+	private final List<String> mGroupBy = new ArrayList<>();
 	private String mHaving = null;
 	private String mLimit = null;
 

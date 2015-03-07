@@ -353,7 +353,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 								where.append(" AND ");
 							}
 							where.append("(").append(filter.getSelection()).append(")");
-							args = StringUtils.concat(args, filter.getSelectionArgs());
+							args = StringUtils.concatenate(args, filter.getSelectionArgs());
 						}
 					}
 				}
