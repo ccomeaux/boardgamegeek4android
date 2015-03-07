@@ -50,6 +50,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
@@ -226,7 +227,7 @@ public class GameFragment extends Fragment implements
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
 		}
 
-		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
+		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	@Override

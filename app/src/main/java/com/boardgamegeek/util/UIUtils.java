@@ -1,10 +1,6 @@
 package com.boardgamegeek.util;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog.Builder;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -19,40 +15,15 @@ import android.webkit.WebView;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
-import com.boardgamegeek.R;
-
-import java.util.Random;
-
+/**
+ * Various static methods for use on views and fragments.
+ */
 public class UIUtils {
-	public static final String HELP_GAME_KEY = "help.game";
+	private static final String KEY_DATA = "_uri";
+	private static final String KEY_ACTION = "_action";
 
-	private static Random mRandom;
-
-	public static Random getRandom() {
-		if (mRandom == null) {
-			mRandom = new Random();
-		}
-		return mRandom;
+	private UIUtils() {
 	}
-
-	public static void showHelpDialog(final Context context, final String key, final int version, int messageId) {
-		if (HelpUtils.showHelp(context, key, version)) {
-			Builder builder = new Builder(context);
-			builder.setTitle(R.string.help_title).setCancelable(false)
-				.setMessage(messageId).setPositiveButton(R.string.help_button_close, null)
-				.setNegativeButton(R.string.help_button_hide, new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						HelpUtils.updateHelp(context, key, version);
-					}
-				});
-			builder = ActivityUtils.addAlertIcon(builder);
-			builder.create().show();
-		}
-	}
-
-	private static String KEY_DATA = "_uri";
-	private static String KEY_ACTION = "_action";
 
 	/**
 	 * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.

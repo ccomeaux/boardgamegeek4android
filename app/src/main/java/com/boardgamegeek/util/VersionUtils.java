@@ -4,11 +4,15 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 
-// Can use static final constants like FROYO, declared in later versions
-// of the OS since they are inlined at compile time. This is guaranteed behavior.
+/**
+ * Helps determine which version is currently running on the device.
+ */
 public class VersionUtils {
 	private VersionUtils() {
 	}
+
+	// Can use static final constants like FROYO, declared in later versions
+	// of the OS since they are inlined at compile time. This is guaranteed behavior.
 
 	public static boolean isGoogleTV(Context context) {
 		return context.getPackageManager().hasSystemFeature("com.google.android.tv");

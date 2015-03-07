@@ -332,7 +332,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 		startQuery();
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
 
 	@DebugLog

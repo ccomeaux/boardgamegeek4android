@@ -37,7 +37,6 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.UIUtils;
 import com.melnykov.fab.FloatingActionButton;
 import com.melnykov.fab.ObservableScrollView;
 
@@ -213,7 +212,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		mUsername.setAdapter(new BuddyNameAdapter(this));
 		mTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAYER_KEY, HELP_VERSION, R.string.help_logplayer);
 	}
 
 	@DebugLog

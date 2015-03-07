@@ -27,7 +27,6 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import hugo.weaving.DebugLog;
 
@@ -73,7 +72,7 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 			getSupportLoaderManager().restartLoader(Query._TOKEN, null, this);
 		}
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_COLLECTION_KEY, HELP_VERSION, R.string.help_collection);
 	}
 
 	@Override
