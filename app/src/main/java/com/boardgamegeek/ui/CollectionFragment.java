@@ -55,6 +55,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RandomUtil;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -219,7 +220,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (mShortcut) {
-			Intent shortcut = ActivityUtils.createGameShortcut(getActivity(), gameId, gameName, thumbnailUrl);
+			Intent shortcut = ShortcutUtils.createIntent(getActivity(), gameId, gameName, thumbnailUrl);
 			mCallbacks.onSetShortcut(shortcut);
 		} else {
 			if (mCallbacks.onGameSelected(gameId, gameName)) {

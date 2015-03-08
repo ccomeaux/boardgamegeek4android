@@ -24,6 +24,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 
 import timber.log.Timber;
 
@@ -107,7 +108,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				ActivityUtils.shareGame(this, mGameId, mGameName);
 				return true;
 			case R.id.menu_shortcut:
-				ActivityUtils.sendGameShortcut(this, mGameId, mGameName, mThumbnailUrl);
+				ShortcutUtils.createShortcut(this, mGameId, mGameName, mThumbnailUrl);
 				return true;
 			case R.id.menu_log_play:
 				Intent intent = ActivityUtils.createEditPlayIntent(this, 0, mGameId, mGameName, mThumbnailUrl,

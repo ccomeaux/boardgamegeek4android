@@ -3,47 +3,27 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-
-import timber.log.Timber;
 
 public class ActivityUtils {
 	public final static String KEY_TITLE = "TITLE";
@@ -88,7 +68,7 @@ public class ActivityUtils {
 		context.startActivity(intent);
 	}
 
-	private static Intent createGameIntent(int gameId, String gameName) {
+	public static Intent createGameIntent(int gameId, String gameName) {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
@@ -281,94 +261,6 @@ public class ActivityUtils {
 		}
 	}
 
-	public static Intent createGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
-		Intent shortcut = createGameShortcut(context, gameId, gameName);
-		if (!TextUtils.isEmpty(thumbnailUrl)) {
-			File file = new File(context.getExternalFilesDir(BggContract.PATH_THUMBNAILS),
-				FileUtils.getFileNameFromUrl(thumbnailUrl));
-			if (file.exists()) {
-				shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
-			}
-		}
-		return shortcut;
-	}
-
-	public static void sendGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
-		new shortcutTask(context, gameId, gameName, thumbnailUrl).execute();
-	}
-
-	private static Intent createGameShortcut(Context context, int gameId, String gameName) {
-		Intent intent = new Intent(Intent.ACTION_VIEW, Games.buildGameUri(gameId));
-		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-		intent.putExtra(ActivityUtils.KEY_FROM_SHORTCUT, true);
-
-		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, gameName);
-		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-			Intent.ShortcutIconResource.fromContext(context, R.drawable.ic_launcher));
-
-		return shortcut;
-	}
-
-	private static class shortcutTask extends AsyncTask<Void, Void, Void> {
-		private Context mContext;
-		private String mThumbnailUrl;
-		private Intent mShortcut;
-
-		public shortcutTask(Context context, int gameId, String gameName, String thumbnailUrl) {
-			mContext = context;
-			mShortcut = createGameShortcut(context, gameId, gameName);
-			mThumbnailUrl = HttpUtils.ensureScheme(thumbnailUrl);
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			Bitmap bitmap = null;
-			if (!TextUtils.isEmpty(mThumbnailUrl)) {
-				File file = new File(mContext.getExternalFilesDir(BggContract.PATH_THUMBNAILS),
-					FileUtils.getFileNameFromUrl(mThumbnailUrl));
-				if (file.exists()) {
-					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-				} else {
-					try {
-						bitmap = Picasso.with(mContext).load(HttpUtils.ensureScheme(mThumbnailUrl)).resize(128, 128)
-							.centerCrop().get();
-					} catch (IOException e) {
-						Timber.e("Error downloading the thumbnail.", e);
-					}
-					try {
-						if (bitmap != null) {
-							OutputStream out = null;
-							try {
-								out = new BufferedOutputStream(new FileOutputStream(file));
-								bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-							} finally {
-								if (out != null) {
-									out.close();
-								}
-							}
-						}
-					} catch (IOException e) {
-						Timber.e("Error saving the thumbnail file.", e);
-					}
-				}
-			}
-			if (bitmap != null) {
-				mShortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON, bitmap);
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			mContext.sendBroadcast(mShortcut);
-			if (VersionUtils.hasJellyBean()) {
-				Toast.makeText(mContext, R.string.msg_shortcut_created, Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-
 	public static void setDoneCancelActionBarView(ActionBarActivity activity, View.OnClickListener listener) {
 		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_done_cancel);
 		if (toolbar == null) {
@@ -381,6 +273,4 @@ public class ActivityUtils {
 		doneActionView.setOnClickListener(listener);
 		activity.setSupportActionBar(toolbar);
 	}
-
-
 }
