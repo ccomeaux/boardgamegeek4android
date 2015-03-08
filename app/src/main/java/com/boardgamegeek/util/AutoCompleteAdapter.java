@@ -9,6 +9,9 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 
+/**
+ * A simple adapter to use for {@link android.widget.AutoCompleteTextView}.
+ */
 public class AutoCompleteAdapter extends SimpleCursorAdapter {
 	private Context mContext;
 	private String mColumnName;

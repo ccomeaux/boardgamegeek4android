@@ -39,7 +39,6 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.sorter.PlaysSorterFactory;
 import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -144,7 +143,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				getLoaderManager().restartLoader(GameQuery._TOKEN, getArguments(), this);
 				break;
 			case MODE_BUDDY:
-				mBuddyName = getArguments().getString(BuddyUtils.KEY_BUDDY_NAME);
+				mBuddyName = getArguments().getString(ActivityUtils.KEY_BUDDY_NAME);
 				mUri = Plays.buildPlayersUri();
 				break;
 			case MODE_PLAYER:

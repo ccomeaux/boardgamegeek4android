@@ -36,6 +36,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.PaletteUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -473,11 +474,11 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getYearDescription() {
-			return StringUtils.describeYear(getActivity(), year);
+			return PresentationUtils.describeYear(getActivity(), year);
 		}
 
 		String getWishlistPriority() {
-			return StringUtils.describeWishlist(getActivity(), wishlistPriority);
+			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
 		String getPrice() {

@@ -53,8 +53,8 @@ import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtil;
-import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -611,7 +611,7 @@ public class GameFragment extends Fragment implements
 				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
 					if (cursor.getInt(i) == 1) {
 						if (i == CollectionQuery.STATUS_WISHLIST) {
-							status.add(StringUtils.describeWishlist(getActivity(),
+							status.add(PresentationUtils.describeWishlist(getActivity(),
 								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
 						} else {
 							int index = i - CollectionQuery.STATUS_1;

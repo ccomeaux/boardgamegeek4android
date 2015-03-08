@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity implements BuddiesFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
@@ -94,7 +93,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	@Override
 	public boolean onBuddySelected(int buddyId, String name, String fullName) {
 		Intent intent = new Intent(this, BuddyActivity.class);
-		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, name);
 		startActivity(intent);
 		return false;
 	}

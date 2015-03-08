@@ -29,7 +29,6 @@ import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.Buddy
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.RandomUtil;
 import com.boardgamegeek.util.UIUtils;
 
@@ -85,7 +84,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		mName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(mName)) {
 			Timber.w("Missing buddy name.");

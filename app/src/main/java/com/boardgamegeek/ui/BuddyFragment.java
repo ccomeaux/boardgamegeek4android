@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -27,9 +25,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -38,12 +33,19 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
@@ -79,7 +81,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		}
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mBuddyName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		mBuddyName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 	}
 
 	@Override
@@ -160,10 +162,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
 		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
 		long updated = cursor.getLong(BuddyQuery.UPDATED);
-		String fullName = BuddyUtils.buildFullName(cursor, BuddyQuery.FIRSTNAME, BuddyQuery.LASTNAME);
+		String firstName = cursor.getString(BuddyQuery.FIRSTNAME);
+		String lastName = cursor.getString(BuddyQuery.LASTNAME);
+		String fullName = PresentationUtils.buildFullName(firstName, lastName);
 
-		Picasso.with(getActivity()).load(HttpUtils.ensureScheme(avatarUrl)).placeholder(R.drawable.person_image_empty)
-			.error(R.drawable.person_image_empty).fit().into(mAvatar);
+		Picasso.with(getActivity())
+			.load(HttpUtils.ensureScheme(avatarUrl))
+			.placeholder(R.drawable.person_image_empty)
+			.error(R.drawable.person_image_empty)
+			.fit().into(mAvatar);
 		mFullName.setText(fullName);
 		mName.setText(mBuddyName);
 		if (TextUtils.isEmpty(nickname)) {
