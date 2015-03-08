@@ -41,7 +41,7 @@ public class HelpUtils {
 						HelpUtils.updateHelp(context, key, version);
 					}
 				});
-			builder = ActivityUtils.addAlertIcon(builder);
+			builder = DialogUtils.addAlertIcon(builder);
 			builder.create().show();
 		}
 	}

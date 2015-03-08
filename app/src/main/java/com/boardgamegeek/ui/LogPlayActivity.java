@@ -52,6 +52,7 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -660,7 +661,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
+				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
@@ -672,7 +673,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						}
 					}).show();
 			} else {
-				ActivityUtils.createCancelDialog(this).show();
+				DialogUtils.createCancelDialog(this).show();
 			}
 		}
 	}
@@ -951,7 +952,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			if (mPlay.length == 0) {
 				startTimer();
 			} else {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_timer_reset,
+				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_timer_reset,
 					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -1016,7 +1017,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 					case R.id.menu_custom_player_order:
 						if (mCustomPlayerSort) {
 							if (mPlay.hasStartingPositions() && mPlay.arePlayersCustomSorted()) {
-								Dialog dialog = ActivityUtils.createConfirmationDialog(LogPlayActivity.this,
+								Dialog dialog = DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 									R.string.are_you_sure_player_sort_custom_off,
 									new DialogInterface.OnClickListener() {
 										@Override
@@ -1051,7 +1052,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 											bindUiPlayers();
 										}
 									});
-								builder = ActivityUtils.addAlertIcon(builder);
+								builder = DialogUtils.addAlertIcon(builder);
 								builder.create().show();
 							}
 						}
@@ -1123,7 +1124,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@DebugLog
 	@OnClick(R.id.clear_players)
 	public void onClearPlayers(View v) {
-		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
+		DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

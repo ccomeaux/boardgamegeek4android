@@ -50,6 +50,7 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -736,7 +737,7 @@ public class GameFragment extends Fragment implements
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
 		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
-		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
 	private void triggerRefresh() {

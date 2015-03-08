@@ -34,6 +34,7 @@ import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.PlayerNameAdapter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -508,7 +509,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			setResult(RESULT_CANCELED);
 			finish();
 		} else {
-			ActivityUtils.createCancelDialog(this).show();
+			DialogUtils.createCancelDialog(this).show();
 		}
 	}
 

@@ -39,6 +39,7 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -210,7 +211,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
-					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
+					DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								save(Play.SYNC_STATUS_SYNCED);
@@ -229,7 +230,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				mCallbacks.onSent();
 				return true;
 			case R.id.menu_delete: {
-				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
+				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (mPlay.hasStarted()) {

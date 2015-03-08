@@ -41,6 +41,7 @@ import com.boardgamegeek.sorter.Sorter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -715,7 +716,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				mode.finish();
-				ActivityUtils.createConfirmationDialog(getActivity(),
+				DialogUtils.createConfirmationDialog(getActivity(),
 					getResources().getQuantityString(R.plurals.are_you_sure_send_play, mSelectedPlaysPositions.size()),
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
@@ -732,7 +733,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return true;
 			case R.id.menu_delete:
 				mode.finish();
-				ActivityUtils.createConfirmationDialog(
+				DialogUtils.createConfirmationDialog(
 					getActivity(),
 					getResources()
 						.getQuantityString(R.plurals.are_you_sure_delete_play, mSelectedPlaysPositions.size()),

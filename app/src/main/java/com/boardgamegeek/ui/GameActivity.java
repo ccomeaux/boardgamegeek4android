@@ -22,6 +22,7 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 
 import timber.log.Timber;
@@ -100,7 +101,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				Bundle arguments = new Bundle(2);
 				arguments.putInt(ActivityUtils.KEY_GAME_ID, mGameId);
 				arguments.putString(ActivityUtils.KEY_TYPE, "language_dependence");
-				ActivityUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
+				DialogUtils.launchDialog(getFragment(), new PollFragment(), "poll-dialog", arguments);
 				return true;
 			case R.id.menu_share:
 				ActivityUtils.shareGame(this, mGameId, mGameName);
