@@ -17,9 +17,9 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
@@ -140,8 +140,8 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
 		mAuthorContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
+		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
 	}
 }

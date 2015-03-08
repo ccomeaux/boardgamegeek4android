@@ -1,12 +1,12 @@
 package com.boardgamegeek.util;
 
-import java.io.File;
-import java.io.IOException;
-
 import android.content.Context;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
+
+import java.io.File;
+import java.io.IOException;
 
 public class FileUtils {
 
@@ -26,6 +26,10 @@ public class FileUtils {
 		return null;
 	}
 
+	/**
+	 * Find a path to store the specific type of content, ensuring that it exists. Returns null if none can be found or
+	 * created.
+	 */
 	public static File generateContentPath(Context context, String type) {
 		File base = context.getExternalFilesDir(type);
 		if (base == null) {
@@ -39,9 +43,8 @@ public class FileUtils {
 		return base;
 	}
 
-	// from libcore.io.IoUtils and com.google.android.apps.iosched
 	/**
-	 * Recursively delete everything in {@code dir}.
+	 * Recursively delete everything in {@code dir}. From libcore.io.IoUtils and com.google.android.apps.iosched.
 	 */
 	public static int deleteContents(File directory) throws IOException {
 		// TODO: this should specify paths as Strings rather than as Files

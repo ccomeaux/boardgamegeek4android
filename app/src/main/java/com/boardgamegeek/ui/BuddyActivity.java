@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -172,8 +171,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(new Handler());
-			mReceiver.setReceiver(this);
+			mReceiver = new DetachableResultReceiver(this);
 		}
 
 		/**

@@ -35,6 +35,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -243,11 +244,11 @@ public class GameCollectionFragment extends Fragment implements
 		if (palette == null || scrollContainer == null) {
 			return;
 		}
-		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
 		statusContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = ColorUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = PaletteUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	@OnClick(R.id.image)

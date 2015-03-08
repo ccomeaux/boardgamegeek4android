@@ -51,6 +51,7 @@ import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.StringUtils;
@@ -458,14 +459,14 @@ public class GameFragment extends Fragment implements
 		if (palette == null || mPrimaryInfo == null) {
 			return;
 		}
-		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = ColorUtils.getIconSwatch(palette);
+		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = PaletteUtils.getIconSwatch(palette);
 		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
-		ButterKnife.apply(mColorizedIcons, ColorUtils.colorIconSetter, swatch);
-		swatch = ColorUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		swatch = PaletteUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {

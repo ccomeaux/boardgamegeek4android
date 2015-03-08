@@ -1,18 +1,31 @@
 package com.boardgamegeek.util;
 
-import java.util.Calendar;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
-public class CursorUtils {
+import java.util.Calendar;
 
+import timber.log.Timber;
+
+/**
+ * Static methods for getting data out of a cursor.
+ */
+public class CursorUtils {
+	private CursorUtils() {
+	}
+
+	/**
+	 * Gets a boolean from the specified column on the current row of the cursor. Returns false if the column doesn't exist.
+	 */
 	public static boolean getBoolean(Cursor cursor, String columnName) {
 		return getBoolean(cursor, columnName, false);
 	}
 
+	/**
+	 * Gets a boolean from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 */
 	public static boolean getBoolean(Cursor cursor, String columnName, boolean defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
 		if (idx == -1) {
@@ -22,10 +35,16 @@ public class CursorUtils {
 		}
 	}
 
+	/**
+	 * Gets an integer from the specified column on the current row of the cursor. Returns 0 if the column doesn't exist.
+	 */
 	public static int getInt(Cursor cursor, String columnName) {
 		return getInt(cursor, columnName, 0);
 	}
 
+	/**
+	 * Gets an integer from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 */
 	public static int getInt(Cursor cursor, String columnName, int defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
 		if (idx == -1) {
@@ -35,10 +54,16 @@ public class CursorUtils {
 		}
 	}
 
+	/**
+	 * Gets a long from the specified column on the current row of the cursor. Returns 0 if the column doesn't exist.
+	 */
 	public static long getLong(Cursor cursor, String columnName) {
 		return getLong(cursor, columnName, 0);
 	}
 
+	/**
+	 * Gets a long from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 */
 	public static long getLong(Cursor cursor, String columnName, long defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
 		if (idx == -1) {
@@ -48,10 +73,16 @@ public class CursorUtils {
 		}
 	}
 
+	/**
+	 * Gets a double from the specified column on the current row of the cursor. Returns 0.0 if the column doesn't exist.
+	 */
 	public static double getDouble(Cursor cursor, String columnName) {
 		return getDouble(cursor, columnName, 0.0);
 	}
 
+	/**
+	 * Gets a double from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 */
 	public static double getDouble(Cursor cursor, String columnName, double defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
 		if (idx == -1) {
@@ -61,10 +92,16 @@ public class CursorUtils {
 		}
 	}
 
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns an empty string if the column doesn't exist.
+	 */
 	public static String getString(Cursor cursor, String columnName) {
 		return getString(cursor, columnName, "");
 	}
 
+	/**
+	 * Gets a string from the specified column on the current row of the cursor. Returns defaultValue if the column doesn't exist.
+	 */
 	public static String getString(Cursor cursor, String columnName, String defaultValue) {
 		int idx = cursor.getColumnIndex(columnName);
 		if (idx == -1) {
@@ -74,34 +111,58 @@ public class CursorUtils {
 		}
 	}
 
+	/**
+	 * Gets string array from the cursor based on the columnIndex. Returns with the cursor at the original position.
+	 */
 	public static String[] getStringArray(Cursor cursor, int columnIndex) {
 		String[] array = new String[cursor.getCount()];
-		cursor.moveToPosition(-1);
-		int i = 0;
-		while (cursor.moveToNext()) {
-			array[i++] = cursor.getString(columnIndex);
+		int position = cursor.getPosition();
+		try {
+			cursor.moveToPosition(-1);
+			int i = 0;
+			while (cursor.moveToNext()) {
+				array[i++] = cursor.getString(columnIndex);
+			}
+		} finally {
+			cursor.moveToPosition(position);
 		}
 		return array;
 	}
 
+	/**
+	 * Gets a date from the specified column on the current row of the cursor. The date is formatted according to the
+	 * local conventions. Returns an empty string if the date could not be determined.
+	 */
 	public static String getFormattedDate(Cursor cursor, Context context, int columnIndex) {
 		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE);
 	}
 
+	/**
+	 * Gets a date from the specified column on the current row of the cursor. The date is formatted as an abbreviated
+	 * form of the local conventions. Returns an empty string if the date could not be determined.
+	 */
 	public static String getFormattedDateAbbreviated(Cursor cursor, Context context, int columnIndex) {
 		return getFormattedDate(cursor, context, columnIndex, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
 	}
 
+	/**
+	 * Gets a date from the specified column on the current row of the cursor. The date is formatted according to the
+	 * specified flags. Returns an empty string if the date could not be determined.
+	 */
 	private static String getFormattedDate(Cursor cursor, Context context, int columnIndex, int flags) {
 		String date = cursor.getString(columnIndex);
 		if (!TextUtils.isEmpty(date)) {
-			int year = Integer.parseInt(date.substring(0, 4));
-			int month = Integer.parseInt(date.substring(5, 7)) - 1;
-			int day = Integer.parseInt(date.substring(8, 10));
-			Calendar c = Calendar.getInstance();
-			c.set(year, month, day);
-			return DateUtils.formatDateTime(context, c.getTimeInMillis(), flags);
+			try {
+				int year = Integer.parseInt(date.substring(0, 4));
+				int month = Integer.parseInt(date.substring(5, 7)) - 1;
+				int day = Integer.parseInt(date.substring(8, 10));
+				Calendar c = Calendar.getInstance();
+				c.set(year, month, day);
+				return DateUtils.formatDateTime(context, c.getTimeInMillis(), flags);
+			} catch (Exception e) {
+				Timber.e(e, "Could find a date in here: " + date);
+			}
 		}
-		return null;
+		return "";
 	}
 }
