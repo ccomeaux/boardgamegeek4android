@@ -20,7 +20,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
-import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 import com.boardgamegeek.util.XmlConverter;
@@ -91,7 +91,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		ButterKnife.inject(this, mRootView);
 
-		ScrimUtil.applyDefaultScrim(mHeaderContainer);
+		ScrimUtils.applyDefaultScrim(mHeaderContainer);
 		ViewTreeObserver vto = mRootView.getViewTreeObserver();
 		if (vto.isAlive()) {
 			vto.addOnGlobalLayoutListener(mGlobalLayoutListener);

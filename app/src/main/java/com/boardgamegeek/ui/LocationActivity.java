@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
@@ -29,6 +27,9 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ToolbarUtils;
+
+import java.util.ArrayList;
 
 public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	private int mCount;
@@ -71,7 +72,7 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
 			(isDrawerOpen() || mCount < 0) ? "" : String.valueOf(mCount));
 		return super.onPrepareOptionsMenu(menu);
 	}

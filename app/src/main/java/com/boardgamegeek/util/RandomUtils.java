@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * A random singleton.
  */
-public class RandomUtil {
+public class RandomUtils {
 	private static Random mRandom;
 
 	public static Random getRandom() {

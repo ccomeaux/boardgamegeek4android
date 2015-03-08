@@ -27,6 +27,7 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
 			(isDrawerOpen() || mCount < 0) ? "" : String.valueOf(mCount));
 		return super.onPrepareOptionsMenu(menu);
 	}

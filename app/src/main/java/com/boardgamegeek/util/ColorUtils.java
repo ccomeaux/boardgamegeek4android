@@ -81,7 +81,7 @@ public class ColorUtils {
 	 * for any decimal places.
 	 */
 	public static int getRatingColor(double rating) {
-		int baseRating = MathUtil.constrain((int) rating, 0, 10);
+		int baseRating = MathUtils.constrain((int) rating, 0, 10);
 		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
 	}
 

@@ -56,7 +56,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -240,7 +240,7 @@ public class GameFragment extends Fragment implements
 		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
-		ScrimUtil.applyDefaultScrim(mHeaderContainer);
+		ScrimUtils.applyDefaultScrim(mHeaderContainer);
 		mScrollRoot.addCallbacks(this);
 		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
 		if (vto.isAlive()) {

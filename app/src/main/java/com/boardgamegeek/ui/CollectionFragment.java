@@ -53,7 +53,7 @@ import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.RandomUtil;
+import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -283,7 +283,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
-				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtil.getRandom().nextInt(mAdapter.getCount()));
+				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
 				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
 					cursor.getString(Query.COLLECTION_NAME));
 				return true;

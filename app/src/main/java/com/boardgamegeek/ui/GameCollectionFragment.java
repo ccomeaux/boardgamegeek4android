@@ -38,7 +38,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
@@ -270,7 +270,7 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	private void updateUi(CollectionItem item) {
-		ScrimUtil.applyDefaultScrim(headerContainer);
+		ScrimUtils.applyDefaultScrim(headerContainer);
 
 		ImageUtils.safelyLoadImage(image, item.imageUrl, this);
 		mImageUrl = item.imageUrl;

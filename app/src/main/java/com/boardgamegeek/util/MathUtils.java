@@ -1,7 +1,7 @@
 package com.boardgamegeek.util;
 
-public class MathUtil {
-	private MathUtil() {
+public class MathUtils {
+	private MathUtils() {
 	}
 
 	public static int constrain(int number, int min, int max) {

@@ -32,13 +32,13 @@ import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.widget.BuddyNameAdapter;
 import com.boardgamegeek.ui.widget.GameColorAdapter;
 import com.boardgamegeek.ui.widget.PlayerNameAdapter;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 import com.melnykov.fab.FloatingActionButton;
 import com.melnykov.fab.ObservableScrollView;
 
@@ -168,7 +168,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		mFab.attachToScrollView(mScrollContainer);
 		mName.setOnItemClickListener(nameClickListener());
 
-		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
+		ToolbarUtils.setDoneCancelActionBarView(this, mActionBarListener);
 
 		final Intent intent = getIntent();
 		int gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID);

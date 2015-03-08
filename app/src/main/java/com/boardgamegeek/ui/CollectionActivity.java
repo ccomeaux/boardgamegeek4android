@@ -27,6 +27,7 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
@@ -122,8 +123,9 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	@DebugLog
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean hide = (isDrawerOpen() || mCount <= 0);
-		ActivityUtils.setCustomActionBarText(getSupportActionBar(), hide ? "" : String.valueOf(mCount), hide ? ""
-			: mSortName);
+		ToolbarUtils.setCustomActionBarText(getSupportActionBar(),
+			hide ? "" : String.valueOf(mCount),
+			hide ? "" : mSortName);
 		MenuItem mi = menu.findItem(R.id.menu_search);
 		if (mi != null) {
 			mi.setVisible(!isDrawerOpen());

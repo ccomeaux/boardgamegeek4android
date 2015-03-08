@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
@@ -45,7 +46,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (isDrawerOpen()) {
 			menu.findItem(R.id.menu_sort).setVisible(false);
-			ActivityUtils.setActionBarText(menu, R.id.menu_list_count, "");
+			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
 		} else {
 			menu.findItem(R.id.menu_sort).setVisible(true);
 			LocationsFragment fragment = (LocationsFragment) getFragment();
@@ -56,7 +57,7 @@ public class LocationsActivity extends TopLevelSinglePaneActivity implements Loc
 					menu.findItem(R.id.menu_sort_name).setChecked(true);
 				}
 			}
-			ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
 				mCount <= 0 ? "" : String.valueOf(mCount));
 		}
 		return super.onPrepareOptionsMenu(menu);

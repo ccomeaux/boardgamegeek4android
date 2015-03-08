@@ -29,7 +29,7 @@ import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.Buddy
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.RandomUtil;
+import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
@@ -180,7 +179,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (i >= 0 && i < mStatusValues.length) {
 			status = mStatusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			CollectionItem ci = mAdapter.getItem(RandomUtil.getRandom().nextInt(mAdapter.getCount()));
+			CollectionItem ci = mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
 			ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
 			return true;
 		}
