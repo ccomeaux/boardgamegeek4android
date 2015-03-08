@@ -36,6 +36,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.melnykov.fab.FloatingActionButton;
@@ -203,7 +204,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 		mUsedColors = new ArrayList<>(Arrays.asList(usedColors));
 		mUsedColors.remove(mPlayer.color);
 
-		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), imageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),

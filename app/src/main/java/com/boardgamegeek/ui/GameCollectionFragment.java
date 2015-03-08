@@ -35,6 +35,7 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.ScrimUtil;
@@ -54,7 +55,7 @@ import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements
 	LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback,
+	ImageUtils.Callback,
 	ObservableScrollView.Callbacks {
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -107,7 +108,7 @@ public class GameCollectionFragment extends Fragment implements
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ActivityUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
+			ImageUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
 		}
 	};
 
@@ -271,7 +272,7 @@ public class GameCollectionFragment extends Fragment implements
 	private void updateUi(CollectionItem item) {
 		ScrimUtil.applyDefaultScrim(headerContainer);
 
-		ActivityUtils.safelyLoadImage(image, item.imageUrl, this);
+		ImageUtils.safelyLoadImage(image, item.imageUrl, this);
 		mImageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());

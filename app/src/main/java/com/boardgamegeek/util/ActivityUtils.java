@@ -71,18 +71,11 @@ public class ActivityUtils {
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
 
-	public static final String IMAGE_URL_PREFIX = "https://cf.geekdo-images.com/images/pic";
 
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
 
-	private static final String SUFFIX_SQUARE = "_sq";
-	private static final String SUFFIX_SMALL = "_t";
-	public static final String SUFFIX_MEDIUM = "_md";
-	private static final String SUFFIX_LARGE = "_lg";
-
-	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
 
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Intent intent = createGameIntent(gameId, gameName);
@@ -389,96 +382,5 @@ public class ActivityUtils {
 		activity.setSupportActionBar(toolbar);
 	}
 
-	public static String createThumbnailJpg(int imageId) {
-		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".jpg";
-	}
-
-	public static String createThumbnailPng(int imageId) {
-		return IMAGE_URL_PREFIX + imageId + SUFFIX_SMALL + ".png";
-	}
-
-	public static void safelyLoadImage(ImageView imageView, int imageId, ImageCallback callback) {
-		Queue<String> imageUrls = new LinkedList<>();
-		String imageUrl = IMAGE_URL_PREFIX + imageId + ".jpg";
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
-		imageUrls.add(imageUrl);
-		imageUrl = IMAGE_URL_PREFIX + imageId + ".png";
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
-		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls, callback);
-	}
-
-	public interface ImageCallback {
-		void onPaletteGenerated(Palette palette);
-	}
-
-	public static void safelyLoadImage(ImageView imageView, String imageUrl) {
-		safelyLoadImage(imageView, imageUrl, null);
-	}
-
-	public static void safelyLoadImage(ImageView imageView, String imageUrl, ImageCallback callback) {
-		Queue<String> imageUrls = new LinkedList<>();
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_MEDIUM));
-		imageUrls.add(appendImageUrl(imageUrl, SUFFIX_SMALL));
-		imageUrls.add(imageUrl);
-		safelyLoadImage(imageView, imageUrls, callback);
-	}
-
-	private static void safelyLoadImage(final ImageView imageView, final Queue<String> imageUrls,
-										final ImageCallback callback) {
-		String imageUrl = imageUrls.poll();
-		if (TextUtils.isEmpty(imageUrl)) {
-			return;
-		}
-		Picasso
-			.with(imageView.getContext())
-			.load(HttpUtils.ensureScheme(imageUrl))
-			.fit().centerCrop()
-			.transform(PaletteTransformation.instance())
-			.into(imageView, new Callback() {
-				@Override
-				public void onSuccess() {
-					Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-					Palette palette = PaletteTransformation.getPalette(bitmap);
-					if (callback != null) {
-						callback.onPaletteGenerated(palette);
-					}
-				}
-
-				@Override
-				public void onError() {
-					safelyLoadImage(imageView, imageUrls, callback);
-				}
-			});
-	}
-
-	public static String appendImageUrl(String imageUrl, String suffix) {
-		if (TextUtils.isEmpty(imageUrl)) {
-			return "";
-		}
-		if (TextUtils.isEmpty(suffix)) {
-			return imageUrl;
-		}
-		int dot = imageUrl.lastIndexOf('.');
-		if (dot == -1) {
-			return imageUrl + suffix;
-		} else {
-			return imageUrl.substring(0, dot) + suffix + imageUrl.substring(dot, imageUrl.length());
-		}
-	}
-
-	public static void resizeImagePerAspectRatio(View image, int maxHeight, View resizableView) {
-		int height = (int) (image.getWidth() / IMAGE_ASPECT_RATIO);
-		height = Math.min(height, maxHeight);
-
-		ViewGroup.LayoutParams lp;
-		lp = resizableView.getLayoutParams();
-		if (lp.height != height) {
-			lp.height = height;
-			resizableView.setLayoutParams(lp);
-		}
-	}
 
 }

@@ -54,6 +54,7 @@ import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
@@ -316,7 +317,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");

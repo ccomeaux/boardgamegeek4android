@@ -40,6 +40,7 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -345,7 +346,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			return true;
 		}
 
-		ActivityUtils.safelyLoadImage(mThumbnailView, mImageUrl);
+		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl);
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);

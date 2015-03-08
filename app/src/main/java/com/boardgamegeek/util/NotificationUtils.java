@@ -90,10 +90,10 @@ public class NotificationUtils {
 	public static void launchPlayingNotification(final Context context, final Play play, final String thumbnailUrl, final String imageUrl) {
 		buildAndNotify(context, play, thumbnailUrl, imageUrl, null);
 		Queue<String> imageUrls = new LinkedList<>();
-		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
+		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
 		imageUrls.add(imageUrl);
 		imageUrls.add(thumbnailUrl);
-		imageUrls.add(ActivityUtils.appendImageUrl(imageUrl, ActivityUtils.SUFFIX_MEDIUM));
+		imageUrls.add(ImageUtils.appendImageUrl(imageUrl, ImageUtils.SUFFIX_MEDIUM));
 		tryLoadLargeIcon(context, play, thumbnailUrl, imageUrl, imageUrls);
 	}
 

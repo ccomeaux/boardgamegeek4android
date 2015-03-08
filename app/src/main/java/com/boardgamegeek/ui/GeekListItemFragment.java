@@ -16,9 +16,9 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.GeekListUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtil;
 import com.boardgamegeek.util.UIUtils;
@@ -31,7 +31,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 
-public class GeekListItemFragment extends Fragment implements ActivityUtils.ImageCallback {
+public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
 	private String mOrder;
 	private String mTitle;
 	private String mType;
@@ -66,7 +66,7 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ActivityUtils.resizeImagePerAspectRatio(mImageView, mRootView.getHeight() / 3, mHeroContainer);
+			ImageUtils.resizeImagePerAspectRatio(mImageView, mRootView.getHeight() / 3, mHeroContainer);
 		}
 	};
 
@@ -100,7 +100,7 @@ public class GeekListItemFragment extends Fragment implements ActivityUtils.Imag
 		mOrderView.setText(mOrder);
 		mTitleView.setText(mTitle);
 		mTypeView.setText(mType);
-		ActivityUtils.safelyLoadImage(mImageView, mImageId, this);
+		ImageUtils.safelyLoadImage(mImageView, mImageId, this);
 		mUsernameView.setText(mUsername);
 		mThumbsView.setText(getString(R.string.thumbs_suffix, mThumbs));
 		mPostedDateView.setText(getString(R.string.posted_prefix,
