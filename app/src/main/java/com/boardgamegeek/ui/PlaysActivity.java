@@ -14,6 +14,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener,
 	PlaysFragment.Callbacks {
@@ -106,8 +107,9 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean hide = (isDrawerOpen() || mCount <= 0);
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count, hide ? "" : String.valueOf(mCount), hide ? ""
-			: mSortName);
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
+			hide ? "" : String.valueOf(mCount),
+			hide ? "" : mSortName);
 		return super.onPrepareOptionsMenu(menu);
 	}
 

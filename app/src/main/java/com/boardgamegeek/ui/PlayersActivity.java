@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 public class PlayersActivity extends TopLevelSinglePaneActivity implements PlayersFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
@@ -42,7 +43,7 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (isDrawerOpen()) {
 			menu.findItem(R.id.menu_sort).setVisible(false);
-			ActivityUtils.setActionBarText(menu, R.id.menu_list_count, "");
+			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, "");
 		} else {
 			menu.findItem(R.id.menu_sort).setVisible(true);
 			PlayersFragment fragment = (PlayersFragment) getFragment();
@@ -53,7 +54,7 @@ public class PlayersActivity extends TopLevelSinglePaneActivity implements Playe
 					menu.findItem(R.id.menu_sort_name).setChecked(true);
 				}
 			}
-			ActivityUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
+			ToolbarUtils.setActionBarText(menu, R.id.menu_list_count, mCount <= 0 ? "" : String.valueOf(mCount));
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}

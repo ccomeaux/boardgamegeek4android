@@ -35,7 +35,10 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.ScrimUtil;
+import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.PaletteUtils;
+import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
@@ -52,7 +55,7 @@ import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements
 	LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback,
+	ImageUtils.Callback,
 	ObservableScrollView.Callbacks {
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -105,7 +108,7 @@ public class GameCollectionFragment extends Fragment implements
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ActivityUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
+			ImageUtils.resizeImagePerAspectRatio(image, scrollContainer.getHeight() / 2, heroContainer);
 		}
 	};
 
@@ -243,11 +246,11 @@ public class GameCollectionFragment extends Fragment implements
 		if (palette == null || scrollContainer == null) {
 			return;
 		}
-		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
 		statusContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = ColorUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = PaletteUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	@OnClick(R.id.image)
@@ -267,9 +270,9 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	private void updateUi(CollectionItem item) {
-		ScrimUtil.applyDefaultScrim(headerContainer);
+		ScrimUtils.applyDefaultScrim(headerContainer);
 
-		ActivityUtils.safelyLoadImage(image, item.imageUrl, this);
+		ImageUtils.safelyLoadImage(image, item.imageUrl, this);
 		mImageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
@@ -472,11 +475,11 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		String getYearDescription() {
-			return StringUtils.describeYear(getActivity(), year);
+			return PresentationUtils.describeYear(getActivity(), year);
 		}
 
 		String getWishlistPriority() {
-			return StringUtils.describeWishlist(getActivity(), wishlistPriority);
+			return PresentationUtils.describeWishlist(getActivity(), wishlistPriority);
 		}
 
 		String getPrice() {

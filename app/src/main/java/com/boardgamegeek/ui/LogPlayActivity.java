@@ -49,13 +49,15 @@ import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AutoCompleteAdapter;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.melnykov.fab.FloatingActionButton;
 import com.mobeta.android.dslv.DragSortListView;
@@ -294,7 +296,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logplay);
-		ActivityUtils.setDoneCancelActionBarView(this, mActionBarListener);
+		ToolbarUtils.setDoneCancelActionBarView(this, mActionBarListener);
 		setUiVariables();
 		mHandler = new QueryHandler(getContentResolver());
 
@@ -315,7 +317,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 		mHeaderView.setText(mGameName);
 
-		ActivityUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
+		ImageUtils.safelyLoadImage((ImageView) findViewById(R.id.thumbnail), mImageUrl);
 
 		if (savedInstanceState != null) {
 			mPlay = PlayBuilder.fromBundle(savedInstanceState, "P");
@@ -332,7 +334,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		}
 		startQuery();
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_LOGPLAY_KEY, HELP_VERSION, R.string.help_logplay);
 	}
 
 	@DebugLog
@@ -660,7 +662,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			finish();
 		} else {
 			if (mDeleteOnCancel) {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
+				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_cancel,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (save(Play.SYNC_STATUS_PENDING_DELETE)) {
@@ -672,7 +674,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 						}
 					}).show();
 			} else {
-				ActivityUtils.createCancelDialog(this).show();
+				DialogUtils.createCancelDialog(this).show();
 			}
 		}
 	}
@@ -951,7 +953,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			if (mPlay.length == 0) {
 				startTimer();
 			} else {
-				ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_timer_reset,
+				DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_timer_reset,
 					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -1016,7 +1018,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 					case R.id.menu_custom_player_order:
 						if (mCustomPlayerSort) {
 							if (mPlay.hasStartingPositions() && mPlay.arePlayersCustomSorted()) {
-								Dialog dialog = ActivityUtils.createConfirmationDialog(LogPlayActivity.this,
+								Dialog dialog = DialogUtils.createConfirmationDialog(LogPlayActivity.this,
 									R.string.are_you_sure_player_sort_custom_off,
 									new DialogInterface.OnClickListener() {
 										@Override
@@ -1051,7 +1053,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 											bindUiPlayers();
 										}
 									});
-								builder = ActivityUtils.addAlertIcon(builder);
+								builder = DialogUtils.addAlertIcon(builder);
 								builder.create().show();
 							}
 						}
@@ -1123,7 +1125,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@DebugLog
 	@OnClick(R.id.clear_players)
 	public void onClearPlayers(View v) {
-		ActivityUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
+		DialogUtils.createConfirmationDialog(this, R.string.are_you_sure_players_clear,
 			new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -1174,7 +1176,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	@DebugLog
 	private void maybeShowNotification() {
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(this, mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(this, mPlay, mThumbnailUrl, mImageUrl);
 		}
 	}
 

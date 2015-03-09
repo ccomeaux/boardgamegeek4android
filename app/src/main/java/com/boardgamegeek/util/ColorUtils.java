@@ -2,10 +2,8 @@ package com.boardgamegeek.util;
 
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -18,35 +16,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import butterknife.ButterKnife;
-
+/**
+ * Static methods for modifying and applying colors to views.
+ */
 public class ColorUtils {
 	public static final int TRANSPARENT = 0;
-	public static final int BLACK = 0xFF000000;
-	public static final int DKGRAY = 0xFF444444;
-	public static final int GRAY = 0xFF888888;
-	public static final int LTGRAY = 0xFFCCCCCC;
-	public static final int WHITE = 0xFFFFFFFF;
-	public static final int RED = 0xFFFF0000;
-	public static final int GREEN = 0xFF008000; // dark green really
-	public static final int BLUE = 0xFF0000FF;
-	public static final int YELLOW = 0xFFFFFF00;
-	public static final int CYAN = 0xFF00FFFF;
-	public static final int MAGENTA = 0xFFFF00FF;
-	public static final int PURPLE = 0xFF800080;
-	public static final int ORANGE = 0xFFE59400;
-	public static final int BROWN = 0xFFA52A2A;
-	public static final int NATURAL = 0xFFE9C2A6;
-	public static final int TAN = 0xFFDB9370;
-	public static final int IVORY = 0xFFFFFFF0;
-	public static final int ROSE = 0xFFFF007F;
-	public static final int PINK = 0xFFCD919E;
-	public static final int TEAL = 0xFF008080;
-	public static final int AQUA = 0xFF66CCCC;
-	public static final int BRONZE = 0xFF8C7853;
-	public static final int SILVER = 0xFFC0C0C0;
-	public static final int GOLD = 0xFFFFD700;
+	private static final int BLACK = 0xFF000000;
+	private static final int DKGRAY = 0xFF444444;
+	private static final int GRAY = 0xFF888888;
+	private static final int LTGRAY = 0xFFCCCCCC;
+	private static final int WHITE = 0xFFFFFFFF;
+	private static final int RED = 0xFFFF0000;
+	private static final int GREEN = 0xFF008000; // dark green really
+	private static final int BLUE = 0xFF0000FF;
+	private static final int YELLOW = 0xFFFFFF00;
+	private static final int CYAN = 0xFF00FFFF;
+	private static final int MAGENTA = 0xFFFF00FF;
+	private static final int PURPLE = 0xFF800080;
+	private static final int ORANGE = 0xFFE59400;
+	private static final int BROWN = 0xFFA52A2A;
+	private static final int NATURAL = 0xFFE9C2A6;
+	private static final int TAN = 0xFFDB9370;
+	private static final int IVORY = 0xFFFFFFF0;
+	private static final int ROSE = 0xFFFF007F;
+	private static final int PINK = 0xFFCD919E;
+	private static final int TEAL = 0xFF008080;
+	private static final int AQUA = 0xFF66CCCC;
+	private static final int BRONZE = 0xFF8C7853;
+	private static final int SILVER = 0xFFC0C0C0;
+	private static final int GOLD = 0xFFFFD700;
 
+	private ColorUtils() {
+	}
+
+	/**
+	 * Determine the RGB value of a named color, or a string formatted as "#aarrggbb". Returns a transparent color if
+	 * the color can't be determined from the string.
+	 */
 	public static int parseColor(String colorString) {
 		if (TextUtils.isEmpty(colorString)) {
 			return TRANSPARENT;
@@ -70,21 +76,18 @@ public class ColorUtils {
 		return TRANSPARENT;
 	}
 
+	/**
+	 * Returns a color based on the rating. This maps to the colors used on BGG for integers, using a proportional blend
+	 * for any decimal places.
+	 */
 	public static int getRatingColor(double rating) {
-		int baseRating = clamp((int) rating, 0, 10);
-		return blendColors(BACKGROUND_COLORS[baseRating], BACKGROUND_COLORS[baseRating + 1], baseRating + 1 - rating);
+		int baseRating = MathUtils.constrain((int) rating, 0, 10);
+		return blendColors(RATING_COLORS[baseRating], RATING_COLORS[baseRating + 1], baseRating + 1 - rating);
 	}
 
-	private static int clamp(int number, int low, int high) {
-		if (number < low) {
-			return low;
-		}
-		if (number > high) {
-			return high;
-		}
-		return number;
-	}
-
+	/**
+	 * Returns a color based that is ratio% of color1 and (1 - ratio)% of color2 (including alpha).
+	 */
 	private static int blendColors(int color1, int color2, double ratio) {
 		double ir = 1.0 - ratio;
 
@@ -96,7 +99,10 @@ public class ColorUtils {
 		return Color.argb(a, r, g, b);
 	}
 
-	public static final int BACKGROUND_COLORS[] = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
+	/**
+	 * An array of RGBs that match the BGG ratings from 0 to 10.
+	 */
+	private static final int[] RATING_COLORS = { 0x00ffffff, 0xffff0000, 0xffff3366, 0xffff6699, 0xffff66cc,
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
 	private static final HashMap<String, Integer> sColorNameMap;
@@ -144,6 +150,10 @@ public class ColorUtils {
 	}
 
 	@SuppressWarnings("deprecation")
+	/**
+	 * Set the background of a {@link android.widget.TextView} to the specified color, with a darker version of the
+	 * color as a border.
+	 */
 	public static void setTextViewBackground(TextView view, int color) {
 		Resources r = view.getResources();
 
@@ -165,7 +175,11 @@ public class ColorUtils {
 		view.setBackgroundDrawable(backgroundDrawable);
 	}
 
-	// Modified from Roman Nurik's DashClock https://code.google.com/p/dashclock/
+	/**
+	 * Set the background of an {@link android.widget.ImageView} to the specified color, with a darker version of the
+	 * color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't do anything for
+	 * other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
+	 */
 	public static void setColorViewValue(View view, int color) {
 		if (view instanceof ImageView) {
 			ImageView imageView = (ImageView) view;
@@ -197,6 +211,9 @@ public class ColorUtils {
 		}
 	}
 
+	/**
+	 * Returns a darker version of the specified color. Returns a translucent gray for transparent colors.
+	 */
 	private static int darkenColor(int color) {
 		if (color == TRANSPARENT) {
 			return Color.argb(127, 127, 127, 127);
@@ -212,81 +229,4 @@ public class ColorUtils {
 	public static boolean isColorDark(int color) {
 		return ((30 * Color.red(color) + 59 * Color.green(color) + 11 * Color.blue(color)) / 100) <= 130;
 	}
-
-	public static Palette.Swatch getInverseSwatch(Palette palette) {
-		Palette.Swatch swatch = palette.getLightMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		swatch = palette.getMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		return palette.getSwatches().get(0);
-	}
-
-	public static Palette.Swatch getIconSwatch(Palette palette) {
-		Palette.Swatch swatch = palette.getDarkVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		swatch = palette.getVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		return palette.getSwatches().get(0);
-	}
-
-	public static Palette.Swatch getHeaderSwatch(Palette palette) {
-		Palette.Swatch swatch = palette.getVibrantSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		swatch = palette.getDarkMutedSwatch();
-		if (swatch != null) {
-			return swatch;
-		}
-
-		return palette.getSwatches().get(0);
-	}
-
-	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewSetter =
-		new ButterKnife.Setter<TextView, Palette.Swatch>() {
-			@Override
-			public void set(TextView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
-					view.setTextColor(value.getRgb());
-				}
-			}
-		};
-
-	public static final ButterKnife.Setter<TextView, Palette.Swatch> colorTextViewOnBackgroundSetter =
-		new ButterKnife.Setter<TextView, Palette.Swatch>() {
-			@Override
-			public void set(TextView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
-					view.setTextColor(value.getBodyTextColor());
-					for (Drawable d : view.getCompoundDrawables()) {
-						if (d != null) {
-							d.setColorFilter(value.getTitleTextColor(), PorterDuff.Mode.SRC_ATOP);
-						}
-					}
-				}
-			}
-		};
-
-	public static final ButterKnife.Setter<ImageView, Palette.Swatch> colorIconSetter =
-		new ButterKnife.Setter<ImageView, Palette.Swatch>() {
-			@Override
-			public void set(ImageView view, Palette.Swatch value, int index) {
-				if (view != null && value != null) {
-					view.setColorFilter(value.getRgb());
-				}
-			}
-		};
 }

@@ -3,7 +3,12 @@ package com.boardgamegeek.util;
 import android.content.Context;
 import android.view.View;
 
+/**
+ * Helper class for animations.
+ */
 public class AnimationUtils {
+	private AnimationUtils() {
+	}
 
 	public static void fadeIn(Context context, View view, boolean animate) {
 		if (view == null || view.getVisibility() == View.VISIBLE) {

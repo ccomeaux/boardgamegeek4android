@@ -39,6 +39,8 @@ import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -170,7 +172,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	public void onResume() {
 		super.onResume();
 		if (mPlay != null && mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 			mNotified = true;
 		}
 	}
@@ -210,7 +212,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
-					ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
+					DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								save(Play.SYNC_STATUS_SYNCED);
@@ -229,7 +231,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 				mCallbacks.onSent();
 				return true;
 			case R.id.menu_delete: {
-				ActivityUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
+				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_delete_play,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							if (mPlay.hasStarted()) {
@@ -344,7 +346,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			return true;
 		}
 
-		ActivityUtils.safelyLoadImage(mThumbnailView, mImageUrl);
+		ImageUtils.safelyLoadImage(mThumbnailView, mImageUrl);
 
 		List<Player> players = mPlay.getPlayers();
 		mPlay = PlayBuilder.fromCursor(cursor);
@@ -426,7 +428,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 
 	private void maybeShowNotification() {
 		if (mPlay.hasStarted()) {
-			NotificationUtils.launchStartNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
+			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 		} else if (mNotified) {
 			NotificationUtils.cancel(getActivity(), NotificationUtils.ID_PLAY_TIMER);
 		}

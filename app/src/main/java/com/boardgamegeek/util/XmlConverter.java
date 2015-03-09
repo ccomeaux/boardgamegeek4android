@@ -1,18 +1,21 @@
 package com.boardgamegeek.util;
 
+import android.annotation.SuppressLint;
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.annotation.SuppressLint;
-import android.text.TextUtils;
-
+/**
+ * Converts XML returned from the BGG API into HTML.
+ */
 public class XmlConverter {
 	private static final String BASE_URL = "https://boardgamegeek.com";
 	private static final String STATIC_IMAGES_URL = "https://cf.geekdo-static.com/images/";
 	private static final String IMAGES_URL = "https://cf.geekdo-images.com/images/";
-	private List<Replaceable> mReplacers;
+	private final List<Replaceable> mReplacers;
 
 	public XmlConverter() {
 		mReplacers = new ArrayList<>();
@@ -222,13 +225,31 @@ public class XmlConverter {
 		mReplacers.add(SimpleReplacer.createImage(color + "train", "ttr_" + color + ".gif"));
 	}
 
+	public String toHtml(String text) {
+		if (TextUtils.isEmpty(text)) {
+			return "";
+		}
+
+		for (Replaceable replacer : mReplacers) {
+			text = replacer.replace(text);
+		}
+		text = "<div style=\"white-space: pre-wrap\">" + text + "</div>";
+
+		return text;
+	}
+
 	interface Replaceable {
 		String replace(String text);
 	}
 
 	private static class SimpleReplacer implements Replaceable {
-		Pattern mPattern;
-		String mReplacement;
+		final Pattern mPattern;
+		final String mReplacement;
+
+		public SimpleReplacer(String pattern, String replacement) {
+			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			mReplacement = replacement;
+		}
 
 		public static SimpleReplacer createStart(String tag) {
 			return new SimpleReplacer("\\[" + tag + "\\]", "<" + tag + ">");
@@ -262,11 +283,6 @@ public class XmlConverter {
 			return new SimpleReplacer(image, "<img src=\"" + STATIC_IMAGES_URL + imageFile + "\"/>");
 		}
 
-		public SimpleReplacer(String pattern, String replacement) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mReplacement = replacement;
-		}
-
 		@Override
 		public String replace(String text) {
 			Matcher matcher = mPattern.matcher(text);
@@ -278,9 +294,9 @@ public class XmlConverter {
 	}
 
 	private static class Replacer implements Replaceable {
-		private Pattern mPattern;
-		private String mPrefix;
-		private String mSuffix;
+		private final Pattern mPattern;
+		private final String mPrefix;
+		private final String mSuffix;
 
 		public Replacer(String pattern, String prefix, String suffix) {
 			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
@@ -301,9 +317,9 @@ public class XmlConverter {
 	}
 
 	private static class UpperCaseReplacer implements Replaceable {
-		private Pattern mPattern;
-		private String mPrefix;
-		private String mSuffix;
+		private final Pattern mPattern;
+		private final String mPrefix;
+		private final String mSuffix;
 
 		public UpperCaseReplacer(String pattern, String prefix, String suffix) {
 			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
@@ -325,7 +341,7 @@ public class XmlConverter {
 	}
 
 	public static class UrlReplacer implements Replaceable {
-		private Pattern mPattern;
+		private final Pattern mPattern;
 
 		public UrlReplacer() {
 			mPattern = Pattern.compile("\\[url\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
@@ -345,7 +361,7 @@ public class XmlConverter {
 	}
 
 	public static class UrlReplacer2 implements Replaceable {
-		private Pattern mPattern;
+		private final Pattern mPattern;
 
 		public UrlReplacer2() {
 			mPattern = Pattern.compile("\\[url=(.*?)\\](.*?)\\[/url\\]", Pattern.CASE_INSENSITIVE);
@@ -370,7 +386,7 @@ public class XmlConverter {
 	}
 
 	public static class GeekUrlReplacer implements Replaceable {
-		private Pattern mPattern;
+		private final Pattern mPattern;
 
 		public GeekUrlReplacer() {
 			mPattern = Pattern.compile("\\[geekurl=(.*?)\\](.*?)\\[/geekurl\\]", Pattern.CASE_INSENSITIVE);
@@ -396,9 +412,15 @@ public class XmlConverter {
 	}
 
 	public static class GeekLinkReplacer implements Replaceable {
-		private Pattern mPattern;
-		private String mUrl;
-		private String mDisplayPrefix;
+		private final Pattern mPattern;
+		private final String mUrl;
+		private final String mDisplayPrefix;
+
+		private GeekLinkReplacer(String pattern, String url, String displayPrefix) {
+			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			mUrl = url;
+			mDisplayPrefix = displayPrefix;
+		}
 
 		static GeekLinkReplacer createAlpha(String path) {
 			return new GeekLinkReplacer("\\[" + path + "=(.*?)\\](.*?)\\[/" + path + "\\]",
@@ -412,12 +434,6 @@ public class XmlConverter {
 		static GeekLinkReplacer createNumeric(String path, String display) {
 			return new GeekLinkReplacer("\\[" + path + "=(\\d+)\\](.*?)\\[/" + path + "\\]", BASE_URL + "/" + path
 				+ "/", display);
-		}
-
-		public GeekLinkReplacer(String pattern, String url, String displayPrefix) {
-			mPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			mUrl = url;
-			mDisplayPrefix = displayPrefix;
 		}
 
 		@Override
@@ -437,18 +453,5 @@ public class XmlConverter {
 			matcher.appendTail(result);
 			return result.toString();
 		}
-	}
-
-	public String toHtml(String text) {
-		if (TextUtils.isEmpty(text)) {
-			return "";
-		}
-
-		for (Replaceable replacer : mReplacers) {
-			text = replacer.replace(text);
-		}
-		text = "<div style=\"white-space: pre-wrap\">" + text + "</div>";
-
-		return text;
 	}
 }

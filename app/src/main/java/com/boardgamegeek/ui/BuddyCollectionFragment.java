@@ -1,12 +1,6 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import timber.log.Timber;
 
 import android.app.Activity;
 import android.content.Context;
@@ -35,8 +29,15 @@ import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.Buddy
 import com.boardgamegeek.ui.widget.BggLoader;
 import com.boardgamegeek.ui.widget.Data;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	LoaderManager.LoaderCallbacks<BuddyCollectionFragment.BuddyCollectionData> {
@@ -82,7 +83,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mName = intent.getStringExtra(BuddyUtils.KEY_BUDDY_NAME);
+		mName = intent.getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
 		if (TextUtils.isEmpty(mName)) {
 			Timber.w("Missing buddy name.");
@@ -178,7 +179,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		if (i >= 0 && i < mStatusValues.length) {
 			status = mStatusValues[i];
 		} else if (id == R.id.menu_collection_random_game) {
-			CollectionItem ci = mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
+			CollectionItem ci = mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
 			ActivityUtils.launchGame(getActivity(), ci.gameId, ci.gameName());
 			return true;
 		}

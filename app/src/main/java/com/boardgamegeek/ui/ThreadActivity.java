@@ -12,7 +12,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
-import com.boardgamegeek.util.UIUtils;
 
 public class ThreadActivity extends SimpleSinglePaneActivity {
 	private static final int HELP_VERSION = 1;
@@ -45,7 +44,7 @@ public class ThreadActivity extends SimpleSinglePaneActivity {
 			actionBar.setSubtitle(mGameName);
 		}
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_THREAD_KEY, HELP_VERSION, R.string.help_thread);
 	}
 
 	@Override

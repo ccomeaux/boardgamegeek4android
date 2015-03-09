@@ -1,8 +1,5 @@
 package com.boardgamegeek.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -14,6 +11,12 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utility for getting and putting preferences.
+ */
 public class PreferencesUtils {
 	public static final long VIEW_ID_COLLECTION = -1;
 	private static final String VIEW_DEFAULT_ID = "viewDefaultId";
@@ -108,6 +111,9 @@ public class PreferencesUtils {
 		return statuses != null && statuses.length > 0;
 	}
 
+	/**
+	 * Determines if the specified status is set to be synced.
+	 */
 	public static boolean isSyncStatus(Context context, String status) {
 		if (TextUtils.isEmpty(status)) {
 			return false;
@@ -116,8 +122,8 @@ public class PreferencesUtils {
 		if (statuses == null) {
 			return false;
 		}
-		for (String statuse : statuses) {
-			if (statuse.equals(status)) {
+		for (String s : statuses) {
+			if (s.equals(status)) {
 				return true;
 			}
 		}

@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity implements BuddiesFragment.Callbacks {
 	private static final String KEY_COUNT = "KEY_COUNT";
@@ -65,7 +65,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		ActivityUtils.setActionBarText(menu, R.id.menu_list_count,
+		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
 			(isDrawerOpen() || mCount <= 0) ? "" : String.valueOf(mCount));
 		menu.findItem(R.id.menu_refresh).setVisible(!isDrawerOpen());
 		return super.onPrepareOptionsMenu(menu);
@@ -94,7 +94,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 	@Override
 	public boolean onBuddySelected(int buddyId, String name, String fullName) {
 		Intent intent = new Intent(this, BuddyActivity.class);
-		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, name);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, name);
 		startActivity(intent);
 		return false;
 	}

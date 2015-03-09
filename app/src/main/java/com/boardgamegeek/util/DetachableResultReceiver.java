@@ -25,15 +25,20 @@ import android.os.ResultReceiver;
 import timber.log.Timber;
 
 /**
- * Proxy {@link ResultReceiver} that offers a listener interface that can be
- * detached. Useful for when sending callbacks to a {@link Service} where a
- * listening {@link Activity} can be swapped out during configuration changes.
+ * Proxy {@link android.os.ResultReceiver} that offers a listener interface that can be detached. Useful for when
+ * sending callbacks to a {@link android.app.Service} where a listening {@link android.app.Activity} can be swapped out
+ * during configuration changes.
  */
 public class DetachableResultReceiver extends ResultReceiver {
 	private Receiver mReceiver;
 
 	public DetachableResultReceiver(Handler handler) {
 		super(handler);
+	}
+
+	public DetachableResultReceiver(Receiver receiver) {
+		super(new Handler());
+		mReceiver = receiver;
 	}
 
 	public void clearReceiver() {
@@ -44,10 +49,6 @@ public class DetachableResultReceiver extends ResultReceiver {
 		mReceiver = receiver;
 	}
 
-	public interface Receiver {
-		public void onReceiveResult(int resultCode, Bundle resultData);
-	}
-
 	@Override
 	protected void onReceiveResult(int resultCode, Bundle resultData) {
 		if (mReceiver != null) {
@@ -55,5 +56,9 @@ public class DetachableResultReceiver extends ResultReceiver {
 		} else {
 			Timber.w("Dropping result on floor for code " + resultCode + ": " + resultData.toString());
 		}
+	}
+
+	public interface Receiver {
+		public void onReceiveResult(int resultCode, Bundle resultData);
 	}
 }

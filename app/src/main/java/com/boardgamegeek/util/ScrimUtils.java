@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// from: com.google.android.apps.muzei.util;
-
 package com.boardgamegeek.util;
 
 import android.annotation.TargetApi;
@@ -34,10 +32,10 @@ import android.view.View;
 import com.boardgamegeek.R;
 
 /**
- * Utility methods for creating prettier gradient scrims.
+ * Utility methods for creating prettier gradient scrims. Lovingly borrowed from com.google.android.apps.muzei.util.
  */
-public class ScrimUtil {
-	private ScrimUtil() {
+public class ScrimUtils {
+	private ScrimUtils() {
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -45,7 +43,7 @@ public class ScrimUtil {
 		if (view == null) {
 			return;
 		}
-		Drawable scrim = ScrimUtil.makeDefaultScrimDrawable(view.getContext());
+		Drawable scrim = ScrimUtils.makeDefaultScrimDrawable(view.getContext());
 		if (VersionUtils.hasJellyBean()) {
 			view.setBackground(scrim);
 		} else {
@@ -55,7 +53,7 @@ public class ScrimUtil {
 	}
 
 	public static Drawable makeDefaultScrimDrawable(Context context) {
-		return ScrimUtil.makeCubicGradientScrimDrawable(
+		return ScrimUtils.makeCubicGradientScrimDrawable(
 			context.getResources().getColor(R.color.black_overlay), 4, Gravity.TOP);
 	}
 
@@ -79,7 +77,7 @@ public class ScrimUtil {
 
 		for (int i = 0; i < numStops; i++) {
 			float x = i * 1f / (numStops - 1);
-			float opacity = constrain(0, 1, (float) Math.pow(x, 3));
+			float opacity = MathUtils.constrain((float) Math.pow(x, 3), 0, 1);
 			stopColors[i] = Color.argb((int) (alpha * opacity), red, green, blue);
 		}
 
@@ -127,9 +125,5 @@ public class ScrimUtil {
 		});
 
 		return paintDrawable;
-	}
-
-	public static float constrain(float min, float max, float v) {
-		return Math.max(min, Math.min(max, v));
 	}
 }

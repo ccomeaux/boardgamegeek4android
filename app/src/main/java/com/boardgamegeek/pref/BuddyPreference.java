@@ -6,7 +6,7 @@ import android.preference.Preference;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.ui.BuddyActivity;
-import com.boardgamegeek.util.BuddyUtils;
+import com.boardgamegeek.util.ActivityUtils;
 
 public class BuddyPreference extends Preference {
 
@@ -25,7 +25,7 @@ public class BuddyPreference extends Preference {
 	@Override
 	protected void onClick() {
 		Intent intent = new Intent(getContext(), BuddyActivity.class);
-		intent.putExtra(BuddyUtils.KEY_BUDDY_NAME, getSummary());
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, getSummary());
 		getContext().startActivity(intent);
 	}
 }

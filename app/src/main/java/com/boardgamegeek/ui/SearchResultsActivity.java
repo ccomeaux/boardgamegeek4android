@@ -11,7 +11,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
-import com.boardgamegeek.util.UIUtils;
 
 public class SearchResultsActivity extends SimpleSinglePaneActivity implements SearchResultsFragment.Callbacks {
 	private static final String VOICE_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION";
@@ -28,7 +27,7 @@ public class SearchResultsActivity extends SimpleSinglePaneActivity implements S
 			mSearchText = savedInstanceState.getString(SEARCH_TEXT);
 		}
 
-		UIUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
+		HelpUtils.showHelpDialog(this, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION, R.string.help_searchresults);
 	}
 
 	@Override

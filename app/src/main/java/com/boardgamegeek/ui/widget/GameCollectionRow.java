@@ -17,6 +17,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.ui.GameCollectionActivity;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.squareup.picasso.Picasso;
 
@@ -92,7 +93,7 @@ public class GameCollectionRow extends LinearLayout {
 	public void setYear(int year) {
 		if (year > 0) {
 			mYearView.setVisibility(View.VISIBLE);
-			mYearView.setText(StringUtils.describeYear(getContext(), year));
+			mYearView.setText(PresentationUtils.describeYear(getContext(), year));
 		}
 	}
 

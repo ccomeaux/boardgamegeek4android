@@ -20,8 +20,8 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.Locale;
@@ -102,10 +102,9 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public void onListItemClick(View v, int position, long id) {
-		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final int buddyId = cursor.getInt(BuddiesQuery.BUDDY_ID);
-		final String name = cursor.getString(BuddiesQuery.BUDDY_NAME);
-		final String fullName = BuddyUtils.buildFullName(cursor, BuddiesQuery.FIRSTNAME, BuddiesQuery.LASTNAME);
+		final int buddyId = (int) v.getTag(R.id.id);
+		final String name = String.valueOf(v.getTag(R.id.name));
+		final String fullName = String.valueOf(v.getTag(R.id.full_name));
 		if (mCallbacks.onBuddySelected(buddyId, name, fullName)) {
 			setSelectedBuddyId(buddyId);
 		}
@@ -182,10 +181,11 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			String lastName = cursor.getString(BuddiesQuery.LASTNAME);
 			String buddyName = cursor.getString(BuddiesQuery.BUDDY_NAME);
 			String avatarUrl = cursor.getString(BuddiesQuery.AVATAR_URL);
+			String fullName = PresentationUtils.buildFullName(firstName, lastName, buddyName);
 
 			UIUtils.setActivatedCompat(view, buddyId == mSelectedBuddyId);
 
-			holder.fullname.setText(buildFullName(firstName, lastName, buddyName).trim());
+			holder.fullName.setText(fullName);
 			String name = buildName(firstName, lastName, buddyName).trim();
 			if (TextUtils.isEmpty(name)) {
 				holder.name.setVisibility(View.GONE);
@@ -193,6 +193,10 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 				holder.name.setVisibility(View.VISIBLE);
 				holder.name.setText(name);
 			}
+
+			view.setTag(R.id.id, buddyId);
+			view.setTag(R.id.name, buddyName);
+			view.setTag(R.id.full_name, fullName);
 
 			loadThumbnail(avatarUrl, holder.avatar, R.drawable.person_image_empty);
 		}
@@ -230,18 +234,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 				Locale.getDefault());
 		}
 
-		private String buildFullName(String firstName, String lastName, String name) {
-			if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-				return name;
-			} else if (TextUtils.isEmpty(firstName)) {
-				return lastName;
-			} else if (TextUtils.isEmpty(lastName)) {
-				return firstName;
-			} else {
-				return firstName + " " + lastName;
-			}
-		}
-
 		private String buildName(String firstName, String lastName, String name) {
 			if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
 				return "";
@@ -251,7 +243,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		class ViewHolder {
-			@InjectView(R.id.list_fullname) TextView fullname;
+			@InjectView(R.id.list_fullname) TextView fullName;
 			@InjectView(R.id.list_name) TextView name;
 			@InjectView(R.id.list_avatar) ImageView avatar;
 

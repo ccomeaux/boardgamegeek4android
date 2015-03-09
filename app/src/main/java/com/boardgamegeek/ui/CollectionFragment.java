@@ -53,7 +53,9 @@ import com.boardgamegeek.ui.dialog.SuggestedAgeFilter;
 import com.boardgamegeek.ui.dialog.YearPublishedFilter;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.RandomUtils;
 import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.ShortcutUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
@@ -218,7 +220,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		final String gameName = cursor.getString(Query.COLLECTION_NAME);
 		final String thumbnailUrl = cursor.getString(Query.THUMBNAIL_URL);
 		if (mShortcut) {
-			Intent shortcut = ActivityUtils.createGameShortcut(getActivity(), gameId, gameName, thumbnailUrl);
+			Intent shortcut = ShortcutUtils.createIntent(getActivity(), gameId, gameName, thumbnailUrl);
 			mCallbacks.onSetShortcut(shortcut);
 		} else {
 			if (mCallbacks.onGameSelected(gameId, gameName)) {
@@ -281,7 +283,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
-				final Cursor cursor = (Cursor) mAdapter.getItem(UIUtils.getRandom().nextInt(mAdapter.getCount()));
+				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
 				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
 					cursor.getString(Query.COLLECTION_NAME));
 				return true;
@@ -352,7 +354,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 								where.append(" AND ");
 							}
 							where.append("(").append(filter.getSelection()).append(")");
-							args = StringUtils.concat(args, filter.getSelectionArgs());
+							args = StringUtils.concatenate(args, filter.getSelectionArgs());
 						}
 					}
 				}

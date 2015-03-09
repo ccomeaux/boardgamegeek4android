@@ -2,7 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.BuddyUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
@@ -34,7 +32,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setSubtitle(getIntent().getStringExtra(BuddyUtils.KEY_BUDDY_NAME));
+		getSupportActionBar().setSubtitle(getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME));
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
@@ -172,8 +170,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(new Handler());
-			mReceiver.setReceiver(this);
+			mReceiver = new DetachableResultReceiver(this);
 		}
 
 		/**

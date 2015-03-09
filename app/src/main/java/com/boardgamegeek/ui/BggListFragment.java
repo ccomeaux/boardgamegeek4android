@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -12,10 +9,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.ImageUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public abstract class BggListFragment extends ListFragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
@@ -84,8 +84,8 @@ public abstract class BggListFragment extends ListFragment {
 
 	protected void loadThumbnail(int imageId, ImageView target) {
 		Queue<String> queue = new LinkedList<>();
-		queue.add(ActivityUtils.createThumbnailJpg(imageId));
-		queue.add(ActivityUtils.createThumbnailPng(imageId));
+		queue.add(ImageUtils.createThumbnailJpgUrl(imageId));
+		queue.add(ImageUtils.createThumbnailPngUrl(imageId));
 		safelyLoadThumbnail(target, queue, R.drawable.thumbnail_image_empty);
 	}
 

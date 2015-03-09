@@ -50,9 +50,13 @@ import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
+import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.HelpUtils;
+import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
-import com.boardgamegeek.util.ScrimUtil;
-import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.PresentationUtils;
+import com.boardgamegeek.util.ScrimUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.VersionUtils;
 
@@ -69,7 +73,7 @@ import timber.log.Timber;
 
 public class GameFragment extends Fragment implements
 	LoaderManager.LoaderCallbacks<Cursor>,
-	ActivityUtils.ImageCallback,
+	ImageUtils.Callback,
 	ObservableScrollView.Callbacks {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
@@ -205,7 +209,7 @@ public class GameFragment extends Fragment implements
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
-			ActivityUtils.resizeImagePerAspectRatio(mImageView, mScrollRoot.getHeight() / 2, mHeroContainer);
+			ImageUtils.resizeImagePerAspectRatio(mImageView, mScrollRoot.getHeight() / 2, mHeroContainer);
 		}
 	};
 
@@ -226,7 +230,7 @@ public class GameFragment extends Fragment implements
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
 		}
 
-		UIUtils.showHelpDialog(getActivity(), UIUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
+		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
 	}
 
 	@Override
@@ -236,7 +240,7 @@ public class GameFragment extends Fragment implements
 		colorize(mPalette);
 		openOrCloseDescription();
 		openOrCloseStats();
-		ScrimUtil.applyDefaultScrim(mHeaderContainer);
+		ScrimUtils.applyDefaultScrim(mHeaderContainer);
 		mScrollRoot.addCallbacks(this);
 		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
 		if (vto.isAlive()) {
@@ -457,14 +461,14 @@ public class GameFragment extends Fragment implements
 		if (palette == null || mPrimaryInfo == null) {
 			return;
 		}
-		Palette.Swatch swatch = ColorUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, ColorUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = ColorUtils.getIconSwatch(palette);
+		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		swatch = PaletteUtils.getIconSwatch(palette);
 		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
-		ButterKnife.apply(mColorizedIcons, ColorUtils.colorIconSetter, swatch);
-		swatch = ColorUtils.getHeaderSwatch(palette);
-		ButterKnife.apply(mColorizedHeaders, ColorUtils.colorTextViewSetter, swatch);
+		ButterKnife.apply(mColorizedIcons, PaletteUtils.colorIconSetter, swatch);
+		swatch = PaletteUtils.getHeaderSwatch(palette);
+		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
 	private void onGameQueryComplete(Cursor cursor) {
@@ -481,7 +485,7 @@ public class GameFragment extends Fragment implements
 		mGameName = game.Name;
 		mImageUrl = game.ImageUrl;
 
-		ActivityUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
+		ImageUtils.safelyLoadImage(mImageView, game.ImageUrl, this);
 		mNameView.setText(game.Name);
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
@@ -609,7 +613,7 @@ public class GameFragment extends Fragment implements
 				for (int i = CollectionQuery.STATUS_1; i <= CollectionQuery.STATUS_N; i++) {
 					if (cursor.getInt(i) == 1) {
 						if (i == CollectionQuery.STATUS_WISHLIST) {
-							status.add(StringUtils.describeWishlist(getActivity(),
+							status.add(PresentationUtils.describeWishlist(getActivity(),
 								cursor.getInt(CollectionQuery.STATUS_WISHLIST_PRIORITY)));
 						} else {
 							int index = i - CollectionQuery.STATUS_1;
@@ -734,7 +738,7 @@ public class GameFragment extends Fragment implements
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
 		arguments.putString(ActivityUtils.KEY_TYPE, (String) v.getTag());
-		ActivityUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
+		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
 	private void triggerRefresh() {

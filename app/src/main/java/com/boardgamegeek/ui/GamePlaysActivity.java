@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
+import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
@@ -59,7 +60,7 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity implements Plays
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		String countDescription = mCount <= 0 ? "" : String.valueOf(mCount);
-		ActivityUtils.setActionBarText(menu, R.id.menu_text, countDescription);
+		ToolbarUtils.setActionBarText(menu, R.id.menu_text, countDescription);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
