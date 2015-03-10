@@ -90,6 +90,7 @@
 				android:layout_gravity="center_horizontal"
 				android:background="@color/info_background"
 				android:elevation="@dimen/material_elevation_subtle"
+				android:weightSum="@integer/game_info_weight_sum"
 				android:gravity="center"
 				android:orientation="horizontal">
 
