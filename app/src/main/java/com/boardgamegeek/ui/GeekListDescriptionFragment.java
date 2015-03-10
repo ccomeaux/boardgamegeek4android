@@ -8,15 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.GeekList;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class GeekListDescriptionFragment extends Fragment {
 	@InjectView(R.id.username) TextView mUsernameView;
@@ -31,7 +32,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekList = intent.getParcelableExtra(GeekListUtils.KEY_GEEKLIST);
+		mGeekList = intent.getParcelableExtra(ActivityUtils.KEY_GEEKLIST);
 	}
 
 	@Override

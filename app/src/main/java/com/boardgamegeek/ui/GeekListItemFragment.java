@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.ScrimUtils;
@@ -75,15 +75,15 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mOrder = intent.getStringExtra(GeekListUtils.KEY_ORDER);
-		mTitle = intent.getStringExtra(GeekListUtils.KEY_NAME);
-		mType = intent.getStringExtra(GeekListUtils.KEY_TYPE);
-		mImageId = intent.getIntExtra(GeekListUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
-		mUsername = intent.getStringExtra(GeekListUtils.KEY_USERNAME);
-		mThumbs = intent.getIntExtra(GeekListUtils.KEY_THUMBS, 0);
-		mPostedDate = intent.getLongExtra(GeekListUtils.KEY_POSTED_DATE, 0);
-		mEditedDate = intent.getLongExtra(GeekListUtils.KEY_EDITED_DATE, 0);
-		mBody = intent.getStringExtra(GeekListUtils.KEY_BODY);
+		mOrder = intent.getStringExtra(ActivityUtils.KEY_ORDER);
+		mTitle = intent.getStringExtra(ActivityUtils.KEY_NAME);
+		mType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
+		mImageId = intent.getIntExtra(ActivityUtils.KEY_IMAGE_ID, BggContract.INVALID_ID);
+		mUsername = intent.getStringExtra(ActivityUtils.KEY_USERNAME);
+		mThumbs = intent.getIntExtra(ActivityUtils.KEY_THUMBS, 0);
+		mPostedDate = intent.getLongExtra(ActivityUtils.KEY_POSTED_DATE, 0);
+		mEditedDate = intent.getLongExtra(ActivityUtils.KEY_EDITED_DATE, 0);
+		mBody = intent.getStringExtra(ActivityUtils.KEY_BODY);
 	}
 
 	@Override

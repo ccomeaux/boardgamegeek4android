@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.GeekListUtils;
 
 public class GeekListActivity extends SimpleSinglePaneActivity {
 	private int mGeekListId;
@@ -19,8 +18,8 @@ public class GeekListActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final Intent intent = getIntent();
-		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
-		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
+		mGeekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		mGeekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 		getSupportActionBar().setTitle(mGeekListTitle);
 	}
 
