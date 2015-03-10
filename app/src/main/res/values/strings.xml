@@ -150,6 +150,7 @@
 	<string name="title_add_color">Add Color</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
+	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_my_geek">My Geek</string>
 	<string name="title_browse">Browse</string>

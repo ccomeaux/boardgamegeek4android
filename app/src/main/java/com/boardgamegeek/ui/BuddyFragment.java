@@ -2,13 +2,10 @@ package com.boardgamegeek.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -24,24 +21,18 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.model.Buddy;
+import com.boardgamegeek.ui.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -212,77 +203,12 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String newNickname = editText.getText().toString();
-					new Task(username, checkBox.isChecked()).execute(newNickname);
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(),
+						username, newNickname, checkBox.isChecked());
+					TaskUtils.executeAsyncTask(task);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		dialog.show();
-	}
-
-	private class Task extends AsyncTask<String, Void, String> {
-		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME
-			+ "!=?";
-		Context mContext;
-		Uri mUri;
-		String mUsername;
-		boolean mUpdatePlays;
-
-		public Task(String username, boolean updatePlays) {
-			mContext = getActivity();
-			mUri = Buddies.buildBuddyUri(username);
-			mUsername = username;
-			mUpdatePlays = updatePlays;
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			String newNickname = params[0];
-			String result = null;
-			updateNickname(mContext, mUri, newNickname);
-			if (mUpdatePlays) {
-				if (TextUtils.isEmpty(newNickname)) {
-					result = getString(R.string.msg_missing_nickname);
-				} else {
-					int count = updatePlays(mContext, mUsername, newNickname);
-					if (count > 0) {
-						updatePlayers(mContext, mUsername, newNickname);
-						SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-					}
-					result = getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
-				}
-			}
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (!TextUtils.isEmpty(result)) {
-				Toast.makeText(mContext, result, Toast.LENGTH_LONG).show();
-			}
-		}
-
-		private void updateNickname(final Context context, final Uri uri, String nickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(Buddies.PLAY_NICKNAME, nickname);
-			context.getContentResolver().update(uri, values, null, null);
-		}
-
-		private int updatePlays(final Context context, final String username, final String newNickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-			List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersUri(),
-				Plays.PLAY_ID, SELECTION, new String[] { username, newNickname });
-			for (Integer playId : playIds) {
-				context.getContentResolver().update(Plays.buildPlayUri(playId), values, null, null);
-			}
-			return playIds.size();
-		}
-
-		private int updatePlayers(final Context context, final String username, String newNickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(PlayPlayers.NAME, newNickname);
-			return context.getContentResolver().update(Plays.buildPlayersUri(), values, SELECTION,
-				new String[] { username, newNickname });
-		}
 	}
 }
