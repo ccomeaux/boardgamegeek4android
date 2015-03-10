@@ -103,9 +103,9 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 			case SUGGESTED_NUMPLAYERS:
 				mBarChart = true;
 				getDialog().setTitle(R.string.suggested_numplayers);
-				addKeyRow(0xff4cc417, BEST);
-				addKeyRow(Color.YELLOW, RECOMMENDED);
-				addKeyRow(Color.RED, NOT_RECOMMENDED);
+				addKeyRow(getResources().getColor(R.color.best), BEST);
+				addKeyRow(getResources().getColor(R.color.recommended), RECOMMENDED);
+				addKeyRow(getResources().getColor(R.color.not_recommended), NOT_RECOMMENDED);
 				break;
 		}
 
