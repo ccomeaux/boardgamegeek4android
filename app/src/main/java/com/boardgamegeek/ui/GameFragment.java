@@ -490,7 +490,7 @@ public class GameFragment extends Fragment implements
 		mRankView.setText(game.getRankDescription());
 		mYearPublishedView.setText(game.getYearPublished());
 		mRatingView.setText(game.getRatingDescription());
-		ColorUtils.setTextViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
+		ColorUtils.setViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
 		mIdView.setText(String.valueOf(game.Id));
 		mUpdatedView.setText(game.getUpdatedDescription());
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);

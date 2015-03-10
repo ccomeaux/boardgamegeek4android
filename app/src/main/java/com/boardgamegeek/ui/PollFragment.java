@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.GamePolls;
@@ -32,6 +33,8 @@ import com.boardgamegeek.util.UIUtils;
 
 import java.util.ArrayList;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import timber.log.Timber;
 
 public class PollFragment extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -47,25 +50,24 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	private int mPollCount;
 	private int mKeyCount;
 	private boolean mBarChart;
-
-	private View mProgress;
-	private ScrollView mScrollView;
-	private TextView mVoteTotalView;
-	private PieChartView mPieChart;
-	private LinearLayout mPollList;
-	private LinearLayout mKeyList;
-	private LinearLayout mKeyList2;
-	private View mKeyContainer;
-	private View mKeyDivider;
-
 	private Uri mUri;
+
+	@InjectView((R.id.progress)) View mProgress;
+	@InjectView(R.id.poll_scroll) ScrollView mScrollView;
+	@InjectView(R.id.poll_vote_total) TextView mVoteTotalView;
+	@InjectView(R.id.pie_chart) PieChartView mPieChart;
+	@InjectView(R.id.poll_list) LinearLayout mPollList;
+	@InjectView(R.id.poll_key) LinearLayout mKeyList;
+	@InjectView(R.id.poll_key2) LinearLayout mKeyList2;
+	@InjectView(R.id.poll_key_container) View mKeyContainer;
+	@InjectView(R.id.poll_key_divider) View mKeyDivider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, -1);
+		int gameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mType = intent.getStringExtra(ActivityUtils.KEY_TYPE);
 		mUri = Games.buildPollResultsResultUri(gameId, mType);
 	}
@@ -73,17 +75,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_poll, container, false);
-
-		mProgress = rootView.findViewById(R.id.progress);
-		mScrollView = (ScrollView) rootView.findViewById(R.id.poll_scroll);
-		mVoteTotalView = (TextView) rootView.findViewById(R.id.poll_vote_total);
-		mPieChart = (PieChartView) rootView.findViewById(R.id.pie_chart);
-		mPollList = (LinearLayout) rootView.findViewById(R.id.poll_list);
-		mKeyList = (LinearLayout) rootView.findViewById(R.id.poll_key);
-		mKeyList2 = (LinearLayout) rootView.findViewById(R.id.poll_key2);
-		mKeyContainer = rootView.findViewById(R.id.poll_key_container);
-		mKeyDivider = rootView.findViewById(R.id.poll_key_divider);
-
+		ButterKnife.inject(this, rootView);
 		return rootView;
 	}
 
@@ -133,7 +125,7 @@ public class PollFragment extends DialogFragment implements LoaderManager.Loader
 			} else {
 				mPollCount = 0;
 			}
-			mVoteTotalView.setText(String.format(getResources().getString(R.string.votes_suffix), mPollCount));
+			mVoteTotalView.setText(getResources().getString(R.string.votes_suffix, mPollCount));
 			mProgress.setVisibility(View.GONE);
 			mScrollView.setVisibility(View.VISIBLE);
 			mPieChart.setVisibility((mPollCount == 0 || mBarChart) ? View.GONE : View.VISIBLE);

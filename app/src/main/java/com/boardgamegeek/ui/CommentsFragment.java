@@ -218,7 +218,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 			holder.username.setText(comment.username);
 			holder.rating.setText(comment.getRatingText());
-			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
+			ColorUtils.setViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
 			holder.comment.setText(comment.value);
 		}
 	}

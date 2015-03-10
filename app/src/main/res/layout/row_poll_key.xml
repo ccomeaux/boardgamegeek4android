@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:gravity="center_vertical"
-	android:orientation="horizontal" >
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="wrap_content"
+			  android:gravity="center_vertical"
+			  android:paddingTop="@dimen/padding_half"
+			  android:paddingBottom="@dimen/padding_half"
+			  android:orientation="horizontal">
 
-	<FrameLayout
+	<View
+		android:id="@+id/row_poll_key_view"
 		android:layout_width="@dimen/poll_key_height"
-		android:layout_height="@dimen/poll_key_height"
-		android:layout_margin="@dimen/padding_standard" >
-
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="#ff000000" />
-
-		<View
-			android:id="@+id/row_poll_key_view"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_margin="1dp" />
-	</FrameLayout>
+		android:layout_height="match_parent"
+		android:layout_marginRight="@dimen/padding_extra"
+		tools:background="@color/best"/>
 
 	<TextView
 		android:id="@+id/row_poll_key_text"
@@ -30,8 +23,9 @@
 		android:layout_weight="1"
 		android:ellipsize="end"
 		android:paddingRight="@dimen/padding_standard"
-		android:singleLine="true"
-		android:textColor="@color/dialog_text" />
+		android:lines="1"
+		android:textColor="@color/dialog_text"
+		tools:text="Best"/>
 
 	<TextView
 		android:id="@+id/row_poll_key_info"
@@ -39,6 +33,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:gravity="right"
-		android:textColor="@color/dialog_text" />
+		android:textColor="@color/dialog_text"
+		tools:text="42"/>
 
 </LinearLayout>
