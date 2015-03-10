@@ -33,8 +33,8 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.ResolverUtils;
@@ -49,6 +49,8 @@ import butterknife.OnClick;
 
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
+	private static final int TOKEN = 0;
+
 	private String mBuddyName;
 	private boolean mRefreshed;
 	private ViewGroup mRootView;
@@ -99,7 +101,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
-		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(TOKEN, null, this);
 
 		return mRootView;
 	}
@@ -129,8 +131,8 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == BuddyQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), BuddyQuery.PROJECTION, null,
+		if (id == TOKEN) {
+			loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), Buddy.PROJECTION, null,
 				null, null);
 		}
 		return loader;
@@ -142,7 +144,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-		if (loader.getId() == BuddyQuery._TOKEN) {
+		if (loader.getId() == TOKEN) {
 			onBuddyQueryComplete(cursor);
 		} else {
 			cursor.close();
@@ -159,30 +161,26 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
-		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
-		long updated = cursor.getLong(BuddyQuery.UPDATED);
-		String firstName = cursor.getString(BuddyQuery.FIRSTNAME);
-		String lastName = cursor.getString(BuddyQuery.LASTNAME);
-		String fullName = PresentationUtils.buildFullName(firstName, lastName);
+		Buddy buddy = Buddy.fromCursor(cursor);
 
 		Picasso.with(getActivity())
-			.load(HttpUtils.ensureScheme(avatarUrl))
+			.load(HttpUtils.ensureScheme(buddy.getAvatarUrl()))
 			.placeholder(R.drawable.person_image_empty)
 			.error(R.drawable.person_image_empty)
 			.fit().into(mAvatar);
-		mFullName.setText(fullName);
+		mFullName.setText(buddy.getFullName());
 		mName.setText(mBuddyName);
-		if (TextUtils.isEmpty(nickname)) {
+		if (TextUtils.isEmpty(buddy.getNickName())) {
 			mNickname.setTextColor(mLightTextColor);
-			mNickname.setText(fullName);
+			mNickname.setText(buddy.getFirstName());
 		} else {
 			mNickname.setTextColor(mDefaultTextColor);
-			mNickname.setText(nickname);
+			mNickname.setText(buddy.getNickName());
 		}
-		mUpdated.setText((updated == 0 ? getResources().getString(R.string.needs_updating) : getResources().getString(
-			R.string.updated)
-			+ ": " + DateUtils.getRelativeTimeSpanString(updated)));
+		mUpdated.setText((buddy.getUpdated() == 0 ?
+			getResources().getString(R.string.needs_updating) :
+			getResources().getString(
+				R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(buddy.getUpdated())));
 	}
 
 	public void requestRefresh() {
@@ -194,19 +192,6 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	public void forceRefresh() {
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName, mCallbacks.getReceiver());
-	}
-
-	private interface BuddyQuery {
-		int _TOKEN = 0x1;
-
-		String[] PROJECTION = { Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.AVATAR_URL,
-			Buddies.PLAY_NICKNAME, Buddies.UPDATED };
-
-		int FIRSTNAME = 0;
-		int LASTNAME = 1;
-		int AVATAR_URL = 2;
-		int PLAY_NICKNAME = 3;
-		int UPDATED = 4;
 	}
 
 	public void showDialog(final String nickname, final String username) {
