@@ -6,10 +6,6 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 
-	<style name="StatBar" parent="@android:style/Widget.ProgressBar.Horizontal">
-		<item name="drawable">@drawable/progress</item>
-	</style>
-
 	<style name="BodySeparator">
 		<item name="android:layout_marginTop">@dimen/padding_standard</item>
 		<item name="android:layout_marginBottom">@dimen/padding_standard</item>

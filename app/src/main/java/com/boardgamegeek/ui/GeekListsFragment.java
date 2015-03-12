@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,18 +13,21 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.model.GeekListsResponse;
-import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
-import com.boardgamegeek.ui.widget.PaginatedData;
-import com.boardgamegeek.ui.widget.PaginatedLoader;
-import com.boardgamegeek.util.GeekListUtils;
+import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.loader.PaginatedData;
+import com.boardgamegeek.ui.loader.PaginatedLoader;
+import com.boardgamegeek.util.ActivityUtils;
+
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class GeekListsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
@@ -138,8 +139,8 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 		GeekListRowViewBinder.ViewHolder holder = (GeekListRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
 			Intent intent = new Intent(getActivity(), GeekListActivity.class);
-			intent.putExtra(GeekListUtils.KEY_ID, holder.id);
-			intent.putExtra(GeekListUtils.KEY_TITLE, holder.title.getText());
+			intent.putExtra(ActivityUtils.KEY_ID, holder.id);
+			intent.putExtra(ActivityUtils.KEY_TITLE, holder.title.getText());
 			startActivity(intent);
 		}
 	}

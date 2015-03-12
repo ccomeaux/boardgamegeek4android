@@ -19,8 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.CollectionView;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.sorter.Sorter;
@@ -30,7 +30,7 @@ import com.boardgamegeek.util.ResolverUtils;
 public class SaveView {
 
 	public static void createDialog(final Context context, final CollectionView view, String name, final Sorter sort,
-		final List<CollectionFilterData> filters) {
+		final List<CollectionFilterer> filters) {
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.dialog_save_view, null);
@@ -96,7 +96,7 @@ public class SaveView {
 				}
 
 				private long insert(ContentResolver resolver, String name, int sortType,
-					final List<CollectionFilterData> filters) {
+					final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.NAME, name);
 					values.put(CollectionViews.STARRED, false);
@@ -110,7 +110,7 @@ public class SaveView {
 				}
 
 				private void update(ContentResolver resolver, long viewId, int sortType,
-					final List<CollectionFilterData> filters) {
+					final List<CollectionFilterer> filters) {
 					ContentValues values = new ContentValues();
 					values.put(CollectionViews.SORT_TYPE, sortType);
 					resolver.update(CollectionViews.buildViewUri(viewId), values, null, null);
@@ -121,9 +121,9 @@ public class SaveView {
 				}
 
 				private void insertDetails(ContentResolver resolver, Uri viewFiltersUri,
-					final List<CollectionFilterData> filters) {
+					final List<CollectionFilterer> filters) {
 					List<ContentValues> cvs = new ArrayList<>(filters.size());
-					for (CollectionFilterData filter : filters) {
+					for (CollectionFilterer filter : filters) {
 						if (filter != null) {
 							ContentValues cv = new ContentValues();
 							cv.put(CollectionViewFilters.TYPE, filter.getType());
@@ -170,10 +170,10 @@ public class SaveView {
 		});
 	}
 
-	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterData> filters) {
+	private static void setDescription(Context context, View layout, Sorter sort, List<CollectionFilterer> filters) {
 		TextView description = (TextView) layout.findViewById(R.id.description);
 		StringBuilder text = new StringBuilder();
-		for (CollectionFilterData filter : filters) {
+		for (CollectionFilterer filter : filters) {
 			if (filter != null) {
 				if (text.length() > 0) {
 					text.append("\n");

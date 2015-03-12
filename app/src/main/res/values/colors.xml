@@ -20,4 +20,9 @@
 	<color name="disabled">#cccc</color>
 	<color name="pressed">#CC4c6199</color>
 
+	<color name="best">#00a550</color>
+	<color name="recommended">#ffef00</color>
+	<color name="no_votes">#888888</color>
+	<color name="not_recommended">#ed1C24</color>
+
 </resources>

@@ -1,8 +1,5 @@
 package com.boardgamegeek.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.io.Adapter;
@@ -26,11 +21,17 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.GeekList;
 import com.boardgamegeek.model.GeekListItem;
 import com.boardgamegeek.provider.BggContract;
-import com.boardgamegeek.ui.widget.BggLoader;
-import com.boardgamegeek.ui.widget.Data;
+import com.boardgamegeek.ui.loader.BggLoader;
+import com.boardgamegeek.ui.loader.Data;
+import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.GeekListUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeekListData> {
@@ -50,8 +51,8 @@ public class GeekListFragment extends BggListFragment implements
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
-		mGeekListId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
-		mGeekListTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
+		mGeekListId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		mGeekListTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
 	}
 
 	@Override
@@ -79,28 +80,28 @@ public class GeekListFragment extends BggListFragment implements
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		if (position == 0) {
 			Intent intent = new Intent(getActivity(), GeekListDescriptionActivity.class);
-			intent.putExtra(GeekListUtils.KEY_ID, mGeekListId);
-			intent.putExtra(GeekListUtils.KEY_TITLE, mGeekListTitle);
-			intent.putExtra(GeekListUtils.KEY_GEEKLIST, (Parcelable) mHeader.getTag());
+			intent.putExtra(ActivityUtils.KEY_ID, mGeekListId);
+			intent.putExtra(ActivityUtils.KEY_TITLE, mGeekListTitle);
+			intent.putExtra(ActivityUtils.KEY_GEEKLIST, (Parcelable) mHeader.getTag());
 			startActivity(intent);
 		} else {
 			ViewHolder holder = (ViewHolder) convertView.getTag();
 			if (holder != null && holder.objectId != BggContract.INVALID_ID) {
 				Intent intent = new Intent(getActivity(), GeekListItemActivity.class);
-				intent.putExtra(GeekListUtils.KEY_ID, mGeekListId);
-				intent.putExtra(GeekListUtils.KEY_TITLE, mGeekListTitle);
-				intent.putExtra(GeekListUtils.KEY_ORDER, holder.order.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_NAME, holder.name.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_TYPE, holder.type.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_IMAGE_ID, holder.imageId);
-				intent.putExtra(GeekListUtils.KEY_USERNAME, holder.username.getText().toString());
-				intent.putExtra(GeekListUtils.KEY_THUMBS, holder.thumbs);
-				intent.putExtra(GeekListUtils.KEY_POSTED_DATE, holder.postedDate);
-				intent.putExtra(GeekListUtils.KEY_EDITED_DATE, holder.editedDate);
-				intent.putExtra(GeekListUtils.KEY_BODY, holder.body);
-				intent.putExtra(GeekListUtils.KEY_OBJECT_URL, holder.objectUrl);
-				intent.putExtra(GeekListUtils.KEY_OBJECT_ID, holder.objectId);
-				intent.putExtra(GeekListUtils.KEY_IS_BOARD_GAME, holder.isBoardGame);
+				intent.putExtra(ActivityUtils.KEY_ID, mGeekListId);
+				intent.putExtra(ActivityUtils.KEY_TITLE, mGeekListTitle);
+				intent.putExtra(ActivityUtils.KEY_ORDER, holder.order.getText().toString());
+				intent.putExtra(ActivityUtils.KEY_NAME, holder.name.getText().toString());
+				intent.putExtra(ActivityUtils.KEY_TYPE, holder.type.getText().toString());
+				intent.putExtra(ActivityUtils.KEY_IMAGE_ID, holder.imageId);
+				intent.putExtra(ActivityUtils.KEY_USERNAME, holder.username.getText().toString());
+				intent.putExtra(ActivityUtils.KEY_THUMBS, holder.thumbs);
+				intent.putExtra(ActivityUtils.KEY_POSTED_DATE, holder.postedDate);
+				intent.putExtra(ActivityUtils.KEY_EDITED_DATE, holder.editedDate);
+				intent.putExtra(ActivityUtils.KEY_BODY, holder.body);
+				intent.putExtra(ActivityUtils.KEY_OBJECT_URL, holder.objectUrl);
+				intent.putExtra(ActivityUtils.KEY_OBJECT_ID, holder.objectId);
+				intent.putExtra(ActivityUtils.KEY_IS_BOARD_GAME, holder.isBoardGame);
 				startActivity(intent);
 			}
 		}

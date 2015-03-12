@@ -1,11 +1,11 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
 
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class GeekRankingFilterData extends CollectionFilterData {
+public class GeekRankingFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 2000;
 
@@ -15,18 +15,18 @@ public class GeekRankingFilterData extends CollectionFilterData {
 	private int mMax;
 	private boolean mUnranked;
 
-	public GeekRankingFilterData() {
+	public GeekRankingFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_GEEK_RANKING);
 	}
 
-	public GeekRankingFilterData(Context context, int min, int max, boolean unranked) {
+	public GeekRankingFilterer(Context context, int min, int max, boolean unranked) {
 		mMin = min;
 		mMax = max;
 		mUnranked = unranked;
 		init(context);
 	}
 
-	public GeekRankingFilterData(Context context, String data) {
+	public GeekRankingFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Integer.valueOf(d[0]);
 		mMax = Integer.valueOf(d[1]);

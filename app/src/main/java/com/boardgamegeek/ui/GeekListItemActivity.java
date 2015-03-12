@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.GeekListUtils;
 
 public class GeekListItemActivity extends SimpleSinglePaneActivity {
 	private int mId;
@@ -25,12 +24,12 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 		super.onCreate(savedInstanceState);
 
 		final Intent intent = getIntent();
-		mTitle = intent.getStringExtra(GeekListUtils.KEY_TITLE);
-		mId = intent.getIntExtra(GeekListUtils.KEY_ID, BggContract.INVALID_ID);
-		mObjectId = intent.getIntExtra(GeekListUtils.KEY_OBJECT_ID, BggContract.INVALID_ID);
-		mObjectName = intent.getStringExtra(GeekListUtils.KEY_NAME);
-		mUrl = intent.getStringExtra(GeekListUtils.KEY_OBJECT_URL);
-		mIsBoardGame = intent.getBooleanExtra(GeekListUtils.KEY_IS_BOARD_GAME, false);
+		mTitle = intent.getStringExtra(ActivityUtils.KEY_TITLE);
+		mId = intent.getIntExtra(ActivityUtils.KEY_ID, BggContract.INVALID_ID);
+		mObjectId = intent.getIntExtra(ActivityUtils.KEY_OBJECT_ID, BggContract.INVALID_ID);
+		mObjectName = intent.getStringExtra(ActivityUtils.KEY_NAME);
+		mUrl = intent.getStringExtra(ActivityUtils.KEY_OBJECT_URL);
+		mIsBoardGame = intent.getBooleanExtra(ActivityUtils.KEY_IS_BOARD_GAME, false);
 
 		final ActionBar actionBar = getSupportActionBar();
 		if (!TextUtils.isEmpty(mTitle)) {
@@ -54,8 +53,8 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 			case android.R.id.home:
 				if (mId != BggContract.INVALID_ID) {
 					Intent intent = new Intent(this, GeekListActivity.class);
-					intent.putExtra(GeekListUtils.KEY_ID, mId);
-					intent.putExtra(GeekListUtils.KEY_NAME, mTitle);
+					intent.putExtra(ActivityUtils.KEY_ID, mId);
+					intent.putExtra(ActivityUtils.KEY_NAME, mTitle);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();

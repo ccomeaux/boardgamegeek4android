@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.dialog;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.GeekRankingFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.GeekRankingFilterer;
 
 public class GeekRankingFilter extends SliderFilter {
 	private int mMinRanking;
@@ -30,22 +30,22 @@ public class GeekRankingFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return GeekRankingFilterData.MAX_RANGE;
+		return GeekRankingFilterer.MAX_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return GeekRankingFilterData.MIN_RANGE;
+		return GeekRankingFilterer.MIN_RANGE;
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new GeekRankingFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new GeekRankingFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new GeekRankingFilterData(context, mMinRanking, mMaxRanking, mUnranked);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new GeekRankingFilterer(context, mMinRanking, mMaxRanking, mUnranked);
 	}
 
 	@Override
@@ -59,13 +59,13 @@ public class GeekRankingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinRanking = GeekRankingFilterData.MIN_RANGE;
-			mMaxRanking = GeekRankingFilterData.MAX_RANGE;
+			mMinRanking = GeekRankingFilterer.MIN_RANGE;
+			mMaxRanking = GeekRankingFilterer.MAX_RANGE;
 			mUnranked = false;
 		} else {
-			GeekRankingFilterData data = (GeekRankingFilterData) filter;
+			GeekRankingFilterer data = (GeekRankingFilterer) filter;
 			mMinRanking = data.getMin();
 			mMaxRanking = data.getMax();
 			mUnranked = data.isUnranked();
@@ -74,16 +74,16 @@ public class GeekRankingFilter extends SliderFilter {
 
 	@Override
 	protected String intervalText(int number) {
-		if (number >= GeekRankingFilterData.MAX_RANGE) {
-			return String.valueOf(GeekRankingFilterData.MAX_RANGE) + "+";
+		if (number >= GeekRankingFilterer.MAX_RANGE) {
+			return String.valueOf(GeekRankingFilterer.MAX_RANGE) + "+";
 		}
 		return String.valueOf(number);
 	}
 
 	@Override
 	protected String intervalText(int min, int max) {
-		if (min >= GeekRankingFilterData.MAX_RANGE) {
-			return String.valueOf(GeekRankingFilterData.MAX_RANGE) + "+";
+		if (min >= GeekRankingFilterer.MAX_RANGE) {
+			return String.valueOf(GeekRankingFilterer.MAX_RANGE) + "+";
 		}
 		return String.valueOf(min) + " - " + String.valueOf(max);
 	}

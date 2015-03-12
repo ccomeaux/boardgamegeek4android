@@ -8,12 +8,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.util.ColorUtils;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class PollKeyRow extends LinearLayout {
-
-	private View mView;
-	private TextView mTextView;
-	private TextView mInfoView;
+	@InjectView(R.id.row_poll_key_view) View mView;
+	@InjectView(R.id.row_poll_key_text) TextView mTextView;
+	@InjectView(R.id.row_poll_key_info) TextView mInfoView;
 
 	public PollKeyRow(Context context) {
 		this(context, null);
@@ -24,16 +27,14 @@ public class PollKeyRow extends LinearLayout {
 		init(context);
 	}
 
-	public void init(Context context) {
+	private void init(Context context) {
 		LayoutInflater li = LayoutInflater.from(context);
 		li.inflate(R.layout.row_poll_key, this);
-		mView = findViewById(R.id.row_poll_key_view);
-		mTextView = (TextView) findViewById(R.id.row_poll_key_text);
-		mInfoView = (TextView) findViewById(R.id.row_poll_key_info);
+		ButterKnife.inject(this);
 	}
 
 	public void setColor(int color) {
-		mView.setBackgroundColor(color);
+		ColorUtils.setViewBackground(mView, color);
 	}
 
 	public void setText(CharSequence text) {

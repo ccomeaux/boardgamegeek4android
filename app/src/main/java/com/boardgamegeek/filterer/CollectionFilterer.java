@@ -1,20 +1,20 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-public class CollectionFilterData implements Parcelable {
+public class CollectionFilterer implements Parcelable {
 	private int type;
 	private String displayText;
 	private String selection;
 	private String[] selectionArgs = {};
 	private String path;
 
-	public CollectionFilterData() {
+	public CollectionFilterer() {
 	}
 
-	public CollectionFilterData(int type) {
+	public CollectionFilterer(int type) {
 		this.type = type;
 	}
 
@@ -38,17 +38,17 @@ public class CollectionFilterData implements Parcelable {
 		return selectionArgs;
 	}
 
-	public CollectionFilterData displayText(String displayText) {
+	public CollectionFilterer displayText(String displayText) {
 		this.displayText = displayText;
 		return this;
 	}
 
-	public CollectionFilterData selection(String selection) {
+	public CollectionFilterer selection(String selection) {
 		this.selection = selection;
 		return this;
 	}
 
-	public CollectionFilterData selectionArgs(String... selectionArgs) {
+	public CollectionFilterer selectionArgs(String... selectionArgs) {
 		this.selectionArgs = selectionArgs;
 		return this;
 	}
@@ -59,10 +59,10 @@ public class CollectionFilterData implements Parcelable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof CollectionFilterData)) {
+		if (o == null || !(o instanceof CollectionFilterer)) {
 			return false;
 		}
-		CollectionFilterData other = (CollectionFilterData) o;
+		CollectionFilterer other = (CollectionFilterer) o;
 		return other.getType() == this.getType();
 	}
 
@@ -84,17 +84,17 @@ public class CollectionFilterData implements Parcelable {
 		out.writeStringArray(selectionArgs);
 	}
 
-	public static final Parcelable.Creator<CollectionFilterData> CREATOR = new Parcelable.Creator<CollectionFilterData>() {
-		public CollectionFilterData createFromParcel(Parcel in) {
-			return new CollectionFilterData(in);
+	public static final Parcelable.Creator<CollectionFilterer> CREATOR = new Parcelable.Creator<CollectionFilterer>() {
+		public CollectionFilterer createFromParcel(Parcel in) {
+			return new CollectionFilterer(in);
 		}
 
-		public CollectionFilterData[] newArray(int size) {
-			return new CollectionFilterData[size];
+		public CollectionFilterer[] newArray(int size) {
+			return new CollectionFilterer[size];
 		}
 	};
 
-	private CollectionFilterData(Parcel in) {
+	private CollectionFilterer(Parcel in) {
 		type = in.readInt();
 		displayText = in.readString();
 		selection = in.readString();

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.view.View;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.GeekRatingFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.GeekRatingFilterer;
 
 public class GeekRatingFilter extends SliderFilter {
 	private static final int FACTOR = 10;
@@ -35,22 +35,22 @@ public class GeekRatingFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (GeekRatingFilterData.MAX_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.MAX_RANGE * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (GeekRatingFilterData.MIN_RANGE * FACTOR);
+		return (int) (GeekRatingFilterer.MIN_RANGE * FACTOR);
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new GeekRatingFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new GeekRatingFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new GeekRatingFilterData(context, mMinRating, mMaxRating);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new GeekRatingFilterer(context, mMinRating, mMaxRating);
 	}
 
 	@Override
@@ -64,12 +64,12 @@ public class GeekRatingFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinRating = GeekRatingFilterData.MIN_RANGE;
-			mMaxRating = GeekRatingFilterData.MAX_RANGE;
+			mMinRating = GeekRatingFilterer.MIN_RANGE;
+			mMaxRating = GeekRatingFilterer.MAX_RANGE;
 		} else {
-			GeekRatingFilterData data = (GeekRatingFilterData) filter;
+			GeekRatingFilterer data = (GeekRatingFilterer) filter;
 			mMinRating = data.getMin();
 			mMaxRating = data.getMax();
 		}

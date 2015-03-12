@@ -151,10 +151,10 @@ public class ColorUtils {
 
 	@SuppressWarnings("deprecation")
 	/**
-	 * Set the background of a {@link android.widget.TextView} to the specified color, with a darker version of the
+	 * Set the background of a {@link android.widget.View} to the specified color, with a darker version of the
 	 * color as a border.
 	 */
-	public static void setTextViewBackground(TextView view, int color) {
+	public static void setViewBackground(View view, int color) {
 		Resources r = view.getResources();
 
 		Drawable currentDrawable = view.getBackground();
@@ -176,9 +176,9 @@ public class ColorUtils {
 	}
 
 	/**
-	 * Set the background of an {@link android.widget.ImageView} to the specified color, with a darker version of the
-	 * color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't do anything for
-	 * other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
+	 * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
+	 * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
+	 * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
 	 */
 	public static void setColorViewValue(View view, int color) {
 		if (view instanceof ImageView) {

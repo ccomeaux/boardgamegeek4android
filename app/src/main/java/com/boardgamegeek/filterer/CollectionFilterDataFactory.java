@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -16,33 +16,33 @@ public class CollectionFilterDataFactory {
 	public static final int TYPE_EXPANSION_STATUS = 10;
 	public static final int TYPE_PLAY_COUNT = 11;
 
-	public static CollectionFilterData create(Context context, int type, String data) {
+	public static CollectionFilterer create(Context context, int type, String data) {
 		if (TextUtils.isEmpty(data)) {
 			return null;
 		}
 		switch (type) {
 			case TYPE_COLLECTION_STATUS:
-				return new CollectionStatusFilterData(context, data);
+				return new CollectionStatusFilterer(context, data);
 			case TYPE_PLAYER_NUMBER:
-				return new PlayerNumberFilterData(context, data);
+				return new PlayerNumberFilterer(context, data);
 			case TYPE_PLAY_TIME:
-				return new PlayTimeFilterData(context, data);
+				return new PlayTimeFilterer(context, data);
 			case TYPE_SUGGESTED_AGE:
-				return new SuggestedAgeFilterData(context, data);
+				return new SuggestedAgeFilterer(context, data);
 			case TYPE_AVERAGE_WEIGHT:
-				return new AverageWeightFilterData(context, data);
+				return new AverageWeightFilterer(context, data);
 			case TYPE_YEAR_PUBLISHED:
-				return new YearPublishedFilterData(context, data);
+				return new YearPublishedFilterer(context, data);
 			case TYPE_AVERAGE_RATING:
-				return new AverageRatingFilterData(context, data);
+				return new AverageRatingFilterer(context, data);
 			case TYPE_GEEK_RATING:
-				return new GeekRatingFilterData(context, data);
+				return new GeekRatingFilterer(context, data);
 			case TYPE_GEEK_RANKING:
-				return new GeekRankingFilterData(context, data);
+				return new GeekRankingFilterer(context, data);
 			case TYPE_EXPANSION_STATUS:
-				return new ExpansionStatusFilterData(context, data);
+				return new ExpansionStatusFilterer(context, data);
 			case TYPE_PLAY_COUNT:
-				return new PlayCountFilterData(context, data);
+				return new PlayCountFilterer(context, data);
 			default:
 				return null;
 		}

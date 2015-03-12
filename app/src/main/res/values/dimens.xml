@@ -9,6 +9,8 @@
 	<dimen name="padding_fab">16dp</dimen>
 	<dimen name="fab_buffer">72dp</dimen>
 	<dimen name="page_margin_width">16dp</dimen>
+	<dimen name="poll_row_height">24dp</dimen>
+	<dimen name="stat_bar_height">20dp</dimen>
 	<dimen name="poll_key_height">20dp</dimen>
 	<dimen name="view_row_height">32dp</dimen>
 	<dimen name="edit_row_height">40dp</dimen>

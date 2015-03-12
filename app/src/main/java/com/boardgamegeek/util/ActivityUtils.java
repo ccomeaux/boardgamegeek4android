@@ -42,12 +42,20 @@ public class ActivityUtils {
 	public static final String KEY_LINK = "LINK";
 	public static final String KEY_LOCATION_NAME = "LOCATION_NAME";
 	public static final String KEY_TYPE = "TYPE";
-
-
+	public static final String KEY_GEEKLIST = "GEEKLIST";
+	public static final String KEY_ID = "GEEKLIST_ID";
+	public static final String KEY_ORDER = "GEEKLIST_ORDER";
+	public static final String KEY_NAME = "GEEKLIST_NAME";
+	public static final String KEY_THUMBS = "GEEKLIST_THUMBS";
+	public static final String KEY_IMAGE_ID = "GEEKLIST_IMAGE_ID";
+	public static final String KEY_POSTED_DATE = "GEEKLIST_POSTED_DATE";
+	public static final String KEY_EDITED_DATE = "GEEKLIST_EDITED_DATE";
+	public static final String KEY_OBJECT_ID = "GEEKLIST_OBJECT_ID";
+	public static final String KEY_OBJECT_URL = "GEEKLIST_OBJECT_URL";
+	public static final String KEY_IS_BOARD_GAME = "GEEKLIST_IS_BOARD_GAME";
 	private static final String BGG_URL_BASE = "https://www.boardgamegeek.com/";
 	private static final Uri BGG_URI = Uri.parse(BGG_URL_BASE);
 	private static final String BOARDGAME_URL_PREFIX = BGG_URL_BASE + "boardgame/";
-
 
 	public static void launchGame(Context context, int gameId, String gameName) {
 		final Intent intent = createGameIntent(gameId, gameName);

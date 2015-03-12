@@ -28,7 +28,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.ui.widget.GameColorAdapter;
+import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;

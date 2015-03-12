@@ -17,9 +17,9 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Game.Comment;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.widget.PaginatedArrayAdapter;
-import com.boardgamegeek.ui.widget.PaginatedData;
-import com.boardgamegeek.ui.widget.PaginatedLoader;
+import com.boardgamegeek.ui.adapter.PaginatedArrayAdapter;
+import com.boardgamegeek.ui.loader.PaginatedData;
+import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -218,7 +218,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 			holder.username.setText(comment.username);
 			holder.rating.setText(comment.getRatingText());
-			ColorUtils.setTextViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
+			ColorUtils.setViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
 			holder.comment.setText(comment.value);
 		}
 	}

@@ -90,6 +90,7 @@
 				android:layout_gravity="center_horizontal"
 				android:background="@color/info_background"
 				android:elevation="@dimen/material_elevation_subtle"
+				android:weightSum="@integer/game_info_weight_sum"
 				android:gravity="center"
 				android:orientation="horizontal">
 
@@ -495,7 +496,7 @@
 
 					<include
 						android:id="@+id/game_stats_content"
-						layout="@layout/tab_game_stats"
+						layout="@layout/include_game_stats"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:visibility="gone"/>

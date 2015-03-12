@@ -19,7 +19,7 @@ public class LicensePreference extends DialogPreference {
 	}
 
 	private void init() {
-		setDialogLayoutResource(R.layout.textview_dialogpreference);
+		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 		setPositiveButtonText(R.string.close);
 		setNegativeButtonText("");
 	}

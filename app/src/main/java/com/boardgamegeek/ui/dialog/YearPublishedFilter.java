@@ -4,20 +4,20 @@ import android.content.Context;
 import android.view.View;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.YearPublishedFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.YearPublishedFilterer;
 
 public class YearPublishedFilter extends SliderFilter {
 	private int mMinYear;
 	private int mMaxYear;
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinYear = YearPublishedFilterData.MIN_RANGE;
-			mMaxYear = YearPublishedFilterData.MAX_RANGE;
+			mMinYear = YearPublishedFilterer.MIN_RANGE;
+			mMaxYear = YearPublishedFilterer.MAX_RANGE;
 		} else {
-			YearPublishedFilterData data = (YearPublishedFilterData) filter;
+			YearPublishedFilterer data = (YearPublishedFilterer) filter;
 			mMinYear = data.getMin();
 			mMaxYear = data.getMax();
 		}
@@ -29,13 +29,13 @@ public class YearPublishedFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new YearPublishedFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new YearPublishedFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new YearPublishedFilterData(context, mMinYear, mMaxYear);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new YearPublishedFilterer(context, mMinYear, mMaxYear);
 	}
 
 	@Override
@@ -60,12 +60,12 @@ public class YearPublishedFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return YearPublishedFilterData.MIN_RANGE;
+		return YearPublishedFilterer.MIN_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return YearPublishedFilterData.MAX_RANGE;
+		return YearPublishedFilterer.MAX_RANGE;
 	}
 
 	@Override
@@ -82,11 +82,11 @@ public class YearPublishedFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int min, int max) {
 		String text = String.valueOf(min);
-		if (min == YearPublishedFilterData.MIN_RANGE) {
+		if (min == YearPublishedFilterer.MIN_RANGE) {
 			text = "<" + text;
 		}
 		text += " - " + String.valueOf(max);
-		if (max == YearPublishedFilterData.MAX_RANGE) {
+		if (max == YearPublishedFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;

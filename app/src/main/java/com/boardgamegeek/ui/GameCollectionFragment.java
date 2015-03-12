@@ -278,7 +278,7 @@ public class GameCollectionFragment extends Fragment implements
 		year.setText(item.getYearDescription());
 		lastModified.setText(item.getLastModifiedDescription());
 		rating.setText(item.getRatingDescription());
-		ColorUtils.setTextViewBackground(rating, ColorUtils.getRatingColor(item.rating));
+		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 
 		status.setText(item.getStatus());
 		comment.setVisibility(TextUtils.isEmpty(item.comment) ? View.GONE : View.VISIBLE);

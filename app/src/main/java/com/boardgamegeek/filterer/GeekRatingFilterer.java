@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class AverageRatingFilterData extends CollectionFilterData {
+public class GeekRatingFilterer extends CollectionFilterer {
 	public static final double MIN_RANGE = 0.0;
 	public static final double MAX_RANGE = 10.0;
 
@@ -15,25 +15,38 @@ public class AverageRatingFilterData extends CollectionFilterData {
 	private double mMin;
 	private double mMax;
 
-	public AverageRatingFilterData() {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
+	public GeekRatingFilterer() {
+		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 	}
 
-	public AverageRatingFilterData(Context context, String data) {
+	public GeekRatingFilterer(Context context, double min, double max) {
+		mMin = min;
+		mMax = max;
+		init(context);
+	}
+
+	public GeekRatingFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Double.valueOf(d[0]);
 		mMax = Double.valueOf(d[1]);
 		init(context);
 	}
 
-	public AverageRatingFilterData(Context context, double min, double max) {
-		mMin = min;
-		mMax = max;
-		init(context);
+	@Override
+	public String flatten() {
+		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
+	}
+
+	public double getMax() {
+		return mMax;
+	}
+
+	public double getMin() {
+		return mMin;
 	}
 
 	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_RATING);
+		setType(CollectionFilterDataFactory.TYPE_GEEK_RATING);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
@@ -48,7 +61,7 @@ public class AverageRatingFilterData extends CollectionFilterData {
 		} else {
 			text = minValue + "-" + maxValue;
 		}
-		displayText(r.getString(R.string.average) + " " + text);
+		displayText(r.getString(R.string.rating) + " " + text);
 	}
 
 	private void setSelection() {
@@ -57,25 +70,12 @@ public class AverageRatingFilterData extends CollectionFilterData {
 
 		String selection;
 		if (mMin == mMax) {
-			selection = Games.STATS_AVERAGE + "=?";
+			selection = Games.STATS_BAYES_AVERAGE + "=?";
 			selectionArgs(minValue);
 		} else {
-			selection = "(" + Games.STATS_AVERAGE + ">=? AND " + Games.STATS_AVERAGE + "<=?)";
+			selection = "(" + Games.STATS_BAYES_AVERAGE + ">=? AND " + Games.STATS_BAYES_AVERAGE + "<=?)";
 			selectionArgs(minValue, maxValue);
 		}
 		selection(selection);
-	}
-
-	public double getMin() {
-		return mMin;
-	}
-
-	public double getMax() {
-		return mMax;
-	}
-
-	@Override
-	public String flatten() {
-		return String.valueOf(mMin) + delimiter + String.valueOf(mMax);
 	}
 }
