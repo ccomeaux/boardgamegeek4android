@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 
-public class PlayCountFilterData extends CollectionFilterData {
+public class PlayCountFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 25;
 
@@ -15,17 +15,17 @@ public class PlayCountFilterData extends CollectionFilterData {
 	private int mMin;
 	private int mMax;
 
-	public PlayCountFilterData() {
+	public PlayCountFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_COUNT);
 	}
 
-	public PlayCountFilterData(Context context, int min, int max) {
+	public PlayCountFilterer(Context context, int min, int max) {
 		mMin = min;
 		mMax = max;
 		init(context);
 	}
 
-	public PlayCountFilterData(Context context, String data) {
+	public PlayCountFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Integer.valueOf(d[0]);
 		mMax = Integer.valueOf(d[1]);

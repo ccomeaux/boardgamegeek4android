@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.dialog;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.AverageWeightFilterData;
-import com.boardgamegeek.data.CollectionFilterData;
+import com.boardgamegeek.filterer.AverageWeightFilterer;
+import com.boardgamegeek.filterer.CollectionFilterer;
 
 public class AverageWeightFilter extends SliderFilter {
 	private static final int FACTOR = 10;
@@ -31,22 +31,22 @@ public class AverageWeightFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return (int) (AverageWeightFilterData.MAX_RANGE * FACTOR);
+		return (int) (AverageWeightFilterer.MAX_RANGE * FACTOR);
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return (int) (AverageWeightFilterData.MIN_RANGE * FACTOR);
+		return (int) (AverageWeightFilterer.MIN_RANGE * FACTOR);
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new AverageWeightFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new AverageWeightFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new AverageWeightFilterData(context, mMinWeight, mMaxWeight, mUndefined);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new AverageWeightFilterer(context, mMinWeight, mMaxWeight, mUndefined);
 	}
 
 	@Override
@@ -65,13 +65,13 @@ public class AverageWeightFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinWeight = AverageWeightFilterData.MIN_RANGE;
-			mMaxWeight = AverageWeightFilterData.MAX_RANGE;
+			mMinWeight = AverageWeightFilterer.MIN_RANGE;
+			mMaxWeight = AverageWeightFilterer.MAX_RANGE;
 			mUndefined = false;
 		} else {
-			AverageWeightFilterData data = (AverageWeightFilterData) filter;
+			AverageWeightFilterer data = (AverageWeightFilterer) filter;
 			mMinWeight = data.getMin();
 			mMaxWeight = data.getMax();
 			mUndefined = data.isUndefined();

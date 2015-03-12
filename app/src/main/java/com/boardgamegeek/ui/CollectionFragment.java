@@ -27,11 +27,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.CollectionFilterDataFactory;
-import com.boardgamegeek.data.CollectionStatusFilterData;
-import com.boardgamegeek.data.CollectionView;
-import com.boardgamegeek.data.ExpansionStatusFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.CollectionFilterDataFactory;
+import com.boardgamegeek.filterer.CollectionStatusFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
+import com.boardgamegeek.filterer.ExpansionStatusFilterer;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -82,7 +82,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private long mViewId;
 	private String mViewName = "";
 	private CollectionSorter mSort;
-	private List<CollectionFilterData> mFilters = new ArrayList<>();
+	private List<CollectionFilterer> mFilters = new ArrayList<>();
 	private String mDefaultWhereClause;
 	private LinearLayout mFilterLinearLayout;
 	private boolean mShortcut;
@@ -347,7 +347,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			if (mViewId == 0 && mFilters == null || mFilters.size() == 0) {
 				where.append(buildDefaultWhereClause());
 			} else {
-				for (CollectionFilterData filter : mFilters) {
+				for (CollectionFilterer filter : mFilters) {
 					if (filter != null) {
 						if (!TextUtils.isEmpty(filter.getSelection())) {
 							if (where.length() > 0) {
@@ -457,7 +457,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				mSort = CollectionSorterFactory.create(cursor.getInt(ViewQuery.SORT_TYPE), getActivity());
 				mFilters.clear();
 				do {
-					CollectionFilterData filter = CollectionFilterDataFactory.create(getActivity(),
+					CollectionFilterer filter = CollectionFilterDataFactory.create(getActivity(),
 						cursor.getInt(ViewQuery.TYPE), cursor.getString(ViewQuery.DATA));
 					mFilters.add(filter);
 				} while (cursor.moveToNext());
@@ -486,7 +486,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void removeFilter(CollectionFilterData filter) {
+	public void removeFilter(CollectionFilterer filter) {
 		mFilters.remove(filter);
 		setEmptyText();
 		resetScrollState();
@@ -495,7 +495,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 	@Override
 	@DebugLog
-	public void addFilter(CollectionFilterData filter) {
+	public void addFilter(CollectionFilterer filter) {
 		mFilters.remove(filter);
 		if (filter.isValid()) {
 			mFilters.add(filter);
@@ -555,8 +555,8 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@DebugLog
-	private CollectionFilterData findFilter(int type) {
-		for (CollectionFilterData filter : mFilters) {
+	private CollectionFilterer findFilter(int type) {
+		for (CollectionFilterer filter : mFilters) {
 			if (filter != null && filter.getType() == type) {
 				return filter;
 			}
@@ -567,7 +567,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	private void bindFilterButtons() {
 		final LayoutInflater layoutInflater = getLayoutInflater(null);
-		for (CollectionFilterData filter : mFilters) {
+		for (CollectionFilterer filter : mFilters) {
 			if (filter != null) {
 				Button button = (Button) mFilterLinearLayout.findViewWithTag(filter.getType());
 				if (button == null) {
@@ -582,7 +582,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		// Could be when button is clicked, but this keeps filters synced with collection
 		for (int i = 0; i < mFilterLinearLayout.getChildCount(); i++) {
 			Button button = (Button) mFilterLinearLayout.getChildAt(i);
-			if (!mFilters.contains(new CollectionFilterData((Integer) button.getTag()))) {
+			if (!mFilters.contains(new CollectionFilterer((Integer) button.getTag()))) {
 				mFilterLinearLayout.removeView(button);
 				i--;
 			}
@@ -609,7 +609,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		button.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				removeFilter(new CollectionFilterData(type));
+				removeFilter(new CollectionFilterer(type));
 				return true;
 			}
 		});
@@ -621,9 +621,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (id) {
 			case R.id.menu_collection_status:
 			case CollectionFilterDataFactory.TYPE_COLLECTION_STATUS:
-				CollectionStatusFilterData filter = null;
+				CollectionStatusFilterer filter = null;
 				try {
-					filter = (CollectionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
+					filter = (CollectionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 				} catch (ClassCastException e) {
 					// Getting reports of this, but don't know why
 					Timber.i("ClassCastException when attempting to display the CollectionStatusFilter dialog.");
@@ -633,7 +633,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 			case R.id.menu_expansion_status:
 			case CollectionFilterDataFactory.TYPE_EXPANSION_STATUS:
 				new ExpansionStatusFilter().createDialog(getActivity(), this,
-					(ExpansionStatusFilterData) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
+					(ExpansionStatusFilterer) findFilter(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS));
 				return true;
 			case R.id.menu_number_of_players:
 			case CollectionFilterDataFactory.TYPE_PLAYER_NUMBER:

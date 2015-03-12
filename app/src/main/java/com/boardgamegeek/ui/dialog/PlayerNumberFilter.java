@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.dialog;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.PlayerNumberFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.PlayerNumberFilterer;
 
 public class PlayerNumberFilter extends SliderFilter {
 	private int mMinPlayers;
@@ -40,22 +40,22 @@ public class PlayerNumberFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayerNumberFilterData.MAX_RANGE;
+		return PlayerNumberFilterer.MAX_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayerNumberFilterData.MIN_RANGE;
+		return PlayerNumberFilterer.MIN_RANGE;
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new PlayerNumberFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new PlayerNumberFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new PlayerNumberFilterData(context, mMinPlayers, mMaxPlayers, mExact);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new PlayerNumberFilterer(context, mMinPlayers, mMaxPlayers, mExact);
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public class PlayerNumberFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinPlayers = PlayerNumberFilterData.MIN_RANGE;
-			mMaxPlayers = PlayerNumberFilterData.MAX_RANGE;
+			mMinPlayers = PlayerNumberFilterer.MIN_RANGE;
+			mMaxPlayers = PlayerNumberFilterer.MAX_RANGE;
 			mExact = false;
 		} else {
-			PlayerNumberFilterData data = (PlayerNumberFilterData) filter;
+			PlayerNumberFilterer data = (PlayerNumberFilterer) filter;
 			mMinPlayers = data.getMin();
 			mMaxPlayers = data.getMax();
 			mExact = data.isExact();

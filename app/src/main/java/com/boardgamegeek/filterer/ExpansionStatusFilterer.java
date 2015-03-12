@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -7,19 +7,19 @@ import android.text.TextUtils;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class ExpansionStatusFilterData extends CollectionFilterData {
+public class ExpansionStatusFilterer extends CollectionFilterer {
 	private int mSelected;
 
-	public ExpansionStatusFilterData() {
+	public ExpansionStatusFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_EXPANSION_STATUS);
 	}
 
-	public ExpansionStatusFilterData(Context context, String data) {
+	public ExpansionStatusFilterer(Context context, String data) {
 		mSelected = Integer.valueOf(data);
 		init(context);
 	}
 
-	public ExpansionStatusFilterData(Context context, int selected) {
+	public ExpansionStatusFilterer(Context context, int selected) {
 		mSelected = selected;
 		init(context);
 	}

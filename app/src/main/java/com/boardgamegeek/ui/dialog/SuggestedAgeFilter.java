@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.dialog;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.SuggestedAgeFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.SuggestedAgeFilterer;
 
 public class SuggestedAgeFilter extends SliderFilter {
 	private int mMinAge;
@@ -12,13 +12,13 @@ public class SuggestedAgeFilter extends SliderFilter {
 	private boolean mUndefined;
 	
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinAge = SuggestedAgeFilterData.MIN_RANGE;
-			mMaxAge = SuggestedAgeFilterData.MAX_RANGE;
+			mMinAge = SuggestedAgeFilterer.MIN_RANGE;
+			mMaxAge = SuggestedAgeFilterer.MAX_RANGE;
 			mUndefined = false;
 		} else {
-			SuggestedAgeFilterData data = (SuggestedAgeFilterData) filter;
+			SuggestedAgeFilterer data = (SuggestedAgeFilterer) filter;
 			mMinAge = data.getMin();
 			mMaxAge = data.getMax();
 			mUndefined = data.isUndefined();
@@ -36,13 +36,13 @@ public class SuggestedAgeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new SuggestedAgeFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new SuggestedAgeFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new SuggestedAgeFilterData(context, mMinAge, mMaxAge, mUndefined);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new SuggestedAgeFilterer(context, mMinAge, mMaxAge, mUndefined);
 	}
 
 	@Override
@@ -62,12 +62,12 @@ public class SuggestedAgeFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return SuggestedAgeFilterData.MIN_RANGE;
+		return SuggestedAgeFilterer.MIN_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return SuggestedAgeFilterData.MAX_RANGE;
+		return SuggestedAgeFilterer.MAX_RANGE;
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class SuggestedAgeFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int number) {
 		String text = String.valueOf(number);
-		if (number == SuggestedAgeFilterData.MAX_RANGE) {
+		if (number == SuggestedAgeFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;
@@ -89,7 +89,7 @@ public class SuggestedAgeFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int min, int max) {
 		String text = String.valueOf(min) + " - " + String.valueOf(max);
-		if (max == SuggestedAgeFilterData.MAX_RANGE) {
+		if (max == SuggestedAgeFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;

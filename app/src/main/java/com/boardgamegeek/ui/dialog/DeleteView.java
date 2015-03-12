@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionView;
+import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 
 public class DeleteView {

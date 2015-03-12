@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -7,7 +7,7 @@ import com.boardgamegeek.provider.BggContract.Games;
 
 import java.util.Calendar;
 
-public class YearPublishedFilterData extends CollectionFilterData {
+public class YearPublishedFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1970;
 	public static final int MAX_RANGE = Calendar.getInstance().get(Calendar.YEAR) + 1;
 
@@ -16,18 +16,18 @@ public class YearPublishedFilterData extends CollectionFilterData {
 	private int mMin;
 	private int mMax;
 
-	public YearPublishedFilterData() {
+	public YearPublishedFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_YEAR_PUBLISHED);
 	}
 
-	public YearPublishedFilterData(Context context, String data) {
+	public YearPublishedFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Integer.valueOf(d[0]);
 		mMax = Integer.valueOf(d[1]);
 		init(context);
 	}
 
-	public YearPublishedFilterData(Context context, int min, int max) {
+	public YearPublishedFilterer(Context context, int min, int max) {
 		mMin = min;
 		mMax = max;
 		init(context);

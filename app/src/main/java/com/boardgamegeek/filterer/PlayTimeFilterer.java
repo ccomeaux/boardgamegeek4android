@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class PlayTimeFilterData extends CollectionFilterData {
+public class PlayTimeFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 0;
 	public static final int MAX_RANGE = 300;
 
@@ -16,11 +16,11 @@ public class PlayTimeFilterData extends CollectionFilterData {
 	private int mMax;
 	private boolean mUndefined;
 
-	public PlayTimeFilterData() {
+	public PlayTimeFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAY_TIME);
 	}
 
-	public PlayTimeFilterData(Context context, String data) {
+	public PlayTimeFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Integer.valueOf(d[0]);
 		mMax = Integer.valueOf(d[1]);
@@ -28,7 +28,7 @@ public class PlayTimeFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	public PlayTimeFilterData(Context context, int min, int max, boolean undefined) {
+	public PlayTimeFilterer(Context context, int min, int max, boolean undefined) {
 		mMin = min;
 		mMax = max;
 		mUndefined = undefined;

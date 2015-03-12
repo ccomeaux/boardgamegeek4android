@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class PlayerNumberFilterData extends CollectionFilterData {
+public class PlayerNumberFilterer extends CollectionFilterer {
 	public static final int MIN_RANGE = 1;
 	public static final int MAX_RANGE = 12;
 
@@ -16,11 +16,11 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 	private int mMax;
 	private boolean mExact;
 
-	public PlayerNumberFilterData() {
+	public PlayerNumberFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_PLAYER_NUMBER);
 	}
 
-	public PlayerNumberFilterData(Context context, String data) {
+	public PlayerNumberFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mMin = Integer.valueOf(d[0]);
 		mMax = Integer.valueOf(d[1]);
@@ -28,7 +28,7 @@ public class PlayerNumberFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	public PlayerNumberFilterData(Context context, int min, int max, boolean exact) {
+	public PlayerNumberFilterer(Context context, int min, int max, boolean exact) {
 		mMin = min;
 		mMax = max;
 		mExact = exact;

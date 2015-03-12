@@ -4,8 +4,8 @@ import android.content.Context;
 import android.view.View;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.PlayCountFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.PlayCountFilterer;
 
 public class PlayCountFilter extends SliderFilter {
 	private int mMinTime;
@@ -39,22 +39,22 @@ public class PlayCountFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayCountFilterData.MIN_RANGE;
+		return PlayCountFilterer.MIN_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayCountFilterData.MAX_RANGE;
+		return PlayCountFilterer.MAX_RANGE;
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new PlayCountFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new PlayCountFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new PlayCountFilterData(context, mMinTime, mMaxTime);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new PlayCountFilterer(context, mMinTime, mMaxTime);
 	}
 
 	@Override
@@ -63,12 +63,12 @@ public class PlayCountFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinTime = PlayCountFilterData.MIN_RANGE;
-			mMaxTime = PlayCountFilterData.MAX_RANGE;
+			mMinTime = PlayCountFilterer.MIN_RANGE;
+			mMaxTime = PlayCountFilterer.MAX_RANGE;
 		} else {
-			PlayCountFilterData data = (PlayCountFilterData) filter;
+			PlayCountFilterer data = (PlayCountFilterer) filter;
 			mMinTime = data.getMin();
 			mMaxTime = data.getMax();
 		}
@@ -77,7 +77,7 @@ public class PlayCountFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int number) {
 		String text = String.valueOf(number);
-		if (number == PlayCountFilterData.MAX_RANGE) {
+		if (number == PlayCountFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;
@@ -89,7 +89,7 @@ public class PlayCountFilter extends SliderFilter {
 			return intervalText(min);
 		}
 		String text = String.valueOf(min) + " - " + String.valueOf(max);
-		if (max == PlayCountFilterData.MAX_RANGE) {
+		if (max == PlayCountFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;

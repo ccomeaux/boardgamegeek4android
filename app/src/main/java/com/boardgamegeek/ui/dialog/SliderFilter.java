@@ -10,8 +10,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.CollectionView;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.ui.widget.RangeSeekBar;
 import com.boardgamegeek.ui.widget.RangeSeekBar.OnRangeSeekBarChangeListener;
 
@@ -23,7 +23,7 @@ public abstract class SliderFilter {
 	private RangeSeekBar<Integer> mRangeSeekBar;
 	private CheckBox mCheckBox;
 
-	public void createDialog(final Context context, final CollectionView view, CollectionFilterData filter) {
+	public void createDialog(final Context context, final CollectionView view, CollectionFilterer filter) {
 		initValues(filter);
 
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -98,13 +98,13 @@ public abstract class SliderFilter {
 		mCheckBox.setChecked(isChecked());
 	}
 
-	protected abstract void initValues(CollectionFilterData filter);
+	protected abstract void initValues(CollectionFilterer filter);
 
 	protected abstract int getTitleId();
 
-	protected abstract CollectionFilterData getNegativeData();
+	protected abstract CollectionFilterer getNegativeData();
 
-	protected abstract CollectionFilterData getPositiveData(final Context context);
+	protected abstract CollectionFilterer getPositiveData(final Context context);
 
 	protected abstract int getMin();
 

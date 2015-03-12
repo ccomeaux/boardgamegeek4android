@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,29 +6,29 @@ import android.content.res.Resources;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Games;
 
-public class AverageWeightFilterData extends CollectionFilterData {
-	public static final double MIN_RANGE = 1.0;
-	public static final double MAX_RANGE = 5.0;
+public class SuggestedAgeFilterer extends CollectionFilterer {
+	public static final int MIN_RANGE = 1;
+	public static final int MAX_RANGE = 21;
 
 	private static final String delimiter = ":";
 
-	private double mMin;
-	private double mMax;
+	private int mMin;
+	private int mMax;
 	private boolean mUndefined;
 
-	public AverageWeightFilterData() {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
+	public SuggestedAgeFilterer() {
+		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 	}
 
-	public AverageWeightFilterData(Context context, String data) {
+	public SuggestedAgeFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
-		mMin = Double.valueOf(d[0]);
-		mMax = Double.valueOf(d[1]);
+		mMin = Integer.valueOf(d[0]);
+		mMax = Integer.valueOf(d[1]);
 		mUndefined = (d[2].equals("1"));
 		init(context);
 	}
 
-	public AverageWeightFilterData(Context context, double min, double max, boolean undefined) {
+	public SuggestedAgeFilterer(Context context, int min, int max, boolean undefined) {
 		mMin = min;
 		mMax = max;
 		mUndefined = undefined;
@@ -36,17 +36,19 @@ public class AverageWeightFilterData extends CollectionFilterData {
 	}
 
 	private void init(Context context) {
-		setType(CollectionFilterDataFactory.TYPE_AVERAGE_WEIGHT);
+		setType(CollectionFilterDataFactory.TYPE_SUGGESTED_AGE);
 		setDisplayText(context.getResources());
 		setSelection();
 	}
 
 	private void setDisplayText(Resources r) {
+		String text;
 		String minValue = String.valueOf(mMin);
 		String maxValue = String.valueOf(mMax);
 
-		String text;
-		if (mMin == mMax) {
+		if (mMax == MAX_RANGE) {
+			text = minValue + "+";
+		} else if (mMin == mMax) {
 			text = maxValue;
 		} else {
 			text = minValue + "-" + maxValue;
@@ -54,8 +56,7 @@ public class AverageWeightFilterData extends CollectionFilterData {
 		if (mUndefined) {
 			text += " (+?)";
 		}
-
-		displayText(r.getString(R.string.weight) + " " + text);
+		displayText(r.getString(R.string.ages) + " " + text);
 	}
 
 	private void setSelection() {
@@ -63,19 +64,24 @@ public class AverageWeightFilterData extends CollectionFilterData {
 		String maxValue = String.valueOf(mMax);
 
 		String selection;
-		selection = "(" + Games.STATS_AVERAGE_WEIGHT + ">=? AND " + Games.STATS_AVERAGE_WEIGHT + "<=?)";
-		selectionArgs(minValue, maxValue);
+		if (mMax == MAX_RANGE) {
+			selection = "(" + Games.MINIMUM_AGE + ">=?)";
+			selectionArgs(minValue);
+		} else {
+			selection = "(" + Games.MINIMUM_AGE + ">=? AND " + Games.MINIMUM_AGE + "<=?)";
+			selectionArgs(minValue, maxValue);
+		}
 		if (mUndefined) {
-			selection += " OR " + Games.STATS_AVERAGE_WEIGHT + "=0 OR " + Games.STATS_AVERAGE_WEIGHT + " IS NULL";
+			selection += " OR " + Games.MINIMUM_AGE + "=0 OR " + Games.MINIMUM_AGE + " IS NULL";
 		}
 		selection(selection);
 	}
 
-	public double getMin() {
+	public int getMin() {
 		return mMin;
 	}
 
-	public double getMax() {
+	public int getMax() {
 		return mMax;
 	}
 

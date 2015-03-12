@@ -1,4 +1,4 @@
-package com.boardgamegeek.data;
+package com.boardgamegeek.filterer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,17 +8,17 @@ import android.content.res.Resources;
 
 import com.boardgamegeek.R;
 
-public class CollectionStatusFilterData extends CollectionFilterData {
+public class CollectionStatusFilterer extends CollectionFilterer {
 	private static final String delimiter = ":";
 
 	private boolean[] mSelected;
 	private boolean mOr;
 
-	public CollectionStatusFilterData() {
+	public CollectionStatusFilterer() {
 		setType(CollectionFilterDataFactory.TYPE_COLLECTION_STATUS);
 	}
 
-	public CollectionStatusFilterData(Context context, String data) {
+	public CollectionStatusFilterer(Context context, String data) {
 		String[] d = data.split(delimiter);
 		mOr = (d[0].equals("1"));
 		mSelected = new boolean[d.length - 1];
@@ -28,7 +28,7 @@ public class CollectionStatusFilterData extends CollectionFilterData {
 		init(context);
 	}
 
-	public CollectionStatusFilterData(Context context, boolean[] selected, boolean or) {
+	public CollectionStatusFilterer(Context context, boolean[] selected, boolean or) {
 		mSelected = selected;
 		mOr = or;
 		init(context);

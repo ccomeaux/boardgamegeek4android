@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.dialog;
 import android.content.Context;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.data.CollectionFilterData;
-import com.boardgamegeek.data.PlayTimeFilterData;
+import com.boardgamegeek.filterer.CollectionFilterer;
+import com.boardgamegeek.filterer.PlayTimeFilterer;
 
 public class PlayTimeFilter extends SliderFilter {
 	private int mMinTime;
@@ -30,22 +30,22 @@ public class PlayTimeFilter extends SliderFilter {
 
 	@Override
 	protected int getAbsoluteMax() {
-		return PlayTimeFilterData.MAX_RANGE;
+		return PlayTimeFilterer.MAX_RANGE;
 	}
 
 	@Override
 	protected int getAbsoluteMin() {
-		return PlayTimeFilterData.MIN_RANGE;
+		return PlayTimeFilterer.MIN_RANGE;
 	}
 
 	@Override
-	protected CollectionFilterData getNegativeData() {
-		return new PlayTimeFilterData();
+	protected CollectionFilterer getNegativeData() {
+		return new PlayTimeFilterer();
 	}
 
 	@Override
-	protected CollectionFilterData getPositiveData(Context context) {
-		return new PlayTimeFilterData(context, mMinTime, mMaxTime, mUndefined);
+	protected CollectionFilterer getPositiveData(Context context) {
+		return new PlayTimeFilterer(context, mMinTime, mMaxTime, mUndefined);
 	}
 
 	@Override
@@ -64,13 +64,13 @@ public class PlayTimeFilter extends SliderFilter {
 	}
 
 	@Override
-	protected void initValues(CollectionFilterData filter) {
+	protected void initValues(CollectionFilterer filter) {
 		if (filter == null) {
-			mMinTime = PlayTimeFilterData.MIN_RANGE;
-			mMaxTime = PlayTimeFilterData.MAX_RANGE;
+			mMinTime = PlayTimeFilterer.MIN_RANGE;
+			mMaxTime = PlayTimeFilterer.MAX_RANGE;
 			mUndefined = false;
 		} else {
-			PlayTimeFilterData data = (PlayTimeFilterData) filter;
+			PlayTimeFilterer data = (PlayTimeFilterer) filter;
 			mMinTime = data.getMin();
 			mMaxTime = data.getMax();
 			mUndefined = data.isUndefined();
@@ -80,7 +80,7 @@ public class PlayTimeFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int number) {
 		String text = String.valueOf(number);
-		if (number == PlayTimeFilterData.MAX_RANGE) {
+		if (number == PlayTimeFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;
@@ -89,7 +89,7 @@ public class PlayTimeFilter extends SliderFilter {
 	@Override
 	protected String intervalText(int min, int max) {
 		String text = String.valueOf(min) + " - " + String.valueOf(max);
-		if (max == PlayTimeFilterData.MAX_RANGE) {
+		if (max == PlayTimeFilterer.MAX_RANGE) {
 			text += "+";
 		}
 		return text;
