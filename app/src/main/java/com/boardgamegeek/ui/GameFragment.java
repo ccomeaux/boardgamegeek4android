@@ -40,7 +40,7 @@ import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
-import com.boardgamegeek.ui.widget.GameColorAdapter;
+import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.StatBar;

@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.widget;
+package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;

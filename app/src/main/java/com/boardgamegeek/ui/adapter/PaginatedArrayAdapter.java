@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.widget;
+package com.boardgamegeek.ui.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.ui.loader.PaginatedData;
 
 public abstract class PaginatedArrayAdapter<T> extends ArrayAdapter<T> {
 	private static final int VIEW_TYPE_ITEM = 0;

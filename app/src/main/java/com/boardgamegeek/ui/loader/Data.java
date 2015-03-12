@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.widget;
+package com.boardgamegeek.ui.loader;
 
 import android.text.TextUtils;
 
