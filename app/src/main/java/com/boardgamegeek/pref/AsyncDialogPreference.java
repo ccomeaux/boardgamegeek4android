@@ -34,7 +34,7 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 			dialogResourceId = typedValue.resourceId;
 		}
 		setDialogIcon(dialogResourceId);
-		setDialogLayoutResource(R.layout.textview_dialogpreference);
+		setDialogLayoutResource(R.layout.widget_dialogpreference_textview);
 	}
 
 	@Override
