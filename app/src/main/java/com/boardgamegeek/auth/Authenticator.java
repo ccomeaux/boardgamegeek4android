@@ -18,9 +18,6 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.ui.LoginActivity;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HttpUtils;
-
-import org.apache.http.client.CookieStore;
 
 import java.io.IOException;
 
@@ -88,11 +85,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
 		// Ensure the password is valid and not expired, then return the stored AuthToken
 		final String password = am.getPassword(account);
 		if (!TextUtils.isEmpty(password)) {
-			CookieStore cs = HttpUtils.authenticate(account.name, password);
-			AuthProfile ap = new AuthProfile(cs);
-			am.setAuthToken(account, authTokenType, ap.authToken);
-			am.setUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
-			return createAuthTokenBundle(account, ap.authToken);
+			AuthResponse ar = NetworkAuthenticator.authenticate(account.name, password);
+			am.setAuthToken(account, authTokenType, ar.authToken);
+			am.setUserData(account, Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ar.authTokenExpiry));
+			return createAuthTokenBundle(account, ar.authToken);
 		}
 
 		// If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
