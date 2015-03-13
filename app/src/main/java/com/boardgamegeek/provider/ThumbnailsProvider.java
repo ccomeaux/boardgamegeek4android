@@ -20,7 +20,7 @@ public class ThumbnailsProvider extends BaseProvider {
 		try {
 			return FileUtils.deleteContents(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS));
 		} catch (IOException e) {
-			Timber.e("Couldn't delete avatars", e);
+			Timber.e(e, "Couldn't delete avatars");
 			return 0;
 		}
 	}

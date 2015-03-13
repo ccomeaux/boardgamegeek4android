@@ -241,7 +241,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 							Toast.makeText(context, R.string.msg_sign_out_success, Toast.LENGTH_LONG).show();
 						}
 					} catch (OperationCanceledException | AuthenticatorException | IOException e) {
-						Timber.e("removeAccount", e);
+						Timber.e(e, "removeAccount");
 					}
 				}
 			}

@@ -156,7 +156,7 @@ public class PlayerNameAdapter extends ArrayAdapter<PlayerNameAdapter.Result> im
 						resultList.add(player);
 				}
 			} catch (ExecutionException | InterruptedException e) {
-				Timber.e("Failed waiting for player query results.", e);
+				Timber.e(e, "Failed waiting for player query results.");
 			}
 
 			final FilterResults filterResults = new FilterResults();
