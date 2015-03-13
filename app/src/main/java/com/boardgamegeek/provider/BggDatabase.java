@@ -546,7 +546,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 						Timber.i("Unable to delete old cache directory");
 					}
 				} catch (IOException e) {
-					Timber.e("Error clearing the cache", e);
+					Timber.e(e, "Error clearing the cache");
 				}
 				version = VER_IMAGE_CACHE;
 			case VER_IMAGE_CACHE:

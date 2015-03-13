@@ -22,16 +22,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.auth.AuthProfile;
+import com.boardgamegeek.auth.AuthResponse;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.auth.NetworkAuthenticator;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.VersionUtils;
-
-import org.apache.http.client.CookieStore;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import timber.log.Timber;
 
 /**
@@ -84,16 +83,12 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		((CheckBox) findViewById(R.id.show_password)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				int selectionStart = mPasswordView.getSelectionStart();
+				int selectionEnd = mPasswordView.getSelectionEnd();
 				mPasswordView
 					.setInputType(isChecked ? (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
 						: (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-			}
-		});
-
-		findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				attemptLogin();
+				mPasswordView.setSelection(selectionStart, selectionEnd);
 			}
 		});
 	}
@@ -105,6 +100,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		} else {
 			super.onBackPressed();
 		}
+	}
+
+	@OnClick(R.id.sign_in_button)
+	public void onSignInClick(View view) {
+		attemptLogin();
 	}
 
 	/**
@@ -185,19 +185,19 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	/**
 	 * Represents an asynchronous login/registration task used to authenticate the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, CookieStore> {
+	public class UserLoginTask extends AsyncTask<Void, Void, AuthResponse> {
 		@Override
-		protected CookieStore doInBackground(Void... params) {
-			return HttpUtils.authenticate(mUsername, mPassword);
+		protected AuthResponse doInBackground(Void... params) {
+			return NetworkAuthenticator.authenticate(mUsername, mPassword);
 		}
 
 		@Override
-		protected void onPostExecute(final CookieStore cookieStore) {
+		protected void onPostExecute(AuthResponse authResponse) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (cookieStore != null) {
-				createAccount(cookieStore);
+			if (authResponse != null) {
+				createAccount(authResponse);
 			} else {
 				mPasswordView.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
@@ -211,14 +211,13 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
-	private void createAccount(CookieStore cs) {
+	private void createAccount(AuthResponse authResponse) {
 		Timber.i("Creating account");
 		final Account account = new Account(mUsername, Authenticator.ACCOUNT_TYPE);
-		AuthProfile ap = new AuthProfile(cs);
 
-		mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, ap.authToken);
+		mAccountManager.setAuthToken(account, Authenticator.AUTHTOKEN_TYPE, authResponse.authToken);
 		Bundle userData = new Bundle();
-		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(ap.authTokenExpiry));
+		userData.putString(Authenticator.KEY_AUTHTOKEN_EXPIRY, String.valueOf(authResponse.authTokenExpiry));
 
 		if (mRequestNewAccount) {
 			if (!mAccountManager.addAccountExplicitly(account, mPassword, userData)) {

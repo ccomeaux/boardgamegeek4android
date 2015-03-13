@@ -44,7 +44,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 				@Override
 				public void uncaughtException(Thread thread, Throwable throwable) {
-					Timber.e("Uncaught sync exception, suppressing UI in release build.", throwable);
+					Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build.");
 				}
 			});
 		}
@@ -86,7 +86,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				mCurrentTask.showNotification();
 				mCurrentTask.execute(account, syncResult);
 			} catch (Exception e) {
-				Timber.e("Syncing " + mCurrentTask, e);
+				Timber.e(e, "Syncing " + mCurrentTask);
 				syncResult.stats.numIoExceptions++;
 				showError(mCurrentTask, e);
 			}

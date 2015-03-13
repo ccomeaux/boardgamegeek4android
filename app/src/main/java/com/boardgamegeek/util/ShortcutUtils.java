@@ -120,7 +120,7 @@ public class ShortcutUtils {
 								}
 							}
 						} catch (IOException e) {
-							Timber.e("Error saving the thumbnail file.", e);
+							Timber.e(e, "Error saving the thumbnail file.");
 						}
 					}
 				}

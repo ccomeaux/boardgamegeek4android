@@ -44,7 +44,7 @@ public class SyncGamePlays extends UpdateTask {
 			Timber.i("Synced plays for game id=" + mGameId);
 		} catch (Exception e) {
 			// TODO bubble error up?
-			Timber.w("Problem syncing plays for game id=" + mGameId, e);
+			Timber.w(e, "Problem syncing plays for game id=" + mGameId);
 		}
 	}
 

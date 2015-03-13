@@ -44,7 +44,7 @@ public class ResolverUtils {
 					}
 					return result;
 				} catch (OperationApplicationException | RemoteException e) {
-					Timber.e(batch.toString(), e);
+					Timber.e(e, batch.toString());
 					throw new RuntimeException(batch.toString(), e);
 				}
 			}
@@ -61,7 +61,7 @@ public class ResolverUtils {
 				return result[0];
 			}
 		} catch (OperationApplicationException | RemoteException e) {
-			Timber.e(cpo.toString(), e);
+			Timber.e(e, cpo.toString());
 			throw new RuntimeException(cpo.toString(), e);
 		}
 		return null;
@@ -304,7 +304,7 @@ public class ResolverUtils {
 			try {
 				stream.close();
 			} catch (IOException e) {
-				Timber.e("Could not close stream", e);
+				Timber.e(e, "Could not close stream");
 			}
 		}
 	}

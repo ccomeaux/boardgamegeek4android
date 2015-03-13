@@ -127,7 +127,7 @@ public class BuddyNameAdapter extends ArrayAdapter<BuddyNameAdapter.Result> impl
 						resultList.add(player);
 				}
 			} catch (ExecutionException | InterruptedException e) {
-				Timber.e("Failed waiting for player query results.", e);
+				Timber.e(e, "Failed waiting for player query results.");
 			}
 
 			final FilterResults filterResults = new FilterResults();
