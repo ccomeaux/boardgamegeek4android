@@ -36,7 +36,6 @@ import java.util.List;
 
 public class HotnessFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<HotnessFragment.HotnessData>, MultiChoiceModeListener {
-	// private static final String TAG = makeLogTag(HotnessActivity.class);
 	private static final int LOADER_ID = 1;
 
 	private BoardGameAdapter mAdapter;
