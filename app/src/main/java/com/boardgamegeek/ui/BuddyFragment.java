@@ -26,7 +26,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.model.Buddy;
-import com.boardgamegeek.ui.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;

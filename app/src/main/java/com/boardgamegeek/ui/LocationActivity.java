@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.ui.tasks.RenameLocationTask;
+import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;

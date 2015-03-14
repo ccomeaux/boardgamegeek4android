@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.tasks;
+package com.boardgamegeek.tasks;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
