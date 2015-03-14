@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.LocationSelectedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
@@ -34,6 +35,8 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		final Intent intent = getIntent();
 		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
 		setTitle(mLocationName);
+
+		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
 	@Override
