@@ -13,6 +13,14 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.service.SyncService;
 
+/**
+ * Provide common menu functions.
+ * 1. Search
+ * 2. Cancel sync
+ * 3. Toggling navigation drawer
+ * 4. Inflation helper.
+ * Also provides a sign out method.
+ */
 public abstract class BaseActivity extends ActionBarActivity {
 	protected int getOptionsMenuId() {
 		return 0;
