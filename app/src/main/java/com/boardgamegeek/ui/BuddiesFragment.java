@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,6 +17,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.BuddiesCountChangedEvent;
+import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.CursorUtils;
@@ -26,55 +27,33 @@ import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddiesFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String STATE_SELECTED_ID = "selectedId";
 	private static final int TOKEN = 0;
 	private static final String SORT_COLUMN = Buddies.BUDDY_LASTNAME;
-
 	private BuddiesAdapter mAdapter;
 	private int mSelectedBuddyId;
 
-	public interface Callbacks {
-		public boolean onBuddySelected(int buddyId, String name, String fullName);
-
-		public void onBuddyCountChanged(int count);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public boolean onBuddySelected(int buddyId, String name, String fullName) {
-			return true;
-		}
-
-		@Override
-		public void onBuddyCountChanged(int count) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
+	@DebugLog
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-		mCallbacks = (Callbacks) activity;
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
+	@DebugLog
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-
-		if (savedInstanceState != null) {
-			mSelectedBuddyId = savedInstanceState.getInt(STATE_SELECTED_ID);
-		}
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
+
+	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -86,37 +65,24 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (mSelectedBuddyId > 0) {
-			outState.putInt(STATE_SELECTED_ID, mSelectedBuddyId);
-		}
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
+	@DebugLog
 	@Override
 	public void onListItemClick(View v, int position, long id) {
 		final int buddyId = (int) v.getTag(R.id.id);
 		final String name = String.valueOf(v.getTag(R.id.name));
 		final String fullName = String.valueOf(v.getTag(R.id.full_name));
-		if (mCallbacks.onBuddySelected(buddyId, name, fullName)) {
-			setSelectedBuddyId(buddyId);
-		}
+		EventBus.getDefault().postSticky(new BuddySelectedEvent(buddyId, name, fullName));
 	}
 
-	public void setSelectedBuddyId(int id) {
-		mSelectedBuddyId = id;
+	@DebugLog
+	public void onEvent(BuddySelectedEvent event) {
+		mSelectedBuddyId = event.buddyId;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
 	}
 
+	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		Uri buddiesUri = UIUtils.fragmentArgumentsToIntent(data).getData();
@@ -133,6 +99,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		return loader;
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
@@ -146,7 +113,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 				setListAdapter(mAdapter);
 			}
 			mAdapter.changeCursor(cursor);
-			mCallbacks.onBuddyCountChanged(cursor.getCount());
+			EventBus.getDefault().postSticky(new BuddiesCountChangedEvent(cursor.getCount()));
 			restoreScrollState();
 		} else {
 			Timber.d("Query complete, Not Actionable: " + token);
@@ -154,6 +121,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.changeCursor(null);

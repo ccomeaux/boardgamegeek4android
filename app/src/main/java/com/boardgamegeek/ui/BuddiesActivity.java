@@ -3,37 +3,43 @@ package com.boardgamegeek.ui;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.BuddiesCountChangedEvent;
+import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-public class BuddiesActivity extends TopLevelSinglePaneActivity implements BuddiesFragment.Callbacks {
-	private static final String KEY_COUNT = "KEY_COUNT";
+import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
+
+public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private int mCount = -1;
 
+	@DebugLog
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
-		}
+	protected void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
+	@DebugLog
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_COUNT, mCount);
+	protected void onResume() {
+		super.onResume();
+		mSyncStatusObserver.onStatusChanged(0);
+		mSyncObserverHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_PENDING
+			| ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, mSyncStatusObserver);
 	}
 
+	@DebugLog
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -43,19 +49,20 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 		}
 	}
 
+	@DebugLog
 	@Override
-	protected void onResume() {
-		super.onResume();
-		mSyncStatusObserver.onStatusChanged(0);
-		mSyncObserverHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_PENDING
-			| ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, mSyncStatusObserver);
+	protected void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
+	@DebugLog
 	@Override
 	protected Fragment onCreatePane() {
 		return new BuddiesFragment();
 	}
 
+	@DebugLog
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		mOptionsMenu = menu;
@@ -63,6 +70,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		ToolbarUtils.setActionBarText(menu, R.id.menu_list_count,
@@ -71,6 +79,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -81,30 +90,32 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity implements Buddi
 		return super.onOptionsItemSelected(item);
 	}
 
+	@DebugLog
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.buddies;
 	}
 
+	@DebugLog
 	@Override
 	protected int getDrawerResId() {
 		return R.string.title_buddies;
 	}
 
-	@Override
-	public boolean onBuddySelected(int buddyId, String name, String fullName) {
-		Intent intent = new Intent(this, BuddyActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, name);
-		startActivity(intent);
-		return false;
-	}
-
-	@Override
-	public void onBuddyCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(BuddiesCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 
+	@DebugLog
+	public void onEvent(BuddySelectedEvent event) {
+		Intent intent = new Intent(this, BuddyActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, event.buddyName);
+		startActivity(intent);
+	}
+
+	@DebugLog
 	private void setRefreshActionButtonState(boolean refreshing) {
 		if (mOptionsMenu == null) {
 			return;

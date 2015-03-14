@@ -13,11 +13,13 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
+import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.Callbacks,
@@ -33,6 +35,8 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setSubtitle(getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME));
+
+		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
 
 		FragmentManager fm = getSupportFragmentManager();
 		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
