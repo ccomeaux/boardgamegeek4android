@@ -1,13 +1,9 @@
 package com.boardgamegeek.ui;
 
 import android.app.AlertDialog;
-import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -18,19 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.tasks.RenamePlayerTask;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import de.greenrobot.event.EventBus;
 
 public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
@@ -49,6 +40,18 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		mUsername = intent.getStringExtra(KEY_PLAYER_USERNAME);
 
 		setTitle();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	protected void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	protected void setTitle() {
@@ -115,7 +118,16 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		// sorting not allowed
 	}
 
-	public void showDialog(final String oldName) {
+	public void onEvent(RenamePlayerTask.Event event) {
+		mName = event.playerName;
+		getIntent().putExtra(KEY_PLAYER_NAME, mName);
+		setTitle();
+		// recreate fragment to load the list with the new location
+		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
+		createFragment();
+	}
+
+	private void showDialog(final String oldName) {
 		final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.dialog_edit_text, (ViewGroup) findViewById(R.id.root_container), false);
 
@@ -132,72 +144,12 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						String newName = editText.getText().toString();
-						new Task().execute(oldName, newName);
+						RenamePlayerTask task = new RenamePlayerTask(PlayerActivity.this, mUsername, oldName, newName);
+						TaskUtils.executeAsyncTask(task);
 					}
 				}).create();
 			mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		}
 		mDialog.show();
-	}
-
-	private class Task extends AsyncTask<String, Void, String> {
-		private static final String selectionWithoutUsername = "play_players." + PlayPlayers.NAME + "=? AND ("
-			+ PlayPlayers.USER_NAME + "=? OR " + PlayPlayers.USER_NAME + " IS NULL)";
-		private static final String selectionWithUsername = "play_players." + PlayPlayers.NAME + "=? AND "
-			+ PlayPlayers.USER_NAME + "=?";
-
-		public Task() {
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			String oldName = params[0];
-			String newName = params[1];
-
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-			String selection = TextUtils.isEmpty(mUsername) ? selectionWithoutUsername : selectionWithUsername;
-
-			List<Integer> playIds = ResolverUtils.queryInts(getContentResolver(), Plays.buildPlayersUri(),
-				Plays.PLAY_ID, Plays.SYNC_STATUS + "=? AND (" + selection + ")",
-				TextUtils.isEmpty(mUsername) ? new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, "" }
-					: new String[] { String.valueOf(Play.SYNC_STATUS_SYNCED), oldName, mUsername });
-			if (playIds.size() > 0) {
-				ContentValues values = new ContentValues();
-				values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-				for (Integer playId : playIds) {
-					Uri uri = Plays.buildPlayUri(playId);
-					batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
-				}
-			}
-
-			batch.add(ContentProviderOperation
-				.newUpdate(Plays.buildPlayersUri())
-				.withValue(PlayPlayers.NAME, newName)
-				.withSelection(selection,
-					TextUtils.isEmpty(mUsername) ? new String[] { oldName, "" } : new String[] { oldName, mUsername })
-				.build());
-
-			ResolverUtils.applyBatch(PlayerActivity.this, batch);
-
-			SyncService.sync(PlayerActivity.this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-
-			mName = newName;
-			getIntent().putExtra(KEY_PLAYER_NAME, newName);
-
-			return getString(R.string.msg_play_player_change, oldName, newName);
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			setTitle();
-
-			// recreate fragment to load the list with the new location
-			getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
-			createFragment();
-
-			if (!TextUtils.isEmpty(result)) {
-				Toast.makeText(PlayerActivity.this, result, Toast.LENGTH_LONG).show();
-			}
-		}
 	}
 }

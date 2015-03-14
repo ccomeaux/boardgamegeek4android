@@ -12,8 +12,8 @@ public class Location {
 		Plays.SUM_QUANTITY
 	};
 
-	private static int LOCATION = 1;
-	private static int SUM_QUANTITY = 2;
+	private static final int LOCATION = 1;
+	private static final int SUM_QUANTITY = 2;
 
 	private String name;
 	private int playCount;
