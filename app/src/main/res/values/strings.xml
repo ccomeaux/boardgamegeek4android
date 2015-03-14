@@ -272,7 +272,7 @@
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
-	<string name="msg_play_location_change">Changed %1$s plays from \"%2$s\" to \"%3$s\"</string>
+	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
@@ -463,6 +463,10 @@
 	<plurals name="ratings_suffix">
 		<item quantity="one">%,d Rating</item>
 		<item quantity="other">%,d Ratings</item>
+	</plurals>
+	<plurals name="msg_play_location_change">
+		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
 
 </resources>

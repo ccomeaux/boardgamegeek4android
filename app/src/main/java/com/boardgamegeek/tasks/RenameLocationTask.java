@@ -62,10 +62,15 @@ public class RenameLocationTask extends AsyncTask<String, Void, String> {
 
 		String result;
 		if (results.length > 0) {
-			result = mContext.getString(R.string.msg_play_location_change, results.length, mOldLocation, mNewLocation);
+			int count = 0;
+			for (ContentProviderResult r : results) {
+				count += r.count;
+			}
+			result = mContext.getResources().getQuantityString(R.plurals.msg_play_location_change, count,
+				count, mOldLocation, mNewLocation);
 			SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 		} else {
-			result = mContext.getString(R.string.msg_play_location_change);
+			result = mContext.getString(R.string.msg_play_location_change, mOldLocation, mNewLocation);
 		}
 
 		return result;
