@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -19,6 +18,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.LocationsSorter;
 import com.boardgamegeek.sorter.LocationsSorterFactory;
+import com.boardgamegeek.ui.model.Location;
 import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
@@ -30,6 +30,7 @@ import timber.log.Timber;
 public class LocationsFragment extends StickyHeaderListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String STATE_SELECTED_NAME = "selectedName";
 	private static final String STATE_SORT_TYPE = "sortType";
+	private static final int TOKEN = 0;
 	private LocationsAdapter mAdapter;
 	private String mSelectedName;
 	private LocationsSorter mSorter;
@@ -102,8 +103,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@Override
 	public void onListItemClick(View v, int position, long id) {
-		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final String name = cursor.getString(LocationsQuery.LOCATION);
+		final String name = (String) v.getTag(R.id.name);
 		if (mCallbacks.onLocationSelected(name)) {
 			setSelectedLocation(name);
 		}
@@ -111,7 +111,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 
 	@DebugLog
 	public void requery() {
-		getLoaderManager().restartLoader(LocationsQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
 	public int getSort() {
@@ -139,7 +139,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), LocationsQuery.PROJECTION, null, null, mSorter.getOrderByClause());
+		return new CursorLoader(getActivity(), Plays.buildLocationsUri(), Location.PROJECTION, null, null, mSorter.getOrderByClause());
 	}
 
 	@DebugLog
@@ -150,7 +150,7 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		}
 
 		int token = loader.getId();
-		if (token == LocationsQuery._TOKEN) {
+		if (token == TOKEN) {
 			if (mAdapter == null) {
 				mAdapter = new LocationsAdapter(getActivity());
 				setListAdapter(mAdapter);
@@ -192,16 +192,18 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			String name = cursor.getString(LocationsQuery.LOCATION);
-			if (TextUtils.isEmpty(name)) {
-				name = getString(R.string.no_location);
+			Location location = Location.fromCursor(cursor);
+
+			if (TextUtils.isEmpty(location.getName())) {
+				holder.name.setText(R.string.no_location);
+			} else {
+				holder.name.setText(location.getName());
 			}
-			int quantity = cursor.getInt(LocationsQuery.SUM_QUANTITY);
+			holder.quantity.setText(getResources()
+				.getQuantityString(R.plurals.plays, location.getPlayCount(), location.getPlayCount()));
 
-			holder.name.setText(name);
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, quantity, quantity));
-
-			UIUtils.setActivatedCompat(view, name.equals(mSelectedName));
+			view.setTag(R.id.name, location.getName());
+			UIUtils.setActivatedCompat(view, location.getName().equals(mSelectedName));
 		}
 
 		@DebugLog
@@ -243,14 +245,5 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		class HeaderViewHolder {
 			TextView text;
 		}
-	}
-
-	private interface LocationsQuery {
-		int _TOKEN = 0x1;
-
-		String[] PROJECTION = { BaseColumns._ID, Plays.LOCATION, Plays.SUM_QUANTITY };
-
-		int LOCATION = 1;
-		int SUM_QUANTITY = 2;
 	}
 }

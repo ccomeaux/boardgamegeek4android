@@ -78,4 +78,5 @@ dependencies {
     compile('com.mikepenz.aboutlibraries:library:4.5.8@aar') {
         transitive = true;
     }
+    compile 'de.greenrobot:eventbus:2.4.0'
 }
