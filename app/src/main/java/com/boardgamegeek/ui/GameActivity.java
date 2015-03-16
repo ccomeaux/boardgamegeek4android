@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.MenuItemCompat;
@@ -16,25 +15,25 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
 public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 	private static final int REQUEST_EDIT_PLAY = 1;
-
 	private int mGameId;
 	private String mGameName;
 	private String mThumbnailUrl;
 	private String mImageUrl;
 	private boolean mCustomPlayerSort;
-	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
+	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
 
 	@Override
@@ -53,13 +52,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				getContentResolver().update(getIntent().getData(), values, null, null);
 			}
 		});
-
-		FragmentManager fm = getSupportFragmentManager();
-		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
-		if (mSyncStatusUpdaterFragment == null) {
-			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
-			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
-		}
 	}
 
 	@Override
@@ -76,7 +68,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
+		updateRefreshStatus();
 		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
@@ -147,11 +139,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		mCustomPlayerSort = gameInfo.customPlayerSort;
 	}
 
-	@Override
-	public DetachableResultReceiver getReceiver() {
-		return mSyncStatusUpdaterFragment.mReceiver;
-	}
-
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
@@ -179,56 +166,34 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		getSupportActionBar().setSubtitle(getString(resId));
 	}
 
-	private void updateRefreshStatus(boolean refreshing) {
+	public void onEventMainThread(UpdateEvent event) {
+		if (event.type == UpdateService.SYNC_TYPE_GAME ||
+			event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION ||
+			event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) {
+			mSyncing = true;
+		} else {
+			mSyncing = false;
+		}
+		updateRefreshStatus();
+	}
+
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
+	}
+
+	private void updateRefreshStatus() {
 		if (mOptionsMenu == null) {
 			return;
 		}
 
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
-			if (refreshing) {
+			if (mSyncing) {
 				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
 				MenuItemCompat.setActionView(refreshItem, null);
 			}
-		}
-	}
-
-	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = SyncStatusUpdaterFragment.class.toString();
-
-		private boolean mSyncing = false;
-		private DetachableResultReceiver mReceiver;
-
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(new Handler());
-			mReceiver.setReceiver(this);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void onReceiveResult(int resultCode, Bundle resultData) {
-			GameActivity activity = (GameActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-
-			switch (resultCode) {
-				case UpdateService.STATUS_RUNNING: {
-					mSyncing = true;
-					break;
-				}
-				case UpdateService.STATUS_COMPLETE: {
-					mSyncing = false;
-					break;
-				}
-			}
-
-			activity.updateRefreshStatus(mSyncing);
 		}
 	}
 }

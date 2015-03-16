@@ -310,7 +310,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			alreadyCalled = true;
 
 			String date = DateTimeUtils.formatDateForApi(year, month, day);
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date, null);
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date);
 		}
 	}
 
@@ -479,7 +479,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				SyncService.sync(getActivity(), SyncService.FLAG_SYNC_PLAYS);
 				break;
 			case MODE_GAME:
-				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId, null);
+				UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mGameId);
 				break;
 		}
 	}

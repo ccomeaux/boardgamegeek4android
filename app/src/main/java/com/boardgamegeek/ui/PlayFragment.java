@@ -36,7 +36,6 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
@@ -78,7 +77,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@InjectView(R.id.play_saved) TextView mSavedTimeStamp;
 	@InjectView(R.id.play_unsynced_message) TextView mUnsyncedMessage;
 	private PlayerAdapter mAdapter;
-	private DetachableResultReceiver mReceiver;
 	private boolean mNotified;
 
 	public interface Callbacks {
@@ -419,7 +417,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	}
 
 	private void triggerRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.gameId, mReceiver);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_PLAYS, mPlay.gameId);
 	}
 
 	private void save(int status) {

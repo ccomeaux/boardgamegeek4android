@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,10 +24,9 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -52,19 +50,6 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@InjectView(R.id.updated) TextView mUpdated;
 	private int mDefaultTextColor;
 	private int mLightTextColor;
-
-	public interface Callbacks {
-		public DetachableResultReceiver getReceiver();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public DetachableResultReceiver getReceiver() {
-			return null;
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -95,23 +80,6 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		getLoaderManager().restartLoader(TOKEN, null, this);
 
 		return mRootView;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@OnClick(R.id.nickname)
@@ -182,7 +150,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	public void forceRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName, mCallbacks.getReceiver());
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName);
 	}
 
 	public void showDialog(final String nickname, final String username) {

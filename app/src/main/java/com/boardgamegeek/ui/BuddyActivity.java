@@ -12,18 +12,17 @@ import android.view.MenuItem;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.BuddySelectedEvent;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.UIUtils;
 
 import de.greenrobot.event.EventBus;
 
-public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.Callbacks,
-	BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
-	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection,
-		R.string.title_plays };
-	private SyncStatusUpdaterFragment mSyncStatusUpdaterFragment;
+public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
+	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection, R.string.title_plays };
+	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
 	private BuddyFragment mBuddyFragment;
 
@@ -34,13 +33,6 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		getSupportActionBar().setSubtitle(getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME));
 
 		EventBus.getDefault().removeStickyEvent(BuddySelectedEvent.class);
-
-		FragmentManager fm = getSupportFragmentManager();
-		mSyncStatusUpdaterFragment = (SyncStatusUpdaterFragment) fm.findFragmentByTag(SyncStatusUpdaterFragment.TAG);
-		if (mSyncStatusUpdaterFragment == null) {
-			mSyncStatusUpdaterFragment = new SyncStatusUpdaterFragment();
-			fm.beginTransaction().add(mSyncStatusUpdaterFragment, SyncStatusUpdaterFragment.TAG).commit();
-		}
 	}
 
 	@Override
@@ -67,7 +59,7 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		updateRefreshStatus(mSyncStatusUpdaterFragment.mSyncing);
+		updateRefreshStatus();
 		return true;
 	}
 
@@ -81,6 +73,20 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	public void onEventMainThread(UpdateEvent event) {
+		if (event.type == UpdateService.SYNC_TYPE_BUDDY) {
+			mSyncing = true;
+		} else {
+			mSyncing = false;
+		}
+		updateRefreshStatus();
+	}
+
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
 	}
 
 	private class BuddyPagerAdapter extends FragmentPagerAdapter {
@@ -142,59 +148,18 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyFragment.
 		// sorting not supported yet
 	}
 
-	@Override
-	public DetachableResultReceiver getReceiver() {
-		return mSyncStatusUpdaterFragment.mReceiver;
-	}
-
-	private void updateRefreshStatus(boolean refreshing) {
+	private void updateRefreshStatus() {
 		if (mOptionsMenu == null) {
 			return;
 		}
 
 		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
 		if (refreshItem != null) {
-			if (refreshing) {
+			if (mSyncing) {
 				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
 			} else {
 				MenuItemCompat.setActionView(refreshItem, null);
 			}
-		}
-	}
-
-	public static class SyncStatusUpdaterFragment extends Fragment implements DetachableResultReceiver.Receiver {
-		private static final String TAG = SyncStatusUpdaterFragment.class.toString();
-		private boolean mSyncing = false;
-		private DetachableResultReceiver mReceiver;
-
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setRetainInstance(true);
-			mReceiver = new DetachableResultReceiver(this);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void onReceiveResult(int resultCode, Bundle resultData) {
-			BuddyActivity activity = (BuddyActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-
-			switch (resultCode) {
-				case UpdateService.STATUS_RUNNING: {
-					mSyncing = true;
-					break;
-				}
-				case UpdateService.STATUS_COMPLETE: {
-					mSyncing = false;
-					break;
-				}
-			}
-
-			activity.updateRefreshStatus(mSyncing);
 		}
 	}
 }
