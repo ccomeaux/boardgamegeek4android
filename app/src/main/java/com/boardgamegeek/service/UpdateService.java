@@ -9,12 +9,15 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.text.TextUtils;
 
+import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.NetworkUtils;
 import com.boardgamegeek.util.NotificationUtils;
 
+import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class UpdateService extends IntentService {
@@ -35,9 +38,8 @@ public class UpdateService extends IntentService {
 
 	public static final int STATUS_RUNNING = 1;
 	public static final int STATUS_COMPLETE = 2;
-	public static final int STATUS_ERROR = 3;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = BuildConfig.DEBUG;
 
 	private ResultReceiver mResultReceiver;
 	@SuppressWarnings("FieldCanBeLocal") private static boolean mUseGzip = true;
@@ -62,6 +64,10 @@ public class UpdateService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		Timber.d("onHandleIntent(intent=" + intent + ")");
 
+		if (NetworkUtils.isOffline(getApplicationContext())) {
+			Timber.i("Skipping update; offline");
+			return;
+		}
 		if (!Intent.ACTION_SYNC.equals(intent.getAction())) {
 			Timber.w("Invalid intent action: " + intent.getAction());
 			return;
@@ -70,16 +76,6 @@ public class UpdateService extends IntentService {
 		int syncId = intent.getIntExtra(KEY_SYNC_ID, BggContract.INVALID_ID);
 		String syncKey = intent.getStringExtra(KEY_SYNC_KEY);
 		mResultReceiver = intent.getParcelableExtra(KEY_STATUS_RECEIVER);
-
-		if (syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
-			sendResultToReceiver(STATUS_ERROR, "No ID or key specified.");
-			return;
-		}
-
-		if (NetworkUtils.isOffline(getApplicationContext())) {
-			sendResultToReceiver(STATUS_ERROR, "Offline.");
-			return;
-		}
 
 		UpdateTask task = null;
 		switch (syncType) {
@@ -110,7 +106,11 @@ public class UpdateService extends IntentService {
 		}
 
 		if (task == null) {
-			sendResultToReceiver(STATUS_ERROR, "Invalid task requested.");
+			postError(getResources().getString(R.string.sync_update_invalid_sync_type, syncType));
+			return;
+		}
+		if (syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
+			postError(String.format("Unable to " + task.getDescription() + "."));
 			return;
 		}
 
@@ -119,10 +119,10 @@ public class UpdateService extends IntentService {
 		try {
 			task.execute(this);
 		} catch (Exception e) {
-			String message = "Failed during " + task.getDescription();
-			String error = e.getMessage();
+			String message = "Failed trying to " + task.getDescription() + "!";
+			String error = e.getLocalizedMessage();
 			if (!TextUtils.isEmpty(error)) {
-				message += ", message=" + error;
+				message += "\n" + error;
 			}
 			if (DEBUG) {
 				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
@@ -130,8 +130,7 @@ public class UpdateService extends IntentService {
 				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}
-			Timber.e(message);
-			sendResultToReceiver(STATUS_ERROR, error);
+			postError(message);
 		} finally {
 			Timber.d("Sync took " + (System.currentTimeMillis() - startTime) + "ms with GZIP "
 				+ (mUseGzip ? "on" : "off"));
@@ -142,6 +141,11 @@ public class UpdateService extends IntentService {
 
 	private void sendResultToReceiver(int resultCode) {
 		sendResultToReceiver(resultCode, null);
+	}
+
+	private void postError(String message) {
+		Timber.w(message);
+		EventBus.getDefault().post(new UpdateErrorEvent(message));
 	}
 
 	private void sendResultToReceiver(int resultCode, String message) {
@@ -166,8 +170,6 @@ public class UpdateService extends IntentService {
 				return "Running";
 			case STATUS_COMPLETE:
 				return "Complete";
-			case STATUS_ERROR:
-				return "Error";
 			default:
 				return String.valueOf(code);
 		}

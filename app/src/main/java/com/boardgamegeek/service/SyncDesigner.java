@@ -7,6 +7,7 @@ import android.net.Uri;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Designers;
 
 import timber.log.Timber;
@@ -20,7 +21,10 @@ public class SyncDesigner extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync designer ID=" + mDesignerId;
+		if (mDesignerId == BggContract.INVALID_ID) {
+			return "update an unknown designer";
+		}
+		return "update designer " + mDesignerId;
 	}
 
 	@Override

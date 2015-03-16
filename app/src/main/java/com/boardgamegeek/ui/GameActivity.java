@@ -26,8 +26,6 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
-import timber.log.Timber;
-
 public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 	private static final int REQUEST_EDIT_PLAY = 1;
 
@@ -226,15 +224,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				}
 				case UpdateService.STATUS_COMPLETE: {
 					mSyncing = false;
-					break;
-				}
-				case UpdateService.STATUS_ERROR:
-				default: {
-					final String error = resultData.getString(Intent.EXTRA_TEXT);
-					if (error != null) {
-						Timber.d("Received unexpected result: " + error);
-						Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
-					}
 					break;
 				}
 			}

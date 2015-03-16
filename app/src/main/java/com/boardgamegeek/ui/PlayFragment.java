@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -23,7 +22,6 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Play;
@@ -51,8 +49,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	DetachableResultReceiver.Receiver {
+public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_NOTIFIED = "NOTIFIED";
 
@@ -128,10 +125,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		}
 
 		setHasOptionsMenu(true);
-
-		// TODO: move this to a fragment so it survives orientation changes
-		mReceiver = new DetachableResultReceiver(new Handler());
-		mReceiver.setReceiver(this);
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mPlayId = intent.getIntExtra(PlayActivity.KEY_PLAY_ID, BggContract.INVALID_ID);
@@ -265,15 +258,6 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@OnClick(R.id.timer_end)
 	void onClick(View v) {
 		ActivityUtils.endPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
-	}
-
-	@Override
-	public void onReceiveResult(int resultCode, Bundle resultData) {
-		switch (resultCode) {
-			case UpdateService.STATUS_ERROR:
-				Toast.makeText(getActivity(), resultData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_LONG).show();
-				break;
-		}
 	}
 
 	@Override

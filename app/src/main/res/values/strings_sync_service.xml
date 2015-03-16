@@ -20,5 +20,6 @@
 	<string name="sync_notification_title_h_index">H-index</string>
 	<string name="sync_notification_h_index_increase">Congratulations! Your h-index is now</string>
 	<string name="sync_notification_h_index_decrease">Oh no! Your h-index has fallen to</string>
+	<string name="sync_update_invalid_sync_type">Error updating; unknown sync type: %s</string>
 
 </resources>

@@ -13,6 +13,7 @@ import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
 import com.boardgamegeek.model.persister.CollectionPersister;
+import com.boardgamegeek.provider.BggContract;
 
 import timber.log.Timber;
 
@@ -27,7 +28,10 @@ public class SyncGameCollection extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync collection for game ID=" + mGameId;
+		if (mGameId == BggContract.INVALID_ID){
+			return "update collection for unknown game";
+		}
+		return "update collection for game " + mGameId;
 	}
 
 	@Override

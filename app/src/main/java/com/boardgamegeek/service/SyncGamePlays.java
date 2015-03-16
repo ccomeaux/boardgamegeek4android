@@ -9,6 +9,7 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.PlaysResponse;
 import com.boardgamegeek.model.persister.PlayPersister;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Games;
 
 import timber.log.Timber;
@@ -22,7 +23,10 @@ public class SyncGamePlays extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync plays for game ID=" + mGameId;
+		if (mGameId == BggContract.INVALID_ID) {
+			return "update plays for unknown game";
+		}
+		return "update plays for game " + mGameId;
 	}
 
 	@Override

@@ -39,18 +39,6 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	protected void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
 	private void setTitle(String title) {
 		if (TextUtils.isEmpty(title)) {
 			title = getString(R.string.no_location);

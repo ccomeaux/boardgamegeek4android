@@ -15,20 +15,12 @@ import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
 public class BuddiesActivity extends TopLevelSinglePaneActivity {
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private int mCount = -1;
-
-	@DebugLog
-	@Override
-	protected void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
 
 	@DebugLog
 	@Override
@@ -47,13 +39,6 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 			ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
 			mSyncObserverHandle = null;
 		}
-	}
-
-	@DebugLog
-	@Override
-	protected void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
 	}
 
 	@DebugLog

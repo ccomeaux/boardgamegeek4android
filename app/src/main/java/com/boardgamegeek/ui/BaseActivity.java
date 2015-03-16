@@ -8,10 +8,15 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.UpdateErrorEvent;
 import com.boardgamegeek.service.SyncService;
+
+import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
 /**
  * Provide common menu functions.
@@ -26,6 +31,26 @@ public abstract class BaseActivity extends ActionBarActivity {
 		return 0;
 	}
 
+	@DebugLog
+	@Override
+	protected void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
+	}
+
+	@DebugLog
+	@Override
+	protected void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
+	@DebugLog
+	public void onEventMainThread(UpdateErrorEvent event) {
+		Toast.makeText(this, event.message, Toast.LENGTH_LONG).show();
+	}
+
+	@DebugLog
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -38,12 +63,14 @@ public abstract class BaseActivity extends ActionBarActivity {
 		return true;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -61,10 +88,12 @@ public abstract class BaseActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@DebugLog
 	protected void signOut() {
 		Authenticator.signOut(this);
 	}
 
+	@DebugLog
 	private void setupSearchMenuItem(Menu menu) {
 		MenuItem searchItem = menu.findItem(R.id.menu_search);
 		if (searchItem != null) {

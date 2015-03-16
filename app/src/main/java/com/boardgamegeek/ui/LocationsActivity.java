@@ -6,10 +6,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.events.LocationSelectedEvent;
 import com.boardgamegeek.events.LocationSortChangedEvent;
 import com.boardgamegeek.events.LocationsCountChangedEvent;
+import com.boardgamegeek.sorter.LocationsSorterFactory;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
@@ -19,20 +19,6 @@ import hugo.weaving.DebugLog;
 public class LocationsActivity extends TopLevelSinglePaneActivity {
 	private int mCount = -1;
 	private int mSortType = LocationsSorterFactory.TYPE_DEFAULT;
-
-	@DebugLog
-	@Override
-	protected void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	protected void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
 
 	@DebugLog
 	@Override

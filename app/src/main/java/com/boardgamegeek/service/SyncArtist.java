@@ -7,6 +7,7 @@ import android.net.Uri;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Person;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 
 import timber.log.Timber;
@@ -20,7 +21,10 @@ public class SyncArtist extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync artist ID=" + mArtistId;
+		if (mArtistId == BggContract.INVALID_ID){
+			return "update an unknown artist";
+		}
+		return "update artist " + mArtistId;
 	}
 
 	@Override

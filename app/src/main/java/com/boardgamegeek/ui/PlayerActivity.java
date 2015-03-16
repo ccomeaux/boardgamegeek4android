@@ -21,8 +21,6 @@ import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import de.greenrobot.event.EventBus;
-
 public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
@@ -40,18 +38,6 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		mUsername = intent.getStringExtra(KEY_PLAYER_USERNAME);
 
 		setTitle();
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		EventBus.getDefault().register(this);
-	}
-
-	@Override
-	protected void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
 	}
 
 	protected void setTitle() {
