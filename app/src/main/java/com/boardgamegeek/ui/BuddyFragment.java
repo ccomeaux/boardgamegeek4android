@@ -23,11 +23,15 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
 import com.boardgamegeek.ui.model.Buddy;
+import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
@@ -39,6 +43,7 @@ import butterknife.OnClick;
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
 	private static final int TOKEN = 0;
+	private static final int PLAYS_TOKEN = 1;
 
 	private String mBuddyName;
 	private boolean mRefreshed;
@@ -47,6 +52,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@InjectView(R.id.username) TextView mName;
 	@InjectView(R.id.avatar) ImageView mAvatar;
 	@InjectView(R.id.nickname) TextView mNickname;
+	@InjectView(R.id.plays_label) TextView mPlays;
 	@InjectView(R.id.updated) TextView mUpdated;
 	private int mDefaultTextColor;
 	private int mLightTextColor;
@@ -78,6 +84,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
 		getLoaderManager().restartLoader(TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 
 		return mRootView;
 	}
@@ -90,9 +97,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == TOKEN) {
-			loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), Buddy.PROJECTION, null,
-				null, null);
+		switch (id) {
+			case TOKEN:
+				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), Buddy.PROJECTION, null,
+					null, null);
+				break;
+			case PLAYS_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniqueUserUri(), Player.PROJECTION,
+					PlayPlayers.USER_NAME + "=?", new String[] { String.valueOf(mBuddyName) }, null);
+				break;
 		}
 		return loader;
 	}
@@ -103,10 +116,16 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-		if (loader.getId() == TOKEN) {
-			onBuddyQueryComplete(cursor);
-		} else {
-			cursor.close();
+		switch (loader.getId()) {
+			case TOKEN:
+				onBuddyQueryComplete(cursor);
+				break;
+			case PLAYS_TOKEN:
+				onPlaysQueryComplete(cursor);
+				break;
+			default:
+				cursor.close();
+				break;
 		}
 	}
 
@@ -140,6 +159,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			getResources().getString(R.string.needs_updating) :
 			getResources().getString(
 				R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(buddy.getUpdated())));
+	}
+
+	private void onPlaysQueryComplete(Cursor cursor) {
+		if (cursor == null || !cursor.moveToFirst()) {
+			return;
+		}
+
+		Player player = Player.fromCursor(cursor);
+		mPlays.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
 	}
 
 	public void requestRefresh() {

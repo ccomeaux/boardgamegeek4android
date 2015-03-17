@@ -189,7 +189,7 @@ public class StringUtils {
 	 */
 	public static SpannableString boldSecondString(String first, String second, String third) {
 		String s = first + " " + second + " " + third;
-		SpannableString ss = new SpannableString(s.trim());
+		SpannableString ss = new SpannableString(s);
 		int length = first.length() + 1;
 		ss.setSpan(
 			new StyleSpan(android.graphics.Typeface.BOLD),
