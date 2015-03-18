@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
@@ -87,9 +88,8 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity implements Play
 	}
 
 	@DebugLog
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 

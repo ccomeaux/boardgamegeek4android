@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
@@ -84,9 +85,8 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity implements Plays
 	}
 
 	@DebugLog
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 

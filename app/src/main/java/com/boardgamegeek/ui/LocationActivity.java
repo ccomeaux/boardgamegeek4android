@@ -16,12 +16,14 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.LocationSelectedEvent;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
 public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	private int mCount;
@@ -86,9 +88,9 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		return false;
 	}
 
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 

@@ -16,10 +16,13 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+
+import hugo.weaving.DebugLog;
 
 public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
@@ -93,9 +96,9 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		return false;
 	}
 
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 

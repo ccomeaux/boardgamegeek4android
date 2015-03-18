@@ -27,6 +27,7 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -53,6 +54,7 @@ import java.util.LinkedHashSet;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
@@ -86,8 +88,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public interface Callbacks {
 		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl);
 
-		public void onPlayCountChanged(int count);
-
 		public void onSortChanged(String sortName);
 	}
 
@@ -95,10 +95,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		@Override
 		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 			return true;
-		}
-
-		@Override
-		public void onPlayCountChanged(int count) {
 		}
 
 		public void onSortChanged(String sortName) {
@@ -450,13 +446,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			if (cursor != null && cursor.moveToFirst()) {
 				count = cursor.getInt(SumQuery.TOTAL_COUNT);
 			}
-			mCallbacks.onPlayCountChanged(count);
+			EventBus.getDefault().postSticky(new PlaysCountChangedEvent(count));
 		} else if (token == PlayerSumQuery._TOKEN) {
 			int count = 0;
 			if (cursor != null && cursor.moveToFirst()) {
 				count = cursor.getInt(PlayerSumQuery.SUM_QUANTITY);
 			}
-			mCallbacks.onPlayCountChanged(count);
+			EventBus.getDefault().postSticky(new PlaysCountChangedEvent(count));
 		} else {
 			Timber.d("Query complete, Not Actionable: " + token);
 			cursor.close();

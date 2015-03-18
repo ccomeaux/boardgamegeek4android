@@ -11,10 +11,13 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
+
+import hugo.weaving.DebugLog;
 
 public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener,
 	PlaysFragment.Callbacks {
@@ -151,9 +154,9 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		return false;
 	}
 
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 
