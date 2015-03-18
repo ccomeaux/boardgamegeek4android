@@ -12,6 +12,7 @@ import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.persister.PlayPersister;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.ui.BuddyActivity;
 import com.boardgamegeek.ui.LogPlayActivity;
 import com.boardgamegeek.ui.PlayActivity;
 
@@ -72,6 +73,22 @@ public class ActivityUtils {
 		final Uri gameUri = Games.buildGameUri(gameId);
 		final Intent intent = new Intent(Intent.ACTION_VIEW, gameUri);
 		intent.putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
+		return intent;
+	}
+
+	public static void startBuddyActivity(Context context, String buddyName) {
+		context.startActivity(createBuddyIntent(context, buddyName));
+	}
+
+	public static void navigateUpToBuddy(Context context, String buddyName) {
+		Intent intent = createBuddyIntent(context, buddyName);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(intent);
+	}
+
+	private static Intent createBuddyIntent(Context context, String buddyName) {
+		Intent intent = new Intent(context, BuddyActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, buddyName);
 		return intent;
 	}
 

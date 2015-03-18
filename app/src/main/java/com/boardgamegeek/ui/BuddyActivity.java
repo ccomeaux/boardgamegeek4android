@@ -20,8 +20,8 @@ import com.boardgamegeek.util.UIUtils;
 
 import de.greenrobot.event.EventBus;
 
-public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectionFragment.Callbacks, PlaysFragment.Callbacks {
-	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection, R.string.title_plays };
+public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectionFragment.Callbacks {
+	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection };
 	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
 	private BuddyFragment mBuddyFragment;
@@ -107,10 +107,6 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectio
 				case 1:
 					fragment = new BuddyCollectionFragment();
 					break;
-				case 2:
-					fragment = new PlaysFragment();
-					bundle.putInt(PlaysFragment.KEY_MODE, PlaysFragment.MODE_BUDDY);
-					break;
 			}
 			if (fragment != null) {
 				fragment.setArguments(bundle);
@@ -131,21 +127,6 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectio
 			text += " - " + status;
 		}
 		getSupportActionBar().getTabAt(1).setText(text);
-	}
-
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
-	}
-
-	@Override
-	public void onPlayCountChanged(int count) {
-	}
-
-	@Override
-	public void onSortChanged(String sortName) {
-		// sorting not supported yet
 	}
 
 	private void updateRefreshStatus() {

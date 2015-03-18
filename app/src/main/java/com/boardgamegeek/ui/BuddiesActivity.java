@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -95,9 +94,7 @@ public class BuddiesActivity extends TopLevelSinglePaneActivity {
 
 	@DebugLog
 	public void onEvent(BuddySelectedEvent event) {
-		Intent intent = new Intent(this, BuddyActivity.class);
-		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, event.buddyName);
-		startActivity(intent);
+		ActivityUtils.startBuddyActivity(this, event.buddyName);
 	}
 
 	@DebugLog
