@@ -92,10 +92,4 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity implements Play
 		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
-
-	@DebugLog
-	@Override
-	public void onSortChanged(String sortName) {
-		// sort not supported in this activity
-	}
 }

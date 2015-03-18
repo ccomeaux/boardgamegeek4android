@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
@@ -160,9 +161,9 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onSortChanged(String sortName) {
-		mSortName = sortName;
+	@DebugLog
+	public void onEvent(PlaysSortChangedEvent event) {
+		mSortName = event.description;
 		supportInvalidateOptionsMenu();
 	}
 }

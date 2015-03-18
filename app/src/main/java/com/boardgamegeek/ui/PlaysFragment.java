@@ -27,6 +27,7 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
@@ -87,17 +88,12 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	public interface Callbacks {
 		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl);
-
-		public void onSortChanged(String sortName);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
 			return true;
-		}
-
-		public void onSortChanged(String sortName) {
 		}
 	};
 
@@ -435,7 +431,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
-			mCallbacks.onSortChanged(mSorter == null ? "" : mSorter.getDescription());
+			EventBus.getDefault().postSticky(new PlaysSortChangedEvent(mSorter == null ? "" : mSorter.getDescription()));
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;

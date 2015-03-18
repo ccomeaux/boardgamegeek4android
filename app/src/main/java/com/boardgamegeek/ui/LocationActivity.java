@@ -94,11 +94,6 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onSortChanged(String sortName) {
-		// sorting not allowed
-	}
-
 	public void onEvent(RenameLocationTask.Event event) {
 		mLocationName = event.locationName;
 		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, mLocationName);

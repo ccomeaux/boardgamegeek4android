@@ -89,10 +89,4 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity implements Plays
 		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
-
-	@DebugLog
-	@Override
-	public void onSortChanged(String sortName) {
-		// sort not supported in this activity
-	}
 }

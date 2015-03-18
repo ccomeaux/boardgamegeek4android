@@ -102,11 +102,6 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onSortChanged(String sortName) {
-		// sorting not allowed
-	}
-
 	public void onEvent(RenamePlayerTask.Event event) {
 		mName = event.playerName;
 		getIntent().putExtra(KEY_PLAYER_NAME, mName);
