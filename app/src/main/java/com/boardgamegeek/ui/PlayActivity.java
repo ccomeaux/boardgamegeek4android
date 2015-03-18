@@ -8,11 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.UIUtils;
+
+import de.greenrobot.event.EventBus;
 
 public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragment.Callbacks {
 	public static final String KEY_PLAY_ID = "PLAY_ID";
@@ -30,6 +33,8 @@ public class PlayActivity extends SimpleSinglePaneActivity implements PlayFragme
 		if (savedInstanceState != null) {
 			newPlayId(savedInstanceState.getInt(KEY_PLAY_ID, BggContract.INVALID_ID));
 		}
+
+		EventBus.getDefault().removeStickyEvent(PlaySelectedEvent.class);
 
 		final int originalPlayId = getPlayId();
 		mReceiver = new BroadcastReceiver() {

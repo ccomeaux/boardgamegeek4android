@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.model.Play;
@@ -20,8 +21,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener,
-	PlaysFragment.Callbacks {
+public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener {
 	private static final String STATE_COUNT = "STATE_COUNT";
 	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
 	private Menu mOptionsMenu;
@@ -149,10 +149,9 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 		}
 	};
 
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	@DebugLog
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
 	@DebugLog

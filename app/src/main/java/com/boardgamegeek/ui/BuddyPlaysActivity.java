@@ -9,13 +9,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class BuddyPlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_COUNT = "COUNT";
 	private String mBuddyName;
 	private int mCount = -1;
@@ -81,10 +82,8 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity implements Play
 	}
 
 	@DebugLog
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
 	@DebugLog

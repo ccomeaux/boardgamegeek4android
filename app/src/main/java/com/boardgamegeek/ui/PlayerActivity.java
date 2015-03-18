@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenamePlayerTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -24,7 +25,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class PlayerActivity extends SimpleSinglePaneActivity  {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
 	private int mCount;
@@ -90,10 +91,9 @@ public class PlayerActivity extends SimpleSinglePaneActivity implements PlaysFra
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	@DebugLog
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
 	@DebugLog

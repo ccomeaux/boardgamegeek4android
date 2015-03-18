@@ -16,6 +16,7 @@ import android.widget.EditText;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.LocationSelectedEvent;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.util.ActivityUtils;
@@ -25,7 +26,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
-public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class LocationActivity extends SimpleSinglePaneActivity  {
 	private int mCount;
 	private String mLocationName;
 	private AlertDialog mDialog;
@@ -82,10 +83,9 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	@DebugLog
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
 	@DebugLog

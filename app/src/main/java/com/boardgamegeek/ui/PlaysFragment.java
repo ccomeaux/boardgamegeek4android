@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -27,8 +26,9 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.PlaysSortChangedEvent;
+import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
+import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -56,6 +56,7 @@ import java.util.LinkedHashSet;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
@@ -85,19 +86,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private LinkedHashSet<Integer> mSelectedPlaysPositions = new LinkedHashSet<>();
 	private MenuItem mSendMenuItem;
 	private MenuItem mEditMenuItem;
-
-	public interface Callbacks {
-		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-			return true;
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -164,19 +152,18 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
+	@DebugLog
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-		mCallbacks = (Callbacks) activity;
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
+	@DebugLog
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@Override
@@ -194,9 +181,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			String gameName = cursor.getString(PlaysQuery.GAME_NAME);
 			String thumbnailUrl = cursor.getString(PlaysQuery.THUMBNAIL_URL);
 			String imageUrl = cursor.getString(PlaysQuery.IMAGE_URL);
-			if (mCallbacks.onPlaySelected(playId, gameId, gameName, thumbnailUrl, imageUrl)) {
-				setSelectedPlayId(playId);
-			}
+			EventBus.getDefault().postSticky(new PlaySelectedEvent(playId, gameId, gameName, thumbnailUrl, imageUrl));
 		}
 	}
 
@@ -271,6 +256,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return super.onOptionsItemSelected(item);
 	}
 
+	@DebugLog
+	public void onEvent(PlaySelectedEvent event) {
+		mSelectedPlayId = event.playId;
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
+	}
+
 	private void setSort(int sortType) {
 		if (mSorter != null && sortType == mSorter.getType()) {
 			return;
@@ -303,13 +296,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 			String date = DateTimeUtils.formatDateForApi(year, month, day);
 			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_PLAYS_DATE, date);
-		}
-	}
-
-	private void setSelectedPlayId(int playId) {
-		mSelectedPlayId = playId;
-		if (mAdapter != null) {
-			mAdapter.notifyDataSetChanged();
 		}
 	}
 
