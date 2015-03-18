@@ -94,7 +94,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 			Buddy.PROJECTION,
 			Buddies.BUDDY_ID + "!=? AND " + Buddies.BUDDY_FLAG + "=1",
 			new String[] { Authenticator.getUserId(getActivity()) },
-			SORT_COLUMN);
+			null);
 		loader.setUpdateThrottle(2000);
 		return loader;
 	}
