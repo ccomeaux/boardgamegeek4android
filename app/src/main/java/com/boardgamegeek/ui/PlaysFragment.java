@@ -162,7 +162,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private void requery() {
 		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
 			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
-		} else if (mMode == MODE_PLAYER) {
+		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
 			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
 		}
 		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
@@ -366,8 +366,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				selectionArgs(), null);
 			loader.setUpdateThrottle(0);
 		} else if (id == PlayerSumQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-				PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
+			Uri uri = Plays.buildPlayersByUniquePlayerUri();
+			if (mMode == MODE_BUDDY) {
+				uri = Plays.buildPlayersByUniqueUserUri();
+			}
+			loader = new CursorLoader(getActivity(), uri, PlayerSumQuery.PROJECTION, selection(), selectionArgs(), null);
 			loader.setUpdateThrottle(0);
 		}
 		return loader;
