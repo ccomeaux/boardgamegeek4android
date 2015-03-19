@@ -17,7 +17,6 @@ import com.boardgamegeek.util.ToolbarUtils;
 import hugo.weaving.DebugLog;
 
 public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
-	private static final String KEY_COUNT = "COUNT";
 	private String mBuddyName;
 	private int mCount = -1;
 
@@ -26,23 +25,12 @@ public class BuddyPlaysActivity extends SimpleSinglePaneActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(KEY_COUNT);
-		}
-
 		mBuddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 
 		if (!TextUtils.isEmpty(mBuddyName)) {
 			ActionBar bar = getSupportActionBar();
 			bar.setSubtitle(mBuddyName);
 		}
-	}
-
-	@DebugLog
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(KEY_COUNT, mCount);
 	}
 
 	@DebugLog

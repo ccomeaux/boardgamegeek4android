@@ -20,8 +20,8 @@ import com.boardgamegeek.util.UIUtils;
 
 import de.greenrobot.event.EventBus;
 
-public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectionFragment.Callbacks {
-	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info, R.string.title_collection };
+public class BuddyActivity extends PagedDrawerActivity {
+	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info };
 	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
 	private BuddyFragment mBuddyFragment;
@@ -104,9 +104,6 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectio
 					mBuddyFragment = new BuddyFragment();
 					fragment = mBuddyFragment;
 					break;
-				case 1:
-					fragment = new BuddyCollectionFragment();
-					break;
 			}
 			if (fragment != null) {
 				fragment.setArguments(bundle);
@@ -118,15 +115,6 @@ public class BuddyActivity extends PagedDrawerActivity implements BuddyCollectio
 		public int getCount() {
 			return TAB_TEXT_RES_IDS.length;
 		}
-	}
-
-	@Override
-	public void onCollectionStatusChanged(String status) {
-		String text = getString(R.string.title_collection);
-		if (!TextUtils.isEmpty(status)) {
-			text += " - " + status;
-		}
-		getSupportActionBar().getTabAt(1).setText(text);
 	}
 
 	private void updateRefreshStatus() {

@@ -133,6 +133,13 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@OnClick(R.id.collection_root)
+	public void onCollectionClick(View v) {
+		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, mBuddyName);
+		startActivity(intent);
+	}
+
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);

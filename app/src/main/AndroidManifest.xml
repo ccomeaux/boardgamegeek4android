@@ -120,6 +120,10 @@
 				android:value=".ui.BuddiesActivity"/>
 		</activity>
 		<activity
+			android:name=".ui.BuddyCollectionActivity"
+			android:exported="false"
+			android:label="@string/title_collection"/>
+		<activity
 			android:name=".ui.BuddyPlaysActivity"
 			android:exported="false"
 			android:label="@string/title_plays"/>
