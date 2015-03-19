@@ -8,11 +8,12 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.util.ActivityUtils;
 
 import hugo.weaving.DebugLog;
 
-public class BuddyCollectionActivity extends SimpleSinglePaneActivity implements BuddyCollectionFragment.Callbacks {
+public class BuddyCollectionActivity extends SimpleSinglePaneActivity {
 	private String mBuddyName;
 
 	@DebugLog
@@ -46,11 +47,11 @@ public class BuddyCollectionActivity extends SimpleSinglePaneActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onCollectionStatusChanged(String status) {
+	@DebugLog
+	public void onEvent(CollectionStatusChangedEvent event) {
 		String text = getString(R.string.title_collection);
-		if (!TextUtils.isEmpty(status)) {
-			text += " - " + status;
+		if (!TextUtils.isEmpty(event.description)) {
+			text += " - " + event.description;
 		}
 		getSupportActionBar().setTitle(text);
 	}

@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
@@ -52,29 +54,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private String mStatusLabel;
 	private String[] mStatusValues;
 	private String[] mStatusEntries;
-
-	public interface Callbacks {
-		public void onCollectionStatusChanged(String status);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onCollectionStatusChanged(String status) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,12 +78,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 			mStatusValue = savedInstanceState.getString(STATE_STATUS_VALUE);
 			mStatusLabel = savedInstanceState.getString(STATE_STATUS_LABEL);
 		}
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
@@ -192,7 +165,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private void reload() {
-		mCallbacks.onCollectionStatusChanged(mStatusLabel);
+		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(mStatusLabel));
 		if (mAdapter != null) {
 			mAdapter.clear();
 		}
