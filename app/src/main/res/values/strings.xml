@@ -449,15 +449,15 @@
 		<item quantity="other">%s total edits</item>
 	</plurals>
 	<plurals name="plays_summary">
-		<item quantity="one">%1$,d Plays; last play on %2$s</item>
+		<item quantity="one">%1$,d Play; last play on %2$s</item>
 		<item quantity="other">%1$,d Plays; last play on %2$s</item>
 	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one">%,d Colors/Teams</item>
+		<item quantity="one">%,d Color/Team</item>
 		<item quantity="other">%,d Colors/Teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one">%,d Comments</item>
+		<item quantity="one">%,d Comment</item>
 		<item quantity="other">%,d Comments</item>
 	</plurals>
 	<plurals name="ratings_suffix">
