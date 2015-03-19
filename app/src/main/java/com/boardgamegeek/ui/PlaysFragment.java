@@ -71,7 +71,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public static final int MODE_BUDDY = 2;
 	public static final int MODE_PLAYER = 3;
 	public static final int MODE_LOCATION = 4;
-	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private PlayAdapter mAdapter;
 	private Uri mUri;
 	private int mGameId;
@@ -98,9 +97,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		super.onActivityCreated(savedInstanceState);
 
 		int sortType = PlaysSorterFactory.TYPE_DEFAULT;
-		if (savedInstanceState != null) {
-			sortType = savedInstanceState.getInt(STATE_SORT_TYPE);
-		}
 		mSorter = PlaysSorterFactory.create(sortType, getActivity());
 
 		mUri = Plays.CONTENT_URI;
@@ -164,12 +160,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	public void onStop() {
 		EventBus.getDefault().unregister(this);
 		super.onStop();
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_SORT_TYPE, mSorter == null ? PlaysSorterFactory.TYPE_UNKNOWN : mSorter.getType());
-		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -262,6 +252,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+	}
+
+	public void onEvent(PlaysSortChangedEvent event) {
+		setSort(event.type);
 	}
 
 	private void setSort(int sortType) {
@@ -417,7 +411,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			}
 			mAdapter.changeCursor(cursor);
 			restoreScrollState();
-			EventBus.getDefault().postSticky(new PlaysSortChangedEvent(mSorter == null ? "" : mSorter.getDescription()));
+			PlaysSortChangedEvent event;
+			if (mSorter == null) {
+				event = new PlaysSortChangedEvent(PlaysSorterFactory.TYPE_UNKNOWN, "");
+			} else {
+				event = new PlaysSortChangedEvent(mSorter.getType(), mSorter.getDescription());
+			}
+			EventBus.getDefault().postSticky(event);
 		} else if (token == GameQuery._TOKEN) {
 			if (!mAutoSyncTriggered && cursor != null && cursor.moveToFirst()) {
 				mAutoSyncTriggered = true;
