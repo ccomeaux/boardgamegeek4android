@@ -1,13 +1,10 @@
 package com.boardgamegeek.util;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
-
-import com.boardgamegeek.R;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;

@@ -1,12 +1,9 @@
 package com.boardgamegeek.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.PagerAdapter;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -16,15 +13,12 @@ import com.boardgamegeek.events.UpdateCompleteEvent;
 import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.UIUtils;
 
 import de.greenrobot.event.EventBus;
 
-public class BuddyActivity extends PagedDrawerActivity {
-	private static final int[] TAB_TEXT_RES_IDS = new int[] { R.string.title_info };
+public class BuddyActivity extends SimpleSinglePaneActivity {
 	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
-	private BuddyFragment mBuddyFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +30,8 @@ public class BuddyActivity extends PagedDrawerActivity {
 	}
 
 	@Override
-	protected PagerAdapter getAdapter(FragmentManager fm) {
-		return new BuddyPagerAdapter(fm);
-	}
-
-	@Override
-	protected int[] getTabTextResIds() {
-		return TAB_TEXT_RES_IDS;
-	}
-
-	@Override
-	protected int getContentViewId() {
-		return R.layout.activity_viewpager;
+	protected Fragment onCreatePane(Intent intent) {
+		return new BuddyFragment();
 	}
 
 	@Override
@@ -67,8 +51,9 @@ public class BuddyActivity extends PagedDrawerActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
-				if (mBuddyFragment != null) {
-					mBuddyFragment.forceRefresh();
+				BuddyFragment fragment = (BuddyFragment) getFragment();
+				if (fragment != null) {
+					fragment.forceRefresh();
 				}
 				return true;
 		}
@@ -76,45 +61,13 @@ public class BuddyActivity extends PagedDrawerActivity {
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		if (event.type == UpdateService.SYNC_TYPE_BUDDY) {
-			mSyncing = true;
-		} else {
-			mSyncing = false;
-		}
+		mSyncing = event.type == UpdateService.SYNC_TYPE_BUDDY;
 		updateRefreshStatus();
 	}
 
 	public void onEventMainThread(UpdateCompleteEvent event) {
 		mSyncing = false;
 		updateRefreshStatus();
-	}
-
-	private class BuddyPagerAdapter extends FragmentPagerAdapter {
-
-		public BuddyPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			Fragment fragment = null;
-			Bundle bundle = UIUtils.intentToFragmentArguments(getIntent());
-			switch (position) {
-				case 0:
-					mBuddyFragment = new BuddyFragment();
-					fragment = mBuddyFragment;
-					break;
-			}
-			if (fragment != null) {
-				fragment.setArguments(bundle);
-			}
-			return fragment;
-		}
-
-		@Override
-		public int getCount() {
-			return TAB_TEXT_RES_IDS.length;
-		}
 	}
 
 	private void updateRefreshStatus() {

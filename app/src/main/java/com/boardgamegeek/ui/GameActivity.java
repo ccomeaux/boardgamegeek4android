@@ -167,13 +167,10 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		if (event.type == UpdateService.SYNC_TYPE_GAME ||
+		mSyncing =
+			event.type == UpdateService.SYNC_TYPE_GAME ||
 			event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION ||
-			event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) {
-			mSyncing = true;
-		} else {
-			mSyncing = false;
-		}
+			event.type == UpdateService.SYNC_TYPE_GAME_PLAYS;
 		updateRefreshStatus();
 	}
 
