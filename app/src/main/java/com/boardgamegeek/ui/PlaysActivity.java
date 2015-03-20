@@ -43,11 +43,6 @@ public class PlaysActivity extends TopLevelSinglePaneActivity {
 	}
 
 	@Override
-	protected boolean isTitleHidden() {
-		return true;
-	}
-
-	@Override
 	protected Fragment onCreatePane() {
 		return new PlaysFragment();
 	}
