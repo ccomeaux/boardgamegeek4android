@@ -65,7 +65,7 @@ dependencies {
         exclude group: 'stax', module: 'stax'
         exclude group: 'xpp3', module: 'xpp3'
     }
-    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'com.squareup.picasso:picasso:2.5.0'
     compile 'se.emilsjolander:stickylistheaders:2.5.2'
     compile 'com.jakewharton:butterknife:6.1.0'

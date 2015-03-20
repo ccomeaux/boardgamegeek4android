@@ -97,6 +97,7 @@ public abstract class SyncBuddiesDetail extends SyncTask {
 						break;
 					}
 				} else {
+					Timber.e(e, "Syncing buddy " + name);
 					throw e;
 				}
 			}
