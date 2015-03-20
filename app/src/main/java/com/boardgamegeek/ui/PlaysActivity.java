@@ -2,18 +2,16 @@ package com.boardgamegeek.ui;
 
 import android.content.ContentResolver;
 import android.content.SyncStatusObserver;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
-import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
+import com.boardgamegeek.events.PlaysFilterChangedEvent;
+import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
@@ -21,38 +19,11 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionBar.OnNavigationListener {
-	private static final String STATE_COUNT = "STATE_COUNT";
-	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
+public class PlaysActivity extends TopLevelSinglePaneActivity {
 	private Menu mOptionsMenu;
 	private Object mSyncObserverHandle;
 	private int mCount;
 	private String mSortName;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			mCount = savedInstanceState.getInt(STATE_COUNT);
-			mSortName = savedInstanceState.getString(STATE_SORT_NAME);
-		}
-
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		ArrayAdapter<CharSequence> mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.plays_filter,
-			android.R.layout.simple_spinner_item);
-		mSpinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-		actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_COUNT, mCount);
-		outState.putString(STATE_SORT_NAME, mSortName);
-		super.onSaveInstanceState(outState);
-	}
 
 	@Override
 	protected void onPause() {
@@ -73,21 +44,6 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 
 	@Override
 	protected boolean isTitleHidden() {
-		return true;
-	}
-
-	@Override
-	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-		int filter = Play.SYNC_STATUS_ALL;
-		switch (itemPosition) {
-			case 1:
-				filter = Play.SYNC_STATUS_IN_PROGRESS;
-				break;
-			case 2:
-				filter = Play.SYNC_STATUS_PENDING;
-				break;
-		}
-		((PlaysFragment) mFragment).filter(filter);
 		return true;
 	}
 
@@ -158,6 +114,15 @@ public class PlaysActivity extends TopLevelSinglePaneActivity implements ActionB
 	public void onEvent(PlaysCountChangedEvent event) {
 		mCount = event.count;
 		supportInvalidateOptionsMenu();
+	}
+
+	@DebugLog
+	public void onEvent(PlaysFilterChangedEvent event) {
+		if (event.type == Play.SYNC_STATUS_ALL) {
+			getSupportActionBar().setSubtitle("");
+		} else {
+			getSupportActionBar().setSubtitle(event.description);
+		}
 	}
 
 	@DebugLog

@@ -228,6 +228,10 @@
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
 	<string name="menu_plays_sort_length">Length</string>
+	<string name="menu_plays_filter">Filter…</string>
+	<string name="menu_plays_filter_all">All plays</string>
+	<string name="menu_plays_filter_in_progress">Edits and Drafts</string>
+	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="newest">Newest</string>

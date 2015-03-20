@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
+import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
@@ -77,7 +78,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String mBuddyName;
 	private String mPlayerName;
 	private String mLocation;
-	private int mFilter = Play.SYNC_STATUS_ALL;
+	private int mFilterType = Play.SYNC_STATUS_ALL;
 	private Sorter mSorter;
 	private boolean mAutoSyncTriggered;
 	private int mMode = MODE_ALL;
@@ -183,38 +184,53 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			showOptions = !activity.isDrawerOpen();
 		}
 		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
+		showMenuItemSafely(menu, R.id.menu_filter, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
-		if (showOptions && mSorter != null) {
-			switch (mSorter.getType()) {
-				case PlaysSorterFactory.TYPE_PLAY_DATE:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+		if (showOptions) {
+			switch (mFilterType) {
+				case Play.SYNC_STATUS_IN_PROGRESS:
+					checkMenuItemSafely(menu, R.id.menu_filter_in_progress);
 					break;
-				case PlaysSorterFactory.TYPE_PLAY_GAME:
-					checkMenuItemSafely(menu, R.id.menu_sort_game);
+				case Play.SYNC_STATUS_PENDING:
+					checkMenuItemSafely(menu, R.id.menu_filter_pending);
 					break;
-				case PlaysSorterFactory.TYPE_PLAY_LENGTH:
-					checkMenuItemSafely(menu, R.id.menu_sort_length);
-					break;
-				case PlaysSorterFactory.TYPE_PLAY_LOCATION:
-					checkMenuItemSafely(menu, R.id.menu_sort_location);
-					break;
+				case Play.SYNC_STATUS_ALL:
 				default:
-					checkMenuItemSafely(menu, R.id.menu_sort_date);
+					checkMenuItemSafely(menu, R.id.menu_filter_all);
 					break;
+			}
+			if (mSorter != null) {
+				switch (mSorter.getType()) {
+					case PlaysSorterFactory.TYPE_PLAY_DATE:
+						checkMenuItemSafely(menu, R.id.menu_sort_date);
+						break;
+					case PlaysSorterFactory.TYPE_PLAY_GAME:
+						checkMenuItemSafely(menu, R.id.menu_sort_game);
+						break;
+					case PlaysSorterFactory.TYPE_PLAY_LENGTH:
+						checkMenuItemSafely(menu, R.id.menu_sort_length);
+						break;
+					case PlaysSorterFactory.TYPE_PLAY_LOCATION:
+						checkMenuItemSafely(menu, R.id.menu_sort_location);
+						break;
+					default:
+						checkMenuItemSafely(menu, R.id.menu_sort_date);
+						break;
+				}
 			}
 		}
 		super.onPrepareOptionsMenu(menu);
 	}
 
-	private void showMenuItemSafely(Menu menu, int resourceId, boolean visible) {
+	private static void showMenuItemSafely(Menu menu, int resourceId, boolean visible) {
 		MenuItem menuItem = menu.findItem(resourceId);
 		if (menuItem != null) {
 			menuItem.setVisible(visible);
 		}
 	}
 
-	private void checkMenuItemSafely(Menu menu, int resourceId) {
+	private static void checkMenuItemSafely(Menu menu, int resourceId) {
 		MenuItem menuItem = menu.findItem(resourceId);
 		if (menuItem != null) {
 			menuItem.setChecked(true);
@@ -223,6 +239,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		String title = item.getTitle().toString();
 		switch (item.getItemId()) {
 			case R.id.menu_sort_date:
 				setSort(PlaysSorterFactory.TYPE_PLAY_DATE);
@@ -235,6 +252,15 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return true;
 			case R.id.menu_sort_length:
 				setSort(PlaysSorterFactory.TYPE_PLAY_LENGTH);
+				return true;
+			case R.id.menu_filter_all:
+				filter(Play.SYNC_STATUS_ALL, title);
+				return true;
+			case R.id.menu_filter_in_progress:
+				filter(Play.SYNC_STATUS_IN_PROGRESS, title);
+				return true;
+			case R.id.menu_filter_pending:
+				filter(Play.SYNC_STATUS_PENDING, title);
 				return true;
 			case R.id.menu_refresh:
 				triggerRefresh();
@@ -256,6 +282,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	public void onEvent(PlaysSortChangedEvent event) {
 		setSort(event.type);
+	}
+
+	public void onEvent(PlaysFilterChangedEvent event) {
+		filter(event.type, event.description);
 	}
 
 	private void setSort(int sortType) {
@@ -305,7 +335,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return R.string.empty_plays_game;
 			case MODE_ALL:
 			default:
-				switch (mFilter) {
+				switch (mFilterType) {
 					case Play.SYNC_STATUS_IN_PROGRESS:
 						return R.string.empty_plays_draft;
 					case Play.SYNC_STATUS_PENDING_UPDATE:
@@ -355,9 +385,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String selection() {
 		switch (mMode) {
 			case MODE_ALL:
-				if (mFilter == Play.SYNC_STATUS_ALL) {
+				if (mFilterType == Play.SYNC_STATUS_ALL) {
 					return null;
-				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+				} else if (mFilterType == Play.SYNC_STATUS_PENDING) {
 					return Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?";
 				} else {
 					return Plays.SYNC_STATUS + "=?";
@@ -377,13 +407,13 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	private String[] selectionArgs() {
 		switch (mMode) {
 			case MODE_ALL:
-				if (mFilter == Play.SYNC_STATUS_ALL) {
+				if (mFilterType == Play.SYNC_STATUS_ALL) {
 					return null;
-				} else if (mFilter == Play.SYNC_STATUS_PENDING) {
+				} else if (mFilterType == Play.SYNC_STATUS_PENDING) {
 					return new String[] { String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
 						String.valueOf(Play.SYNC_STATUS_PENDING_DELETE) };
 				} else {
-					return new String[] { String.valueOf(mFilter) };
+					return new String[] { String.valueOf(mFilterType) };
 				}
 			case MODE_GAME:
 				return new String[] { String.valueOf(mGameId) };
@@ -465,9 +495,10 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
-	public void filter(int filter) {
-		if (filter != mFilter && mMode == MODE_ALL) {
-			mFilter = filter;
+	public void filter(int type, String description) {
+		if (type != mFilterType && mMode == MODE_ALL) {
+			mFilterType = type;
+			EventBus.getDefault().postSticky(new PlaysFilterChangedEvent(mFilterType, description));
 			setEmptyText(getString(getEmptyStringResource()));
 			requery();
 		}
