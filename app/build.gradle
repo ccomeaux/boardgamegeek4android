@@ -18,7 +18,7 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
 
-def getVersionName = { ->
+def getBranchName = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
@@ -42,9 +42,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (getBranchName() != 'master') {
+                versionNameSuffix '-RC'
+            }
         }
         debug {
-            versionNameSuffix '-' + getVersionName()
+            versionNameSuffix '-' + getBranchName()
         }
     }
     compileOptions {
