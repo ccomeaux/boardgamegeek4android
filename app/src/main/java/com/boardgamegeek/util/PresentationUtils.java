@@ -13,28 +13,6 @@ public class PresentationUtils {
 	}
 
 	/**
-	 * Build a displayable full name from the first and last name.
-	 */
-	public static String buildFullName(String firstName, String lastName) {
-		return buildFullName(firstName, lastName, "");
-	}
-
-	/**
-	 * Build a displayable full name from the first and last name, using the name if neither of the former are available.
-	 */
-	public static String buildFullName(String firstName, String lastName, String name) {
-		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-			return name;
-		} else if (TextUtils.isEmpty(firstName)) {
-			return lastName.trim();
-		} else if (TextUtils.isEmpty(lastName)) {
-			return firstName.trim();
-		} else {
-			return firstName.trim() + " " + lastName.trim();
-		}
-	}
-
-	/**
 	 * Given the year, return a string interpretation.
 	 */
 	public static String describeYear(Context context, int year) {

@@ -216,8 +216,8 @@ public class BggContract {
 		String DATA = "data";
 	}
 
+	public static final String COLLATE_NOCASE = " COLLATE NOCASE";
 	public static final String CONTENT_AUTHORITY = "com.boardgamegeek";
-
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	public static final String PATH_GAMES = "games";
@@ -273,7 +273,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game";
 
-		public static final String DEFAULT_SORT = GamesColumns.GAME_SORT_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = GamesColumns.GAME_SORT_NAME + COLLATE_NOCASE + " ASC";
 
 		public static final String POLLS_COUNT = "polls_count";
 
@@ -537,7 +537,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.designer";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.designer";
 
-		public static final String DEFAULT_SORT = DesignersColumns.DESIGNER_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = DesignersColumns.DESIGNER_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildDesignerUri(int designerId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(designerId)).build();
@@ -574,7 +574,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.artist";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.artist";
 
-		public static final String DEFAULT_SORT = ArtistsColumns.ARTIST_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = ArtistsColumns.ARTIST_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildArtistUri(int artistId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(artistId)).build();
@@ -595,7 +595,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.publisher";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.publisher";
 
-		public static final String DEFAULT_SORT = PublishersColumns.PUBLISHER_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = PublishersColumns.PUBLISHER_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildPublisherUri(int publisherId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(publisherId)).build();
@@ -616,7 +616,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.mechanic";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.mechanic";
 
-		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = MechanicsColumns.MECHANIC_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildMechanicUri(int mechanicId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(mechanicId)).build();
@@ -633,7 +633,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.category";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.category";
 
-		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = CategoriesColumns.CATEGORY_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildCategoryUri(int categoryId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(categoryId)).build();
@@ -650,7 +650,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.expansion";
 
-		public static final String DEFAULT_SORT = GamesExpansionsColumns.EXPANSION_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = GamesExpansionsColumns.EXPANSION_NAME + COLLATE_NOCASE + " ASC";
 	}
 
 	public static class Collection implements CollectionColumns, GamesColumns, BaseColumns, SyncColumns,
@@ -660,7 +660,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection";
 
-		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = CollectionColumns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_BY_RATING = GamesColumns.STATS_BAYES_AVERAGE + " DESC, " + DEFAULT_SORT;
 
 		public static Uri buildUri(long id) {
@@ -686,10 +686,10 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.buddy";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy";
 
-		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_LASTNAME + " COLLATE NOCASE ASC, "
-			+ BuddiesColumns.BUDDY_FIRSTNAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = BuddiesColumns.BUDDY_LASTNAME + COLLATE_NOCASE + " ASC, "
+			+ BuddiesColumns.BUDDY_FIRSTNAME + COLLATE_NOCASE + " ASC";
 
-		public static final String NAME_SORT = BuddiesColumns.BUDDY_NAME + " COLLATE NOCASE ASC";
+		public static final String NAME_SORT = BuddiesColumns.BUDDY_NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildBuddyUri(String buddyName) {
 			return CONTENT_URI.buildUpon().appendPath(buddyName).build();
@@ -714,7 +714,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll";
 
-		public static final String DEFAULT_SORT = GamePollsColumns.POLL_TITLE + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = GamePollsColumns.POLL_TITLE + COLLATE_NOCASE + " ASC";
 	}
 
 	public static final class GamePollResults implements GamePollResultsColumns, GamePollsColumns, BaseColumns {
@@ -741,7 +741,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamecolor";
 
-		public static final String DEFAULT_SORT = COLOR + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = COLOR + COLLATE_NOCASE + " ASC";
 	}
 
 	public static final class Plays implements PlaysColumns, SyncColumns, SyncListColumns, BaseColumns {
@@ -816,7 +816,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playitem";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playitem";
 
-		public static final String DEFAULT_SORT = NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = NAME + COLLATE_NOCASE + " ASC";
 
 		public static int getPlayItemId(Uri uri) {
 			return StringUtils.parseInt(uri.getLastPathSegment());
@@ -827,7 +827,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer";
 
-		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = START_POSITION + " ASC, play_players." + NAME + COLLATE_NOCASE + " ASC";
 		public static final String SORT_BY_COUNT = COUNT + " DESC, " + DEFAULT_SORT;
 
 		public static long getPlayPlayerId(Uri uri) {
@@ -836,7 +836,7 @@ public class BggContract {
 	}
 
 	public static final class PlayLocations {
-		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = PlaysColumns.LOCATION + COLLATE_NOCASE + " ASC";
 	}
 
 	public static final class CollectionViews implements CollectionViewsColumns, BaseColumns {
@@ -845,7 +845,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionview";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionview";
 
-		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " COLLATE NOCASE ASC";
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + COLLATE_NOCASE + " ASC";
 
 		public static Uri buildViewUri(long viewId) {
 			return CONTENT_URI.buildUpon().appendPath(String.valueOf(viewId)).build();
@@ -870,7 +870,7 @@ public class BggContract {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionviewfilter";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter";
 
-		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + " COLLATE NOCASE ASC, " + TYPE + " ASC";
+		public static final String DEFAULT_SORT = STARRED + " DESC, " + NAME + COLLATE_NOCASE + " ASC, " + TYPE + " ASC";
 
 		public static int getFilterType(Uri uri) {
 			return Integer.valueOf(uri.getLastPathSegment());

@@ -39,8 +39,8 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
-import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
 import com.boardgamegeek.ui.widget.StatBar;
@@ -49,7 +49,6 @@ import com.boardgamegeek.util.AnimationUtils;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
@@ -188,18 +187,11 @@ public class GameFragment extends Fragment implements
 
 	public interface Callbacks {
 		public void onGameInfoChanged(GameInfo gameInfo);
-
-		public DetachableResultReceiver getReceiver();
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public void onGameInfoChanged(GameInfo gameInfo) {
-		}
-
-		@Override
-		public DetachableResultReceiver getReceiver() {
-			return null;
 		}
 	};
 
@@ -743,7 +735,7 @@ public class GameFragment extends Fragment implements
 
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri), null);
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri));
 	}
 
 	private interface GameQuery {

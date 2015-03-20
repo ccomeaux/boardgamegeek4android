@@ -1,14 +1,8 @@
 package com.boardgamegeek.ui;
 
 import android.app.AlertDialog;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderOperation.Builder;
-import android.content.ContentProviderResult;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -19,19 +13,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
-import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.events.LocationSelectedEvent;
+import com.boardgamegeek.events.PlaySelectedEvent;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
+import com.boardgamegeek.tasks.RenameLocationTask;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
-import java.util.ArrayList;
+import de.greenrobot.event.EventBus;
+import hugo.weaving.DebugLog;
 
-public class LocationActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class LocationActivity extends SimpleSinglePaneActivity  {
 	private int mCount;
 	private String mLocationName;
 	private AlertDialog mDialog;
@@ -43,6 +38,8 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		final Intent intent = getIntent();
 		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
 		setTitle(mLocationName);
+
+		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
 	private void setTitle(String title) {
@@ -86,25 +83,28 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	@DebugLog
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	@DebugLog
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
 	}
 
-	@Override
-	public void onSortChanged(String sortName) {
-		// sorting not allowed
+	public void onEvent(RenameLocationTask.Event event) {
+		mLocationName = event.locationName;
+		getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, mLocationName);
+		setTitle(mLocationName);
+		// recreate fragment to load the list with the new location
+		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
+		createFragment();
 	}
 
-	public void showDialog(final String oldLocation) {
-		final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	private void showDialog(final String oldLocation) {
+		LayoutInflater inflater = LayoutInflater.from(this);
 		View view = inflater.inflate(R.layout.dialog_edit_text, (ViewGroup) findViewById(R.id.root_container), false);
 
 		final EditText editText = (EditText) view.findViewById(R.id.edit_text);
@@ -120,70 +120,12 @@ public class LocationActivity extends SimpleSinglePaneActivity implements PlaysF
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						String newLocation = editText.getText().toString();
-						new Task().execute(oldLocation, newLocation);
+						RenameLocationTask task = new RenameLocationTask(LocationActivity.this, oldLocation, newLocation);
+						TaskUtils.executeAsyncTask(task);
 					}
 				}).create();
 			mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		}
 		mDialog.show();
-	}
-
-	private class Task extends AsyncTask<String, Void, String> {
-		public Task() {
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			String oldLocation = params[0];
-			String newLocation = params[1];
-			ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-
-			ContentValues values = new ContentValues();
-			values.put(Plays.LOCATION, newLocation);
-			Builder cpo = ContentProviderOperation
-				.newUpdate(Plays.CONTENT_URI)
-				.withValues(values)
-				.withSelection(
-					Plays.LOCATION + "=? AND (" + Plays.SYNC_STATUS + "=? OR " + Plays.SYNC_STATUS + "=?)",
-					new String[] { oldLocation, String.valueOf(Play.SYNC_STATUS_PENDING_UPDATE),
-						String.valueOf(Play.SYNC_STATUS_IN_PROGRESS) });
-			batch.add(cpo.build());
-
-			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-			cpo = ContentProviderOperation
-				.newUpdate(Plays.CONTENT_URI)
-				.withValues(values)
-				.withSelection(Plays.LOCATION + "=? AND " + Plays.SYNC_STATUS + "=?",
-					new String[] { oldLocation, String.valueOf(Play.SYNC_STATUS_SYNCED) });
-			batch.add(cpo.build());
-
-			ContentProviderResult[] res = ResolverUtils.applyBatch(LocationActivity.this, batch);
-
-			String result;
-			if (res.length > 0) {
-				result = getString(R.string.msg_play_location_change, res.length, oldLocation, newLocation);
-				SyncService.sync(LocationActivity.this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-			} else {
-				result = getString(R.string.msg_play_location_change);
-			}
-
-			mLocationName = newLocation;
-			getIntent().putExtra(ActivityUtils.KEY_LOCATION_NAME, newLocation);
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			setTitle(mLocationName);
-
-			// recreate fragment to load the list with the new location
-			getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
-			createFragment();
-
-			if (!TextUtils.isEmpty(result)) {
-				Toast.makeText(LocationActivity.this, result, Toast.LENGTH_LONG).show();
-			}
-		}
 	}
 }

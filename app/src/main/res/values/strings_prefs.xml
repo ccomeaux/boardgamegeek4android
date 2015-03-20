@@ -170,6 +170,16 @@ Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'
 	<string name="library_DragSortListView_isOpenSource">true</string>
 	<string name="library_DragSortListView_repositoryLink">https://github.com/bauerca/drag-sort-listview</string>
 
+	<string name="define_int_EventBus"></string>
+	<string name="library_EventBus_author">green robot</string>
+	<string name="library_EventBus_authorWebsite">http://greenrobot.de/</string>
+	<string name="library_EventBus_libraryName">EventBus</string>
+	<string name="library_EventBus_libraryDescription">Android optimized event bus that simplifies communication between Activities, Fragments, Threads, Services, etc. Less code, better quality.</string>
+	<string name="library_EventBus_libraryVersion">2.4.0</string>
+	<string name="library_EventBus_licenseId">apache_2_0</string>
+	<string name="library_EventBus_isOpenSource">true</string>
+	<string name="library_EventBus_repositoryLink">https://github.com/greenrobot/EventBus</string>
+
 	<string name="define_int_Hugo"></string>
 	<string name="library_Hugo_author">Jake Wharton</string>
 	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>

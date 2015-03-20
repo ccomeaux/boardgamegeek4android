@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -20,12 +18,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.CollectionStatusChangedEvent;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
 import com.boardgamegeek.model.CollectionItem;
 import com.boardgamegeek.model.CollectionResponse;
-import com.boardgamegeek.ui.BuddyCollectionFragment.BuddyCollectionAdapter.BuddyGameViewHolder;
 import com.boardgamegeek.ui.loader.BggLoader;
 import com.boardgamegeek.ui.loader.Data;
 import com.boardgamegeek.util.ActivityUtils;
@@ -37,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import timber.log.Timber;
 
 public class BuddyCollectionFragment extends StickyHeaderListFragment implements
@@ -54,29 +54,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	private String mStatusLabel;
 	private String[] mStatusValues;
 	private String[] mStatusEntries;
-
-	public interface Callbacks {
-		public void onCollectionStatusChanged(String status);
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public void onCollectionStatusChanged(String status) {
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -104,12 +81,6 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_buddy_collection));
@@ -119,10 +90,9 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	@Override
 	public void onListItemClick(View convertView, int position, long id) {
 		super.onListItemClick(convertView, position, id);
-		BuddyGameViewHolder holder = (BuddyGameViewHolder) convertView.getTag();
-		if (holder != null) {
-			ActivityUtils.launchGame(getActivity(), holder.id, holder.name.getText().toString());
-		}
+		int gameId = (int) convertView.getTag(R.id.id);
+		String gameName = (String) convertView.getTag(R.id.game_name);
+		ActivityUtils.launchGame(getActivity(), gameId, gameName);
 	}
 
 	@Override
@@ -195,7 +165,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	private void reload() {
-		mCallbacks.onCollectionStatusChanged(mStatusLabel);
+		EventBus.getDefault().postSticky(new CollectionStatusChangedEvent(mStatusLabel));
 		if (mAdapter != null) {
 			mAdapter.clear();
 		}
@@ -316,7 +286,7 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		private LayoutInflater mInflater;
 
 		public BuddyCollectionAdapter(Activity activity, List<CollectionItem> collection) {
-			super(activity, R.layout.row_collection, collection);
+			super(activity, R.layout.row_text_2, collection);
 			mInflater = activity.getLayoutInflater();
 			setCollection(collection);
 		}
@@ -335,13 +305,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		public View getView(int position, View convertView, ViewGroup parent) {
 			BuddyGameViewHolder holder;
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.row_collection, parent, false);
+				convertView = mInflater.inflate(R.layout.row_text_2, parent, false);
 				holder = new BuddyGameViewHolder(convertView);
 				convertView.setTag(holder);
 			} else {
 				holder = (BuddyGameViewHolder) convertView.getTag();
 			}
-			convertView.findViewById(R.id.list_thumbnail).setVisibility(View.GONE);
 
 			CollectionItem game;
 			try {
@@ -350,9 +319,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 				return convertView;
 			}
 			if (game != null) {
-				holder.name.setText(game.gameName());
-				holder.year.setText(String.valueOf(game.gameId)); // year isn't available
-				holder.id = game.gameId;
+				holder.title.setText(game.gameName());
+				holder.text.setText(String.valueOf(game.gameId));
+
+				convertView.setTag(R.id.id, game.gameId);
+				convertView.setTag(R.id.game_name, game.gameName());
 			}
 			return convertView;
 		}
@@ -386,13 +357,12 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 		}
 
 		class BuddyGameViewHolder {
-			public TextView name;
-			public TextView year;
-			public int id;
+			public TextView title;
+			public TextView text;
 
 			public BuddyGameViewHolder(View view) {
-				name = (TextView) view.findViewById(R.id.name);
-				year = (TextView) view.findViewById(R.id.year);
+				title = (TextView) view.findViewById(android.R.id.title);
+				text = (TextView) view.findViewById(android.R.id.text1);
 			}
 		}
 

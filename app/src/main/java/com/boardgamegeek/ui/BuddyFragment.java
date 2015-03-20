@@ -1,14 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -24,24 +20,21 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.tasks.BuddyNicknameUpdateTask;
+import com.boardgamegeek.ui.model.Buddy;
+import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
-import com.boardgamegeek.util.PresentationUtils;
-import com.boardgamegeek.util.DetachableResultReceiver;
 import com.boardgamegeek.util.HttpUtils;
-import com.boardgamegeek.util.ResolverUtils;
+import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -49,6 +42,9 @@ import butterknife.OnClick;
 
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
+	private static final int TOKEN = 0;
+	private static final int PLAYS_TOKEN = 1;
+
 	private String mBuddyName;
 	private boolean mRefreshed;
 	private ViewGroup mRootView;
@@ -56,22 +52,10 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@InjectView(R.id.username) TextView mName;
 	@InjectView(R.id.avatar) ImageView mAvatar;
 	@InjectView(R.id.nickname) TextView mNickname;
+	@InjectView(R.id.plays_label) TextView mPlays;
 	@InjectView(R.id.updated) TextView mUpdated;
 	private int mDefaultTextColor;
 	private int mLightTextColor;
-
-	public interface Callbacks {
-		public DetachableResultReceiver getReceiver();
-	}
-
-	private static Callbacks sDummyCallbacks = new Callbacks() {
-		@Override
-		public DetachableResultReceiver getReceiver() {
-			return null;
-		}
-	};
-
-	private Callbacks mCallbacks = sDummyCallbacks;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,26 +83,10 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		mDefaultTextColor = mNickname.getTextColors().getDefaultColor();
 		mLightTextColor = getResources().getColor(R.color.light_text);
 
-		getLoaderManager().restartLoader(BuddyQuery._TOKEN, null, this);
+		getLoaderManager().restartLoader(TOKEN, null, this);
+		getLoaderManager().restartLoader(PLAYS_TOKEN, null, this);
 
 		return mRootView;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		if (!(activity instanceof Callbacks)) {
-			throw new ClassCastException("Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mCallbacks = sDummyCallbacks;
 	}
 
 	@OnClick(R.id.nickname)
@@ -129,9 +97,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
-		if (id == BuddyQuery._TOKEN) {
-			loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), BuddyQuery.PROJECTION, null,
-				null, null);
+		switch (id) {
+			case TOKEN:
+				loader = new CursorLoader(getActivity(), Buddies.buildBuddyUri(mBuddyName), Buddy.PROJECTION, null,
+					null, null);
+				break;
+			case PLAYS_TOKEN:
+				loader = new CursorLoader(getActivity(), Plays.buildPlayersByUniqueUserUri(), Player.PROJECTION,
+					PlayPlayers.USER_NAME + "=?", new String[] { String.valueOf(mBuddyName) }, null);
+				break;
 		}
 		return loader;
 	}
@@ -142,15 +116,35 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-		if (loader.getId() == BuddyQuery._TOKEN) {
-			onBuddyQueryComplete(cursor);
-		} else {
-			cursor.close();
+		switch (loader.getId()) {
+			case TOKEN:
+				onBuddyQueryComplete(cursor);
+				break;
+			case PLAYS_TOKEN:
+				onPlaysQueryComplete(cursor);
+				break;
+			default:
+				cursor.close();
+				break;
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@OnClick(R.id.collection_root)
+	public void onCollectionClick(View v) {
+		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, mBuddyName);
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.plays_root)
+	public void onPlaysClick(View v) {
+		Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, mBuddyName);
+		startActivity(intent);
 	}
 
 	private void onBuddyQueryComplete(Cursor cursor) {
@@ -159,30 +153,35 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			return;
 		}
 
-		String nickname = cursor.getString(BuddyQuery.PLAY_NICKNAME);
-		final String avatarUrl = cursor.getString(BuddyQuery.AVATAR_URL);
-		long updated = cursor.getLong(BuddyQuery.UPDATED);
-		String firstName = cursor.getString(BuddyQuery.FIRSTNAME);
-		String lastName = cursor.getString(BuddyQuery.LASTNAME);
-		String fullName = PresentationUtils.buildFullName(firstName, lastName);
+		Buddy buddy = Buddy.fromCursor(cursor);
 
 		Picasso.with(getActivity())
-			.load(HttpUtils.ensureScheme(avatarUrl))
+			.load(HttpUtils.ensureScheme(buddy.getAvatarUrl()))
 			.placeholder(R.drawable.person_image_empty)
 			.error(R.drawable.person_image_empty)
 			.fit().into(mAvatar);
-		mFullName.setText(fullName);
+		mFullName.setText(buddy.getFullName());
 		mName.setText(mBuddyName);
-		if (TextUtils.isEmpty(nickname)) {
+		if (TextUtils.isEmpty(buddy.getNickName())) {
 			mNickname.setTextColor(mLightTextColor);
-			mNickname.setText(fullName);
+			mNickname.setText(buddy.getFirstName());
 		} else {
 			mNickname.setTextColor(mDefaultTextColor);
-			mNickname.setText(nickname);
+			mNickname.setText(buddy.getNickName());
 		}
-		mUpdated.setText((updated == 0 ? getResources().getString(R.string.needs_updating) : getResources().getString(
-			R.string.updated)
-			+ ": " + DateUtils.getRelativeTimeSpanString(updated)));
+		mUpdated.setText((buddy.getUpdated() == 0 ?
+			getResources().getString(R.string.needs_updating) :
+			getResources().getString(
+				R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(buddy.getUpdated())));
+	}
+
+	private void onPlaysQueryComplete(Cursor cursor) {
+		if (cursor == null || !cursor.moveToFirst()) {
+			return;
+		}
+
+		Player player = Player.fromCursor(cursor);
+		mPlays.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
 	}
 
 	public void requestRefresh() {
@@ -193,20 +192,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	public void forceRefresh() {
-		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName, mCallbacks.getReceiver());
-	}
-
-	private interface BuddyQuery {
-		int _TOKEN = 0x1;
-
-		String[] PROJECTION = { Buddies.BUDDY_FIRSTNAME, Buddies.BUDDY_LASTNAME, Buddies.AVATAR_URL,
-			Buddies.PLAY_NICKNAME, Buddies.UPDATED };
-
-		int FIRSTNAME = 0;
-		int LASTNAME = 1;
-		int AVATAR_URL = 2;
-		int PLAY_NICKNAME = 3;
-		int UPDATED = 4;
+		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName);
 	}
 
 	public void showDialog(final String nickname, final String username) {
@@ -227,77 +213,12 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String newNickname = editText.getText().toString();
-					new Task(username, checkBox.isChecked()).execute(newNickname);
+					BuddyNicknameUpdateTask task = new BuddyNicknameUpdateTask(getActivity(),
+						username, newNickname, checkBox.isChecked());
+					TaskUtils.executeAsyncTask(task);
 				}
 			}).create();
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		dialog.show();
-	}
-
-	private class Task extends AsyncTask<String, Void, String> {
-		private static final String SELECTION = PlayPlayers.USER_NAME + "=? AND play_players." + PlayPlayers.NAME
-			+ "!=?";
-		Context mContext;
-		Uri mUri;
-		String mUsername;
-		boolean mUpdatePlays;
-
-		public Task(String username, boolean updatePlays) {
-			mContext = getActivity();
-			mUri = Buddies.buildBuddyUri(username);
-			mUsername = username;
-			mUpdatePlays = updatePlays;
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			String newNickname = params[0];
-			String result = null;
-			updateNickname(mContext, mUri, newNickname);
-			if (mUpdatePlays) {
-				if (TextUtils.isEmpty(newNickname)) {
-					result = getString(R.string.msg_missing_nickname);
-				} else {
-					int count = updatePlays(mContext, mUsername, newNickname);
-					if (count > 0) {
-						updatePlayers(mContext, mUsername, newNickname);
-						SyncService.sync(mContext, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
-					}
-					result = getResources().getQuantityString(R.plurals.msg_updated_plays, count, count);
-				}
-			}
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (!TextUtils.isEmpty(result)) {
-				Toast.makeText(mContext, result, Toast.LENGTH_LONG).show();
-			}
-		}
-
-		private void updateNickname(final Context context, final Uri uri, String nickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(Buddies.PLAY_NICKNAME, nickname);
-			context.getContentResolver().update(uri, values, null, null);
-		}
-
-		private int updatePlays(final Context context, final String username, final String newNickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(Plays.SYNC_STATUS, Play.SYNC_STATUS_PENDING_UPDATE);
-			List<Integer> playIds = ResolverUtils.queryInts(context.getContentResolver(), Plays.buildPlayersUri(),
-				Plays.PLAY_ID, SELECTION, new String[] { username, newNickname });
-			for (Integer playId : playIds) {
-				context.getContentResolver().update(Plays.buildPlayUri(playId), values, null, null);
-			}
-			return playIds.size();
-		}
-
-		private int updatePlayers(final Context context, final String username, String newNickname) {
-			ContentValues values = new ContentValues(1);
-			values.put(PlayPlayers.NAME, newNickname);
-			return context.getContentResolver().update(Plays.buildPlayersUri(), values, SELECTION,
-				new String[] { username, newNickname });
-		}
 	}
 }

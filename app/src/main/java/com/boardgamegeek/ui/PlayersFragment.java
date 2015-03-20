@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -16,10 +15,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.sorter.PlayersSorter;
 import com.boardgamegeek.sorter.PlayersSorterFactory;
+import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
@@ -32,6 +31,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private static final String STATE_SELECTED_NAME = "selectedName";
 	private static final String STATE_SELECTED_USERNAME = "selectedUsername";
 	private static final String STATE_SORT_TYPE = "sortType";
+	private static final int TOKEN = 0;
 	private PlayersAdapter mAdapter;
 	private String mSelectedName;
 	private String mSelectedUsername;
@@ -108,9 +108,8 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@Override
 	public void onListItemClick(View v, int position, long id) {
-		final Cursor cursor = (Cursor) mAdapter.getItem(position);
-		final String name = cursor.getString(PlayersQuery.NAME);
-		final String username = cursor.getString(PlayersQuery.USER_NAME);
+		final String name = (String) v.getTag(R.id.name);
+		final String username = (String) v.getTag(R.id.username);
 		if (mCallbacks.onPlayerSelected(name, username)) {
 			setSelectedPlayer(name, username);
 		}
@@ -118,7 +117,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 
 	@DebugLog
 	public void requery() {
-		getLoaderManager().restartLoader(PlayersQuery._TOKEN, getArguments(), this);
+		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
 	public int getSort() {
@@ -148,7 +147,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		return new CursorLoader(getActivity(), Plays.buildPlayersByUniquePlayerUri(),
-			PlayersQuery.PROJECTION, null, null, mSorter.getOrderByClause());
+			Player.PROJECTION, null, null, mSorter.getOrderByClause());
 	}
 
 	@Override
@@ -158,7 +157,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 
 		int token = loader.getId();
-		if (token == PlayersQuery._TOKEN) {
+		if (token == TOKEN) {
 			if (mAdapter == null) {
 				mAdapter = new PlayersAdapter(getActivity());
 				setListAdapter(mAdapter);
@@ -200,16 +199,18 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder holder = (ViewHolder) view.getTag();
 
-			String name = cursor.getString(PlayersQuery.NAME);
-			String userName = cursor.getString(PlayersQuery.USER_NAME);
-			int quantity = cursor.getInt(PlayersQuery.SUM_QUANTITY);
+			Player player = Player.fromCursor(cursor);
 
-			UIUtils.setActivatedCompat(view, name.equals(mSelectedName) && userName.equals(mSelectedUsername));
+			UIUtils.setActivatedCompat(view,
+				player.getName().equals(mSelectedName) && player.getUsername().equals(mSelectedUsername));
 
-			holder.name.setText(name);
-			holder.username.setText(userName);
-			holder.username.setVisibility(TextUtils.isEmpty(userName) ? View.GONE : View.VISIBLE);
-			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, quantity, quantity));
+			holder.name.setText(player.getName());
+			holder.username.setText(player.getUsername());
+			holder.username.setVisibility(TextUtils.isEmpty(player.getUsername()) ? View.GONE : View.VISIBLE);
+			holder.quantity.setText(getResources().getQuantityString(R.plurals.plays, player.getPlayCount(), player.getPlayCount()));
+
+			view.setTag(R.id.name, player.getName());
+			view.setTag(R.id.username, player.getUsername());
 		}
 
 		@DebugLog
@@ -253,15 +254,5 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		class HeaderViewHolder {
 			TextView text;
 		}
-	}
-
-	private interface PlayersQuery {
-		int _TOKEN = 0x1;
-
-		String[] PROJECTION = { BaseColumns._ID, PlayPlayers.NAME, PlayPlayers.USER_NAME, PlayPlayers.SUM_QUANTITY };
-
-		int NAME = 1;
-		int USER_NAME = 2;
-		int SUM_QUANTITY = 3;
 	}
 }

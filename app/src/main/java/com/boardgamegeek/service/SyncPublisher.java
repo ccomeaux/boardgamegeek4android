@@ -7,6 +7,7 @@ import android.net.Uri;
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.Company;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Publishers;
 
 import timber.log.Timber;
@@ -20,7 +21,10 @@ public class SyncPublisher extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync publisher ID=" + mPublisherId;
+		if (mPublisherId == BggContract.INVALID_ID){
+			return "update an unknown publisher";
+		}
+		return "update publisher " + mPublisherId;
 	}
 
 	@Override

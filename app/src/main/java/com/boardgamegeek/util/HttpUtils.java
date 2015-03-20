@@ -2,17 +2,9 @@ package com.boardgamegeek.util;
 
 import android.text.TextUtils;
 
-import com.boardgamegeek.auth.AuthResponse;
-import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
 

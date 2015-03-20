@@ -126,7 +126,6 @@
 	<string name="title_log_play">Log Play</string>
 	<string name="title_log_player">Log Player</string>
 	<string name="title_add_players">Add Players</string>
-	<string name="title_info">Info</string>
 	<string name="title_comments">Comments</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_colors">Colors</string>
@@ -150,6 +149,7 @@
 	<string name="title_add_color">Add Color</string>
 	<string name="msg_shortcut_created">Shortcut created</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
+	<string name="msg_updated_nickname">Your GeekBuddy\'s nick name has been updated.</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="title_my_geek">My Geek</string>
 	<string name="title_browse">Browse</string>
@@ -162,7 +162,7 @@
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_off">If you want to see your Collection, go to Settings > Sync and select some statuses under Collection.</string>
 	<string name="empty_collection_filter_on">You have no games in your collection that match this filter.</string>
-	<string name="empty_buddy_collection">No games in buddy collection.</string>
+	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>
 	<string name="empty_plays_buddy">You haven\'t logged any plays with this GeekBuddy.</string>
@@ -228,6 +228,10 @@
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
 	<string name="menu_plays_sort_length">Length</string>
+	<string name="menu_plays_filter">Filter…</string>
+	<string name="menu_plays_filter_all">All plays</string>
+	<string name="menu_plays_filter_in_progress">Edits and Drafts</string>
+	<string name="menu_plays_filter_pending">Pending upload</string>
 	<string name="menu_sort_name">Name</string>
 	<string name="menu_sort_quantity">Play count</string>
 	<string name="newest">Newest</string>
@@ -271,7 +275,7 @@
 	<string name="msg_play_deleted_draft">Deleted a draft of</string>
 	<string name="msg_play_update_bad_id">Play doesn\'t exist -</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
-	<string name="msg_play_location_change">Changed %1$s plays from \"%2$s\" to \"%3$s\"</string>
+	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_collection_view_deleted">Collection view deleted successfully</string>
 	<string name="msg_saved">Saved!</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
@@ -448,20 +452,24 @@
 		<item quantity="other">%s total edits</item>
 	</plurals>
 	<plurals name="plays_summary">
-		<item quantity="one">%1$,d Plays; last play on %2$s</item>
+		<item quantity="one">%1$,d Play; last play on %2$s</item>
 		<item quantity="other">%1$,d Plays; last play on %2$s</item>
 	</plurals>
 	<plurals name="colors_suffix">
-		<item quantity="one">%,d Colors/Teams</item>
+		<item quantity="one">%,d Color/Team</item>
 		<item quantity="other">%,d Colors/Teams</item>
 	</plurals>
 	<plurals name="comments_suffix">
-		<item quantity="one">%,d Comments</item>
+		<item quantity="one">%,d Comment</item>
 		<item quantity="other">%,d Comments</item>
 	</plurals>
 	<plurals name="ratings_suffix">
 		<item quantity="one">%,d Rating</item>
 		<item quantity="other">%,d Ratings</item>
+	</plurals>
+	<plurals name="msg_play_location_change">
+		<item quantity="one">Changed %1$s play from \"%2$s\" to \"%3$s\"</item>
+		<item quantity="other">Changed %1$s plays from \"%2$s\" to \"%3$s\"</item>
 	</plurals>
 
 </resources>

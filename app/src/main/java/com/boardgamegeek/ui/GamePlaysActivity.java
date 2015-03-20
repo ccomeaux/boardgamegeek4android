@@ -9,13 +9,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.PlaySelectedEvent;
+import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class GamePlaysActivity extends SimpleSinglePaneActivity implements PlaysFragment.Callbacks {
+public class GamePlaysActivity extends SimpleSinglePaneActivity  {
 	private static final String KEY_COUNT = "COUNT";
 	private int mGameId;
 	private String mGameName;
@@ -77,22 +79,13 @@ public class GamePlaysActivity extends SimpleSinglePaneActivity implements Plays
 	}
 
 	@DebugLog
-	@Override
-	public boolean onPlaySelected(int playId, int gameId, String gameName, String thumbnailUrl, String imageUrl) {
-		ActivityUtils.startPlayActivity(this, playId, gameId, gameName, thumbnailUrl, imageUrl);
-		return false;
+	public void onEvent(PlaySelectedEvent event) {
+		ActivityUtils.startPlayActivity(this, event.playId, event.gameId, event.gameName, event.thumbnailUrl, event.imageUrl);
 	}
 
 	@DebugLog
-	@Override
-	public void onPlayCountChanged(int count) {
-		mCount = count;
+	public void onEvent(PlaysCountChangedEvent event) {
+		mCount = event.count;
 		supportInvalidateOptionsMenu();
-	}
-
-	@DebugLog
-	@Override
-	public void onSortChanged(String sortName) {
-		// sort not supported in this activity
 	}
 }

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -164,5 +165,29 @@ public class CursorUtils {
 			}
 		}
 		return "";
+	}
+
+	public static String getFirstCharacter(Cursor cursor, int position, String columnName, String defaultValue) {
+		if (cursor == null) {
+			return defaultValue;
+		}
+
+		int columnIndex = cursor.getColumnIndex(columnName);
+		if (columnIndex == -1) {
+			return defaultValue;
+		}
+
+		int cur = cursor.getPosition();
+		try {
+			cursor.moveToPosition(position);
+			String value = cursor.getString(columnIndex);
+			if (TextUtils.isEmpty(value)) {
+				return defaultValue;
+			}
+
+			return value.substring(0, 1).toUpperCase(Locale.getDefault());
+		} finally {
+			cursor.moveToPosition(cur);
+		}
 	}
 }

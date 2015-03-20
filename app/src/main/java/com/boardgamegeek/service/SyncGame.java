@@ -6,6 +6,7 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
+import com.boardgamegeek.provider.BggContract;
 
 import timber.log.Timber;
 
@@ -18,7 +19,10 @@ public class SyncGame extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync game ID=" + mGameId;
+		if (mGameId == BggContract.INVALID_ID) {
+			return "update an unknown game";
+		}
+		return "update game " + mGameId;
 	}
 
 	@Override

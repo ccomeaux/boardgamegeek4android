@@ -1,13 +1,10 @@
 package com.boardgamegeek.util;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
-
-import com.boardgamegeek.R;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -189,7 +186,7 @@ public class StringUtils {
 	 */
 	public static SpannableString boldSecondString(String first, String second, String third) {
 		String s = first + " " + second + " " + third;
-		SpannableString ss = new SpannableString(s.trim());
+		SpannableString ss = new SpannableString(s);
 		int length = first.length() + 1;
 		ss.setSpan(
 			new StyleSpan(android.graphics.Typeface.BOLD),

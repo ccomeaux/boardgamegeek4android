@@ -2,6 +2,7 @@ package com.boardgamegeek.service;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.io.Adapter;
@@ -20,7 +21,10 @@ public class SyncPlaysByDate extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync plays for date=" + mDate;
+		if (TextUtils.isEmpty(mDate)) {
+			return "update plays for an unknown date";
+		}
+		return "update plays for " + mDate;
 	}
 
 	@Override

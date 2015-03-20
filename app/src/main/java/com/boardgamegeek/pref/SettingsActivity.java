@@ -106,8 +106,15 @@ public class SettingsActivity extends PreferenceActivity {
 					public boolean onPreferenceClick(Preference preference) {
 						new Libs.Builder()
 							.withFields(R.string.class.getFields())
-							.withLibraries("OkHttp", "DragSortListView", "Hugo", "PhotoView",
-								"RangeSeekBar", "StickyListHeaders", "AndroidIcons")
+							.withLibraries(
+								"OkHttp",
+								"DragSortListView",
+								"Hugo",
+								"PhotoView",
+								"RangeSeekBar",
+								"StickyListHeaders",
+								"AndroidIcons",
+								"EventBus")
 							.withAutoDetect(true)
 							.withLicenseShown(true)
 							.withActivityTitle(getString(R.string.pref_about_licenses))

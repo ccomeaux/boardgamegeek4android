@@ -265,7 +265,7 @@ public class GameCollectionFragment extends Fragment implements
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
 		if (mGameId != BggContract.INVALID_ID) {
-			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId, null);
+			UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME_COLLECTION, mGameId);
 		}
 	}
 

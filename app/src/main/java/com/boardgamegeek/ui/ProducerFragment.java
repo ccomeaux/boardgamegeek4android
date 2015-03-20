@@ -97,7 +97,7 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 			UIUtils.setTextMaybeHtml(mDescription, description);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
-				UpdateService.start(getActivity(), mToken, id, null);
+				UpdateService.start(getActivity(), mToken, id);
 			}
 		} else {
 			if (cursor != null) {

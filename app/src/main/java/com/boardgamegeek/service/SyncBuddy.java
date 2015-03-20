@@ -1,6 +1,7 @@
 package com.boardgamegeek.service;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
@@ -18,7 +19,10 @@ public class SyncBuddy extends UpdateTask {
 
 	@Override
 	public String getDescription() {
-		return "Sync buddy name=" + mName;
+		if (TextUtils.isEmpty(mName)) {
+			return "update an unknown buddy";
+		}
+		return "update buddy " + mName;
 	}
 
 	@Override

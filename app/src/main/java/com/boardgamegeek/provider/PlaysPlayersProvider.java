@@ -31,6 +31,7 @@ public class PlaysPlayersProvider extends BaseProvider {
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
 					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
 					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
 					.where(PlayPlayers.NAME + "!= '' OR " + PlayPlayers.USER_NAME + "!=''")
 					.groupBy(PlayPlayers.UNIQUE_NAME);
 				break;
@@ -46,7 +47,9 @@ public class PlaysPlayersProvider extends BaseProvider {
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
 					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
 					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
-					.where(PlayPlayers.USER_NAME + "!=''").groupBy(PlayPlayers.USER_NAME);
+					.map(Plays.SUM_QUANTITY, "SUM(" + Plays.QUANTITY + ")")
+					.where(PlayPlayers.USER_NAME + "!=''")
+					.groupBy(PlayPlayers.USER_NAME);
 				break;
 			default:
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)

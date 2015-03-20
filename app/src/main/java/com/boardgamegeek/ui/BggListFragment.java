@@ -17,6 +17,12 @@ import com.squareup.picasso.Picasso;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * A {@link android.support.v4.app.ListFragment} with a few extra features:
+ * 1. retains scroll state on rotation
+ * 2. sets up typical list view style (background color, fast scroll, etc.)
+ * 3. helper methods for loading thumbnails
+ */
 public abstract class BggListFragment extends ListFragment {
 	private static final int LIST_VIEW_STATE_TOP_DEFAULT = 0;
 	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;

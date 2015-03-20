@@ -15,7 +15,7 @@ public abstract class TopLevelSinglePaneActivity extends TopLevelActivity {
 	}
 
 	private static final String TAG_SINGLE_PANE = "single_pane";
-	protected Fragment mFragment;
+	private Fragment mFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
