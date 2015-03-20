@@ -44,8 +44,8 @@ public class ResolverUtils {
 					}
 					return result;
 				} catch (OperationApplicationException | RemoteException e) {
-					Timber.e(e, batch.toString());
-					throw new RuntimeException(batch.toString(), e);
+					Timber.e(e, "Applying batch");
+					throw new RuntimeException("Applying batch", e);
 				}
 			}
 		}
