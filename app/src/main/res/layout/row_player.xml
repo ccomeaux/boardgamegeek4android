@@ -107,7 +107,7 @@
 		android:layout_width="@dimen/image_button_size"
 		android:layout_height="@dimen/image_button_size"
 		android:layout_gravity="center"
-		android:background="?attr/selectableItemBackground"
+		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/delete"
 		android:focusable="false"
 		android:scaleType="center"

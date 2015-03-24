@@ -137,7 +137,7 @@
 						android:layout_width="@dimen/image_button_size"
 						android:layout_height="@dimen/image_button_size"
 						android:layout_gravity="center_vertical"
-						android:background="?attr/selectableItemBackground"
+						android:background="?attr/selectableItemBackgroundBorderless"
 						android:onClick="onTimer"
 						android:scaleType="center"
 						android:src="@drawable/ic_action_timer_light"/>

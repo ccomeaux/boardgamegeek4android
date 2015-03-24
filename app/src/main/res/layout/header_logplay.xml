@@ -82,7 +82,7 @@
 			<ImageView
 				android:id="@+id/timer_toggle"
 				style="@style/Icon"
-				android:background="?attr/selectableItemBackground"
+				android:background="?attr/selectableItemBackgroundBorderless"
 				android:src="@drawable/ic_action_timer"/>
 
 			<FrameLayout
@@ -183,6 +183,7 @@
 			<ImageView
 				android:id="@+id/player_sort"
 				style="@style/Icon"
+				android:background="?attr/selectableItemBackgroundBorderless"
 				android:src="@drawable/ic_action_sort_light"/>
 
 			<TextView
@@ -198,7 +199,7 @@
 				android:id="@+id/clear_players"
 				android:layout_width="@dimen/image_button_size"
 				android:layout_height="@dimen/image_button_size"
-				android:background="?attr/selectableItemBackground"
+				android:background="?attr/selectableItemBackgroundBorderless"
 				android:scaleType="center"
 				android:src="@drawable/ic_action_cancel_light"/>
 		</LinearLayout>
