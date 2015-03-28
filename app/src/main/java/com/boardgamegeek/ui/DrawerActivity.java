@@ -29,10 +29,6 @@ public abstract class DrawerActivity extends BaseActivity {
 		return 0;
 	}
 
-	protected boolean isTitleHidden() {
-		return false;
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -179,7 +175,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			iconView.setVisibility(View.GONE);
 		}
 		if (titleId == getDrawerResId()) {
-			view.setBackgroundResource(R.color.primary);
+			view.setBackgroundResource(R.color.navdrawer_selected_row);
 			titleView.setTextColor(getResources().getColor(R.color.primary_dark));
 			iconView.setColorFilter(getResources().getColor(R.color.primary_dark));
 		} else {
