@@ -13,12 +13,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.VersionUtils;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 
 public class PlayStatView extends TableRow {
 	@InjectView(R.id.label) TextView mLabel;
@@ -46,22 +47,26 @@ public class PlayStatView extends TableRow {
 		mValue.setText(text);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setInfoText(int textId) {
 		mInfo.setVisibility(View.VISIBLE);
 		setClickBackground();
-		mBuilder = new AlertDialog.Builder(getContext());
 		final SpannableString s = new SpannableString(getContext().getString(textId));
 		Linkify.addLinks(s, Linkify.ALL);
+		if (VersionUtils.hasHoneycomb()) {
+			mBuilder = new AlertDialog.Builder(getContext(), R.style.Theme_bgglight_Dialog_Custom);
+		} else {
+			mBuilder = new AlertDialog.Builder(getContext());
+		}
 		mBuilder.setTitle(mLabel.getText()).setMessage(s);
 	}
 
 	@OnClick(R.id.label_container)
 	public void onInfoClick(View v) {
 		if (mBuilder != null) {
-			mBuilder.setTitle(mLabel.getText());
-			AlertDialog dialog = mBuilder.create();
-			dialog.show();
-			((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+			AlertDialog dialog = mBuilder.show();
+			TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+			textView.setMovementMethod(LinkMovementMethod.getInstance());
 		}
 	}
 

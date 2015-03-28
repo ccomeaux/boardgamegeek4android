@@ -2,7 +2,12 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
+		<item name="colorAccent">@color/primary_dark</item>
+	</style>
+
+	<style name="Theme.bgglight.Dialog.Custom">
 		<item name="android:windowNoTitle">false</item>
+		<item name="android:minWidth">@dimen/dialog_min_width</item>
 	</style>
 
 	<style name="RowContainer">

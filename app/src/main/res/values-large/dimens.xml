@@ -7,5 +7,6 @@
 	<dimen name="material_margin_horizontal_card_contents">16dp</dimen>
 	<dimen name="material_margin_horizontal_webview_container">16dp</dimen>
 	<dimen name="material_indent_horizontal">80dp</dimen>
+	<dimen name="dialog_min_width">384dp</dimen>
 
 </resources>
