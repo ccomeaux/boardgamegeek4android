@@ -54,12 +54,20 @@ public class GamePersister {
 	}
 
 	public int save(Game game) {
+		return save(game, null);
+	}
+
+	public int save(Game game, String debugMessage) {
 		List<Game> games = new ArrayList<>(1);
 		games.add(game);
-		return save(games);
+		return save(games, debugMessage);
 	}
 
 	public int save(List<Game> games) {
+		return save(games, null);
+	}
+
+	public int save(List<Game> games, String debugMessage) {
 		boolean debug = PreferencesUtils.getDebug(mContext);
 		int length = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
@@ -97,7 +105,7 @@ public class GamePersister {
 					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
 				if (debug) {
 					try {
-						length += ResolverUtils.applyBatch(mContext, batch).length;
+						length += ResolverUtils.applyBatch(mContext, batch, debugMessage).length;
 						Timber.i("Saved game ID=" + game.id);
 					} catch (Exception e) {
 						NotificationCompat.Builder builder = NotificationUtils
@@ -116,7 +124,7 @@ public class GamePersister {
 			if (debug) {
 				return length;
 			} else {
-				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage);
 				return result.length;
 			}
 		}

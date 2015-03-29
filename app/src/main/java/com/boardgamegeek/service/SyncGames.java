@@ -51,7 +51,7 @@ public abstract class SyncGames extends SyncTask {
 					GamePersister persister = new GamePersister(mContext);
 					ThingResponse response = getThingResponse(mService, gameIds);
 					if (response.games != null && response.games.size() > 0) {
-						int count = persister.save(response.games);
+						int count = persister.save(response.games, detail);
 						syncResult.stats.numUpdates += response.games.size();
 						Timber.i("...saved " + count + " rows for " + response.games.size() + " games");
 					} else {
