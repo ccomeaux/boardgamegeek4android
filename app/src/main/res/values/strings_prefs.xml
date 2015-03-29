@@ -87,7 +87,7 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body"><![CDATA[
 <h4>What\'s New?</h4>
-<h5>Coming soon…</h5>
+<h5>5.0</h5>
 <ul>
 <li>Material design and support for Android Lollipop</li>
 <li>GeekLists</li>
