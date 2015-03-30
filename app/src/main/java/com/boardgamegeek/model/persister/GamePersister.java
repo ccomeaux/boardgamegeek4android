@@ -46,11 +46,13 @@ public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private long mUpdateTime;
+	private List<Integer> mGameIds;
 
 	public GamePersister(Context context) {
 		mContext = context;
 		mResolver = context.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
+		mGameIds = new ArrayList<>();
 	}
 
 	public int save(Game game) {
@@ -81,6 +83,10 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
+				if (mGameIds.contains(game.id)){
+					continue;
+				}
+				mGameIds.add(game.id);
 				Builder cpo;
 				ContentValues values = toValues(game, mUpdateTime);
 				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {
