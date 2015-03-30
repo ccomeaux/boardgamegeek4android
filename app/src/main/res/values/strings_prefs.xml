@@ -92,15 +92,15 @@
 <li>Material design and support for Android Lollipop</li>
 <li>GeekLists</li>
 <li>Play stats</li>
+<li>Improved sync and sync notification messages</li>
 <li>Use Google Now to search by voice by saying \"search <i>game name</i> on BoardGameGeek\"</li>
 <li>Access and edit play locations, players, and stats from the navigation drawer</li>
 <li>Zoom and pan game images</li>
 <li>Default collection view shows only items you\'ve requested to sync</li>
-<li>Search now looks for the name in your collection, not the default game name</li>
-<li>Improved sync and sync notification messages</li>
 <li>Sort collection by rank</li>
 <li>Filter collection by play count</li>
 <li>Quick log multiple plays when viewing a list</li>
+<li>Probably lots of other improvements</li>
 <li>Miscellaneous bug fixes</li>
 </ul>
 <h5>4.8.4</h5>
