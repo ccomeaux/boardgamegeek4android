@@ -44,6 +44,5 @@
 	<dimen name="material_elevation_subtle">4dp</dimen>
 	<dimen name="card_row_height">40dp</dimen>
 	<dimen name="shortcut_icon_size">48dp</dimen>
-	<dimen name="dialog_min_width">320dp</dimen>
 
 </resources>
