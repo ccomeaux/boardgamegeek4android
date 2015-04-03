@@ -75,7 +75,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:2.7.1'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
     compile 'com.melnykov:floatingactionbutton:1.2.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
         transitive = true;
     }
     compile('com.mikepenz.aboutlibraries:library:4.5.9@aar') {
