@@ -54,7 +54,7 @@ public class GeekListItemActivity extends SimpleSinglePaneActivity {
 				if (mId != BggContract.INVALID_ID) {
 					Intent intent = new Intent(this, GeekListActivity.class);
 					intent.putExtra(ActivityUtils.KEY_ID, mId);
-					intent.putExtra(ActivityUtils.KEY_NAME, mTitle);
+					intent.putExtra(ActivityUtils.KEY_TITLE, mTitle);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
