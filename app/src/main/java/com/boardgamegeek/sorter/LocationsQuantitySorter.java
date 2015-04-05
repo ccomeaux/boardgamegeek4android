@@ -10,9 +10,8 @@ public class LocationsQuantitySorter extends LocationsSorter {
 
 	public LocationsQuantitySorter(Context context) {
 		super(context);
-		//TODO
 		mOrderByClause = getClause(Plays.SUM_QUANTITY, true);
-		mDescriptionId = R.string.menu_sort_name;
+		mDescriptionId = R.string.menu_sort_quantity;
 	}
 
 	@Override
@@ -30,13 +29,13 @@ public class LocationsQuantitySorter extends LocationsSorter {
 		int q = getInt(cursor, Plays.SUM_QUANTITY);
 		String prefix = String.valueOf(q).substring(0, 1);
 		String suffix = "";
-		if (q > 10000) {
+		if (q >= 10000) {
 			suffix = "0000+";
-		} else if (q > 1000) {
+		} else if (q >= 1000) {
 			suffix = "000+";
-		} else if (q > 100) {
+		} else if (q >= 100) {
 			suffix = "00+";
-		} else if (q > 10) {
+		} else if (q >= 10) {
 			suffix = "0+";
 		}
 		return prefix + suffix;
