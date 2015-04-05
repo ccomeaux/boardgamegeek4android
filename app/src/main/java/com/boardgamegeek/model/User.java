@@ -70,7 +70,7 @@ public class User {
 
 	@Path(value = "traderating")
 	@Attribute(name = "value")
-	private int tradeRating;
+	private String tradeRating;
 
 	@Element(required = false)
 	private Buddies buddies;
