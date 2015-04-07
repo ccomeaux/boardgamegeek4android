@@ -44,6 +44,9 @@
 			<item
 				android:id="@+id/menu_collection_sort_weight"
 				android:title="@string/menu_collection_sort_weight"/>
+			<item
+				android:id="@+id/menu_collection_sort_acquisition_date"
+				android:title="@string/menu_collection_sort_acquisition_date"/>
 		</menu>
 	</item>
 	<item
