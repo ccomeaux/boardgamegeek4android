@@ -1,5 +1,8 @@
 package com.boardgamegeek.model;
 
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.StringUtils;
+
 import java.util.ArrayList;
 
 import org.simpleframework.xml.Attribute;
@@ -8,7 +11,7 @@ import org.simpleframework.xml.Path;
 
 public class User {
 	@Attribute
-	public int id;
+	private String id;
 
 	@Attribute
 	public String name;
@@ -74,6 +77,10 @@ public class User {
 
 	@Element(required = false)
 	private Buddies buddies;
+
+	public int getId() {
+		return StringUtils.parseInt(id, BggContract.INVALID_ID);
+	}
 
 	public ArrayList<Buddy> getBuddies() {
 		if (buddies == null || buddies.buddies == null) {

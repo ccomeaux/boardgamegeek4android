@@ -45,7 +45,7 @@ public class SyncBuddiesList extends SyncTask {
 
 			showNotification("Storing list of GeekBuddies");
 
-			Authenticator.putInt(mContext, Authenticator.KEY_USER_ID, user.id);
+			Authenticator.putInt(mContext, Authenticator.KEY_USER_ID, user.getId());
 
 			BuddyPersister persister = new BuddyPersister(mContext);
 			int count = 0;
