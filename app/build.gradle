@@ -35,16 +35,13 @@ android {
         applicationId "com.boardgamegeek"
         minSdkVersion 9
         targetSdkVersion 22
-        versionCode 42
+        versionCode 44
         versionName "5.0"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (getBranchName() != 'master') {
-                versionNameSuffix '-RC'
-            }
         }
         debug {
             versionNameSuffix '-' + getBranchName()

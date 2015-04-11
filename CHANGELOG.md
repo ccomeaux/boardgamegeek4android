@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+Version 5.0
+-----------
+ * Material design and support for Android Lollipop
+ * GeekLists
+ * Play stats
+ * Improved sync and sync notification messages
+ * Use Google Now to search by voice by saying "search *game name* on BoardGameGeek"
+ * Access and edit play locations, players, and stats from the navigation drawer
+ * Zoom and pan game images
+ * Default collection view shows only items you've requested to sync
+ * Sort collection by rank
+ * Filter collection by play count
+ * Quick log multiple plays when viewing a list
+ * Probably lots of other improvements
+ * Miscellaneous bug fixes
+
 Version 4.8.4
 -------------
  * Syncing logic is more tolerant of API changes
@@ -57,7 +73,7 @@ Version 4.7
  * Calculates your games played h-index
  * Ability to add a color to a game
  * Option to show the full date/time in the forums (under Settings > Advanced)
- * When syncing, remove games not in your collection if they haven\'t been viewed in 3 days
+ * When syncing, remove games not in your collection if they haven't been viewed in 3 days
  * When enabling custom player order, prompt to remove the existing starting positions
  * Miscellaneous fixes and improvements
 
@@ -105,7 +121,7 @@ Version 4.4
  * *NEW:*  Now you can cancel a sync (through the notification or a menu option on the home screen)
  * *MOD:* Collection list now shows collection thumbnail (not the game thumbnail)
 ### GeekBuddy Enhancements
- * *NEW:* Show plays you\'ve logged with them
+ * *NEW:* Show plays you've logged with them
  * *MOD:* View collection statuses other than owned
  * *NEW:* Refresh
  * *NEW:* Change nickname used while logging plays
