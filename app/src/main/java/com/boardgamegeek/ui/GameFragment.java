@@ -29,14 +29,16 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
+import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
+import com.boardgamegeek.provider.BggContract.Plays;
+import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
@@ -351,12 +353,12 @@ public class GameFragment extends Fragment implements
 					RankQuery.PROJECTION, null, null, null);
 				break;
 			case CollectionQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), BggContract.Collection.CONTENT_URI, CollectionQuery.PROJECTION,
-					"collection." + BggContract.Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+				loader = new CursorLoader(getActivity(), Collection.CONTENT_URI, CollectionQuery.PROJECTION,
+					"collection." + Collection.GAME_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case PlaysQuery._TOKEN:
-				loader = new CursorLoader(getActivity(), BggContract.Plays.CONTENT_URI, PlaysQuery.PROJECTION,
-					BggContract.PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(gameId) }, null);
+				loader = new CursorLoader(getActivity(), Plays.CONTENT_URI, PlaysQuery.PROJECTION,
+					PlayItems.OBJECT_ID + "=?", new String[] { String.valueOf(gameId) }, null);
 				break;
 			case ColorQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), GameColorAdapter.createUri(gameId),
@@ -625,7 +627,7 @@ public class GameFragment extends Fragment implements
 			mPlaysRoot.setVisibility(View.VISIBLE);
 			int sum = cursor.getInt(PlaysQuery.SUM_QUANTITY);
 			if (sum > 0) {
-				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.DATE);
+				String date = CursorUtils.getFormattedDate(cursor, getActivity(), PlaysQuery.MAX_DATE);
 				mPlaysLabel.setText(getResources().getQuantityString(R.plurals.plays_summary, sum, sum, date));
 			} else {
 				mPlaysLabel.setText(getResources().getString(R.string.no_plays));
@@ -831,12 +833,11 @@ public class GameFragment extends Fragment implements
 	}
 
 	private interface CollectionQuery {
-		String[] PROJECTION = { BggContract.Collection._ID, BggContract.Collection.COLLECTION_ID,
-			BggContract.Collection.COLLECTION_NAME, BggContract.Collection.COLLECTION_YEAR_PUBLISHED, BggContract.Collection.COLLECTION_IMAGE_URL,
-			BggContract.Collection.STATUS_OWN, BggContract.Collection.STATUS_PREVIOUSLY_OWNED, BggContract.Collection.STATUS_FOR_TRADE,
-			BggContract.Collection.STATUS_WANT, BggContract.Collection.STATUS_WANT_TO_BUY, BggContract.Collection.STATUS_WISHLIST,
-			BggContract.Collection.STATUS_WANT_TO_PLAY, BggContract.Collection.STATUS_PREORDERED,
-			BggContract.Collection.STATUS_WISHLIST_PRIORITY, BggContract.Collection.NUM_PLAYS };
+		String[] PROJECTION = { Collection._ID, Collection.COLLECTION_ID, Collection.COLLECTION_NAME,
+			Collection.COLLECTION_YEAR_PUBLISHED, Collection.COLLECTION_IMAGE_URL, Collection.STATUS_OWN,
+			Collection.STATUS_PREVIOUSLY_OWNED, Collection.STATUS_FOR_TRADE, Collection.STATUS_WANT,
+			Collection.STATUS_WANT_TO_BUY, Collection.STATUS_WISHLIST, Collection.STATUS_WANT_TO_PLAY,
+			Collection.STATUS_PREORDERED, Collection.STATUS_WISHLIST_PRIORITY, Collection.NUM_PLAYS };
 		int _TOKEN = 0x20;
 		int COLLECTION_ID = 1;
 		int COLLECTION_NAME = 2;
@@ -850,10 +851,10 @@ public class GameFragment extends Fragment implements
 	}
 
 	private interface PlaysQuery {
-		String[] PROJECTION = { BggContract.Plays._ID, BggContract.Plays.DATE, BggContract.Plays.SUM_QUANTITY };
+		String[] PROJECTION = { Plays._ID, Plays.MAX_DATE, Plays.SUM_QUANTITY, Plays.MAX_DATE };
 		int _TOKEN = 0x21;
 		int _ID = 0;
-		int DATE = 1;
+		int MAX_DATE = 1;
 		int SUM_QUANTITY = 2;
 	}
 
