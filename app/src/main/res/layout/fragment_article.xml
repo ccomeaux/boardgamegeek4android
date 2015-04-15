@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:minHeight="@dimen/view_row_height"
+		android:background="@color/info_background_dark"
+		android:elevation="@dimen/material_elevation_subtle"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical">
+
+		<TextView
+			android:id="@+id/article_username"
+			style="@style/Text.Primary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			tools:text="ccomeaux"/>
+
+		<TextView
+			android:id="@+id/article_postdate"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Posted Yesterday"/>
+
+		<TextView
+			android:id="@+id/article_editdate"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Edited Today"/>
+
+		<TextView
+			android:id="@+id/article_editcount"
+			style="@style/Text.Secondary.Inverse"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="3 total edits"/>
+	</LinearLayout>
+
+	<FrameLayout style="@style/WebViewContainer">
+
+		<WebView
+			android:id="@+id/article_body"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"/>
+	</FrameLayout>
+
+</LinearLayout>

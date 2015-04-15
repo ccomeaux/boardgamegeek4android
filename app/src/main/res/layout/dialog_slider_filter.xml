@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/layout_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:paddingBottom="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal"
+	android:paddingTop="@dimen/material_margin_vertical" >
+
+	<TextView
+		android:id="@+id/slider_filter_text"
+		style="@style/Text.DialogHeader"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center" />
+
+	<FrameLayout
+		android:id="@+id/slider_filter_rangeseekbar_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<CheckBox
+		android:id="@+id/slider_filter_checkbox"
+		style="@style/Text.Dialog"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/include_missing_values" />
+
+	<TextView
+		android:id="@+id/slider_filter_description"
+		style="@style/Text.Dialog"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:paddingTop="@dimen/padding_extra"
+		android:text="@string/filter_description_player_number"
+		android:visibility="gone" />
+
+</LinearLayout>

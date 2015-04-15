@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical">
+
+	<FrameLayout
+		android:id="@+id/header_container"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/image_header_height"
+		android:layout_gravity="center"
+		android:background="@color/primary_dark">
+
+		<ImageView
+			android:id="@+id/thumbnail"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:scaleType="centerCrop"/>
+
+		<TextView
+			android:id="@+id/header"
+			style="@style/Text.Title.Overlay"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="#6000"
+			android:ellipsize="end"
+			android:gravity="left|center_vertical"
+			android:maxLines="2"
+			android:paddingLeft="@dimen/material_indent_horizontal"
+			android:paddingRight="@dimen/material_margin_horizontal"
+			tools:text="Puerto Rico"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackground"/>
+	</FrameLayout>
+
+	<LinearLayout
+		android:id="@+id/details"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/padding_small"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/padding_small">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:orientation="horizontal">
+
+			<TextView
+				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
+				android:text="@string/on"/>
+
+			<TextView
+				android:id="@+id/play_date"
+				style="@style/Text.Big"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical"
+				tools:text="January 1, 2015"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/location_root"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:orientation="horizontal">
+
+			<TextView
+				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
+				android:text="@string/at"/>
+
+			<TextView
+				android:id="@+id/play_location"
+				style="@style/Text.Big"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical"
+				tools:text="Game Store"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/length_root"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<TextView
+				style="@style/TextLabel"
+				android:layout_width="@dimen/edit_label_width"
+				android:layout_height="match_parent"
+				android:text="@string/for_"/>
+
+			<FrameLayout
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="left|center_vertical">
+
+				<TextView
+					android:id="@+id/play_length"
+					style="@style/Text.Big"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="center_vertical"
+					tools:text="1 hrs 26 mins"/>
+
+				<LinearLayout
+					android:id="@+id/timer_root"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="center_vertical"
+					android:orientation="horizontal">
+
+					<Chronometer
+						android:id="@+id/timer"
+						style="@style/Text.Big"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="1"
+						android:gravity="center_vertical"/>
+
+					<ImageView
+						android:id="@+id/timer_end"
+						android:layout_width="@dimen/image_button_size"
+						android:layout_height="@dimen/image_button_size"
+						android:layout_gravity="center_vertical"
+						android:background="?attr/selectableItemBackgroundBorderless"
+						android:onClick="onTimer"
+						android:scaleType="center"
+						android:src="@drawable/ic_action_timer_light"/>
+				</LinearLayout>
+			</FrameLayout>
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/play_quantity"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			tools:text="2 times"/>
+
+		<TextView
+			android:id="@+id/play_incomplete"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			android:text="@string/incomplete"/>
+
+		<TextView
+			android:id="@+id/play_no_win_stats"
+			style="@style/Text.Big"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="left|center_vertical"
+			android:paddingLeft="@dimen/edit_label_width"
+			android:text="@string/noWinStats"/>
+
+		<TextView
+			android:id="@+id/play_comments_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="bottom"
+			android:text="@string/comments"/>
+
+		<TextView
+			android:id="@+id/play_comments"
+			style="@style/Text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="I've got something to say."/>
+
+		<TextView
+			android:id="@+id/play_players_label"
+			style="@style/Text.Header.Underline"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/view_row_height"
+			android:gravity="bottom"
+			android:text="@string/title_players"/>
+	</LinearLayout>
+
+</LinearLayout>

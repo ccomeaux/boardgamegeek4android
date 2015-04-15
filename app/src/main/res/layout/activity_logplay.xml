@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:fab="http://schemas.android.com/apk/res-auto"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical"
+			  tools:context=".ui.LogPlayActivity">
+
+	<include layout="@layout/actionbar_done_cancel"/>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<ProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			tools:visibility="gone"/>
+
+		<FrameLayout
+			android:id="@+id/form"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<com.mobeta.android.dslv.DragSortListView
+				android:id="@android:id/list"
+				xmlns:dslv="http://schemas.android.com/apk/res-auto"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:footerDividersEnabled="false"
+				android:headerDividersEnabled="false"
+				dslv:collapsed_height="@dimen/padding_standard"
+				dslv:drag_handle_id="@+id/drag_handle"
+				dslv:drag_start_mode="onDown"
+				dslv:float_alpha="0.75"
+				dslv:float_background_color="@color/primary"
+				dslv:remove_enabled="false"
+				dslv:sort_enabled="true"
+				dslv:use_default_controller="true"/>
+
+			<com.melnykov.fab.FloatingActionButton
+				android:id="@+id/fab"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom|right"
+				android:layout_margin="@dimen/padding_fab"
+				android:src="@drawable/ic_action_add"
+				fab:fab_colorNormal="@color/accent"
+				fab:fab_colorPressed="@color/primary_dark"
+				fab:fab_colorRipple="@color/primary"/>
+		</FrameLayout>
+	</FrameLayout>
+
+</LinearLayout>

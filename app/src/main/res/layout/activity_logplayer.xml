@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:fab="http://schemas.android.com/apk/res-auto"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical"
+			  tools:context=".ui.LogPlayerActivity">
+
+	<include layout="@layout/actionbar_done_cancel"/>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<com.melnykov.fab.ObservableScrollView
+			android:id="@+id/scroll_container"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:fillViewport="true">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/image_header_height"
+					android:layout_gravity="center"
+					android:background="@color/no_image">
+
+					<ImageView
+						android:id="@+id/thumbnail"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:scaleType="centerCrop"/>
+
+					<TextView
+						android:id="@+id/header"
+						style="@style/Text.Title.Overlay"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:background="#6000"
+						android:ellipsize="end"
+						android:gravity="left|center_vertical"
+						android:maxLines="2"
+						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingRight="@dimen/material_margin_horizontal"
+						tools:text="Puerto Rico"
+						tools:visibility="gone"/>
+
+					<LinearLayout
+						android:id="@+id/two_line_container"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:background="#6000"
+						android:gravity="left|center_vertical"
+						android:orientation="vertical"
+						android:paddingLeft="@dimen/material_indent_horizontal"
+						android:paddingRight="@dimen/material_margin_horizontal">
+
+						<TextView
+							android:id="@+id/header2"
+							style="@style/Text.Title.Overlay"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:ellipsize="end"
+							android:maxLines="1"
+							tools:text="Puerto Rico"/>
+
+						<TextView
+							android:id="@+id/subheader"
+							style="@style/Text.Overlay"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							tools:text="Player #1"/>
+					</LinearLayout>
+				</FrameLayout>
+
+				<LinearLayout
+					android:id="@+id/details"
+					style="@style/FormContainer">
+
+					<LinearLayout style="@style/FormRowContainer">
+
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_person"/>
+
+						<AutoCompleteTextView
+							android:id="@+id/log_player_name"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:completionThreshold="1"
+							android:dropDownHeight="wrap_content"
+							android:hint="@string/player_name"
+							android:imeOptions="actionNext"
+							android:inputType="textPersonName|textCapWords"
+							android:maxLength="255"
+							android:textColor="#000"
+							android:textAppearance="@style/Text.Big"/>
+					</LinearLayout>
+
+					<LinearLayout style="@style/FormRowContainer">
+
+						<ImageView style="@style/Icon"/>
+
+						<AutoCompleteTextView
+							android:id="@+id/log_player_username"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:completionThreshold="1"
+							android:dropDownHeight="wrap_content"
+							android:hint="@string/username"
+							android:imeOptions="actionNext"
+							android:inputType="text"
+							android:maxLength="63"
+							android:textColor="#000"
+							android:textAppearance="@style/Text.Big"/>
+					</LinearLayout>
+
+					<LinearLayout
+						android:id="@+id/log_player_team_color_container"
+						style="@style/FormRowContainer">
+
+						<FrameLayout
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_gravity="center_vertical"
+							android:layout_marginRight="24dp">
+
+							<ImageView
+								android:id="@+id/color_view"
+								android:layout_width="@dimen/color_circle_diameter"
+								android:layout_height="@dimen/color_circle_diameter"
+								android:layout_gravity="center"
+								android:background="?attr/selectableItemBackgroundBorderless"
+								android:scaleType="fitXY"
+								tools:background="#777"/>
+						</FrameLayout>
+
+						<AutoCompleteTextView
+							android:id="@+id/log_player_team_color"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:completionThreshold="1"
+							android:dropDownHeight="wrap_content"
+							android:hint="@string/team_color"
+							android:imeOptions="actionNext"
+							android:inputType="textCapSentences"
+							android:maxLength="32"
+							android:textColor="#000"/>
+					</LinearLayout>
+
+					<LinearLayout
+						android:id="@+id/log_player_position_container"
+						style="@style/FormRowContainer">
+
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_sort_light"/>
+
+						<EditText
+							android:id="@+id/log_player_position"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:hint="@string/starting_position"
+							android:imeOptions="flagNoExtractUi"
+							android:inputType="numberDecimal|numberSigned"
+							android:maxLength="32"/>
+
+						<Button
+							android:id="@+id/log_player_position_button"
+							style="@style/Text.Footnote"
+							android:layout_width="wrap_content"
+							android:layout_height="@dimen/image_button_size"
+							android:layout_gravity="center_vertical"
+							android:text="@string/number_to_text"/>
+					</LinearLayout>
+
+					<LinearLayout
+						android:id="@+id/log_player_score_container"
+						style="@style/FormRowContainer">
+
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_line_chart"/>
+
+						<EditText
+							android:id="@+id/log_player_score"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:hint="@string/score"
+							android:imeOptions="flagNoExtractUi"
+							android:inputType="numberDecimal|numberSigned"
+							android:maxLength="32"/>
+
+						<Button
+							android:id="@+id/log_player_score_button"
+							style="@style/Text.Footnote"
+							android:layout_width="wrap_content"
+							android:layout_height="@dimen/image_button_size"
+							android:layout_gravity="center_vertical"
+							android:text="@string/number_to_text"/>
+					</LinearLayout>
+
+					<LinearLayout
+						android:id="@+id/log_player_rating_container"
+						style="@style/FormRowContainer">
+
+						<ImageView
+							style="@style/Icon"
+							android:src="@drawable/ic_action_stars"/>
+
+						<EditText
+							android:id="@+id/log_player_rating"
+							android:layout_width="0dp"
+							android:layout_height="match_parent"
+							android:layout_weight="1"
+							android:hint="@string/rating_hint"
+							android:inputType="numberDecimal"
+							android:maxLength="8"/>
+
+					</LinearLayout>
+
+					<android.support.v7.widget.SwitchCompat
+						android:id="@+id/log_player_new"
+						style="@style/Text.Big"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/edit_row_height"
+						android:checked="false"
+						android:paddingLeft="@dimen/edit_label_width"
+						android:paddingRight="@dimen/edit_label_width"
+						android:text="@string/new_label"/>
+
+					<android.support.v7.widget.SwitchCompat
+						android:id="@+id/log_player_win"
+						style="@style/Text.Big"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/edit_row_height"
+						android:checked="false"
+						android:paddingLeft="@dimen/edit_label_width"
+						android:paddingRight="@dimen/edit_label_width"
+						android:text="@string/win"/>
+
+					<View
+						android:id="@+id/fab_buffer"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/fab_buffer"/>
+				</LinearLayout>
+			</LinearLayout>
+		</com.melnykov.fab.ObservableScrollView>
+
+		<com.melnykov.fab.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|right"
+			android:layout_margin="@dimen/padding_fab"
+			android:src="@drawable/ic_action_add"
+			fab:fab_colorNormal="@color/accent"
+			fab:fab_colorPressed="@color/primary_dark"
+			fab:fab_colorRipple="@color/primary"/>
+	</FrameLayout>
+
+</LinearLayout>

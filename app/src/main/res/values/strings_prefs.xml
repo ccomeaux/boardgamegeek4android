@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress CheckTagEmptyBody -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+
+	<string name="pref_search">Search</string>
+	<string name="pref_exact_search">Exact search</string>
+	<string name="pref_exact_search_off">Always perform a partial-name search</string>
+	<string name="pref_exact_search_on">Search for the exact name first, then search for a partial name if there\'s no results</string>
+	<string name="pref_skipResults">Skip results with 1 match</string>
+	<string name="pref_skipResults_off">Stop at the results page even if there is only one result</string>
+	<string name="pref_skipResults_on">Skip the results page and go directly to the game if there is only one result</string>
+	<string name="pref_search_global">Global search</string>
+	<string name="pref_search_global_description">Allows searching from the Quick Search Box. (This has been disabled in recent versions of Android.)</string>
+	<string name="pref_log">Logging plays</string>
+	<string name="pref_log_play">Log Play</string>
+	<string name="pref_log_play_quick">Quick Log Play</string>
+	<string name="pref_edit_player">Edit player on add</string>
+	<string name="pref_edit_player_off">Just add the player</string>
+	<string name="pref_edit_player_on">Start editing the player after adding</string>
+	<string name="pref_general">General fields</string>
+	<string name="pref_log_play_quantity">Quantity</string>
+	<string name="pref_log_play_length">Length</string>
+	<string name="pref_log_play_location">Location</string>
+	<string name="pref_log_play_incomplete">Incomplete</string>
+	<string name="pref_log_play_no_win_stats">Don\'t count win stats</string>
+	<string name="pref_log_play_comments">Comments</string>
+	<string name="pref_log_play_players">Player list</string>
+	<string name="pref_player_settings">Player fields</string>
+	<string name="pref_log_player_team_color">Team/Color</string>
+	<string name="pref_log_player_position">Position</string>
+	<string name="pref_log_player_score">Score</string>
+	<string name="pref_log_player_rating">Rating</string>
+	<string name="pref_log_player_new">New</string>
+	<string name="pref_log_player_win">Win</string>
+	<string name="pref_log_off">Add it when you need it</string>
+	<string name="pref_log_on">Always show</string>
+	<string name="pref_sync">Sync</string>
+	<string name="pref_sync_group_what">What</string>
+	<string name="pref_sync_group_how">How</string>
+	<string name="pref_sync_group_tasks">Tasks</string>
+	<string name="pref_sync_statuses">Collection</string>
+	<string name="pref_sync_buddies">GeekBuddies</string>
+	<string name="pref_sync_plays">Plays</string>
+	<string name="pref_sync_notifications">Notifications</string>
+	<string name="pref_sync_only_charging">Only while charging</string>
+	<string name="pref_sync_only_wifi">Only on WiFi</string>
+	<string name="pref_sync_accounts">Accounts</string>
+	<string name="pref_sync_sign_out">Sign out</string>
+	<string name="pref_sync_sign_out_pos">Sign out</string>
+	<string name="pref_sync_sign_out_are_you_sure">Are you sure you want to sign out?</string>
+	<string name="pref_sync_clear">Clear data</string>
+	<string name="pref_sync_clear_pos">Clear</string>
+	<string name="pref_sync_clear_info_message">Are you sure you want to clear all synchronized information? NOTE: This operation can\'t be reversed. But you can re-sync.</string>
+	<string name="pref_sync_clear_success">Clear complete</string>
+	<string name="pref_sync_clear_failure">Clear unsuccessful - are you sure you\'re signed in\?</string>
+	<string name="pref_sync_reset_collection">Sync entire collection</string>
+	<string name="pref_sync_reset_plays">Sync all plays</string>
+	<string name="pref_sync_reset_buddies">Re-sync GeekBuddies</string>
+	<string name="pref_sync_reset_pos">Sync</string>
+	<string name="pref_sync_reset_collection_info_message">This will force a complete sync on collection data. Normally only recently modified collection items are synced. This may take a while, but it is recommended if all collection items aren\'t appearing.</string>
+	<string name="pref_sync_reset_plays_info_message">This will force a complete sync on play data. Normally only recent plays are synced. This may take a while, but it is recommended if all plays aren\'t appearing.</string>
+	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
+	<string name="pref_sync_reset_success">Sync started</string>
+	<string name="pref_sync_reset_failure">Sync failed - are you sure you\'re signed in\?</string>
+	<string name="pref_sync_timestamps">View sync timestamps</string>
+	<string name="pref_sync_timestamps_collection_full">Last Full Collection Sync</string>
+	<string name="pref_sync_timestamps_collection_partial">Last Partial Collection Sync</string>
+	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>
+	<string name="pref_sync_timestamps_plays_oldest_date">Oldest Synced Play Date</string>
+	<string name="pref_sync_timestamps_buddy">Last Buddy Sync</string>
+	<string name="pref_list_empty">&lt;None&gt;</string>
+	<string name="pref_advanced">Advanced</string>
+	<string name="pref_advanced_forum_dates">Absolute dates in forums</string>
+	<string name="pref_advanced_forum_dates_off">Show relative times for all dates associated with forums (when the time is recent)</string>
+	<string name="pref_advanced_forum_dates_on">Always show absolute date/time for all dates associated with forums</string>
+	<string name="pref_advanced_debug_inserts">Debug</string>
+	<string name="pref_advanced_debug_inserts_off">Leave this off if you\'re not crashing</string>
+	<string name="pref_advanced_debug_inserts_on">Next time the app crashes, please send a report. Thanks for helping us debug!</string>
+	<string name="pref_advanced_polls">Game polls</string>
+	<string name="pref_advanced_polls_off">Polls for games will no longer work, but hopefully the crashes will stop. (This has nothing to do with polls in forums - those will never work.)</string>
+	<string name="pref_advanced_polls_on">Leave this on if you\'re not crashing</string>
+	<string name="pref_advanced_notify_errors">Notify errors</string>
+	<string name="pref_advanced_notify_errors_off">Leave this off if you\'re not crashing</string>
+	<string name="pref_advanced_notify_errors_on">You will see the details of a crash in the notification bar - send this info to the developers!</string>
+	<string name="pref_about">About</string>
+	<string name="pref_about_version">Version</string>
+	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
+	<string name="pref_about_body"><![CDATA[
+<h4>What\'s New?</h4>
+<h5>5.0</h5>
+<ul>
+<li>Material design and support for Android Lollipop</li>
+<li>GeekLists</li>
+<li>Play stats</li>
+<li>Improved sync and sync notification messages</li>
+<li>Use Google Now to search by voice by saying \"search <i>game name</i> on BoardGameGeek\"</li>
+<li>Access and edit play locations, players, and stats from the navigation drawer</li>
+<li>Zoom and pan game images</li>
+<li>Default collection view shows only items you\'ve requested to sync</li>
+<li>Sort collection by rank</li>
+<li>Filter collection by play count</li>
+<li>Quick log multiple plays when viewing a list</li>
+<li>Probably lots of other improvements</li>
+<li>Miscellaneous bug fixes</li>
+</ul>
+<h5>4.8.4</h5>
+<ul>
+<li>Fixed syncing (again!)</li>
+</ul>
+<h5>4.8.3</h5>
+<ul>
+<li>Syncing improvements (fewer 503s)</li>
+</ul>
+<h5>4.8.2</h5>
+<ul>
+<li>Fixed displaying images</li>
+</ul>
+<h5>4.8.1</h5>
+<ul>
+<li>Fixed incorrect statistics (including rating)</li>
+<li>Can now select a random game from a buddy\'s collection</li>
+<li>Miscellaneous bug fixes</li>
+</ul>
+<h5>4.8</h5>
+<ul>
+<li>Now syncs played games that aren\'t otherwise in your collection</li>
+<li>Now syncs accessories (though this will break the base game/expansion filter until the next complete collection sync)</li>
+<li>Lots of usability improvements around logging plays</li>
+<li>View all players along with GeekBuddies</li>
+<li>Completely rewritten syncing logic</li>
+</ul>
+<h5>4.7.3</h5>
+<ul>
+<li>Fix crashes in forums and ordering players</li>
+<li>Change look and feel of navigation drawer</li>
+<li>Modernize the look of the slider in the filter dialog</li>
+<li>Show the collection properly when adding a shortcut</li>
+</ul>
+<h5>4.7.2</h5>
+<ul>
+<li>Fix crash when viewing buddy collection</li>
+<li>Don\'t allow clicking on forum header</li>
+<li>When saving a view, enable the Save button correctly<li>
+<li>When deleting a view, go back to the default view</li>
+<li>Improve format of forum for narrow screens</li>
+<li>Clicking the h-index notification takes you to a BGG thread</li>
+</ul>
+<h5>4.7.1</h5>
+<ul>
+<li>No more crashes</li>
+</ul>
+<ul>
+<li><a href="https://code.google.com/p/boardgamegeek/wiki/ReleaseNotes">What was new in previous versions?</a></li>
+</ul>
+<br/>
+Special thanks to <a href="http://www.boardgamegeek.com">BoardGameGeek</a>. We\'re not affiliated with them, but this app wouldn\'t be possible without their support and permission. Follow the <a href="http://boardgamegeek.com/thread/543998">thread</a> there.
+	]]></string>
+	<string name="pref_about_licenses">Open source licenses</string>
+	<string name="pref_about_contact_us">Contact Us</string>
+	<string name="pref_about_contact_us_summary">bgg4android@gmail.com</string>
+	<string name="pref_feedback_title">Feedback</string>
+
+	<string name="define_int_DragSortListView"></string>
+	<string name="library_DragSortListView_author">Carl A. Bauer</string>
+	<string name="library_DragSortListView_authorWebsite">https://github.com/bauerca</string>
+	<string name="library_DragSortListView_libraryName">DragSortListView</string>
+	<string name="library_DragSortListView_libraryDescription">DragSortListView (DSLV) is an extension of the Android ListView that enables drag-and-drop reordering of list items.</string>
+	<string name="library_DragSortListView_libraryVersion">0.6.1</string>
+	<string name="library_DragSortListView_licenseId">apache_2_0</string>
+	<string name="library_DragSortListView_isOpenSource">true</string>
+	<string name="library_DragSortListView_repositoryLink">https://github.com/bauerca/drag-sort-listview</string>
+
+	<string name="define_int_EventBus"></string>
+	<string name="library_EventBus_author">green robot</string>
+	<string name="library_EventBus_authorWebsite">http://greenrobot.de/</string>
+	<string name="library_EventBus_libraryName">EventBus</string>
+	<string name="library_EventBus_libraryDescription">Android optimized event bus that simplifies communication between Activities, Fragments, Threads, Services, etc. Less code, better quality.</string>
+	<string name="library_EventBus_libraryVersion">2.4.0</string>
+	<string name="library_EventBus_licenseId">apache_2_0</string>
+	<string name="library_EventBus_isOpenSource">true</string>
+	<string name="library_EventBus_repositoryLink">https://github.com/greenrobot/EventBus</string>
+
+	<string name="define_int_Hugo"></string>
+	<string name="library_Hugo_author">Jake Wharton</string>
+	<string name="library_Hugo_authorWebsite">http://jakewharton.com/</string>
+	<string name="library_Hugo_libraryName">Hugo</string>
+	<string name="library_Hugo_libraryDescription">Annotation-triggered method call logging for your debug builds.</string>
+	<string name="library_Hugo_libraryVersion">1.2.1</string>
+	<string name="library_Hugo_licenseId">apache_2_0</string>
+	<string name="library_Hugo_isOpenSource">true</string>
+	<string name="library_Hugo_repositoryLink">https://github.com/JakeWharton/hugo</string>
+
+	<string name="define_int_PhotoView"></string>
+	<string name="library_PhotoView_author">Chris Banes</string>
+	<string name="library_PhotoView_authorWebsite">https://chris.banes.me</string>
+	<string name="library_PhotoView_libraryName">PhotoView</string>
+	<string name="library_PhotoView_libraryDescription">Implementation of ImageView for Android that supports zooming, by various touch gestures.</string>
+	<string name="library_PhotoView_libraryVersion">1.2.3</string>
+	<string name="library_PhotoView_licenseId">apache_2_0</string>
+	<string name="library_PhotoView_isOpenSource">true</string>
+	<string name="library_PhotoView_repositoryLink">https://github.com/chrisbanes/PhotoView</string>
+
+	<string name="define_int_RangeSeekBar"></string>
+	<string name="library_RangeSeekBar_author">Stephan Tittel</string>
+	<string name="library_RangeSeekBar_libraryName">range-seek-bar</string>
+	<string name="library_RangeSeekBar_libraryDescription">A slider widget for Android allowing to set a minimum and maximum value on a numerical range.</string>
+	<string name="library_RangeSeekBar_licenseId">apache_2_0</string>
+	<string name="library_RangeSeekBar_isOpenSource">true</string>
+	<string name="library_RangeSeekBar_repositoryLink">https://code.google.com/p/range-seek-bar</string>
+
+	<string name="define_int_StickyListHeaders"></string>
+	<string name="library_StickyListHeaders_author">Emil Sjölander</string>
+	<string name="library_StickyListHeaders_authorWebsite">http://emilsjolander.se</string>
+	<string name="library_StickyListHeaders_libraryName">StickyListHeaders</string>
+	<string name="library_StickyListHeaders_libraryDescription">An android library for section headers that stick to the top.</string>
+	<string name="library_StickyListHeaders_libraryVersion">2.5.2</string>
+	<string name="library_StickyListHeaders_licenseId">apache_2_0</string>
+	<string name="library_StickyListHeaders_isOpenSource">true</string>
+	<string name="library_StickyListHeaders_repositoryLink">https://github.com/emilsjolander/StickyListHeaders</string>
+
+	<string name="define_int_AndroidIcons"></string>
+	<string name="library_AndroidIcons_author">Opoloo</string>
+	<string name="library_AndroidIcons_authorWebsite">http://www.opoloo.com</string>
+	<string name="library_AndroidIcons_libraryName">Android Developer Icons</string>
+	<string name="library_AndroidIcons_libraryDescription">Androidicons is a professional, handcrafted icon set with 250 icons in 14 different colors and 5 sizes, including an icon font and all sources.</string>
+	<string name="library_AndroidIcons_libraryWebsite">http://www.androidicons.com</string>
+	<string name="library_AndroidIcons_libraryVersion">1.0</string>
+	<string name="library_AndroidIcons_licenseId">ccbysa_4_0</string>
+	<string name="library_AndroidIcons_isOpenSource">true</string>
+	<string name="library_AndroidIcons_repositoryLink">https://github.com/opoloo/androidicons</string>
+
+	<string name="define_license_CCBYSA_4_0"></string>
+	<string name="license_CCBYSA_4_0_licenseName">CC BY-SA 4.0</string>
+	<string name="license_CCBYSA_4_0_licenseWebsite">http://creativecommons.org/licenses/by-sa/4.0/</string>
+	<string name="license_CCBYSA_4_0_licenseShortDescription">
+		Creative Commons Attribution-ShareAlike 4.0 International
+	</string>
+	<string name="license_CCBYSA_4_0_licenseDescription">
+        Licensed under Attribution-ShareAlike 4.0 International CC BY-SA 4.0
+        You are free to:
+        Share — copy and redistribute the material in any medium or format
+        Adapt — remix, transform, and build upon the material for any purpose, even commercially.
+        The licensor cannot revoke these freedoms as long as you follow the license terms.
+	</string>
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/footer"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:paddingLeft="@dimen/material_margin_horizontal"
+	android:paddingRight="@dimen/material_margin_horizontal" >
+
+	<TextView
+		android:id="@+id/play_unsynced_message"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:textIsSelectable="true" />
+
+	<TextView
+		android:id="@+id/play_saved"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@+id/play_unsynced_message"
+		android:textIsSelectable="true" />
+
+	<TextView
+		android:id="@+id/play_id"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:textIsSelectable="true" />
+
+	<TextView
+		android:id="@+id/updated"
+		style="@style/Text.Footnote2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_below="@+id/play_id"
+		android:textIsSelectable="true" />
+
+</RelativeLayout>

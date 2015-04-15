@@ -1,0 +1,21 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.8'
+    }
+}
+
+apply plugin: 'com.github.ben-manes.versions'
+
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}

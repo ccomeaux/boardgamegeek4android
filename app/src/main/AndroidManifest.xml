@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+		  package="com.boardgamegeek"
+		  android:installLocation="auto">
+
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+	<uses-permission android:name="android.permission.READ_SYNC_STATS"/>
+	<uses-permission
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+		android:maxSdkVersion="18"/>
+	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+
+	<application
+		android:name=".BggApplication"
+		android:allowBackup="true"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/app_name"
+		android:logo="@drawable/title_logo"
+		android:supportsRtl="false"
+		android:theme="@style/Theme.bgglight">
+		<activity
+			android:name=".ui.HomeActivity"
+			android:label="@string/app_name"
+			android:launchMode="singleTop">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
+
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name=".ui.CollectionActivity"
+			android:exported="false"
+			android:label="@string/title_collection"
+			android:uiOptions="splitActionBarWhenNarrow">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+
+		<activity-alias
+			android:name=".CreateShortcutActivity"
+			android:label="@string/title_game_shortcut"
+			android:targetActivity=".ui.CollectionActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.CREATE_SHORTCUT"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity-alias>
+
+		<activity
+			android:name=".ui.HotnessActivity"
+			android:label="@string/title_hotness">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.GameActivity"
+			android:exported="true"
+			android:label="@string/title_game">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.game"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name=".ui.ImageActivity"
+			android:label="@string/title_image"
+			android:theme="@style/Theme.AppCompat.NoActionBar"/>
+		<activity
+			android:name=".ui.GameDetailActivity"
+			android:label="@string/title_game_detail"/>
+		<activity
+			android:name=".ui.ProducerActivity"
+			android:exported="false"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.designer"/>
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.artist"/>
+				<data android:mimeType="vnd.android.cursor.item/vnd.boardgamegeek.publisher"/>
+			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.BuddiesActivity"
+			android:exported="false"
+			android:label="@string/title_buddies">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.BuddyActivity"
+			android:exported="false"
+			android:label="@string/title_buddy">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.BuddiesActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.BuddyCollectionActivity"
+			android:exported="false"
+			android:label="@string/title_collection"/>
+		<activity
+			android:name=".ui.BuddyPlaysActivity"
+			android:exported="false"
+			android:label="@string/title_plays"/>
+		<activity
+			android:name=".ui.PlaysActivity"
+			android:exported="false"
+			android:label="@string/title_plays">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PlayersActivity"
+			android:exported="false"
+			android:label="@string/title_players">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.LocationsActivity"
+			android:exported="false"
+			android:label="@string/title_locations">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PlayStatsActivity"
+			android:exported="false"
+			android:label="@string/title_play_stats">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PlayActivity"
+			android:exported="false"
+			android:label="@string/title_play">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.PlaysActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.PlayerActivity"
+			android:exported="false"
+			android:label="@string/title_player">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.PlayersActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.LocationActivity"
+			android:exported="false"
+			android:label="@string/title_location">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.LocationsActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.SearchResultsActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:exported="true"
+			android:label="@string/search_label">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+			<meta-data
+				android:name="android.app.searchable"
+				android:resource="@xml/searchable"/>
+		</activity>
+		<activity
+			android:name=".ui.LogPlayActivity"
+			android:label="@string/title_log_play"
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.bgglight.NoActionBar"/>
+		<activity
+			android:name=".ui.LogPlayerActivity"
+			android:label="@string/title_log_player"
+			android:theme="@style/Theme.bgglight.NoActionBar"/>
+		<activity
+			android:name=".ui.GameCollectionActivity"
+			android:label="@string/title_collection"/>
+		<activity
+			android:name=".ui.GamePlaysActivity"
+			android:label="@string/title_plays"/>
+		<activity
+			android:name=".ui.GamePlayStatsActivity"
+			android:label="@string/title_play_stats"/>
+		<activity
+			android:name=".ui.ColorsActivity"
+			android:label="@string/title_colors"/>
+		<activity
+			android:name=".ui.GameForumsActivity"
+			android:label="@string/title_forums"/>
+		<activity
+			android:name=".ui.CommentsActivity"
+			android:label="@string/title_comments"/>
+		<activity
+			android:name=".ui.ForumsActivity"
+			android:label="@string/title_forums">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.ForumActivity"
+			android:label="@string/title_forum"/>
+		<activity
+			android:name=".ui.GeekListsActivity"
+			android:label="@string/title_geeklists">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.GeekListActivity"
+			android:label="@string/title_geeklist">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.GeekListsActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.GeekListDescriptionActivity"
+			android:label="@string/title_geeklist">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.GeekListActivity"/>
+		</activity>
+		<activity
+			android:name=".ui.GeekListItemActivity"
+			android:label="@string/title_geeklist"/>
+		<activity
+			android:name=".ui.ThreadActivity"
+			android:label="@string/title_thread"/>
+		<activity
+			android:name=".ui.ArticleActivity"
+			android:label="Article"/>
+		<activity
+			android:name=".pref.SettingsActivity"
+			android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name=".ui.LoginActivity"
+			android:configChanges="orientation|screenSize"
+			android:excludeFromRecents="true"
+			android:label="@string/title_login"
+			android:theme="@style/Theme.bgglight.Dialog.NoTitle"
+			android:windowSoftInputMode="adjustResize|stateVisible"/>
+
+		<service
+			android:name=".service.SyncService"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.content.SyncAdapter"/>
+			</intent-filter>
+
+			<meta-data
+				android:name="android.content.SyncAdapter"
+				android:resource="@xml/syncadapter"/>
+		</service>
+		<service android:name=".service.UpdateService"/>
+		<service
+			android:name=".auth.AuthenticationService"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.accounts.AccountAuthenticator"/>
+			</intent-filter>
+
+			<meta-data
+				android:name="android.accounts.AccountAuthenticator"
+				android:resource="@xml/authenticator"/>
+		</service>
+
+		<provider
+			android:name=".provider.BggProvider"
+			android:authorities="com.boardgamegeek"
+			android:exported="true"
+			android:label="@string/provider_label"/>
+
+		<receiver
+			android:name=".service.CancelReceiver"
+			android:exported="false">
+			<intent-filter>
+				<action android:name="com.boardgamegeek.ACTION_SYNC_CANCEL"/>
+				<action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
+				<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+				<action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+			</intent-filter>
+		</receiver>
+
+		<meta-data
+			android:name="android.app.default_searchable"
+			android:value=".ui.SearchResultsActivity"/>
+		<meta-data
+			android:name="com.crashlytics.ApiKey"
+			android:value="ce3b2fdec1306105cd9f867446334e513aa09208"/>
+	</application>
+
+</manifest>

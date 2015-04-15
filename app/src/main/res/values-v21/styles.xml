@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="ActionBar">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:background">?attr/colorPrimary</item>
+		<item name="android:elevation">@dimen/material_elevation</item>
+		<item name="android:minHeight">?attr/actionBarSize</item>
+	</style>
+</resources>

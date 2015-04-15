@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+	<item
+		android:icon="?attr/ic_action_sort"
+		android:title="@string/menu_sort"
+		app:showAsAction="ifRoom">
+		<menu>
+			<group android:checkableBehavior="single" >
+				<item
+					android:id="@+id/menu_sort_geeklists_hot"
+					android:title="@string/menu_sort_geeklists_hot"/>
+				<item
+					android:id="@+id/menu_sort_geeklists_recent"
+					android:title="@string/menu_sort_geeklists_recent"/>
+				<item
+					android:id="@+id/menu_sort_geeklists_active"
+					android:title="@string/menu_sort_geeklists_active"/>
+			</group>
+		</menu>
+	</item>
+
+</menu>
