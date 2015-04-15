@@ -21,6 +21,7 @@ public class CollectionSorterFactory {
 	public static final int TYPE_MY_RATING = 15;
 	public static final int TYPE_RANK = 16;
 	public static final int TYPE_AVERAGE_RATING = 17;
+	public static final int TYPE_ACQUISITION_DATE = 18;
 	public static final int TYPE_DEFAULT = TYPE_COLLECTION_NAME;
 
 	public static CollectionSorter create(int type, Context context) {
@@ -59,6 +60,8 @@ public class CollectionSorterFactory {
 				return new RankSorter(context);
 			case TYPE_AVERAGE_RATING:
 				return new AverageRatingSorter(context);
+			case TYPE_ACQUISITION_DATE:
+				return new AcquisitionDateSorter(context);
 			case TYPE_UNKNOWN:
 			default:
 				return null;

@@ -284,8 +284,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
-				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
-					cursor.getString(Query.COLLECTION_NAME));
+				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
 				SaveView.createDialog(getActivity(), this, mViewName, mSort, mFilters);
@@ -315,8 +314,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
 			case R.id.menu_collection_sort_published:
-				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC,
-					CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
+				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime:
 				setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
@@ -325,11 +323,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
 				return true;
 			case R.id.menu_collection_sort_weight:
-				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC,
-					CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
+				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
 				setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
+				return true;
+			case R.id.menu_collection_sort_acquisition_date:
+				setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
 				return true;
 		}
 
@@ -342,7 +342,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
-			String[] args = { };
+			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			if (mViewId == 0 && mFilters == null || mFilters.size() == 0) {
 				where.append(buildDefaultWhereClause());

@@ -224,6 +224,7 @@
 	<string name="menu_collection_sort_played_most">Most Played</string>
 	<string name="menu_collection_sort_played_least">Least Played</string>
 	<string name="menu_collection_sort_published">Year Published</string>
+	<string name="menu_collection_sort_acquisition_date">Acquisition Date</string>
 	<string name="menu_plays_sort_date">Date</string>
 	<string name="menu_plays_sort_location">Location</string>
 	<string name="menu_plays_sort_game">Game</string>
@@ -300,6 +301,7 @@
 	<string name="players">players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
+	<string name="unknown">unknown</string>
 	<string name="minutes">minutes</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>

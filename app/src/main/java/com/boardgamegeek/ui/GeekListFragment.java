@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ public class GeekListFragment extends BggListFragment implements
 	private GeeklistAdapter mGeekListAdapter;
 	private View mHeader;
 	@InjectView(R.id.username) TextView mUsernameView;
+	@InjectView(R.id.description) TextView mDescription;
 	@InjectView(R.id.items) TextView mItemsView;
 	@InjectView(R.id.thumbs) TextView mThumbsView;
 	@InjectView(R.id.posted_date) TextView mPostDateView;
@@ -109,7 +111,7 @@ public class GeekListFragment extends BggListFragment implements
 
 	@Override
 	public Loader<GeekListData> onCreateLoader(int id, Bundle data) {
-		return new GeeklistLoader(getActivity(), mGeekListId);
+		return new GeekListLoader(getActivity(), mGeekListId);
 	}
 
 	@Override
@@ -142,6 +144,10 @@ public class GeekListFragment extends BggListFragment implements
 		if (geekList != null) {
 			mHeader.setTag(geekList);
 			mUsernameView.setText(getString(R.string.by_prefix, geekList.getUsername()));
+			if (!TextUtils.isEmpty(geekList.getDescription())) {
+				mDescription.setVisibility(View.VISIBLE);
+				mDescription.setText(geekList.getDescription());
+			}
 			mItemsView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
 			mThumbsView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
 			mPostDateView.setText(getString(R.string.posted_prefix,
@@ -155,21 +161,21 @@ public class GeekListFragment extends BggListFragment implements
 	public void onLoaderReset(Loader<GeekListData> loader) {
 	}
 
-	private static class GeeklistLoader extends BggLoader<GeekListData> {
+	private static class GeekListLoader extends BggLoader<GeekListData> {
 		private BggService mService;
-		private int mGeeklistId;
+		private int mGeekListId;
 
-		public GeeklistLoader(Context context, int geeklistId) {
+		public GeekListLoader(Context context, int geekListId) {
 			super(context);
 			mService = Adapter.create();
-			mGeeklistId = geeklistId;
+			mGeekListId = geekListId;
 		}
 
 		@Override
 		public GeekListData loadInBackground() {
 			GeekListData geeklistData;
 			try {
-				geeklistData = new GeekListData(mService.geekList(mGeeklistId));
+				geeklistData = new GeekListData(mService.geekList(mGeekListId));
 			} catch (Exception e) {
 				geeklistData = new GeekListData(e);
 			}

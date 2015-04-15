@@ -33,6 +33,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
@@ -46,11 +47,13 @@ public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private long mUpdateTime;
+	private List<Integer> mGameIds;
 
 	public GamePersister(Context context) {
 		mContext = context;
 		mResolver = context.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
+		mGameIds = new ArrayList<>();
 	}
 
 	public int save(Game game) {
@@ -81,6 +84,10 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
+				if (mGameIds.contains(game.id)) {
+					continue;
+				}
+				mGameIds.add(game.id);
 				Builder cpo;
 				ContentValues values = toValues(game, mUpdateTime);
 				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {
@@ -197,7 +204,7 @@ public class GamePersister {
 							.withValues(values).build());
 						existingValues = ResolverUtils.queryStrings(mResolver,
 							Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
-							GamePollResultsResult.POLL_RESULTS_RESULT_VALUE);
+							GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
 					} else {
 						values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
 						batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name))
@@ -207,21 +214,19 @@ public class GamePersister {
 					int resultSortIndex = 0;
 					for (Result result : results.result) {
 						values.clear();
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
 						int level = result.level;
 						if (level > 0) {
 							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, level);
 						}
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
 						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
 
-						if (existingValues.remove(result.value)) {
-							batch
-								.add(ContentProviderOperation
-									.newUpdate(
-										Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(),
-											result.value)).withValues(values).build());
+						String key = DataUtils.generatePollResultsKey(level, result.value);
+						if (existingValues.remove(key)) {
+							batch.add(ContentProviderOperation.newUpdate(
+								Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), key)).withValues(values).build());
 						} else {
-							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
 							batch.add(ContentProviderOperation
 								.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()))
 								.withValues(values).build());

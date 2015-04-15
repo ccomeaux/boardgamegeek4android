@@ -12,6 +12,7 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
+import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
 
@@ -70,14 +71,9 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 		int id = queryInt(db, builder, GamePollResultsResult._ID);
 		values.put(GamePollResultsResult.POLL_RESULTS_ID, id);
 
-		String key = values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL);
-		if (TextUtils.isEmpty(key)) {
-			key = values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE);
-			int index = key.indexOf(" ");
-			if (index > -1) {
-				key = key.substring(0, index);
-			}
-		}
+		String key = DataUtils.generatePollResultsKey(
+			values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL),
+			values.getAsString(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE));
 		values.put(GamePollResultsResult.POLL_RESULTS_RESULT_KEY, key);
 
 		try {

@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.FileUtils;
@@ -48,7 +49,7 @@ public class BuddyPersister {
 				int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
 				int newSyncHashCode = generateSyncHashCode(buddy);
 				if (oldSyncHashCode != newSyncHashCode) {
-					values.put(Buddies.BUDDY_ID, buddy.id);
+					values.put(Buddies.BUDDY_ID, buddy.getId());
 					values.put(Buddies.BUDDY_NAME, buddy.name);
 					values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
 					values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
@@ -77,8 +78,10 @@ public class BuddyPersister {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (buddies != null) {
 			for (Buddy buddy : buddies) {
-				ContentValues values = toValues(buddy);
-				addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name));
+				if (buddy.getId() != BggContract.INVALID_ID) {
+					ContentValues values = toValues(buddy);
+					addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name));
+				}
 			}
 		}
 		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
@@ -102,7 +105,7 @@ public class BuddyPersister {
 
 	private ContentValues toValues(Buddy buddy) {
 		ContentValues values = new ContentValues();
-		values.put(Buddies.BUDDY_ID, buddy.id);
+		values.put(Buddies.BUDDY_ID, buddy.getId());
 		values.put(Buddies.BUDDY_NAME, buddy.name);
 		values.put(Buddies.UPDATED_LIST, mUpdateTime);
 		// we assume only actually "buddies" call this (other users call above)

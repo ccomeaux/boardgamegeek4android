@@ -53,11 +53,7 @@ public class PlayStatView extends TableRow {
 		setClickBackground();
 		final SpannableString s = new SpannableString(getContext().getString(textId));
 		Linkify.addLinks(s, Linkify.ALL);
-		if (VersionUtils.hasHoneycomb()) {
-			mBuilder = new AlertDialog.Builder(getContext(), R.style.Theme_bgglight_Dialog_Custom);
-		} else {
-			mBuilder = new AlertDialog.Builder(getContext());
-		}
+		mBuilder = new AlertDialog.Builder(getContext());
 		mBuilder.setTitle(mLabel.getText()).setMessage(s);
 	}
 
