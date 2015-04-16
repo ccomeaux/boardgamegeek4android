@@ -4,6 +4,7 @@ Release Notes
 Coming Soon
 -----------
  * Suppress H-Index notification if it's 0
+ * Bug fixes and stability improvements
 
 Version 5.0
 -----------
