@@ -3,7 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
-
+ * Suppress H-Index notification if it's 0
 
 Version 5.0
 -----------
