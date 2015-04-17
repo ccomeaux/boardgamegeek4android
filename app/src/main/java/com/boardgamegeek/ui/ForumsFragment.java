@@ -83,7 +83,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			mForumsAdapter = new ForumsAdapter(getActivity(), data.list());
 			setListAdapter(mForumsAdapter);
 		}
-		mForumsAdapter.notifyDataSetChanged();
+		initializeTimeBasedUi();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -164,6 +164,14 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 				return new ArrayList<>();
 			}
 			return mResponse.forums;
+		}
+	}
+
+	@Override
+	@DebugLog
+	protected void updateTimeBasedUi() {
+		if (mForumsAdapter != null) {
+			mForumsAdapter.notifyDataSetChanged();
 		}
 	}
 

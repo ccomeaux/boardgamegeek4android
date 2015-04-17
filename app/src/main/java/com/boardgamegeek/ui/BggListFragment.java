@@ -2,6 +2,7 @@ package com.boardgamegeek.ui;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.view.View;
@@ -28,9 +29,18 @@ public abstract class BggListFragment extends ListFragment {
 	private static final int LIST_VIEW_STATE_POSITION_DEFAULT = -1;
 	private static final String STATE_POSITION = "position";
 	private static final String STATE_TOP = "top";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mTimeHintUpdaterRunnable = null;
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mHandler = new Handler();
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -55,8 +65,20 @@ public abstract class BggListFragment extends ListFragment {
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+
+	@Override
 	public void onPause() {
 		super.onPause();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
 		saveScrollState();
 	}
 
@@ -66,6 +88,30 @@ public abstract class BggListFragment extends ListFragment {
 		outState.putInt(STATE_POSITION, mListViewStatePosition);
 		outState.putInt(STATE_TOP, mListViewStateTop);
 		super.onSaveInstanceState(outState);
+	}
+
+	/**
+	 * Update time-based UI and continue to update it periodically.
+	 */
+	protected void initializeTimeBasedUi() {
+		updateTimeBasedUi();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
+		mTimeHintUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	/**
+	 * Add any code that needs to update the UI with time-based information. Note that this can be called before the UI has been initialized.
+	 */
+	protected void updateTimeBasedUi() {
 	}
 
 	protected void saveScrollState() {
