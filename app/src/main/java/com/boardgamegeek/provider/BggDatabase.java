@@ -564,6 +564,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 				buildCollectionTable().replace(db);
 				version = VER_COLLECTION;
 			case VER_COLLECTION:
+				addColumn(db, Tables.GAMES, Games.SUBTYPE, COLUMN_TYPE.TEXT);
 				buildGamesTable().replace(db);
 				dropTable(db, Tables.COLLECTION);
 				buildCollectionTable().create(db);
