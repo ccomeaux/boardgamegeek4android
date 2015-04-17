@@ -1057,13 +1057,13 @@ public class GameFragment extends Fragment implements
 		@DebugLog
 		public int getWeightDescriptionResId() {
 			int resId = R.string.weight_1_text;
-			if (AverageWeight >= 4.5) {
+			if (AverageWeight >= 4.2) {
 				resId = R.string.weight_5_text;
-			} else if (AverageWeight >= 3.5) {
+			} else if (AverageWeight >= 3.4) {
 				resId = R.string.weight_4_text;
-			} else if (AverageWeight >= 2.5) {
+			} else if (AverageWeight >= 2.6) {
 				resId = R.string.weight_3_text;
-			} else if (AverageWeight >= 1.5) {
+			} else if (AverageWeight >= 1.8) {
 				resId = R.string.weight_2_text;
 			}
 			return resId;
