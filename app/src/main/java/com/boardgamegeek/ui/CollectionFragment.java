@@ -376,8 +376,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (!TextUtils.isEmpty(mDefaultWhereClause)) {
 			return mDefaultWhereClause;
 		}
-		StringBuilder where = new StringBuilder();
 		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+		if (statuses == null) {
+			mDefaultWhereClause = "";
+			return mDefaultWhereClause;
+		}
+		StringBuilder where = new StringBuilder();
 		for (String status : statuses) {
 			if (TextUtils.isEmpty(status)) {
 				continue;
