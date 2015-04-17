@@ -28,6 +28,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.text.NumberFormat;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 public class ForumFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final int FORUM_LOADER_ID = 0;
@@ -39,6 +41,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	private String mGameName;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -50,22 +53,27 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		getListView().setOnScrollListener(this);
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_forum));
 	}
 
+	@Override
+	@DebugLog
 	public void onResume() {
 		super.onResume();
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
 	}
 
+	@DebugLog
 	public void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Thread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
@@ -76,6 +84,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	@DebugLog
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		ThreadRowViewBinder.ViewHolder holder = (ThreadRowViewBinder.ViewHolder) convertView.getTag();
 		if (holder != null) {
@@ -91,10 +100,12 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	@DebugLog
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 
 	@Override
+	@DebugLog
 	public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (!isLoading() && loaderHasMoreResults() && visibleItemCount != 0
 			&& firstVisibleItem + visibleItemCount >= totalItemCount - 1) {
@@ -104,11 +115,13 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	@DebugLog
 	public Loader<PaginatedData<Thread>> onCreateLoader(int id, Bundle data) {
 		return new ForumLoader(getActivity(), mForumId);
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<PaginatedData<Thread>> loader, PaginatedData<Thread> data) {
 		if (getActivity() == null) {
 			return;
@@ -124,19 +137,23 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<PaginatedData<Thread>> loader) {
 	}
 
+	@DebugLog
 	private boolean isLoading() {
 		final ForumLoader loader = getLoader();
 		return (loader == null) || loader.isLoading();
 	}
 
+	@DebugLog
 	private boolean loaderHasMoreResults() {
 		final ForumLoader loader = getLoader();
 		return (loader != null) && loader.hasMoreResults();
 	}
 
+	@DebugLog
 	private ForumLoader getLoader() {
 		if (isAdded()) {
 			Loader<PaginatedData<Thread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
@@ -145,6 +162,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		return null;
 	}
 
+	@DebugLog
 	private static class ForumLoader extends PaginatedLoader<Thread> {
 		private BggService mService;
 		private int mForumId;
@@ -156,6 +174,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 
 		@Override
+		@DebugLog
 		public PaginatedData<Thread> loadInBackground() {
 			super.loadInBackground();
 			ForumData data;
@@ -180,16 +199,19 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	private class ForumAdapter extends PaginatedArrayAdapter<Thread> {
+		@DebugLog
 		public ForumAdapter(Context context, int resource, PaginatedData<Thread> data) {
 			super(context, resource, data);
 		}
 
 		@Override
+		@DebugLog
 		protected boolean isLoaderLoading() {
 			return isLoading();
 		}
 
 		@Override
+		@DebugLog
 		protected void bind(View view, Thread item) {
 			ThreadRowViewBinder.bindActivityView(view, item);
 		}
@@ -209,6 +231,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			public TextView lastpostdate;
 			public TextView postdate;
 
+			@DebugLog
 			public ViewHolder(View view) {
 				subject = (TextView) view.findViewById(R.id.thread_title);
 				author = (TextView) view.findViewById(R.id.thread_author);
@@ -223,6 +246,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			}
 		}
 
+		@DebugLog
 		public static void bindActivityView(View rootView, Thread thread) {
 			ViewHolder tag = (ViewHolder) rootView.getTag();
 			final ViewHolder holder;
@@ -241,10 +265,8 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			int replies = thread.numberOfArticles - 1;
 			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies,
 				mFormat.format(replies)));
-			holder.lastpostdate.setText(String.format(mLastPostText,
-				DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate())));
-			holder.postdate.setText(String.format(mCreatedText,
-				DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate())));
+			holder.lastpostdate.setText(String.format(mLastPostText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate())));
+			holder.postdate.setText(String.format(mCreatedText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate())));
 		}
 	}
 }
