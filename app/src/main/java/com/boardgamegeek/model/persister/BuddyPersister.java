@@ -41,6 +41,7 @@ public class BuddyPersister {
 	public int save(List<User> buddies) {
 		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (User buddy : buddies) {
 				Uri uri = Buddies.buildBuddyUri(buddy.name);
@@ -56,10 +57,11 @@ public class BuddyPersister {
 					values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
 					values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 				}
-				addToBatch(resolver, values, batch, uri);
+				debugMessage.append("Updating " + uri + "; ");
+				addToBatch(resolver, values, batch, uri, debugMessage);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -76,15 +78,16 @@ public class BuddyPersister {
 	public int saveList(List<Buddy> buddies) {
 		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (Buddy buddy : buddies) {
 				if (buddy.getId() != BggContract.INVALID_ID) {
 					ContentValues values = toValues(buddy);
-					addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name));
+					addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name), debugMessage);
 				}
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -92,11 +95,13 @@ public class BuddyPersister {
 		}
 	}
 
-	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri) {
+	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri, StringBuilder debugMessage) {
 		if (!ResolverUtils.rowExists(resolver, uri)) {
+			debugMessage.append("Inserting " + uri + "; ");
 			values.put(Buddies.UPDATED_LIST, mUpdateTime);
 			batch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values).build());
 		} else {
+			debugMessage.append("Updating " + uri + "; ");
 			maybeDeleteAvatar(values, uri, resolver);
 			values.remove(Buddies.BUDDY_NAME);
 			batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
