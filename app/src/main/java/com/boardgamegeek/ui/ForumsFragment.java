@@ -32,6 +32,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
@@ -119,8 +121,8 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ForumsLoader extends BggLoader<ForumsData> {
-		private BggService mService;
-		private int mGameId;
+		private final BggService mService;
+		private final int mGameId;
 
 		@DebugLog
 		public ForumsLoader(Context context, int gameId) {
@@ -179,9 +181,9 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public static final int ITEM_VIEW_TYPE_FORUM = 0;
 		public static final int ITEM_VIEW_TYPE_HEADER = 1;
 
-		private LayoutInflater mInflater;
-		private Resources mResources;
-		private NumberFormat mFormat = NumberFormat.getInstance();
+		private final LayoutInflater mInflater;
+		private final Resources mResources;
+		private final NumberFormat mFormat = NumberFormat.getInstance();
 
 		@DebugLog
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
@@ -257,24 +259,24 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static class ForumViewHolder {
 		public int forumId;
-		public TextView forumTitle;
-		public TextView numThreads;
-		public TextView lastPost;
+		@InjectView(R.id.forum_title) TextView forumTitle;
+		@InjectView(R.id.numthreads) TextView numThreads;
+		@InjectView(R.id.lastpost) TextView lastPost;
 
 		public ForumViewHolder(View view) {
-			forumTitle = (TextView) view.findViewById(R.id.forum_title);
-			numThreads = (TextView) view.findViewById(R.id.numthreads);
-			lastPost = (TextView) view.findViewById(R.id.lastpost);
+			ButterKnife.inject(this, view);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static class HeaderViewHolder {
-		public TextView header;
+		@InjectView(android.R.id.title) TextView header;
 
 		public HeaderViewHolder(View view) {
-			header = (TextView) view.findViewById(android.R.id.title);
+			ButterKnife.inject(this, view);
 		}
 	}
 }
