@@ -32,6 +32,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
 	private static final int FORUMS_LOADER_ID = 0;
 
@@ -40,6 +42,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	private ForumsAdapter mForumsAdapter;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -50,23 +53,27 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getString(R.string.empty_forums));
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
+	@DebugLog
 	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), mGameId);
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<ForumsData> loader, ForumsData data) {
 		if (getActivity() == null) {
 			return;
@@ -91,10 +98,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<ForumsData> loader) {
 	}
 
 	@Override
+	@DebugLog
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		if (mForumsAdapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
 			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
@@ -113,6 +122,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		private BggService mService;
 		private int mGameId;
 
+		@DebugLog
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
 			mService = Adapter.create();
@@ -120,6 +130,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public ForumsData loadInBackground() {
 			ForumsData forums;
 			try {
@@ -147,6 +158,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public List<Forum> list() {
 			if (mResponse == null || mResponse.forums == null) {
 				return new ArrayList<>();
@@ -163,6 +175,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		private Resources mResources;
 		private NumberFormat mFormat = NumberFormat.getInstance();
 
+		@DebugLog
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
 			super(activity, R.layout.row_forum, forums);
 			mInflater = activity.getLayoutInflater();
@@ -170,6 +183,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Forum forum;
 			try {
@@ -215,11 +229,13 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public int getViewTypeCount() {
 			return 2;
 		}
 
 		@Override
+		@DebugLog
 		public int getItemViewType(int position) {
 			try {
 				Forum forum = getItem(position);
