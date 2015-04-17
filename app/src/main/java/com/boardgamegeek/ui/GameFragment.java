@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -16,7 +17,6 @@ import android.support.v7.graphics.Palette;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -81,7 +81,10 @@ public class GameFragment extends Fragment implements
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mTimeHintUpdaterRunnable = null;
 	private Uri mGameUri;
 	private String mGameName;
 	private String mImageUrl;
@@ -214,6 +217,8 @@ public class GameFragment extends Fragment implements
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 
+		mHandler = new Handler();
+
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameUri = intent.getData();
 
@@ -260,6 +265,15 @@ public class GameFragment extends Fragment implements
 
 	@Override
 	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
@@ -268,6 +282,15 @@ public class GameFragment extends Fragment implements
 		}
 
 		mCallbacks = (Callbacks) activity;
+	}
+
+	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
 	}
 
 	@Override
@@ -502,7 +525,7 @@ public class GameFragment extends Fragment implements
 		mRatingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
 		mIdView.setText(String.valueOf(game.Id));
-		mUpdatedView.setText(game.getUpdatedDescription());
+		mUpdatedView.setTag(game.Updated);
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
@@ -537,6 +560,19 @@ public class GameFragment extends Fragment implements
 			mPlayStatsRoot.setVisibility(View.VISIBLE);
 		}
 
+		updateTimeBasedUi();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
+		mTimeHintUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
 
@@ -545,6 +581,14 @@ public class GameFragment extends Fragment implements
 			triggerRefresh();
 		}
 		mMightNeedRefreshing = false;
+	}
+
+	@DebugLog
+	private void updateTimeBasedUi() {
+		if (mUpdatedView != null) {
+			long updatedTime = (long) mUpdatedView.getTag();
+			mUpdatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+		}
 	}
 
 	@DebugLog
@@ -1007,20 +1051,7 @@ public class GameFragment extends Fragment implements
 
 		@DebugLog
 		public String getYearPublished() {
-			if (YearPublished > 0) {
-				return getString(R.string.year_positive, YearPublished);
-			} else if (YearPublished == 0) {
-				return getString(R.string.year_zero, YearPublished);
-			} else {
-				return getString(R.string.year_negative, -YearPublished);
-			}
-		}
-
-		public CharSequence getUpdatedDescription() {
-			if (Updated == 0) {
-				return getResources().getString(R.string.needs_updating);
-			}
-			return DateUtils.getRelativeTimeSpanString(Updated);
+			return PresentationUtils.describeYear(getActivity(), YearPublished);
 		}
 
 		@DebugLog
