@@ -908,6 +908,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 	}
 
 	@DebugLog
+	@OnClick(R.id.log_play_date)
 	public void onDateClick(View v) {
 		if (mDatePickerFragment == null) {
 			mDatePickerFragment = new DatePickerDialogFragment();
