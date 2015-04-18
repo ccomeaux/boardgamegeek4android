@@ -1,8 +1,8 @@
 package com.boardgamegeek.model;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
+import android.text.TextUtils;
+
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -10,9 +10,9 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 
-import android.text.TextUtils;
-
-import com.boardgamegeek.util.StringUtils;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Root(name = "item")
 public class Game {
@@ -211,7 +211,7 @@ public class Game {
 
 	@ElementList(inline = true) private List<Name> names;
 
-	@Element private String description;
+	@Element(required = false) private String description;
 
 	@Path("yearpublished") @Attribute(name = "value") public int yearPublished;
 

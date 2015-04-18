@@ -6,7 +6,7 @@
 		android:title="@string/pref_search" >
 		<intent
 			android:action="com.boardgamegeek.prefs.SEARCH"
-			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek" />
 	</Preference>
 	<Preference
@@ -14,7 +14,7 @@
 		android:title="@string/pref_sync" >
 		<intent
 			android:action="com.boardgamegeek.prefs.SYNC"
-			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek" />
 	</Preference>
 	<Preference
@@ -22,7 +22,7 @@
 		android:title="@string/pref_log" >
 		<intent
 			android:action="com.boardgamegeek.prefs.LOG"
-			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek" />
 	</Preference>
 	<Preference
@@ -30,7 +30,7 @@
 		android:title="@string/pref_advanced" >
 		<intent
 			android:action="com.boardgamegeek.prefs.ADVANCED"
-			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek" />
 	</Preference>
 	<Preference
@@ -38,7 +38,7 @@
 		android:title="@string/pref_about" >
 		<intent
 			android:action="com.boardgamegeek.prefs.ABOUT"
-			android:targetClass="com.boardgamegeek.pref.Preferences"
+			android:targetClass="com.boardgamegeek.pref.SettingsActivity"
 			android:targetPackage="com.boardgamegeek" />
 	</Preference>
 

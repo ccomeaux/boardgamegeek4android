@@ -41,6 +41,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	private long mPostedDate;
 	private long mEditedDate;
 	private String mBody;
+	private Palette.Swatch mSwatch;
 
 	private ViewGroup mRootView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
@@ -91,6 +92,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
 		ButterKnife.inject(this, mRootView);
 
+		applySwatch();
 		ScrimUtils.applyDefaultScrim(mHeaderContainer);
 		ViewTreeObserver vto = mRootView.getViewTreeObserver();
 		if (vto.isAlive()) {
@@ -140,8 +142,14 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 
 	@Override
 	public void onPaletteGenerated(Palette palette) {
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
-		mAuthorContainer.setBackgroundColor(swatch.getRgb());
-		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
+		mSwatch = PaletteUtils.getInverseSwatch(palette);
+		applySwatch();
+	}
+
+	private void applySwatch() {
+		if (mAuthorContainer != null && mSwatch != null) {
+			mAuthorContainer.setBackgroundColor(mSwatch.getRgb());
+			ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, mSwatch);
+		}
 	}
 }

@@ -44,12 +44,12 @@
 
 			<TextView
 				android:id="@+id/log_play_date"
+				android:clickable="true"
 				android:layout_width="0dp"
 				android:layout_height="match_parent"
 				android:layout_weight="1"
 				android:background="?attr/selectableItemBackground"
 				android:gravity="left|center_vertical"
-				android:onClick="onDateClick"
 				android:textAppearance="@style/Text.Big"
 				tools:text="January 1, 1970"/>
 		</LinearLayout>

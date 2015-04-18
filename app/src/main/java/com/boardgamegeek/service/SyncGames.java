@@ -10,6 +10,7 @@ import com.boardgamegeek.io.RetryableException;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
+import com.crashlytics.android.Crashlytics;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -75,7 +76,9 @@ public abstract class SyncGames extends SyncTask {
 		int retries = 0;
 		while (true) {
 			try {
-				return service.thing(TextUtils.join(",", gameIds), 1);
+				String ids = TextUtils.join(",", gameIds);
+				Crashlytics.setString("GAME_IDS", ids);
+				return service.thing(ids, 1);
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {
 					if (mGamesPerFetch == 1) {

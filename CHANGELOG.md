@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 5.0.1
+-------------
+ * Suppress H-Index notification if it's 0
+ * Bug fixes and stability improvements
+
 Version 5.0
 -----------
  * Material design and support for Android Lollipop

@@ -231,7 +231,7 @@ public class GameFragment extends Fragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
-		colorize(mPalette);
+		colorize();
 		openOrCloseDescription();
 		openOrCloseStats();
 		ScrimUtils.applyDefaultScrim(mHeaderContainer);
@@ -448,20 +448,20 @@ public class GameFragment extends Fragment implements
 	@Override
 	public void onPaletteGenerated(Palette palette) {
 		mPalette = palette;
-		colorize(palette);
+		colorize();
 	}
 
-	private void colorize(Palette palette) {
-		if (palette == null || mPrimaryInfo == null) {
+	private void colorize() {
+		if (mPalette == null || mPrimaryInfo == null) {
 			return;
 		}
-		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(palette);
+		Palette.Swatch swatch = PaletteUtils.getInverseSwatch(mPalette);
 		mPrimaryInfo.setBackgroundColor(swatch.getRgb());
 		ButterKnife.apply(mColorizedTextViews, PaletteUtils.colorTextViewOnBackgroundSetter, swatch);
-		swatch = PaletteUtils.getIconSwatch(palette);
+		swatch = PaletteUtils.getIconSwatch(mPalette);
 		ButterKnife.apply(mColorizedRows, GameDetailRow.colorIconSetter, swatch);
 		ButterKnife.apply(mColorizedIcons, PaletteUtils.colorIconSetter, swatch);
-		swatch = PaletteUtils.getHeaderSwatch(palette);
+		swatch = PaletteUtils.getHeaderSwatch(mPalette);
 		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
@@ -985,13 +985,13 @@ public class GameFragment extends Fragment implements
 
 		public int getWeightDescriptionResId() {
 			int resId = R.string.weight_1_text;
-			if (AverageWeight >= 4.5) {
+			if (AverageWeight >= 4.2) {
 				resId = R.string.weight_5_text;
-			} else if (AverageWeight >= 3.5) {
+			} else if (AverageWeight >= 3.4) {
 				resId = R.string.weight_4_text;
-			} else if (AverageWeight >= 2.5) {
+			} else if (AverageWeight >= 2.6) {
 				resId = R.string.weight_3_text;
-			} else if (AverageWeight >= 1.5) {
+			} else if (AverageWeight >= 1.8) {
 				resId = R.string.weight_2_text;
 			}
 			return resId;

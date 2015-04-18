@@ -60,6 +60,6 @@ public class StatBar extends FrameLayout {
 		mValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
 			(int) ((progress - min) * 1000)));
 		mNoValueView.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-			(int) ((max - progress - min) * 1000)));
+			(int) ((max - progress + min) * 1000)));
 	}
 }
