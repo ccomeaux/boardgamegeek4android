@@ -125,7 +125,7 @@ public class GeekListFragment extends BggListFragment implements
 			setListAdapter(mGeekListAdapter);
 			bindHeader(data);
 		}
-		mGeekListAdapter.notifyDataSetChanged();
+		initializeTimeBasedUi();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -150,15 +150,20 @@ public class GeekListFragment extends BggListFragment implements
 			}
 			mItemsView.setText(getString(R.string.items_suffix, geekList.getNumberOfItems()));
 			mThumbsView.setText(getString(R.string.thumbs_suffix, geekList.getThumbs()));
-			mPostDateView.setText(getString(R.string.posted_prefix,
-				DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
-			mEditDateView.setText(getString(R.string.edited_prefix,
-				DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
+			mPostDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getPostDate())));
+			mEditDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), geekList.getEditDate())));
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<GeekListData> loader) {
+	}
+
+	@Override
+	protected void updateTimeBasedUi() {
+		if (mGeekListAdapter != null) {
+			mGeekListAdapter.notifyDataSetChanged();
+		}
 	}
 
 	private static class GeekListLoader extends BggLoader<GeekListData> {
