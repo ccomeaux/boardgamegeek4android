@@ -115,8 +115,8 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadData> {
-		private BggService mService;
-		private int mThreadId;
+		private final BggService mService;
+		private final int mThreadId;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
@@ -158,7 +158,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	static class ThreadAdapter extends ArrayAdapter<Article> {
-		private LayoutInflater mInflater;
+		private final LayoutInflater mInflater;
 
 		@DebugLog
 		public ThreadAdapter(Activity activity, List<Article> articles) {
@@ -205,6 +205,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class ViewHolder {
 		@InjectView(R.id.article_username) TextView username;
 		@InjectView(R.id.article_editdate) TextView editDate;
