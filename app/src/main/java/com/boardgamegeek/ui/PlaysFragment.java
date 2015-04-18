@@ -94,6 +94,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getListView().setClipToPadding(false);
+		getListView().setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.padding_standard));
+		getListView().setDivider(getResources().getDrawable(R.drawable.list_divider));
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
