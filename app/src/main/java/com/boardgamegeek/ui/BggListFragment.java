@@ -72,7 +72,6 @@ public abstract class BggListFragment extends ListFragment {
 		}
 	}
 
-
 	@Override
 	public void onPause() {
 		super.onPause();
