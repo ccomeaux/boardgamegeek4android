@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -19,6 +20,7 @@ import com.boardgamegeek.provider.BggContract.Designers;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import butterknife.ButterKnife;
@@ -26,6 +28,10 @@ import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private Uri mUri;
 	private int mToken;
@@ -33,12 +39,13 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	@SuppressWarnings("unused") @InjectView(R.id.id) TextView mId;
 	@SuppressWarnings("unused") @InjectView(R.id.name) TextView mName;
 	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
+	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView mUpdated;
 
 	@Override
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		mHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mUri = intent.getData();
 
@@ -58,6 +65,23 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 		ButterKnife.inject(this, rootView);
 		getLoaderManager().restartLoader(mToken, null, this);
 		return rootView;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
 	}
 
 	@Override
@@ -97,6 +121,20 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 			mId.setText(String.format(getString(R.string.id_list_text), id));
 			mName.setText(name);
 			UIUtils.setTextMaybeHtml(mDescription, description);
+			mUpdated.setTag(updated);
+
+			updateTimeBasedUi();
+			if (mUpdaterRunnable != null) {
+				mHandler.removeCallbacks(mUpdaterRunnable);
+			}
+			mUpdaterRunnable = new Runnable() {
+				@Override
+				public void run() {
+					updateTimeBasedUi();
+					mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				}
+			};
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 
 			if (updated == 0 || DateTimeUtils.howManyDaysOld(updated) > AGE_IN_DAYS_TO_REFRESH) {
 				UpdateService.start(getActivity(), mToken, id);
@@ -105,6 +143,13 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 			if (cursor != null) {
 				cursor.close();
 			}
+		}
+	}
+
+	private void updateTimeBasedUi() {
+		if (mUpdated != null) {
+			long updated = (long) mUpdated.getTag();
+			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, getResources().getString(R.string.text_unknown)));
 		}
 	}
 
