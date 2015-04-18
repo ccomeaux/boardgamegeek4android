@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.boardgamegeek.util.UIUtils;
 import java.text.NumberFormat;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ForumFragment extends BggListFragment implements OnScrollListener,
@@ -74,7 +77,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@DebugLog
-	public void loadMoreResults() {
+	private void loadMoreResults() {
 		if (isAdded()) {
 			Loader<List<Thread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
 			if (loader != null) {
@@ -128,7 +131,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 
 		if (mForumAdapter == null) {
-			mForumAdapter = new ForumAdapter(getActivity(), R.layout.row_forumthread, data);
+			mForumAdapter = new ForumAdapter(getActivity(), data);
 			setListAdapter(mForumAdapter);
 		} else {
 			mForumAdapter.update(data);
@@ -154,6 +157,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@DebugLog
+	@Nullable
 	private ForumLoader getLoader() {
 		if (isAdded()) {
 			Loader<PaginatedData<Thread>> loader = getLoaderManager().getLoader(FORUM_LOADER_ID);
@@ -164,8 +168,8 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	@DebugLog
 	private static class ForumLoader extends PaginatedLoader<Thread> {
-		private BggService mService;
-		private int mForumId;
+		private final BggService mService;
+		private final int mForumId;
 
 		public ForumLoader(Context context, int forumId) {
 			super(context);
@@ -200,8 +204,8 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 
 	private class ForumAdapter extends PaginatedArrayAdapter<Thread> {
 		@DebugLog
-		public ForumAdapter(Context context, int resource, PaginatedData<Thread> data) {
-			super(context, resource, data);
+		public ForumAdapter(Context context, PaginatedData<Thread> data) {
+			super(context, R.layout.row_forumthread, data);
 		}
 
 		@Override
@@ -217,28 +221,24 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		}
 	}
 
-	private static class ThreadRowViewBinder {
-		private static NumberFormat mFormat = NumberFormat.getInstance();
+	static class ThreadRowViewBinder {
+		private static final NumberFormat mFormat = NumberFormat.getInstance();
 		private static String mAuthorText;
 		private static String mLastPostText;
 		private static String mCreatedText;
 
+		@SuppressWarnings("unused")
 		public static class ViewHolder {
 			public int threadId;
-			public TextView subject;
-			public TextView author;
-			public TextView numarticles;
-			public TextView lastpostdate;
-			public TextView postdate;
+			@InjectView(R.id.thread_title) TextView subject;
+			@InjectView(R.id.thread_author) TextView author;
+			@InjectView(R.id.thread_numarticles) TextView numberOfArticles;
+			@InjectView(R.id.thread_lastpostdate) TextView lastPostDate;
+			@InjectView(R.id.thread_postdate) TextView postDate;
 
 			@DebugLog
 			public ViewHolder(View view) {
-				subject = (TextView) view.findViewById(R.id.thread_title);
-				author = (TextView) view.findViewById(R.id.thread_author);
-				numarticles = (TextView) view.findViewById(R.id.thread_numarticles);
-				lastpostdate = (TextView) view.findViewById(R.id.thread_lastpostdate);
-				postdate = (TextView) view.findViewById(R.id.thread_postdate);
-
+				ButterKnife.inject(this, view);
 				Resources r = view.getResources();
 				mAuthorText = r.getString(R.string.forum_thread_author);
 				mLastPostText = r.getString(R.string.forum_last_post);
@@ -263,10 +263,9 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 			holder.subject.setText(thread.subject);
 			holder.author.setText(String.format(mAuthorText, thread.author));
 			int replies = thread.numberOfArticles - 1;
-			holder.numarticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies,
-				mFormat.format(replies)));
-			holder.lastpostdate.setText(String.format(mLastPostText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate())));
-			holder.postdate.setText(String.format(mCreatedText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate())));
+			holder.numberOfArticles.setText(r.getQuantityString(R.plurals.forum_thread_replies, replies, mFormat.format(replies)));
+			holder.lastPostDate.setText(String.format(mLastPostText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.lastPostDate())));
+			holder.postDate.setText(String.format(mCreatedText, DateTimeUtils.formatForumDate(rootView.getContext(), thread.postDate())));
 		}
 	}
 }
