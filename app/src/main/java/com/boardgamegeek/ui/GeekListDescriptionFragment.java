@@ -98,5 +98,4 @@ public class GeekListDescriptionFragment extends Fragment {
 			mEditedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mGeekList.getEditDate())));
 		}
 	}
-
 }

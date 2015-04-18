@@ -6,12 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +31,7 @@ import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.ui.model.Player;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HttpUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
@@ -39,27 +40,33 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String KEY_REFRESHED = "REFRESHED";
-	private static final int TOKEN = 0;
 	private static final int PLAYS_TOKEN = 1;
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
+	private static final int TOKEN = 0;
 
 	private String mBuddyName;
 	private boolean mRefreshed;
 	private ViewGroup mRootView;
-	@InjectView(R.id.full_name) TextView mFullName;
-	@InjectView(R.id.username) TextView mName;
-	@InjectView(R.id.avatar) ImageView mAvatar;
-	@InjectView(R.id.nickname) TextView mNickname;
-	@InjectView(R.id.plays_label) TextView mPlays;
-	@InjectView(R.id.updated) TextView mUpdated;
+	@SuppressWarnings("unused") @InjectView(R.id.full_name) TextView mFullName;
+	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mName;
+	@SuppressWarnings("unused") @InjectView(R.id.avatar) ImageView mAvatar;
+	@SuppressWarnings("unused") @InjectView(R.id.nickname) TextView mNickname;
+	@SuppressWarnings("unused") @InjectView(R.id.plays_label) TextView mPlays;
+	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView mUpdated;
 	private int mDefaultTextColor;
 	private int mLightTextColor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mHandler = new Handler();
 		if (savedInstanceState != null) {
 			mRefreshed = savedInstanceState.getBoolean(KEY_REFRESHED);
 		}
@@ -89,9 +96,22 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		return mRootView;
 	}
 
-	@OnClick(R.id.nickname)
-	public void onEditNicknameClick(View v) {
-		showDialog(mNickname.getText().toString(), mBuddyName);
+	@Override
+	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
 	}
 
 	@Override
@@ -133,6 +153,13 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@SuppressWarnings("unused")
+	@OnClick(R.id.nickname)
+	public void onEditNicknameClick(View v) {
+		showDialog(mNickname.getText().toString(), mBuddyName);
+	}
+
+	@SuppressWarnings("unused")
 	@OnClick(R.id.collection_root)
 	public void onCollectionClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyCollectionActivity.class);
@@ -140,6 +167,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		startActivity(intent);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick(View v) {
 		Intent intent = new Intent(getActivity(), BuddyPlaysActivity.class);
@@ -169,10 +197,28 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 			mNickname.setTextColor(mDefaultTextColor);
 			mNickname.setText(buddy.getNickName());
 		}
-		mUpdated.setText((buddy.getUpdated() == 0 ?
-			getResources().getString(R.string.needs_updating) :
-			getResources().getString(
-				R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(buddy.getUpdated())));
+		mUpdated.setTag(buddy.getUpdated());
+
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	@DebugLog
+	private void updateTimeBasedUi() {
+		if (mUpdated != null) {
+			long updated = (long) mUpdated.getTag();
+			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, getString(R.string.needs_updating), getString(R.string.updated)));
+		}
 	}
 
 	private void onPlaysQueryComplete(Cursor cursor) {
@@ -184,7 +230,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		mPlays.setText(StringUtils.boldSecondString("", String.valueOf(player.getPlayCount()), getString(R.string.title_plays)));
 	}
 
-	public void requestRefresh() {
+	private void requestRefresh() {
 		if (!mRefreshed) {
 			forceRefresh();
 			mRefreshed = true;
@@ -195,7 +241,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_BUDDY, mBuddyName);
 	}
 
-	public void showDialog(final String nickname, final String username) {
+	private void showDialog(final String nickname, final String username) {
 		final LayoutInflater inflater = (LayoutInflater) getActivity()
 			.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.dialog_edit_nickname, mRootView, false);
