@@ -36,17 +36,17 @@ import butterknife.InjectView;
 
 public class GeekListFragment extends BggListFragment implements
 	LoaderManager.LoaderCallbacks<GeekListFragment.GeekListData> {
-	private static final int GEEKLIST_LOADER_ID = 99103;
+	private static final int LOADER_ID = 99103;
 	private int mGeekListId;
 	private String mGeekListTitle;
-	private GeeklistAdapter mGeekListAdapter;
+	private GeekListAdapter mGeekListAdapter;
 	private View mHeader;
-	@InjectView(R.id.username) TextView mUsernameView;
-	@InjectView(R.id.description) TextView mDescription;
-	@InjectView(R.id.items) TextView mItemsView;
-	@InjectView(R.id.thumbs) TextView mThumbsView;
-	@InjectView(R.id.posted_date) TextView mPostDateView;
-	@InjectView(R.id.edited_date) TextView mEditDateView;
+	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mUsernameView;
+	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
+	@SuppressWarnings("unused") @InjectView(R.id.items) TextView mItemsView;
+	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView mThumbsView;
+	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView mPostDateView;
+	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView mEditDateView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class GeekListFragment extends BggListFragment implements
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
-		getLoaderManager().initLoader(GEEKLIST_LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class GeekListFragment extends BggListFragment implements
 		}
 
 		if (mGeekListAdapter == null) {
-			mGeekListAdapter = new GeeklistAdapter(getActivity(), data.list());
+			mGeekListAdapter = new GeekListAdapter(getActivity(), data.list());
 			setListAdapter(mGeekListAdapter);
 			bindHeader(data);
 		}
@@ -162,8 +162,8 @@ public class GeekListFragment extends BggListFragment implements
 	}
 
 	private static class GeekListLoader extends BggLoader<GeekListData> {
-		private BggService mService;
-		private int mGeekListId;
+		private final BggService mService;
+		private final int mGeekListId;
 
 		public GeekListLoader(Context context, int geekListId) {
 			super(context);
@@ -208,10 +208,10 @@ public class GeekListFragment extends BggListFragment implements
 		}
 	}
 
-	public class GeeklistAdapter extends ArrayAdapter<GeekListItem> {
-		private LayoutInflater mInflater;
+	public class GeekListAdapter extends ArrayAdapter<GeekListItem> {
+		private final LayoutInflater mInflater;
 
-		public GeeklistAdapter(Activity activity, List<GeekListItem> items) {
+		public GeekListAdapter(Activity activity, List<GeekListItem> items) {
 			super(activity, R.layout.row_geeklist_item, items);
 			mInflater = activity.getLayoutInflater();
 		}
@@ -257,6 +257,7 @@ public class GeekListFragment extends BggListFragment implements
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class ViewHolder {
 		public int imageId;
 		public int objectId;
