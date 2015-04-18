@@ -38,6 +38,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	private int mThreadId;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -46,6 +47,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
@@ -54,12 +56,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_thread));
 	}
 
 	@Override
+	@DebugLog
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
@@ -67,11 +71,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), mThreadId);
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<ThreadData> loader, ThreadData data) {
 		if (getActivity() == null) {
 			return;
@@ -96,10 +102,12 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<ThreadData> loader) {
 	}
 
 	@Override
+	@DebugLog
 	protected void updateTimeBasedUi() {
 		if (mThreadAdapter != null) {
 			mThreadAdapter.notifyDataSetChanged();
@@ -152,12 +160,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	static class ThreadAdapter extends ArrayAdapter<Article> {
 		private LayoutInflater mInflater;
 
+		@DebugLog
 		public ThreadAdapter(Activity activity, List<Article> articles) {
 			super(activity, R.layout.row_threadarticle, articles);
 			mInflater = activity.getLayoutInflater();
 		}
 
 		@Override
+		@DebugLog
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
@@ -201,6 +211,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		@InjectView(R.id.article_body) TextView body;
 		@InjectView(R.id.article_view) View viewArticle;
 
+		@DebugLog
 		public ViewHolder(View view) {
 			ButterKnife.inject(this, view);
 		}
