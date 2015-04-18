@@ -32,7 +32,7 @@ public abstract class BggListFragment extends ListFragment {
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
-	private Runnable mTimeHintUpdaterRunnable = null;
+	private Runnable mUpdaterRunnable = null;
 	private int mListViewStatePosition;
 	private int mListViewStateTop;
 
@@ -67,8 +67,8 @@ public abstract class BggListFragment extends ListFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 		}
 	}
 
@@ -76,8 +76,8 @@ public abstract class BggListFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
 		saveScrollState();
 	}
@@ -95,17 +95,17 @@ public abstract class BggListFragment extends ListFragment {
 	 */
 	protected void initializeTimeBasedUi() {
 		updateTimeBasedUi();
-		if (mTimeHintUpdaterRunnable != null) {
-			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
-		mTimeHintUpdaterRunnable = new Runnable() {
+		mUpdaterRunnable = new Runnable() {
 			@Override
 			public void run() {
 				updateTimeBasedUi();
-				mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 			}
 		};
-		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 	}
 
 	/**
