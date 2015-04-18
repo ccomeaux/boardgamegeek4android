@@ -21,6 +21,8 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import hugo.weaving.DebugLog;
+
 public class ProducerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 30;
 	private Uri mUri;
@@ -31,6 +33,7 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	private TextView mDescription;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -47,6 +50,7 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
+	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
 
@@ -60,6 +64,7 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
+	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
@@ -107,6 +112,7 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
