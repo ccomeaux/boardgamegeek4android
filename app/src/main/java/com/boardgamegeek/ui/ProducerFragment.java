@@ -21,6 +21,8 @@ import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.UIUtils;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import hugo.weaving.DebugLog;
 
 public class ProducerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -28,9 +30,9 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	private Uri mUri;
 	private int mToken;
 
-	private TextView mId;
-	private TextView mName;
-	private TextView mDescription;
+	@SuppressWarnings("unused") @InjectView(R.id.id) TextView mId;
+	@SuppressWarnings("unused") @InjectView(R.id.name) TextView mName;
+	@SuppressWarnings("unused") @InjectView(R.id.description) TextView mDescription;
 
 	@Override
 	@DebugLog
@@ -53,13 +55,8 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_producer, container, false);
-
-		mId = (TextView) rootView.findViewById(R.id.id);
-		mName = (TextView) rootView.findViewById(R.id.name);
-		mDescription = (TextView) rootView.findViewById(R.id.description);
-
+		ButterKnife.inject(this, rootView);
 		getLoaderManager().restartLoader(mToken, null, this);
-
 		return rootView;
 	}
 
