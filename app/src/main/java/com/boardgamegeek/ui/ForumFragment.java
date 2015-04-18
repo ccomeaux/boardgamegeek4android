@@ -136,6 +136,7 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		} else {
 			mForumAdapter.update(data);
 		}
+		initializeTimeBasedUi();
 		restoreScrollState();
 	}
 
@@ -189,6 +190,14 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 				data = new ForumData(e);
 			}
 			return data;
+		}
+	}
+
+	@Override
+	@DebugLog
+	protected void updateTimeBasedUi() {
+		if (mForumAdapter != null) {
+			mForumAdapter.notifyDataSetChanged();
 		}
 	}
 
