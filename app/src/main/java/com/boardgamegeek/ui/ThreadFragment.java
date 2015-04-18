@@ -81,7 +81,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			mThreadAdapter = new ThreadAdapter(getActivity(), data.list());
 			setListAdapter(mThreadAdapter);
 		}
-		mThreadAdapter.notifyDataSetChanged();
+		initializeTimeBasedUi();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -97,6 +97,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	public void onLoaderReset(Loader<ThreadData> loader) {
+	}
+
+	@Override
+	protected void updateTimeBasedUi() {
+		if (mThreadAdapter != null) {
+			mThreadAdapter.notifyDataSetChanged();
+		}
 	}
 
 	private static class ThreadLoader extends BggLoader<ThreadData> {
@@ -142,7 +149,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	public static class ThreadAdapter extends ArrayAdapter<Article> {
+	static class ThreadAdapter extends ArrayAdapter<Article> {
 		private LayoutInflater mInflater;
 
 		public ThreadAdapter(Activity activity, List<Article> articles) {
@@ -173,8 +180,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				if (article.getNumberOfEdits() > 0) {
 					dateRes = R.string.edited_prefix;
 				}
-				holder.editdate.setText(getContext().getString(dateRes,
-					DateTimeUtils.formatForumDate(getContext(), article.editDate())));
+				holder.editDate.setText(getContext().getString(dateRes, DateTimeUtils.formatForumDate(getContext(), article.editDate())));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ActivityUtils.KEY_USER, article.username);
@@ -191,7 +197,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 	public static class ViewHolder {
 		@InjectView(R.id.article_username) TextView username;
-		@InjectView(R.id.article_editdate) TextView editdate;
+		@InjectView(R.id.article_editdate) TextView editDate;
 		@InjectView(R.id.article_body) TextView body;
 		@InjectView(R.id.article_view) View viewArticle;
 
