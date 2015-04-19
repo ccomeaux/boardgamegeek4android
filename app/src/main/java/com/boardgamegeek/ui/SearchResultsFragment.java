@@ -106,6 +106,21 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
+	@Override
 	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
 		return new SearchLoader(getActivity(), mSearchText);
 	}
