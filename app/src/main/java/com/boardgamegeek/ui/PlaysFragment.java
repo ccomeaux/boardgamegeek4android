@@ -94,14 +94,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getListView().setClipToPadding(false);
-		getListView().setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.padding_standard));
-		getListView().setDivider(getResources().getDrawable(R.drawable.list_divider));
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -146,15 +138,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		requery();
 
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
-	}
-
-	private void requery() {
-		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
-			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
-		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
-			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
-		}
-		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	@DebugLog
@@ -280,12 +263,31 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
 		mSelectedPlayId = event.playId;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+	}
+
+	private void requery() {
+		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
+			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
+			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
+		}
+		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	public void onEvent(PlaysSortChangedEvent event) {
