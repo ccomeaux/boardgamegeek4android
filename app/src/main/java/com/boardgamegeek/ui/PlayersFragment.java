@@ -193,7 +193,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_text_3, parent, false);
+			View row = mInflater.inflate(R.layout.row_players_player, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
