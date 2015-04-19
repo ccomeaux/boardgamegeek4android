@@ -89,6 +89,9 @@
 <h4>What\'s New?</h4>
 <h5>Coming Soon</h5>
 <ul>
+</ul>
+<h5>5.0.1</h5>
+<ul>
 <li>Suppress H-Index notification if it\'s 0</li>
 <li>Bug fixes and stability improvements</li>
 </ul>
