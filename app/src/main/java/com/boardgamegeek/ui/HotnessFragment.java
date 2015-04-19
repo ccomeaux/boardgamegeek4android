@@ -58,6 +58,16 @@ public class HotnessFragment extends BggListFragment implements
 	}
 
 	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
 	public Loader<HotnessData> onCreateLoader(int id, Bundle data) {
 		return new HotnessLoader(getActivity());
 	}
