@@ -1,6 +1,9 @@
 Release Notes
 =============
 
+Coming Soon
+-----------
+
 Version 5.0.1
 -------------
  * Suppress H-Index notification if it's 0
