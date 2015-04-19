@@ -38,9 +38,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private PlayersSorter mSorter;
 
 	public interface Callbacks {
-		public boolean onPlayerSelected(String name, String username);
+		boolean onPlayerSelected(String name, String username);
 
-		public void onPlayerCountChanged(int count);
+		void onPlayerCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -113,6 +113,11 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		if (mCallbacks.onPlayerSelected(name, username)) {
 			setSelectedPlayer(name, username);
 		}
+	}
+
+	@Override
+	protected boolean padBottom() {
+		return true;
 	}
 
 	@DebugLog
