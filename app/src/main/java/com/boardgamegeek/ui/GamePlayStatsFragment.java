@@ -420,7 +420,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		public double getPlayRate() {
 			long flash = calculateFlash();
 			if (flash > 0) {
-				return ((double) (mPlayCount * 365) / flash) / 12;
+				double rate = ((double) (mPlayCount * 365) / flash) / 12;
+				return Math.min(rate, mPlayCount);
 			}
 			return 0;
 		}
