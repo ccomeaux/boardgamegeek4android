@@ -258,6 +258,9 @@ public class Game {
 	}
 
 	public String getDescription() {
+		if (TextUtils.isEmpty(description)) {
+			return "";
+		}
 		String d = description.replace("&#10;", "\n");
 		return d.trim();
 	}
