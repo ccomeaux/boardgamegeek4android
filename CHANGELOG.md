@@ -3,7 +3,7 @@ Release Notes
 
 Version 5.0.2
 -------------
- * Darken forum font for readability
+ * Darken font in a copuple of areas for readability
  * Cap game's plays per month at total play count
  * More bug fixes and stability improvements
 
