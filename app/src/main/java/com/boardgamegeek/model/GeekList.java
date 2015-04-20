@@ -1,19 +1,19 @@
 package com.boardgamegeek.model;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Locale;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.boardgamegeek.util.DateTimeUtils;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.boardgamegeek.util.DateTimeUtils;
-import com.boardgamegeek.util.StringUtils;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
 @Root(name = "geeklist")
 public class GeekList implements Parcelable {
@@ -25,8 +25,6 @@ public class GeekList implements Parcelable {
 	}
 
 	@Attribute private int id;
-
-	@Attribute private String termsofuse;
 
 	@Element private String postdate;
 
