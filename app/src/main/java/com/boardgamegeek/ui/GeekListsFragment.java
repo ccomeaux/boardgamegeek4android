@@ -31,7 +31,7 @@ import butterknife.InjectView;
 
 public class GeekListsFragment extends BggListFragment implements OnScrollListener,
 	LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
-	private static final int GEEKLISTS_LOADER_ID = 0;
+	private static final int LOADER_ID = 0;
 	private static final String STATE_SORT = "SORT";
 	private static final int SORT_INVALID = -1;
 	private static final int SORT_HOT = 0;
@@ -65,7 +65,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	@Override
 	public void onResume() {
 		super.onResume();
-		getLoaderManager().initLoader(GEEKLISTS_LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
@@ -119,15 +119,30 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 			if (mGeekListsAdapter != null) {
 				mGeekListsAdapter.clear();
 			}
-			getLoaderManager().restartLoader(GEEKLISTS_LOADER_ID, null, this);
+			getLoaderManager().restartLoader(LOADER_ID, null, this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
 	public void loadMoreResults() {
 		if (isAdded()) {
-			Loader<List<GeekListEntry>> loader = getLoaderManager().getLoader(GEEKLISTS_LOADER_ID);
+			Loader<List<GeekListEntry>> loader = getLoaderManager().getLoader(LOADER_ID);
 			if (loader != null) {
 				loader.forceLoad();
 			}
@@ -194,7 +209,7 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 
 	private GeekListsLoader getLoader() {
 		if (isAdded()) {
-			Loader<PaginatedData<GeekListEntry>> loader = getLoaderManager().getLoader(GEEKLISTS_LOADER_ID);
+			Loader<PaginatedData<GeekListEntry>> loader = getLoaderManager().getLoader(LOADER_ID);
 			return (GeekListsLoader) loader;
 		}
 		return null;
