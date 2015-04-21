@@ -1,9 +1,9 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+
+import java.util.List;
 
 public class PlaysResponse {
 	private static final int PAGE_SIZE = 100;
@@ -19,9 +19,6 @@ public class PlaysResponse {
 
 	@Attribute
 	private int page;
-
-	@Attribute
-	private String termsofuse;
 
 	@ElementList(inline = true, required = false)
 	public List<Play> plays;

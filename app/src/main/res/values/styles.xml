@@ -189,6 +189,9 @@
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
+	<style name="Text.Body">
+	</style>
+
 	<style name="Text.Header">
 		<item name="android:textColor">@color/accent</item>
 	</style>

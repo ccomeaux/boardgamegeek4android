@@ -3,6 +3,13 @@ Release Notes
 
 Coming Soon
 -----------
+ * Bug fixes and stability improvements
+
+Version 5.0.2
+-------------
+ * Darken font in a couple of areas for readability
+ * Cap game's plays per month at total play count
+ * More bug fixes and stability improvements
 
 Version 5.0.1
 -------------

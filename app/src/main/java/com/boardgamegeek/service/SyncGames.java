@@ -16,6 +16,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public abstract class SyncGames extends SyncTask {
@@ -77,7 +78,9 @@ public abstract class SyncGames extends SyncTask {
 		while (true) {
 			try {
 				String ids = TextUtils.join(",", gameIds);
-				Crashlytics.setString("GAME_IDS", ids);
+				if (Fabric.isInitialized()) {
+					Crashlytics.setString("GAME_IDS", ids);
+				}
 				return service.thing(ids, 1);
 			} catch (Exception e) {
 				if (e.getCause() instanceof SocketTimeoutException) {

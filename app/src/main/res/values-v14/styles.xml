@@ -36,6 +36,9 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="Text.Body" parent="@style/TextAppearance.AppCompat.Body1">
+	</style>
+
 	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">
 		<item name="android:textColor">#000</item>
 		<!-- <item name="android:textColor">@color/primary_text_default_material_light</item> -->

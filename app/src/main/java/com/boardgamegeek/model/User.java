@@ -3,11 +3,11 @@ package com.boardgamegeek.model;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.StringUtils;
 
-import java.util.ArrayList;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
+
+import java.util.ArrayList;
 
 public class User {
 	@Attribute
@@ -15,9 +15,6 @@ public class User {
 
 	@Attribute
 	public String name;
-
-	@Attribute
-	private String termsofuse;
 
 	@Path(value = "firstname")
 	@Attribute(name = "value")

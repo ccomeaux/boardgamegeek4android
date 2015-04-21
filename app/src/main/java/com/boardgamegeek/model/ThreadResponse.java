@@ -1,10 +1,10 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+
+import java.util.List;
 
 public class ThreadResponse {
 	@Attribute
@@ -15,9 +15,6 @@ public class ThreadResponse {
 
 	@Attribute
 	private String link;
-
-	@Attribute(name = "termsofuse")
-	private String termsOfUse;
 
 	@Element
 	private String subject;
