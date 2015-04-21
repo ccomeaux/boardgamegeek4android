@@ -546,11 +546,11 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 			int status = cursor.getInt(PlaysQuery.SYNC_STATUS);
 
 			String info = "";
+			if (mMode != MODE_GAME) {
+				info += mOn + " " + date + " ";
+			}
 			if (quantity > 1) {
 				info += quantity + " " + mTimes + " ";
-			}
-			if (mMode != MODE_GAME) {
-				info = mOn + " " + date + " ";
 			}
 			if (!TextUtils.isEmpty(location)) {
 				info += mAt + " " + location + " ";
