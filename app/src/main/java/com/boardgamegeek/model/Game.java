@@ -213,17 +213,37 @@ public class Game {
 
 	@Element(required = false) private String description;
 
-	@Path("yearpublished") @Attribute(name = "value") public int yearPublished;
+	@Path("yearpublished") @Attribute(name = "value") private String yearpublished;
 
-	@Path("minplayers") @Attribute(name = "value") public int minPlayers;
+	public int getYearPublished() {
+		return StringUtils.parseInt(yearpublished, Constants.YEAR_UNKNOWN);
+	}
 
-	@Path("maxplayers") @Attribute(name = "value") public int maxPlayers;
+	@Path("minplayers") @Attribute(name = "value") private String minplayers;
+
+	public int getMinPlayers() {
+		return StringUtils.parseInt(minplayers, 0);
+	}
+
+	@Path("maxplayers") @Attribute(name = "value") private String maxplayers;
+
+	public int getMaxPlayers() {
+		return StringUtils.parseInt(maxplayers, 0);
+	}
 
 	@ElementList(inline = true, required = false) public List<Poll> polls;
 
-	@Path("playingtime") @Attribute(name = "value") public int playingTime;
+	@Path("playingtime") @Attribute(name = "value") private String playingtime;
 
-	@Path("minage") @Attribute(name = "value") public int minAge;
+	public int getPlayingTime() {
+		return StringUtils.parseInt(playingtime, 0);
+	}
+
+	@Path("minage") @Attribute(name = "value") private String minage;
+
+	public int getMinAge() {
+		return StringUtils.parseInt(minage, 0);
+	}
 
 	@ElementList(inline = true) private List<Link> links;
 
@@ -258,6 +278,9 @@ public class Game {
 	}
 
 	public String getDescription() {
+		if (TextUtils.isEmpty(description)) {
+			return "";
+		}
 		String d = description.replace("&#10;", "\n");
 		return d.trim();
 	}

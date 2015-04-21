@@ -9,9 +9,6 @@ public class CollectionResponse {
 	@Attribute
 	public int totalitems;
 
-	@Attribute(name = "termsofuse")
-	private String termsOfUse;
-
 	@Attribute(required = false)
 	private String pubdate;
 

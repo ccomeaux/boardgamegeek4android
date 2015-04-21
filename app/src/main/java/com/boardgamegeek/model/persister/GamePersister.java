@@ -149,11 +149,11 @@ public class GamePersister {
 		values.put(Games.IMAGE_URL, game.image);
 		values.put(Games.DESCRIPTION, game.getDescription());
 		values.put(Games.SUBTYPE, game.subtype());
-		values.put(Games.YEAR_PUBLISHED, game.yearPublished);
-		values.put(Games.MIN_PLAYERS, game.minPlayers);
-		values.put(Games.MAX_PLAYERS, game.maxPlayers);
-		values.put(Games.PLAYING_TIME, game.playingTime);
-		values.put(Games.MINIMUM_AGE, game.minAge);
+		values.put(Games.YEAR_PUBLISHED, game.getYearPublished());
+		values.put(Games.MIN_PLAYERS, game.getMinPlayers());
+		values.put(Games.MAX_PLAYERS, game.getMaxPlayers());
+		values.put(Games.PLAYING_TIME, game.getPlayingTime());
+		values.put(Games.MINIMUM_AGE, game.getMinAge());
 		values.put(Games.STATS_USERS_RATED, game.statistics.usersRated());
 		values.put(Games.STATS_AVERAGE, game.statistics.average());
 		values.put(Games.STATS_BAYES_AVERAGE, game.statistics.bayesAverage());

@@ -1,9 +1,9 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+
+import java.util.List;
 
 public class ForumListResponse {
 	@Attribute
@@ -11,9 +11,6 @@ public class ForumListResponse {
 
 	@Attribute
 	public int id;
-
-	@Attribute(name = "termsofuse")
-	private String termsOfUse;
 
 	@ElementList(inline = true)
 	public List<Forum> forums;

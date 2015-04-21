@@ -1,11 +1,11 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-import com.boardgamegeek.util.StringUtils;
+import java.util.List;
 
 public class ForumResponse {
 	public static final int PAGE_SIZE = 50;
@@ -25,8 +25,6 @@ public class ForumResponse {
 	@Attribute private String lastpostdate;
 
 	@Attribute private int noposting;
-
-	@Attribute(name = "termsofuse") private String termsOfUse;
 
 	@ElementList public List<Thread> threads;
 
