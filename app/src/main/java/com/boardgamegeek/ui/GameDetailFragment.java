@@ -63,6 +63,16 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		Uri uri = mQuery.getUri(cursor);
