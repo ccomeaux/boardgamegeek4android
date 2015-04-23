@@ -115,11 +115,6 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		}
 	}
 
-	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
 	@DebugLog
 	public void requery() {
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);

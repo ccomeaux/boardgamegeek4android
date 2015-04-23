@@ -264,11 +264,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	protected boolean dividerShown() {
 		return true;
 	}

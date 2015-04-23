@@ -50,11 +50,6 @@ public class LocationsFragment extends StickyHeaderListFragment implements Loade
 		super.onStop();
 	}
 
-	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
 	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {

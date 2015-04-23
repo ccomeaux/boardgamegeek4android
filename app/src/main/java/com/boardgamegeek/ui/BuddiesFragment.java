@@ -65,11 +65,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		getLoaderManager().restartLoader(TOKEN, getArguments(), this);
 	}
 
-	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
 	@DebugLog
 	@Override
 	public void onListItemClick(View v, int position, long id) {
