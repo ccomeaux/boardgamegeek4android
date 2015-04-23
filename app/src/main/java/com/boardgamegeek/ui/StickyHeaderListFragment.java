@@ -57,6 +57,19 @@ public abstract class StickyHeaderListFragment extends Fragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		ensureList();
+		final StickyListHeadersListView listView = getListView();
+		int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		listView.setClipToPadding(false);
+		listView.setPadding(0, 0, 0, padding);
+		if (dividerShown()) {
+			int height = getResources().getDimensionPixelSize(R.dimen.divider_height);
+			//noinspection deprecation
+			listView.setDivider(getResources().getDrawable(R.drawable.list_divider));
+			listView.setDividerHeight(height);
+		} else {
+			listView.setDivider(null);
+		}
+		listView.setFastScrollEnabled(true);
 	}
 
 	@Override
@@ -95,7 +108,11 @@ public abstract class StickyHeaderListFragment extends Fragment {
 		super.onSaveInstanceState(outState);
 	}
 
-	public void onListItemClick(View view, int position, long id) {
+	protected boolean dividerShown() {
+		return false;
+	}
+
+	protected void onListItemClick(View view, int position, long id) {
 	}
 
 	public void setListAdapter(StickyListHeadersAdapter adapter) {
@@ -109,10 +126,6 @@ public abstract class StickyHeaderListFragment extends Fragment {
 				setListShown(true, getView().getWindowToken() != null);
 			}
 		}
-	}
-
-	public StickyListHeadersAdapter getListAdapter() {
-		return mAdapter;
 	}
 
 	public StickyListHeadersListView getListView() {

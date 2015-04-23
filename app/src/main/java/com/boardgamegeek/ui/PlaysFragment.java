@@ -140,15 +140,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
-	private void requery() {
-		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
-			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
-		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
-			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
-		}
-		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
-	}
-
 	@DebugLog
 	@Override
 	public void onStart() {
@@ -272,12 +263,26 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
 	@DebugLog
 	public void onEvent(PlaySelectedEvent event) {
 		mSelectedPlayId = event.playId;
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+	}
+
+	private void requery() {
+		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
+			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
+		} else if (mMode == MODE_PLAYER || mMode == MODE_BUDDY) {
+			getLoaderManager().restartLoader(PlayerSumQuery._TOKEN, getArguments(), this);
+		}
+		getLoaderManager().restartLoader(PlaysQuery._TOKEN, getArguments(), this);
 	}
 
 	public void onEvent(PlaysSortChangedEvent event) {

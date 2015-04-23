@@ -61,9 +61,20 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		setEmptyText(getString(R.string.empty_forum));
 	}
 
+	@Override
 	public void onResume() {
 		super.onResume();
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
+	}
+
+	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
 	}
 
 	public void loadMoreResults() {

@@ -38,9 +38,9 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 	private PlayersSorter mSorter;
 
 	public interface Callbacks {
-		public boolean onPlayerSelected(String name, String username);
+		boolean onPlayerSelected(String name, String username);
 
-		public void onPlayerCountChanged(int count);
+		void onPlayerCountChanged(int count);
 	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -188,7 +188,7 @@ public class PlayersFragment extends StickyHeaderListFragment implements LoaderM
 		@DebugLog
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View row = mInflater.inflate(R.layout.row_text_3, parent, false);
+			View row = mInflater.inflate(R.layout.row_players_player, parent, false);
 			ViewHolder holder = new ViewHolder(row);
 			row.setTag(holder);
 			return row;
