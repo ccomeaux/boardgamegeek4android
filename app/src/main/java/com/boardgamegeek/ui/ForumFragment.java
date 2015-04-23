@@ -76,6 +76,16 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 		getLoaderManager().initLoader(FORUM_LOADER_ID, null, this);
 	}
 
+	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
 	@DebugLog
 	private void loadMoreResults() {
 		if (isAdded()) {

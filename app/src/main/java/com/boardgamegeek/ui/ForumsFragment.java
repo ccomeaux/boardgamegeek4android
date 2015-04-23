@@ -70,6 +70,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 
 	@Override
 	@DebugLog
+	protected boolean padTop() {
+		return (mGameId != BggContract.INVALID_ID);
+	}
+
+	@Override
+	@DebugLog
 	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), mGameId);
 	}

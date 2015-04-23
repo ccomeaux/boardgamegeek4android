@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content" >
+				xmlns:tools="http://schemas.android.com/tools"
+				style="@style/RowContainer"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				android:paddingBottom="@dimen/padding_extra"
+				android:paddingTop="@dimen/padding_extra">
 
 	<TextView
 		android:id="@+id/username"
@@ -10,7 +14,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true" />
+		android:layout_alignParentTop="true"
+		tools:text="ccomeaux"/>
 
 	<TextView
 		android:id="@+id/rating"
@@ -23,7 +28,9 @@
 		android:paddingBottom="@dimen/padding_small"
 		android:paddingLeft="@dimen/padding_standard"
 		android:paddingRight="@dimen/padding_standard"
-		android:paddingTop="@dimen/padding_small" />
+		android:paddingTop="@dimen/padding_small"
+		tools:background="#0f0"
+		tools:text="8.5"/>
 
 	<TextView
 		android:id="@+id/comment"
@@ -31,6 +38,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/rating"
-		android:paddingTop="@dimen/padding_half" />
+		android:paddingTop="@dimen/padding_half"
+		tools:text="I like this game. It s fun. Boy howdy. I sure do like to play it! I like this game. It s fun. Boy howdy. I sure do like to play it!"/>
 
 </RelativeLayout>
