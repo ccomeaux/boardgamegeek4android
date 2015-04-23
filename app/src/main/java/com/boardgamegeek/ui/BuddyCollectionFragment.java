@@ -88,6 +88,11 @@ public class BuddyCollectionFragment extends StickyHeaderListFragment implements
 	}
 
 	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
 	public void onListItemClick(View convertView, int position, long id) {
 		super.onListItemClick(convertView, position, id);
 		int gameId = (int) convertView.getTag(R.id.id);

@@ -213,6 +213,11 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	}
 
 	@Override
+	protected boolean padBottom() {
+		return true;
+	}
+
+	@Override
 	@DebugLog
 	public void onListItemClick(View view, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
