@@ -78,11 +78,6 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-	
-	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.game_colors, menu);
 		super.onCreateOptionsMenu(menu, inflater);

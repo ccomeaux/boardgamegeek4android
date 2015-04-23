@@ -131,11 +131,6 @@ public class GeekListsFragment extends BggListFragment implements OnScrollListen
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	protected boolean dividerShown() {
 		return true;
 	}

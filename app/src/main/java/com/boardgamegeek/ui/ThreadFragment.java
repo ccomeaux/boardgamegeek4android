@@ -67,11 +67,6 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), mThreadId);
 	}

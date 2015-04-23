@@ -73,11 +73,6 @@ public class ForumFragment extends BggListFragment implements OnScrollListener,
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	protected boolean dividerShown() {
 		return true;
 	}

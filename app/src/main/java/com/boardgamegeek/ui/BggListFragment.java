@@ -35,13 +35,11 @@ public abstract class BggListFragment extends ListFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
-		if (padTop() || padBottom()) {
+		if (padTop() ) {
 			int padding = getResources().getDimensionPixelSize(R.dimen.padding_standard);
 			listView.setClipToPadding(false);
-			if (padTop() && padBottom()) {
+			if (padTop()) {
 				listView.setPadding(0, padding, 0, padding);
-			} else if (padTop()) {
-				listView.setPadding(0, padding, 0, 0);
 			} else {
 				listView.setPadding(0, 0, 0, padding);
 			}
@@ -83,10 +81,6 @@ public abstract class BggListFragment extends ListFragment {
 	}
 
 	protected boolean padTop() {
-		return false;
-	}
-
-	protected boolean padBottom() {
 		return false;
 	}
 

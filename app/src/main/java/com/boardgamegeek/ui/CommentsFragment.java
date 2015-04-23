@@ -81,11 +81,6 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	protected boolean dividerShown() {
 		return true;
 	}

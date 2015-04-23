@@ -111,11 +111,6 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	@Override
-	protected boolean padBottom() {
-		return true;
-	}
-
-	@Override
 	protected boolean dividerShown() {
 		return true;
 	}
