@@ -1,6 +1,7 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.model.Constants;
@@ -10,6 +11,20 @@ import com.boardgamegeek.model.Constants;
  */
 public class PresentationUtils {
 	private PresentationUtils() {
+	}
+
+	public static CharSequence describePastTimeSpan(long time, String defaultValue) {
+		if (time == 0) {
+			return defaultValue;
+		}
+		return DateUtils.getRelativeTimeSpanString(time);
+	}
+
+	public static CharSequence describePastTimeSpan(long time, String defaultValue, String prefix) {
+		if (time == 0) {
+			return defaultValue;
+		}
+		return prefix + " " + DateUtils.getRelativeTimeSpanString(time);
 	}
 
 	/**

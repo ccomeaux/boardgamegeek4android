@@ -30,6 +30,7 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import hugo.weaving.DebugLog;
 
 public class ThreadFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ThreadFragment.ThreadData> {
 	private static final int THREAD_LOADER_ID = 103;
@@ -38,6 +39,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	private int mThreadId;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -46,6 +48,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		final ListView listView = getListView();
@@ -54,12 +57,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setEmptyText(getString(R.string.empty_thread));
 	}
 
 	@Override
+	@DebugLog
 	public void onResume() {
 		super.onResume();
 		// If this is called in onActivityCreated as recommended, the loader is finished twice
@@ -67,11 +72,13 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public Loader<ThreadData> onCreateLoader(int id, Bundle data) {
 		return new ThreadLoader(getActivity(), mThreadId);
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<ThreadData> loader, ThreadData data) {
 		if (getActivity() == null) {
 			return;
@@ -81,7 +88,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 			mThreadAdapter = new ThreadAdapter(getActivity(), data.list());
 			setListAdapter(mThreadAdapter);
 		}
-		mThreadAdapter.notifyDataSetChanged();
+		initializeTimeBasedUi();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -96,12 +103,21 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<ThreadData> loader) {
 	}
 
+	@Override
+	@DebugLog
+	protected void updateTimeBasedUi() {
+		if (mThreadAdapter != null) {
+			mThreadAdapter.notifyDataSetChanged();
+		}
+	}
+
 	private static class ThreadLoader extends BggLoader<ThreadData> {
-		private BggService mService;
-		private int mThreadId;
+		private final BggService mService;
+		private final int mThreadId;
 
 		public ThreadLoader(Context context, int threadId) {
 			super(context);
@@ -142,15 +158,17 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
-	public static class ThreadAdapter extends ArrayAdapter<Article> {
-		private LayoutInflater mInflater;
+	static class ThreadAdapter extends ArrayAdapter<Article> {
+		private final LayoutInflater mInflater;
 
+		@DebugLog
 		public ThreadAdapter(Activity activity, List<Article> articles) {
 			super(activity, R.layout.row_threadarticle, articles);
 			mInflater = activity.getLayoutInflater();
 		}
 
 		@Override
+		@DebugLog
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 			if (convertView == null) {
@@ -173,8 +191,7 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 				if (article.getNumberOfEdits() > 0) {
 					dateRes = R.string.edited_prefix;
 				}
-				holder.editdate.setText(getContext().getString(dateRes,
-					DateTimeUtils.formatForumDate(getContext(), article.editDate())));
+				holder.editDate.setText(getContext().getString(dateRes, DateTimeUtils.formatForumDate(getContext(), article.editDate())));
 				UIUtils.setTextMaybeHtml(holder.body, article.body);
 				Bundle bundle = new Bundle();
 				bundle.putString(ActivityUtils.KEY_USER, article.username);
@@ -189,12 +206,14 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static class ViewHolder {
 		@InjectView(R.id.article_username) TextView username;
-		@InjectView(R.id.article_editdate) TextView editdate;
+		@InjectView(R.id.article_editdate) TextView editDate;
 		@InjectView(R.id.article_body) TextView body;
 		@InjectView(R.id.article_view) View viewArticle;
 
+		@DebugLog
 		public ViewHolder(View view) {
 			ButterKnife.inject(this, view);
 		}

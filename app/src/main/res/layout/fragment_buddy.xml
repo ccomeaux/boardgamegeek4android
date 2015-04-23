@@ -153,7 +153,7 @@
 		android:layout_height="@dimen/view_row_height"
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
-		android:gravity="center_vertical"
+		android:gravity="center_vertical|right"
 		tools:text="Yesterday"/>
 
 </LinearLayout>

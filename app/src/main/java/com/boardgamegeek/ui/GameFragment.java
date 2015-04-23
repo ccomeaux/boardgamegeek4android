@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -16,7 +17,6 @@ import android.support.v7.graphics.Palette;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,8 +37,8 @@ import com.boardgamegeek.provider.BggContract.GameRanks;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
-import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.PlayItems;
+import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
@@ -70,6 +70,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameFragment extends Fragment implements
@@ -80,7 +81,10 @@ public class GameFragment extends Fragment implements
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mTimeHintUpdaterRunnable = null;
 	private Uri mGameUri;
 	private String mGameName;
 	private String mImageUrl;
@@ -208,9 +212,12 @@ public class GameFragment extends Fragment implements
 	};
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+
+		mHandler = new Handler();
 
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameUri = intent.getData();
@@ -228,6 +235,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
@@ -256,6 +264,16 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
@@ -267,18 +285,30 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
+	}
+
+	@Override
+	@DebugLog
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
 	}
 
 	@Override
+	@DebugLog
 	public void onDestroyView() {
 		super.onDestroyView();
 		ButterKnife.reset(this);
 	}
 
 	@Override
+	@DebugLog
 	public void onDestroy() {
 		super.onDestroy();
 		if (mScrollRoot == null) {
@@ -297,6 +327,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
@@ -304,6 +335,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.menu_refresh) {
 			triggerRefresh();
@@ -313,6 +345,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		int gameId = Games.getGameId(mGameUri);
@@ -372,6 +405,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
@@ -432,11 +466,13 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<Cursor> arg0) {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
+	@DebugLog
 	public void onScrollChanged(int deltaX, int deltaY) {
 		if (VersionUtils.hasHoneycomb()) {
 			int scrollY = mScrollRoot.getScrollY();
@@ -446,11 +482,13 @@ public class GameFragment extends Fragment implements
 	}
 
 	@Override
+	@DebugLog
 	public void onPaletteGenerated(Palette palette) {
 		mPalette = palette;
 		colorize();
 	}
 
+	@DebugLog
 	private void colorize() {
 		if (mPalette == null || mPrimaryInfo == null) {
 			return;
@@ -465,6 +503,7 @@ public class GameFragment extends Fragment implements
 		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
+	@DebugLog
 	private void onGameQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			if (mMightNeedRefreshing) {
@@ -486,7 +525,7 @@ public class GameFragment extends Fragment implements
 		mRatingView.setText(game.getRatingDescription());
 		ColorUtils.setViewBackground(mRatingView, ColorUtils.getRatingColor(game.Rating));
 		mIdView.setText(String.valueOf(game.Id));
-		mUpdatedView.setText(game.getUpdatedDescription());
+		mUpdatedView.setTag(game.Updated);
 		UIUtils.setTextMaybeHtml(mDescriptionView, game.Description);
 		mNumberOfPlayersView.setText(game.getPlayerRangeDescription());
 		mPlayTimeView.setText(game.getPlayingTimeDescription());
@@ -494,8 +533,7 @@ public class GameFragment extends Fragment implements
 		mCommentsLabel.setText(getResources().getQuantityString(R.plurals.comments_suffix, game.UsersCommented, game.UsersCommented));
 		mRatingsLabel.setText(getResources().getQuantityString(R.plurals.ratings_suffix, game.UsersRated, game.UsersRated));
 
-		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count),
-			mFormat.format(game.UsersRated)));
+		mRatingsCount.setText(String.format(getResources().getString(R.string.rating_count), mFormat.format(game.UsersRated)));
 		mAverageStatBar.setBar(R.string.average_meter_text, game.Rating);
 		mBayesAverageBar.setBar(R.string.bayes_meter_text, game.BayesAverage);
 		if (game.Median <= 0) {
@@ -506,12 +544,10 @@ public class GameFragment extends Fragment implements
 		}
 		mStdDevBar.setBar(R.string.stdDev_meter_text, game.StandardDeviation, 5.0);
 
-		mWeightCount.setText(String.format(getResources().getString(R.string.weight_count),
-			mFormat.format(game.NumberWeights)));
+		mWeightCount.setText(String.format(getResources().getString(R.string.weight_count), mFormat.format(game.NumberWeights)));
 		mWeightBar.setBar(game.getWeightDescriptionResId(), game.AverageWeight, 5.0, 1.0);
 
-		mUserCount.setText(String.format(getResources().getString(R.string.user_total),
-			mFormat.format(game.getMaxUsers())));
+		mUserCount.setText(String.format(getResources().getString(R.string.user_total), mFormat.format(game.getMaxUsers())));
 		mNumOwningBar.setBar(R.string.owning_meter_text, game.NumberOwned, game.getMaxUsers());
 		mNumRatingBar.setBar(R.string.rating_meter_text, game.UsersRated, game.getMaxUsers());
 		mNumTradingBar.setBar(R.string.trading_meter_text, game.NumberTrading, game.getMaxUsers());
@@ -524,6 +560,19 @@ public class GameFragment extends Fragment implements
 			mPlayStatsRoot.setVisibility(View.VISIBLE);
 		}
 
+		updateTimeBasedUi();
+		if (mTimeHintUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mTimeHintUpdaterRunnable);
+		}
+		mTimeHintUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
 		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
 
@@ -534,10 +583,20 @@ public class GameFragment extends Fragment implements
 		mMightNeedRefreshing = false;
 	}
 
+	@DebugLog
+	private void updateTimeBasedUi() {
+		if (mUpdatedView != null) {
+			long updatedTime = (long) mUpdatedView.getTag();
+			mUpdatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));
+		}
+	}
+
+	@DebugLog
 	private boolean shouldShowPlays() {
 		return Authenticator.isSignedIn(getActivity()) && PreferencesUtils.getSyncPlays(getActivity());
 	}
 
+	@DebugLog
 	private void notifyChange(Game game) {
 		GameInfo gameInfo = new GameInfo();
 		gameInfo.gameName = game.Name;
@@ -548,6 +607,7 @@ public class GameFragment extends Fragment implements
 		mCallbacks.onGameInfoChanged(gameInfo);
 	}
 
+	@DebugLog
 	private void onListQueryComplete(Cursor cursor, GameDetailRow view, int nameColumnIndex) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			view.setVisibility(View.GONE);
@@ -558,6 +618,7 @@ public class GameFragment extends Fragment implements
 		}
 	}
 
+	@DebugLog
 	private void onRankQueryComplete(Cursor cursor) {
 		mRankRoot.removeAllViews();
 		if (cursor == null || cursor.getCount() == 0) {
@@ -572,6 +633,7 @@ public class GameFragment extends Fragment implements
 		}
 	}
 
+	@DebugLog
 	private void addRankRow(String label, int rank, boolean bold, double rating) {
 		LinearLayout layout = (LinearLayout) getLayoutInflater(null)
 			.inflate(R.layout.widget_rank_row, mRankRoot, false);
@@ -593,6 +655,7 @@ public class GameFragment extends Fragment implements
 		mRankRoot.addView(sb);
 	}
 
+	@DebugLog
 	private void onCollectionQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mCollectionCard.setVisibility(View.VISIBLE);
@@ -621,6 +684,7 @@ public class GameFragment extends Fragment implements
 		}
 	}
 
+	@DebugLog
 	private void onPlaysQueryComplete(Cursor cursor) {
 		if (cursor.moveToFirst()) {
 			mPlaysCard.setVisibility(View.VISIBLE);
@@ -635,6 +699,7 @@ public class GameFragment extends Fragment implements
 		}
 	}
 
+	@DebugLog
 	private void setText(TextView tv, String text, boolean bold) {
 		if (bold) {
 			SpannableString ss = new SpannableString(text);
@@ -646,6 +711,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.image)
+	@DebugLog
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
 			final Intent intent = new Intent(getActivity(), ImageActivity.class);
@@ -655,12 +721,14 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.game_info_description)
+	@DebugLog
 	public void onDescriptionClick(View v) {
 		mIsDescriptionExpanded = !mIsDescriptionExpanded;
 		openOrCloseDescription();
 	}
 
 	@OnClick(R.id.plays_root)
+	@DebugLog
 	public void onPlaysClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlaysActivity.class);
 		intent.setData(mGameUri);
@@ -669,6 +737,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.play_stats_root)
+	@DebugLog
 	public void onPlayStatsClick(View v) {
 		Intent intent = new Intent(getActivity(), GamePlayStatsActivity.class);
 		intent.setData(mGameUri);
@@ -677,6 +746,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.colors_root)
+	@DebugLog
 	public void onColorsClick(View v) {
 		Intent intent = new Intent(getActivity(), ColorsActivity.class);
 		intent.setData(mGameUri);
@@ -685,6 +755,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.forums_root)
+	@DebugLog
 	public void onForumsClick(View v) {
 		Intent intent = new Intent(getActivity(), GameForumsActivity.class);
 		intent.setData(mGameUri);
@@ -693,6 +764,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.comments_root)
+	@DebugLog
 	public void onCommentsClick(View v) {
 		Intent intent = new Intent(getActivity(), CommentsActivity.class);
 		intent.setData(mGameUri);
@@ -710,17 +782,20 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick(R.id.game_info_stats_root)
+	@DebugLog
 	public void onStatsClick(View v) {
 		mIsStatsExpanded = !mIsStatsExpanded;
 		openOrCloseStats();
 	}
 
+	@DebugLog
 	private void openOrCloseDescription() {
 		mDescriptionView.setMaxLines(mIsDescriptionExpanded ? Integer.MAX_VALUE : 3);
 		mDescriptionView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0,
 			mIsDescriptionExpanded ? R.drawable.expander_close : R.drawable.expander_open);
 	}
 
+	@DebugLog
 	private void openOrCloseStats() {
 		mStatsContent.setVisibility(mIsStatsExpanded ? View.VISIBLE : View.GONE);
 		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close
@@ -728,6 +803,7 @@ public class GameFragment extends Fragment implements
 	}
 
 	@OnClick({ R.id.number_of_players, R.id.player_age })
+	@DebugLog
 	public void onPollClick(View v) {
 		Bundle arguments = new Bundle(2);
 		arguments.putInt(ActivityUtils.KEY_GAME_ID, Games.getGameId(mGameUri));
@@ -735,6 +811,7 @@ public class GameFragment extends Fragment implements
 		DialogUtils.launchDialog(this, new PollFragment(), "poll-dialog", arguments);
 	}
 
+	@DebugLog
 	private void triggerRefresh() {
 		mMightNeedRefreshing = false;
 		UpdateService.start(getActivity(), UpdateService.SYNC_TYPE_GAME, Games.getGameId(mGameUri));
@@ -921,6 +998,7 @@ public class GameFragment extends Fragment implements
 			CustomPlayerSort = (cursor.getInt(GameQuery.CUSTOM_PLAYER_SORT) == 1);
 		}
 
+		@DebugLog
 		public String getAgeDescription() {
 			if (MinimumAge > 0) {
 				return MinimumAge + " " + getResources().getString(R.string.age_suffix);
@@ -928,6 +1006,7 @@ public class GameFragment extends Fragment implements
 			return getResources().getString(R.string.text_unknown);
 		}
 
+		@DebugLog
 		public int getMaxUsers() {
 			int max = Math.max(UsersRated, NumberOwned);
 			max = Math.max(max, NumberTrading);
@@ -937,6 +1016,7 @@ public class GameFragment extends Fragment implements
 			return max;
 		}
 
+		@DebugLog
 		private String getPlayerRangeDescription() {
 			if (MinPlayers == 0 && MaxPlayers == 0) {
 				return getResources().getString(R.string.text_unknown);
@@ -947,6 +1027,7 @@ public class GameFragment extends Fragment implements
 			}
 		}
 
+		@DebugLog
 		private String getPlayingTimeDescription() {
 			if (PlayingTime > 0) {
 				return PlayingTime + " " + getResources().getString(R.string.minutes_abbr);
@@ -954,6 +1035,7 @@ public class GameFragment extends Fragment implements
 			return getResources().getString(R.string.text_unknown);
 		}
 
+		@DebugLog
 		private String getRankDescription() {
 			if (Rank == 0 || Rank == Integer.MAX_VALUE) {
 				return "";
@@ -962,27 +1044,17 @@ public class GameFragment extends Fragment implements
 			}
 		}
 
+		@DebugLog
 		public String getRatingDescription() {
 			return new DecimalFormat("#0.00").format(Rating);
 		}
 
+		@DebugLog
 		public String getYearPublished() {
-			if (YearPublished > 0) {
-				return getString(R.string.year_positive, YearPublished);
-			} else if (YearPublished == 0) {
-				return getString(R.string.year_zero, YearPublished);
-			} else {
-				return getString(R.string.year_negative, -YearPublished);
-			}
+			return PresentationUtils.describeYear(getActivity(), YearPublished);
 		}
 
-		public CharSequence getUpdatedDescription() {
-			if (Updated == 0) {
-				return getResources().getString(R.string.needs_updating);
-			}
-			return DateUtils.getRelativeTimeSpanString(Updated);
-		}
-
+		@DebugLog
 		public int getWeightDescriptionResId() {
 			int resId = R.string.weight_1_text;
 			if (AverageWeight >= 4.2) {
