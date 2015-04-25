@@ -2,8 +2,6 @@ package com.boardgamegeek.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.content.AsyncQueryHandler;
@@ -15,6 +13,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.Callback;
@@ -121,7 +120,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 	private Play mOriginalPlay;
 	private final Random mRandom = new Random();
 	private PlayAdapter mPlayAdapter;
-	private Builder mAddPlayersBuilder;
+	private AlertDialog.Builder mAddPlayersBuilder;
 	private final List<Player> mPlayersToAdd = new ArrayList<>();
 	private final List<String> mUsernames = new ArrayList<>();
 	private final List<String> mNames = new ArrayList<>();

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -9,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
