@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.InputType;
@@ -28,10 +28,10 @@ import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.adapter.PlayerNameAdapter;
+import com.boardgamegeek.ui.dialog.ColorPickerDialogFragment;
 import com.boardgamegeek.util.ColorUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
@@ -52,7 +52,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import hugo.weaving.DebugLog;
 
-public class LogPlayerActivity extends ActionBarActivity {
+public class LogPlayerActivity extends AppCompatActivity {
 	public static final String KEY_GAME_ID = "GAME_ID";
 	public static final String KEY_GAME_NAME = "GAME_NAME";
 	public static final String KEY_IMAGE_URL = "IMAGE_URL";
@@ -489,7 +489,7 @@ public class LogPlayerActivity extends ActionBarActivity {
 			list.add(r.getString(R.string.win));
 		}
 
-		CharSequence[] csa = { };
+		CharSequence[] csa = {};
 		csa = list.toArray(csa);
 		return csa;
 	}

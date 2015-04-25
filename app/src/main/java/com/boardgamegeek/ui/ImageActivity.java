@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,7 +19,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ImageActivity extends ActionBarActivity {
+public class ImageActivity extends AppCompatActivity {
 	@InjectView(R.id.image) ImageView imageView;
 	@InjectView(R.id.progress) View progressBar;
 

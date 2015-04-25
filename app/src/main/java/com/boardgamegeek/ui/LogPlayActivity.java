@@ -15,7 +15,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.Callback;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
@@ -73,7 +73,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class LogPlayActivity extends ActionBarActivity implements OnDateSetListener {
+public class LogPlayActivity extends AppCompatActivity implements OnDateSetListener {
 	private static final int HELP_VERSION = 2;
 	private static final int REQUEST_ADD_PLAYER = 999;
 
@@ -781,7 +781,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 		list.add(r.getString(R.string.title_players));
 		list.add(r.getString(R.string.title_player));
 
-		CharSequence[] array = { };
+		CharSequence[] array = {};
 		array = list.toArray(array);
 		return array;
 	}
@@ -871,7 +871,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			return false;
 		}
 
-		CharSequence[] array = { };
+		CharSequence[] array = {};
 		mAddPlayersBuilder
 			.setMultiChoiceItems(descriptions.toArray(array), null, new DialogInterface.OnMultiChoiceClickListener() {
 				@Override
@@ -1105,7 +1105,7 @@ public class LogPlayActivity extends ActionBarActivity implements OnDateSetListe
 			}
 			list.add(name);
 		}
-		CharSequence[] array = { };
+		CharSequence[] array = {};
 		array = list.toArray(array);
 		return array;
 	}
