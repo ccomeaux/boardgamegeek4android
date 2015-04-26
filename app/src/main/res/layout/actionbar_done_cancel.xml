@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar
-	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/toolbar_done_cancel"
 	style="@style/ActionBar"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	app:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
 	<LinearLayout
 		style="@style/ActionBarButtonContainer"
