@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui.widget;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;

@@ -3,7 +3,7 @@ package com.boardgamegeek.ui;
 import android.app.SearchManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,7 +26,7 @@ import hugo.weaving.DebugLog;
  * 4. Inflation helper.
  * Also provides a sign out method.
  */
-public abstract class BaseActivity extends ActionBarActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 	protected int getOptionsMenuId() {
 		return 0;
 	}

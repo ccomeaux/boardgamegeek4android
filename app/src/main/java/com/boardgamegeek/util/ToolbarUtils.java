@@ -2,7 +2,7 @@ package com.boardgamegeek.util;
 
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,7 +59,7 @@ public class ToolbarUtils {
 		}
 	}
 
-	public static void setDoneCancelActionBarView(ActionBarActivity activity, View.OnClickListener listener) {
+	public static void setDoneCancelActionBarView(AppCompatActivity activity, View.OnClickListener listener) {
 		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_done_cancel);
 		if (toolbar == null) {
 			return;
