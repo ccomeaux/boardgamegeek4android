@@ -111,6 +111,7 @@ public class UIUtils {
 			text = text.replaceAll("(<br\\s?/>){3,}", "<br/><br/>");
 			// use BRs instead of new line character
 			text = text.replaceAll("\n", "<br/>");
+			text = fixInternalLinks(text);
 
 			Spanned spanned = Html.fromHtml(text);
 			view.setText(spanned);
@@ -121,7 +122,14 @@ public class UIUtils {
 	}
 
 	public static void setWebViewText(WebView view, String text) {
-		view.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
+		view.loadDataWithBaseURL(null, fixInternalLinks(text), "text/html", "UTF-8", null);
+	}
+
+	private static String fixInternalLinks(String text) {
+		// ensure internal, path-only links are complete with the hostname
+		String fixedText = text.replaceAll("<a\\s+href=\"/", "<a href=\"https://www.boardgamegeek.com/");
+		fixedText = fixedText.replaceAll("<img\\s+src=\"//", "<img src=\"https://");
+		return fixedText;
 	}
 
 	public static void startTimerWithSystemTime(Chronometer timer, long time) {

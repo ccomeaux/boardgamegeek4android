@@ -5,6 +5,7 @@ Coming Soon
 -----------
  * Improve list usability
  * Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)
+ * Fix forum and GeekList links and images
  * Bug fixes and stability improvements
 
 Version 5.0.2

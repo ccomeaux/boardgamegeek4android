@@ -91,6 +91,7 @@
 <ul>
 <li>Improve list usability</li>
 <li>Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)</li>
+<li>Fix forum and GeekList links and images</li>
 <li>Bug fixes and stability improvements</li>
 </ul>
 <h5>5.0.2</h5>
