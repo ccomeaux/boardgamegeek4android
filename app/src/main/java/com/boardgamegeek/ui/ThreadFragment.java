@@ -151,10 +151,10 @@ public class ThreadFragment extends BggListFragment implements LoaderManager.Loa
 
 		@Override
 		protected List<Article> list() {
-			if (mResponse == null || mResponse.articles == null) {
+			if (mResponse == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.articles;
+			return mResponse.getArticles();
 		}
 	}
 
