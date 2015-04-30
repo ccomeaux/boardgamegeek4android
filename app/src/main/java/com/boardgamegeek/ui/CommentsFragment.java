@@ -179,7 +179,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	static class CommentData extends PaginatedData<Comment> {
 		public CommentData(ThingResponse response, int page) {
-			super(response.games.get(0).comments.comments, response.games.get(0).comments.totalitems, page,
+			super(response.getGames().get(0).comments.comments, response.getGames().get(0).comments.totalitems, page,
 				ThingResponse.PAGE_SIZE);
 		}
 
