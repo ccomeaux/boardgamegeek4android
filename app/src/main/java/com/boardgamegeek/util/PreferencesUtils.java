@@ -190,7 +190,7 @@ public class PreferencesUtils {
 	}
 
 	public static int getHIndex(Context context) {
-		return getInt(context, "hIndex", -1);
+		return getInt(context, "hIndex", 0);
 	}
 
 	public static boolean putHIndex(Context context, int hIndex) {

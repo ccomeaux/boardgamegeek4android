@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto" >
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/menu_collection_sort"
@@ -44,6 +44,9 @@
 			<item
 				android:id="@+id/menu_collection_sort_weight"
 				android:title="@string/menu_collection_sort_weight"/>
+			<item
+				android:id="@+id/menu_collection_sort_acquisition_date"
+				android:title="@string/menu_collection_sort_acquisition_date"/>
 		</menu>
 	</item>
 	<item
@@ -88,11 +91,6 @@
 		</menu>
 	</item>
 	<item
-		android:id="@+id/menu_collection_random_game"
-		android:icon="?attr/ic_action_help"
-		android:title="@string/menu_collection_random_game"
-		app:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/menu_collection_view_save"
 		android:icon="?attr/ic_action_save"
 		android:title="@string/menu_collection_view_save"
@@ -101,6 +99,11 @@
 		android:id="@+id/menu_collection_view_delete"
 		android:icon="?attr/ic_action_delete"
 		android:title="@string/menu_collection_view_delete"
+		app:showAsAction="never"/>
+	<item
+		android:id="@+id/menu_collection_random_game"
+		android:icon="?attr/ic_action_help"
+		android:title="@string/menu_collection_random_game"
 		app:showAsAction="never"/>
 
 </menu>

@@ -26,4 +26,5 @@
 	<color name="no_votes">#888888</color>
 	<color name="not_recommended">#ed1C24</color>
 
+	<color name="list_divider">#1F000000</color>
 </resources>

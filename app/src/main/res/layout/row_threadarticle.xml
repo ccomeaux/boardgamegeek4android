@@ -46,7 +46,7 @@
 
 	<TextView
 		android:id="@+id/article_body"
-		style="@style/Text.Secondary"
+		style="@style/Text.Body"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/material_margin_vertical"

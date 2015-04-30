@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.model.Buddy;
 import com.boardgamegeek.model.User;
+import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Avatars;
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.FileUtils;
@@ -40,6 +41,7 @@ public class BuddyPersister {
 	public int save(List<User> buddies) {
 		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (User buddy : buddies) {
 				Uri uri = Buddies.buildBuddyUri(buddy.name);
@@ -48,17 +50,18 @@ public class BuddyPersister {
 				int oldSyncHashCode = ResolverUtils.queryInt(resolver, uri, Buddies.SYNC_HASH_CODE);
 				int newSyncHashCode = generateSyncHashCode(buddy);
 				if (oldSyncHashCode != newSyncHashCode) {
-					values.put(Buddies.BUDDY_ID, buddy.id);
+					values.put(Buddies.BUDDY_ID, buddy.getId());
 					values.put(Buddies.BUDDY_NAME, buddy.name);
 					values.put(Buddies.BUDDY_FIRSTNAME, buddy.firstName);
 					values.put(Buddies.BUDDY_LASTNAME, buddy.lastName);
 					values.put(Buddies.AVATAR_URL, buddy.avatarUrl);
 					values.put(Buddies.SYNC_HASH_CODE, newSyncHashCode);
 				}
-				addToBatch(resolver, values, batch, uri);
+				debugMessage.append("Updating " + uri + "; ");
+				addToBatch(resolver, values, batch, uri, debugMessage);
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -75,13 +78,16 @@ public class BuddyPersister {
 	public int saveList(List<Buddy> buddies) {
 		ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+		StringBuilder debugMessage = new StringBuilder();
 		if (buddies != null) {
 			for (Buddy buddy : buddies) {
-				ContentValues values = toValues(buddy);
-				addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name));
+				if (buddy.getId() != BggContract.INVALID_ID) {
+					ContentValues values = toValues(buddy);
+					addToBatch(resolver, values, batch, Buddies.buildBuddyUri(buddy.name), debugMessage);
+				}
 			}
 		}
-		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+		ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage.toString());
 		if (result == null) {
 			return 0;
 		} else {
@@ -89,11 +95,13 @@ public class BuddyPersister {
 		}
 	}
 
-	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri) {
+	private void addToBatch(ContentResolver resolver, ContentValues values, ArrayList<ContentProviderOperation> batch, Uri uri, StringBuilder debugMessage) {
 		if (!ResolverUtils.rowExists(resolver, uri)) {
+			debugMessage.append("Inserting " + uri + "; ");
 			values.put(Buddies.UPDATED_LIST, mUpdateTime);
 			batch.add(ContentProviderOperation.newInsert(Buddies.CONTENT_URI).withValues(values).build());
 		} else {
+			debugMessage.append("Updating " + uri + "; ");
 			maybeDeleteAvatar(values, uri, resolver);
 			values.remove(Buddies.BUDDY_NAME);
 			batch.add(ContentProviderOperation.newUpdate(uri).withValues(values).build());
@@ -102,7 +110,7 @@ public class BuddyPersister {
 
 	private ContentValues toValues(Buddy buddy) {
 		ContentValues values = new ContentValues();
-		values.put(Buddies.BUDDY_ID, buddy.id);
+		values.put(Buddies.BUDDY_ID, buddy.getId());
 		values.put(Buddies.BUDDY_NAME, buddy.name);
 		values.put(Buddies.UPDATED_LIST, mUpdateTime);
 		// we assume only actually "buddies" call this (other users call above)

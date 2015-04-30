@@ -78,7 +78,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		List<SyncTask> tasks = createTasks(mContext, type);
 		for (int i = 0; i < tasks.size(); i++) {
 			if (mIsCancelled) {
-				showCancel(mCurrentTask.getNotification());
+				if (mCurrentTask != null) {
+					showCancel(mCurrentTask.getNotification());
+				}
 				break;
 			}
 			mCurrentTask = tasks.get(i);

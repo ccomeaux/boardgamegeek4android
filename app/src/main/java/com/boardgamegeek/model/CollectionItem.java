@@ -54,7 +54,7 @@ public class CollectionItem {
 
 		@Path("rating/median") @Attribute(name = "value") private String median;
 
-		@Path("rating") @ElementList private List<Rank> ranks;
+		@Path("rating") @ElementList(required = false) private List<Rank> ranks;
 	}
 
 	// "thing"

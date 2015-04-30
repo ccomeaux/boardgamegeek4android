@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui.widget;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -53,11 +53,7 @@ public class PlayStatView extends TableRow {
 		setClickBackground();
 		final SpannableString s = new SpannableString(getContext().getString(textId));
 		Linkify.addLinks(s, Linkify.ALL);
-		if (VersionUtils.hasHoneycomb()) {
-			mBuilder = new AlertDialog.Builder(getContext(), R.style.Theme_bgglight_Dialog_Custom);
-		} else {
-			mBuilder = new AlertDialog.Builder(getContext());
-		}
+		mBuilder = new AlertDialog.Builder(getContext());
 		mBuilder.setTitle(mLabel.getText()).setMessage(s);
 	}
 

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -40,6 +41,7 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
+import com.boardgamegeek.util.PresentationUtils;
 import com.boardgamegeek.util.UIUtils;
 
 import java.util.List;
@@ -51,7 +53,10 @@ import butterknife.OnClick;
 public class PlayFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_NOTIFIED = "NOTIFIED";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
 	private int mPlayId = BggContract.INVALID_ID;
 	private Play mPlay = new Play();
 	private String mThumbnailUrl;
@@ -117,7 +122,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		mHandler = new Handler();
 		if (savedInstanceState != null) {
 			mNotified = savedInstanceState.getBoolean(KEY_NOTIFIED);
 		}
@@ -165,6 +170,17 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		if (mPlay != null && mPlay.hasStarted()) {
 			NotificationUtils.launchPlayingNotification(getActivity(), mPlay, mThumbnailUrl, mImageUrl);
 			mNotified = true;
+		}
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
 		}
 	}
 
@@ -368,9 +384,8 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		mComments.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
 		mCommentsLabel.setVisibility(TextUtils.isEmpty(mPlay.comments) ? View.GONE : View.VISIBLE);
 
-		mUpdated.setText(getResources().getString(R.string.updated) + " "
-			+ DateUtils.getRelativeTimeSpanString(mPlay.updated));
 		mUpdated.setVisibility((mPlay.updated == 0) ? View.GONE : View.VISIBLE);
+		mUpdated.setTag(mPlay.updated);
 
 		if (mPlay.hasBeenSynced()) {
 			mPlayIdView.setText(String.format(getResources().getString(R.string.id_list_text), mPlay.playId));
@@ -379,8 +394,7 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
 			mUnsyncedMessage.setVisibility(View.VISIBLE);
 			mSavedTimeStamp.setVisibility(View.VISIBLE);
-			mSavedTimeStamp.setText(getResources().getString(R.string.saved) + " "
-				+ DateUtils.getRelativeTimeSpanString(mPlay.saved));
+			mSavedTimeStamp.setTag(mPlay.saved);
 			if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
 				if (mPlay.hasBeenSynced()) {
 					mUnsyncedMessage.setText(R.string.sync_editing);
@@ -397,6 +411,19 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 			mSavedTimeStamp.setVisibility(View.GONE);
 		}
 
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+
 		getActivity().supportInvalidateOptionsMenu();
 		getLoaderManager().restartLoader(PlayerQuery._TOKEN, null, this);
 
@@ -406,6 +433,17 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 		}
 
 		return false;
+	}
+
+	private void updateTimeBasedUi() {
+		if (mUpdated != null && mUpdated.getVisibility() == View.VISIBLE) {
+			long updated = (long) mUpdated.getTag();
+			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, "", getResources().getString(R.string.updated)));
+		}
+		if (mSavedTimeStamp != null && mSavedTimeStamp.getVisibility() == View.VISIBLE) {
+			long saved = (long) mSavedTimeStamp.getTag();
+			mSavedTimeStamp.setText(PresentationUtils.describePastTimeSpan(saved, "", getResources().getString(R.string.saved)));
+		}
 	}
 
 	private void maybeShowNotification() {

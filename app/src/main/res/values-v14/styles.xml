@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
-		<item name="colorAccent">@color/primary_dark</item>
-	</style>
+	<style name="Theme.bgglight.Dialog" parent="@style/Theme.AppCompat.Light.Dialog" />
 
-	<style name="Theme.bgglight.Dialog.Custom">
+	<style name="Theme.bgglight.Dialog.NoTitle">
 		<item name="android:windowNoTitle">false</item>
-		<item name="android:minWidth">@dimen/dialog_min_width</item>
 	</style>
 
 	<style name="RowContainer">
@@ -37,6 +34,9 @@
 	<style name="Text" parent="@style/TextAppearance.AppCompat.Body1">
 		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="Text.Body" parent="@style/TextAppearance.AppCompat.Body1">
 	</style>
 
 	<style name="Text.Primary" parent="@style/TextAppearance.AppCompat.Subhead">

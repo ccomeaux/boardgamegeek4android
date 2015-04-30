@@ -28,12 +28,16 @@ public class ResolverUtils {
 	}
 
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch) {
+		return applyBatch(context, batch, null);
+	}
+
+	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch, String debugMessage) {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch != null && batch.size() > 0) {
 			if (PreferencesUtils.getDebug(context)) {
 				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
 				for (int i = 0; i < batch.size(); i++) {
-					results[i] = applySingle(resolver, batch.get(i));
+					results[i] = applySingle(resolver, batch.get(i), debugMessage);
 				}
 				return results;
 			} else {
@@ -44,15 +48,16 @@ public class ResolverUtils {
 					}
 					return result;
 				} catch (OperationApplicationException | RemoteException e) {
-					Timber.e(e, "Applying batch");
-					throw new RuntimeException("Applying batch", e);
+					String m = "Applying batch: " + debugMessage;
+					Timber.e(e, m);
+					throw new RuntimeException(m, e);
 				}
 			}
 		}
 		return new ContentProviderResult[] { };
 	}
 
-	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo) {
+	private static ContentProviderResult applySingle(ContentResolver resolver, ContentProviderOperation cpo, String debugMessage) {
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>(1);
 		batch.add(cpo);
 		try {
@@ -61,8 +66,9 @@ public class ResolverUtils {
 				return result[0];
 			}
 		} catch (OperationApplicationException | RemoteException e) {
-			Timber.e(e, cpo.toString());
-			throw new RuntimeException(cpo.toString(), e);
+			String m = cpo.toString() + "\n" + debugMessage;
+			Timber.e(e, m);
+			throw new RuntimeException(m, e);
 		}
 		return null;
 	}

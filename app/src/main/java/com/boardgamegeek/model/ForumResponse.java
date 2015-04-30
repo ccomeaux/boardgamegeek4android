@@ -1,24 +1,21 @@
 package com.boardgamegeek.model;
 
-import java.util.List;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-import com.boardgamegeek.util.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ForumResponse {
 	public static final int PAGE_SIZE = 50;
 
-	@Attribute public int id;
+	@Attribute private int id;
 
-	@Attribute public String title;
+	@Attribute private String title;
 
 	@Attribute private String numthreads;
-
-	public int numberOfThreads() {
-		return StringUtils.parseInt(numthreads);
-	}
 
 	@Attribute private String numposts;
 
@@ -26,12 +23,21 @@ public class ForumResponse {
 
 	@Attribute private int noposting;
 
-	@Attribute(name = "termsofuse") private String termsOfUse;
-
-	@ElementList public List<Thread> threads;
+	@ElementList private List<Thread> threads;
 
 	@Override
 	public String toString() {
 		return id + ": " + title;
+	}
+
+	public int numberOfThreads() {
+		return StringUtils.parseInt(numthreads);
+	}
+
+	public List<Thread> getThreads() {
+		if (threads == null) {
+			return new ArrayList<>();
+		}
+		return threads;
 	}
 }

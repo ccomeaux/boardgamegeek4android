@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <com.boardgamegeek.ui.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	style="@style/RowContainer"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:background="@drawable/checkable_background" >
+												  xmlns:tools="http://schemas.android.com/tools"
+												  style="@style/RowContainer.Tall"
+												  android:layout_width="match_parent"
+												  android:layout_height="wrap_content"
+												  android:background="@drawable/checkable_background">
 
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content" >
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical">
 
 		<TextView
 			android:id="@+id/name"
@@ -16,7 +18,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentTop="true"
-			android:textIsSelectable="false" />
+			tools:text="Ticket to Ride"/>
 
 		<TextView
 			android:id="@+id/year"
@@ -25,7 +27,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_below="@+id/name"
-			android:textIsSelectable="false" />
+			tools:text="2004"/>
 
 		<TextView
 			android:id="@+id/gameId"
@@ -34,7 +36,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@+id/year"
 			android:layout_alignParentRight="true"
-			android:textIsSelectable="false" />
+			tools:text="ID: 13"/>
 	</RelativeLayout>
 
 </com.boardgamegeek.ui.widget.CheckableFrameLayout>

@@ -145,7 +145,9 @@ public class PlayPersister {
 		List<Integer> itemObjectIds = null;
 		List<Integer> playerUserIds = null;
 
+		String debugMessage = null;
 		if (status == STATUS_UPDATE) {
+			debugMessage = "Updating play ID " + play.playId;
 			deletePlayerWithNullUserId(play);
 			playerUserIds = determineUniqueUserIds(play);
 			itemObjectIds = ResolverUtils.queryInts(mResolver, play.itemUri(), PlayItems.OBJECT_ID);
@@ -166,6 +168,7 @@ public class PlayPersister {
 				play.playId = getTemporaryId();
 			}
 			values.put(Plays.PLAY_ID, play.playId);
+			debugMessage = "Inserting play ID " + play.playId;
 
 			if (!values.containsKey(Plays.UPDATED_LIST)) {
 				values.put(Plays.UPDATED_LIST, play.updated);
@@ -183,7 +186,7 @@ public class PlayPersister {
 			updateBuddyNicknames(play);
 		}
 
-		ResolverUtils.applyBatch(mContext, mBatch);
+		ResolverUtils.applyBatch(mContext, mBatch, debugMessage);
 		Timber.i("Saved play ID=" + play.playId);
 	}
 
@@ -416,7 +419,7 @@ public class PlayPersister {
 			}
 		}
 		if (values.size() > 0) {
-			ContentValues[] array = { };
+			ContentValues[] array = {};
 			mResolver.bulkInsert(Games.buildColorsUri(play.gameId), values.toArray(array));
 		}
 	}

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -27,11 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFilterDataFactory;
+import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
-import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -76,7 +77,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private static final String STATE_FILTERS = "STATE_FILTERS";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
 	private int mSelectedCollectionId;
 	private CollectionAdapter mAdapter;
 	private long mViewId;
@@ -132,7 +136,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		mHandler = new Handler();
 		if (savedInstanceState != null) {
 			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
 			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
@@ -191,6 +195,25 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		mCallbacks = (Callbacks) activity;
 	}
+
+	@Override
+	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+	}
+
 
 	@Override
 	@DebugLog
@@ -284,8 +307,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		switch (item.getItemId()) {
 			case R.id.menu_collection_random_game:
 				final Cursor cursor = (Cursor) mAdapter.getItem(RandomUtils.getRandom().nextInt(mAdapter.getCount()));
-				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID),
-					cursor.getString(Query.COLLECTION_NAME));
+				ActivityUtils.launchGame(getActivity(), cursor.getInt(Query.GAME_ID), cursor.getString(Query.COLLECTION_NAME));
 				return true;
 			case R.id.menu_collection_view_save:
 				SaveView.createDialog(getActivity(), this, mViewName, mSort, mFilters);
@@ -315,8 +337,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSorterFactory.TYPE_WISHLIST_PRIORITY);
 				return true;
 			case R.id.menu_collection_sort_published:
-				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC,
-					CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
+				setSort(CollectionSorterFactory.TYPE_YEAR_PUBLISHED_DESC, CollectionSorterFactory.TYPE_YEAR_PUBLISHED_ASC);
 				return true;
 			case R.id.menu_collection_sort_playtime:
 				setSort(CollectionSorterFactory.TYPE_PLAY_TIME_ASC, CollectionSorterFactory.TYPE_PLAY_TIME_DESC);
@@ -325,11 +346,13 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setSort(CollectionSorterFactory.TYPE_AGE_ASC, CollectionSorterFactory.TYPE_AGE_DESC);
 				return true;
 			case R.id.menu_collection_sort_weight:
-				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC,
-					CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
+				setSort(CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_ASC, CollectionSorterFactory.TYPE_AVERAGE_WEIGHT_DESC);
 				return true;
 			case R.id.menu_collection_sort_plays:
 				setSort(CollectionSorterFactory.TYPE_PLAY_COUNT_DESC, CollectionSorterFactory.TYPE_PLAY_COUNT_ASC);
+				return true;
+			case R.id.menu_collection_sort_acquisition_date:
+				setSort(CollectionSorterFactory.TYPE_ACQUISITION_DATE);
 				return true;
 		}
 
@@ -342,7 +365,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		CursorLoader loader = null;
 		if (id == Query._TOKEN) {
 			StringBuilder where = new StringBuilder();
-			String[] args = { };
+			String[] args = {};
 			Builder uriBuilder = Collection.CONTENT_URI.buildUpon();
 			if (mViewId == 0 && mFilters == null || mFilters.size() == 0) {
 				where.append(buildDefaultWhereClause());
@@ -376,8 +399,12 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		if (!TextUtils.isEmpty(mDefaultWhereClause)) {
 			return mDefaultWhereClause;
 		}
-		StringBuilder where = new StringBuilder();
 		String[] statuses = PreferencesUtils.getSyncStatuses(getActivity());
+		if (statuses == null) {
+			mDefaultWhereClause = "";
+			return mDefaultWhereClause;
+		}
+		StringBuilder where = new StringBuilder();
 		for (String status : statuses) {
 			if (TextUtils.isEmpty(status)) {
 				continue;
@@ -447,6 +474,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setProgressShown(false);
 			}
 			mAdapter.changeCursor(cursor);
+			initializeTimeBasedUi();
 			restoreScrollState();
 			mCallbacks.onCollectionCountChanged(cursor.getCount());
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
@@ -474,6 +502,27 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.changeCursor(null);
+	}
+
+	protected void initializeTimeBasedUi() {
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	protected void updateTimeBasedUi() {
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
 	@DebugLog

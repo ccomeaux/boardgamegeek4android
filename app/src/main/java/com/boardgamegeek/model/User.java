@@ -1,20 +1,20 @@
 package com.boardgamegeek.model;
 
-import java.util.ArrayList;
+import com.boardgamegeek.provider.BggContract;
+import com.boardgamegeek.util.StringUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 
+import java.util.ArrayList;
+
 public class User {
 	@Attribute
-	public int id;
+	private String id;
 
 	@Attribute
 	public String name;
-
-	@Attribute
-	private String termsofuse;
 
 	@Path(value = "firstname")
 	@Attribute(name = "value")
@@ -70,10 +70,14 @@ public class User {
 
 	@Path(value = "traderating")
 	@Attribute(name = "value")
-	private int tradeRating;
+	private String tradeRating;
 
 	@Element(required = false)
 	private Buddies buddies;
+
+	public int getId() {
+		return StringUtils.parseInt(id, BggContract.INVALID_ID);
+	}
 
 	public ArrayList<Buddy> getBuddies() {
 		if (buddies == null || buddies.buddies == null) {

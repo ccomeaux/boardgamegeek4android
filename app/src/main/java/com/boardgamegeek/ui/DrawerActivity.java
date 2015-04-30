@@ -81,7 +81,7 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_players, R.drawable.ic_people_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_locations, R.drawable.ic_place_black_24dp, mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_poll_black_24dp, mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_action_pie_chart, mDrawerList));
 			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 			mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, mDrawerList));

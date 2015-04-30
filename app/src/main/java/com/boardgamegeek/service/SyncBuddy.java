@@ -7,6 +7,7 @@ import com.boardgamegeek.io.Adapter;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.model.User;
 import com.boardgamegeek.model.persister.BuddyPersister;
+import com.boardgamegeek.provider.BggContract;
 
 import timber.log.Timber;
 
@@ -30,7 +31,7 @@ public class SyncBuddy extends UpdateTask {
 		BggService service = Adapter.create();
 		User user = service.user(mName);
 
-		if (user == null || user.id == 0) {
+		if (user == null || user.getId() == 0 || user.getId() == BggContract.INVALID_ID) {
 			Timber.i("Invalid user: " + mName);
 			return;
 		}

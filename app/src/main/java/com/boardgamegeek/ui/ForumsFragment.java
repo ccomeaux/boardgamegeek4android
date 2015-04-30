@@ -32,6 +32,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import hugo.weaving.DebugLog;
+
 public class ForumsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<ForumsFragment.ForumsData> {
 	private static final int FORUMS_LOADER_ID = 0;
 
@@ -40,6 +44,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	private ForumsAdapter mForumsAdapter;
 
 	@Override
+	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -50,23 +55,33 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getString(R.string.empty_forums));
 	}
 
 	@Override
+	@DebugLog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(FORUMS_LOADER_ID, null, this);
 	}
 
 	@Override
+	@DebugLog
+	protected boolean padTop() {
+		return (mGameId != BggContract.INVALID_ID);
+	}
+
+	@Override
+	@DebugLog
 	public Loader<ForumsData> onCreateLoader(int id, Bundle data) {
 		return new ForumsLoader(getActivity(), mGameId);
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<ForumsData> loader, ForumsData data) {
 		if (getActivity() == null) {
 			return;
@@ -76,7 +91,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 			mForumsAdapter = new ForumsAdapter(getActivity(), data.list());
 			setListAdapter(mForumsAdapter);
 		}
-		mForumsAdapter.notifyDataSetChanged();
+		initializeTimeBasedUi();
 
 		if (data.hasError()) {
 			setEmptyText(data.getErrorMessage());
@@ -91,10 +106,12 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<ForumsData> loader) {
 	}
 
 	@Override
+	@DebugLog
 	public void onListItemClick(ListView listView, View convertView, int position, long id) {
 		if (mForumsAdapter.getItemViewType(position) == ForumsAdapter.ITEM_VIEW_TYPE_FORUM) {
 			ForumViewHolder holder = (ForumViewHolder) convertView.getTag();
@@ -110,9 +127,10 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	private static class ForumsLoader extends BggLoader<ForumsData> {
-		private BggService mService;
-		private int mGameId;
+		private final BggService mService;
+		private final int mGameId;
 
+		@DebugLog
 		public ForumsLoader(Context context, int gameId) {
 			super(context);
 			mService = Adapter.create();
@@ -120,6 +138,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public ForumsData loadInBackground() {
 			ForumsData forums;
 			try {
@@ -147,11 +166,20 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public List<Forum> list() {
-			if (mResponse == null || mResponse.forums == null) {
+			if (mResponse == null) {
 				return new ArrayList<>();
 			}
-			return mResponse.forums;
+			return mResponse.getForums();
+		}
+	}
+
+	@Override
+	@DebugLog
+	protected void updateTimeBasedUi() {
+		if (mForumsAdapter != null) {
+			mForumsAdapter.notifyDataSetChanged();
 		}
 	}
 
@@ -159,10 +187,11 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		public static final int ITEM_VIEW_TYPE_FORUM = 0;
 		public static final int ITEM_VIEW_TYPE_HEADER = 1;
 
-		private LayoutInflater mInflater;
-		private Resources mResources;
-		private NumberFormat mFormat = NumberFormat.getInstance();
+		private final LayoutInflater mInflater;
+		private final Resources mResources;
+		private final NumberFormat mFormat = NumberFormat.getInstance();
 
+		@DebugLog
 		public ForumsAdapter(Activity activity, List<Forum> forums) {
 			super(activity, R.layout.row_forum, forums);
 			mInflater = activity.getLayoutInflater();
@@ -170,6 +199,7 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public View getView(int position, View convertView, ViewGroup parent) {
 			Forum forum;
 			try {
@@ -215,11 +245,13 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 
 		@Override
+		@DebugLog
 		public int getViewTypeCount() {
 			return 2;
 		}
 
 		@Override
+		@DebugLog
 		public int getItemViewType(int position) {
 			try {
 				Forum forum = getItem(position);
@@ -233,24 +265,24 @@ public class ForumsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static class ForumViewHolder {
 		public int forumId;
-		public TextView forumTitle;
-		public TextView numThreads;
-		public TextView lastPost;
+		@InjectView(R.id.forum_title) TextView forumTitle;
+		@InjectView(R.id.numthreads) TextView numThreads;
+		@InjectView(R.id.lastpost) TextView lastPost;
 
 		public ForumViewHolder(View view) {
-			forumTitle = (TextView) view.findViewById(R.id.forum_title);
-			numThreads = (TextView) view.findViewById(R.id.numthreads);
-			lastPost = (TextView) view.findViewById(R.id.lastpost);
+			ButterKnife.inject(this, view);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static class HeaderViewHolder {
-		public TextView header;
+		@InjectView(android.R.id.title) TextView header;
 
 		public HeaderViewHolder(View view) {
-			header = (TextView) view.findViewById(android.R.id.title);
+			ButterKnife.inject(this, view);
 		}
 	}
 }

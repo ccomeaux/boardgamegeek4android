@@ -33,6 +33,7 @@ import com.boardgamegeek.provider.BggDatabase.GamesCategories;
 import com.boardgamegeek.provider.BggDatabase.GamesDesigners;
 import com.boardgamegeek.provider.BggDatabase.GamesMechanics;
 import com.boardgamegeek.provider.BggDatabase.GamesPublishers;
+import com.boardgamegeek.util.DataUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ResolverUtils;
@@ -46,20 +47,30 @@ public class GamePersister {
 	private Context mContext;
 	private ContentResolver mResolver;
 	private long mUpdateTime;
+	private List<Integer> mGameIds;
 
 	public GamePersister(Context context) {
 		mContext = context;
 		mResolver = context.getContentResolver();
 		mUpdateTime = System.currentTimeMillis();
+		mGameIds = new ArrayList<>();
 	}
 
 	public int save(Game game) {
+		return save(game, null);
+	}
+
+	public int save(Game game, String debugMessage) {
 		List<Game> games = new ArrayList<>(1);
 		games.add(game);
-		return save(games);
+		return save(games, debugMessage);
 	}
 
 	public int save(List<Game> games) {
+		return save(games, null);
+	}
+
+	public int save(List<Game> games, String debugMessage) {
 		boolean debug = PreferencesUtils.getDebug(mContext);
 		int length = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
@@ -73,6 +84,10 @@ public class GamePersister {
 			ExpansionPersister expansionPersister = new ExpansionPersister();
 
 			for (Game game : games) {
+				if (mGameIds.contains(game.id)) {
+					continue;
+				}
+				mGameIds.add(game.id);
 				Builder cpo;
 				ContentValues values = toValues(game, mUpdateTime);
 				if (ResolverUtils.rowExists(mResolver, Games.buildGameUri(game.id))) {
@@ -97,7 +112,7 @@ public class GamePersister {
 					.withValue(Games.UPDATED, mUpdateTime).withYieldAllowed(true).build());
 				if (debug) {
 					try {
-						length += ResolverUtils.applyBatch(mContext, batch).length;
+						length += ResolverUtils.applyBatch(mContext, batch, debugMessage).length;
 						Timber.i("Saved game ID=" + game.id);
 					} catch (Exception e) {
 						NotificationCompat.Builder builder = NotificationUtils
@@ -116,7 +131,7 @@ public class GamePersister {
 			if (debug) {
 				return length;
 			} else {
-				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch);
+				ContentProviderResult[] result = ResolverUtils.applyBatch(mContext, batch, debugMessage);
 				return result.length;
 			}
 		}
@@ -134,11 +149,11 @@ public class GamePersister {
 		values.put(Games.IMAGE_URL, game.image);
 		values.put(Games.DESCRIPTION, game.getDescription());
 		values.put(Games.SUBTYPE, game.subtype());
-		values.put(Games.YEAR_PUBLISHED, game.yearPublished);
-		values.put(Games.MIN_PLAYERS, game.minPlayers);
-		values.put(Games.MAX_PLAYERS, game.maxPlayers);
-		values.put(Games.PLAYING_TIME, game.playingTime);
-		values.put(Games.MINIMUM_AGE, game.minAge);
+		values.put(Games.YEAR_PUBLISHED, game.getYearPublished());
+		values.put(Games.MIN_PLAYERS, game.getMinPlayers());
+		values.put(Games.MAX_PLAYERS, game.getMaxPlayers());
+		values.put(Games.PLAYING_TIME, game.getPlayingTime());
+		values.put(Games.MINIMUM_AGE, game.getMinAge());
 		values.put(Games.STATS_USERS_RATED, game.statistics.usersRated());
 		values.put(Games.STATS_AVERAGE, game.statistics.average());
 		values.put(Games.STATS_BAYES_AVERAGE, game.statistics.bayesAverage());
@@ -189,7 +204,7 @@ public class GamePersister {
 							.withValues(values).build());
 						existingValues = ResolverUtils.queryStrings(mResolver,
 							Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()),
-							GamePollResultsResult.POLL_RESULTS_RESULT_VALUE);
+							GamePollResultsResult.POLL_RESULTS_RESULT_KEY);
 					} else {
 						values.put(GamePollResults.POLL_RESULTS_PLAYERS, results.getKey());
 						batch.add(ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name))
@@ -199,21 +214,19 @@ public class GamePersister {
 					int resultSortIndex = 0;
 					for (Result result : results.result) {
 						values.clear();
-						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
 						int level = result.level;
 						if (level > 0) {
 							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_LEVEL, level);
 						}
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
+						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VOTES, result.numvotes);
 						values.put(GamePollResultsResult.POLL_RESULTS_RESULT_SORT_INDEX, ++resultSortIndex);
 
-						if (existingValues.remove(result.value)) {
-							batch
-								.add(ContentProviderOperation
-									.newUpdate(
-										Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(),
-											result.value)).withValues(values).build());
+						String key = DataUtils.generatePollResultsKey(level, result.value);
+						if (existingValues.remove(key)) {
+							batch.add(ContentProviderOperation.newUpdate(
+								Games.buildPollResultsResultUri(game.id, poll.name, results.getKey(), key)).withValues(values).build());
 						} else {
-							values.put(GamePollResultsResult.POLL_RESULTS_RESULT_VALUE, result.value);
 							batch.add(ContentProviderOperation
 								.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.getKey()))
 								.withValues(values).build());

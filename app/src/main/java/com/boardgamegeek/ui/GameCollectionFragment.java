@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -51,6 +52,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GameCollectionFragment extends Fragment implements
@@ -59,38 +61,40 @@ public class GameCollectionFragment extends Fragment implements
 	ObservableScrollView.Callbacks {
 
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
-	private static final float IMAGE_ASPECT_RATIO = 1.6777777f;
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
-	@InjectView(R.id.progress) View progress;
-	@InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
-	@InjectView(R.id.hero_container) View heroContainer;
-	@InjectView(R.id.image) ImageView image;
-	@InjectView(R.id.header_container) View headerContainer;
-	@InjectView(R.id.name) TextView name;
-	@InjectView(R.id.year) TextView year;
-	@InjectView(R.id.status_container) View statusContainer;
-	@InjectView(R.id.status) TextView status;
-	@InjectView(R.id.last_modified) TextView lastModified;
-	@InjectView(R.id.rating) TextView rating;
-	@InjectView(R.id.comment) TextView comment;
-	@InjectView(R.id.private_info_container) View privateInfoContainer;
-	@InjectView(R.id.private_info) TextView privateInfo;
-	@InjectView(R.id.private_info_comments) TextView privateInfoComments;
-	@InjectView(R.id.wishlist_container) View wishlistContainer;
-	@InjectView(R.id.wishlist_comment) TextView wishlistComment;
-	@InjectView(R.id.condition_container) View conditionContainer;
-	@InjectView(R.id.condition_comment) TextView conditionComment;
-	@InjectView(R.id.want_parts_container) View wantPartsContainer;
-	@InjectView(R.id.want_parts_comment) TextView wantPartsComment;
-	@InjectView(R.id.has_parts_container) View hasPartsContainer;
-	@InjectView(R.id.has_parts_comment) TextView hasPartsComment;
-	@InjectView(R.id.collection_id) TextView id;
-	@InjectView(R.id.updated) TextView updated;
-	@InjectViews({
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
+	@SuppressWarnings("unused") @InjectView(R.id.progress) View progress;
+	@SuppressWarnings("unused") @InjectView(R.id.scroll_container) ObservableScrollView scrollContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View heroContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView image;
+	@SuppressWarnings("unused") @InjectView(R.id.header_container) View headerContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.name) TextView name;
+	@SuppressWarnings("unused") @InjectView(R.id.year) TextView year;
+	@SuppressWarnings("unused") @InjectView(R.id.status_container) View statusContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.status) TextView status;
+	@SuppressWarnings("unused") @InjectView(R.id.last_modified) TextView lastModified;
+	@SuppressWarnings("unused") @InjectView(R.id.rating) TextView rating;
+	@SuppressWarnings("unused") @InjectView(R.id.comment) TextView comment;
+	@SuppressWarnings("unused") @InjectView(R.id.private_info_container) View privateInfoContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.private_info) TextView privateInfo;
+	@SuppressWarnings("unused") @InjectView(R.id.private_info_comments) TextView privateInfoComments;
+	@SuppressWarnings("unused") @InjectView(R.id.wishlist_container) View wishlistContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.wishlist_comment) TextView wishlistComment;
+	@SuppressWarnings("unused") @InjectView(R.id.condition_container) View conditionContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.condition_comment) TextView conditionComment;
+	@SuppressWarnings("unused") @InjectView(R.id.want_parts_container) View wantPartsContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.want_parts_comment) TextView wantPartsComment;
+	@SuppressWarnings("unused") @InjectView(R.id.has_parts_container) View hasPartsContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.has_parts_comment) TextView hasPartsComment;
+	@SuppressWarnings("unused") @InjectView(R.id.collection_id) TextView id;
+	@SuppressWarnings("unused") @InjectView(R.id.updated) TextView updated;
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.status,
 		R.id.last_modified
 	}) List<TextView> mColorizedTextViews;
-	@InjectViews({
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.card_header_private_info,
 		R.id.card_header_wishlist,
 		R.id.card_header_condition,
@@ -104,7 +108,7 @@ public class GameCollectionFragment extends Fragment implements
 	private boolean mMightNeedRefreshing;
 	private Palette mPalette;
 
-	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
@@ -116,7 +120,7 @@ public class GameCollectionFragment extends Fragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-
+		mHandler = new Handler();
 		Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mGameId = intent.getIntExtra(ActivityUtils.KEY_GAME_ID, BggContract.INVALID_ID);
 		mCollectionId = intent.getIntExtra(ActivityUtils.KEY_COLLECTION_ID, BggContract.INVALID_ID);
@@ -137,6 +141,24 @@ public class GameCollectionFragment extends Fragment implements
 		getLoaderManager().restartLoader(CollectionItem._TOKEN, getArguments(), this);
 
 		return rootView;
+	}
+
+	@Override
+	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
 	}
 
 	@Override
@@ -253,6 +275,7 @@ public class GameCollectionFragment extends Fragment implements
 		ButterKnife.apply(mColorizedHeaders, PaletteUtils.colorTextViewSetter, swatch);
 	}
 
+	@SuppressWarnings("unused")
 	@OnClick(R.id.image)
 	public void onThumbnailClick(View v) {
 		if (!TextUtils.isEmpty(mImageUrl)) {
@@ -276,7 +299,7 @@ public class GameCollectionFragment extends Fragment implements
 		mImageUrl = item.imageUrl;
 		name.setText(item.name.trim());
 		year.setText(item.getYearDescription());
-		lastModified.setText(item.getLastModifiedDescription());
+		lastModified.setTag(item.lastModifiedDateTime);
 		rating.setText(item.getRatingDescription());
 		ColorUtils.setViewBackground(rating, ColorUtils.getRatingColor(item.rating));
 
@@ -302,10 +325,53 @@ public class GameCollectionFragment extends Fragment implements
 
 		id.setText(String.valueOf(item.id));
 		id.setVisibility(item.id == 0 ? View.INVISIBLE : View.VISIBLE);
-		updated.setText(item.getUpdatedDescription());
+		updated.setTag(item.updated);
 
 		image.setTag(R.id.image, item.imageUrl);
 		image.setTag(R.id.name, item.name);
+
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	private void updateTimeBasedUi() {
+		if (lastModified != null) {
+			String lastModifiedDateTime = (String) lastModified.getTag();
+			String s = getString(R.string.last_modified) + " ";
+			if (!TextUtils.isEmpty(lastModifiedDateTime)) {
+				if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
+					s = ""; // probably not in the collection at all
+				} else if (TextUtils.isDigitsOnly(lastModifiedDateTime)) {
+					try {
+						long lastModified = Long.parseLong(lastModifiedDateTime);
+						s += DateUtils.getRelativeTimeSpanString(lastModified);
+					} catch (NumberFormatException e) {
+						s += lastModifiedDateTime;
+					}
+				} else {
+					s += lastModifiedDateTime;
+				}
+			} else {
+				s += getString(R.string.text_unknown);
+			}
+			lastModified.setText(s);
+		}
+		if (updated != null) {
+			long u = (long) updated.getTag();
+			updated.setText(PresentationUtils.describePastTimeSpan(u,
+				getResources().getString(R.string.needs_updating),
+				getResources().getString(R.string.updated)));
+		}
 	}
 
 	private void showSection(String text, View container, TextView comment) {
@@ -346,8 +412,8 @@ public class GameCollectionFragment extends Fragment implements
 		int COLLECTION_IMAGE_URL = 15;
 		int COLLECTION_YEAR_PUBLISHED = 16;
 		int CONDITION = 17;
-		int HASPARTS_LIST = 18;
-		int WANTPARTS_LIST = 19;
+		int HAS_PARTS_LIST = 18;
+		int WANT_PARTS_LIST = 19;
 		int WISHLIST_COMMENT = 20;
 		int RATING = 21;
 		int UPDATED = 22;
@@ -362,7 +428,7 @@ public class GameCollectionFragment extends Fragment implements
 		int STATUS_WISHLIST_PRIORITY = 31;
 		int NUM_PLAYS = 32;
 
-		DecimalFormat currencyFormat = new DecimalFormat("#0.00");
+		final DecimalFormat currencyFormat = new DecimalFormat("#0.00");
 
 		Resources r;
 		int id;
@@ -371,7 +437,6 @@ public class GameCollectionFragment extends Fragment implements
 		String comment;
 		private String lastModifiedDateTime;
 		private double rating;
-		private long lastModified;
 		private long updated;
 		private String priceCurrency;
 		private double price;
@@ -404,10 +469,6 @@ public class GameCollectionFragment extends Fragment implements
 			comment = cursor.getString(COMMENT);
 			rating = cursor.getDouble(RATING);
 			lastModifiedDateTime = cursor.getString(LAST_MODIFIED);
-			if (!TextUtils.isEmpty(lastModifiedDateTime) && TextUtils.isDigitsOnly(lastModifiedDateTime)) {
-				this.lastModified = Long.parseLong(lastModifiedDateTime);
-				lastModifiedDateTime = null;
-			}
 			updated = cursor.getLong(UPDATED);
 			priceCurrency = cursor.getString(PRIVATE_INFO_PRICE_PAID_CURRENCY);
 			price = cursor.getDouble(PRIVATE_INFO_PRICE_PAID);
@@ -422,8 +483,8 @@ public class GameCollectionFragment extends Fragment implements
 			wishlistPriority = cursor.getInt(STATUS_WISHLIST_PRIORITY);
 			wishlistComment = cursor.getString(WISHLIST_COMMENT);
 			condition = cursor.getString(CONDITION);
-			wantParts = cursor.getString(WANTPARTS_LIST);
-			hasParts = cursor.getString(HASPARTS_LIST);
+			wantParts = cursor.getString(WANT_PARTS_LIST);
+			hasParts = cursor.getString(HAS_PARTS_LIST);
 			numPlays = cursor.getInt(NUM_PLAYS);
 
 			mStatus = new ArrayList<>();
@@ -447,23 +508,6 @@ public class GameCollectionFragment extends Fragment implements
 				return r.getString(R.string.invalid_collection_status);
 			}
 			return status;
-		}
-
-		CharSequence getLastModifiedDescription() {
-			String s = r.getString(R.string.last_modified) + " ";
-			if (TextUtils.isEmpty(lastModifiedDateTime)) {
-				return s + DateUtils.getRelativeTimeSpanString(lastModified);
-			} else if (String.valueOf(DateTimeUtils.UNKNOWN_DATE).equals(lastModifiedDateTime)) {
-				return ""; // probably not in the collection at all
-			}
-			return s + lastModifiedDateTime;
-		}
-
-		CharSequence getUpdatedDescription() {
-			if (updated == 0) {
-				return r.getString(R.string.needs_updating);
-			}
-			return r.getString(R.string.updated) + ": " + DateUtils.getRelativeTimeSpanString(updated);
 		}
 
 		String getRatingDescription() {
@@ -519,9 +563,9 @@ public class GameCollectionFragment extends Fragment implements
 		}
 
 		CharSequence getPrivateInfo() {
-			String intialText = r.getString(R.string.acquired);
+			String initialText = r.getString(R.string.acquired);
 			SpannableStringBuilder sb = new SpannableStringBuilder();
-			sb.append(intialText);
+			sb.append(initialText);
 			if (hasQuantity()) {
 				sb.append(" ");
 				StringUtils.appendBold(sb, String.valueOf(quantity));
@@ -544,7 +588,7 @@ public class GameCollectionFragment extends Fragment implements
 				sb.append(")");
 			}
 
-			if (sb.toString().equals(intialText)) {
+			if (sb.toString().equals(initialText)) {
 				// shouldn't happen
 				return null;
 			}

@@ -164,7 +164,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 				.setListener(new AnimatorListenerAdapter() {
 					@Override
 					public void onAnimationEnd(Animator animation) {
-						mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+						mLoginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
 					}
 				});
 
@@ -173,12 +173,12 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 				.setListener(new AnimatorListenerAdapter() {
 					@Override
 					public void onAnimationEnd(Animator animation) {
-						mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+						mLoginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
 					}
 				});
 		} else {
-			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+			mLoginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
 		}
 	}
 
