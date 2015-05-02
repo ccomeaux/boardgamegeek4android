@@ -10,12 +10,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public abstract class DrawerActivity extends BaseActivity {
 	private static final int REQUEST_SIGNIN = 1;
@@ -71,30 +71,36 @@ public abstract class DrawerActivity extends BaseActivity {
 
 		mDrawerList.removeAllViews();
 
-		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_my_geek, mDrawerList));
+		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+
+		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 		if (!Authenticator.isSignedIn(DrawerActivity.this)) {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
 		} else {
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, mDrawerList));
+			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+
 			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_plays, R.drawable.ic_event_note_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_players, R.drawable.ic_people_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_locations, R.drawable.ic_place_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_play_stats, R.drawable.ic_action_pie_chart, mDrawerList));
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-			mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
-			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, mDrawerList));
-			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-		}
+			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
 
-		mDrawerList.addView(makeNavDrawerSeparator(R.string.title_browse, mDrawerList));
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
+			mDrawerList.addView(makeNavDrawerItem(R.string.title_buddies, R.drawable.ic_person_black_24dp, mDrawerList));
+		}
+		mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+
+		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_hotness, R.drawable.ic_whatshot_black_24dp, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_geeklists, R.drawable.ic_list_black_24dp, mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_forums, R.drawable.ic_action_forum, mDrawerList));
+		mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
+
 		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-		mDrawerList.addView(makeNavDrawerDivider(mDrawerList));
 		mDrawerList.addView(makeNavDrawerItem(R.string.title_settings, R.drawable.ic_settings_black_24dp, mDrawerList));
+		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 	}
 
 	private void selectItem(int titleResId) {
@@ -144,20 +150,12 @@ public abstract class DrawerActivity extends BaseActivity {
 	}
 
 	private View makeNavDrawerSpacer(ViewGroup container) {
-		return getLayoutInflater().inflate(R.layout.row_spacer, container, false);
+		return getLayoutInflater().inflate(R.layout.row_spacer_drawer, container, false);
 	}
 
-	private View makeNavDrawerDivider(ViewGroup container) {
-		return getLayoutInflater().inflate(R.layout.row_divider, container, false);
-	}
-
-	private View makeNavDrawerSeparator(final int titleId, ViewGroup container) {
-		int layoutToInflate = R.layout.row_header_drawer;
-		View view = getLayoutInflater().inflate(layoutToInflate, container, false);
-		if (titleId != 0) {
-			TextView titleView = (TextView) view.findViewById(android.R.id.title);
-			titleView.setText(getString(titleId));
-		}
+	private View makeNavDrawerSpacerWithDivider(ViewGroup container) {
+		final View view = makeNavDrawerSpacer(container);
+		view.findViewById(R.id.divider).setVisibility(View.VISIBLE);
 		return view;
 	}
 
