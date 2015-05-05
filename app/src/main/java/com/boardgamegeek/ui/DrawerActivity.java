@@ -71,12 +71,11 @@ public abstract class DrawerActivity extends BaseActivity {
 
 		mDrawerList.removeAllViews();
 
-		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
-
-		mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 		if (!Authenticator.isSignedIn(DrawerActivity.this)) {
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
 		} else {
+			mDrawerList.addView(makeNavDrawerHeader(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
 
@@ -147,6 +146,12 @@ public abstract class DrawerActivity extends BaseActivity {
 			}
 		}
 		mDrawerLayout.closeDrawer(mDrawerListContainer);
+	}
+
+	private View makeNavDrawerHeader(ViewGroup container) {
+		final View view = getLayoutInflater().inflate(R.layout.row_header_drawer, container, false);
+		// TODO: populate account info
+		return view;
 	}
 
 	private View makeNavDrawerSpacer(ViewGroup container) {

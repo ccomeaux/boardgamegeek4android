@@ -44,6 +44,10 @@
 		<!-- <item name="android:textColor">@color/primary_text_default_material_light</item> -->
 	</style>
 
+	<style name="Text.Primary.DrawerHeader">
+		<item name="android:textSize">14sp</item>
+	</style>
+
 	<style name="Text.Secondary" parent="@style/TextAppearance.AppCompat.Body1">
 		<item name="android:textColor">@color/secondary_text_default_material_light</item>
 		<item name="android:textSize">14sp</item>
@@ -93,7 +97,9 @@
 		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
 	</style>
 
-	<style name="Text.DrawerItem" parent="TextAppearance.AppCompat.Subhead">
+	<style name="Text.DrawerItem" parent="TextAppearance.AppCompat">
+		<item name="android:textSize">14sp</item>
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
 		<item name="android:gravity">left|center_vertical</item>
 		<item name="android:textIsSelectable">false</item>
 		<item name="android:layout_gravity">left|center_vertical</item>

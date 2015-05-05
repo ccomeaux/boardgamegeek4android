@@ -45,5 +45,8 @@
 	<dimen name="card_row_height">40dp</dimen>
 	<dimen name="shortcut_icon_size">48dp</dimen>
 	<dimen name="divider_height">1dp</dimen>
+	<dimen name="drawer_header_account_height">56dp</dimen>
+	<dimen name="drawer_header_image_size">64dp</dimen>
+	<dimen name="drawer_header_image_elevation">2dp</dimen>
 
 </resources>
