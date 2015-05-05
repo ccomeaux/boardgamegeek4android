@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,8 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.pref.SettingsActivity;
+import com.boardgamegeek.service.UpdateService;
+import com.boardgamegeek.util.HttpUtils;
+import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -75,7 +80,11 @@ public abstract class DrawerActivity extends BaseActivity {
 			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
 		} else {
-			mDrawerList.addView(makeNavDrawerHeader(mDrawerList));
+			View view = makeNavDrawerHeader(mDrawerList);
+			if (view != null) {
+				mDrawerList.addView(view);
+			}
+			mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
 			mDrawerList.addView(makeNavDrawerItem(R.string.title_collection, R.drawable.ic_my_library_books_black_24dp, mDrawerList));
 			mDrawerList.addView(makeNavDrawerSpacerWithDivider(mDrawerList));
 
@@ -150,7 +159,38 @@ public abstract class DrawerActivity extends BaseActivity {
 
 	private View makeNavDrawerHeader(ViewGroup container) {
 		final View view = getLayoutInflater().inflate(R.layout.row_header_drawer, container, false);
-		// TODO: populate account info
+
+		String fullName = AccountUtils.getFullName(this);
+		String username = AccountUtils.getUsername(this);
+		if (TextUtils.isEmpty(fullName)) {
+			if (TextUtils.isEmpty(username)) {
+				if (Authenticator.isSignedIn(this)) {
+					UpdateService.start(this, UpdateService.SYNC_TYPE_BUDDY_SELF, null);
+				}
+				return null;
+			} else {
+				((TextView) view.findViewById(R.id.account_info_primary)).setText(username);
+			}
+		} else {
+			((TextView) view.findViewById(R.id.account_info_primary)).setText(fullName);
+			((TextView) view.findViewById(R.id.account_info_secondary)).setText(username);
+		}
+
+		String avatarUrl = AccountUtils.getAvatarUrl(this);
+		final ImageView imageView = (ImageView) view.findViewById(R.id.account_image);
+		if (TextUtils.isEmpty(avatarUrl)) {
+			imageView.setVisibility(View.GONE);
+		} else {
+			imageView.setVisibility(View.VISIBLE);
+			Picasso.with(this)
+				.load(HttpUtils.ensureScheme(avatarUrl))
+				.placeholder(R.drawable.person_image_empty)
+				.error(R.drawable.person_image_empty)
+				.resizeDimen(R.dimen.drawer_header_image_size, R.dimen.drawer_header_image_size)
+				.centerCrop()
+				.into(imageView);
+		}
+
 		return view;
 	}
 

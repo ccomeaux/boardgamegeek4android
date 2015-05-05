@@ -8,6 +8,7 @@
 	android:orientation="vertical">
 
 	<ImageView
+		android:id="@+id/account_image"
 		android:layout_width="@dimen/drawer_header_image_size"
 		android:layout_height="@dimen/drawer_header_image_size"
 		android:layout_marginBottom="@dimen/material_margin_vertical"
@@ -27,16 +28,16 @@
 		android:paddingRight="@dimen/material_margin_horizontal">
 
 		<TextView
+			android:id="@+id/account_info_primary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="Chris Comeaux"
 			android:textAppearance="@style/Text.Primary.DrawerHeader"
 			tools:text="Chris Comeaux"/>
 
 		<TextView
+			android:id="@+id/account_info_secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="ccomeaux"
 			android:textAppearance="@style/Text.Secondary.DrawerHeader"
 			tools:text="ccomeaux"/>
 	</LinearLayout>
@@ -45,10 +46,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/drawer_vertical_spacing">
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/divider_height"
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider_height"
 			android:layout_gravity="bottom"
-		android:background="@color/list_divider"/>
+			android:background="@color/list_divider"/>
 	</LinearLayout>
 </LinearLayout>
