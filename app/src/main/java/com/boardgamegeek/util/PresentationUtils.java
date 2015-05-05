@@ -1,6 +1,7 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 
 import com.boardgamegeek.R;
@@ -48,5 +49,20 @@ public class PresentationUtils {
 			return context.getString(R.string.wishlist);
 		}
 		return context.getResources().getStringArray(R.array.wishlist_priority)[priority];
+	}
+
+	/**
+	 * Build a displayable full name from the first and last name.
+	 */
+	public static String buildFullName(String firstName, String lastName) {
+		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
+			return "";
+		} else if (TextUtils.isEmpty(firstName)) {
+			return lastName.trim();
+		} else if (TextUtils.isEmpty(lastName)) {
+			return firstName.trim();
+		} else {
+			return firstName.trim() + " " + lastName.trim();
+		}
 	}
 }

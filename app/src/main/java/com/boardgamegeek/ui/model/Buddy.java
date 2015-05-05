@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.model;
 
 import android.database.Cursor;
-import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Buddies;
 import com.boardgamegeek.util.PresentationUtils;
@@ -44,7 +43,7 @@ public class Buddy {
 		buddy.avatarUrl = cursor.getString(AVATAR_URL);
 		buddy.nickName = cursor.getString(NICKNAME);
 		buddy.updated = cursor.getLong(UPDATED);
-		buddy.fullName = buildFullName(buddy.firstName, buddy.lastName);
+		buddy.fullName = PresentationUtils.buildFullName(buddy.firstName, buddy.lastName);
 		return buddy;
 	}
 
@@ -74,20 +73,5 @@ public class Buddy {
 
 	public long getUpdated() {
 		return updated;
-	}
-
-	/**
-	 * Build a displayable full name from the first and last name.
-	 */
-	private static String buildFullName(String firstName, String lastName) {
-		if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
-			return "";
-		} else if (TextUtils.isEmpty(firstName)) {
-			return lastName.trim();
-		} else if (TextUtils.isEmpty(lastName)) {
-			return firstName.trim();
-		} else {
-			return firstName.trim() + " " + lastName.trim();
-		}
 	}
 }
