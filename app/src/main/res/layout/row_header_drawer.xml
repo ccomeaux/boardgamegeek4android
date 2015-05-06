@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@color/primary"
 	android:orientation="vertical">
 
-	<ImageView
+	<com.boardgamegeek.ui.widget.BezelImageView
 		android:id="@+id/account_image"
 		android:layout_width="@dimen/drawer_header_image_size"
 		android:layout_height="@dimen/drawer_header_image_size"
@@ -15,7 +16,8 @@
 		android:layout_marginLeft="@dimen/material_margin_horizontal"
 		android:layout_marginTop="@dimen/padding_extra"
 		android:elevation="@dimen/drawer_header_image_elevation"
-		android:src="@drawable/person_image_empty"/>
+		android:src="@drawable/person_image_empty"
+		app:maskDrawable="@drawable/circle_mask"/>
 
 	<LinearLayout
 		android:layout_width="match_parent"
