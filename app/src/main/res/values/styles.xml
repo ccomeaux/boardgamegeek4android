@@ -67,6 +67,12 @@
 		<item name="android:textColor">@color/inverse_text</item>
 	</style>
 
+	<style name="Text.Primary.DrawerHeader">
+		<item name="android:textColor">@color/light_text</item>
+		<item name="android:textStyle"></item>
+		<item name="android:textSize">14sp</item>
+	</style>
+
 	<style name="Text.Secondary">
 		<item name="android:textColor">@color/light_text</item>
 		<item name="android:textSize">12sp</item>
@@ -74,6 +80,9 @@
 
 	<style name="Text.Secondary.Inverse">
 		<item name="android:textColor">@color/inverse_text_body</item>
+	</style>
+
+	<style name="Text.Secondary.DrawerHeader">
 	</style>
 
 	<style name="Text.Footnote">
@@ -124,9 +133,12 @@
 	</style>
 
 	<style name="Text.DrawerItem" parent="Text.Big">
-		<item name="android:layout_gravity">center_vertical</item>
+		<item name="android:layout_gravity">left|center_vertical</item>
 		<item name="android:paddingLeft">@dimen/padding_standard</item>
 		<item name="android:paddingRight">@dimen/padding_standard</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:textColor">@color/primary_text_default_material_light</item>
+		<item name="android:gravity">left|center_vertical</item>
 	</style>
 
 	<style name="DrawerItemContainer">
