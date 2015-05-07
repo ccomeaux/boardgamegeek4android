@@ -9,8 +9,9 @@ import android.net.Uri;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+
+import timber.log.Timber;
 
 public class GamesIdPollsProvider extends BaseProvider {
 	private static final String TABLE = Tables.GAME_POLLS;
@@ -45,9 +46,8 @@ public class GamesIdPollsProvider extends BaseProvider {
 				return Games.buildPollsUri(gameId, values.getAsString(GamePolls.POLL_NAME));
 			}
 		} catch (SQLException e) {
-			if (PreferencesUtils.getNotifyErrors(context)) {
-				notifyException(context, e);
-			}
+			Timber.e(e, "Problem inserting poll for game %1$s", gameId);
+			notifyException(context, e);
 		}
 		return null;
 	}
