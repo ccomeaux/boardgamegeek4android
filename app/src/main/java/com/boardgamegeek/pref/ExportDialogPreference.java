@@ -2,26 +2,18 @@ package com.boardgamegeek.pref;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.VersionUtils;
 
-public abstract class AsyncDialogPreference extends DialogPreference {
-
-	protected abstract Task getTask();
-
-	protected abstract int getSuccessMessageResource();
-
-	protected abstract int getFailureMessageResource();
-
-	public AsyncDialogPreference(Context context, AttributeSet attrs) {
+public class ExportDialogPreference extends DialogPreference {
+	public ExportDialogPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
@@ -39,18 +31,16 @@ public abstract class AsyncDialogPreference extends DialogPreference {
 	}
 
 	@Override
-	protected void onDialogClosed(boolean positiveResult) {
-		if (positiveResult) {
-			TaskUtils.executeAsyncTask(getTask());
-			notifyChanged();
-		}
+	public CharSequence getDialogMessage() {
+		return getContext().getString(R.string.pref_advanced_export_message, JsonExportTask.getExportPath(false));
 	}
 
-	protected abstract class Task extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected void onPostExecute(Boolean result) {
-			Toast.makeText(getContext(), result ? getSuccessMessageResource() : getFailureMessageResource(),
-				Toast.LENGTH_LONG).show();
+	@Override
+	protected void onDialogClosed(boolean positiveResult) {
+		if (positiveResult) {
+			JsonExportTask task = new JsonExportTask(getContext(), false);
+			TaskUtils.executeAsyncTask(task);
+			notifyChanged();
 		}
 	}
 }

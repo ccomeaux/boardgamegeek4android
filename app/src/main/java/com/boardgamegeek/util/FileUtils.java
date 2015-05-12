@@ -1,6 +1,7 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -67,5 +68,13 @@ public class FileUtils {
 			count++;
 		}
 		return count;
+	}
+
+	/**
+	 * Checks if {@link Environment}.MEDIA_MOUNTED is returned by {@code getExternalStorageState()}
+	 * and therefore external storage is read- and writeable.
+	 */
+	public static boolean isExtStorageAvailable() {
+		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
 	}
 }
