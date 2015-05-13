@@ -28,6 +28,22 @@ public class CollectionView {
 	@Expose private boolean starred;
 	@Expose private List<Filter> filters;
 
+	public String getName() {
+		return name;
+	}
+
+	public int getSortType() {
+		return sortType;
+	}
+
+	public boolean isStarred() {
+		return starred;
+	}
+
+	public List<Filter> getFilters() {
+		return filters;
+	}
+
 	public static CollectionView fromCursor(Cursor cursor) {
 		CollectionView cv = new CollectionView();
 		cv.id = cursor.getInt(_ID);

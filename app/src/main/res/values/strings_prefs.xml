@@ -88,6 +88,13 @@
 	<string name="pref_advanced_export_msg_success">Export successful.</string>
 	<string name="pref_advanced_export_msg_failed">Export failed.</string>
 	<string name="pref_advanced_export_msg_failed_nosd">Export folder is not available.</string>
+	<string name="pref_advanced_import">Import</string>
+	<string name="pref_advanced_import_summary">Import data from a previous export</string>
+	<string name="pref_advanced_import_message">This will replace any data already loaded with data in files from %s. Are you sure you want to continue?</string>
+	<string name="pref_advanced_import_msg_success">Import successful.</string>
+	<string name="pref_advanced_import_msg_failed">Import failed.</string>
+	<string name="pref_advanced_import_msg_failed_nofile">Import file doesn\'t exist or can\'t be read.</string>
+	<string name="pref_advanced_import_msg_failed_nosd">Import folder is not available.</string>
 	<string name="pref_about">About</string>
 	<string name="pref_about_version">Version</string>
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>

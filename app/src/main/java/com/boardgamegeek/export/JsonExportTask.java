@@ -29,10 +29,10 @@ import timber.log.Timber;
 public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 	private static final String EXPORT_FOLDER = "bgg4android";
 	private static final String EXPORT_FOLDER_AUTO = "bgg4android" + File.separator + "AutoBackup";
-	private static final String EXPORT_JSON_FILE_COLLECTION_VIEWS = "export-collectionviews.json";
+	public static final String EXPORT_JSON_FILE_COLLECTION_VIEWS = "export-collectionviews.json";
 	private static final int SUCCESS = 1;
-	private static final int ERROR_STORAGE_ACCESS = 0;
-	private static final int ERROR = -1;
+	private static final int ERROR = 0;
+	private static final int ERROR_STORAGE_ACCESS = -1;
 
 	private final Context mContext;
 	private final boolean mIsAutoBackupMode;

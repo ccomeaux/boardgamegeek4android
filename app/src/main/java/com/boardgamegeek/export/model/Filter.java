@@ -18,6 +18,14 @@ public class Filter {
 	@Expose private int type;
 	@Expose private String data;
 
+	public int getType() {
+		return type;
+	}
+
+	public String getData() {
+		return data;
+	}
+
 	public static Filter fromCursor(Cursor cursor) {
 		Filter filter = new Filter();
 		filter.type = cursor.getInt(TYPE);
