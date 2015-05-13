@@ -9,8 +9,6 @@ import android.widget.Toast;
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ExportFinishedEvent;
 import com.boardgamegeek.events.ExportProgressEvent;
-import com.boardgamegeek.export.model.CollectionView;
-import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,13 +20,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final String EXPORT_FOLDER = "bgg4android";
-	private static final String EXPORT_FOLDER_AUTO = "bgg4android" + File.separator + "AutoBackup";
+	private static final String EXPORT_FOLDER = "bgg4android-export";
+	private static final String EXPORT_FOLDER_AUTO = EXPORT_FOLDER + File.separator + "AutoBackup";
 	public static final String EXPORT_JSON_FILE_COLLECTION_VIEWS = "export-collectionviews.json";
 	private static final int SUCCESS = 1;
 	private static final int ERROR = 0;
@@ -59,9 +59,16 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		File exportPath = getExportPath(mIsAutoBackupMode);
 		exportPath.mkdirs();
 
-		int result = exportCollectionViews(exportPath);
-		if (result == ERROR || isCancelled()) {
-			return ERROR;
+		List<Exporter> exporters = new ArrayList<>();
+
+		exporters.add(new CollectionViewExporter());
+		exporters.add(new GameExporter());
+
+		for (Exporter exporter : exporters) {
+			int result = export(exportPath, exporter);
+			if (result == ERROR || isCancelled()) {
+				return ERROR;
+			}
 		}
 
 //		if (mIsAutoBackupMode) {
@@ -99,38 +106,34 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		EventBus.getDefault().post(new ExportFinishedEvent());
 	}
 
-	private int exportCollectionViews(File exportPath) {
-		final Cursor views = mContext.getContentResolver().query(
-			CollectionViews.CONTENT_URI,
-			CollectionView.PROJECTION,
-			null, null, null);
+	private int export(File exportPath, Exporter exporter) {
+		final Cursor cursor = exporter.getCursor(mContext);
 
-		if (views == null) {
+		if (cursor == null) {
 			return ERROR;
 		}
-		if (views.getCount() == 0) {
-			views.close();
+		if (cursor.getCount() == 0) {
+			cursor.close();
 			return SUCCESS;
 		}
 
-		publishProgress(views.getCount(), 0);
+		publishProgress(cursor.getCount(), 0);
 
-		File backup = new File(exportPath, EXPORT_JSON_FILE_COLLECTION_VIEWS);
+		File backup = new File(exportPath, exporter.getFileName());
 		try {
 			OutputStream out = new FileOutputStream(backup);
-
-			writeJsonStreamShows(out, views);
+			writeJsonStream(out, cursor, exporter);
 		} catch (JsonIOException | IOException e) {
-			Timber.e(e, "JSON collection views export failed");
+			Timber.e(e, "JSON export failed");
 			return ERROR;
 		} finally {
-			views.close();
+			cursor.close();
 		}
 
 		return SUCCESS;
 	}
 
-	private void writeJsonStreamShows(OutputStream out, Cursor cursor) throws IOException {
+	private void writeJsonStream(OutputStream out, Cursor cursor, Exporter exporter) throws IOException {
 		int numTotal = cursor.getCount();
 		int numExported = 0;
 
@@ -144,10 +147,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 				break;
 			}
 
-			CollectionView cv = CollectionView.fromCursor(cursor);
-			cv.addFilters(mContext);
-
-			gson.toJson(cv, CollectionView.class, writer);
+			exporter.writeJsonRecord(mContext, cursor, gson, writer);
 			publishProgress(numTotal, ++numExported);
 		}
 
