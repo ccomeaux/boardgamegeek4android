@@ -119,7 +119,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newLocation = editText.getText().toString();
+						String newLocation = editText.getText().toString().trim();
 						RenameLocationTask task = new RenameLocationTask(LocationActivity.this, oldLocation, newLocation);
 						TaskUtils.executeAsyncTask(task);
 					}

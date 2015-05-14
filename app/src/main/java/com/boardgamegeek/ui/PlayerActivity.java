@@ -127,7 +127,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newName = editText.getText().toString();
+						String newName = editText.getText().toString().trim();
 						RenamePlayerTask task = new RenamePlayerTask(PlayerActivity.this, mUsername, oldName, newName);
 						TaskUtils.executeAsyncTask(task);
 					}
