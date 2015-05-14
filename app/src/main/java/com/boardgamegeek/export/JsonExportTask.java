@@ -3,7 +3,6 @@ package com.boardgamegeek.export;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
@@ -27,21 +26,12 @@ import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final String EXPORT_FOLDER = "bgg4android-export";
-	private static final String EXPORT_FOLDER_AUTO = EXPORT_FOLDER + File.separator + "AutoBackup";
-	public static final String EXPORT_JSON_FILE_COLLECTION_VIEWS = "export-collectionviews.json";
 	private static final int SUCCESS = 1;
 	private static final int ERROR = 0;
 	private static final int ERROR_STORAGE_ACCESS = -1;
 
 	private final Context mContext;
 	private final boolean mIsAutoBackupMode;
-
-	public static File getExportPath(boolean isAutoBackupMode) {
-		return new File(
-			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-			isAutoBackupMode ? EXPORT_FOLDER_AUTO : EXPORT_FOLDER);
-	}
 
 	public JsonExportTask(Context context, boolean isAutoBackupMode) {
 		mContext = context.getApplicationContext();
@@ -56,26 +46,30 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		}
 
 		// Ensure the export directory exists
-		File exportPath = getExportPath(mIsAutoBackupMode);
-		exportPath.mkdirs();
+		File exportPath = FileUtils.getExportPath(mIsAutoBackupMode);
+		if (!exportPath.exists()) {
+			if (!exportPath.mkdirs()) {
+				return ERROR_STORAGE_ACCESS;
+			}
+		}
 
-		List<Exporter> exporters = new ArrayList<>();
+		List<ImporterExporter> exporters = new ArrayList<>();
+		exporters.add(new CollectionViewImporterExporter());
+		exporters.add(new GameImporterExporter());
 
-		exporters.add(new CollectionViewExporter());
-		exporters.add(new GameExporter());
-
-		for (Exporter exporter : exporters) {
+		for (ImporterExporter exporter : exporters) {
 			int result = export(exportPath, exporter);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
 			}
 		}
 
-//		if (mIsAutoBackupMode) {
-//			// store current time = last backup time
-//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-//			prefs.edit().putLong(KEY_LASTBACKUP, System.currentTimeMillis()).commit();
-//		}
+		//TODO: auto-backup
+		//		if (mIsAutoBackupMode) {
+		//			// store current time = last backup time
+		//			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		//			prefs.edit().putLong(KEY_LASTBACKUP, System.currentTimeMillis()).commit();
+		//		}
 
 		return SUCCESS;
 	}
@@ -106,7 +100,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		EventBus.getDefault().post(new ExportFinishedEvent());
 	}
 
-	private int export(File exportPath, Exporter exporter) {
+	private int export(File exportPath, ImporterExporter exporter) {
 		final Cursor cursor = exporter.getCursor(mContext);
 
 		if (cursor == null) {
@@ -133,7 +127,7 @@ public class JsonExportTask extends AsyncTask<Void, Integer, Integer> {
 		return SUCCESS;
 	}
 
-	private void writeJsonStream(OutputStream out, Cursor cursor, Exporter exporter) throws IOException {
+	private void writeJsonStream(OutputStream out, Cursor cursor, ImporterExporter exporter) throws IOException {
 		int numTotal = cursor.getCount();
 		int numExported = 0;
 

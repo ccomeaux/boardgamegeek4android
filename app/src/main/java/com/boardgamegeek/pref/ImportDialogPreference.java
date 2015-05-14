@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.export.JsonExportTask;
 import com.boardgamegeek.export.JsonImportTask;
+import com.boardgamegeek.util.FileUtils;
 import com.boardgamegeek.util.TaskUtils;
 
 public class ImportDialogPreference extends ConfirmDialogPreference {
@@ -20,6 +20,6 @@ public class ImportDialogPreference extends ConfirmDialogPreference {
 
 	@Override
 	public CharSequence getDialogMessage() {
-		return getContext().getString(R.string.pref_advanced_import_message, JsonExportTask.getExportPath(false));
+		return getContext().getString(R.string.pref_advanced_import_message, FileUtils.getExportPath(false));
 	}
 }

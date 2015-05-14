@@ -19,7 +19,7 @@ import com.google.gson.stream.JsonWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameExporter extends Exporter {
+public class GameImporterExporter implements ImporterExporter {
 	@Override
 	public String getFileName() {
 		return "games.json";
@@ -69,7 +69,7 @@ public class GameExporter extends Exporter {
 
 			if (values.size() > 0) {
 				ContentValues[] array = {};
-				int count = resolver.bulkInsert(gameColorsUri, values.toArray(array));
+				resolver.bulkInsert(gameColorsUri, values.toArray(array));
 			}
 		}
 	}

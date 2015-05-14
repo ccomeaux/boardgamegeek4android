@@ -5,8 +5,8 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.events.ExportFinishedEvent;
-import com.boardgamegeek.events.ExportProgressEvent;
+import com.boardgamegeek.events.ImportFinishedEvent;
+import com.boardgamegeek.events.ImportProgressEvent;
 import com.boardgamegeek.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -24,12 +24,12 @@ import de.greenrobot.event.EventBus;
 import timber.log.Timber;
 
 public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
-	private static final int SUCCESS = 1;
-	private static final int ERROR = 0;
-	private static final int ERROR_STORAGE_ACCESS = -1;
-	private static final int ERROR_FILE_ACCESS = -2;
-	private Context mContext;
-	private boolean mIsAutoBackupMode;
+	private static final int ERROR_FILE_ACCESS = 1;
+	private static final int SUCCESS = 0;
+	private static final int ERROR = -1;
+	private static final int ERROR_STORAGE_ACCESS = -2;
+	private final Context mContext;
+	private final boolean mIsAutoBackupMode;
 
 	public JsonImportTask(Context context, boolean isAutoBackupMode) {
 		mContext = context.getApplicationContext();
@@ -43,19 +43,24 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 			return ERROR_STORAGE_ACCESS;
 		}
 
-		// Ensure no large database ops are running?
+		// TODO: Ensure no large database ops are running?
 
-		// Ensure JSON file is available
-		File importPath = JsonExportTask.getExportPath(mIsAutoBackupMode);
+		// Ensure the export directory exists
+		File importPath = FileUtils.getExportPath(mIsAutoBackupMode);
+		if (!importPath.exists()) {
+			return ERROR_STORAGE_ACCESS;
+		}
 
-		List<Exporter> exporters = new ArrayList<>();
-		exporters.add(new CollectionViewExporter());
-		exporters.add(new GameExporter());
+		List<ImporterExporter> importers = new ArrayList<>();
+		importers.add(new CollectionViewImporterExporter());
+		importers.add(new GameImporterExporter());
 
-		for (Exporter exporter : exporters) {
-			int result = importFile(importPath, exporter);
+		for (ImporterExporter importer : importers) {
+			int result = importFile(importPath, importer);
 			if (result == ERROR || isCancelled()) {
 				return ERROR;
+			} else if (result < ERROR) {
+				return result;
 			}
 		}
 
@@ -64,7 +69,7 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		EventBus.getDefault().post(new ExportProgressEvent(values[0], values[1]));
+		EventBus.getDefault().post(new ImportProgressEvent(values[0], values[1]));
 	}
 
 	@Override
@@ -85,19 +90,17 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 				break;
 		}
 		Toast.makeText(mContext, messageId, Toast.LENGTH_LONG).show();
-
-		EventBus.getDefault().post(new ExportFinishedEvent());
+		EventBus.getDefault().post(new ImportFinishedEvent());
 	}
 
-	private int importFile(File importPath, Exporter exporter) {
-		File file = new File(importPath, exporter.getFileName());
+	private int importFile(File importPath, ImporterExporter importer) {
+		File file = new File(importPath, importer.getFileName());
 		if (!file.exists() || !file.canRead()) {
 			return ERROR_FILE_ACCESS;
 		}
 
-		exporter.initializeImport(mContext);
+		importer.initializeImport(mContext);
 
-		// Access JSON from backup folder to create new database
 		try {
 			InputStream in = new FileInputStream(file);
 
@@ -107,7 +110,7 @@ public class JsonImportTask extends AsyncTask<Void, Integer, Integer> {
 			reader.beginArray();
 
 			while (reader.hasNext()) {
-				exporter.importRecord(mContext, gson, reader);
+				importer.importRecord(mContext, gson, reader);
 			}
 
 			reader.endArray();

@@ -18,7 +18,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.util.ArrayList;
 
-public class CollectionViewExporter extends Exporter {
+public class CollectionViewImporterExporter implements ImporterExporter {
 	@Override
 	public String getFileName() {
 		return "collection-views.json";
