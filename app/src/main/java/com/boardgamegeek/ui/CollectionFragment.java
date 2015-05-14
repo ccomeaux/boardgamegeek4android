@@ -501,7 +501,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		if (mAdapter != null) {
+			mAdapter.changeCursor(null);
+		}
 	}
 
 	protected void initializeTimeBasedUi() {
