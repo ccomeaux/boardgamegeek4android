@@ -19,8 +19,16 @@ public class Game {
 	@Expose private int id;
 	@Expose private List<Color> colors;
 
+	public int getGameId() {
+		return id;
+	}
+
 	public boolean hasColors() {
 		return colors != null && colors.size() > 0;
+	}
+
+	public List<Color> getColors() {
+		return colors;
 	}
 
 	public static Game fromCursor(Cursor cursor) {

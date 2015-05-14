@@ -14,6 +14,10 @@ public class Color {
 
 	@Expose private String color;
 
+	public String getColor() {
+		return color;
+	}
+
 	public static Color fromCursor(Cursor cursor) {
 		Color color = new Color();
 		color.color = cursor.getString(COLOR);
