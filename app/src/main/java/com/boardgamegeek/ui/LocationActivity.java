@@ -37,16 +37,17 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 
 		final Intent intent = getIntent();
 		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
-		setTitle(mLocationName);
+		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
-	private void setTitle(String title) {
-		if (TextUtils.isEmpty(title)) {
-			title = getString(R.string.no_location);
+	private void setSubtitle() {
+		String text = mLocationName;
+		if (TextUtils.isEmpty(mLocationName)) {
+			text = getString(R.string.no_location);
 		}
-		getSupportActionBar().setSubtitle(title);
+		setSubtitle(text);
 	}
 
 	@Override
