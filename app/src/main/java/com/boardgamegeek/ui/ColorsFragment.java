@@ -29,6 +29,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -111,7 +112,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 				mDialog.show();
 				return true;
 			case R.id.menu_colors_generate:
-				new Task().execute();
+				TaskUtils.executeAsyncTask(new Task());
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -208,7 +209,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 			Integer count = 0;
 			Cursor cursor = null;
 			try {
-				cursor = getActivity().getContentResolver().query(Plays.buildPlayersUri(),
+				cursor = getActivity().getContentResolver().query(Plays.buildPlayersByColor(),
 					new String[] { PlayPlayers.COLOR }, PlayItems.OBJECT_ID + "=?",
 					new String[] { String.valueOf(mGameId) }, null);
 				if (cursor != null && cursor.moveToFirst()) {
@@ -223,8 +224,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 					} while (cursor.moveToNext());
 					if (values.size() > 0) {
 						ContentValues[] array = {};
-						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId),
-							values.toArray(array));
+						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId), values.toArray(array));
 					}
 				}
 			} finally {

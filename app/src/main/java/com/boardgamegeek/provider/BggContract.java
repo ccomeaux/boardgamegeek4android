@@ -1,13 +1,13 @@
 package com.boardgamegeek.provider;
 
-import java.util.List;
-
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.List;
 
 public class BggContract {
 
@@ -249,6 +249,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
+	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String PARAM_LIMIT = "limit";
 
@@ -789,23 +790,23 @@ public class BggContract {
 		}
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER).build();
 		}
 
 		public static Uri buildPlayersByUniquePlayerUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER).build();
 		}
 
 		public static Uri buildPlayersByUniqueUserUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER).build();
 		}
 
 		public static Uri buildPlayersByUniqueNameUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME).build();
+		}
+
+		public static Uri buildPlayersByColor() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build();
 		}
 
 		public static int getPlayId(Uri uri) {
