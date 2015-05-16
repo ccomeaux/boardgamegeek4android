@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Export/import some data (under Advanced Settings)
  * Improve list usability
  * Updated look and feel of nav drawer
  * Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)
