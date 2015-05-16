@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,20 +12,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.TableLayout;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import timber.log.Timber;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.widget.PlayStatView;
+import com.boardgamegeek.util.DialogUtils;
+import com.boardgamegeek.util.PreferencesUtils;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import timber.log.Timber;
 
 public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	public static final String STATUS_PLAYED = "played";
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.empty) View mEmptyView;
 	@InjectView(R.id.data) View mDataView;
 	@InjectView(R.id.table) TableLayout mTable;
+	@InjectView(R.id.sync_message) View mSyncMessage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,6 +47,13 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().restartLoader(PlayCountQuery._TOKEN, null, this);
+		setMessageVisibility();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		setMessageVisibility();
 	}
 
 	@Override
@@ -48,6 +63,7 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 			case PlayCountQuery._TOKEN:
 				loader = new CursorLoader(getActivity(), Collection.buildUniqueGameUri(), PlayCountQuery.PROJECTION,
 					Games.NUM_PLAYS + ">0", null, Games.NUM_PLAYS + " DESC");
+				loader.setUpdateThrottle(2000);
 				break;
 		}
 		return loader;
@@ -125,6 +141,26 @@ public class PlayStatsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	@OnClick(R.id.sync_message)
+	public void onMessageClick(View v) {
+		DialogUtils.createConfirmationDialog(getActivity(), R.string.play_stat_status_played_not_synced_message,
+			new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					PreferencesUtils.addSyncStatus(getActivity(), STATUS_PLAYED);
+					setMessageVisibility();
+					SyncService.clearCollection(getActivity());
+					SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
+				}
+			}).show();
+	}
+
+	private void setMessageVisibility() {
+		if (getActivity() != null && mSyncMessage != null) {
+			final boolean arePlaysSynced = PreferencesUtils.isSyncStatus(getActivity(), STATUS_PLAYED);
+			mSyncMessage.setVisibility(arePlaysSynced ? View.GONE : View.VISIBLE);
+		}
 	}
 
 	private void showEmpty() {

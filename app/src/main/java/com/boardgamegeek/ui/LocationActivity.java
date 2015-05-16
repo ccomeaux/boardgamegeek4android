@@ -37,16 +37,17 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 
 		final Intent intent = getIntent();
 		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
-		setTitle(mLocationName);
+		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
-	private void setTitle(String title) {
-		if (TextUtils.isEmpty(title)) {
-			title = getString(R.string.no_location);
+	private void setSubtitle() {
+		String text = mLocationName;
+		if (TextUtils.isEmpty(mLocationName)) {
+			text = getString(R.string.no_location);
 		}
-		getSupportActionBar().setSubtitle(title);
+		setSubtitle(text);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class LocationActivity extends SimpleSinglePaneActivity {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newLocation = editText.getText().toString();
+						String newLocation = editText.getText().toString().trim();
 						RenameLocationTask task = new RenameLocationTask(LocationActivity.this, oldLocation, newLocation);
 						TaskUtils.executeAsyncTask(task);
 					}

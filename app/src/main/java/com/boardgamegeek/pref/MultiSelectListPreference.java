@@ -134,16 +134,7 @@ public class MultiSelectListPreference extends DialogPreference {
 	}
 
 	private boolean persistStringSet(Set<String> values) {
-
-		StringBuilder sb = new StringBuilder();
-		for (String value : values) {
-			sb.append(value).append(SEPARATOR);
-		}
-		// remove trailing separator
-		String value = sb.toString();
-		if (value.length() > 0) {
-			value = value.substring(0, value.length() - SEPARATOR.length());
-		}
+		String value = buildString(values);
 		return persistString(value);
 	}
 
@@ -327,5 +318,23 @@ public class MultiSelectListPreference extends DialogPreference {
 		} else {
 			return value.split(SEPARATOR);
 		}
+	}
+
+	/**
+	 * Builds a persistable string from the set of string values
+	 * @param values Set of values to convert to a string.
+	 * @return A string representation of the values to persist in preferences.
+	 */
+	public static String buildString(Set<String> values) {
+		StringBuilder sb = new StringBuilder();
+		for (String value : values) {
+			sb.append(value).append(SEPARATOR);
+		}
+		// remove trailing separator
+		String value = sb.toString();
+		if (value.length() > 0) {
+			value = value.substring(0, value.length() - SEPARATOR.length());
+		}
+		return value;
 	}
 }

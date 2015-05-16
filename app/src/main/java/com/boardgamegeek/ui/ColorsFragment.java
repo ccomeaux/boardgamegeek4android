@@ -29,6 +29,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.ui.adapter.GameColorAdapter;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.actionmodecompat.ActionMode;
 import com.boardgamegeek.util.actionmodecompat.MultiChoiceModeListener;
@@ -37,22 +38,24 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class ColorsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-	MultiChoiceModeListener {
+public class ColorsFragment extends BggListFragment implements LoaderManager.LoaderCallbacks<Cursor>, MultiChoiceModeListener {
 	private static final int TOKEN = 0x20;
 	private int mGameId;
 	private GameColorAdapter mAdapter;
 	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<>();
 	private AlertDialog mDialog;
 
+	@DebugLog
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 	}
 
+	@DebugLog
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
@@ -60,6 +63,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		listView.setSelector(android.R.color.transparent);
 	}
 
+	@DebugLog
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -72,17 +76,20 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		ActionMode.setMultiChoiceMode(getListView(), getActivity(), this);
 	}
 
+	@DebugLog
 	@Override
 	protected boolean padTop() {
 		return true;
 	}
 
+	@DebugLog
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.game_colors, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -111,18 +118,19 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 				mDialog.show();
 				return true;
 			case R.id.menu_colors_generate:
-				new Task().execute();
+				TaskUtils.executeAsyncTask(new Task());
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@DebugLog
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
-		return new CursorLoader(getActivity(), GameColorAdapter.createUri(mGameId), GameColorAdapter.PROJECTION, null,
-			null, null);
+		return new CursorLoader(getActivity(), GameColorAdapter.createUri(mGameId), GameColorAdapter.PROJECTION, null, null, null);
 	}
 
+	@DebugLog
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
@@ -149,11 +157,15 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		}
 	}
 
+	@DebugLog
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		mAdapter.changeCursor(null);
+		if (mAdapter != null) {
+			mAdapter.changeCursor(null);
+		}
 	}
 
+	@DebugLog
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 		MenuInflater inflater = mode.getMenuInflater();
@@ -162,15 +174,18 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		return true;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 		return false;
 	}
 
+	@DebugLog
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
 	}
 
+	@DebugLog
 	@Override
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 		if (checked) {
@@ -183,6 +198,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		mode.setTitle(getResources().getQuantityString(R.plurals.msg_colors_selected, count, count));
 	}
 
+	@DebugLog
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 		mode.finish();
@@ -203,12 +219,13 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	}
 
 	protected class Task extends AsyncTask<Void, Void, Integer> {
+		@DebugLog
 		@Override
 		protected Integer doInBackground(Void... params) {
 			Integer count = 0;
 			Cursor cursor = null;
 			try {
-				cursor = getActivity().getContentResolver().query(Plays.buildPlayersUri(),
+				cursor = getActivity().getContentResolver().query(Plays.buildPlayersByColor(),
 					new String[] { PlayPlayers.COLOR }, PlayItems.OBJECT_ID + "=?",
 					new String[] { String.valueOf(mGameId) }, null);
 				if (cursor != null && cursor.moveToFirst()) {
@@ -223,8 +240,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 					} while (cursor.moveToNext());
 					if (values.size() > 0) {
 						ContentValues[] array = {};
-						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId),
-							values.toArray(array));
+						count = getActivity().getContentResolver().bulkInsert(Games.buildColorsUri(mGameId), values.toArray(array));
 					}
 				}
 			} finally {
@@ -235,6 +251,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 			return count;
 		}
 
+		@DebugLog
 		@Override
 		protected void onPostExecute(Integer result) {
 			if (result > 0) {

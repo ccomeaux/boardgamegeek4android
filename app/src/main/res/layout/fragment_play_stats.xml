@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent" >
+			 xmlns:tools="http://schemas.android.com/tools"
+			 android:layout_width="match_parent"
+			 android:layout_height="match_parent">
 
 	<ProgressBar
 		android:id="@+id/progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center" />
+		android:layout_gravity="center"
+		tools:visibility="gone"/>
 
 	<TextView
 		android:id="@+id/empty"
@@ -16,24 +18,45 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:text="@string/empty_play_stats"
-		android:visibility="gone" />
+		android:visibility="gone"/>
 
 	<ScrollView
 		android:id="@+id/data"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:visibility="gone" >
+		android:visibility="gone"
+		tools:visibility="visible">
 
-		<TableLayout
-			android:id="@+id/table"
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
-			android:paddingBottom="@dimen/material_margin_vertical"
-			android:paddingLeft="@dimen/material_margin_horizontal"
-			android:paddingRight="@dimen/material_margin_horizontal"
-			android:paddingTop="@dimen/material_margin_vertical"
-			android:stretchColumns="0,1" />
+			android:orientation="vertical">
+
+			<TableLayout
+				android:id="@+id/table"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"
+				android:stretchColumns="0,1"/>
+
+			<TextView
+				android:id="@+id/sync_message"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackground"
+				android:paddingBottom="@dimen/material_margin_vertical"
+				android:paddingLeft="@dimen/material_margin_horizontal"
+				android:paddingRight="@dimen/material_margin_horizontal"
+				android:paddingTop="@dimen/material_margin_vertical"
+				android:text="@string/play_stat_status_played_not_synced"
+				android:visibility="gone"
+				tools:visibility="visible"/>
+		</LinearLayout>
+
 	</ScrollView>
 
 </FrameLayout>
