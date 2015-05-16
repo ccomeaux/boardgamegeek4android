@@ -182,16 +182,8 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedForumDates", false);
 	}
 
-	public static boolean getDebug(Context context) {
+	public static boolean getAvoidBatching(Context context) {
 		return getBoolean(context, "advancedDebugInsert", false);
-	}
-
-	public static boolean getPolls(Context context) {
-		return getBoolean(context, "advancedPolls", true);
-	}
-
-	public static boolean getNotifyErrors(Context context) {
-		return getBoolean(context, "advancedNotifyErrors", false);
 	}
 
 	public static int getNewPlayId(Context context, int oldPlayId) {

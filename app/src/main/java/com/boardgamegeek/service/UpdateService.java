@@ -118,9 +118,10 @@ public class UpdateService extends IntentService {
 			if (!TextUtils.isEmpty(error)) {
 				message += "\n" + error;
 			}
-			if (PreferencesUtils.getNotifyErrors(this)) {
-				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
-					R.string.title_error).setCategory(NotificationCompat.CATEGORY_ERROR);
+			if (PreferencesUtils.getSyncShowNotifications(this)) {
+				Builder builder = NotificationUtils
+					.createNotificationBuilder(getApplicationContext(), R.string.title_error)
+					.setCategory(NotificationCompat.CATEGORY_ERROR);
 				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}

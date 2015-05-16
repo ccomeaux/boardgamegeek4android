@@ -78,8 +78,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		return false;
 	}
 
+	@Override
+	protected boolean isValidFragment(String fragmentName) {
+		return fragmentName.equals(PrefFragment.class.getName());
+	}
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+		private int mSyncType = 0;
+
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -131,15 +138,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		}
 
 		@Override
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-			if ("syncStatuses".equals(key)) {
-				SyncService.clearCollection(getActivity());
+		public void onStop() {
+			super.onStop();
+			if (mSyncType > 0) {
+				SyncService.sync(getActivity(), mSyncType);
 			}
 		}
-	}
 
-	@Override
-	protected boolean isValidFragment(String fragmentName) {
-		return fragmentName.equals(PrefFragment.class.getName());
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			switch (key) {
+				case "syncStatuses":
+					SyncService.clearCollection(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_COLLECTION;
+					break;
+				case "syncPlays":
+					SyncService.clearPlays(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_PLAYS;
+					break;
+				case "syncBuddies":
+					SyncService.clearBuddies(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_BUDDIES;
+					break;
+			}
+		}
 	}
 }
