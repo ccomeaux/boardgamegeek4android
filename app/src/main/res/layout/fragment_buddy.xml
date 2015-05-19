@@ -146,6 +146,38 @@
 		</LinearLayout>
 	</android.support.v7.widget.CardView>
 
+	<android.support.v7.widget.CardView
+		style="@style/Card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:id="@+id/colors_root"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:descendantFocusability="blocksDescendants"
+			android:gravity="center_vertical"
+			android:minHeight="@dimen/edit_row_height"
+			android:orientation="horizontal">
+
+			<ImageView
+				android:id="@+id/icon_colors"
+				style="@style/Icon"
+				android:src="@drawable/ic_action_colors_light"/>
+
+			<TextView
+				android:id="@+id/colors_label"
+				style="@style/Text"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="center_vertical"
+				android:maxLines="2"
+				android:text="@string/title_favorite_colors"/>
+		</LinearLayout>
+	</android.support.v7.widget.CardView>
+
 	<TextView
 		android:id="@+id/updated"
 		style="@style/Text.Footnote2"

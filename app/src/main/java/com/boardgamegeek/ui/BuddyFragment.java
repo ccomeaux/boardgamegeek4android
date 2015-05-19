@@ -181,6 +181,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		startActivity(intent);
 	}
 
+	@DebugLog
+	@SuppressWarnings("unused")
+	@OnClick(R.id.colors_root)
+	public void onColorsClick(View v) {
+		Intent intent = new Intent(getActivity(), BuddyColorsActivity.class);
+		intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, mBuddyName);
+		startActivity(intent);
+	}
+
 	private void onBuddyQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
 			requestRefresh();
