@@ -3,6 +3,7 @@ package com.boardgamegeek.provider;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
@@ -142,6 +143,13 @@ public class BggContract {
 		String SYNC_HASH_CODE = "sync_hash_code";
 	}
 
+	interface PlayerColorsColumns {
+		String PLAYER_NAME = "player_name";
+		String PLAYER_TYPE = "player_type";
+		String PLAYER_COLOR = "player_color";
+		String PLAYER_COLOR_SORT_ORDER = "player_color_sort";
+	}
+
 	interface GamePollsColumns {
 		String POLL_NAME = "poll_name";
 		String POLL_TITLE = "poll_title";
@@ -237,7 +245,7 @@ public class BggContract {
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
-	private static final String PATH_COLORS = "colors";
+	public static final String PATH_COLORS = "colors";
 	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
@@ -707,6 +715,46 @@ public class BggContract {
 			}
 			List<String> segments = uri.getPathSegments();
 			return segments != null && segments.size() > 0 && PATH_BUDDIES.equals(segments.get(0));
+		}
+	}
+
+	public static class PlayerColors implements PlayerColorsColumns, BaseColumns {
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor";
+		public static final int TYPE_BUDDY = 1;
+
+		public static final String DEFAULT_SORT = PlayerColors.PLAYER_TYPE + " ASC, " +
+			PlayerColors.PLAYER_NAME + " ASC, " +
+			PlayerColors.PLAYER_COLOR_SORT_ORDER + " ASC";
+
+		public static Uri buildBuddyUri(String buddyName) {
+			return Buddies.CONTENT_URI.buildUpon().appendPath(buddyName).appendPath(PATH_COLORS).build();
+		}
+
+		public static Uri buildBuddyUri(String buddyName, int sortOrder) {
+			return buildBuddyUri(buddyName).buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		}
+
+		@Nullable
+		public static String getBuddyName(Uri uri) {
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_BUDDIES.equals(segments.get(0))) {
+					return segments.get(1);
+				}
+			}
+			return null;
+		}
+
+		@Nullable
+		public static int getSortOrder(Uri uri) {
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_COLORS.equals(segments.get(0))) {
+					return Integer.parseInt(segments.get(1));
+				}
+			}
+			return 0;
 		}
 	}
 

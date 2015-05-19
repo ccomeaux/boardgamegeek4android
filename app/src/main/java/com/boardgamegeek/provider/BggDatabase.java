@@ -23,6 +23,7 @@ import com.boardgamegeek.provider.BggContract.GamesExpansions;
 import com.boardgamegeek.provider.BggContract.Mechanics;
 import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
+import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.provider.BggContract.Publishers;
 import com.boardgamegeek.service.SyncService;
@@ -64,7 +65,8 @@ public class BggDatabase extends SQLiteOpenHelper {
 	private static final int VER_GAME_RANK = 22;
 	private static final int VER_BUDDY_SYNC_HASH_CODE = 23;
 	private static final int VER_PLAY_SYNC_HASH_CODE = 24;
-	private static final int DATABASE_VERSION = VER_PLAY_SYNC_HASH_CODE;
+	private static final int VER_PLAYER_COLORS = 25;
+	private static final int DATABASE_VERSION = VER_PLAYER_COLORS;
 
 	private Context mContext;
 
@@ -118,6 +120,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		String PLAY_PLAYERS = "play_players";
 		String COLLECTION_VIEWS = "collection_filters";
 		String COLLECTION_VIEW_FILTERS = "collection_filters_details";
+		String PLAYER_COLORS = "player_colors";
 
 		String GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.GAME_ID);
 		String GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.DESIGNER_ID);
@@ -209,6 +212,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 		buildCollectionTable().create(db);
 
 		buildBuddiesTable().create(db);
+		buildPlayerColorsTable().create(db);
 
 		buildCollectionViewsTable().create(db);
 		buildCollectionViewFiltersTable().create(db);
@@ -474,6 +478,16 @@ public class BggDatabase extends SQLiteOpenHelper {
 			.addColumn(CollectionViewFilters.DATA, COLUMN_TYPE.TEXT);
 	}
 
+	private TableBuilder buildPlayerColorsTable() {
+		return new TableBuilder().setTable(Tables.PLAYER_COLORS)
+			.setConflictResolution(CONFLICT_RESOLUTION.REPLACE)
+			.useDefaultPrimaryKey()
+			.addColumn(PlayerColors.PLAYER_TYPE, COLUMN_TYPE.INTEGER, true, true)
+			.addColumn(PlayerColors.PLAYER_NAME, COLUMN_TYPE.TEXT, true, true)
+			.addColumn(PlayerColors.PLAYER_COLOR, COLUMN_TYPE.TEXT, true, true)
+			.addColumn(PlayerColors.PLAYER_COLOR_SORT_ORDER, COLUMN_TYPE.INTEGER, true);
+	}
+
 	@SuppressWarnings("UnusedAssignment")
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -603,6 +617,9 @@ public class BggDatabase extends SQLiteOpenHelper {
 			case VER_BUDDY_SYNC_HASH_CODE:
 				addColumn(db, Tables.PLAYS, Plays.SYNC_HASH_CODE, COLUMN_TYPE.INTEGER);
 				version = VER_PLAY_SYNC_HASH_CODE;
+			case VER_PLAY_SYNC_HASH_CODE:
+				buildPlayerColorsTable().create(db);
+				version = VER_PLAYER_COLORS;
 		}
 
 		if (version != DATABASE_VERSION) {
@@ -632,6 +649,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 			dropTable(db, Tables.PLAY_PLAYERS);
 			dropTable(db, Tables.COLLECTION_VIEWS);
 			dropTable(db, Tables.COLLECTION_VIEW_FILTERS);
+			dropTable(db, Tables.PLAYER_COLORS);
 
 			onCreate(db);
 		}

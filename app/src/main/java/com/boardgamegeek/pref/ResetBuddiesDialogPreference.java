@@ -36,6 +36,7 @@ public class ResetBuddiesDialogPreference extends AsyncDialogPreference {
 			boolean success = SyncService.clearBuddies(getContext());
 			if (success) {
 				int count = getContext().getContentResolver().delete(Buddies.CONTENT_URI, null, null);
+				//TODO remove buddy colors
 				Timber.i("Removed " + count + " GeekBuddies");
 				SyncService.sync(getContext(), SyncService.FLAG_SYNC_BUDDIES);
 			}

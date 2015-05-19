@@ -107,6 +107,9 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new SearchSuggestTextProvider());
 		addProvider(map, new SearchRefreshProvider());
 
+		addProvider(map, new BuddiesNameColorsProvider());
+		addProvider(map, new BuddiesNameColorsOrderProvider());
+
 		return map;
 	}
 
