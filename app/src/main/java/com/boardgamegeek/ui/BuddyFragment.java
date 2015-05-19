@@ -115,6 +115,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
+	@DebugLog
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		CursorLoader loader = null;
 		switch (id) {
@@ -131,6 +132,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
+	@DebugLog
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		if (getActivity() == null) {
 			return;
@@ -150,15 +152,18 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
+	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
+	@DebugLog
 	@SuppressWarnings("unused")
 	@OnClick(R.id.nickname)
 	public void onEditNicknameClick(View v) {
 		showDialog(mNickname.getText().toString(), mBuddyName);
 	}
 
+	@DebugLog
 	@SuppressWarnings("unused")
 	@OnClick(R.id.collection_root)
 	public void onCollectionClick(View v) {
@@ -167,6 +172,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 		startActivity(intent);
 	}
 
+	@DebugLog
 	@SuppressWarnings("unused")
 	@OnClick(R.id.plays_root)
 	public void onPlaysClick(View v) {

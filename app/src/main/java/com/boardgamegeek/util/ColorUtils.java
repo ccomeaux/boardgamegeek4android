@@ -22,16 +22,16 @@ import java.util.Locale;
 public class ColorUtils {
 	public static final int TRANSPARENT = 0;
 	private static final int BLACK = 0xFF000000;
-	private static final int DKGRAY = 0xFF444444;
+	// private static final int DKGRAY = 0xFF444444;
 	private static final int GRAY = 0xFF888888;
-	private static final int LTGRAY = 0xFFCCCCCC;
+	// private static final int LTGRAY = 0xFFCCCCCC;
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int RED = 0xFFFF0000;
 	private static final int GREEN = 0xFF008000; // dark green really
 	private static final int BLUE = 0xFF0000FF;
 	private static final int YELLOW = 0xFFFFFF00;
-	private static final int CYAN = 0xFF00FFFF;
-	private static final int MAGENTA = 0xFFFF00FF;
+	// private static final int CYAN = 0xFF00FFFF;
+	// private static final int MAGENTA = 0xFFFF00FF;
 	private static final int PURPLE = 0xFF800080;
 	private static final int ORANGE = 0xFFE59400;
 	private static final int BROWN = 0xFFA52A2A;
@@ -41,7 +41,7 @@ public class ColorUtils {
 	private static final int ROSE = 0xFFFF007F;
 	private static final int PINK = 0xFFCD919E;
 	private static final int TEAL = 0xFF008080;
-	private static final int AQUA = 0xFF66CCCC;
+	// private static final int AQUA = 0xFF66CCCC;
 	private static final int BRONZE = 0xFF8C7853;
 	private static final int SILVER = 0xFFC0C0C0;
 	private static final int GOLD = 0xFFFFD700;
@@ -106,7 +106,7 @@ public class ColorUtils {
 		0xffcc99ff, 0xff9999ff, 0xff99ffff, 0xff66ff99, 0xff33cc99, 0xff00cc00, 0x00ffffff };
 
 	private static final HashMap<String, Integer> sColorNameMap;
-	private static final List<Pair<String, Integer>> sColorNameList;
+	private static final ArrayList<Pair<String, Integer>> sColorNameList;
 
 	static {
 		sColorNameList = new ArrayList<>();
@@ -146,7 +146,7 @@ public class ColorUtils {
 	}
 
 	public static List<Pair<String, Integer>> getColorList() {
-		return sColorNameList;
+		return (List<Pair<String, Integer>>) sColorNameList.clone();
 	}
 
 	@SuppressWarnings("deprecation")

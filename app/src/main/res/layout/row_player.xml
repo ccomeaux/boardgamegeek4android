@@ -7,10 +7,10 @@
 			  android:gravity="center_vertical"
 			  android:minHeight="@dimen/player_row_height"
 			  android:orientation="horizontal"
-			  android:paddingBottom="@dimen/padding_half"
+			  android:paddingBottom="@dimen/padding_standard"
 			  android:paddingLeft="@dimen/material_margin_horizontal"
 			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/padding_half">
+			  android:paddingTop="@dimen/padding_standard">
 
 	<FrameLayout
 		android:layout_width="@dimen/edit_label_width"

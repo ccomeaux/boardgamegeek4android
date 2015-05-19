@@ -34,6 +34,9 @@ public class FileUtils {
 	 * created.
 	 */
 	public static File generateContentPath(Context context, String type) {
+		if (context == null) {
+			return null;
+		}
 		File base = context.getExternalFilesDir(type);
 		if (base == null) {
 			return null;
