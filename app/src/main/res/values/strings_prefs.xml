@@ -84,7 +84,7 @@
 	<string name="pref_advanced_notify_errors_on">You will see the details of a crash in the notification bar - send this info to the developers!</string>
 	<string name="pref_advanced_export">Export</string>
 	<string name="pref_advanced_export_summary">Export the data that\'s not available via syncing with the \'Geek</string>
-	<string name="pref_advanced_export_message">This will export the data below by replacing the existing files in %s. Are you sure you want to continue?\n\n- Game colors\n- Collection views</string>
+	<string name="pref_advanced_export_message">This will export the data below by replacing the existing files in %s. Are you sure you want to continue?\n\n- Game colors\n- Player colors\n- Collection views</string>
 	<string name="pref_advanced_export_msg_success">Export successful.</string>
 	<string name="pref_advanced_export_msg_failed">Export failed.</string>
 	<string name="pref_advanced_export_msg_failed_nosd">Export folder is not available.</string>
