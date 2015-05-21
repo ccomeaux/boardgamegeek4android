@@ -27,6 +27,8 @@
 	<dimen name="icon_width">48dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
 	<dimen name="color_circle_diameter">32dp</dimen>
+	<dimen name="color_circle_diameter_small">24dp</dimen>
+	<dimen name="color_circle_diameter_small_margin">4dp</dimen>
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
