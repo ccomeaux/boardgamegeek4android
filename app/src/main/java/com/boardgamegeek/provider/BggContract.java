@@ -240,6 +240,7 @@ public class BggContract {
 	public static final String PATH_COLLECTION = "collection";
 	public static final String PATH_NOEXPANSIONS = "noexpansions";
 	public static final String PATH_BUDDIES = "buddies";
+	public static final String PATH_USERS = "users";
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
@@ -721,32 +722,31 @@ public class BggContract {
 	public static class PlayerColors implements PlayerColorsColumns, BaseColumns {
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor";
-		public static final int TYPE_BUDDY = 1;
+		public static final int TYPE_USER = 1;
 
 		public static final String DEFAULT_SORT = PlayerColors.PLAYER_TYPE + " ASC, " +
 			PlayerColors.PLAYER_NAME + " ASC, " +
 			PlayerColors.PLAYER_COLOR_SORT_ORDER + " ASC";
 
-		public static Uri buildBuddyUri(String buddyName) {
-			return Buddies.CONTENT_URI.buildUpon().appendPath(buddyName).appendPath(PATH_COLORS).build();
+		public static Uri buildUserUri(String buddyName) {
+			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(buddyName).appendPath(PATH_COLORS).build();
 		}
 
-		public static Uri buildBuddyUri(String buddyName, int sortOrder) {
-			return buildBuddyUri(buddyName).buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		public static Uri buildUserUri(String username, int sortOrder) {
+			return buildUserUri(username).buildUpon().appendPath(String.valueOf(sortOrder)).build();
 		}
 
 		@Nullable
-		public static String getBuddyName(Uri uri) {
+		public static String getUsername(Uri uri) {
 			if (uri != null) {
 				List<String> segments = uri.getPathSegments();
-				if (segments != null && segments.size() > 1 && PATH_BUDDIES.equals(segments.get(0))) {
+				if (segments != null && segments.size() > 1 && PATH_USERS.equals(segments.get(0))) {
 					return segments.get(1);
 				}
 			}
 			return null;
 		}
 
-		@Nullable
 		public static int getSortOrder(Uri uri) {
 			if (uri != null) {
 				List<String> segments = uri.getPathSegments();

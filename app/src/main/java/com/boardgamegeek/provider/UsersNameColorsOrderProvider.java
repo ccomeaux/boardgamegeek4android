@@ -6,21 +6,21 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
-public class BuddiesNameColorsOrderProvider extends BaseProvider {
+public class UsersNameColorsOrderProvider extends BaseProvider {
 
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		String buddyName = PlayerColors.getBuddyName(uri);
+		String username = PlayerColors.getUsername(uri);
 		int sortOrder = PlayerColors.getSortOrder(uri);
 		return new SelectionBuilder().table(Tables.PLAYER_COLORS)
-			.where(PlayerColors.PLAYER_TYPE + "=?", String.valueOf(PlayerColors.TYPE_BUDDY))
-			.where(PlayerColors.PLAYER_NAME + "=?", buddyName)
+			.where(PlayerColors.PLAYER_TYPE + "=?", String.valueOf(PlayerColors.TYPE_USER))
+			.where(PlayerColors.PLAYER_NAME + "=?", username)
 			.where(PlayerColors.PLAYER_COLOR_SORT_ORDER + "=?", String.valueOf(sortOrder));
 	}
 
 	@Override
 	protected String getPath() {
-		return BggContract.PATH_BUDDIES + "/*/" + BggContract.PATH_COLORS + "/#";
+		return BggContract.PATH_USERS + "/*/" + BggContract.PATH_COLORS + "/#";
 	}
 
 	@Override

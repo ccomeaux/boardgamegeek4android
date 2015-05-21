@@ -11,18 +11,18 @@ import com.boardgamegeek.provider.BggContract.PlayerColors;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.SelectionBuilder;
 
-public class BuddiesNameColorsProvider extends BaseProvider {
+public class UsersNameColorsProvider extends BaseProvider {
 	@Override
 	protected SelectionBuilder buildSimpleSelection(Uri uri) {
-		String buddyName = PlayerColors.getBuddyName(uri);
+		String username = PlayerColors.getUsername(uri);
 		return new SelectionBuilder().table(Tables.PLAYER_COLORS)
-			.where(PlayerColors.PLAYER_TYPE + "=?", String.valueOf(PlayerColors.TYPE_BUDDY))
-			.where(PlayerColors.PLAYER_NAME + "=?", buddyName);
+			.where(PlayerColors.PLAYER_TYPE + "=?", String.valueOf(PlayerColors.TYPE_USER))
+			.where(PlayerColors.PLAYER_NAME + "=?", username);
 	}
 
 	@Override
 	protected String getPath() {
-		return BggContract.PATH_BUDDIES + "/*/" + BggContract.PATH_COLORS;
+		return BggContract.PATH_USERS + "/*/" + BggContract.PATH_COLORS;
 	}
 
 	@Override
@@ -37,14 +37,14 @@ public class BuddiesNameColorsProvider extends BaseProvider {
 
 	@Override
 	protected Uri insert(Context context, SQLiteDatabase db, Uri uri, ContentValues values) {
-		String buddyName = PlayerColors.getBuddyName(uri);
-		if (TextUtils.isEmpty(buddyName)) {
-			throw new SQLException("Missing buddy name.");
+		String username = PlayerColors.getUsername(uri);
+		if (TextUtils.isEmpty(username)) {
+			throw new SQLException("Missing username.");
 		}
 
-		values.put(PlayerColors.PLAYER_TYPE, PlayerColors.TYPE_BUDDY);
-		values.put(PlayerColors.PLAYER_NAME, buddyName);
+		values.put(PlayerColors.PLAYER_TYPE, PlayerColors.TYPE_USER);
+		values.put(PlayerColors.PLAYER_NAME, username);
 		db.insertOrThrow(Tables.PLAYER_COLORS, null, values);
-		return PlayerColors.buildBuddyUri(buddyName, values.getAsInteger(PlayerColors.PLAYER_COLOR_SORT_ORDER));
+		return PlayerColors.buildUserUri(username, values.getAsInteger(PlayerColors.PLAYER_COLOR_SORT_ORDER));
 	}
 }

@@ -141,7 +141,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                 break;
             case COLORS_TOKEN:
                 loader = new CursorLoader(getActivity(),
-                        PlayerColors.buildBuddyUri(mBuddyName),
+                        PlayerColors.buildUserUri(mBuddyName),
                         BuddyColor.PROJECTION,
                         null, null, null);
                 break;

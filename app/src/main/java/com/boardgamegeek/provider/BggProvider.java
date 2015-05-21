@@ -17,8 +17,8 @@ import timber.log.Timber;
 
 public class BggProvider extends ContentProvider {
 	private BggDatabase mOpenHelper;
-	private static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-	private static HashMap<Integer, BaseProvider> providers = buildProviderMap();
+	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+	private static final HashMap<Integer, BaseProvider> providers = buildProviderMap();
 	private static int sCode = 1;
 
 	@SuppressLint("UseSparseArrays")
@@ -107,8 +107,8 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new SearchSuggestTextProvider());
 		addProvider(map, new SearchRefreshProvider());
 
-		addProvider(map, new BuddiesNameColorsProvider());
-		addProvider(map, new BuddiesNameColorsOrderProvider());
+		addProvider(map, new UsersNameColorsProvider());
+		addProvider(map, new UsersNameColorsOrderProvider());
 
 		return map;
 	}

@@ -123,10 +123,10 @@ public class BuddyColorsActivity extends BaseActivity {
 				final int sortOrder = mColors.get(i).getSortOrder();
 
 				Builder builder;
-				if (ResolverUtils.rowExists(resolver, PlayerColors.buildBuddyUri(mBuddyName, sortOrder))) {
-					builder = ContentProviderOperation.newUpdate(PlayerColors.buildBuddyUri(mBuddyName, sortOrder));
+				if (ResolverUtils.rowExists(resolver, PlayerColors.buildUserUri(mBuddyName, sortOrder))) {
+					builder = ContentProviderOperation.newUpdate(PlayerColors.buildUserUri(mBuddyName, sortOrder));
 				} else {
-					builder = ContentProviderOperation.newInsert(PlayerColors.buildBuddyUri(mBuddyName))
+					builder = ContentProviderOperation.newInsert(PlayerColors.buildUserUri(mBuddyName))
 						.withValue(PlayerColors.PLAYER_COLOR_SORT_ORDER, sortOrder);
 				}
 				batch.add(builder.withValue(PlayerColors.PLAYER_COLOR, color).build());
@@ -172,7 +172,7 @@ public class BuddyColorsActivity extends BaseActivity {
 			// we already have the play from the saved instance
 			bindUi();
 		} else {
-			mHandler.startQuery(0, null, PlayerColors.buildBuddyUri(mBuddyName), BuddyColor.PROJECTION, null, null, null);
+			mHandler.startQuery(0, null, PlayerColors.buildUserUri(mBuddyName), BuddyColor.PROJECTION, null, null, null);
 		}
 	}
 
