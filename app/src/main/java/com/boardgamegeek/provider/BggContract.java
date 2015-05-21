@@ -247,6 +247,7 @@ public class BggContract {
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
 	public static final String PATH_COLORS = "colors";
+	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
@@ -720,6 +721,8 @@ public class BggContract {
 	}
 
 	public static class PlayerColors implements PlayerColorsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYER_COLORS).build();
+
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor";
 		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor";
 		public static final int TYPE_USER = 1;

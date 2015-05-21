@@ -107,6 +107,7 @@ public class BggProvider extends ContentProvider {
 		addProvider(map, new SearchSuggestTextProvider());
 		addProvider(map, new SearchRefreshProvider());
 
+		addProvider(map, new PlayerColorsProvider());
 		addProvider(map, new UsersNameColorsProvider());
 		addProvider(map, new UsersNameColorsOrderProvider());
 
