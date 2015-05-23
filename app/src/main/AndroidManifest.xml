@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-		  package="com.boardgamegeek"
+<manifest package="com.boardgamegeek"
+		  xmlns:android="http://schemas.android.com/apk/res/android"
 		  android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -125,6 +125,9 @@
 			android:name=".ui.BuddyPlaysActivity"
 			android:exported="false"
 			android:label="@string/title_plays"/>
+		<activity
+			android:name=".ui.BuddyColorsActivity"
+			android:label="@string/title_favorite_colors"/>
 		<activity
 			android:name=".ui.PlaysActivity"
 			android:exported="false"

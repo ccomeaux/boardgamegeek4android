@@ -45,7 +45,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	private static final int TOKEN = 0x20;
 	private int mGameId;
 	private GameColorAdapter mAdapter;
-	private LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<>();
+	private final LinkedHashSet<Integer> mSelectedColorPositions = new LinkedHashSet<>();
 	private AlertDialog mDialog;
 
 	@DebugLog
@@ -94,8 +94,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_colors_add:
-				final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(
-					Context.LAYOUT_INFLATER_SERVICE);
+				final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				View view = inflater.inflate(R.layout.dialog_edit_text, getListView(), false);
 				final EditText editText = (EditText) view.findViewById(R.id.edit_text);
 
@@ -207,8 +206,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 				int count = 0;
 				for (int position : mSelectedColorPositions) {
 					String color = mAdapter.getColorName(position);
-					count += getActivity().getContentResolver()
-						.delete(Games.buildColorsUri(mGameId, color), null, null);
+					count += getActivity().getContentResolver().delete(Games.buildColorsUri(mGameId, color), null, null);
 				}
 				Toast.makeText(getActivity(),
 					getResources().getQuantityString(R.plurals.msg_colors_deleted, count, count), Toast.LENGTH_SHORT)
@@ -218,7 +216,7 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 		return false;
 	}
 
-	protected class Task extends AsyncTask<Void, Void, Integer> {
+	private class Task extends AsyncTask<Void, Void, Integer> {
 		@DebugLog
 		@Override
 		protected Integer doInBackground(Void... params) {

@@ -51,12 +51,11 @@ public class Game {
 
 		try {
 			while (cursor.moveToNext()) {
-				Color filter = Color.fromCursor(cursor);
-				colors.add(filter);
+				Color color = Color.fromCursor(cursor);
+				colors.add(color);
 			}
 		} finally {
 			cursor.close();
 		}
 	}
-
 }

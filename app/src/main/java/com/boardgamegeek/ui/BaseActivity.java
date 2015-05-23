@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.app.SearchManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -68,6 +69,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@DebugLog
+	protected void setSubtitle(String text) {
+		final ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setSubtitle(text);
+		}
 	}
 
 	@DebugLog
