@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -46,6 +47,7 @@ public class BuddyColorsActivity extends BaseActivity {
 	private List<BuddyColor> mColors;
 	private Adapter mAdapter;
 
+	@InjectView(R.id.toolbar) Toolbar mToolbar;
 	@InjectView(android.R.id.progress) View mProgress;
 	@InjectView(android.R.id.empty) View mEmpty;
 	@InjectView(android.R.id.list) DragSortListView mList;
@@ -93,8 +95,6 @@ public class BuddyColorsActivity extends BaseActivity {
 		setContentView(R.layout.activity_buddy_colors);
 		ButterKnife.inject(this);
 
-		mList.setSelector(android.R.color.transparent);
-
 		mBuddyName = getIntent().getStringExtra(ActivityUtils.KEY_BUDDY_NAME);
 		if (TextUtils.isEmpty(mBuddyName)) {
 			Timber.w("Can't launch - missing buddy name.");
@@ -102,6 +102,11 @@ public class BuddyColorsActivity extends BaseActivity {
 		}
 		setSubtitle(mBuddyName);
 
+		mList.setSelector(android.R.color.transparent);
+
+		if (mToolbar != null) {
+			setSupportActionBar(mToolbar);
+		}
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
