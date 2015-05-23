@@ -4,19 +4,19 @@
 
 	<item
 		android:id="@+id/menu_search"
-		android:icon="?attr/ic_action_search"
+		android:icon="@drawable/ic_action_search_light"
 		android:orderInCategory="0"
 		android:title="@string/menu_search"
 		app:actionViewClass="android.support.v7.widget.SearchView"
 		app:showAsAction="always|collapseActionView"/>
 	<item
 		android:id="@+id/menu_log_play"
-		android:icon="?attr/ic_action_calendar"
+		android:icon="@drawable/ic_action_calendar_light"
 		android:title="@string/menu_log_play"
 		app:showAsAction="ifRoom|withText"/>
 	<item
 		android:id="@+id/menu_log_play_quick"
-		android:icon="?attr/ic_action_today"
+		android:icon="@drawable/ic_action_today_light"
 		android:title="@string/menu_log_play_quick"
 		app:showAsAction="ifRoom|withText"/>
 	<item
@@ -25,12 +25,12 @@
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="?attr/ic_action_share"
+		android:icon="@drawable/ic_action_share_light"
 		android:title="@string/menu_share"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_shortcut"
-		android:icon="?attr/ic_action_flash"
+		android:icon="@drawable/ic_action_flash_light"
 		android:title="@string/menu_create_shortcut"
 		app:showAsAction="never"/>
 	<item
@@ -54,7 +54,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_refresh"
-		android:icon="?attr/ic_action_refresh"
+		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh"
 		app:showAsAction="never"/>
 
