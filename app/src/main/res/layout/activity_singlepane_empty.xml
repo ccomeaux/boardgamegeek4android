@@ -24,6 +24,7 @@
     <ScrollView
         android:id="@+id/drawer_container"
         style="@style/DrawerListContainer"
+        android:layout_marginTop="@dimen/drawer_status_bar_buffer_negative"
         android:fitsSystemWindows="true">
 
         <LinearLayout

@@ -82,7 +82,7 @@ public abstract class DrawerActivity extends BaseActivity {
         }
 
         mDrawerList.removeAllViews();
-
+        mDrawerList.addView(makeNavDrawerBuffer(mDrawerList));
         if (!Authenticator.isSignedIn(DrawerActivity.this)) {
             mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
             mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
@@ -210,6 +210,10 @@ public abstract class DrawerActivity extends BaseActivity {
         }
 
         return view;
+    }
+
+    private View makeNavDrawerBuffer(ViewGroup container) {
+        return getLayoutInflater().inflate(R.layout.row_buffer_drawer, container, false);
     }
 
     private View makeNavDrawerSpacer(ViewGroup container) {
