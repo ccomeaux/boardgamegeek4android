@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ public abstract class DrawerActivity extends BaseActivity {
     @InjectView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
     @InjectView(R.id.drawer_container) View mDrawerListContainer;
     @InjectView(R.id.left_drawer) LinearLayout mDrawerList;
+    @InjectView(R.id.toolbar) Toolbar mToolbar;
 
     protected abstract int getContentViewId();
 
@@ -40,8 +42,12 @@ public abstract class DrawerActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(getContentViewId());
         ButterKnife.inject(this);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+        }
         if (mDrawerLayout != null) {
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
         }
 
         // TODO open the drawer upon launch until user opens it themselves
@@ -162,9 +168,9 @@ public abstract class DrawerActivity extends BaseActivity {
             if (intent != null) {
                 startActivity(intent);
                 if (shouldFinish) {
-                finish();
+                    finish();
+                }
             }
-        }
         }
         mDrawerLayout.closeDrawer(mDrawerListContainer);
     }

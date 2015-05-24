@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light">
+	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light.NoActionBar">
 		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
