@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +29,7 @@ public abstract class DrawerActivity extends BaseActivity {
     @InjectView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
     @InjectView(R.id.drawer_container) View mDrawerListContainer;
     @InjectView(R.id.left_drawer) LinearLayout mDrawerList;
-
-    protected abstract int getContentViewId();
+    @InjectView(R.id.toolbar) Toolbar mToolbar;
 
     protected int getDrawerResId() {
         return 0;
@@ -38,10 +38,14 @@ public abstract class DrawerActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getContentViewId());
+        setContentView(R.layout.activity_singlepane_empty);
         ButterKnife.inject(this);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+        }
         if (mDrawerLayout != null) {
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.primary_dark));
         }
 
         // TODO open the drawer upon launch until user opens it themselves
@@ -76,7 +80,7 @@ public abstract class DrawerActivity extends BaseActivity {
         }
 
         mDrawerList.removeAllViews();
-
+        mDrawerList.addView(makeNavDrawerBuffer(mDrawerList));
         if (!Authenticator.isSignedIn(DrawerActivity.this)) {
             mDrawerList.addView(makeNavDrawerSpacer(mDrawerList));
             mDrawerList.addView(makeNavDrawerItem(R.string.title_signin, R.drawable.ic_account_circle_black_24dp, mDrawerList));
@@ -118,6 +122,7 @@ public abstract class DrawerActivity extends BaseActivity {
     private void selectItem(int titleResId) {
         if (titleResId != getDrawerResId()) {
             Intent intent = null;
+            boolean shouldFinish = true;
             switch (titleResId) {
                 case R.string.title_collection:
                     intent = new Intent(this, CollectionActivity.class);
@@ -140,6 +145,7 @@ public abstract class DrawerActivity extends BaseActivity {
                 case R.string.title_colors:
                     intent = new Intent(this, BuddyColorsActivity.class);
                     intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(this));
+                    shouldFinish = false;
                     break;
                 case R.string.title_play_stats:
                     intent = new Intent(this, PlayStatsActivity.class);
@@ -159,7 +165,9 @@ public abstract class DrawerActivity extends BaseActivity {
             }
             if (intent != null) {
                 startActivity(intent);
-                finish();
+                if (shouldFinish) {
+                    finish();
+                }
             }
         }
         mDrawerLayout.closeDrawer(mDrawerListContainer);
@@ -200,6 +208,10 @@ public abstract class DrawerActivity extends BaseActivity {
         }
 
         return view;
+    }
+
+    private View makeNavDrawerBuffer(ViewGroup container) {
+        return getLayoutInflater().inflate(R.layout.row_buffer_drawer, container, false);
     }
 
     private View makeNavDrawerSpacer(ViewGroup container) {

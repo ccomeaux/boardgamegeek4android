@@ -1,30 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light">
+	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light.NoActionBar">
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
-		<item name="ic_action_add">@drawable/ic_action_add_light</item>
-		<item name="ic_action_calendar">@drawable/ic_action_calendar_light</item>
-		<item name="ic_action_cancel">@drawable/ic_action_cancel_light</item>
-		<item name="ic_action_colors">@drawable/ic_action_colors_light</item>
-		<item name="ic_action_delete">@drawable/ic_action_delete_light</item>
-		<item name="ic_action_edit">@drawable/ic_action_edit_light</item>
-		<item name="ic_action_filter_off">@drawable/ic_action_filter_off_light</item>
-		<item name="ic_action_filter_on">@drawable/ic_action_filter_on_light</item>
-		<item name="ic_action_flash">@drawable/ic_action_flash_light</item>
-		<item name="ic_action_help">@drawable/ic_action_help_light</item>
-		<item name="ic_action_info">@drawable/ic_action_info_light</item>
-		<item name="ic_action_open">@drawable/ic_action_open_light</item>
-		<item name="ic_action_refresh">@drawable/ic_action_refresh_light</item>
-		<item name="ic_action_save">@drawable/ic_action_save_light</item>
-		<item name="ic_action_search">@drawable/ic_action_search_light</item>
-		<item name="ic_action_send">@drawable/ic_action_send_light</item>
-		<item name="ic_action_share">@drawable/ic_action_share_light</item>
-		<item name="ic_action_sort">@drawable/ic_action_sort_light</item>
-		<item name="ic_action_today">@drawable/ic_action_today_light</item>
-		<item name="ic_action_web_site">@drawable/ic_action_web_site_light</item>
 	</style>
 
 	<style name="Theme.bgglight.NoActionBar" parent="@style/Theme.AppCompat.Light.NoActionBar">

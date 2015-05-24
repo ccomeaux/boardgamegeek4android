@@ -51,5 +51,7 @@
 	<dimen name="drawer_header_image_size">64dp</dimen>
 	<dimen name="drawer_header_image_elevation">2dp</dimen>
 	<dimen name="drawer_vertical_spacing">8dp</dimen>
+	<dimen name="drawer_status_bar_buffer">40dp</dimen>
+	<dimen name="drawer_status_bar_buffer_negative">-40dp</dimen>
 
 </resources>

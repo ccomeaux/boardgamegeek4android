@@ -9,7 +9,7 @@
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_sort"
-		android:icon="?attr/ic_action_sort"
+		android:icon="@drawable/ic_action_sort_light"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">
 		<menu>

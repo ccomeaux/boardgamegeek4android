@@ -11,7 +11,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_collection_random_game"
-		android:icon="?attr/ic_action_help"
+		android:icon="@drawable/ic_action_help_light"
 		android:title="@string/menu_collection_random_game"
 		app:showAsAction="never"/>
 

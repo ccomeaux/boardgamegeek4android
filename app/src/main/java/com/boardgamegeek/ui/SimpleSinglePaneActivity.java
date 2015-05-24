@@ -28,11 +28,6 @@ public abstract class SimpleSinglePaneActivity extends DrawerActivity {
 		}
 	}
 
-	@Override
-	protected int getContentViewId() {
-		return R.layout.activity_singlepane_empty;
-	}
-
 	protected void createFragment() {
 		mFragment = onCreatePane(getIntent());
 		if (mFragment != null) {
