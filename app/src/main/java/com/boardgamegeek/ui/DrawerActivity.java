@@ -31,8 +31,6 @@ public abstract class DrawerActivity extends BaseActivity {
     @InjectView(R.id.left_drawer) LinearLayout mDrawerList;
     @InjectView(R.id.toolbar) Toolbar mToolbar;
 
-    protected abstract int getContentViewId();
-
     protected int getDrawerResId() {
         return 0;
     }
@@ -40,7 +38,7 @@ public abstract class DrawerActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getContentViewId());
+        setContentView(R.layout.activity_singlepane_empty);
         ButterKnife.inject(this);
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
