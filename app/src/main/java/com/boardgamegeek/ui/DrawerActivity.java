@@ -118,6 +118,7 @@ public abstract class DrawerActivity extends BaseActivity {
     private void selectItem(int titleResId) {
         if (titleResId != getDrawerResId()) {
             Intent intent = null;
+            boolean shouldFinish = true;
             switch (titleResId) {
                 case R.string.title_collection:
                     intent = new Intent(this, CollectionActivity.class);
@@ -140,6 +141,7 @@ public abstract class DrawerActivity extends BaseActivity {
                 case R.string.title_colors:
                     intent = new Intent(this, BuddyColorsActivity.class);
                     intent.putExtra(ActivityUtils.KEY_BUDDY_NAME, AccountUtils.getUsername(this));
+                    shouldFinish = false;
                     break;
                 case R.string.title_play_stats:
                     intent = new Intent(this, PlayStatsActivity.class);
@@ -159,8 +161,10 @@ public abstract class DrawerActivity extends BaseActivity {
             }
             if (intent != null) {
                 startActivity(intent);
+                if (shouldFinish) {
                 finish();
             }
+        }
         }
         mDrawerLayout.closeDrawer(mDrawerListContainer);
     }
