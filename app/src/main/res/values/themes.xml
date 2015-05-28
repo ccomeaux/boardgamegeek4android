@@ -36,6 +36,8 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.bgglight.Settings" />
+
     <style name="bgglight_solid_ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
         <item name="background">@drawable/ab_solid_bgglight</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_bgglight</item>
