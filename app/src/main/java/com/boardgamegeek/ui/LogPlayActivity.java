@@ -690,8 +690,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (array == null || array.length == 0) {
 			return;
 		}
-		new AlertDialog.Builder(this).setTitle(R.string.add_field)
-			.setItems(array, new DialogInterface.OnClickListener() {
+		new Builder(this).setTitle(R.string.add_field)
+			.setItems(array, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					View viewToFocus = null;
