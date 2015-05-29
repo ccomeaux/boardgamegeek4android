@@ -380,7 +380,7 @@ public class Play {
 	/**
 	 * Sort the players by seat; unseated players left unsorted at the bottom of the list.
 	 */
-	public void sortPlayers() {
+	private void sortPlayers() {
 		int index = 0;
 		for (int i = 1; i <= getPlayerCount(); i++) {
 			Player p = getPlayerAtSeat(i);
