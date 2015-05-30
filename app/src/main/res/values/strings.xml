@@ -90,6 +90,13 @@
 	<string name="image">Image</string>
 	<string name="avatar">Avatar</string>
 	<string name="thumbnail">Thumbnail</string>
+    <string name="title_clear_colors">Clear Colors?</string>
+    <string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
+    <string name="msg_color_error_no_players">There are no players that need colors.</string>
+    <string name="msg_color_error_duplicate_player">Can\'t assign colors if a player is listed twice.</string>
+    <string name="msg_color_error_missing_player_name">Can\'t assign colors if a player doesn\'t have a user name or unique name.</string>
+    <string name="msg_color_error_something_changed">Something went horribly, horribly wrong.</string>
+    <string name="msg_color_error_too_few_colors">There\'s not enough colors to go around.</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="are_you_sure_cancel">Are you sure you want to cancel? You will lose all of your changes.</string>
 	<string name="are_you_sure_refresh_message">Refreshing will discard your local changes. Continue?</string>
