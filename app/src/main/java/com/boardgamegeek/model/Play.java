@@ -452,7 +452,24 @@ public class Play {
 
 	// MISC
 
-	/**
+    /**
+     * Determine if any player has a team/color.
+     */
+    public boolean hasColors() {
+        if (getPlayerCount() == 0) {
+            return false;
+        }
+
+        for (Player player : players) {
+            if (!TextUtils.isEmpty(player.color)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
 	 * Determines if this plays has been synced by examining it's ID. It must be a valid ID the Geek would assign.
 	 */
 	public boolean hasBeenSynced() {
