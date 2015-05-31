@@ -77,17 +77,18 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		populatePlayerColorChoices();
 
 		boolean shouldContinue = true;
-		while (shouldContinue) {
-			shouldContinue = assignTopChoice();
+		while (shouldContinue && mRemainingPlayers.size() > 0) {
+			while (shouldContinue && mRemainingPlayers.size() > 0) {
+				shouldContinue = assignTopChoice();
+			}
+			shouldContinue = assignHighestChoice();
 		}
-
-		//TODO - smarter things
 
 		// assign a random player a random color
 		while (mRemainingPlayers.size() > 0) {
 			String color = mRemainingColors.get(mRandom.nextInt(mRemainingColors.size()));
 			PlayerColors username = mRemainingPlayers.get(mRandom.nextInt(mRemainingPlayers.size()));
-			assignColorToPlayer(color, username);
+			assignColorToPlayer(color, username, "random");
 		}
 
 		mResults.resultCode = SUCCESS;
@@ -169,33 +170,72 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 
 	/**
 	 * Assigns a player their top color choice if no one else has that top choice as well.
+	 *
 	 * @return <code>true</code> if a color was assigned, <code>false</code> if not.
 	 */
 	private boolean assignTopChoice() {
 		for (String color : mRemainingColors) {
-			PlayerColors pc = null;
+			PlayerColors savedPlayer = null;
 			for (PlayerColors player : mRemainingPlayers) {
-				if (player.colors.size() > 0) {
-					String favColor = player.colors.get(0).color;
-					if (color.equals(favColor)) {
-						if (pc == null) {
-							pc = player;
+				ColorChoice topChoice = player.getTopChoice();
+				if (topChoice != null) {
+					if (color.equals(topChoice.color)) {
+						if (savedPlayer == null) {
+							savedPlayer = player;
 						} else {
-							return false;
+							savedPlayer = null;
+							break;
 						}
 					}
 				}
 			}
-			if (pc != null) {
-				assignColorToPlayer(color, pc);
+			if (savedPlayer != null) {
+				assignColorToPlayer(color, savedPlayer, "top choice");
 				return true;
 			}
+		}
+		Timber.i("No player has a unique top choice");
+		return false;
+	}
+
+	/**
+	 * Assigns a color to a player who has the highest choice choice remaining.
+	 */
+	private boolean assignHighestChoice() {
+		PlayerColors savedPlayer = null;
+		for (PlayerColors player : mRemainingPlayers) {
+			ColorChoice currentTopChoice = player.getTopChoice();
+			if (currentTopChoice != null) {
+				if (savedPlayer == null ||
+					(savedPlayer.getTopChoice().sortOrder > currentTopChoice.sortOrder) ||
+					((savedPlayer.getTopChoice().sortOrder > currentTopChoice.sortOrder) && !savedPlayer.getTopChoice().color.equals(currentTopChoice.color))) {
+					savedPlayer = player;
+				} else if ((savedPlayer.getTopChoice().sortOrder == currentTopChoice.sortOrder) &&
+					savedPlayer.getTopChoice().color.equals(currentTopChoice.color)) {
+					ColorChoice currentSecondChoice = player.getSecondChoice();
+					ColorChoice savedSecondChoice = savedPlayer.getSecondChoice();
+					if (currentSecondChoice == null && savedSecondChoice == null) {
+						// TODO: random
+					} else if (currentSecondChoice == null) {
+						savedPlayer = player;
+					} else if (savedSecondChoice == null) {
+						// else keep saved player
+					} else if (currentSecondChoice.sortOrder > savedSecondChoice.sortOrder) {
+						savedPlayer = player;
+					}
+				}
+			}
+		}
+		if (savedPlayer != null) {
+			assignColorToPlayer(savedPlayer.getTopChoice().color, savedPlayer, "highest choice");
+			return true;
 		}
 		return false;
 	}
 
 	/**
 	 * Extract players from the play into the local list of remaining players.
+	 *
 	 * @return status code
 	 */
 	private int extractPlayers() {
@@ -244,7 +284,7 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	 * Assign a color to a player, and remove both from the list of remaining colors and players. This can't be called
 	 * from a for each loop without ending the ending the iteration.
 	 */
-	private void assignColorToPlayer(String color, PlayerColors player) {
+	private void assignColorToPlayer(String color, PlayerColors player, String reason) {
 		PlayerResult pr = new PlayerResult();
 		pr.color = color;
 		pr.name = player.name;
@@ -254,7 +294,11 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 		mRemainingColors.remove(color);
 		mRemainingPlayers.remove(player);
 
-		Timber.w("Assigned " + pr);
+		for (PlayerColors pc : mRemainingPlayers) {
+			pc.removeChoice(color);
+		}
+
+		Timber.i("Assigned " + pr + ": " + reason);
 	}
 
 	public class Results {
@@ -282,6 +326,39 @@ public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 			this.name = name;
 			this.type = type;
 			this.colors = new ArrayList<>();
+		}
+
+		/**
+		 * Gets the player's top remaining color choice, or <code>null</code> if they have no choices left.
+		 */
+		public ColorChoice getTopChoice() {
+			if (colors.size() > 0) {
+				return colors.get(0);
+			}
+			return null;
+		}
+
+		/**
+		 * Gets the player's second remaining color choice, or <code>null</code> if they have fewer than 2 choices left.
+		 */
+		public ColorChoice getSecondChoice() {
+			if (colors.size() > 1) {
+				return colors.get(1);
+			}
+			return null;
+		}
+
+		public boolean removeChoice(String color) {
+			if (TextUtils.isEmpty(color)) {
+				return false;
+			}
+			for (ColorChoice colorChoice : colors) {
+				if (color.equals(colorChoice.color)) {
+					colors.remove(colorChoice);
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override
