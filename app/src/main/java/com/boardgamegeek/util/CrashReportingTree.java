@@ -16,10 +16,10 @@ public class CrashReportingTree extends Timber.Tree {
 			return;
 		}
 
-		Crashlytics.log(priority, tag, message);
+		Crashlytics.getInstance().core.log(priority, tag, message);
 
 		if (t != null) {
-			Crashlytics.logException(t);
+			Crashlytics.getInstance().core.logException(t);
 		}
 	}
 }
