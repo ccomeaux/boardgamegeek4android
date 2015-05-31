@@ -731,8 +731,8 @@ public class BggContract {
 			PlayerColors.PLAYER_NAME + " ASC, " +
 			PlayerColors.PLAYER_COLOR_SORT_ORDER + " ASC";
 
-		public static Uri buildUserUri(String buddyName) {
-			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(buddyName).appendPath(PATH_COLORS).build();
+		public static Uri buildUserUri(String username) {
+			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(username).appendPath(PATH_COLORS).build();
 		}
 
 		public static Uri buildUserUri(String username, int sortOrder) {

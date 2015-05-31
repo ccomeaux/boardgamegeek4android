@@ -8,12 +8,14 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuBuilder.Callback;
@@ -37,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.model.builder.PlayBuilder;
@@ -46,6 +49,7 @@ import com.boardgamegeek.provider.BggContract.PlayItems;
 import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.tasks.ColorAssignerTask;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.AutoCompleteAdapter;
@@ -56,6 +60,7 @@ import com.boardgamegeek.util.ImageUtils;
 import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.StringUtils;
+import com.boardgamegeek.util.TaskUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.melnykov.fab.FloatingActionButton;
@@ -69,6 +74,7 @@ import java.util.Random;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
@@ -338,6 +344,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@Override
+	protected void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
+	}
+
+	@DebugLog
+	@Override
 	protected void onResume() {
 		super.onResume();
 		mLaunchingActivity = false;
@@ -382,6 +395,13 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 
 	@DebugLog
 	@Override
+	protected void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
+	@DebugLog
+	@Override
 	public void onBackPressed() {
 		saveDraft(true);
 		setResult(Activity.RESULT_OK);
@@ -406,6 +426,14 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			}
 			bindUiPlayers();
 		}
+	}
+
+	@DebugLog
+	public void onEventMainThread(ColorAssignmentCompleteEvent event) {
+		if (event.success) {
+			bindUiPlayers();
+		}
+		EventBus.getDefault().removeStickyEvent(event);
 	}
 
 	@DebugLog
@@ -690,8 +718,8 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		if (array == null || array.length == 0) {
 			return;
 		}
-		new AlertDialog.Builder(this).setTitle(R.string.add_field)
-			.setItems(array, new DialogInterface.OnClickListener() {
+		new Builder(this).setTitle(R.string.add_field)
+			.setItems(array, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					View viewToFocus = null;
@@ -723,6 +751,31 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 						mUserShowComments = true;
 						viewToFocus = mCommentsView;
 						viewToScroll = mCommentsView;
+					} else if (selection.equals(r.getString(R.string.title_colors))) {
+						if (mPlay.hasColors()) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this)
+								.setTitle(R.string.title_clear_colors)
+								.setMessage(R.string.msg_clear_colors)
+								.setCancelable(true)
+								.setNegativeButton(R.string.keep, new OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, mPlay));
+									}
+								})
+								.setPositiveButton(R.string.clear, new OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										for (Player player : mPlay.getPlayers()) {
+											player.color = "";
+										}
+										TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, mPlay));
+									}
+								});
+							builder.show();
+						} else {
+							TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, mPlay));
+						}
 					} else if (selection.equals(r.getString(R.string.title_players))) {
 						if (shouldHidePlayers()) {
 							mUserShowPlayers = true;
@@ -776,6 +829,9 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		}
 		if (shouldHideComments()) {
 			list.add(r.getString(R.string.comments));
+		}
+		if (mPlay.getPlayerCount() > 0) {
+			list.add(r.getString(R.string.title_colors));
 		}
 		list.add(r.getString(R.string.title_players));
 		list.add(r.getString(R.string.title_player));
