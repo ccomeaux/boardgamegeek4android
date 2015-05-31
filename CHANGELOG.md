@@ -4,6 +4,7 @@ Release Notes
 Coming Soon
 -----------
  * Export/import some data (under Advanced Settings)
+ * Pick your favorite colors and assign them while logging plays
  * Improve list usability
  * Updated look and feel of nav drawer
  * Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)
@@ -99,7 +100,7 @@ Version 4.7
 
 Version 4.6.1
 -------------
- * When logging a play, players are automatically placed in seating 
+ * When logging a play, players are automatically placed in seating
  * Prevent crash when viewing a Buddy's collection or plays
  * Improve performance when loading forums
  * Correctly display the votes for Best with 1 Player
