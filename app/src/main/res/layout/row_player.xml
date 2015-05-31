@@ -27,12 +27,11 @@
 		<TextView
 			android:id="@+id/seat"
 			style="@style/Text.Huge"
-			tools:text="1"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
 			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
-			android:textIsSelectable="false"/>
+			tools:text="1"/>
 
 		<ImageView
 			android:id="@+id/drag_handle"
@@ -53,25 +52,22 @@
 		<TextView
 			android:id="@+id/name"
 			style="@style/Text.Big"
-			tools:text="Chris"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			tools:text="Chris"/>
 
 		<TextView
 			android:id="@+id/username"
 			style="@style/Text.Footnote"
-			tools:text="ccomeaux"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			tools:text="ccomeaux"/>
 
 		<TextView
 			android:id="@+id/team_color"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			android:layout_height="wrap_content"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -91,15 +87,13 @@
 			android:id="@+id/starting_position"
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			android:layout_height="wrap_content"/>
 
 		<TextView
 			android:id="@+id/rating"
 			style="@style/Text.Footnote"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			android:layout_height="wrap_content"/>
 	</LinearLayout>
 
 	<ImageView
