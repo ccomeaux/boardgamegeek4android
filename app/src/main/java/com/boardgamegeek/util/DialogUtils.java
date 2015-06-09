@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -83,5 +85,16 @@ public class DialogUtils {
 		} else {
 			return builder.setIcon(android.R.drawable.ic_dialog_alert);
 		}
+	}
+
+	public static void showFragment(FragmentActivity activity, DialogFragment fragment, String tag) {
+		FragmentManager manager = activity.getSupportFragmentManager();
+		final FragmentTransaction ft = manager.beginTransaction();
+		final Fragment prev = manager.findFragmentByTag(tag);
+		if (prev != null) {
+			ft.remove(prev);
+		}
+		ft.addToBackStack(null);
+		fragment.show(ft, tag);
 	}
 }

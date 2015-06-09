@@ -58,6 +58,15 @@
 		<item name="android:textSize">20sp</item>
 	</style>
 
+	<style name="Text.Pad">
+		<item name="android:textSize">34sp</item>
+		<item name="android:textColor">#888</item>
+	</style>
+
+	<style name="Text.Readout">
+		<item name="android:textSize">45sp</item>
+	</style>
+
 	<style name="Text.Primary" parent="Text.Big">
 		<item name="android:textStyle">bold</item>
 		<item name="android:lineSpacingMultiplier">0.9</item>
@@ -425,6 +434,16 @@
 		<item name="android:paddingLeft">8dp</item>
 		<item name="android:layout_marginLeft">-8dp</item>
 		<item name="android:layout_marginRight">24dp</item>
+	</style>
+
+	<style name="NumPad">
+		<item name="android:minWidth">@dimen/pad_button_size</item>
+		<item name="android:layout_width">0dp</item>
+		<item name="android:layout_height">@dimen/pad_button_size</item>
+		<item name="android:layout_weight">1</item>
+		<item name="android:background">?attr/selectableItemBackground</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textAppearance">@style/Text.Pad</item>
 	</style>
 
 </resources>

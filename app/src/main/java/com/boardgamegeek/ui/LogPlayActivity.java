@@ -50,6 +50,7 @@ import com.boardgamegeek.provider.BggContract.PlayPlayers;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.tasks.ColorAssignerTask;
+import com.boardgamegeek.ui.dialog.ScoreDialogFragment;
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment;
 import com.boardgamegeek.ui.widget.PlayerRow;
 import com.boardgamegeek.util.AutoCompleteAdapter;
@@ -1268,6 +1269,7 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 			row.setAutoSort(!mCustomPlayerSort);
 			row.setPlayer((Player) getItem(position));
 			row.setOnDeleteListener(new PlayerDeleteClickListener(position));
+			row.setOnScoreListener(new PlayerScoreClickListener(position));
 			return convertView;
 		}
 
@@ -1293,16 +1295,44 @@ public class LogPlayActivity extends AppCompatActivity implements OnDateSetListe
 		@Override
 		public void onClick(View v) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(LogPlayActivity.this);
-			builder.setTitle(R.string.are_you_sure_title).setMessage(R.string.are_you_sure_delete_player)
-				.setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					Player player = (Player) mPlayAdapter.getItem(mPosition);
-					Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
-					mPlay.removePlayer(player, !mCustomPlayerSort);
+			builder
+				.setTitle(R.string.are_you_sure_title)
+				.setMessage(R.string.are_you_sure_delete_player)
+				.setCancelable(false)
+				.setNegativeButton(R.string.no, null)
+				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						Player player = (Player) mPlayAdapter.getItem(mPosition);
+						Toast.makeText(LogPlayActivity.this, R.string.msg_player_deleted, Toast.LENGTH_SHORT).show();
+						mPlay.removePlayer(player, !mCustomPlayerSort);
+						bindUiPlayers();
+					}
+				});
+			builder.create().show();
+		}
+	}
+
+	private class PlayerScoreClickListener implements View.OnClickListener {
+		private final int mPosition;
+
+		@DebugLog
+		public PlayerScoreClickListener(int position) {
+			mPosition = position;
+		}
+
+		@DebugLog
+		@Override
+		public void onClick(View v) {
+			final Player player = mPlay.getPlayers().get(mPosition);
+			final ScoreDialogFragment fragment = ScoreDialogFragment.newInstance(player.getDescription(), player.score, player.color);
+			fragment.setOnDoneClickListener(new ScoreDialogFragment.OnClickListener() {
+				@Override
+				public void onDoneClick(String score) {
+					player.score = score;
 					bindUiPlayers();
 				}
-			}).setNegativeButton(R.string.no, null);
-			builder.create().show();
+			});
+			DialogUtils.showFragment(LogPlayActivity.this, fragment, "score_dialog");
 		}
 	}
 }
