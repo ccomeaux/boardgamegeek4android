@@ -59,8 +59,7 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
 		mCallback = callback;
 	}
 
-	static ActionModeBase startInternal(final FragmentActivity activity,
-										Callback callback) {
+	static ActionModeBase startInternal(final FragmentActivity activity, Callback callback) {
 		final ActionModeBase actionMode = new ActionModeBase(activity, callback);
 		actionMode.startInternal();
 		return actionMode;
@@ -168,12 +167,11 @@ class ActionModeBase extends ActionMode implements DialogInterface.OnClickListen
 		return mMenuInflater;
 	}
 
-	public static void beginMultiChoiceMode(ListView listView, final FragmentActivity activity,
-											final MultiChoiceModeListener listener) {
+	public static void beginMultiChoiceMode(ListView listView, final FragmentActivity activity, final MultiChoiceModeListener listener) {
 		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> adapterView, View view,
-										   int position, long id) {
+			                               int position, long id) {
 				ActionMode mode = ActionModeBase.start(activity, listener);
 				listener.onItemCheckedStateChanged(mode, position, id, true);
 				return true;
