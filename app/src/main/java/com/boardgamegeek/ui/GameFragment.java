@@ -585,6 +585,9 @@ public class GameFragment extends Fragment implements
 
 	@DebugLog
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		if (mUpdatedView != null) {
 			long updatedTime = (long) mUpdatedView.getTag();
 			mUpdatedView.setText(PresentationUtils.describePastTimeSpan(updatedTime, getResources().getString(R.string.needs_updating)));

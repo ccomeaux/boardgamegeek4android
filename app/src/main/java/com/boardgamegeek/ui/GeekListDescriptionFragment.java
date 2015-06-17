@@ -91,6 +91,9 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	@DebugLog
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		if (mPostedDateView != null) {
 			mPostedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mGeekList.getPostDate())));
 		}

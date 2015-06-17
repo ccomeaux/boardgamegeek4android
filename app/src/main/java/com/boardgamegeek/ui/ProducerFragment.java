@@ -147,6 +147,9 @@ public class ProducerFragment extends Fragment implements LoaderManager.LoaderCa
 	}
 
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		if (mUpdated != null) {
 			long updated = (long) mUpdated.getTag();
 			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, getResources().getString(R.string.text_unknown)));

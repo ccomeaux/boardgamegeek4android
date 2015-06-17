@@ -98,6 +98,9 @@ public class ArticleFragment extends Fragment {
 
 	@DebugLog
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		mPostDateView.setText(mPostDate == 0 ?
 			getString(R.string.text_not_available) :
 			getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mPostDate)));

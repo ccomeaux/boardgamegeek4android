@@ -11,7 +11,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -436,6 +435,9 @@ public class PlayFragment extends ListFragment implements LoaderManager.LoaderCa
 	}
 
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		if (mUpdated != null && mUpdated.getVisibility() == View.VISIBLE) {
 			long updated = (long) mUpdated.getTag();
 			mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, "", getResources().getString(R.string.updated)));
