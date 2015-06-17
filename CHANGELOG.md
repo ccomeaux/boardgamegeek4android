@@ -7,6 +7,7 @@ Coming Soon
  * Pick your favorite colors and assign them while logging plays
  * Improve list usability
  * Updated look and feel of nav drawer
+ * Improve score input
  * Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)
  * Fix forum and GeekList links and images
  * Bug fixes and stability improvements
