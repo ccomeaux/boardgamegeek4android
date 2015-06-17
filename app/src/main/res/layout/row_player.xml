@@ -79,11 +79,11 @@
 
 		<ImageView
 			android:id="@+id/score_button"
-			android:layout_width="@dimen/color_circle_diameter"
-			android:layout_height="@dimen/color_circle_diameter"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
 			android:background="?attr/selectableItemBackgroundBorderless"
-			android:scaleType="fitXY"
+			android:scaleType="center"
 			android:visibility="gone"
 			android:src="@drawable/ic_action_achievement"
 			android:tint="#2000"
