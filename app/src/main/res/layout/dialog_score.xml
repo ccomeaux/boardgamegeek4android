@@ -30,13 +30,11 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:fontFamily="sans-serif-light"
-			android:gravity="center_vertical"
+			android:gravity="center"
 			android:lines="1"
-			android:paddingBottom="@dimen/padding_standard"
 			android:paddingLeft="@dimen/padding_extra"
-			android:paddingTop="@dimen/padding_standard"
 			android:textAppearance="@style/Text.Readout"
-			tools:text="123456789"/>
+			tools:text="1234"/>
 
 		<ImageView
 			android:id="@+id/num_delete"
@@ -44,11 +42,8 @@
 			android:layout_height="match_parent"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:contentDescription="@string/delete"
-			android:paddingBottom="@dimen/padding_standard"
-			android:paddingLeft="@dimen/padding_standard"
 			android:paddingRight="@dimen/padding_extra"
-			android:paddingTop="@dimen/padding_standard"
-			android:scaleType="fitCenter"
+			android:scaleType="center"
 			android:src="@drawable/ic_action_backspace"/>
 	</LinearLayout>
 
