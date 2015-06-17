@@ -251,6 +251,9 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @DebugLog
     private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
         if (mUpdated != null) {
             long updated = (long) mUpdated.getTag();
             mUpdated.setText(PresentationUtils.describePastTimeSpan(updated, getString(R.string.needs_updating), getString(R.string.updated)));

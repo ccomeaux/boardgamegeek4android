@@ -345,6 +345,9 @@ public class GameCollectionFragment extends Fragment implements
 	}
 
 	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
 		if (lastModified != null) {
 			String lastModifiedDateTime = (String) lastModified.getTag();
 			String s = getString(R.string.last_modified) + " ";

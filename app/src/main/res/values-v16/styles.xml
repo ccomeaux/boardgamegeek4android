@@ -5,6 +5,12 @@
 		<item name="android:textSize">18sp</item>
 	</style>
 
+	<style name="Text.Pad">
+		<item name="android:textSize">34sp</item>
+		<item name="android:textColor">#888</item>
+		<item name="android:fontFamily">sans-serif-light</item>
+	</style>
+
 	<style name="Text.Primary.DrawerHeader">
 		<item name="android:textColor">@color/secondary_text_default_material_light</item>
 		<item name="android:fontFamily">sans-serif-medium</item>

@@ -1,7 +1,5 @@
 package com.boardgamegeek.ui.widget;
 
-import java.text.DecimalFormat;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -17,6 +15,8 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.util.ColorUtils;
 
+import java.text.DecimalFormat;
+
 public class PlayerRow extends LinearLayout {
 	private DecimalFormat mFormat = new DecimalFormat("0.0######");
 
@@ -30,10 +30,13 @@ public class PlayerRow extends LinearLayout {
 	private TextView mStartingPosition;
 	private TextView mRating;
 	private ImageView mDeleteButton;
+	private ImageView mScoreButton;
 
 	private Typeface mNameTypeface;
 	private Typeface mUsernameTypeface;
 	private Typeface mScoreTypeface;
+
+	private boolean mHasScoreListener;
 
 	public PlayerRow(Context context) {
 		this(context, null);
@@ -55,6 +58,7 @@ public class PlayerRow extends LinearLayout {
 		mScore = (TextView) findViewById(R.id.score);
 		mRating = (TextView) findViewById(R.id.rating);
 		mStartingPosition = (TextView) findViewById(R.id.starting_position);
+		mScoreButton = (ImageView) findViewById(R.id.score_button);
 
 		mNameTypeface = mName.getTypeface();
 		mUsernameTypeface = mUsername.getTypeface();
@@ -67,6 +71,13 @@ public class PlayerRow extends LinearLayout {
 		mDeleteButton.setVisibility(View.VISIBLE);
 		mDeleteButton.setFocusable(false); // necessary to allow the row to receive click events
 		mDeleteButton.setOnClickListener(l);
+	}
+
+	public void setOnScoreListener(OnClickListener l) {
+		mHasScoreListener = true;
+		mScoreButton.setVisibility(View.VISIBLE);
+		mScoreButton.setFocusable(false); // necessary to allow the row to receive click events
+		mScoreButton.setOnClickListener(l);
 	}
 
 	public void setAutoSort(boolean value) {
@@ -82,9 +93,8 @@ public class PlayerRow extends LinearLayout {
 			setText(mTeamColor, "");
 			setText(mScore, "");
 			setText(mRating, "");
+			mScoreButton.setVisibility(View.GONE);
 		} else {
-			int color = ColorUtils.parseColor(player.color);
-
 			setText(mSeat, player.getStartingPosition());
 			setText(mName, player.name, mNameTypeface, player.New(), player.Win());
 			setText(mUsername, player.username, mUsernameTypeface, player.New(), false);
@@ -93,6 +103,7 @@ public class PlayerRow extends LinearLayout {
 			setText(mRating, (player.rating > 0) ? mFormat.format(player.rating) : "");
 			setText(mStartingPosition, player.getStartingPosition());
 
+			int color = ColorUtils.parseColor(player.color);
 			mColorView.setVisibility(View.VISIBLE);
 			ColorUtils.setColorViewValue(mColorView, color);
 			if (player.getSeat() == Player.SEAT_UNKNOWN) {
@@ -108,6 +119,8 @@ public class PlayerRow extends LinearLayout {
 			if (color != ColorUtils.TRANSPARENT) {
 				mTeamColor.setVisibility(View.GONE);
 			}
+
+			mScoreButton.setVisibility(mHasScoreListener ? View.VISIBLE : View.GONE);
 		}
 	}
 
