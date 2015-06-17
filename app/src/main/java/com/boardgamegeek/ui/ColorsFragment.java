@@ -3,6 +3,7 @@ package com.boardgamegeek.ui;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -100,6 +101,12 @@ public class ColorsFragment extends BggListFragment implements LoaderManager.Loa
 
 				if (mDialog == null) {
 					mDialog = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_add_color).setView(view)
+						.setOnDismissListener(new OnDismissListener() {
+							@Override
+							public void onDismiss(DialogInterface dialog) {
+								editText.setText("");
+							}
+						})
 						.setNegativeButton(android.R.string.cancel, null)
 						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 							@Override

@@ -927,6 +927,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+			return false;
+		}
 		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.GAME_NAME);

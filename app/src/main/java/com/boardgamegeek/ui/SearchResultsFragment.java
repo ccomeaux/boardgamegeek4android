@@ -331,6 +331,9 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+			return false;
+		}
 		SearchResult game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:

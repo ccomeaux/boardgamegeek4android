@@ -730,6 +730,9 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (mSelectedPlaysPositions == null || !mSelectedPlaysPositions.iterator().hasNext()) {
+			return false;
+		}
 		switch (item.getItemId()) {
 			case R.id.menu_send:
 				mode.finish();

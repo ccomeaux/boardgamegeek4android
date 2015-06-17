@@ -32,6 +32,9 @@ public class DateTimeUtils {
 		} else {
 			int hours = minutes / 60;
 			int mins = minutes % 60;
+			if (mins == 0) {
+				return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr);
+			}
 			return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr) + " " +
 				String.valueOf(mins) + " " + r.getString(R.string.minutes_abbr);
 		}

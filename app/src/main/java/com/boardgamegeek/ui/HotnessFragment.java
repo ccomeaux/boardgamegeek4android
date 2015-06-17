@@ -232,6 +232,9 @@ public class HotnessFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+			return false;
+		}
 		HotGame game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:
