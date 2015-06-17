@@ -141,7 +141,7 @@
 				style="@style/NumPad"
 				android:contentDescription="@string/done"
 				android:padding="@dimen/padding_extra"
-				android:scaleType="fitCenter"
+				android:scaleType="center"
 				android:src="@drawable/ic_action_accept_light"/>
 		</LinearLayout>
 	</LinearLayout>
