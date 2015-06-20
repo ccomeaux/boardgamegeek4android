@@ -110,18 +110,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				Toast.makeText(this, R.string.msg_logging_play, Toast.LENGTH_SHORT).show();
 				ActivityUtils.logQuickPlay(this, mGameId, mGameName);
 				return true;
-			case R.id.menu_link_bgg:
-				ActivityUtils.linkBgg(this, mGameId);
-				return true;
-			case R.id.menu_link_bg_prices:
-				ActivityUtils.linkBgPrices(this, mGameName);
-				return true;
-			case R.id.menu_link_amazon:
-				ActivityUtils.linkAmazon(this, mGameName);
-				return true;
-			case R.id.menu_link_ebay:
-				ActivityUtils.linkEbay(this, mGameName);
-				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}

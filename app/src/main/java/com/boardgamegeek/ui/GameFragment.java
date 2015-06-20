@@ -81,6 +81,7 @@ public class GameFragment extends Fragment implements
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
 	private static final String KEY_STATS_EXPANDED = "STATS_EXPANDED";
+	private static final String KEY_LINKS_EXPANDED = "LINKS_EXPANDED";
 	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
 	private Handler mHandler = new Handler();
@@ -144,6 +145,9 @@ public class GameFragment extends Fragment implements
 	@InjectView(R.id.game_stats_wishing_bar) StatBar mNumWishingBar;
 	@InjectView(R.id.game_stats_weighting_bar) StatBar mNumWeightingBar;
 
+	@InjectView(R.id.game_links_label) TextView mLinksLabel;
+	@InjectView(R.id.game_links_content) View mLinksContent;
+
 	@InjectView(R.id.game_info_id) TextView mIdView;
 	@InjectView(R.id.game_info_last_updated) TextView mUpdatedView;
 
@@ -174,11 +178,13 @@ public class GameFragment extends Fragment implements
 		R.id.icon_forums,
 		R.id.icon_comments,
 		R.id.icon_ratings,
-		R.id.icon_stats
+		R.id.icon_stats,
+		R.id.icon_links
 	}) List<ImageView> mColorizedIcons;
 
 	private boolean mIsDescriptionExpanded;
 	private boolean mIsStatsExpanded;
+	private boolean mIsLinksExpanded;
 	private final NumberFormat mFormat = NumberFormat.getInstance();
 	private boolean mMightNeedRefreshing;
 	private Palette mPalette;
@@ -229,6 +235,7 @@ public class GameFragment extends Fragment implements
 		if (savedInstanceState != null) {
 			mIsDescriptionExpanded = savedInstanceState.getBoolean(KEY_DESCRIPTION_EXPANDED);
 			mIsStatsExpanded = savedInstanceState.getBoolean(KEY_STATS_EXPANDED);
+			mIsLinksExpanded = savedInstanceState.getBoolean(KEY_LINKS_EXPANDED);
 		}
 
 		HelpUtils.showHelpDialog(getActivity(), HelpUtils.HELP_GAME_KEY, HELP_VERSION, R.string.help_boardgame);
@@ -242,6 +249,7 @@ public class GameFragment extends Fragment implements
 		colorize();
 		openOrCloseDescription();
 		openOrCloseStats();
+		openOrCloseLinks();
 		ScrimUtils.applyDefaultScrim(mHeaderContainer);
 		mScrollRoot.addCallbacks(this);
 		ViewTreeObserver vto = mScrollRoot.getViewTreeObserver();
@@ -332,6 +340,7 @@ public class GameFragment extends Fragment implements
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
+		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
 	}
 
 	@Override
@@ -791,6 +800,13 @@ public class GameFragment extends Fragment implements
 		openOrCloseStats();
 	}
 
+	@OnClick(R.id.game_info_links_root)
+	@DebugLog
+	public void onLinksClick(View v) {
+		mIsLinksExpanded = !mIsLinksExpanded;
+		openOrCloseLinks();
+	}
+
 	@DebugLog
 	private void openOrCloseDescription() {
 		mDescriptionView.setMaxLines(mIsDescriptionExpanded ? Integer.MAX_VALUE : 3);
@@ -801,8 +817,32 @@ public class GameFragment extends Fragment implements
 	@DebugLog
 	private void openOrCloseStats() {
 		mStatsContent.setVisibility(mIsStatsExpanded ? View.VISIBLE : View.GONE);
-		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close
-			: R.drawable.expander_open, 0);
+		mStatsLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsStatsExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
+	}
+
+	@DebugLog
+	private void openOrCloseLinks() {
+		mLinksContent.setVisibility(mIsLinksExpanded ? View.VISIBLE : View.GONE);
+		mLinksLabel.setCompoundDrawablesWithIntrinsicBounds(0, 0, mIsLinksExpanded ? R.drawable.expander_close : R.drawable.expander_open, 0);
+	}
+
+	@DebugLog
+	@OnClick({ R.id.link_bgg, R.id.link_bg_prices, R.id.link_amazon, R.id.link_ebay })
+	void onLinkClick(View v) {
+		switch (v.getId()) {
+			case R.id.link_bgg:
+				ActivityUtils.linkBgg(getActivity(), Games.getGameId(mGameUri));
+				break;
+			case R.id.link_bg_prices:
+				ActivityUtils.linkBgPrices(getActivity(), mGameName);
+				break;
+			case R.id.link_amazon:
+				ActivityUtils.linkAmazon(getActivity(), mGameName);
+				break;
+			case R.id.link_ebay:
+				ActivityUtils.linkEbay(getActivity(), mGameName);
+				break;
+		}
 	}
 
 	@OnClick({ R.id.number_of_players, R.id.player_age })

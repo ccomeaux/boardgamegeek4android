@@ -208,11 +208,11 @@
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
-	<string name="menu_links">Links…</string>
-	<string name="menu_link_bgg">BoardGameGeek</string>
-	<string name="menu_link_bg_prices">Board Game Prices</string>
-	<string name="menu_link_amazon">Amazon</string>
-	<string name="menu_link_ebay">eBay</string>
+	<string name="links">Links</string>
+	<string name="link_bgg">BoardGameGeek</string>
+	<string name="link_bg_prices">Board Game Prices</string>
+	<string name="link_amazon">Amazon</string>
+	<string name="link_ebay">eBay</string>
 	<string name="menu_share">Share</string>
 	<string name="menu_sort">Sort</string>
 	<string name="menu_collection_filter_add">Add filter…</string>

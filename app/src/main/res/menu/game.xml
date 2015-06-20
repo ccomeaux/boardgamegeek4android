@@ -34,25 +34,6 @@
 		android:title="@string/menu_create_shortcut"
 		app:showAsAction="never"/>
 	<item
-		android:id="@+id/menu_links"
-		android:title="@string/menu_links"
-		app:showAsAction="never">
-		<menu>
-			<item
-				android:id="@+id/menu_link_bgg"
-				android:title="@string/menu_link_bgg"/>
-			<item
-				android:id="@+id/menu_link_bg_prices"
-				android:title="@string/menu_link_bg_prices"/>
-			<item
-				android:id="@+id/menu_link_amazon"
-				android:title="@string/menu_link_amazon"/>
-			<item
-				android:id="@+id/menu_link_ebay"
-				android:title="@string/menu_link_ebay"/>
-		</menu>
-	</item>
-	<item
 		android:id="@+id/menu_refresh"
 		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh"
