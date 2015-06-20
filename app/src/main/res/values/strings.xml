@@ -266,7 +266,7 @@
 	<string name="menu_average_weight">Average Weight</string>
 	<string name="menu_year_published">Year Published</string>
 	<string name="menu_collection_random_game">Random game</string>
-	<string name="menu_create_shortcut">Create shortcut</string>
+	<string name="menu_create_shortcut">Place on Home screen</string>
 	<string name="menu_edit">Edit</string>
 	<string name="menu_delete">Delete</string>
 	<string name="menu_sort_geeklists_hot">Hot</string>
