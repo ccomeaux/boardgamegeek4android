@@ -1,9 +1,20 @@
 Release Notes
 =============
 
+Version 5.1
+-----------
+ * Export/import some data (under Advanced Settings)
+ * Pick your favorite colors and assign them while logging plays
+ * Improve list usability
+ * Updated look and feel of nav drawer
+ * Improve score input
+ * Time-based data is updated automatically (e.g. 5 mins ago becomes 6 mins ago)
+ * Fix forum and GeekList links and images
+ * Bug fixes and stability improvements
+
 Version 5.0.2
 -------------
- * Darken font in a copuple of areas for readability
+ * Darken font in a couple of areas for readability
  * Cap game's plays per month at total play count
  * More bug fixes and stability improvements
 
@@ -90,7 +101,7 @@ Version 4.7
 
 Version 4.6.1
 -------------
- * When logging a play, players are automatically placed in seating 
+ * When logging a play, players are automatically placed in seating
  * Prevent crash when viewing a Buddy's collection or plays
  * Improve performance when loading forums
  * Correctly display the votes for Best with 1 Player

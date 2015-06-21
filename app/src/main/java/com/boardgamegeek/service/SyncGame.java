@@ -30,7 +30,7 @@ public class SyncGame extends UpdateTask {
 		BggService service = Adapter.create();
 		GamePersister gp = new GamePersister(context);
 		ThingResponse response = service.thing(mGameId, 1);
-		gp.save(response.games, "Game " + mGameId);
+		gp.save(response.getGames(), "Game " + mGameId);
 		Timber.i("Synced Game " + mGameId);
 	}
 }

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:tools="http://schemas.android.com/tools"
+			  android:layout_width="wrap_content"
+			  android:layout_height="wrap_content"
+			  android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/player_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/padding_standard"
+		android:paddingLeft="@dimen/padding_extra"
+		android:paddingRight="@dimen/padding_extra"
+		android:paddingTop="@dimen/padding_standard"
+		android:textAppearance="@style/Text.Title"
+		tools:background="#0f0"
+		tools:text="Chris (ccomeaux)"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="#ddd"
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+
+		<TextView
+			android:id="@+id/number_readout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:fontFamily="sans-serif-light"
+			android:gravity="center"
+			android:lines="1"
+			android:paddingLeft="@dimen/padding_extra"
+			android:textAppearance="@style/Text.Readout"
+			tools:text="1234"/>
+
+		<ImageView
+			android:id="@+id/num_delete"
+			android:layout_width="40dp"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:contentDescription="@string/delete"
+			android:paddingRight="@dimen/padding_extra"
+			android:scaleType="center"
+			android:src="@drawable/ic_action_backspace"/>
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:padding="@dimen/padding_standard">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/num_1"
+				style="@style/NumPad"
+				android:text="1"/>
+
+			<TextView
+				android:id="@+id/num_2"
+				style="@style/NumPad"
+				android:text="2"/>
+
+			<TextView
+				android:id="@+id/num_3"
+				style="@style/NumPad"
+				android:text="3"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/num_4"
+				style="@style/NumPad"
+				android:text="4"/>
+
+			<TextView
+				android:id="@+id/num_5"
+				style="@style/NumPad"
+				android:text="5"/>
+
+			<TextView
+				android:id="@+id/num_6"
+				style="@style/NumPad"
+				android:text="6"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/num_7"
+				style="@style/NumPad"
+				android:text="7"/>
+
+			<TextView
+				android:id="@+id/num_8"
+				style="@style/NumPad"
+				android:text="8"/>
+
+			<TextView
+				android:id="@+id/num_9"
+				style="@style/NumPad"
+				android:text="9"/>
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/num_0"
+				style="@style/NumPad"
+				android:text="0"/>
+
+			<TextView
+				android:id="@+id/num_decimal"
+				style="@style/NumPad"
+				android:text="."/>
+
+			<ImageView
+				android:id="@+id/num_done"
+				style="@style/NumPad"
+				android:contentDescription="@string/done"
+				android:padding="@dimen/padding_extra"
+				android:scaleType="center"
+				android:src="@drawable/ic_action_accept_light"/>
+		</LinearLayout>
+	</LinearLayout>
+</LinearLayout>

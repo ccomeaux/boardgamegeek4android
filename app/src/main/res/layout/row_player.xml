@@ -7,10 +7,10 @@
 			  android:gravity="center_vertical"
 			  android:minHeight="@dimen/player_row_height"
 			  android:orientation="horizontal"
-			  android:paddingBottom="@dimen/padding_half"
+			  android:paddingBottom="@dimen/padding_standard"
 			  android:paddingLeft="@dimen/material_margin_horizontal"
 			  android:paddingRight="@dimen/material_margin_horizontal"
-			  android:paddingTop="@dimen/padding_half">
+			  android:paddingTop="@dimen/padding_standard">
 
 	<FrameLayout
 		android:layout_width="@dimen/edit_label_width"
@@ -22,17 +22,17 @@
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="left|center_vertical"
-			android:scaleType="fitXY"/>
+			android:scaleType="fitXY"
+			tools:background="#0f0"/>
 
 		<TextView
 			android:id="@+id/seat"
 			style="@style/Text.Huge"
-			tools:text="1"
 			android:layout_width="@dimen/color_circle_diameter"
 			android:layout_height="match_parent"
 			android:fontFamily="sans-serif-condensed"
 			android:gravity="center"
-			android:textIsSelectable="false"/>
+			tools:text="1"/>
 
 		<ImageView
 			android:id="@+id/drag_handle"
@@ -53,57 +53,76 @@
 		<TextView
 			android:id="@+id/name"
 			style="@style/Text.Big"
-			tools:text="Chris"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			tools:text="Chris"/>
 
 		<TextView
 			android:id="@+id/username"
 			style="@style/Text.Footnote"
-			tools:text="ccomeaux"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			tools:text="ccomeaux"/>
 
 		<TextView
 			android:id="@+id/team_color"
 			style="@style/Text.Footnote"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			tools:text="They"/>
 	</LinearLayout>
 
-	<LinearLayout
+	<FrameLayout
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:gravity="right"
-		android:orientation="vertical">
+		android:layout_height="match_parent"
+		android:layout_gravity="center">
 
-		<TextView
-			android:id="@+id/score"
-			style="@style/Text.Big"
+		<ImageView
+			android:id="@+id/score_button"
+			android:layout_width="@dimen/image_button_size"
+			android:layout_height="@dimen/image_button_size"
+			android:layout_gravity="center"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:scaleType="center"
+			android:visibility="gone"
+			android:src="@drawable/ic_action_achievement"
+			android:tint="#2000"
+			android:tintMode="src_in"
+			tools:visibility="visible"/>
+
+		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			android:layout_gravity="center"
+			android:gravity="right"
+			android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/starting_position"
-			style="@style/Text.Footnote"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
+			<TextView
+				android:id="@+id/score"
+				style="@style/Text.Big"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:text="529"/>
 
-		<TextView
-			android:id="@+id/rating"
-			style="@style/Text.Footnote"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textIsSelectable="false"/>
-	</LinearLayout>
+			<TextView
+				android:id="@+id/starting_position"
+				style="@style/Text.Footnote"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:text="First"/>
+
+			<TextView
+				android:id="@+id/rating"
+				style="@style/Text.Footnote"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:text="7.5"/>
+		</LinearLayout>
+	</FrameLayout>
 
 	<ImageView
 		android:id="@+id/log_player_delete"
+		android:layout_marginLeft="@dimen/padding_extra"
 		android:layout_width="@dimen/image_button_size"
 		android:layout_height="@dimen/image_button_size"
 		android:layout_gravity="center"
@@ -112,6 +131,7 @@
 		android:focusable="false"
 		android:scaleType="center"
 		android:src="@drawable/ic_action_delete_light"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		tools:visibility="visible"/>
 
 </LinearLayout>

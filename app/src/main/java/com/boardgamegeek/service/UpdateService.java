@@ -28,6 +28,7 @@ public class UpdateService extends IntentService {
 	public static final int SYNC_TYPE_GAME_PLAYS = 2;
 	public static final int SYNC_TYPE_GAME_COLLECTION = 3;
 	public static final int SYNC_TYPE_BUDDY = 4;
+	public static final int SYNC_TYPE_BUDDY_SELF = 5;
 	public static final int SYNC_TYPE_DESIGNER = 10;
 	public static final int SYNC_TYPE_ARTIST = 11;
 	public static final int SYNC_TYPE_PUBLISHER = 12;
@@ -80,6 +81,9 @@ public class UpdateService extends IntentService {
 			case SYNC_TYPE_BUDDY:
 				task = new SyncBuddy(syncKey);
 				break;
+			case SYNC_TYPE_BUDDY_SELF:
+				task = new SyncBuddySelf();
+				break;
 			case SYNC_TYPE_DESIGNER:
 				task = new SyncDesigner(syncId);
 				break;
@@ -98,7 +102,8 @@ public class UpdateService extends IntentService {
 			postError(getResources().getString(R.string.sync_update_invalid_sync_type, syncType));
 			return;
 		}
-		if (syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
+		if (syncType != SYNC_TYPE_BUDDY_SELF &&
+			syncId == BggContract.INVALID_ID && TextUtils.isEmpty(syncKey)) {
 			postError(String.format("Unable to " + task.getDescription() + "."));
 			return;
 		}
@@ -113,9 +118,10 @@ public class UpdateService extends IntentService {
 			if (!TextUtils.isEmpty(error)) {
 				message += "\n" + error;
 			}
-			if (PreferencesUtils.getNotifyErrors(this)) {
-				Builder builder = NotificationUtils.createNotificationBuilder(getApplicationContext(),
-					R.string.title_error).setCategory(NotificationCompat.CATEGORY_ERROR);
+			if (PreferencesUtils.getSyncShowNotifications(this)) {
+				Builder builder = NotificationUtils
+					.createNotificationBuilder(getApplicationContext(), R.string.title_error)
+					.setCategory(NotificationCompat.CATEGORY_ERROR);
 				builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 				NotificationUtils.notify(getApplicationContext(), NotificationUtils.ID_SYNC_ERROR, builder);
 			}

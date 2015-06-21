@@ -91,7 +91,6 @@ public class ImageUtils {
 		Picasso
 			.with(imageView.getContext())
 			.load(HttpUtils.ensureScheme(imageUrl))
-			.fit().centerCrop()
 			.transform(PaletteTransformation.instance())
 			.into(imageView, new com.squareup.picasso.Callback() {
 				@Override

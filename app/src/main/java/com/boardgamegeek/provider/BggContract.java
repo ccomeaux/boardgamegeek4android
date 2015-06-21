@@ -1,13 +1,14 @@
 package com.boardgamegeek.provider;
 
-import java.util.List;
-
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.boardgamegeek.util.StringUtils;
+
+import java.util.List;
 
 public class BggContract {
 
@@ -142,6 +143,13 @@ public class BggContract {
 		String SYNC_HASH_CODE = "sync_hash_code";
 	}
 
+	interface PlayerColorsColumns {
+		String PLAYER_NAME = "player_name";
+		String PLAYER_TYPE = "player_type";
+		String PLAYER_COLOR = "player_color";
+		String PLAYER_COLOR_SORT_ORDER = "player_color_sort";
+	}
+
 	interface GamePollsColumns {
 		String POLL_NAME = "poll_name";
 		String POLL_TITLE = "poll_title";
@@ -232,12 +240,14 @@ public class BggContract {
 	public static final String PATH_COLLECTION = "collection";
 	public static final String PATH_NOEXPANSIONS = "noexpansions";
 	public static final String PATH_BUDDIES = "buddies";
+	public static final String PATH_USERS = "users";
 	private static final String PATH_POLLS = "polls";
 	private static final String PATH_POLL_RESULTS = "results";
 	private static final String PATH_POLL_RESULTS_RESULT = "result";
 	public static final String PATH_THUMBNAILS = "thumbnails";
 	public static final String PATH_AVATARS = "avatars";
-	private static final String PATH_COLORS = "colors";
+	public static final String PATH_COLORS = "colors";
+	public static final String PATH_PLAYER_COLORS = "playercolors";
 	public static final String PATH_PLAYS = "plays";
 	private static final String PATH_ITEMS = "items";
 	private static final String PATH_PLAYERS = "players";
@@ -249,6 +259,7 @@ public class BggContract {
 	public static final String QUERY_VALUE_UNIQUE_NAME = "uniquename";
 	public static final String QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer";
 	public static final String QUERY_VALUE_UNIQUE_USER = "uniqueuser";
+	public static final String QUERY_VALUE_COLOR = "color";
 	public static final String FRAGMENT_SIMPLE = "simple";
 	public static final String PARAM_LIMIT = "limit";
 
@@ -709,6 +720,47 @@ public class BggContract {
 		}
 	}
 
+	public static class PlayerColors implements PlayerColorsColumns, BaseColumns {
+		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYER_COLORS).build();
+
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor";
+		public static final int TYPE_USER = 1;
+
+		public static final String DEFAULT_SORT = PlayerColors.PLAYER_TYPE + " ASC, " +
+			PlayerColors.PLAYER_NAME + " ASC, " +
+			PlayerColors.PLAYER_COLOR_SORT_ORDER + " ASC";
+
+		public static Uri buildUserUri(String username) {
+			return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(username).appendPath(PATH_COLORS).build();
+		}
+
+		public static Uri buildUserUri(String username, int sortOrder) {
+			return buildUserUri(username).buildUpon().appendPath(String.valueOf(sortOrder)).build();
+		}
+
+		@Nullable
+		public static String getUsername(Uri uri) {
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_USERS.equals(segments.get(0))) {
+					return segments.get(1);
+				}
+			}
+			return null;
+		}
+
+		public static int getSortOrder(Uri uri) {
+			if (uri != null) {
+				List<String> segments = uri.getPathSegments();
+				if (segments != null && segments.size() > 1 && PATH_COLORS.equals(segments.get(0))) {
+					return Integer.parseInt(segments.get(1));
+				}
+			}
+			return 0;
+		}
+	}
+
 	public static class GamePolls implements GamePollsColumns, GamesColumns, BaseColumns {
 		public static final Uri CONTENT_URI = Games.CONTENT_URI.buildUpon().appendPath(PATH_POLLS).build();
 
@@ -789,23 +841,23 @@ public class BggContract {
 		}
 
 		public static Uri buildPlayersByNameWithoutUsernameUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_NAME_NOT_USER).build();
 		}
 
 		public static Uri buildPlayersByUniquePlayerUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER).build();
 		}
 
 		public static Uri buildPlayersByUniqueUserUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER).build();
 		}
 
 		public static Uri buildPlayersByUniqueNameUri() {
-			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME)
-				.build();
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME).build();
+		}
+
+		public static Uri buildPlayersByColor() {
+			return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build();
 		}
 
 		public static int getPlayId(Uri uri) {

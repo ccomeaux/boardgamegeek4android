@@ -28,7 +28,7 @@ public final class PaletteTransformation implements Transformation {
 
 	@Override
 	public Bitmap transform(Bitmap source) {
-		Palette palette = Palette.generate(source);
+		Palette palette = Palette.from(source).generate();
 		CACHE.put(source, palette);
 		return source;
 	}

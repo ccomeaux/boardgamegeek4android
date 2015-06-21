@@ -1,11 +1,11 @@
 package com.boardgamegeek.ui;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,7 +25,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 
 import hugo.weaving.DebugLog;
 
-public class PlayerActivity extends SimpleSinglePaneActivity  {
+public class PlayerActivity extends SimpleSinglePaneActivity {
 	public static final String KEY_PLAYER_NAME = "PLAYER_NAME";
 	public static final String KEY_PLAYER_USERNAME = "PLAYER_USERNAME";
 	private int mCount;
@@ -41,10 +41,10 @@ public class PlayerActivity extends SimpleSinglePaneActivity  {
 		mName = intent.getStringExtra(KEY_PLAYER_NAME);
 		mUsername = intent.getStringExtra(KEY_PLAYER_USERNAME);
 
-		setTitle();
+		setSubtitle();
 	}
 
-	protected void setTitle() {
+	private void setSubtitle() {
 		String title;
 		if (TextUtils.isEmpty(mName)) {
 			title = mUsername;
@@ -53,7 +53,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity  {
 		} else {
 			title = mName + " (" + mUsername + ")";
 		}
-		getSupportActionBar().setSubtitle(title);
+		setSubtitle(title);
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity  {
 	public void onEvent(RenamePlayerTask.Event event) {
 		mName = event.playerName;
 		getIntent().putExtra(KEY_PLAYER_NAME, mName);
-		setTitle();
+		setSubtitle();
 		// recreate fragment to load the list with the new location
 		getSupportFragmentManager().beginTransaction().remove(getFragment()).commit();
 		createFragment();
@@ -127,7 +127,7 @@ public class PlayerActivity extends SimpleSinglePaneActivity  {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newName = editText.getText().toString();
+						String newName = editText.getText().toString().trim();
 						RenamePlayerTask task = new RenamePlayerTask(PlayerActivity.this, mUsername, oldName, newName);
 						TaskUtils.executeAsyncTask(task);
 					}

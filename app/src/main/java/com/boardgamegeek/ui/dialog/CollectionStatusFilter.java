@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
@@ -23,21 +23,21 @@ public class CollectionStatusFilter {
 					mSelected[which] = isChecked;
 				}
 			}).setNegativeButton(R.string.or, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new CollectionStatusFilterer(context, mSelected, true));
-				}
-			}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					view.addFilter(new CollectionStatusFilterer(context, mSelected, false));
-				}
-			}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					view.removeFilter(new CollectionStatusFilterer());
-				}
-			}).create().show();
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				view.addFilter(new CollectionStatusFilterer(context, mSelected, true));
+			}
+		}).setPositiveButton(R.string.and, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				view.addFilter(new CollectionStatusFilterer(context, mSelected, false));
+			}
+		}).setNeutralButton(R.string.clear, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				view.removeFilter(new CollectionStatusFilterer());
+			}
+		}).create().show();
 	}
 
 	private void init(final Context context, CollectionStatusFilterer filter) {

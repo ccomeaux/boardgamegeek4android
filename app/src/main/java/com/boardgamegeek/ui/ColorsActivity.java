@@ -9,10 +9,13 @@ import android.view.MenuItem;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.ActivityUtils;
 
+import hugo.weaving.DebugLog;
+
 public class ColorsActivity extends SimpleSinglePaneActivity {
 	private int mGameId;
 	private String mGameName;
 
+	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,13 +28,13 @@ public class ColorsActivity extends SimpleSinglePaneActivity {
 		}
 	}
 
-
+	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new ColorsFragment();
 	}
 
-
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

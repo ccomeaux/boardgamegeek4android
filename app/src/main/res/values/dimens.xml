@@ -27,6 +27,8 @@
 	<dimen name="icon_width">48dp</dimen>
 	<dimen name="dropdownitem_min_height">48dp</dimen>
 	<dimen name="color_circle_diameter">32dp</dimen>
+	<dimen name="color_circle_diameter_small">24dp</dimen>
+	<dimen name="color_circle_diameter_small_margin">4dp</dimen>
 	<dimen name="image_button_size">40dp</dimen>
 	<dimen name="image_header_height">64dp</dimen>
 	<dimen name="drawer_width">304dp</dimen>
@@ -44,5 +46,14 @@
 	<dimen name="material_elevation_subtle">4dp</dimen>
 	<dimen name="card_row_height">40dp</dimen>
 	<dimen name="shortcut_icon_size">48dp</dimen>
+	<dimen name="divider_height">1dp</dimen>
+	<dimen name="drawer_header_account_height">56dp</dimen>
+	<dimen name="drawer_header_image_size">64dp</dimen>
+	<dimen name="drawer_header_image_elevation">2dp</dimen>
+	<dimen name="drawer_vertical_spacing">8dp</dimen>
+	<dimen name="drawer_status_bar_buffer">40dp</dimen>
+	<dimen name="drawer_status_bar_buffer_negative">-40dp</dimen>
+	<dimen name="pad_button_size">48dp</dimen>
+	<dimen name="dialog_width">320dp</dimen>
 
 </resources>

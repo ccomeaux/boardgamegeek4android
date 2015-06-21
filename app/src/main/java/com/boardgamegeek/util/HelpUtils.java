@@ -1,6 +1,5 @@
 package com.boardgamegeek.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -8,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
 

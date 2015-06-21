@@ -48,7 +48,7 @@ public class RankSorter extends CollectionSorter {
 		int rank = getInt(cursor, Games.GAME_RANK, Integer.MAX_VALUE);
 		for (int i = 0; i < mRanks.size(); i++) {
 			int key = mRanks.keyAt(i);
-			if (rank < key) {
+			if (rank <= key) {
 				return mRanks.get(key);
 			}
 		}

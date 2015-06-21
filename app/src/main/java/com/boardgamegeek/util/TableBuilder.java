@@ -126,6 +126,9 @@ public class TableBuilder {
 		return this;
 	}
 
+	/**
+	 * Add an _ID column and sets it as the primary key.
+	 */
 	public TableBuilder useDefaultPrimaryKey() {
 		mPrimaryKey = new Column();
 		mPrimaryKey.name = BaseColumns._ID;

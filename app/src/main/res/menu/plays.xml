@@ -28,7 +28,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_sort"
-		android:icon="?attr/ic_action_sort"
+		android:icon="@drawable/ic_action_sort_light"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -50,12 +50,12 @@
 	</item>
 	<item
 		android:id="@+id/menu_refresh"
-		android:icon="?attr/ic_action_refresh"
+		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_refresh_on"
-		android:icon="?attr/ic_action_refresh"
+		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh_on"
 		app:showAsAction="never"/>
 

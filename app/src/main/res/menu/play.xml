@@ -4,12 +4,12 @@
 
 	<item
 		android:id="@+id/menu_edit"
-		android:icon="?attr/ic_action_edit"
+		android:icon="@drawable/ic_action_edit_light"
 		android:title="@string/menu_edit"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_delete"
-		android:icon="?attr/ic_action_delete"
+		android:icon="@drawable/ic_action_delete_light"
 		android:title="@string/menu_delete"
 		app:showAsAction="ifRoom"/>
 	<item
@@ -19,17 +19,17 @@
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="?attr/ic_action_share"
+		android:icon="@drawable/ic_action_share_light"
 		android:title="@string/menu_share"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_refresh"
-		android:icon="?attr/ic_action_refresh"
+		android:icon="@drawable/ic_action_refresh_light"
 		android:title="@string/menu_refresh"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_send"
-		android:icon="?attr/ic_action_send"
+		android:icon="@drawable/ic_action_send_light"
 		android:title="@string/send"
 		app:showAsAction="never"/>
 

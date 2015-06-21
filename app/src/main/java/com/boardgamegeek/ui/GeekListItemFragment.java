@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
@@ -32,6 +33,10 @@ import butterknife.InjectView;
 import butterknife.InjectViews;
 
 public class GeekListItemFragment extends Fragment implements ImageUtils.Callback {
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
+
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
 	private String mOrder;
 	private String mTitle;
 	private String mType;
@@ -44,26 +49,26 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	private Palette.Swatch mSwatch;
 
 	private ViewGroup mRootView;
-	@InjectView(R.id.hero_container) View mHeroContainer;
-	@InjectView(R.id.header_container) View mHeaderContainer;
-	@InjectView(R.id.order) TextView mOrderView;
-	@InjectView(R.id.title) TextView mTitleView;
-	@InjectView(R.id.type) TextView mTypeView;
-	@InjectView(R.id.image) ImageView mImageView;
-	@InjectView(R.id.author_container) View mAuthorContainer;
-	@InjectView(R.id.username) TextView mUsernameView;
-	@InjectView(R.id.thumbs) TextView mThumbsView;
-	@InjectView(R.id.posted_date) TextView mPostedDateView;
-	@InjectView(R.id.edited_date) TextView mEditedDateView;
-	@InjectView(R.id.body) WebView mBodyView;
-	@InjectViews({
+	@SuppressWarnings("unused") @InjectView(R.id.hero_container) View mHeroContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.header_container) View mHeaderContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.order) TextView mOrderView;
+	@SuppressWarnings("unused") @InjectView(R.id.title) TextView mTitleView;
+	@SuppressWarnings("unused") @InjectView(R.id.type) TextView mTypeView;
+	@SuppressWarnings("unused") @InjectView(R.id.image) ImageView mImageView;
+	@SuppressWarnings("unused") @InjectView(R.id.author_container) View mAuthorContainer;
+	@SuppressWarnings("unused") @InjectView(R.id.username) TextView mUsernameView;
+	@SuppressWarnings("unused") @InjectView(R.id.thumbs) TextView mThumbsView;
+	@SuppressWarnings("unused") @InjectView(R.id.posted_date) TextView mPostedDateView;
+	@SuppressWarnings("unused") @InjectView(R.id.edited_date) TextView mEditedDateView;
+	@SuppressWarnings("unused") @InjectView(R.id.body) WebView mBodyView;
+	@SuppressWarnings("unused") @InjectViews({
 		R.id.username,
 		R.id.thumbs,
 		R.id.posted_date,
 		R.id.edited_date
 	}) List<TextView> mColorizedTextViews;
 
-	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
+	private final ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
 		= new ViewTreeObserver.OnGlobalLayoutListener() {
 		@Override
 		public void onGlobalLayout() {
@@ -74,7 +79,7 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		mHandler = new Handler();
 		final Intent intent = UIUtils.fragmentArgumentsToIntent(getArguments());
 		mOrder = intent.getStringExtra(ActivityUtils.KEY_ORDER);
 		mTitle = intent.getStringExtra(ActivityUtils.KEY_NAME);
@@ -105,14 +110,53 @@ public class GeekListItemFragment extends Fragment implements ImageUtils.Callbac
 		ImageUtils.safelyLoadImage(mImageView, mImageId, this);
 		mUsernameView.setText(mUsername);
 		mThumbsView.setText(getString(R.string.thumbs_suffix, mThumbs));
-		mPostedDateView.setText(getString(R.string.posted_prefix,
-			DateTimeUtils.formatForumDate(getActivity(), mPostedDate)));
-		mEditedDateView.setText(getString(R.string.edited_prefix,
-			DateTimeUtils.formatForumDate(getActivity(), mEditedDate)));
+		mPostedDateView.setTag(mPostedDate);
+		mEditedDateView.setTag(mEditedDate);
 		String content = new XmlConverter().toHtml(mBody);
 		UIUtils.setWebViewText(mBodyView, content);
 
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+
 		return mRootView;
+	}
+
+	private void updateTimeBasedUi() {
+		if (!isAdded()) {
+			return;
+		}
+		if (mPostedDateView != null) {
+			mPostedDateView.setText(getString(R.string.posted_prefix, DateTimeUtils.formatForumDate(getActivity(), mPostedDate)));
+		}
+		if (mEditedDateView != null) {
+			mEditedDateView.setText(getString(R.string.edited_prefix, DateTimeUtils.formatForumDate(getActivity(), mEditedDate)));
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
 	}
 
 	@Override

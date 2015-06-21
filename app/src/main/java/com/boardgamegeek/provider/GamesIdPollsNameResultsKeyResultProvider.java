@@ -6,15 +6,15 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePollResultsResult;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
 import com.boardgamegeek.util.DataUtils;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+
+import timber.log.Timber;
 
 public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 
@@ -82,9 +82,8 @@ public class GamesIdPollsNameResultsKeyResultProvider extends BaseProvider {
 					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 			}
 		} catch (SQLException e) {
-			if (PreferencesUtils.getNotifyErrors(context)) {
-				notifyException(context, e);
-			}
+			Timber.e(e, "Problem inserting poll %2$s %3$s for game %1$s", gameId, pollName, players);
+			notifyException(context, e);
 		}
 		return null;
 	}

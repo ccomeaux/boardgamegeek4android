@@ -4,22 +4,22 @@
 
 	<item
 		android:id="@+id/menu_log_play"
-		android:icon="?attr/ic_action_calendar"
+		android:icon="@drawable/ic_action_calendar_light"
 		android:title="@string/menu_log_play"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_log_play_quick"
-		android:icon="?attr/ic_action_today"
+		android:icon="@drawable/ic_action_today_light"
 		android:title="@string/menu_log_play_quick"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_share"
-		android:icon="?attr/ic_action_share"
+		android:icon="@drawable/ic_action_share_light"
 		android:title="@string/menu_share"
 		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/menu_link"
-		android:icon="?attr/ic_action_web_site"
+		android:icon="@drawable/ic_action_web_site_light"
 		android:title="@string/menu_link_bgg"
 		app:showAsAction="ifRoom"/>
 
