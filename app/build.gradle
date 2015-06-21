@@ -36,7 +36,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 22
         versionCode 48
-        versionName "5.1-RC1"
+        versionName "5.1"
     }
     buildTypes {
         release {
