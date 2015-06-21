@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Coming Soon
+Version 5.1
 -----------
  * Export/import some data (under Advanced Settings)
  * Pick your favorite colors and assign them while logging plays
