@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="Theme.bgglight" parent="@style/Theme.AppCompat.Light.NoActionBar">
+		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
+		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
+		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
+		<item name="actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
+		<item name="actionDropDownStyle">@style/bgglight_DropDownNav</item>
+		<item name="actionBarStyle">@style/bgglight_solid_ActionBar</item>
+		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
+		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
+		<item name="android:actionBarTabStyle">@style/bgglight_ActionBarTabStyle</item>
+		<item name="android:actionDropDownStyle">@style/bgglight_DropDownNav</item>
+		<item name="android:actionBarStyle">@style/bgglight_solid_ActionBar</item>
+		<item name="android:panelBackground">@drawable/menu_hardkey_panel_bgglight</item>
+	</style>
+
+	<!-- this style is only referenced in a Light.DarkActionBar based theme -->
+	<style name="Theme.bgglight.widget" parent="@style/Theme.AppCompat">
+		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
+		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>
+		<item name="android:popupMenuStyle">@style/bgglight_PopupMenu</item>
+		<item name="android:dropDownListViewStyle">@style/bgglight_DropDownListView</item>
+	</style>
+
+</resources>

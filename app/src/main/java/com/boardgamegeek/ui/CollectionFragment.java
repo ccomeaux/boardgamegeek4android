@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -27,11 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionFilterDataFactory;
+import com.boardgamegeek.filterer.CollectionFilterer;
 import com.boardgamegeek.filterer.CollectionStatusFilterer;
-import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
@@ -76,7 +77,10 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	private static final String STATE_VIEW_NAME = "STATE_VIEW_NAME";
 	private static final String STATE_SORT_TYPE = "STATE_SORT_TYPE";
 	private static final String STATE_FILTERS = "STATE_FILTERS";
+	private static final int TIME_HINT_UPDATE_INTERVAL = 30000; // 30 sec
 
+	private Handler mHandler = new Handler();
+	private Runnable mUpdaterRunnable = null;
 	private int mSelectedCollectionId;
 	private CollectionAdapter mAdapter;
 	private long mViewId;
@@ -132,7 +136,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		mHandler = new Handler();
 		if (savedInstanceState != null) {
 			mSelectedCollectionId = savedInstanceState.getInt(STATE_SELECTED_ID);
 			mViewId = savedInstanceState.getLong(STATE_VIEW_ID);
@@ -191,6 +195,25 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 
 		mCallbacks = (Callbacks) activity;
 	}
+
+	@Override
+	@DebugLog
+	public void onResume() {
+		super.onResume();
+		if (mUpdaterRunnable != null) {
+			mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+		}
+	}
+
+	@Override
+	@DebugLog
+	public void onPause() {
+		super.onPause();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+	}
+
 
 	@Override
 	@DebugLog
@@ -451,6 +474,7 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 				setProgressShown(false);
 			}
 			mAdapter.changeCursor(cursor);
+			initializeTimeBasedUi();
 			restoreScrollState();
 			mCallbacks.onCollectionCountChanged(cursor.getCount());
 			mCallbacks.onSortChanged(mSort == null ? "" : mSort.getDescription());
@@ -477,7 +501,30 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		if (mAdapter != null) {
+			mAdapter.changeCursor(null);
+		}
+	}
+
+	protected void initializeTimeBasedUi() {
+		updateTimeBasedUi();
+		if (mUpdaterRunnable != null) {
+			mHandler.removeCallbacks(mUpdaterRunnable);
+		}
+		mUpdaterRunnable = new Runnable() {
+			@Override
+			public void run() {
+				updateTimeBasedUi();
+				mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+			}
+		};
+		mHandler.postDelayed(mUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+	}
+
+	protected void updateTimeBasedUi() {
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
 	}
 
 	@DebugLog
@@ -880,6 +927,9 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 	@Override
 	@DebugLog
 	public boolean onActionItemClicked(ActionMode mode, android.view.MenuItem item) {
+		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+			return false;
+		}
 		Cursor cursor = (Cursor) mAdapter.getItem(mSelectedPositions.iterator().next());
 		int gameId = cursor.getInt(Query.GAME_ID);
 		String gameName = cursor.getString(Query.GAME_NAME);

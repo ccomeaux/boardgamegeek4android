@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_cancel_sync"
-		android:icon="?attr/ic_action_cancel"
+		android:icon="@drawable/ic_action_cancel_light"
 		android:orderInCategory="101"
 		android:title="@string/menu_cancel_sync"
 		app:showAsAction="never"/>

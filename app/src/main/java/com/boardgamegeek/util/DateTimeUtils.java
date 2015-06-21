@@ -32,6 +32,9 @@ public class DateTimeUtils {
 		} else {
 			int hours = minutes / 60;
 			int mins = minutes % 60;
+			if (mins == 0) {
+				return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr);
+			}
 			return String.valueOf(hours) + " " + r.getString(R.string.hours_abbr) + " " +
 				String.valueOf(mins) + " " + r.getString(R.string.minutes_abbr);
 		}
@@ -99,10 +102,13 @@ public class DateTimeUtils {
 	 */
 	public static CharSequence formatForumDate(Context context, long date) {
 		if (PreferencesUtils.getForumDates(context)) {
-			return DateUtils.formatDateTime(context, date, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
-				| DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_TIME);
+			return DateUtils.formatDateTime(context, date,
+				DateUtils.FORMAT_SHOW_DATE |
+					DateUtils.FORMAT_SHOW_YEAR |
+					DateUtils.FORMAT_ABBREV_MONTH |
+					DateUtils.FORMAT_SHOW_TIME);
 		} else {
-			return DateUtils.getRelativeTimeSpanString(date);
+			return PresentationUtils.describePastTimeSpan(date, context.getString(R.string.text_unknown));
 		}
 	}
 

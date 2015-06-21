@@ -55,6 +55,19 @@ public class GameDetailFragment extends BggListFragment implements LoaderManager
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		int p = getResources().getDimensionPixelSize(R.dimen.padding_standard);
+		getListView().setPadding(0, p, 0, p);
+		getListView().setClipToPadding(false);
+	}
+
+	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		final Cursor cursor = (Cursor) mAdapter.getItem(position);
 		Uri uri = mQuery.getUri(cursor);

@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<CheckBoxPreference
 		android:defaultValue="false"
 		android:key="advancedForumDates"
 		android:summaryOff="@string/pref_advanced_forum_dates_off"
 		android:summaryOn="@string/pref_advanced_forum_dates_on"
-		android:title="@string/pref_advanced_forum_dates" />
+		android:title="@string/pref_advanced_forum_dates"/>
 	<CheckBoxPreference
 		android:defaultValue="false"
 		android:key="advancedDebugInsert"
 		android:summaryOff="@string/pref_advanced_debug_inserts_off"
 		android:summaryOn="@string/pref_advanced_debug_inserts_on"
-		android:title="@string/pref_advanced_debug_inserts" />
-	<CheckBoxPreference
-		android:defaultValue="true"
-		android:disableDependentsState="false"
-		android:key="advancedPolls"
-		android:summaryOff="@string/pref_advanced_polls_off"
-		android:summaryOn="@string/pref_advanced_polls_on"
-		android:title="@string/pref_advanced_polls" />
-	<CheckBoxPreference
-		android:defaultValue="false"
-		android:dependency="advancedPolls"
-		android:key="advancedNotifyErrors"
-		android:summaryOff="@string/pref_advanced_notify_errors_off"
-		android:summaryOn="@string/pref_advanced_notify_errors_on"
-		android:title="@string/pref_advanced_notify_errors" />
+		android:title="@string/pref_advanced_debug_inserts"/>
+	<com.boardgamegeek.pref.ExportDialogPreference
+		android:dialogMessage="@string/pref_advanced_export_message"
+		android:summary="@string/pref_advanced_export_summary"
+		android:title="@string/pref_advanced_export"/>
+	<com.boardgamegeek.pref.ImportDialogPreference
+		android:dialogMessage="@string/pref_advanced_import_message"
+		android:summary="@string/pref_advanced_import_summary"
+		android:title="@string/pref_advanced_import"/>
 
 </PreferenceScreen>

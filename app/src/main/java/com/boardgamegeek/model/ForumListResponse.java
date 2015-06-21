@@ -3,15 +3,23 @@ package com.boardgamegeek.model;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ForumListResponse {
 	@Attribute
-	public String type;
+	private String type;
 
 	@Attribute
-	public int id;
+	private int id;
 
 	@ElementList(inline = true)
-	public List<Forum> forums;
+	private List<Forum> forums;
+
+	public List<Forum> getForums() {
+		if (forums == null) {
+			return new ArrayList<>();
+		}
+		return forums;
+	}
 }

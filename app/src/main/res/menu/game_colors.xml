@@ -4,12 +4,12 @@
 
 	<item
 		android:id="@+id/menu_colors_add"
-		android:icon="?attr/ic_action_add"
+		android:icon="@drawable/ic_action_add_light"
 		android:title="@string/menu_colors_add"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_colors_generate"
-		android:icon="?attr/ic_action_colors"
+		android:icon="@drawable/ic_action_colors_light"
 		android:title="@string/menu_colors_generate"
 		app:showAsAction="ifRoom"/>
 

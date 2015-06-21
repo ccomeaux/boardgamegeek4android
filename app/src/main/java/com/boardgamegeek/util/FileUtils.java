@@ -1,6 +1,7 @@
 package com.boardgamegeek.util;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract;
@@ -9,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileUtils {
+	private static final String EXPORT_FOLDER = "bgg4android-export";
+	private static final String EXPORT_FOLDER_AUTO = EXPORT_FOLDER + File.separator + "AutoBackup";
 
 	private FileUtils() {
 	}
@@ -31,6 +34,9 @@ public class FileUtils {
 	 * created.
 	 */
 	public static File generateContentPath(Context context, String type) {
+		if (context == null) {
+			return null;
+		}
 		File base = context.getExternalFilesDir(type);
 		if (base == null) {
 			return null;
@@ -67,5 +73,19 @@ public class FileUtils {
 			count++;
 		}
 		return count;
+	}
+
+	/**
+	 * Checks if {@link Environment}.MEDIA_MOUNTED is returned by {@code getExternalStorageState()}
+	 * and therefore external storage is read- and writeable.
+	 */
+	public static boolean isExtStorageAvailable() {
+		return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+	}
+
+	public static File getExportPath(boolean isAutoBackupMode) {
+		return new File(
+			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+			isAutoBackupMode ? EXPORT_FOLDER_AUTO : EXPORT_FOLDER);
 	}
 }

@@ -106,6 +106,16 @@ public class SearchResultsFragment extends BggListFragment implements
 	}
 
 	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
+	}
+
+	@Override
 	public Loader<SearchData> onCreateLoader(int id, Bundle data) {
 		return new SearchLoader(getActivity(), mSearchText);
 	}
@@ -321,6 +331,9 @@ public class SearchResultsFragment extends BggListFragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (mSelectedPositions == null || !mSelectedPositions.iterator().hasNext()) {
+			return false;
+		}
 		SearchResult game = mAdapter.getItem(mSelectedPositions.iterator().next());
 		switch (item.getItemId()) {
 			case R.id.menu_log_play:

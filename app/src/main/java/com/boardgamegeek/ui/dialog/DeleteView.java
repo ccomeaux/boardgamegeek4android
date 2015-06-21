@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.interfaces.CollectionView;

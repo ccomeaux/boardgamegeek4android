@@ -6,22 +6,19 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.preference.PreferenceScreen;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.service.SyncService;
+import com.boardgamegeek.util.VersionUtils;
 import com.mikepenz.aboutlibraries.Libs;
 
 import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity {
 	private final static String ACTION_SEARCH = "com.boardgamegeek.prefs.SEARCH";
 	private final static String ACTION_LOG = "com.boardgamegeek.prefs.LOG";
 	private final static String ACTION_SYNC = "com.boardgamegeek.prefs.SYNC";
@@ -42,28 +39,7 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		prepareLayout();
 		buildLegacyPreferences();
-	}
-
-	private void prepareLayout() {
-		ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-		View content = root.getChildAt(0);
-		LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
-
-		root.removeAllViews();
-		toolbarContainer.addView(content);
-		root.addView(toolbarContainer);
-
-		Toolbar toolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-		toolBar.setTitle(getTitle());
-		toolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-		toolBar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
 	}
 
 	private void buildLegacyPreferences() {
@@ -74,7 +50,7 @@ public class SettingsActivity extends PreferenceActivity {
 				if (fragmentId != null) {
 					addPreferencesFromResource(fragmentId);
 				}
-			} else {
+			} else if (!VersionUtils.hasHoneycomb()) {
 				addPreferencesFromResource(R.xml.preference_headers_legacy);
 			}
 		}
@@ -87,8 +63,30 @@ public class SettingsActivity extends PreferenceActivity {
 		loadHeadersFromResource(R.xml.preference_headers, target);
 	}
 
+	@Override
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+		super.onPreferenceTreeClick(preferenceScreen, preference);
+		if (preference != null)
+			if (preference instanceof PreferenceScreen)
+				if (((PreferenceScreen) preference).getDialog() != null)
+					((PreferenceScreen) preference)
+						.getDialog()
+						.getWindow()
+						.getDecorView()
+						.setBackgroundDrawable(
+							this.getWindow().getDecorView().getBackground().getConstantState().newDrawable());
+		return false;
+	}
+
+	@Override
+	protected boolean isValidFragment(String fragmentName) {
+		return fragmentName.equals(PrefFragment.class.getName());
+	}
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class PrefFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+		private int mSyncType = 0;
+
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -140,15 +138,29 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 
 		@Override
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-			if ("syncStatuses".equals(key)) {
-				SyncService.clearCollection(getActivity());
+		public void onStop() {
+			super.onStop();
+			if (mSyncType > 0) {
+				SyncService.sync(getActivity(), mSyncType);
 			}
 		}
-	}
 
-	@Override
-	protected boolean isValidFragment(String fragmentName) {
-		return fragmentName.equals(PrefFragment.class.getName());
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			switch (key) {
+				case "syncStatuses":
+					SyncService.clearCollection(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_COLLECTION;
+					break;
+				case "syncPlays":
+					SyncService.clearPlays(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_PLAYS;
+					break;
+				case "syncBuddies":
+					SyncService.clearBuddies(getActivity());
+					mSyncType |= SyncService.FLAG_SYNC_BUDDIES;
+					break;
+			}
+		}
 	}
 }

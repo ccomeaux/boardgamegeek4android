@@ -1,9 +1,5 @@
 package com.boardgamegeek.provider;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,7 +13,12 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.util.NotificationUtils;
+import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseProvider {
 
@@ -32,7 +33,7 @@ public abstract class BaseProvider {
 	}
 
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection,
-		String[] selectionArgs, String sortOrder) {
+						   String[] selectionArgs, String sortOrder) {
 		SelectionBuilder builder = buildExpandedSelection(uri).where(selection, selectionArgs);
 		String fragment = uri.getQueryParameter(BggContract.PARAM_LIMIT);
 		if (fragment != null) {
@@ -70,7 +71,7 @@ public abstract class BaseProvider {
 	}
 
 	protected int update(Context context, SQLiteDatabase db, Uri uri, ContentValues values, String selection,
-		String[] selectionArgs) {
+						 String[] selectionArgs) {
 		int rowCount = buildSimpleSelection(uri).where(selection, selectionArgs).update(db, values);
 		notifyChange(context, uri);
 		return rowCount;
@@ -126,10 +127,13 @@ public abstract class BaseProvider {
 	}
 
 	protected void notifyException(Context context, SQLException e) {
-		NotificationCompat.Builder builder = NotificationUtils.createNotificationBuilder(context, R.string.title_error)
-			.setContentText(e.getLocalizedMessage()).setCategory(NotificationCompat.CATEGORY_ERROR);
-		builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(
-			e.getLocalizedMessage()));
-		NotificationUtils.notify(context, NotificationUtils.ID_PROVIDER_ERROR, builder);
+		if (PreferencesUtils.getSyncShowNotifications(context)) {
+			NotificationCompat.Builder builder = NotificationUtils
+				.createNotificationBuilder(context, R.string.title_error)
+				.setContentText(e.getLocalizedMessage())
+				.setCategory(NotificationCompat.CATEGORY_ERROR);
+			builder.setStyle(new NotificationCompat.BigTextStyle().bigText(e.toString()).setSummaryText(e.getLocalizedMessage()));
+			NotificationUtils.notify(context, NotificationUtils.ID_PROVIDER_ERROR, builder);
+		}
 	}
 }

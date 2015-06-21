@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_collection_sort"
-		android:icon="?attr/ic_action_sort"
+		android:icon="@drawable/ic_action_sort_light"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -51,7 +51,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_collection_filter"
-		android:icon="?attr/ic_action_filter_on"
+		android:icon="@drawable/ic_action_filter_on_light"
 		android:title="@string/menu_collection_filter_add"
 		app:showAsAction="ifRoom">
 		<menu>
@@ -92,17 +92,17 @@
 	</item>
 	<item
 		android:id="@+id/menu_collection_view_save"
-		android:icon="?attr/ic_action_save"
+		android:icon="@drawable/ic_action_save_light"
 		android:title="@string/menu_collection_view_save"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_collection_view_delete"
-		android:icon="?attr/ic_action_delete"
+		android:icon="@drawable/ic_action_delete_light"
 		android:title="@string/menu_collection_view_delete"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/menu_collection_random_game"
-		android:icon="?attr/ic_action_help"
+		android:icon="@drawable/ic_action_help_light"
 		android:title="@string/menu_collection_random_game"
 		app:showAsAction="never"/>
 

@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.dialog;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.interfaces.CollectionView;
 import com.boardgamegeek.filterer.ExpansionStatusFilterer;
+import com.boardgamegeek.interfaces.CollectionView;
 
 public class ExpansionStatusFilter {
 	private int mSelected = 0;
@@ -20,15 +20,15 @@ public class ExpansionStatusFilter {
 					mSelected = which;
 				}
 			}).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (mSelected == 0) {
-						view.removeFilter(new ExpansionStatusFilterer());
-					} else {
-						view.addFilter(new ExpansionStatusFilterer(context, mSelected));
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (mSelected == 0) {
+					view.removeFilter(new ExpansionStatusFilterer());
+				} else {
+					view.addFilter(new ExpansionStatusFilterer(context, mSelected));
 				}
-			}).setNegativeButton(R.string.cancel, null).create().show();
+			}
+		}).setNegativeButton(R.string.cancel, null).create().show();
 	}
 
 	private void init(ExpansionStatusFilterer filter) {

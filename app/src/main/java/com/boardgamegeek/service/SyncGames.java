@@ -7,13 +7,13 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.io.RetryableException;
+import com.boardgamegeek.model.Game;
 import com.boardgamegeek.model.ThingResponse;
 import com.boardgamegeek.model.persister.GamePersister;
 import com.boardgamegeek.util.StringUtils;
 import com.crashlytics.android.Crashlytics;
 
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
@@ -52,10 +52,11 @@ public abstract class SyncGames extends SyncTask {
 
 					GamePersister persister = new GamePersister(mContext);
 					ThingResponse response = getThingResponse(mService, gameIds);
-					if (response.games != null && response.games.size() > 0) {
-						int count = persister.save(response.games, detail);
-						syncResult.stats.numUpdates += response.games.size();
-						Timber.i("...saved " + count + " rows for " + response.games.size() + " games");
+					final List<Game> games = response.getGames();
+					if (games != null && games.size() > 0) {
+						int count = persister.save(games, detail);
+						syncResult.stats.numUpdates += games.size();
+						Timber.i("...saved " + count + " rows for " + games.size() + " games");
 					} else {
 						Timber.i("...no games returned (shouldn't happen)");
 					}
@@ -107,9 +108,7 @@ public abstract class SyncGames extends SyncTask {
 				}
 			}
 		}
-		ThingResponse response = new ThingResponse();
-		response.games = new ArrayList<>();
-		return response;
+		return new ThingResponse();
 	}
 
 	protected abstract String getIntroLogMessage();

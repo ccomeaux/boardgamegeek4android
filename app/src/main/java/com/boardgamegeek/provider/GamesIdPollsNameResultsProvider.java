@@ -12,8 +12,9 @@ import com.boardgamegeek.provider.BggContract.GamePollResults;
 import com.boardgamegeek.provider.BggContract.GamePolls;
 import com.boardgamegeek.provider.BggContract.Games;
 import com.boardgamegeek.provider.BggDatabase.Tables;
-import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.SelectionBuilder;
+
+import timber.log.Timber;
 
 public class GamesIdPollsNameResultsProvider extends BaseProvider {
 	private static final String DEFAULT_KEY = "X";
@@ -75,9 +76,8 @@ public class GamesIdPollsNameResultsProvider extends BaseProvider {
 					values.getAsString(GamePollResults.POLL_RESULTS_PLAYERS));
 			}
 		} catch (SQLException e) {
-			if (PreferencesUtils.getNotifyErrors(context)) {
-				notifyException(context, e);
-			}
+			Timber.e(e, "Problem inserting poll %2$s for game %1$s", gameId, pollName);
+			notifyException(context, e);
 		}
 		return null;
 	}

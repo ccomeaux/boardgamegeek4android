@@ -12,7 +12,10 @@ import com.boardgamegeek.pref.MultiSelectListPreference;
 import com.boardgamegeek.provider.BggContract;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utility for getting and putting preferences.
@@ -25,6 +28,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
+	public static final String KEY_SYNC_STATUSES = "syncStatuses";
 
 	private PreferencesUtils() {
 	}
@@ -102,8 +106,28 @@ public class PreferencesUtils {
 	}
 
 	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, "syncStatuses",
+		return getStringArray(context, KEY_SYNC_STATUSES,
 			context.getResources().getStringArray(R.array.pref_sync_status_default));
+	}
+
+	public static boolean addSyncStatus(Context context, String status) {
+		if (TextUtils.isEmpty(status)) {
+			return false;
+		}
+		if (isSyncStatus(context, status)) {
+			return false;
+		}
+
+		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
+		Set<String> set = new HashSet<>();
+		final int stringCount = statuses.length;
+		set.addAll(Arrays.asList(statuses).subList(0, stringCount));
+
+		set.add(status);
+
+		String s = MultiSelectListPreference.buildString(set);
+
+		return putString(context, KEY_SYNC_STATUSES, s);
 	}
 
 	public static boolean isSyncStatus(Context context) {
@@ -158,16 +182,8 @@ public class PreferencesUtils {
 		return getBoolean(context, "advancedForumDates", false);
 	}
 
-	public static boolean getDebug(Context context) {
+	public static boolean getAvoidBatching(Context context) {
 		return getBoolean(context, "advancedDebugInsert", false);
-	}
-
-	public static boolean getPolls(Context context) {
-		return getBoolean(context, "advancedPolls", true);
-	}
-
-	public static boolean getNotifyErrors(Context context) {
-		return getBoolean(context, "advancedNotifyErrors", false);
 	}
 
 	public static int getNewPlayId(Context context, int oldPlayId) {

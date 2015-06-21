@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -72,6 +73,16 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(STATE_BY_RATING, mByRating);
+	}
+
+	@Override
+	protected boolean padTop() {
+		return true;
+	}
+
+	@Override
+	protected boolean dividerShown() {
+		return true;
 	}
 
 	public void loadMoreResults() {
@@ -168,7 +179,7 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 
 	static class CommentData extends PaginatedData<Comment> {
 		public CommentData(ThingResponse response, int page) {
-			super(response.games.get(0).comments.comments, response.games.get(0).comments.totalitems, page,
+			super(response.getGames().get(0).comments.comments, response.getGames().get(0).comments.totalitems, page,
 				ThingResponse.PAGE_SIZE);
 		}
 
@@ -219,7 +230,12 @@ public class CommentsFragment extends BggListFragment implements OnScrollListene
 			holder.username.setText(comment.username);
 			holder.rating.setText(comment.getRatingText());
 			ColorUtils.setViewBackground(holder.rating, ColorUtils.getRatingColor(comment.getRating()));
-			holder.comment.setText(comment.value);
+			if (TextUtils.isEmpty(comment.value)) {
+				holder.comment.setVisibility(View.GONE);
+			} else {
+				holder.comment.setVisibility(View.VISIBLE);
+				holder.comment.setText(comment.value);
+			}
 		}
 	}
 }

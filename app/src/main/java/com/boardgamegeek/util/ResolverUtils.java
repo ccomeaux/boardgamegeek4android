@@ -34,7 +34,7 @@ public class ResolverUtils {
 	public static ContentProviderResult[] applyBatch(Context context, ArrayList<ContentProviderOperation> batch, String debugMessage) {
 		ContentResolver resolver = context.getContentResolver();
 		if (batch != null && batch.size() > 0) {
-			if (PreferencesUtils.getDebug(context)) {
+			if (PreferencesUtils.getAvoidBatching(context)) {
 				ContentProviderResult[] results = new ContentProviderResult[batch.size()];
 				for (int i = 0; i < batch.size(); i++) {
 					results[i] = applySingle(resolver, batch.get(i), debugMessage);

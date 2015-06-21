@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,7 +26,7 @@ import com.boardgamegeek.util.ToolbarUtils;
 import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 
-public class LocationActivity extends SimpleSinglePaneActivity  {
+public class LocationActivity extends SimpleSinglePaneActivity {
 	private int mCount;
 	private String mLocationName;
 	private AlertDialog mDialog;
@@ -37,16 +37,17 @@ public class LocationActivity extends SimpleSinglePaneActivity  {
 
 		final Intent intent = getIntent();
 		mLocationName = intent.getStringExtra(ActivityUtils.KEY_LOCATION_NAME);
-		setTitle(mLocationName);
+		setSubtitle();
 
 		EventBus.getDefault().removeStickyEvent(LocationSelectedEvent.class);
 	}
 
-	private void setTitle(String title) {
-		if (TextUtils.isEmpty(title)) {
-			title = getString(R.string.no_location);
+	private void setSubtitle() {
+		String text = mLocationName;
+		if (TextUtils.isEmpty(mLocationName)) {
+			text = getString(R.string.no_location);
 		}
-		getSupportActionBar().setSubtitle(title);
+		setSubtitle(text);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class LocationActivity extends SimpleSinglePaneActivity  {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						String newLocation = editText.getText().toString();
+						String newLocation = editText.getText().toString().trim();
 						RenameLocationTask task = new RenameLocationTask(LocationActivity.this, oldLocation, newLocation);
 						TaskUtils.executeAsyncTask(task);
 					}

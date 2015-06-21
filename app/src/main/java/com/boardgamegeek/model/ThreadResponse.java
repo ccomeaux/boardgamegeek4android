@@ -4,21 +4,29 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ThreadResponse {
-	@Attribute
+	@Attribute(required = false)
 	private int id;
 
 	@Attribute(name = "numarticles")
 	private int numberOfArticles;
 
-	@Attribute
+	@Attribute(required = false)
 	private String link;
 
-	@Element
+	@Element(required = false)
 	private String subject;
 
-	@ElementList
-	public List<Article> articles;
+	@ElementList(required = false)
+	private List<Article> articles;
+
+	public List<Article> getArticles() {
+		if (articles == null) {
+			return new ArrayList<>();
+		}
+		return articles;
+	}
 }

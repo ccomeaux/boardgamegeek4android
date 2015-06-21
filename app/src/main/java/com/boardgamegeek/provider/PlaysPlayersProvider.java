@@ -24,8 +24,9 @@ public class PlaysPlayersProvider extends BaseProvider {
 		}
 		switch (groupBy) {
 			case BggContract.QUERY_VALUE_NAME_NOT_USER:
-				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS).groupBy(PlayPlayers.NAME)
-					.whereEqualsOrNull(PlayPlayers.USER_NAME, "");
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS)
+					.whereEqualsOrNull(PlayPlayers.USER_NAME, "")
+					.groupBy(PlayPlayers.NAME);
 				break;
 			case BggContract.QUERY_VALUE_UNIQUE_NAME:
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS)
@@ -51,11 +52,19 @@ public class PlaysPlayersProvider extends BaseProvider {
 					.where(PlayPlayers.USER_NAME + "!=''")
 					.groupBy(PlayPlayers.USER_NAME);
 				break;
+			case BggContract.QUERY_VALUE_COLOR:
+				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
+					.mapToTable(Plays._ID, Tables.PLAY_PLAYERS)
+					.mapToTable(Plays.PLAY_ID, Tables.PLAY_PLAYERS)
+					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS)
+					.groupBy(PlayPlayers.COLOR);
+				break;
 			default:
 				builder = new SelectionBuilder().table(Tables.PLAY_PLAYERS_JOIN_PLAYS_JOIN_ITEMS)
 					.mapToTable(Plays._ID, Tables.PLAYS)
 					.mapToTable(Plays.PLAY_ID, Tables.PLAYS)
-					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS).groupBy(Plays.PLAY_ID);
+					.mapToTable(PlayItems.NAME, Tables.PLAY_ITEMS)
+					.groupBy(Plays.PLAY_ID);
 				break;
 		}
 		builder

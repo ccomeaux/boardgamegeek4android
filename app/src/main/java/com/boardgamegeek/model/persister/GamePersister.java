@@ -71,7 +71,7 @@ public class GamePersister {
 	}
 
 	public int save(List<Game> games, String debugMessage) {
-		boolean debug = PreferencesUtils.getDebug(mContext);
+		boolean debug = PreferencesUtils.getAvoidBatching(mContext);
 		int length = 0;
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 		if (games != null) {
@@ -98,9 +98,7 @@ public class GamePersister {
 				}
 				batch.add(cpo.withValues(values).build());
 				batch.addAll(ranks(game));
-				if (PreferencesUtils.getPolls(mContext)) {
-					batch.addAll(polls(game));
-				}
+				batch.addAll(polls(game));
 				batch.addAll(designerPersister.insertAndCreateAssociations(game.id, mResolver, game.getDesigners()));
 				batch.addAll(artistPersister.insertAndCreateAssociations(game.id, mResolver, game.getArtists()));
 				batch.addAll(publisherPersister.insertAndCreateAssociations(game.id, mResolver, game.getPublishers()));

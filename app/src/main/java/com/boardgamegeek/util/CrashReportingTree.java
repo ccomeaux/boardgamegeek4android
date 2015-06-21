@@ -1,5 +1,7 @@
 package com.boardgamegeek.util;
 
+import android.util.Log;
+
 import com.crashlytics.android.Crashlytics;
 
 import timber.log.Timber;
@@ -7,25 +9,17 @@ import timber.log.Timber;
 /**
  * A {@link timber.log.Timber.Tree} that reports crashes to Crashlytics.
  */
-public class CrashReportingTree extends Timber.HollowTree {
+public class CrashReportingTree extends Timber.Tree {
 	@Override
-	public void w(String message, Object... args) {
-		Crashlytics.log(String.format(message, args));
-	}
+	protected void log(int priority, String tag, String message, Throwable t) {
+		if (priority == Log.VERBOSE || priority == Log.DEBUG) {
+			return;
+		}
 
-	@Override
-	public void w(Throwable t, String message, Object... args) {
-		w(message, args);
-	}
+		Crashlytics.getInstance().core.log(priority, tag, message);
 
-	@Override
-	public void e(String message, Object... args) {
-		Crashlytics.log(String.format("ERROR: " + message, args));
-	}
-
-	@Override
-	public void e(Throwable t, String message, Object... args) {
-		e(message, args);
-		Crashlytics.logException(t);
+		if (t != null) {
+			Crashlytics.getInstance().core.logException(t);
+		}
 	}
 }
