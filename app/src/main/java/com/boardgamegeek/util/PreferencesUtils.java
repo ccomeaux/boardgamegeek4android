@@ -28,7 +28,7 @@ public class PreferencesUtils {
 	private static final String KEY_LAST_PLAY_PLAYERS = "last_play_players";
 	private static final String SEPARATOR_RECORD = "OV=I=XrecordX=I=VO";
 	private static final String SEPARATOR_FIELD = "OV=I=XfieldX=I=VO";
-	public static final String KEY_SYNC_STATUSES = "syncStatuses";
+	private static final String KEY_SYNC_STATUSES = "syncStatuses";
 
 	private PreferencesUtils() {
 	}
@@ -106,8 +106,7 @@ public class PreferencesUtils {
 	}
 
 	public static String[] getSyncStatuses(Context context) {
-		return getStringArray(context, KEY_SYNC_STATUSES,
-			context.getResources().getStringArray(R.array.pref_sync_status_default));
+		return getStringArray(context, KEY_SYNC_STATUSES, context.getResources().getStringArray(R.array.pref_sync_status_default));
 	}
 
 	public static boolean addSyncStatus(Context context, String status) {
@@ -118,10 +117,14 @@ public class PreferencesUtils {
 			return false;
 		}
 
-		String[] statuses = getStringArray(context, KEY_SYNC_STATUSES, null);
 		Set<String> set = new HashSet<>();
-		final int stringCount = statuses.length;
-		set.addAll(Arrays.asList(statuses).subList(0, stringCount));
+		String[] statuses = getSyncStatuses(context);
+		if (statuses != null) {
+			final int stringCount = statuses.length;
+			if (stringCount > 0) {
+				set.addAll(Arrays.asList(statuses).subList(0, stringCount));
+			}
+		}
 
 		set.add(status);
 
