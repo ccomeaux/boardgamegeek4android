@@ -228,7 +228,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 	@DebugLog
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 
 		mHandler = new Handler();
 
@@ -365,16 +364,6 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 		outState.putBoolean(KEY_DESCRIPTION_EXPANDED, mIsDescriptionExpanded);
 		outState.putBoolean(KEY_STATS_EXPANDED, mIsStatsExpanded);
 		outState.putBoolean(KEY_LINKS_EXPANDED, mIsLinksExpanded);
-	}
-
-	@Override
-	@DebugLog
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menu_refresh) {
-			triggerRefresh();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

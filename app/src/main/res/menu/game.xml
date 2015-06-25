@@ -33,10 +33,5 @@
 		android:icon="@drawable/ic_action_flash_light"
 		android:title="@string/menu_create_shortcut"
 		app:showAsAction="never"/>
-	<item
-		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/menu_refresh"
-		app:showAsAction="never"/>
 
 </menu>
