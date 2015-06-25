@@ -11,8 +11,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.graphics.Palette;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -29,6 +32,8 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.provider.BggContract.Artists;
 import com.boardgamegeek.provider.BggContract.Categories;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -45,6 +50,7 @@ import com.boardgamegeek.ui.adapter.GameColorAdapter;
 import com.boardgamegeek.ui.widget.GameCollectionRow;
 import com.boardgamegeek.ui.widget.GameDetailRow;
 import com.boardgamegeek.ui.widget.ObservableScrollView;
+import com.boardgamegeek.ui.widget.ObservableScrollView.Callbacks;
 import com.boardgamegeek.ui.widget.StatBar;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.AnimationUtils;
@@ -54,6 +60,7 @@ import com.boardgamegeek.util.DateTimeUtils;
 import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.ImageUtils;
+import com.boardgamegeek.util.ImageUtils.Callback;
 import com.boardgamegeek.util.PaletteUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.PresentationUtils;
@@ -70,13 +77,11 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.InjectViews;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-public class GameFragment extends Fragment implements
-	LoaderManager.LoaderCallbacks<Cursor>,
-	ImageUtils.Callback,
-	ObservableScrollView.Callbacks {
+public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, Callback, Callbacks, OnRefreshListener {
 	private static final int HELP_VERSION = 1;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final String KEY_DESCRIPTION_EXPANDED = "DESCRIPTION_EXPANDED";
@@ -89,7 +94,9 @@ public class GameFragment extends Fragment implements
 	private Uri mGameUri;
 	private String mGameName;
 	private String mImageUrl;
+	private boolean mSyncing;
 
+	@InjectView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefreshLayout;
 	@InjectView(R.id.scroll_root) ObservableScrollView mScrollRoot;
 	@InjectView(R.id.progress) View mProgressView;
 	@InjectView(R.id.hero_container) View mHeroContainer;
@@ -246,6 +253,10 @@ public class GameFragment extends Fragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_game, container, false);
 		ButterKnife.inject(this, rootView);
+
+		mSwipeRefreshLayout.setOnRefreshListener(this);
+		mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
+
 		colorize();
 		openOrCloseDescription();
 		openOrCloseStats();
@@ -269,6 +280,13 @@ public class GameFragment extends Fragment implements
 			lm.restartLoader(ColorQuery._TOKEN, null, this);
 		}
 		return rootView;
+	}
+
+	@DebugLog
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override
@@ -306,6 +324,12 @@ public class GameFragment extends Fragment implements
 	public void onDetach() {
 		super.onDetach();
 		mCallbacks = sDummyCallbacks;
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
 	}
 
 	@Override
@@ -351,6 +375,11 @@ public class GameFragment extends Fragment implements
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onRefresh() {
+		triggerRefresh();
 	}
 
 	@Override
@@ -498,6 +527,30 @@ public class GameFragment extends Fragment implements
 	}
 
 	@DebugLog
+	public void onEventMainThread(UpdateEvent event) {
+		mSyncing = event.type == UpdateService.SYNC_TYPE_GAME;
+		updateRefreshStatus();
+	}
+
+	@DebugLog
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		mSyncing = false;
+		updateRefreshStatus();
+	}
+
+	@DebugLog
+	private void updateRefreshStatus() {
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.post(new Runnable() {
+				@Override
+				public void run() {
+					mSwipeRefreshLayout.setRefreshing(mSyncing);
+				}
+			});
+		}
+	}
+
+	@DebugLog
 	private void colorize() {
 		if (mPalette == null || mPrimaryInfo == null) {
 			return;
@@ -583,7 +636,7 @@ public class GameFragment extends Fragment implements
 		mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
 
 		AnimationUtils.fadeOut(getActivity(), mProgressView, true);
-		AnimationUtils.fadeIn(getActivity(), mScrollRoot, true);
+		AnimationUtils.fadeIn(getActivity(), mSwipeRefreshLayout, true);
 
 		if (mMightNeedRefreshing
 			&& (game.PollsCount == 0 || DateTimeUtils.howManyDaysOld(game.Updated) > AGE_IN_DAYS_TO_REFRESH)) {

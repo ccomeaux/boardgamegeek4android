@@ -26,6 +26,8 @@ import com.boardgamegeek.util.DialogUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.ShortcutUtils;
 
+import hugo.weaving.DebugLog;
+
 public class GameActivity extends SimpleSinglePaneActivity implements GameFragment.Callbacks {
 	private static final int REQUEST_EDIT_PLAY = 1;
 	private int mGameId;
@@ -36,6 +38,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	private boolean mSyncing = false;
 	private Menu mOptionsMenu;
 
+	@DebugLog
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,16 +57,19 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		});
 	}
 
+	@DebugLog
 	@Override
 	protected Fragment onCreatePane(Intent intent) {
 		return new GameFragment();
 	}
 
+	@DebugLog
 	@Override
 	protected int getOptionsMenuId() {
 		return R.menu.game;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -74,6 +80,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		return true;
 	}
 
+	@DebugLog
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -118,6 +125,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		return getIntent().getBooleanExtra(ActivityUtils.KEY_FROM_SHORTCUT, false);
 	}
 
+	@DebugLog
 	@Override
 	public void onGameInfoChanged(GameInfo gameInfo) {
 		changeName(gameInfo.gameName);
@@ -127,6 +135,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		mCustomPlayerSort = gameInfo.customPlayerSort;
 	}
 
+	@DebugLog
 	private void changeName(String gameName) {
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
@@ -135,6 +144,7 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		}
 	}
 
+	@DebugLog
 	private void changeSubtype(String subtype) {
 		if (subtype == null) {
 			return;
