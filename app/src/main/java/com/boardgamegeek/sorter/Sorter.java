@@ -89,7 +89,7 @@ public abstract class Sorter {
 	public abstract int getType();
 
 	protected String getClause(String columnName, boolean isDescending) {
-		if (TextUtils.isEmpty(columnName)){
+		if (TextUtils.isEmpty(columnName)) {
 			return getDefaultSort();
 		}
 		return columnName + (isDescending ? " DESC, " : " ASC, ") + getDefaultSort();
@@ -99,7 +99,7 @@ public abstract class Sorter {
 
 	protected long getLong(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index == -1) {
+		if (index == -1 || index >= cursor.getColumnCount()) {
 			return 0;
 		}
 		return cursor.getLong(index);
@@ -111,7 +111,7 @@ public abstract class Sorter {
 
 	protected int getInt(Cursor cursor, String columnName, int defaultValue) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index == -1) {
+		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
 		}
 		return cursor.getInt(index);
@@ -123,7 +123,7 @@ public abstract class Sorter {
 
 	protected String getIntAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index == -1) {
+		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
 		}
 
@@ -135,14 +135,6 @@ public abstract class Sorter {
 		return String.valueOf(value);
 	}
 
-	protected Double getDouble(Cursor cursor, String columnName) {
-		int index = cursor.getColumnIndex(columnName);
-		if (index != -1) {
-			return cursor.getDouble(index);
-		}
-		return null;
-	}
-
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue) {
 		return getDoubleAsString(cursor, columnName, defaultValue, false, mDoubleFormat);
 	}
@@ -150,7 +142,7 @@ public abstract class Sorter {
 	protected String getDoubleAsString(Cursor cursor, String columnName, String defaultValue, boolean treatZeroAsNull,
 									   DecimalFormat format) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index == -1) {
+		if (index == -1 || index >= cursor.getColumnCount()) {
 			return defaultValue;
 		}
 
@@ -177,13 +169,13 @@ public abstract class Sorter {
 
 	protected String getString(Cursor cursor, String columnName, String defaultValue) {
 		int index = cursor.getColumnIndex(columnName);
-		if (index != -1) {
-			String s = cursor.getString(index);
-			if (TextUtils.isEmpty(s)) {
-				return defaultValue;
-			}
-			return s;
+		if (index == -1 || index >= cursor.getColumnCount()) {
+			return defaultValue;
 		}
-		return defaultValue;
+		String s = cursor.getString(index);
+		if (TextUtils.isEmpty(s)) {
+			return defaultValue;
+		}
+		return s;
 	}
 }

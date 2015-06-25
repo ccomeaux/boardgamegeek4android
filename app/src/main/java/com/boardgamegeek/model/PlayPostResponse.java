@@ -29,6 +29,10 @@ public class PlayPostResponse {
 				&& mException.getCause().getCause() instanceof AuthException) {
 				return true;
 			}
+		} else {
+			if (TextUtils.isEmpty(html)) {
+				return true;
+			}
 		}
 		return false;
 	}
