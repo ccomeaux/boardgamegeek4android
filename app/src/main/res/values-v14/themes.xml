@@ -19,7 +19,10 @@
         <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
 	</style>
 
-	<style name="Theme.bgglight.Settings" parent="@android:style/Theme.Holo.Light">
+	<style name="Theme.bgglight.Settings" parent="@style/Theme.AppCompat.Light">
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
 		<item name="actionBarItemBackground">@drawable/selectable_background_bgglight</item>
 		<item name="popupMenuStyle">@style/bgglight_PopupMenu</item>
 		<item name="dropDownListViewStyle">@style/bgglight_DropDownListView</item>

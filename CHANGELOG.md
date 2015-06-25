@@ -4,6 +4,11 @@ Release Notes
 Coming Soon
 -----------
 
+Version 5.1.1
+-------------
+ * Fix crash when accessing settings on pre-Lollipop devices
+ * Bug fixes and stability improvements
+
 Version 5.1
 -----------
  * Export/import some data (under Advanced Settings)

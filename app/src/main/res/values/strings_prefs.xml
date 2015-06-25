@@ -100,6 +100,9 @@
 	<string name="pref_about_app_name_and_version"><![CDATA[<b>BoardGameGeek</b> <font color="#888888">%s</font>]]></string>
 	<string name="pref_about_body"><![CDATA[
 <h4>What\'s New?</h4>
+<h5>5.1.1.</h5>
+<li>Fix crash when accessing settings on pre-Lollipop devices</li>
+<li>Bug fixes and stability improvements</li>
 <h5>5.1</h5>
 <ul>
 </ul>
