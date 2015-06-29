@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.view.MenuItemCompat;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,11 +14,8 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
-import com.boardgamegeek.events.UpdateCompleteEvent;
-import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.io.BggService;
 import com.boardgamegeek.provider.BggContract.Games;
-import com.boardgamegeek.service.UpdateService;
 import com.boardgamegeek.ui.GameFragment.GameInfo;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.DialogUtils;
@@ -35,8 +31,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	private String mThumbnailUrl;
 	private String mImageUrl;
 	private boolean mCustomPlayerSort;
-	private boolean mSyncing = false;
-	private Menu mOptionsMenu;
 
 	@DebugLog
 	@Override
@@ -73,8 +67,6 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		mOptionsMenu = menu;
-		updateRefreshStatus();
 		menu.findItem(R.id.menu_log_play).setVisible(PreferencesUtils.showLogPlay(this));
 		menu.findItem(R.id.menu_log_play_quick).setVisible(PreferencesUtils.showQuickLogPlay(this));
 		return true;
@@ -162,33 +154,5 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				break;
 		}
 		getSupportActionBar().setSubtitle(getString(resId));
-	}
-
-	public void onEventMainThread(UpdateEvent event) {
-		mSyncing =
-			event.type == UpdateService.SYNC_TYPE_GAME ||
-			event.type == UpdateService.SYNC_TYPE_GAME_COLLECTION ||
-			event.type == UpdateService.SYNC_TYPE_GAME_PLAYS;
-		updateRefreshStatus();
-	}
-
-	public void onEventMainThread(UpdateCompleteEvent event) {
-		mSyncing = false;
-		updateRefreshStatus();
-	}
-
-	private void updateRefreshStatus() {
-		if (mOptionsMenu == null) {
-			return;
-		}
-
-		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
-		if (refreshItem != null) {
-			if (mSyncing) {
-				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
-			} else {
-				MenuItemCompat.setActionView(refreshItem, null);
-			}
-		}
 	}
 }
