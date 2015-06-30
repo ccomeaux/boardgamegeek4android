@@ -202,7 +202,7 @@
 	<string name="search_error_bad_intent">Received bad intent action: </string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
-	<string name="menu_view_in_browser">View in broswer</string>
+	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_refresh">Refresh</string>
@@ -410,7 +410,7 @@
 	<string name="play_stat_hours_played">Hours played</string>
 	<string name="play_stat_months_played">Months played</string>
 	<string name="play_stat_play_rate">Plays per month</string>
-	<string name="play_stat_status_played_not_synced">These stats are more accurate of if you synced your Played games. Do you want to modify your prefences?</string>
+	<string name="play_stat_status_played_not_synced">These stats are more accurate if you sync your Played games. Do you want to modify your preferences?</string>
 	<string name="play_stat_status_played_not_synced_message">Do you want to sync your Played games?</string>
 
 	<plurals name="msg_colors_deleted">

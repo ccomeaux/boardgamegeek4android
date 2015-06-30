@@ -13,12 +13,15 @@ public class NetworkUtils {
 
 	public static boolean isOffline(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		return cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
+		return cm == null || cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
 	}
 
 	public static boolean isOnWiFi(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (cm == null) {
+			return false;
+		}
 		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-		return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+		return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 	}
 }

@@ -27,4 +27,5 @@
 	<color name="not_recommended">#ed1C24</color>
 
 	<color name="list_divider">#1F000000</color>
+	<color name="button_under_text">#2000</color>
 </resources>
