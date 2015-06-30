@@ -67,7 +67,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 	@DebugLog
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.menu_cancel_sync).setVisible(SyncService.isActiveOrPending(this));
+		final MenuItem item = menu.findItem(R.id.menu_cancel_sync);
+		if (item != null) {
+			item.setVisible(SyncService.isActiveOrPending(this));
+		}
 		return super.onPrepareOptionsMenu(menu);
 	}
 
