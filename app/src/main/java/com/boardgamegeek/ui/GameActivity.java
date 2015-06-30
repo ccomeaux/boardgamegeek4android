@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +37,10 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		final ActionBar supportActionBar = getSupportActionBar();
+		if (supportActionBar != null) {
+			supportActionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		mGameId = Games.getGameId(getIntent().getData());
 		changeName(getIntent().getStringExtra(ActivityUtils.KEY_GAME_NAME));
@@ -132,7 +136,10 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 		mGameName = gameName;
 		if (!TextUtils.isEmpty(gameName)) {
 			getIntent().putExtra(ActivityUtils.KEY_GAME_NAME, gameName);
-			getSupportActionBar().setTitle(gameName);
+			final ActionBar supportActionBar = getSupportActionBar();
+			if (supportActionBar != null) {
+				supportActionBar.setTitle(gameName);
+			}
 		}
 	}
 
@@ -153,6 +160,9 @@ public class GameActivity extends SimpleSinglePaneActivity implements GameFragme
 				resId = R.string.title_board_game_accessory;
 				break;
 		}
-		getSupportActionBar().setSubtitle(getString(resId));
+		final ActionBar supportActionBar = getSupportActionBar();
+		if (supportActionBar != null) {
+			supportActionBar.setSubtitle(getString(resId));
+		}
 	}
 }
