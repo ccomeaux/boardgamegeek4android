@@ -22,7 +22,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -494,7 +493,7 @@ public class GameFragment extends Fragment implements LoaderCallbacks<Cursor>, C
 
 	@Override
 	@DebugLog
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
