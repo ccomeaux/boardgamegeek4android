@@ -30,6 +30,10 @@ public class SyncCollectionComplete extends SyncTask {
 	public SyncCollectionComplete(Context context, BggService service) {
 		super(context, service);
 	}
+	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
+	}
 
 	@Override
 	public void execute(Account account, SyncResult syncResult) {

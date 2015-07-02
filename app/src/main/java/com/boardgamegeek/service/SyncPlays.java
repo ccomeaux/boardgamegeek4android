@@ -25,6 +25,11 @@ public class SyncPlays extends SyncTask {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_PLAYS_DOWNLOAD;
+	}
+
+	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		Timber.i("Syncing plays...");
 		try {
@@ -100,7 +105,7 @@ public class SyncPlays extends SyncTask {
 		}
 	}
 
-	protected String paginateDetail(String detail, int page) {
+	private String paginateDetail(String detail, int page) {
 		if (page > 1) {
 			return detail + " (page " + page + ")";
 		}

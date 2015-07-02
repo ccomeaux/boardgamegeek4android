@@ -26,6 +26,11 @@ public class SyncCollectionModifiedSince extends SyncTask {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
+	}
+
+	@Override
 	public void execute(Account account, SyncResult syncResult) {
 		AccountManager accountManager = AccountManager.get(mContext);
 		long date = Authenticator.getLong(accountManager, account, SyncService.TIMESTAMP_COLLECTION_PARTIAL);

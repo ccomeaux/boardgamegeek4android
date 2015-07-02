@@ -19,6 +19,11 @@ public class SyncGamesUnupdated extends SyncGames {
 	}
 
 	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
+	}
+
+	@Override
 	protected String getIntroLogMessage() {
 		return "Syncing unupdated games in the collection...";
 	}

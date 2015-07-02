@@ -1,9 +1,5 @@
 package com.boardgamegeek.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.accounts.Account;
 import android.content.Context;
 import android.content.SyncResult;
@@ -17,6 +13,10 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.util.ResolverUtils;
 import com.boardgamegeek.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import timber.log.Timber;
 
 /**
@@ -27,6 +27,11 @@ public class SyncCollectionUnupdated extends SyncTask {
 
 	public SyncCollectionUnupdated(Context context, BggService service) {
 		super(context, service);
+	}
+
+	@Override
+	public int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
 	@Override
