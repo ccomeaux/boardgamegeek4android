@@ -7,10 +7,5 @@
 		android:title=""
 		app:actionLayout="@layout/actionbar_text"
 		app:showAsAction="ifRoom"/>
-	<item
-		android:id="@+id/menu_refresh"
-		android:icon="@drawable/ic_action_refresh_light"
-		android:title="@string/menu_refresh"
-		app:showAsAction="ifRoom"/>
 
 </menu>
