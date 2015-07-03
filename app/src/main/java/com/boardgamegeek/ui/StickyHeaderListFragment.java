@@ -57,10 +57,14 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if (mSwipeRefreshLayout != null) {
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
-				mSwipeRefreshLayout.setEnabled((getSyncType() != SyncService.FLAG_SYNC_NONE) && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
+				mSwipeRefreshLayout.setEnabled(isRefreshable() && (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
 			}
 		}
 	};
+
+	protected boolean isRefreshable() {
+		return getSyncType() != SyncService.FLAG_SYNC_NONE;
+	}
 
 	private StickyListHeadersAdapter mAdapter;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -150,17 +154,22 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 	@DebugLog
 	public void onEventMainThread(SyncEvent event) {
-		mSyncing = (event.type & getSyncType()) == getSyncType();
-		updateRefreshStatus();
+		if ((event.type & getSyncType()) == getSyncType()) {
+			isSyncing(true);
+		}
+	}
+
+	@DebugLog
+	public void onEventMainThread(SyncCompleteEvent event) {
+		isSyncing(false);
 	}
 
 	protected int getSyncType() {
 		return SyncService.FLAG_SYNC_NONE;
 	}
 
-	@DebugLog
-	public void onEventMainThread(SyncCompleteEvent event) {
-		mSyncing = false;
+	protected void isSyncing(boolean value) {
+		mSyncing = value;
 		updateRefreshStatus();
 	}
 
@@ -310,7 +319,7 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_refresh);
 		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setEnabled(getSyncType() != SyncService.FLAG_SYNC_NONE);
+			mSwipeRefreshLayout.setEnabled(isRefreshable());
 			mSwipeRefreshLayout.setOnRefreshListener(this);
 			mSwipeRefreshLayout.setColorSchemeResources(R.color.primary_dark, R.color.primary);
 		}

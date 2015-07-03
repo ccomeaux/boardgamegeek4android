@@ -30,6 +30,8 @@ import com.boardgamegeek.events.PlaySelectedEvent;
 import com.boardgamegeek.events.PlaysCountChangedEvent;
 import com.boardgamegeek.events.PlaysFilterChangedEvent;
 import com.boardgamegeek.events.PlaysSortChangedEvent;
+import com.boardgamegeek.events.UpdateCompleteEvent;
+import com.boardgamegeek.events.UpdateEvent;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Buddies;
@@ -262,6 +264,19 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
+	public void onEventMainThread(UpdateEvent event) {
+		isSyncing(event.type == UpdateService.SYNC_TYPE_GAME_PLAYS);
+	}
+
+	public void onEventMainThread(UpdateCompleteEvent event) {
+		isSyncing(false);
+	}
+
+	@Override
+	protected boolean isRefreshable() {
+		return super.isRefreshable() || (mMode == MODE_GAME);
+	}
+
 	private void requery() {
 		if (mMode == MODE_ALL || mMode == MODE_LOCATION || mMode == MODE_GAME) {
 			getLoaderManager().restartLoader(SumQuery._TOKEN, getArguments(), this);
@@ -472,6 +487,14 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 	}
 
+	@DebugLog
+	@Override
+	protected int getSyncType() {
+		return mMode == MODE_GAME ? SyncService.FLAG_SYNC_NONE : SyncService.FLAG_SYNC_PLAYS;
+	}
+
+	@DebugLog
+	@Override
 	public void triggerRefresh() {
 		switch (mMode) {
 			case MODE_ALL:
