@@ -20,6 +20,7 @@ import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.events.BuddiesCountChangedEvent;
 import com.boardgamegeek.events.BuddySelectedEvent;
 import com.boardgamegeek.provider.BggContract.Buddies;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.ui.model.Buddy;
 import com.boardgamegeek.util.CursorUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -37,21 +38,6 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 	private static final String SORT_COLUMN = Buddies.BUDDY_LASTNAME;
 	private BuddiesAdapter mAdapter;
 	private int mSelectedBuddyId;
-
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
 
 	@DebugLog
 	@Override
@@ -80,6 +66,17 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		if (mAdapter != null) {
 			mAdapter.notifyDataSetChanged();
 		}
+	}
+
+	@DebugLog
+	@Override
+	protected void triggerRefresh() {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_BUDDIES);
+	}
+
+	@Override
+	protected int getSyncType() {
+		return SyncService.FLAG_SYNC_BUDDIES;
 	}
 
 	@DebugLog

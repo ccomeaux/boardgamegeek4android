@@ -27,6 +27,7 @@ import com.boardgamegeek.util.StringUtils;
 
 public class SyncService extends Service {
 	public static final String EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE";
+	public static final int FLAG_SYNC_NONE = 0x00000000;
 	public static final int FLAG_SYNC_COLLECTION = 0x00000001;
 	public static final int FLAG_SYNC_BUDDIES = 0x00000002;
 	public static final int FLAG_SYNC_PLAYS_DOWNLOAD = 0x00000004;

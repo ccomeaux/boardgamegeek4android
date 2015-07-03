@@ -140,20 +140,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		ActionMode.setMultiChoiceMode(getListView().getWrappedList(), getActivity(), this);
 	}
 
-	@DebugLog
-	@Override
-	public void onStart() {
-		super.onStart();
-		EventBus.getDefault().registerSticky(this);
-	}
-
-	@DebugLog
-	@Override
-	public void onStop() {
-		EventBus.getDefault().unregister(this);
-		super.onStop();
-	}
-
 	@Override
 	public void onListItemClick(View view, int position, long id) {
 		Cursor cursor = (Cursor) mAdapter.getItem(position);
