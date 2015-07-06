@@ -164,7 +164,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 		}
 		showMenuItemSafely(menu, R.id.menu_sort, showOptions);
 		showMenuItemSafely(menu, R.id.menu_filter, showOptions);
-		showMenuItemSafely(menu, R.id.menu_refresh, showOptions);
 		showMenuItemSafely(menu, R.id.menu_refresh_on, showOptions);
 		if (showOptions) {
 			switch (mFilterType) {
@@ -240,9 +239,6 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 				return true;
 			case R.id.menu_filter_pending:
 				filter(Play.SYNC_STATUS_PENDING, title);
-				return true;
-			case R.id.menu_refresh:
-				triggerRefresh();
 				return true;
 			case R.id.menu_refresh_on:
 				new DatePickerFragment().show(getActivity().getSupportFragmentManager(), "datePicker");
