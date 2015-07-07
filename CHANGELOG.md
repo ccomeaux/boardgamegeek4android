@@ -3,6 +3,7 @@ Release Notes
 
 Coming Soon
 -----------
+ * Pull to refresh pretty much everywhere there used to be a menu option
 
 Version 5.1.1
 -------------
