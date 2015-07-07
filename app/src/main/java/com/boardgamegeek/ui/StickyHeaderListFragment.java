@@ -50,7 +50,6 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 	final private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-
 		}
 
 		@Override
@@ -164,10 +163,12 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		isSyncing(false);
 	}
 
+	@DebugLog
 	protected int getSyncType() {
 		return SyncService.FLAG_SYNC_NONE;
 	}
 
+	@DebugLog
 	protected void isSyncing(boolean value) {
 		mSyncing = value;
 		updateRefreshStatus();
@@ -360,5 +361,4 @@ public abstract class StickyHeaderListFragment extends Fragment implements OnRef
 		}
 		mHandler.post(mRequestFocus);
 	}
-
 }

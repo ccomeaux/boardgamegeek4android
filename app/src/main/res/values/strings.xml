@@ -205,7 +205,6 @@
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_quick">Quick log play</string>
-	<string name="menu_refresh">Refresh</string>
 	<string name="menu_refresh_on">Refresh on…</string>
 	<string name="menu_discard_changes">Discard changes</string>
 	<string name="links">Links</string>

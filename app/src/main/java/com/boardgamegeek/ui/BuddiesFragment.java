@@ -74,6 +74,7 @@ public class BuddiesFragment extends StickyHeaderListFragment implements LoaderM
 		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_BUDDIES);
 	}
 
+	@DebugLog
 	@Override
 	protected int getSyncType() {
 		return SyncService.FLAG_SYNC_BUDDIES;
