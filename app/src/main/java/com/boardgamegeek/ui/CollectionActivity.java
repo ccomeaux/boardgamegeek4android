@@ -1,16 +1,13 @@
 package com.boardgamegeek.ui;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
@@ -23,7 +20,6 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
-import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ActivityUtils;
 import com.boardgamegeek.util.HelpUtils;
 import com.boardgamegeek.util.PreferencesUtils;
@@ -38,8 +34,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	private static final String STATE_COUNT = "STATE_COUNT";
 	private static final String STATE_SORT_NAME = "STATE_SORT_NAME";
 
-	private Menu mOptionsMenu;
-	private Object mSyncObserverHandle;
 	private boolean mShortcut;
 	private CollectionViewAdapter mAdapter;
 	private long mViewId = -2;
@@ -88,35 +82,8 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 	}
 
 	@Override
-	@DebugLog
-	protected void onPause() {
-		super.onPause();
-		if (mSyncObserverHandle != null) {
-			ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
-			mSyncObserverHandle = null;
-		}
-	}
-
-	@Override
-	@DebugLog
-	protected void onResume() {
-		super.onResume();
-		mSyncStatusObserver.onStatusChanged(0);
-		mSyncObserverHandle = ContentResolver.addStatusChangeListener(ContentResolver.SYNC_OBSERVER_TYPE_PENDING
-			| ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE, mSyncStatusObserver);
-	}
-
-	@Override
 	protected boolean isTitleHidden() {
 		return mIsTitleHidden;
-	}
-
-	@Override
-	@DebugLog
-	public boolean onCreateOptionsMenu(Menu menu) {
-		mOptionsMenu = menu;
-		mSyncStatusObserver.onStatusChanged(0);
-		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -245,34 +212,6 @@ public class CollectionActivity extends TopLevelSinglePaneActivity implements Lo
 		}
 		return index;
 	}
-
-	@DebugLog
-	private void setRefreshActionButtonState(boolean refreshing) {
-		if (mOptionsMenu == null) {
-			return;
-		}
-
-		final MenuItem refreshItem = mOptionsMenu.findItem(R.id.menu_refresh);
-		if (refreshItem != null) {
-			if (refreshing) {
-				MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
-			} else {
-				MenuItemCompat.setActionView(refreshItem, null);
-			}
-		}
-	}
-
-	private final SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
-		@Override
-		public void onStatusChanged(int which) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					setRefreshActionButtonState(SyncService.isActiveOrPending(CollectionActivity.this));
-				}
-			});
-		}
-	};
 
 	private static class CollectionViewAdapter extends SimpleCursorAdapter {
 		private LayoutInflater mInflater;
