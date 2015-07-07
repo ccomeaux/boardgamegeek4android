@@ -256,10 +256,13 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.menu_send).setVisible(mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS);
-		MenuItem refreshMenuItem = menu.findItem(R.id.menu_refresh);
-		refreshMenuItem.setEnabled(mPlay.hasBeenSynced());
-		if (mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
-			refreshMenuItem.setTitle(R.string.menu_discard_changes);
+		MenuItem menuItem = menu.findItem(R.id.menu_discard);
+		if (menuItem != null &&
+			mPlay.hasBeenSynced() &&
+			mPlay.syncStatus == Play.SYNC_STATUS_IN_PROGRESS) {
+			menuItem.setVisible(true);
+		} else {
+			menuItem.setVisible(false);
 		}
 		menu.findItem(R.id.menu_share).setEnabled(mPlay.syncStatus == Play.SYNC_STATUS_SYNCED);
 
@@ -269,21 +272,16 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_refresh:
-				if (mPlay.syncStatus != Play.SYNC_STATUS_SYNCED) {
-					DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								save(Play.SYNC_STATUS_SYNCED);
-							}
-						}).show();
-				} else {
-					triggerRefresh();
-				}
+			case R.id.menu_discard:
+				DialogUtils.createConfirmationDialog(getActivity(), R.string.are_you_sure_refresh_message,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							save(Play.SYNC_STATUS_SYNCED);
+						}
+					}).show();
 				return true;
 			case R.id.menu_edit:
-				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl,
-					mImageUrl);
+				ActivityUtils.editPlay(getActivity(), mPlay.playId, mPlay.gameId, mPlay.gameName, mThumbnailUrl, mImageUrl);
 				return true;
 			case R.id.menu_send:
 				save(Play.SYNC_STATUS_PENDING_UPDATE);
