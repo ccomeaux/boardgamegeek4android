@@ -261,7 +261,7 @@ public class PlaysFragment extends StickyHeaderListFragment implements LoaderMan
 	}
 
 	public void onEventMainThread(UpdateEvent event) {
-		isSyncing(event.type == UpdateService.SYNC_TYPE_GAME_PLAYS);
+		isSyncing((event.type == UpdateService.SYNC_TYPE_GAME_PLAYS) || (event.type == UpdateService.SYNC_TYPE_PLAYS_DATE));
 	}
 
 	public void onEventMainThread(UpdateCompleteEvent event) {
