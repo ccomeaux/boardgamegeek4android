@@ -37,6 +37,7 @@ import com.boardgamegeek.provider.BggContract.Collection;
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters;
 import com.boardgamegeek.provider.BggContract.CollectionViews;
 import com.boardgamegeek.provider.BggContract.Games;
+import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.sorter.CollectionSorter;
 import com.boardgamegeek.sorter.CollectionSorterFactory;
 import com.boardgamegeek.ui.dialog.AverageRatingFilter;
@@ -357,6 +358,18 @@ public class CollectionFragment extends StickyHeaderListFragment implements Load
 		}
 
 		return launchFilterDialog(item.getItemId()) || super.onOptionsItemSelected(item);
+	}
+
+	@DebugLog
+	@Override
+	protected void triggerRefresh() {
+		SyncService.sync(getActivity(), SyncService.FLAG_SYNC_COLLECTION);
+	}
+
+	@DebugLog
+	@Override
+	protected int getSyncType() {
+		return SyncService.FLAG_SYNC_COLLECTION;
 	}
 
 	@Override
